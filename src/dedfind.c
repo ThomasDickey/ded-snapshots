@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	Id[] = "$Id: dedfind.c,v 11.5 1992/08/24 08:19:32 dickey Exp $";
+static	char	Id[] = "$Id: dedfind.c,v 12.0 1992/12/02 09:31:16 ste_cm Rel $";
 #endif
 
 /*
@@ -7,6 +7,7 @@ static	char	Id[] = "$Id: dedfind.c,v 11.5 1992/08/24 08:19:32 dickey Exp $";
  * Author:	T.E.Dickey
  * Created:	18 Nov 1987
  * Modified:
+ *		02 Dec 1992, show message "no other match".
  *		01 Apr 1992, convert most global variables to RING-struct.
  *		18 Oct 1991, converted to ANSI
  *		11 Jul 1991, interface to 'to_work()'
@@ -30,7 +31,7 @@ public	void	dedfind(
 {
 	register char	*s;
 	int	j,k,
-		found	= FALSE,
+		found,
 		next	= 0;
 	static	DYN	*text;
 	static	HIST	*History;
@@ -74,11 +75,15 @@ public	void	dedfind(
 			} else if (gLTXT(j) != 0) {
 				if (found = GOT_REGEX(expr,gLTXT(j)))
 					break;
+			} else if (j == gbl->curfile) {
+				found = FALSE;
+				break;
 			}
-			if (j == gbl->curfile)	break;
 		}
 		if (found) {
 			markC(gbl,FALSE);
+			if (j == gbl->curfile)
+				dedmsg(gbl, "no other matches");
 			scroll_to_file(gbl, j);
 			dlog_name(gNAME(j));
 		} else {

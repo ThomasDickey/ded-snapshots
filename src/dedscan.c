@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	Id[] = "$Id: dedscan.c,v 11.0 1992/04/07 10:29:40 ste_cm Rel $";
+static	char	Id[] = "$Id: dedscan.c,v 12.0 1992/12/02 08:51:20 ste_cm Rel $";
 #endif
 
 /*
@@ -264,8 +264,8 @@ public	int	dedscan _ONE(RING *,gbl)
 {
 	auto	int	argc	= gbl->top_argc;
 	auto	char **	argv	= gbl->top_argv;
-	DIR		*dp;
-	struct	direct	*de;
+	auto	DIR	*dp;
+	auto	DIRENT	*de;
 	register int	j, k;
 	auto	 int	common = -1;
 	char	name[BUFSIZ];

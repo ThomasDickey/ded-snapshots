@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	Id[] = "$Id: ftree.c,v 11.10 1992/08/24 08:31:32 dickey Exp $";
+static	char	Id[] = "$Id: ftree.c,v 12.0 1992/12/02 08:52:33 ste_cm Rel $";
 #endif
 
 /*
@@ -752,7 +752,7 @@ private	int	ok_read(
 
 private	void	read_ftree _ONE(char *,the_file)
 {
-	struct		stat sb;
+	STAT		sb;
 	register int	j;
 	LEN_READ	vecsize;
 	int		fid,
@@ -1670,7 +1670,7 @@ public	int	ft_scan(
 {
 	auto	int	found = FALSE;
 	auto	DIR	*dp;
-	auto	struct	direct	*d;
+	auto	DIRENT	*d;
 	auto	int	count	= 0;
 	char	bfr[MAXPATHLEN], *s_ = bfr;
 
