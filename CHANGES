@@ -1,3 +1,12 @@
+1987-12-14  dickey@software.org
+
+	* src/ded.hlp: added pad-edit commands.
+
+	* src/ded.c, src/version.h: added 'padedit()' module.
+
+	* src/ftree.c:
+	revised ".ftree" data format to permit long bsd-style names.
+
 1987-12-02  dickey@software.org
 
 	* src/ftree.c:

@@ -1,5 +1,5 @@
 #ifndef	NO_SCCS_ID
-static	char	sccs_id[] = "@(#)ded.c	1.5 87/12/02 08:29:37";
+static	char	sccs_id[] = "@(#)ded.c	1.6 87/12/14 10:18:03";
 #endif	NO_SCCS_ID
 
 /*
@@ -908,6 +908,26 @@ int	c,
 	case 'u':	edit_uid();	break;
 	case 'g':	edit_gid();	break;
 
+#ifdef	apollo
+	case CTL(e):	/* pad-edit */
+	case CTL(v):	/* pad-view */
+			switch (realstat(curfile)) {
+			case 0:
+				to_work();
+				if (padedit(cNAME, c != CTL(e)) < 0)
+					beep();
+				restat();
+				break;
+			case 1:
+				to_work();
+				forkfile(whoami);
+				break;
+			default:
+				dedmsg("cannot edit this item");
+			}
+			break;
+#endif	apollo
+
 	case 'e':
 	case 'v':	/* enter new process with current file */
 			switch (realstat(curfile)) {
@@ -964,10 +984,6 @@ int	c,
 	case 'F':	/* move forward in directory-ring */
 	case 'B':	/* move backward in directory-ring */
 	case '=':	/* rename file */
-#ifdef	apollo
-	case CTL(e):	/* pad-edit */
-	case CTL(v):	/* pad-view */
-#endif	apollo
 
 	default:	beep();
 	}; lastc = c; }
