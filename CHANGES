@@ -1,3 +1,9 @@
+1994-10-16  Thomas E. Dickey  <dickey@clark.net>
+
+	* src/dedring.c:
+	supplied a missing abspath for 'E' operation, that caused an extra ring-entry
+	to be inserted when following a relative symbolic link.
+
 1994-10-06  Thomas E. Dickey  <dickey@clark.net>
 
 	* src/dedscan.c: oops: used wrong filename-arg for purge_cmv_dir
