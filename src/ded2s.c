@@ -1,5 +1,5 @@
 #ifndef	NO_SCCS_ID
-static	char	sccs_id[] = "@(#)ded2s.c	1.4 88/05/06 13:40:40";
+static	char	sccs_id[] = "@(#)ded2s.c	1.5 88/05/09 10:52:30";
 #endif	NO_SCCS_ID
 
 /*
@@ -7,6 +7,7 @@ static	char	sccs_id[] = "@(#)ded2s.c	1.4 88/05/06 13:40:40";
  * Author:	T.E.Dickey
  * Created:	09 Nov 1987
  * Modified:
+ *		09 May 1988, sockets do not have major/minor numbers.
  *
  * Function:	Convert ded's FLIST structure to printing form (controlled by
  *		options).  In doing so, save into the global 'cmdcol[]' the
@@ -77,9 +78,6 @@ char	*t,
 	switch (mj & S_IFMT) {
 	case S_IFBLK:
 	case S_IFCHR:
-#ifdef	S_IFSOCK
-	case S_IFSOCK:
-#endif	S_IFSOCK
 		if (S_opt)
 			bfr += strlen(strcpy(bfr, "      "));
 		sprintf(bfr, "%3d,%3d ", major(s->st_rdev), minor(s->st_rdev));
@@ -220,8 +218,7 @@ char	*bfr, *name;
 int	len;
 int	esc;		/* true if we escape dollar-signs, etc. */
 {
-char	*base = bfr,
-	*escape = esc ? "\\" : "";
+char	*base = bfr;
 register int c;
 
 	while ((c = *name++) && len-- > 0) {
@@ -239,7 +236,7 @@ register int c;
 				*bfr++ = ':';
 				*bfr++ = '_';
 			} else {
-				sprintf(bfr, "%s#%02x", escape, c);
+				sprintf(bfr, "%s#%02x", esc ? "\\" : "", c);
 				bfr += strlen(bfr);
 			}
 		} else

@@ -1,5 +1,5 @@
 #ifndef	NO_SCCS_ID
-static	char	sccs_id[] = "@(#)ded.c	1.18 88/05/06 15:46:39";
+static	char	sccs_id[] = "@(#)ded.c	1.19 88/05/09 11:11:37";
 #endif	NO_SCCS_ID
 
 /*
@@ -211,6 +211,18 @@ extern	char	*sys_errlist[];
 	printw("** %s: %s", msg, sys_errlist[errno]);
 	clrtoeol();
 	showC();
+}
+
+/*
+ * Wait for the user to hit a key before the next screen is shown.  This is
+ * used when we have put a message up and may be going back to the
+ * directory tree display.
+ */
+waitmsg()
+{
+	move(LINES-1,0);
+	refresh();
+	(void)cmdch((int *)0);	/* pause beside error message */
 }
 
 /*
@@ -428,17 +440,34 @@ new_args(path, cmd, count)
 char	*path;
 {
 register int j;
+int	ok;
 
 	clear_work();
-	if (dedring(path, cmd, count)) {
+	if (ok = dedring(path, cmd, count)) {
 		(void)to_file();
 		for (j = tag_count = 0; j < numfiles; j++)
 			if (flist[j].flag)
 				tag_count++;
 		showFILES();
 	} else
-		showC();
+		beep();
 	(void)chdir(new_wd);
+	return (ok);
+}
+
+/*
+ * Invoke a new file-list from the directory-tree display, cleaning up if
+ * it fails.
+ */
+static
+new_tree(path, cmd, count)
+char	*path;
+{
+	if (new_args(path, cmd, count))
+		return (TRUE);
+	(void)strcpy(path, new_wd);
+	waitmsg();
+	return (FALSE);
 }
 
 /*
@@ -882,6 +911,7 @@ int	pid ,
 /*
  * Enter an editor (separate process) for the current-file/directory.
  */
+/*ARGSUSED*/
 static
 editfile(readonly, pad)
 {
@@ -1210,8 +1240,9 @@ char	tpath[BUFSIZ],
 
 	case 'D':	/* toggle directory/filelist mode */
 			(void)strcpy(dpath, strcpy(tpath,new_wd) );
-			while ((c = ft_view(tpath)) == 'e') {
-			int	y,x;
+			do {
+			    while ((c = ft_view(tpath)) == 'e') {
+			    int	y,x;
 
 				savewin();
 				getyx(stdscr, y, x);
@@ -1224,28 +1255,28 @@ char	tpath[BUFSIZ],
 				forkfile(whoami, tpath, FALSE);
 				unsavewin(TRUE,0);
 				ft_read(new_wd);
-			}
-			if (c == 'E' || c == 'D' || c == 'q')
-				new_args(tpath, 'E', 1);
-			else
-				showFILES();
+			    }
+			} while (!new_tree(tpath, 'E', 1));
 			break;
 
 	case 'E':	/* enter new directory on ring */
 			if (realstat(curfile) == 1) {
-				new_args(strcat(
+				if (!new_args(strcat(
 						strcat(
 							strcpy(tpath, new_wd),
 							"/"),
 						cNAME),
-					c, 1);
+					c, 1)) {
+					showC();
+				}
 			} else
 				beep();
 			break;
 
 	case 'F':	/* move forward in directory-ring */
 	case 'B':	/* move backward in directory-ring */
-			new_args(strcpy(tpath, new_wd), c, count);
+			(void)new_args(strcpy(tpath, new_wd), c, count);
+			showC();
 			break;
 
 			/* patch: not implemented */

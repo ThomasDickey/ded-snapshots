@@ -1,11 +1,12 @@
 #ifndef	NO_SCCS_ID
-static	char	sccs_id[] = "@(#)ftree.c	1.37 88/05/06 15:39:36";
+static	char	sccs_id[] = "@(#)ftree.c	1.38 88/05/09 11:22:03";
 #endif
 
 /*
  * Author:	T.E.Dickey
  * Created:	02 Sep 1987
  * Modified:
+ *		09 May 1988, do chdir before interpreting 'readlink()'.
  *		06 May 1988, added 'W' command.  Also, in cursor movement, make
  *			     newline force cursor rightwards.  Portable regex.
  *		05 May 1988, added 'Q' command.
@@ -48,7 +49,7 @@ static	char	sccs_id[] = "@(#)ftree.c	1.37 88/05/06 15:39:36";
 #include	<stdio.h>
 #include	<fcntl.h>
 #include	<sys/errno.h>
-extern	long	time();
+extern	time_t	time();
 extern	int	errno;
 extern	char	*stralloc(),
 		*strchr();
@@ -96,7 +97,7 @@ typedef	struct	{
 	} FTREE;
 
 static	char	FDname[MAXPATHLEN];	/* name of user's database	*/
-static	long	FDtime;			/* time: last modified ".ftree"	*/
+static	time_t	FDtime;			/* time: last modified ".ftree"	*/
 static	int	FDdiff,			/* number of changes made	*/
 		FDlast,			/* last used-entry in ftree[]	*/
 		FDsize,			/* current sizeof(ftree[])	*/
@@ -121,7 +122,7 @@ fd_slow(count)
 {
 static
 time_t	last;
-time_t	this	= time((long *)0);
+time_t	this	= time((time_t *)0);
 int	y,x;
 
 	if ((count != 0) && (last != this)) {
@@ -190,10 +191,8 @@ register int	step,
 	}
 #ifndef	TEST
 	BAD_REGEX(expr);
-	move(LINES-1,0);
+	waitmsg();
 	beep();
-	refresh();
-	(void)cmdch((int *)0);	/* pause beside error message */
 #endif	TEST
 	return (-1);
 }
@@ -868,6 +867,7 @@ register int j;
 			if (c != '@')
 				c = fd_find(cwdpath,c,row);
 			else {
+				abspath(cwdpath);
 				if ((c = do_find(cwdpath)) < 0) {
 					ft_stat(cwdpath,cwdpath);
 					c = do_find(cwdpath);
@@ -909,13 +909,16 @@ register int j;
 #ifndef	SYSTEM5
 			if (ftree[row].f_mark & LINKED) {
 			char	bfr[BUFSIZ];
-			int	len = readlink(cwdpath, bfr, sizeof(bfr));
+			int	len;
+				(void)chdir(fd_path(bfr, ftree[row].f_root));
+				len = readlink(cwdpath, bfr, sizeof(bfr));
 				if (len <= 0) {
 					beep();
 					break;
 				}
 				bfr[len] = EOS;
 				abspath(strcpy(cwdpath, bfr));
+				(void)chdir(new_wd);
 			}
 #endif	SYSTEM5
 			if (access(cwdpath, R_OK | X_OK) < 0) {

@@ -5,13 +5,7 @@
 
 To do:
 -----
-  Cleanup sorting, e.g., 's' command is not applicable to devices;
-  should sort by major/minor pairs).
-
   Provide help from within workarea pager.
-
-  Should recognize '~' explicitly in shell-commands,
-  and in dedscan-module.
 
   Do better error diagnostics.
 
@@ -44,6 +38,4 @@ To do:
 
 	Extra mode in ftree which prevents us from finding inVisible items?
 
-	Gould: have extra "/" in ftree if I do "ded /".
-	Gould: cursor keys do not map correctly from Apollo.
 	Gould: does not use newer convention for daylight-savings time.
