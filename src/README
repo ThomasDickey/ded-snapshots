@@ -68,3 +68,14 @@ To do:
 
 	Apollo routine c_$map_to_unix may simplify the hack I made in
 	abspath.
+
+88/05/25:
+	Encountered bug (maybe apollo system) which caused vsize-call in
+	'resizewin()' to get strange values after toggling +/- commands
+	several times, then invoking 'w'.
+
+	Should show file-locking state from rcslast/sccslast.
+
+88/05/26:
+	Should add an 'o'/'O' command to create new files in the list so we
+	don't have to do a rescan to get them.

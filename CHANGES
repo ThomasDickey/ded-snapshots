@@ -1,3 +1,16 @@
+1988-05-26  dickey@software.org
+
+	* src/README: new ideas.
+
+	* src/version.h: new version (no new features)
+
+	* src/ded.c:
+	make 'failed()' do self-kill only if a message is given (covers up the
+	case in which no files are found on initial scan).
+
+	* src/dedscan.c:
+	chunk reallocation of 'flist[]' so we don't fragment on big directories.
+
 1988-05-25  dickey@software.org
 
 	* src/ded.c:
