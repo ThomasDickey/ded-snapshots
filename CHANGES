@@ -1,3 +1,7 @@
+1998-03-04  Thomas E. Dickey  <dickey@clark.net>
+
+	* src/dedsort.c: missed one on renaming.
+
 1998-03-01  Thomas E. Dickey  <dickey@clark.net>
 
 	* src/dedmake.c: missed an if-then-else in the last change
