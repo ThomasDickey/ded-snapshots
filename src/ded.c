@@ -1,5 +1,5 @@
 #ifndef	NO_SCCS_ID
-static	char	sccs_id[] = "@(#)ded.c	1.4 87/12/01 11:54:34";
+static	char	sccs_id[] = "@(#)ded.c	1.5 87/12/02 08:29:37";
 #endif	NO_SCCS_ID
 
 /*
@@ -80,6 +80,22 @@ viewset()
 /************************************************************************
  *	public procedures						*
  ************************************************************************/
+
+/*
+ * Exit from window mode
+ */
+to_exit(last)
+{
+	if (in_screen) {
+		if (last) {
+			move(LINES-1,0);
+			clrtoeol();
+			refresh();
+		}
+		resetty();
+		endwin();
+	}
+}
 
 /*
  * Clear the work-area, and move the cursor there.
@@ -181,15 +197,7 @@ extern	char	*sys_errlist[];
 failed(msg)
 char	*msg;
 {
-	if (in_screen) {
-		if (msg) {
-			move(LINES-1,0);
-			clrtoeol();
-			refresh();
-		}
-		resetty();
-		endwin();
-	}
+	to_exit(msg != 0);
 	if (msg)
 		printf("-------- \n?? %-79s\n-------- \n", msg);
 	exit(1);
@@ -964,8 +972,7 @@ int	c,
 	default:	beep();
 	}; lastc = c; }
 
-	resetty();
-	endwin();
+	to_exit(TRUE);
 	exit(0);
 	/*NOTREACHED*/
 }

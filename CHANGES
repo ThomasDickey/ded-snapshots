@@ -1,3 +1,10 @@
+1987-12-02  dickey@software.org
+
+	* src/ftree.c:
+	first cut at handling APOLLO environment ("//" prefix on nodenames).
+
+	* src/ded.c: use 'to_exit()' to make clean exit from curses-windows.
+
 1987-12-01  dickey@software.org
 
 	* src/Makefile:
