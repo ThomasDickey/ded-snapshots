@@ -16,7 +16,7 @@
  */
 #include "ded.h"
 
-MODULE_ID("$Id: dedcolor.c,v 12.13 1999/08/09 23:34:54 tom Exp $")
+MODULE_ID("$Id: dedcolor.c,v 12.14 2000/12/02 18:05:39 tom Exp $")
 
 #if HAVE_HAS_COLORS
 
@@ -120,7 +120,7 @@ private	void	SaveColor(
 
 	/* patch: how can I get the values for color-pair #0? */
 
-	strlcpy(spec,spec);	/* simplify case-independent matches */
+	strlwrcpy(spec,spec);	/* simplify case-independent matches */
 	/* build up the attribute+color */
 	while (spec != 0 && *spec != EOS) {
 		char *next = strchr(spec, ';');
