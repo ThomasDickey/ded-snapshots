@@ -22,7 +22,7 @@
 
 #include	"ded.h"
 
-MODULE_ID("$Id: dedview.c,v 12.33 1996/02/16 20:05:44 tom Exp $")
+MODULE_ID("$Id: dedview.c,v 12.34 1997/06/16 00:39:49 tom Exp $")
 
 #define	MINLIST	2		/* minimum length of file-list + header */
 #define	MINWORK	3		/* minimum size of work-area */
@@ -528,8 +528,8 @@ public	void	upLINE(
 			setup_view(gbl);
 		}
 #if HAVE_WSCRL && HAVE_WSETSCRREG
-		if (vue->base_file < savebase) {
-			setscrreg(vue->base_row+1, vue->last_row - 1);
+		if (vue->base_file < savebase
+		 && setscrreg(vue->base_row+1, vue->last_row - 1) != ERR) {
 			scrl(vue->base_file - savebase);
 			setscrreg(0, LINES - 1);
 		}
@@ -560,8 +560,8 @@ public	void	downLINE(
 			setup_view(gbl);
 		}
 #if HAVE_WSCRL && HAVE_WSETSCRREG
-		if (vue->base_file > savebase) {
-			setscrreg(vue->base_row+1, vue->last_row - 1);
+		if (vue->base_file > savebase
+		 && setscrreg(vue->base_row+1, vue->last_row - 1) != ERR) {
 			scrl(vue->base_file - savebase);
 			setscrreg(0, LINES - 1);
 		}
