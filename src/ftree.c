@@ -1,5 +1,5 @@
 #ifndef	NO_SCCS_ID
-static	char	sccs_id[] = "@(#)ftree.c	1.1 87/09/08 13:41:48";
+static	char	sccs_id[] = "@(#)ftree.c	1.3 87/09/10 16:20:07";
 #endif
 
 /*
@@ -64,6 +64,7 @@ static	int	FDdiff,			/* number of changes made	*/
 		showbase,		/* base of current display	*/
 		showlast,		/* last line in current display	*/
 		showdiff = -1,		/* controls re-display		*/
+		savesccs,		/* original state of 'showsccs'	*/
 		showsccs = TRUE;	/* control display of 'sccs'	*/
 static	FTREE	*ftree;			/* array of database entries	*/
 
@@ -382,7 +383,7 @@ char	cwdpath[MAXPATHLEN];
 	/* inherit sense of 'Z' toggle from database */
 	for (j = 0; j <= FDlast; j++) {
 		if (ftree[j].f_mark & NOSCCS) {
-			showsccs = FALSE;
+			savesccs = showsccs = FALSE;
 			break;
 		}
 	}
@@ -402,12 +403,13 @@ int	row = 0;
 	move(row++,0);
 	node = limits(showbase, node);
 	printw("<<%03d..%03d>> ", showbase, showlast);
-	printw("row:%3d:%d  level:%3d  diff:%d\n", node, FDlast, level, FDdiff);
+	printw("row:%3d:%d  level:%3d  diff:%d\n",
+		node, FDlast, level, FDdiff + (savesccs != showsccs));
 	if (showdiff != FDdiff) {
 		for (j = showbase; j <= showlast; j++) {
 			if (!fd_show(j)) continue;
 			move(row++,0);
-			printw("%3d ", j);
+			printw("%4d. ", j);
 			for (k = fd_level(j); k > 0; k--)
 				printw(fd_line(j,k));
 			printw("%.*s/%c",
@@ -423,7 +425,7 @@ int	row = 0;
 		if (fd_show(j))	row++;
 		if (j == node)	break;
 	}
-	move(row, (k * 4) + 4);
+	move(row, (k * 4) + 6);
 	refresh();
 	return(node);
 }
@@ -439,6 +441,8 @@ int	len = 0;
 
 	showbase = fd_show(base) ? base : -1;
 	showlast = -1;
+
+	/* determine screen extent, starting at nominal basepoint */
 	for (j = base; j <= FDlast; j++) {
 		if (fd_show(j)) {
 			if (showbase < 0) showbase = j;
@@ -447,12 +451,13 @@ int	len = 0;
 		}
 	}
 
-	/* try to fill up screen */
-	for (j = base-1; (len != TOSHOW) && (j >= 0); j--) {
-		if (fd_show(j)) {
-			if (showlast < 0) showlast = j;
-			showbase = j;
-			len++;
+	/* keep at least one line on screen (e.g., if a line was deleted) */
+	if (showlast < 0) {
+		for (j = base-1; j >= 0; j--) {
+			if (fd_show(j)) {
+				showbase = showlast = j;
+				break;
+			}
 		}
 	}
 
@@ -467,6 +472,7 @@ forward()
 	if (showlast < FDlast) {
 		showbase = showlast;
 		showdiff = -1;
+		(void)limits(showbase,showbase);
 	}
 }
 
@@ -488,25 +494,43 @@ register int j, len = 0, base = -1;
 }
 
 static
-up1(node)
+uprow(node,count,level)
 {
-register int j;
+register int j, k = node;
+	level++;
 	for (j = node-1; j >= 0; j--) {
-		if (fd_show(j))	return(j);
+		if (fd_show(j) && fd_level(j) <= level) {
+			k = j;
+			if (--count <= 0)
+				break;
+		}
 	}
-	beep();
-	return(node);
+	if (k != node) {
+		while (k < showbase)
+			backward();
+	} else
+		beep();
+	return(k);
 }
 
 static
-down1(node)
+downrow(node,count,level)
 {
-register int j;
+register int j, k = node;
+	level++;
 	for (j = node+1; j <= FDlast; j++) {
-		if (fd_show(j)) return(j);
+		if (fd_show(j) && fd_level(j) <= level) {
+			k = j;
+			if (--count <= 0)
+				break;
+		}
 	}
-	beep();
-	return(node);
+	if (k != node) {
+		while (k > showlast)
+			forward();
+	} else
+		beep();
+	return(k);
 }
 
 static
@@ -526,29 +550,45 @@ int	row	= 1,
 	level	= 0,
 	count	= 0,
 	c;
+register int j;
 
 	for (;;) {
+	int	num = count ? count : 1;
+
 		row = ft_show(row, level);
 
 		switch(c = getch()) {
 		/* Ordinary cursor movement */
 		case '\b':
-		case 'h':	if (level > 0)			level--;
-				else				beep();
+		case 'h':	if (level > 0) {
+					level -= num;
+					if (level < 0) level = 0;
+				}
+				else
+					beep();
 				break;
 		case '\r':
 		case '\n':
-		case 'j':	row = down1(row);
-				if (row > showlast)		forward();
-				break;
-		case 'k':	row = up1(row);
-				if (row < showbase)		backward();
-				break;
-		case 'l':	level++;			break;
+		case 'j':	row = downrow(row,num,level);	break;
+		case 'k':	row = uprow(row,num,level);	break;
+		case 'l':	level += num;			break;
 
 		case 'H':	row = showbase;			break;
-		case 'M':	row = (showbase + showlast)/2;	break;
 		case 'L':	row = showlast;			break;
+
+		/* middle-of-screen (complicated by Z,V modes) */
+		case 'M':
+			for (j = showbase, row = 0; j <= showlast; j++)
+				if (fd_show(j))
+					row++;
+			row /= 2;
+			for (j = showbase; ; j++) {
+				if (fd_show(j))
+					if (--row <= 0)
+						break;
+			}
+			row = j;
+			break;
 
 		/* scrolling */
 		case 'f':
@@ -585,8 +625,8 @@ int	row	= 1,
 		/* toggle flag which controls whether we show dependents */
 		case 'V':
 			if (row) {
-				for (c = row+1; c <= FDlast; c++) {
-					if (ftree[c].f_root == row) {
+				for (j = row+1; j <= FDlast; j++) {
+					if (ftree[j].f_root == row) {
 						markit(row,NOVIEW,!(ftree[row].f_mark & NOVIEW));
 						break;
 					}
@@ -598,9 +638,11 @@ int	row	= 1,
 		/* toggle flag which controls whether we show 'sccs' */
 		case 'Z':
 			showsccs = !showsccs;
-			for (c = 0; c <= FDlast; c++) {
-				if (!strcmp(ftree[c].f_name,"sccs")) {
-					markit(c,NOSCCS,!showsccs);
+			for (j = 0; j <= FDlast; j++) {
+			register FTREE *f = &ftree[j];
+				if (!strcmp(f->f_name,"sccs")) {
+					f->f_mark ^= NOSCCS;
+					showdiff = -1;
 				}
 			}
 			break;
@@ -611,6 +653,7 @@ int	row	= 1,
 			else
 				beep();
 		}
+		if (!isdigit(c))	count = 0;
 	}
 }
 
@@ -682,16 +725,7 @@ char	old[MAXPATHLEN],
  */
 ft_done()
 {
-register int j;
-
-	for (j = 1; j <= FDlast; j++) {
-		if (ftree[j].f_mark) {	/* save *all* flags */
-			FDdiff++;
-			break;
-		}
-	}
-
-	if (FDdiff) {
+	if (FDdiff || (savesccs != showsccs)) {
 	int	fid;
 		ft_dump();
 		if ((fid = open(FDname, O_WRONLY|O_CREAT|O_TRUNC, 0644)) >= 0) {
