@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	what[] = "$Id: dedline.c,v 4.2 1989/10/12 14:30:55 dickey Exp $";
+static	char	what[] = "$Id: dedline.c,v 5.0 1989/10/26 11:58:38 ste_cm Rel $";
 #endif	lint
 
 /*
@@ -7,11 +7,18 @@ static	char	what[] = "$Id: dedline.c,v 4.2 1989/10/12 14:30:55 dickey Exp $";
  * Author:	T.E.Dickey
  * Created:	01 Aug 1988 (from 'ded.c')
  * $Log: dedline.c,v $
- * Revision 4.2  1989/10/12 14:30:55  dickey
- * altered format so that uid,gid columns are not necessarily
- * obscured (G_opt == 2).  also, prevent chmod if object has
- * extended acls -- and user is not owner (prevents trouble!)
+ * Revision 5.0  1989/10/26 11:58:38  ste_cm
+ * BASELINE Fri Oct 27 12:27:25 1989 -- apollo SR10.1 mods + ADA_PITS 4.0
  *
+ *		Revision 4.3  89/10/26  11:58:38  dickey
+ *		altered 'editmode()' to reduce number of register variables
+ *		used (bypasses bug on sun3)
+ *		
+ *		Revision 4.2  89/10/12  16:09:10  dickey
+ *		altered format so that uid,gid columns are not necessarily
+ *		obscured (G_opt == 2).  also, prevent chmod if object has
+ *		extended acls -- and user is not owner (prevents trouble!)
+ *		
  *		Revision 4.1  89/10/06  09:40:17  dickey
  *		modified treatment of 'cmdcol[]' (cf: showFILES)
  *		
@@ -273,7 +280,8 @@ editprot()
 register
 int	y	= file2row(curfile),
 	x	= 0,
-	c,
+	c;
+auto	int
 	opt	= P_opt,
 	changed	= FALSE,
 	done	= FALSE;
