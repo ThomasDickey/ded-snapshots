@@ -31,7 +31,7 @@
 #include	"ded.h"
 #include	<time.h>
 
-MODULE_ID("$Id: dlog.c,v 12.14 1995/11/05 21:56:23 tom Exp $")
+MODULE_ID("$Id: dlog.c,v 12.15 1996/01/13 14:56:56 tom Exp $")
 
 #define	NOW		time((time_t *)0)
 
@@ -342,14 +342,21 @@ public	int	dlog_char(
  */
 public	void	dlog_prompt (
 		_ARX(RING *,	gbl)
-		_AR1(char *,	prompt)
+		_ARX(char *,	prompt)
+		_AR1(int,	row)
 			)
 		_DCL(RING *,	gbl)
 		_DCL(char *,	prompt)
+		_DCL(int,	row)
 {
 	int	y,x;
 	if (prompt != 0) {
-		to_work(gbl, TRUE);
+		if (row >= 0) {
+			markC(gbl,TRUE);
+			move(row, 0);
+			clrtoeol();
+		} else
+			to_work(gbl, TRUE);
 		addstr(prompt);
 		getyx(stdscr, y, x);
 		clrtobot();
@@ -366,11 +373,12 @@ public	void	dlog_prompt (
  */
 static	RING	*gets_g_data;
 static	char	*gets_prompt;
+static	int	gets_row;
 
 #ifdef	SIGWINCH
 public	void	dlog_resize (_AR0)
 {
-	dlog_prompt(gets_g_data, gets_prompt);
+	dlog_prompt(gets_g_data, gets_prompt, gets_row);
 	getyx(stdscr, y_rawgets, x_rawgets);
 }
 #endif
@@ -385,6 +393,7 @@ public	void	dlog_resize (_AR0)
 public	char *	dlog_string(
 	_ARX(RING *,	gbl)
 	_ARX(char *,	prompt)		/* nonnull iff we're using work-area */
+	_ARX(int,	row)		/* positive to specify row */
 	_ARX(DYN **,	result)
 	_ARX(DYN **,	inflag)
 	_ARX(HIST **,	history)
@@ -393,6 +402,7 @@ public	char *	dlog_string(
 		)
 	_DCL(RING *,	gbl)
 	_DCL(char *,	prompt)
+	_DCL(int,	row)
 	_DCL(DYN **,	result)
 	_DCL(DYN **,	inflag)
 	_DCL(HIST **,	history)
@@ -424,7 +434,7 @@ public	char *	dlog_string(
 	buffer  = dyn_string(*result);
 
 	gets_g_data = gbl;
-	dlog_prompt(gbl, gets_prompt = prompt);
+	dlog_prompt(gbl, gets_prompt = prompt, gets_row = row);
 
 	/* Inline-editing records the editing actions in history, not the
 	 * resulting buffer.  If we are also reading from a command-file,

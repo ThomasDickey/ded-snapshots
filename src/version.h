@@ -1,8 +1,14 @@
 /*
- * $Id: version.h,v 12.9 1995/11/05 23:29:47 tom Exp $
+ * $Id: version.h,v 12.10 1996/01/13 15:11:04 tom Exp $
  * Version-identifier for DED
  *
  *		$Log: version.h,v $
+ *		Revision 12.10  1996/01/13 15:11:04  tom
+ *		mods for using the last (80th) column on display.  Use sysvr4 scrolling
+ *		support if available.  Added -i option (temporary) for inverting color.
+ *		Corrected ~ command in ftree.  Corrected infinite-loop in 'dedfind' when
+ *		current file was symlink.
+ *
  *		Revision 12.9  1995/11/05 23:29:47  tom
  *		mods to prevent tilde-expansion in list-entries
  *
@@ -315,4 +321,4 @@
  * 01 Dec 1987, added '*', '^' commands, made '%' refresh screen
  * 25 Nov 1987, added sccs-support (V,z,Z toggles, V,z,Z sorts)
  */
-static	const	char	version[] = "$Date: 1995/11/05 23:29:47 $";
+static	const	char	version[] = "$Date: 1996/01/13 15:11:04 $";

@@ -149,7 +149,7 @@
 #define	MAIN
 #include	"ded.h"
 
-MODULE_ID("$Header: /users/source/archives/ded.vcs/src/RCS/ded.c,v 12.45 1996/01/09 22:46:01 tom Exp $")
+MODULE_ID("$Header: /users/source/archives/ded.vcs/src/RCS/ded.c,v 12.46 1996/01/13 14:48:06 tom Exp $")
 
 #define	EDITOR	DEFAULT_EDITOR
 #define	BROWSE	DEFAULT_BROWSE
@@ -315,7 +315,7 @@ public	int	user_says(
 
 	if (!ok) {
 		dyn_init(&reply, 8);
-		if ((s = dlog_string(gbl, "Are you sure (y/n)? ", &reply,
+		if ((s = dlog_string(gbl, "Are you sure (y/n)? ", -1, &reply,
 				(DYN **)0, NO_HISTORY, EOS, -8)) != NULL)
 			ok = (*s == 'y' || *s == 'Y');
 		showC(gbl);

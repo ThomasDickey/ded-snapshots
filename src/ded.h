@@ -19,7 +19,7 @@
 
 #ifdef	MAIN
 #if	!defined(NO_IDENT)
-static const char ded_h[] = "$Id: ded.h,v 12.41 1996/01/10 00:28:06 tom Exp $";
+static const char ded_h[] = "$Id: ded.h,v 12.42 1996/01/13 14:50:42 tom Exp $";
 #endif
 #endif	/* MAIN */
 
@@ -622,7 +622,8 @@ extern	int	dlog_char(
 
 extern	void	dlog_prompt(
 		_arx(RING *,	gbl)
-		_ar1(char *,	prompt));
+		_arx(char *,	prompt)
+		_ar1(int,	row));
 
 #ifdef	SIGWINCH
 extern	void	dlog_resize(_ar0);
@@ -631,6 +632,7 @@ extern	void	dlog_resize(_ar0);
 extern	char *	dlog_string(
 		_arx(RING *,	gbl)
 		_arx(char *,	prompt)
+		_arx(int,	row)
 		_arx(DYN **,	result)
 		_arx(DYN **,	inflag)
 		_arx(HIST **,	history)

@@ -34,7 +34,7 @@
  */
 #include	"ded.h"
 
-MODULE_ID("$Id: deddoit.c,v 12.13 1995/11/05 23:06:49 tom Exp $")
+MODULE_ID("$Id: deddoit.c,v 12.14 1996/01/13 14:48:27 tom Exp $")
 
 /*
  * Return a pointer to a leaf of a given name
@@ -184,7 +184,7 @@ public	void	deddoit(
 			APPEND(Subs, dyn_string(gbl->cmd_sh));
 
 		c = FALSE;
-		if (!(s = dlog_string(gbl, prompt, &Subs, (DYN **)0,
+		if (!(s = dlog_string(gbl, prompt, -1, &Subs, (DYN **)0,
 				&cmd_history, EOS, 0))) {
 			showC(gbl);
 			return;
@@ -206,7 +206,7 @@ public	void	deddoit(
 			return;
 		}
 	} else {
-		dlog_prompt(gbl, prompt);
+		dlog_prompt(gbl, prompt, -1);
 		PRINTW("(ditto)\n");
 	}
 
