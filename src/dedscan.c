@@ -1,5 +1,5 @@
 #ifndef	NO_SCCS_ID
-static	char	sccs_id[] = "@(#)dedscan.c	1.11 88/05/16 14:51:32";
+static	char	sccs_id[] = "@(#)dedscan.c	1.12 88/05/18 13:20:29";
 #endif	NO_SCCS_ID
 
 /*
@@ -191,7 +191,7 @@ char	bfr[BUFSIZ];
 		}
 	}
 #endif	SYSTEM5
-#ifdef	Z_SCCS
+#if	defined(Z_SCCS) || defined(Z_RCS)
 	statSCCS(name, f_);
 #endif	Z_SCCS
 	return (0);
@@ -250,16 +250,23 @@ struct	stat	sb;
  * to it.  It is called both locally (within this module), and on-the-fly from
  * the main command-decoder when we set the Z_opt flag.
  */
-#ifdef	Z_SCCS
+#if	defined(Z_SCCS) || defined(Z_RCS)
 statSCCS(name, f_)
 char	*name;
 FLIST	*f_;
 {
 	if (Z_opt && isFILE(f_->s.st_mode)) {
-	extern	long	sccszone();
+#ifdef	Z_RCS
+		rcslast(new_wd, name,
+			&(f_->z_rels), &(f_->z_vers), &(f_->z_time));
+#ifdef	Z_SCCS
+		if (f_->z_time == 0)
+#endif	Z_SCCS
+#endif	Z_RCS
+#ifdef	Z_SCCS
 		sccslast(new_wd, name,
 			&(f_->z_rels), &(f_->z_vers), &(f_->z_time));
-		if (f_->z_time != 0L)	f_->z_time -= sccszone();
+#endif	Z_SCCS
 	}
 }
 #endif	Z_SCCS

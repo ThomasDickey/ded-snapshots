@@ -1,8 +1,3 @@
-88/05/02:
---------
-	ftree should use fixname to show names in case they contain nongraphic
-	characters.
-
 To do:
 -----
   Provide help from within workarea pager.
@@ -46,9 +41,6 @@ To do:
 88/05/11:
 	Running under 'xterm' on Apollo, the first use of '+' puts the
 	highlighting in the wrong place.
-
-	On Gould, saw ftree forget to put a '/' before a pathname, making
-	the root node forced to 'u1' rather than '' ('/').
 
 	Eric has a copy of curses under ~marshall/src/wm/libcurses
 	on the Gould.
