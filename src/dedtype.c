@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	Id[] = "$Id: dedtype.c,v 7.0 1990/03/05 10:42:09 ste_cm Rel $";
+static	char	Id[] = "$Id: dedtype.c,v 8.0 1990/08/13 13:42:04 ste_cm Rel $";
 #endif	lint
 
 /*
@@ -7,9 +7,15 @@ static	char	Id[] = "$Id: dedtype.c,v 7.0 1990/03/05 10:42:09 ste_cm Rel $";
  * Author:	T.E.Dickey
  * Created:	16 Nov 1987
  * $Log: dedtype.c,v $
- * Revision 7.0  1990/03/05 10:42:09  ste_cm
- * BASELINE Mon Apr 30 09:54:01 1990 -- (CPROTO)
+ * Revision 8.0  1990/08/13 13:42:04  ste_cm
+ * BASELINE Mon Aug 13 15:06:41 1990 -- LINCNT, ADA_TRANS
  *
+ *		Revision 7.1  90/08/13  13:42:04  dickey
+ *		lint
+ *		
+ *		Revision 7.0  90/03/05  10:42:09  ste_cm
+ *		BASELINE Mon Apr 30 09:54:01 1990 -- (CPROTO)
+ *		
  *		Revision 6.0  90/03/05  10:42:09  ste_cm
  *		BASELINE Thu Mar 29 07:37:55 1990 -- maintenance release (SYNTHESIS)
  *		
@@ -211,9 +217,9 @@ int	c,			/* current character */
 					(int)de->d_namlen,
 					de->d_name,
 					FALSE);
-				fprintf(fp, fmt, de->d_ino, bfr);
+				FPRINTF(fp, fmt, de->d_ino, bfr);
 			}
-			closedir(dp);
+			(void)closedir(dp);
 			rewind(fp);
 		} else {
 			warn("opendir");
