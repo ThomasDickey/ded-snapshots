@@ -3,6 +3,7 @@
  * Author:	T.E.Dickey
  * Created:	03 Apr 1992, from 'ded.c'
  * Modified:
+ *		09 Jan 1996, mods for scrolling regions
  *		05 Nov 1995, use 80th column
  *		03 Sep 1995, mods to keep base_file, curfile more stable when
  *			     switching viewports.
@@ -20,7 +21,7 @@
 
 #include	"ded.h"
 
-MODULE_ID("$Id: dedview.c,v 12.29 1995/11/07 00:56:15 tom Exp $")
+MODULE_ID("$Id: dedview.c,v 12.30 1996/01/09 23:38:52 tom Exp $")
 
 #define	MINLIST	2		/* minimum length of file-list + header */
 #define	MINWORK	3		/* minimum size of work-area */
@@ -515,14 +516,23 @@ public	void	upLINE(
 		gbl->curfile = 0;
 
 	if (gbl->curfile < vue->base_file) {
+		int savebase = vue->base_file;
 		while (gbl->curfile < vue->base_file
 		 && vue->base_file > 0) {
 			vue->base_file -= 1;
 			setup_view(gbl);
 		}
+#if HAVE_WSCRL && HAVE_WSETSCRREG
+		if (vue->base_file < savebase) {
+			setscrreg(vue->base_row, vue->last_row - 1);
+			scrl(vue->base_file - savebase);
+			setscrreg(0, LINES - 1);
+		}
+#endif
 		showFILES(gbl,FALSE);
-	} else
+	} else {
 		showC(gbl);
+	}
 }
 
 public	void	downLINE(
@@ -538,11 +548,19 @@ public	void	downLINE(
 		gbl->curfile = gbl->numfiles-1;
 
 	if (gbl->curfile > vue->last_file) {
+		int savebase = vue->base_file;
 		while (gbl->curfile > vue->last_file
 		 && vue->last_file < (gbl->numfiles - 1)) {
 			vue->base_file += 1;
 			setup_view(gbl);
 		}
+#if HAVE_WSCRL && HAVE_WSETSCRREG
+		if (vue->base_file > savebase) {
+			setscrreg(vue->base_row, vue->last_row - 1);
+			scrl(vue->base_file - savebase);
+			setscrreg(0, LINES - 1);
+		}
+#endif
 		showFILES(gbl,FALSE);
 	} else
 		showC(gbl);

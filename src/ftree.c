@@ -2,6 +2,7 @@
  * Author:	T.E.Dickey
  * Created:	02 Sep 1987
  * Modified:
+ *		09 Jan 1996, mods to scrolling-regions
  *		29 Oct 1995, guard 'do_find()' against getwd failure
  *		03 Sep 1995, mods to make '&'-toggle correspond better with
  *			     the same command in the file-list.
@@ -127,7 +128,7 @@
 
 #include	<fcntl.h>
 
-MODULE_ID("$Id: ftree.c,v 12.45 1995/11/05 22:12:05 tom Exp $")
+MODULE_ID("$Id: ftree.c,v 12.46 1996/01/09 23:27:50 tom Exp $")
 
 #define	Null	(char *)0	/* some NULL's are simply 0 */
 
@@ -1308,6 +1309,7 @@ private	int	uprow(
 	_DCL(int,	level)
 {
 	register int j, k = node;
+	int savebase = showbase;
 
 	level++;
 	for (j = node-1; j >= 0; j--) {
@@ -1325,6 +1327,13 @@ private	int	uprow(
 		}
 	} else
 		beep();
+#if HAVE_WSCRL && HAVE_WSETSCRREG
+	if (showbase < savebase) {
+		setscrreg(LOSHOW,LINES-1);
+		scrl(showbase - savebase);
+		setscrreg(0,LINES-1);
+	}
+#endif
 	return(k);
 }
 
@@ -1338,6 +1347,7 @@ private	int	downrow(
 	_DCL(int,	level)
 {
 	register int j, k = node;
+	int savebase = showbase;
 
 	level++;
 	for (j = node+1; j <= FDlast; j++) {
@@ -1356,6 +1366,13 @@ private	int	downrow(
 		}
 	} else
 		beep();
+#if HAVE_WSCRL && HAVE_WSETSCRREG
+	if (showbase > savebase) {
+		setscrreg(LOSHOW,LINES-1);
+		scrl(showbase - savebase);
+		setscrreg(0,LINES-1);
+	}
+#endif
 	return(k);
 }
 
