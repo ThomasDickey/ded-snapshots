@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	what[] = "$Id: ded.c,v 7.1 1990/05/07 07:37:52 dickey Exp $";
+static	char	what[] = "$Id: ded.c,v 7.2 1990/05/18 16:47:29 dickey Exp $";
 #endif	lint
 
 /*
@@ -7,9 +7,13 @@ static	char	what[] = "$Id: ded.c,v 7.1 1990/05/07 07:37:52 dickey Exp $";
  * Author:	T.E.Dickey
  * Created:	09 Nov 1987
  * $Log: ded.c,v $
- * Revision 7.1  1990/05/07 07:37:52  dickey
- * make "-t" option inherit into subprocesses
+ * Revision 7.2  1990/05/18 16:47:29  dickey
+ * modified 'edithead()' so it does the "right" thing when going
+ * to an Apollo DSEE revision
  *
+ *		Revision 7.1  90/05/07  07:42:45  dickey
+ *		make "-t" option inherit into subprocesses
+ *		
  *		Revision 7.0  90/04/17  09:09:56  ste_cm
  *		BASELINE Mon Apr 30 09:54:01 1990 -- (CPROTO)
  *		
@@ -263,15 +267,32 @@ viewset()
 
 #ifdef	S_IFLNK
 static
-edithead(dst, src)
-char	*dst,*src;
+edithead(dst, leaf, src)
+char	*dst,*leaf,*src;
 {
 	extern	char		*pathhead();
 	auto	struct	stat	sb;
+	auto	char		*s;
 
 	if (src != 0) {
 		dlog_comment("try to edit link-head \"%s\"\n", src);
 		abspath(strcpy(dst, pathhead(src, &sb)));
+		dlog_comment("... becomes pathname  \"%s\"\n", dst);
+		(void)strcpy(leaf, src);
+		if (s = strrchr(src, '/')) {
+#ifdef	apollo
+			/* special hack for DSEE library */
+			if (s[1] == '[') {
+				leaf[s-src] = EOS;
+				if (s = strrchr(leaf, '/')) {
+					s++;
+					while (*leaf++ = *s++);
+				}
+			} else
+#endif
+			if (s[1] != EOS)
+				(void)strcpy(leaf, ++s);
+		}
 		return (TRUE);
 	}
 	return (FALSE);		/* head would duplicate current directory */
@@ -1507,9 +1528,7 @@ char	*argv[];
 					showC();
 				}
 #ifdef	S_IFLNK		/* try to edit head-directory of symbolic-link */
-			} else if (edithead(tpath, cLTXT)) {
-				char	*s = strrchr(cLTXT,'/');
-				char	*d = txtalloc((s != 0) ? s+1 : cLTXT);
+			} else if (edithead(tpath, dpath, cLTXT)) {
 				if (strcmp(tpath, new_wd)) {
 					markC(TRUE);
 					if (!new_args(tpath, c, 1)) {
@@ -1517,7 +1536,7 @@ char	*argv[];
 						break;
 					}
 				}
-				scroll_to_file(findFILE(d));
+				scroll_to_file(findFILE(txtalloc(dpath)));
 #endif	S_IFLNK
 			} else
 				dedmsg("not a directory");
