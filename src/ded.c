@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	what[] = "$Id: ded.c,v 8.0 1990/05/23 12:00:28 ste_cm Rel $";
+static	char	what[] = "$Id: ded.c,v 8.1 1990/08/27 09:43:19 dickey Exp $";
 #endif	lint
 
 /*
@@ -7,9 +7,14 @@ static	char	what[] = "$Id: ded.c,v 8.0 1990/05/23 12:00:28 ste_cm Rel $";
  * Author:	T.E.Dickey
  * Created:	09 Nov 1987
  * $Log: ded.c,v $
- * Revision 8.0  1990/05/23 12:00:28  ste_cm
- * BASELINE Mon Aug 13 15:06:41 1990 -- LINCNT, ADA_TRANS
+ * Revision 8.1  1990/08/27 09:43:19  dickey
+ * mods to make error-reporting routines work properly if they
+ * are called before screen is initialized, etc., to support mods
+ * to "ftree.c" for better error recovery.
  *
+ *		Revision 8.0  90/05/23  12:00:28  ste_cm
+ *		BASELINE Mon Aug 13 15:06:41 1990 -- LINCNT, ADA_TRANS
+ *		
  *		Revision 7.5  90/05/23  12:00:28  dickey
  *		corrected bug in 'new_tree()' introduced in last change
  *		
@@ -462,22 +467,40 @@ register j = xSTAT(inx).st_mode;
 dedmsg(msg)
 char	*msg;
 {
-	move(LINES-1,0);
-	PRINTW("** %s", msg);
-	clrtoeol();
-	showC();
+	if (in_screen) {
+		move(LINES-1,0);
+		PRINTW("** %s", msg);
+		clrtoeol();
+		showC();
+	} else {
+		FPRINTF(stderr, "?? %s\n", msg);
+	}
 	dlog_comment("(dedmsg) %s\n", msg);
+}
+
+char	*
+err_msg(msg)
+char	*msg;
+{
+	extern	int	errno;
+	extern	char	*sys_errlist[];
+	static	char	bfr[BUFSIZ];
+	if (msg == 0)	msg = "?";
+	FORMAT(bfr, "%s: %s", msg, sys_errlist[errno]);
+	return (bfr);
 }
 
 warn(msg)
 char	*msg;
 {
-extern	int	errno;
-extern	char	*sys_errlist[];
-	move(LINES-1,0);
-	PRINTW("** %s: %s", msg, sys_errlist[errno]);
-	clrtoeol();
-	showC();
+	if (in_screen) {
+		move(LINES-1,0);
+		PRINTW("** %s", err_msg(msg));
+		clrtoeol();
+		showC();
+	} else {
+		FPRINTF(stderr, "?? %s\n", err_msg(msg));
+	}
 	dlog_comment("(warn) %s: %s\n", msg, sys_errlist[errno]);
 }
 
@@ -489,6 +512,10 @@ extern	char	*sys_errlist[];
 waitmsg(msg)
 char	*msg;
 {
+	if (!in_screen) {
+		warn (msg);	/* simplify if we cannot display on screen */
+		return;
+	}
 	if (msg) {
 		move(LINES-1,0);
 		PRINTW("** %s", msg);
@@ -500,6 +527,12 @@ char	*msg;
 	beep();
 	(void)dlog_char((int *)0,-1);	/* pause beside error message */
 	clrtoeol();		/* ...and clear it after pause */
+}
+
+wait_warn(msg)
+char	*msg;
+{
+	waitmsg(err_msg(msg));
 }
 
 /*
