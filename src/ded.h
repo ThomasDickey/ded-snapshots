@@ -3,7 +3,7 @@
 
 #ifdef	MAIN
 #if	!defined(NO_IDENT)
-static	char	*ded_h = "$Id: ded.h,v 12.7 1993/11/23 17:49:36 dickey Exp $";
+static	char	*ded_h = "$Id: ded.h,v 12.8 1993/11/24 15:53:16 dickey Exp $";
 #endif
 #endif	/* MAIN */
 
@@ -22,6 +22,14 @@ static	char	*ded_h = "$Id: ded.h,v 12.7 1993/11/23 17:49:36 dickey Exp $";
 
 #if	defined(SYSTEM5)
 #include	<sys/fcntl.h>
+#endif
+
+#if defined(apollo)
+# if defined(__STDCPP__)
+#  define ANSI_VARARGS 1
+# else
+#  define ANSI_VARARGS 0
+# endif
 #endif
 
 #ifndef ANSI_VARARGS

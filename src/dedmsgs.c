@@ -1,5 +1,5 @@
 #if	!defined(NO_IDENT)
-static	char	Id[] = "$Id: dedmsgs.c,v 12.3 1993/10/29 20:27:00 dickey Exp $";
+static	char	Id[] = "$Id: dedmsgs.c,v 12.4 1993/11/24 15:30:50 dickey Exp $";
 #endif
 
 /*
@@ -58,9 +58,18 @@ private	void	show_message(
 
 private	char *	err_msg _ONE(char *,msg)
 {
+	extern	int	sys_nerr;
 	static	char	bfr[BUFSIZ];
+	int	save	= errno;
+	char	*text	= (errno < 0 || errno >= sys_nerr)
+			? "?"
+			: sys_errlist[errno];
+
 	if (msg == 0)	msg = "?";
-	FORMAT(bfr, "%s: %s", msg, sys_errlist[errno]);
+	FORMAT(bfr, "%s: %s", msg, text);
+	if (*text == '?')
+		FORMAT(bfr+strlen(bfr), " errno=%d", save);
+
 	return (bfr);
 }
 
