@@ -3,6 +3,8 @@
  * Author:	T.E.Dickey
  * Created:	09 Nov 1987
  * Modified:
+ *		02 Feb 1997, add chdir's within path_RESOLVE to make it work
+ *			     with relative path (e.g., "./src/") as an argument.
  *		12 Jan 1997, filename-only case still wasn't right, since it
  *			     didn't properly update the new_wd & argv[].
  *		08 Jan 1997, correct missing allocation for special case where
@@ -87,7 +89,7 @@
 #include	"rcsdefs.h"
 #include	"sccsdefs.h"
 
-MODULE_ID("$Id: dedscan.c,v 12.26 1997/01/12 12:43:41 tom Exp $")
+MODULE_ID("$Id: dedscan.c,v 12.27 1997/02/02 21:45:30 tom Exp $")
 
 #define	def_doalloc	FLIST_alloc
 	/*ARGSUSED*/
@@ -617,6 +619,11 @@ public	int	path_RESOLVE (
 			return(FALSE);
 		}
 	}
+	else
+	{
+		/* try to recover, just in case */
+		(void)chdir(old_wd);
+	}
 
 #if HAVE_REALPATH
 	s = realpath(path, temp);
@@ -624,7 +631,7 @@ public	int	path_RESOLVE (
 	s = getwd(temp);
 #endif
 	if (s != 0) {
-		(void) strcpy(path, temp);
+		(void)chdir(strcpy(path, temp));
 	} else {	/* for SunOS? */
 		FLIST	fb;
 		int	save = gbl->AT_opt;

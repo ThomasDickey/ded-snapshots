@@ -15,7 +15,7 @@
  */
 #include "ded.h"
 
-MODULE_ID("$Id: dedcolor.c,v 12.10 1996/02/10 01:32:16 tom Exp $")
+MODULE_ID("$Id: dedcolor.c,v 12.11 1997/01/19 03:49:22 tom Exp $")
 
 #if HAVE_HAS_COLORS
 
@@ -360,5 +360,16 @@ public	void	dedcolor(
 		attr = AttributesOf(entry);
 
 	attrset(attr);
+}
+
+public	void	init_dedcolor (_AR0)
+{
+	(void)start_color();
+#if HAVE_USE_DEFAULT_COLORS
+	if (use_default_colors() == OK) {
+		default_foreground = -1;
+		default_background = -1;
+	}
+#endif
 }
 #endif	/* HAVE_HAS_COLORS */

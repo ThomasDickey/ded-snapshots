@@ -19,7 +19,7 @@
 
 #ifdef	MAIN
 #if	!defined(NO_IDENT)
-static const char ded_h[] = "$Id: ded.h,v 12.43 1996/02/16 20:07:02 tom Exp $";
+static const char ded_h[] = "$Id: ded.h,v 12.44 1997/01/19 03:50:49 tom Exp $";
 #endif
 #endif	/* MAIN */
 
@@ -280,6 +280,7 @@ extern	void	put_dedblip (
 /* *** "dedcolor.c" *** */
 #if HAVE_HAS_COLORS
 extern	int	invert_colors;
+extern	void	init_dedcolor(_ar0);
 extern	void	dedcolor(
 		_ar1(FLIST *,	entry));
 #endif
