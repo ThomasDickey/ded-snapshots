@@ -1,4 +1,4 @@
-/* @(#)ded.h	1.18 88/07/11 07:28:32 */
+/* @(#)ded.h	1.19 88/08/01 11:14:10 */
 
 /*
  * Created:	09 Nov 1987
@@ -167,6 +167,7 @@ MAIN	int	top_argc,
 				/* 0=mode, 1=uid/gid, 2=normal */
 		mark_W,		/* row of work-area marker */
 		clr_sh,		/* true if we clear-screen after SHELL	*/
+		Xbase, Ybase,	/* viewport (for scrolling) */
 		curfile,	/* current file on which to operate */
 		dateopt,	/* date-option (a,c,m = 0,1,2) */
 		sortord,	/* sort-order (TRUE=reverse) */
