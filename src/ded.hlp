@@ -153,6 +153,7 @@ Shell commands:
   %		Prompt for, and execute a shell command, refreshing
 		screen afterwards.
   *		Display text of last !/% command.
+  :		Edit text of last !/% command, re-execute.
   .		Re-execute last !/% command.
 
 
@@ -172,9 +173,6 @@ To do:
 
   Add directory-tree display
 
-  Should make resolution of links more rational (especially when
-  deciding to show/edit a single entry!)
-
   Provide for 2-display lists/viewports.
 
   Provide (apollo) for automatically resizing the
@@ -182,8 +180,6 @@ To do:
 
   Provide 'w' commands in work-area
   pager, as well as repeat-count on 'f'.
-
-  Add ':' to edit last-command.
 
   Correct apollo message about trying to open nil-files
   (they are not directories!)

@@ -1,3 +1,26 @@
+1988-03-25  dickey@software.org
+
+	* src/ded.c: Began interface to 'ftree' module (far from done!).
+	Added ':' command (to exploit 'rawgets'), corrected bug in '+', '-' which
+	caused long delay on long report-count.  Corrections to screen-refresh.
+
+	* src/deddoit.c: had a refresh in the wrong place
+
+	* src/version.h: --enough for today
+
+	* src/ded.hlp: implemented ':'
+
+	* src/version.h: --
+
+	* src/deddoit.c:
+	Implemented ':'-command, buffer-limit check & escaped-insertion of '#', ''.
+
+	* src/dedfind.c: use 'rawgets()' for input.
+
+	* src/ftree.c: comments
+
+	* src/Makefile: mods to make 'ftree.c', 'fring.c' part of 'ded'.
+
 1988-03-24  dickey@software.org
 
 	* src/ftree.c:
