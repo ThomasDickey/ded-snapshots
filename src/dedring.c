@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	sccs_id[] = "$Header: /users/source/archives/ded.vcs/src/RCS/dedring.c,v 2.0 1988/09/12 15:52:31 ste_cm Exp $";
+static	char	sccs_id[] = "$Header: /users/source/archives/ded.vcs/src/RCS/dedring.c,v 4.0 1989/05/26 14:15:32 ste_cm Rel $";
 #endif	lint
 
 /*
@@ -7,9 +7,22 @@ static	char	sccs_id[] = "$Header: /users/source/archives/ded.vcs/src/RCS/dedring
  * Author:	T.E.Dickey
  * Created:	27 Apr 1988
  * $Log: dedring.c,v $
- * Revision 2.0  1988/09/12 15:52:31  ste_cm
- * BASELINE Thu Apr  6 13:14:13 EDT 1989
+ * Revision 4.0  1989/05/26 14:15:32  ste_cm
+ * BASELINE Thu Aug 24 10:20:06 EDT 1989 -- support:navi_011(rel2)
  *
+ *		Revision 3.0  89/05/26  14:15:32  ste_cm
+ *		BASELINE Mon Jun 19 14:21:57 EDT 1989
+ *		
+ *		Revision 2.2  89/05/26  14:15:32  dickey
+ *		don't inherit read-expression in new directory (too confusing)
+ *		
+ *		Revision 2.1  89/05/26  13:06:58  dickey
+ *		added 'toscan', 'scan_expr' to ring-data.
+ *		don't reset 'clr_sh' on entry to ring -- do this only in 'deddoit()'
+ *		
+ *		Revision 2.0  88/09/12  15:52:31  ste_cm
+ *		BASELINE Thu Apr  6 13:14:13 EDT 1989
+ *		
  *		Revision 1.20  88/09/12  15:52:31  dickey
  *		sccs2rcs keywords
  *		
@@ -44,7 +57,9 @@ extern	char	*txtalloc();
 typedef	struct	_ring	{
 	struct	_ring	*_link;
 	char		new_wd[BUFSIZ],
-			bfr_sh[BUFSIZ];
+			*toscan,	/* directory-scan expression	*/
+			*scan_expr,	/* compiled version of 'toscan'	*/
+			bfr_sh[BUFSIZ];	/* last shell-command		*/
 	FLIST		*flist;
 	char		**top_argv;
 	int		top_argc,
@@ -120,6 +135,8 @@ save(p)
 RING	*p;
 {
 	trans(p->new_wd, new_wd);
+	SAVE(toscan);
+	SAVE(scan_expr);
 	(void)strcpy(p->bfr_sh, bfr_sh);
 	SAVE(flist);
 	SAVE(top_argc);
@@ -157,6 +174,8 @@ unsave(p)
 RING	*p;
 {
 	untrans(new_wd, p->new_wd);
+	UNSAVE(toscan);
+	UNSAVE(scan_expr);
 	(void)strcpy(bfr_sh, p->bfr_sh);
 	UNSAVE(flist);
 	UNSAVE(top_argc);
@@ -221,11 +240,12 @@ char	bfr[BUFSIZ];
 	save(p);
 	(void)strcpy(p->new_wd, bfr);
 	if (first) {
+		p->toscan   = 0;	/* don't inherit read-expression */
+		p->scan_expr= 0;
 		p->flist    = 0;
 		p->top_argc = 1;
 		p->top_argv = vecalloc(2);
 		p->top_argv[0] = txtalloc(path);
-		p->clr_sh   = FALSE;
 		p->curfile  = 0;
 		p->numfiles = 0;
 	}

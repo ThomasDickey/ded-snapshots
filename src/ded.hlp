@@ -1,3 +1,5 @@
+$Header: /users/source/archives/ded.vcs/src/RCS/ded.hlp,v 4.0 1989/05/26 13:53:32 ste_cm Rel $
+
 DED (Directory EDitor)
 ======================
 
@@ -65,6 +67,7 @@ Display-Adjustment:
   a		move workspace marker down {count} lines
 
   R		re-scan argument list (refresh)
+  CTL/R		prompt for regular expression controlling argument selection
   W		re-stat entries in the current screen {count} times.
   w		refresh window
   l		re-stat the current entry {count} times.

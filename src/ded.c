@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	sccs_id[] = "$Header: /users/source/archives/ded.vcs/src/RCS/ded.c,v 2.0 1989/04/03 09:41:04 ste_cm Exp $";
+static	char	sccs_id[] = "$Header: /users/source/archives/ded.vcs/src/RCS/ded.c,v 2.2 1989/05/26 14:05:00 dickey Exp $";
 #endif	lint
 
 /*
@@ -7,9 +7,16 @@ static	char	sccs_id[] = "$Header: /users/source/archives/ded.vcs/src/RCS/ded.c,v
  * Author:	T.E.Dickey
  * Created:	09 Nov 1987
  * $Log: ded.c,v $
- * Revision 2.0  1989/04/03 09:41:04  ste_cm
- * BASELINE Thu Apr  6 13:14:13 EDT 1989
+ * Revision 2.2  1989/05/26 14:05:00  dickey
+ * corrected last mod so failed-rescan keeps original
+ * name to find in resulting list
  *
+ *		Revision 2.1  89/05/26  13:38:22  dickey
+ *		added CTL/R command to control read-selection
+ *		
+ *		Revision 2.0  89/04/03  09:41:04  ste_cm
+ *		BASELINE Thu Apr  6 13:14:13 EDT 1989
+ *		
  *		Revision 1.65  89/04/03  09:41:04  dickey
  *		use of 'showFILES()' in 'restat_W()' did not work (?).  Recoded
  *		using 'showLINE()' and 'showC()'.
@@ -656,6 +663,31 @@ int	y,x;
 	unsavewin(TRUE,row);
 }
 
+rescan(fwd, backto)		/* re-scan argument list */
+char	*backto;		/* name to reset to, if possible */
+{
+	auto	 char	tpath[MAXPATHLEN];
+	register int	j;
+
+	to_work();
+	tag_count = 0;
+	if (dedscan(top_argc, top_argv)) {
+		curfile = 0;	/* numfiles may be less now */
+		dedsort();
+		curfile = 0;
+		for (j = 0; j < numfiles; j++)
+			if (!strcmp(xNAME(j), backto)) {
+				curfile = j;
+				break;
+			}
+		(void)to_file();
+		showFILES();
+		return (TRUE);
+	} else if (fwd)
+		return (new_args(strcpy(tpath, new_wd), 'F', 1));
+	return (FALSE);
+}
+
 restat(group)		/* re-'stat()' the current line, and optionally group */
 {
 	if (group) {
@@ -1041,23 +1073,15 @@ char	tpath[BUFSIZ],
 			markset(mark_W + count);
 			break;
 
+	case CTL(R):	/* modify read-expression */
+			(void)strcpy(tpath, cNAME);
+			while (dedread())
+				if (rescan(FALSE, tpath))
+					break;
+			break;
+
 	case 'R':	/* re-stat display-list */
-			to_work();
-			tag_count = 0;
-			(void)strcpy(tpath,cNAME);
-			if (dedscan(top_argc, top_argv)) {
-				curfile = 0;	/* numfiles may be less now */
-				dedsort();
-				curfile = 0;
-				for (j = 0; j < numfiles; j++)
-					if (!strcmp(xNAME(j), tpath)) {
-						curfile = j;
-						break;
-					}
-				(void)to_file();
-				showFILES();
-			} else
-				quit = !new_args(strcpy(tpath, new_wd), 'F', 1);
+			quit = !rescan(TRUE, strcpy(tpath, cNAME));
 			break;
 
 	case 'W':	/* re-stat window */

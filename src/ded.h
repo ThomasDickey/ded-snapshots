@@ -1,4 +1,4 @@
-/* $Header: /users/source/archives/ded.vcs/src/RCS/ded.h,v 2.0 1989/03/14 13:18:03 ste_cm Exp $ */
+/* $Header: /users/source/archives/ded.vcs/src/RCS/ded.h,v 3.0 1989/05/26 13:06:26 ste_cm Rel $ */
 
 /*
  * Created:	09 Nov 1987
@@ -6,12 +6,11 @@
  */
 
 #define		CUR_PTYPES	/* use "curses" */
+#define		STR_PTYPES	/* use "strrchr" */
 #include	"ptypes.h"
 #include	<ctype.h>
 #include	"cmdch.h"
-extern	char	*getenv(),
-		*strcat(),
-		*strcpy();
+extern	char	*getenv();
 
 extern	char	*doalloc(),	/* (re)allocate memory		*/
 		*gethome(),	/* find home-directory		*/
@@ -35,11 +34,7 @@ extern	char	*doalloc(),	/* (re)allocate memory		*/
 extern	char	*getcwd();
 #else	BSD
 extern	char	*getwd();
-#define	strchr	index
-#define	strrchr	rindex
 #endif	SYSTEM5/BSD
-extern	char	*strchr();
-extern	char	*strrchr();
 
 #ifndef	S_IFLNK
 #define	lstat	stat
@@ -137,6 +132,8 @@ typedef	struct	{
  */
 MAIN	char	old_wd[BUFSIZ],	/* original working-directory */
 		new_wd[BUFSIZ],	/* current working directory */
+		*toscan,	/* selects files in 'dedscan()'		*/
+		*scan_expr,	/* compiled version of 'toscan'		*/
 		bfr_sh[BUFSIZ];	/* last $SHELL-command			*/
 
 MAIN	FLIST	*flist;		/* pointer to display-list */
