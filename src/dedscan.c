@@ -1,5 +1,5 @@
 #if	!defined(NO_IDENT)
-static	char	Id[] = "$Id: dedscan.c,v 12.14 1994/09/27 23:37:21 tom Exp $";
+static	char	Id[] = "$Id: dedscan.c,v 12.16 1994/10/05 23:55:32 tom Exp $";
 #endif
 
 /*
@@ -302,6 +302,7 @@ public	int	dedscan (
 			warn(gbl, gbl->new_wd);
 			return(0);
 		}
+
 		if ((common = argstat(gbl, gbl->new_wd, FALSE)) > 0) {
 				/* mark dep's for purge */
 			if (gbl->toscan == 0)
@@ -436,6 +437,9 @@ public	void	statSCCS(
 {
 	if (gbl->Z_opt) {
 		if (isFILE(f_->s.st_mode)) {
+#ifdef CMV_PATH
+			purge_cmv_dir(gbl->new_wd, ".");
+#endif
 			lastrev(gbl->new_wd,
 				name,
 				&(f_->z_vers),

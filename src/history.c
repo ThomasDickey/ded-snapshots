@@ -1,7 +1,3 @@
-#if	!defined(NO_IDENT)
-static	char	Id[] = "$Id: history.c,v 12.4 1994/07/24 00:57:59 tom Exp $";
-#endif
-
 /*
  * Title:	history.c
  * Author:	T.E.Dickey
@@ -19,6 +15,8 @@ static	char	Id[] = "$Id: history.c,v 12.4 1994/07/24 00:57:59 tom Exp $";
  */
 
 #include "ded.h"
+
+MODULE_ID("$Id: history.c,v 12.6 1994/10/05 23:44:53 tom Exp $")
 
 #define	def_alloc	HIST_alloc
 	/*ARGSUSED*/
@@ -154,13 +152,11 @@ public	void	show_history(
 {
 	HIST *	table	= cmd_history;
 	char	temp[20];
-	int	count	= 0;
 	int	shown	= 1;
 
 	dedshow(gbl, "Command=", dyn_string(gbl->cmd_sh));
-	while ((table != 0) && (count < depth)) {
-		if ((count++ != 0)
-		 || strcmp(table->text, dyn_string(gbl->cmd_sh))) {
+	while ((table != 0) && (shown < depth)) {
+		if (strcmp(table->text, dyn_string(gbl->cmd_sh))) {
 			FORMAT(temp, "%d %c ", ++shown, gbl->clr_sh ? '%' : '!');
 			dedshow2(temp);
 			dedshow2(table->text);
