@@ -1,3 +1,7 @@
+1991-07-22  dickey@software.org
+
+	* src/ded.c: quote filename before using it in 'forkfile()'
+
 1991-07-19  dickey@software.org
 
 	* src/ded.c:
