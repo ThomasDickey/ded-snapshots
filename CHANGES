@@ -1,3 +1,20 @@
+1990-04-25  dickey@software.org
+
+	* src/dedscan.c:
+	corrected code which tries to circumvent unreadable old_wd
+	(had broken the 'R' command in that fix...)
+
+1990-04-25  ste_cm@software.org
+
+	* src/dedscan.c: BASELINE Mon Apr 30 09:54:01 1990 -- (CPROTO)
+
+1990-04-25  dickey@software.org
+
+	* src/dedscan.c:
+	refined pathname-conversion using 'abshome()' followed by
+	'getwd()' when needed, rather than 'abspath()' to avoid
+	confusion with symbolic links.
+
 1990-04-24  dickey@software.org
 
 	* src/ded2s.c:
