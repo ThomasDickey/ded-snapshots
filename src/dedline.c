@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	sccs_id[] = "@(#)dedline.c	1.11 89/01/23 10:55:27";
+static	char	sccs_id[] = "@(#)dedline.c	1.12 89/01/25 12:53:49";
 #endif	lint
 
 /*
@@ -122,7 +122,7 @@ char	*bfr;
 		if (*s++ == '%') {
 			if (*s++ == 'F')
 				d += strlen(strcpy(d, dedrung(1)));
-			else if (*s == 'B')
+			else if (s[-1] == 'B')
 				d += strlen(strcpy(d, dedrung(-1)));
 			else {
 				d++;
