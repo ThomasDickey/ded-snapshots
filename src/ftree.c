@@ -1,5 +1,5 @@
 #ifndef	NO_IDENT
-static	char	Id[] = "$Id: ftree.c,v 12.31 1994/07/29 17:05:24 tom Exp $";
+static	char	Id[] = "$Id: ftree.c,v 12.32 1994/08/12 21:15:18 tom Exp $";
 #endif
 
 /*
@@ -927,11 +927,9 @@ public	void	ft_read(
  * For a given node, compute the strings that are appended in 'ft_show()'
  */
 private	void	fd_annotate(
-	_ARX(RING *,	gbl)
 	_ARX(int,	node)
 	_AR1(char *,	buffer)
 		)
-	_DCL(RING *,	gbl)
 	_DCL(int,	node)
 	_DCL(char *,	buffer)
 {
@@ -1015,7 +1013,7 @@ private	int	ft_show(
 	 * which filelist the node corresponds, if any.
 	 */
 	(void)ded2string(gbl, bfr, sizeof(bfr), ftree[node].f_name, FALSE);
-	fd_annotate(gbl, node, end);
+	fd_annotate(node, end);
 	k = strlen(bfr) + strlen(end);
 	j = k + (level * BAR_WIDTH) + LEN_MARK;
 	if (j >= COLS) {	/* not all of the line will be visible */
@@ -1078,7 +1076,7 @@ private	int	ft_show(
 			if (limit > 0) {
 
 				(void)ded2string(gbl, bfr, sizeof(bfr), ftree[j].f_name, FALSE);
-				fd_annotate(gbl, j, end);
+				fd_annotate(j, end);
 
 				if (strlen(bfr) > count) {
 					if (zMARK(j))
@@ -1486,7 +1484,7 @@ public	RING *	ft_view(
 					if (lvl < 0)
 						lvl = 0;
 					if (xt_mouse.dbl_clik) {
-						ungetc('E',stdin);
+						(void)ungetc('E',stdin);
 					}
 				} else {
 					beep();

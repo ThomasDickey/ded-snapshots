@@ -1,5 +1,5 @@
 #if	!defined(NO_IDENT)
-static	char	Id[] = "$Id: dedscan.c,v 12.11 1994/08/02 19:50:02 tom Exp $";
+static	char	Id[] = "$Id: dedscan.c,v 12.12 1994/08/12 21:14:10 tom Exp $";
 #endif
 
 /*
@@ -335,7 +335,7 @@ public	int	dedscan (
 				 * of empty directory lists!
 				 */
 				if (!gbl->numfiles) {
-					argstat(gbl, ".", TRUE);
+					(void)argstat(gbl, ".", TRUE);
 				}
 			} else {
 				waitmsg("cannot open directory");

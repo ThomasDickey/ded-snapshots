@@ -1,3 +1,10 @@
+1994-08-12  Thomas E. Dickey  <dickey@clark.net>
+
+	* src/ftree.c, src/ded.c, src/dedscan.c, src/dedview.c, src/boxchars.c:
+	lint:SunOS
+
+	* src/boxchars.c: use MODULE_ID
+
 1994-08-02  Thomas E. Dickey  <dickey@clark.net>
 
 	* src/dedscan.c: added logic to perform DED_CM_LOOKUP
