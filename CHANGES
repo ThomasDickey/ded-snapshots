@@ -1,3 +1,39 @@
+1988-05-02  dickey@software.org
+
+	* src/dedring.c:
+	force 'q' command to start with the current directory, not the location
+	in the directory tree.
+
+	* src/ded.c: fixes for latest mods to ftree 'q' command.
+
+	* src/version.h: first release version (documented)
+
+	* src/dedtype.c:
+	fixes to window-refresh, repeat-count (for forward-command) and allocation (was static!).
+
+	* src/ded.hlp: moved to-do list to 'Bugs'.
+
+	* src/README: New file.
+
+	* src/ftree.c:
+	made 'q' command free current dedring-list until there is only one -- then return
+
+	* src/dedring.c:
+	corrected repeat count on F,B.  Added 'q' (quit-current-list).
+
+	* src/Makefile: broke out 'dedfree.c'
+
+	* src/dedfree.c: New file.
+
+	* src/dedscan.c:
+	broke out 'dedfree()' so I can use it from 'dedring()'.
+
+	* src/ded.c: added arrow keys to inline field editing.
+
+	* src/ftree.c: added '^' command.
+
+	* src/ftree.c: invoke 'resize()' on 'w' refresh.
+
 1988-04-28  dickey@software.org
 
 	* src/dedring.c: forgot to sort new lists after reading them.

@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	sccs_id[] = "@(#)dedring.c	1.2 88/04/28 16:04:08";
+static	char	sccs_id[] = "@(#)dedring.c	1.4 88/05/02 16:19:45";
 #endif	lint
 
 /*
@@ -7,6 +7,8 @@ static	char	sccs_id[] = "@(#)dedring.c	1.2 88/04/28 16:04:08";
  * Author:	T.E.Dickey
  * Created:	27 Apr 1988
  * Modified:
+ *		02 May 1988, fixed repeat count on 'F', 'B' commands.
+ *			     Added 'q' command.
  *
  * Function:	Save the current state of the directory editor and scan
  *		a new directory.
@@ -15,6 +17,7 @@ static	char	sccs_id[] = "@(#)dedring.c	1.2 88/04/28 16:04:08";
 #include	"ded.h"
 #include	<sys/errno.h>
 extern	int	errno;
+extern	FLIST	*dedfree();
 extern	char	*stralloc();
 
 /*
@@ -45,7 +48,8 @@ typedef	struct	_ring	{
 	unsigned	numfiles;
 	} RING;
 
-static	RING	*ring;
+static	RING	*ring,		/* directory-list */
+		*rang;		/* reference so we don't free real argv! */
 
 /************************************************************************
  *	local procedures						*
@@ -170,6 +174,7 @@ char	bfr[BUFSIZ];
 	 * the actual file-list
 	 */
 	p = (RING *)doalloc((char *)0, sizeof(RING));
+	if (!rang)	rang = p;
 
 	save(p);
 	(void)strcpy(p->new_wd, bfr);
@@ -223,7 +228,7 @@ RING	*p	= lookup(path),
 
 	if (p) {
 		if (q == p)
-			ring->_link = p->_link;
+			ring = p->_link;
 		else {
 			while (q) {
 				if (q->_link == p)
@@ -231,11 +236,13 @@ RING	*p	= lookup(path),
 				q = q->_link;
 			}
 		}
-		if (p->flist)	free (p->flist);
-		if (p->top_argv) {
-			if (p->top_argv[0]) {
-				free (p->top_argv[0]);
-				free ((char *)p->top_argv);
+		p->flist = dedfree(p->flist, p->numfiles);
+		if (p != rang) {
+			if (p->top_argv) {
+				if (p->top_argv[0]) {
+					free (p->top_argv[0]);
+					free ((char *)p->top_argv);
+				}
 			}
 		}
 		free (p);
@@ -327,12 +334,24 @@ RING	*oldp,
 		while (count-- > 0) {
 			if ((newp = forward(path)) == oldp)
 				return (FALSE);
+			path = newp->new_wd;
 		}
 		break;
 	case 'B':
 		while (count-- > 0) {
 			if ((newp = backward(path)) == oldp)
 				return (FALSE);
+			path = newp->new_wd;
+		}
+		break;
+	case 'q':
+		path = new_wd;
+		while (count-- > 0) {
+		char	tmp[BUFSIZ];
+			if ((newp = forward(path)) == oldp)
+				return(FALSE);
+			remove(path);
+			path = strcpy (tmp, newp->new_wd);
 		}
 	}
 

@@ -1,14 +1,16 @@
-MANIFEST for ded, version t19880428
+MANIFEST for ded, version t19880502
 --------------------------------------------------------------------------------
 MANIFEST                        this file
 src                             subdirectory
 src/Makefile                    makefile for src-directory
+src/README                      to-do list for DED
 src/ded.c                       main program of DED
 src/ded.h                       common definitions of DED
 src/ded.hlp                     help-file for DED
 src/ded2s.c                     convert file-entry to string
 src/deddoit.c                   execute shell commands
 src/dedfind.c                   search within file-list
+src/dedfree.c                   deallocate memory used in file-list
 src/dedring.c                   manage ring of file-lists
 src/dedscan.c                   read file-list
 src/dedshow.c                   display file-list

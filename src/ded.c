@@ -1,5 +1,5 @@
 #ifndef	NO_SCCS_ID
-static	char	sccs_id[] = "@(#)ded.c	1.14 88/04/28 13:19:42";
+static	char	sccs_id[] = "@(#)ded.c	1.16 88/05/02 15:17:23";
 #endif	NO_SCCS_ID
 
 /*
@@ -7,6 +7,8 @@ static	char	sccs_id[] = "@(#)ded.c	1.14 88/04/28 13:19:42";
  * Author:	T.E.Dickey
  * Created:	09 Nov 1987
  * Modified:
+ *		02 May 1988, forgot to allow arrow keys in insert-mode of
+ *			     'edittext()'.
  *		28 Apr 1988, added 'new_args()' to integrate with ftree module.
  *			     Modified 'edittext()' to correspond with rawgets.
  *			     Added "=" renaming command.
@@ -42,6 +44,10 @@ extern	char	*getenv(),
 
 #define	P_cmd	'p'
 #define	file2row(n)	((n) - Ybase + Yhead + 1)
+
+#ifdef	lint
+#undef	putchar
+#endif	lint
 
 /*
  * Per-viewport main-module state:
@@ -620,6 +626,10 @@ register char *s;
 				delete = x-1;
 			} else if (c == kc) {
 				delete = x;
+			} else if (c == ARO_LEFT) {
+				if (x > 0)	x--;
+			} else if (c == ARO_RIGHT) {
+				if (x < strlen(bfr))	x++;
 			} else if (c == CTL(b)) {
 				x = 0;
 			} else if (c == CTL(f)) {
@@ -1183,7 +1193,7 @@ char	tpath[BUFSIZ],
 				unsavewin(TRUE,0);
 				ft_read(new_wd);
 			}
-			if (c == 'E' || c == 'D')
+			if (c == 'E' || c == 'D' || c == 'q')
 				new_args(tpath, 'E', 1);
 			else
 				showFILES();

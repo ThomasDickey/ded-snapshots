@@ -176,6 +176,7 @@ Directory Tree:
 
   D		Toggle between directory-tree and file-list display.
   E		Enter a new file-list at the indicated directory-name.
+  e		Enter a new ded-process at the indicated directory-name.
   F		Move forward (with wraparound) in the list of directories.
   B		Move backward (with wraparound) in the list of directories.
   R		Read directory names at the current position (also done
@@ -185,33 +186,3 @@ Directory Tree:
   _		Clear list of marked names.
   p		Purge marked names.
   @		Jump to specified path.
-
-To do:
------
-  Cleanup sorting, e.g., 's' command is not applicable to devices;
-  should sort by major/minor pairs).
-
-  Provide help from within workarea pager.
-
-  Should recognize '~' explicitly in shell-commands,
-  and in dedscan-module.
-
-  Do better error diagnostics.
-
-  Make spawned processes inherit options from current one
-
-  Provide for 2-display lists/viewports.
-
-  Provide repeat-count on 'f' command in work-area pager
-
-  Correct apollo message about trying to open nil-files
-  (they are not directories!)
-
-  Use SHELL environment variable & bldargs() so we needn't
-  go thru 'system()' call (which always goes thru /bin/sh).
-
-  Integrate 'padedit()' error messages with 'ded'.
-
-  Integrate calls on 'resizewin()' with all 'w' commands (e.g., in ftree)
-
-  Document editing rules for rawgets.
