@@ -137,7 +137,7 @@
 
 #include	<fcntl.h>
 
-MODULE_ID("$Id: ftree.c,v 12.59 2001/12/11 14:10:01 tom Exp $")
+MODULE_ID("$Id: ftree.c,v 12.60 2002/07/05 13:33:59 tom Exp $")
 
 #define	Null	(char *)0	/* some NULL's are simply 0 */
 
@@ -1341,7 +1341,7 @@ private	int	uprow(
 	_DCL(int,	level)
 {
 	register int j, k = node;
-#if HAVE_WSCRL && HAVE_WSETSCRREG
+#if defined(HAVE_WSCRL) && defined(HAVE_WSETSCRREG)
 	int savebase = showbase;
 #endif
 
@@ -1361,7 +1361,7 @@ private	int	uprow(
 		}
 	} else
 		beep();
-#if HAVE_WSCRL && HAVE_WSETSCRREG
+#if defined(HAVE_WSCRL) && defined(HAVE_WSETSCRREG)
 	if (showbase < savebase) {
 		int	skipped = 0;
 		for (j = savebase; j > showbase; j--)
@@ -1385,7 +1385,7 @@ private	int	downrow(
 	_DCL(int,	level)
 {
 	register ENTRIES j, k = node;
-#if HAVE_WSCRL && HAVE_WSETSCRREG
+#if defined(HAVE_WSCRL) && defined(HAVE_WSETSCRREG)
 	int savebase = showbase;
 #endif
 
@@ -1406,7 +1406,7 @@ private	int	downrow(
 		}
 	} else
 		beep();
-#if HAVE_WSCRL && HAVE_WSETSCRREG
+#if defined(HAVE_WSCRL) && defined(HAVE_WSETSCRREG)
 	if (showbase > savebase) {
 		int	skipped = 0;
 		for (j = savebase; j < showbase; j++)

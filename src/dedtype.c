@@ -58,7 +58,7 @@
 #define		DIR_PTYPES	/* includes directory-stuff */
 #include	"ded.h"
 
-MODULE_ID("$Id: dedtype.c,v 12.31 2002/07/03 13:22:18 tom Exp $")
+MODULE_ID("$Id: dedtype.c,v 12.32 2002/07/05 13:33:59 tom Exp $")
 
 typedef	struct	{
 	OFF_T	offset;
@@ -391,7 +391,7 @@ private	int	JumpBackwards(
 			jump++;
 		}
 	}
-#if HAVE_WSCRL && HAVE_WSETSCRREG
+#if defined(HAVE_WSCRL) && defined(HAVE_WSETSCRREG)
 	if (jump != savejump
 	 && (n + NumP(1) < max_lines)
 	 && (jump - savejump) < NumP(1)
@@ -757,7 +757,7 @@ public	void	dedtype(
 		while (!done) {
 
 			if (jump) {
-#if HAVE_WSCRL && HAVE_WSETSCRREG
+#if defined(HAVE_WSCRL) && defined(HAVE_WSETSCRREG)
 				/*
 				 * If we're doing single-line scrolling past
 				 * the point we've read in the file, try to

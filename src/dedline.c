@@ -56,7 +56,7 @@
 
 #include	"ded.h"
 
-MODULE_ID("$Id: dedline.c,v 12.25 2000/10/19 01:41:02 tom Exp $")
+MODULE_ID("$Id: dedline.c,v 12.26 2002/07/05 13:55:00 tom Exp $")
 
 #define	CHMOD(n)	(gSTAT(n).st_mode & 07777)
 #define	OWNER(n)	((geteuid() == 0) || (gSTAT(x).st_uid == geteuid()))
@@ -553,7 +553,7 @@ public	void	edit_uid (
 	_AR1(RING *,	gbl))
 	_DCL(RING *,	gbl)
 {
-#if HAVE_CHOWN
+#if defined(HAVE_CHOWN)
 	register unsigned j;
 	int	uid	= cSTAT.st_uid,
 		changed	= FALSE;
@@ -599,7 +599,7 @@ public	void	edit_gid (
 	_AR1(RING *,	gbl))
 	_DCL(RING *,	gbl)
 {
-#if HAVE_CHOWN
+#if defined(HAVE_CHOWN)
 	register unsigned j;
 	int	gid	= cSTAT.st_gid,
 		changed	= FALSE;

@@ -93,7 +93,7 @@
 #include	<rcsdefs.h>
 #include	<sccsdefs.h>
 
-MODULE_ID("$Id: dedscan.c,v 12.39 2002/07/03 13:22:18 tom Exp $")
+MODULE_ID("$Id: dedscan.c,v 12.40 2002/07/05 13:55:00 tom Exp $")
 
 #define	def_doalloc	FLIST_alloc
 	/*ARGSUSED*/
@@ -652,7 +652,7 @@ public	int	path_RESOLVE (
 			return(FALSE);
 		}
 	}
-#if HAVE_REALPATH
+#if defined(HAVE_REALPATH)
 	else
 	{
 		/* try to recover, just in case */

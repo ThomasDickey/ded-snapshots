@@ -162,7 +162,7 @@
 #define	MAIN
 #include	"ded.h"
 
-MODULE_ID("$Header: /users/source/archives/ded.vcs/src/RCS/ded.c,v 12.69 2002/04/16 10:17:16 tom Exp $")
+MODULE_ID("$Header: /users/source/archives/ded.vcs/src/RCS/ded.c,v 12.71 2002/07/05 13:55:00 tom Exp $")
 
 #define	EDITOR	DEFAULT_EDITOR
 #define	BROWSE	DEFAULT_BROWSE
@@ -785,7 +785,7 @@ void	usage(_AR0)
 			"  -G       show group-name instead of user-name",
 			"  -I       show inode field",
 			"  -P       show protection in octal",
-#if HAVE_NEWTERM
+#if defined(HAVE_NEWTERM)
 			"  -p       print selected filenames",
 #endif
 			"  -S       show file-size in blocks",
@@ -807,7 +807,7 @@ void	usage(_AR0)
 			"  -c FILE  read DED commands from FILE",
 			"  -e       edit 'e' in new process",
 			"  -d       (debug)",
-#if HAVE_HAS_COLORS
+#if defined(HAVE_HAS_COLORS)
 			"  -i       invert default colors",
 #endif
 			"  -l FILE  write DED commands to log-FILE",
@@ -896,7 +896,7 @@ _MAIN
 			dpath[MAXPATHLEN];
 
 	RING	*gbl = ring_alloc();
-#if HAVE_NEWTERM
+#if defined(HAVE_NEWTERM)
 	int	do_select = FALSE;
 #endif
 
@@ -917,7 +917,7 @@ _MAIN
 	case 'e':	optInprocess = FALSE;	break;
 	case 'G':	COMPLEMENT(gbl->G_opt);	break;
 	case 'I':	COMPLEMENT(gbl->I_opt);	break;
-#if HAVE_HAS_COLORS
+#if defined(HAVE_HAS_COLORS)
 	case 'i':	invert_colors = TRUE;	break;
 #else
 	case 'i':	break;			/* ignored */
@@ -942,7 +942,7 @@ _MAIN
 	case 'd':	debug++;		break;
 	case 't':	tree_opt = optarg;	break;
 	case 'n':	no_worry = TRUE;	break;
-#if HAVE_NEWTERM
+#if defined(HAVE_NEWTERM)
 	case 'p':	do_select = TRUE;	break;
 #endif
 	default:	usage();
@@ -998,7 +998,7 @@ _MAIN
 
 	/* protect against pipes */
 	if (!isatty(fileno(stdin))) {
-# if HAVE_TTYNAME
+# if defined(HAVE_TTYNAME)
 		char	*tty = ttyname(fileno(stderr));
 # else
 		char	*tty = "/dev/tty";
@@ -1016,7 +1016,7 @@ _MAIN
 		FPRINTF(stderr, "$TERM is not set\n");
 		return(FAIL);
 	}
-#if HAVE_NEWTERM
+#if defined(HAVE_NEWTERM)
 	if (!newterm(getenv("TERM"), do_select ? stderr : stdout, stdin)) {
 		FPRINTF(stderr, "newterm failed to initialize screen\n");
 		return(FAIL);
@@ -1028,13 +1028,13 @@ _MAIN
 	}
 #endif
 
-#if HAVE_WSCRL
+#if defined(HAVE_WSCRL)
 	(void)scrollok(stdscr, TRUE);
 #endif
-#if HAVE_HAS_COLORS
+#if defined(HAVE_HAS_COLORS)
 	init_dedcolor();
 #endif
-#if HAVE_TYPEAHEAD
+#if defined(HAVE_TYPEAHEAD)
 	typeahead(-1);			/* disable it */
 #endif
 	boxchars(optBox);
@@ -1237,7 +1237,7 @@ _MAIN
 			break;
 
 	case ' ':	/* clear workspace */
-#if	!CURSES_LIKE_BSD
+#if	!defined(CURSES_LIKE_BSD)
 			if (lastc == c)
 				clearok(stdscr, TRUE);
 #endif
@@ -1402,7 +1402,7 @@ _MAIN
 	}; lastc = c; }
 
 	to_exit(TRUE);
-#if HAVE_NEWTERM
+#if defined(HAVE_NEWTERM)
 	if (do_select)
 		ring_tags();
 #endif

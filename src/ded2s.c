@@ -58,15 +58,14 @@
  */
 
 #include	"ded.h"
-#include	<time.h>
-#include	<ctype.h>
+#include	<rcsdefs.h>
 
-MODULE_ID("$Id: ded2s.c,v 12.26 2002/04/16 10:16:12 tom Exp $")
+MODULE_ID("$Id: ded2s.c,v 12.27 2002/07/05 13:36:12 tom Exp $")
 
-#if MAJOR_IN_MKDEV
+#if defined(MAJOR_IN_MKDEV)
 #  include	<sys/mkdev.h>
 #else
-#  if MAJOR_IN_SYSMACROS
+#  if defined(MAJOR_IN_SYSMACROS)
 #    include	<sys/sysmacros.h>
 #  endif
 #endif

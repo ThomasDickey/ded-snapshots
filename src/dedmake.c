@@ -22,7 +22,7 @@
 
 #include	"ded.h"
 
-MODULE_ID("$Id: dedmake.c,v 12.10 1998/03/02 01:14:31 tom Exp $")
+MODULE_ID("$Id: dedmake.c,v 12.11 2002/07/05 13:55:00 tom Exp $")
 
 private	int	makeit(
 	_ARX(RING *,	gbl)
@@ -44,7 +44,7 @@ private	int	makeit(
 		ft_insert(name);
 	}
 	if (mode == S_IFREG) {
-#if HAVE_LINK
+#if defined(HAVE_LINK)
 		if (hard >= 0) {
 			if (link(gNAME(hard), name) < 0)
 				return (FALSE);
