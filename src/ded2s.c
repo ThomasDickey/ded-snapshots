@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	Id[] = "$Id: ded2s.c,v 11.0 1992/04/02 08:53:20 ste_cm Rel $";
+static	char	Id[] = "$Id: ded2s.c,v 12.0 1992/11/23 10:34:02 ste_cm Rel $";
 #endif
 
 /*
@@ -7,6 +7,9 @@ static	char	Id[] = "$Id: ded2s.c,v 11.0 1992/04/02 08:53:20 ste_cm Rel $";
  * Author:	T.E.Dickey
  * Created:	09 Nov 1987
  * Modified:
+ *		23 Nov 1992, for RCS version 5, show differences in ztime/mtime
+ *			     that are probably due to localtime/gmt_offset diff
+ *			     as "~".
  *		01 Apr 1992, convert most global variables to RING-struct.
  *		04 Feb 1992, show differences between mtime & ztime specially
  *			     when +/- 1.
@@ -317,6 +320,13 @@ public	void	ded2s(
 				mark = (diff == -1) ? '+' : '>';
 			else if (diff > 0)
 				mark = (diff ==  1) ? '-' : '<';
+#if	RCS_VERSION >= 5
+			if (diff == -gmt_offset(s->st_mtime))
+				mark = '~';
+#else	/* RCS_VERSION <= 4 */
+			if (diff == gmt_offset(s->st_mtime))
+				mark = '~';
+#endif
 
 			*bfr++ = mark;
 		} else
