@@ -1,3 +1,7 @@
+1993-12-16  dickey@software.org
+
+	* src/dedview.c, src/dedring.c, src/ded.h: mrkfile-hack
+
 1993-12-06  dickey@software.org
 
 	* src/version.h: added 'S' sort

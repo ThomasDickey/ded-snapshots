@@ -1,5 +1,5 @@
 #if	!defined(NO_IDENT)
-static	char	Id[] = "$Id: dedring.c,v 12.3 1993/10/29 20:30:51 dickey Exp $";
+static	char	Id[] = "$Id: dedring.c,v 12.4 1993/12/16 16:16:44 dickey Exp $";
 #endif
 
 /*
@@ -118,6 +118,7 @@ private	void	ring_copy(
 	SAVE(Xbase);
 	SAVE(Ybase);
 	SAVE(curfile);
+	SAVE(mrkfile);
 	SAVE(dateopt);
 	SAVE(sortord);
 	SAVE(sortopt);
@@ -216,6 +217,7 @@ private	RING *	Insert(
 	p->top_argv    = vecalloc(2);
 	p->top_argv[0] = txtalloc(path);
 	p->curfile     = 0;
+	p->mrkfile     = gbl->mrkfile;
 	p->numfiles    = 0;
 
 	InsertAfter(FindInsert(path), p);
