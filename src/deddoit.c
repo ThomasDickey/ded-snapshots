@@ -1,5 +1,5 @@
 #if	!defined(NO_IDENT)
-static	char	Id[] = "$Id: deddoit.c,v 12.3 1993/10/29 20:27:01 dickey Exp $";
+static	char	Id[] = "$Id: deddoit.c,v 12.4 1993/11/18 20:32:17 dickey Exp $";
 #endif
 
 /*
@@ -261,7 +261,7 @@ public	void	deddoit(
 			if (!isascii(*s))
 				*s = toascii(*s);
 
-		resetty();
+		cookterm();
 		(void)dedsigs(FALSE);	/* prevent child from killing us */
 		dlog_comment("execute %s\n", dyn_string(Subs));
 		errno = 0;

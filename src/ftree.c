@@ -1,11 +1,13 @@
 #if	!defined(NO_IDENT)
-static	char	Id[] = "$Id: ftree.c,v 12.4 1993/10/29 20:30:49 dickey Exp $";
+static	char	Id[] = "$Id: ftree.c,v 12.5 1993/11/18 15:38:08 dickey Exp $";
 #endif
 
 /*
  * Author:	T.E.Dickey
  * Created:	02 Sep 1987
  * Modified:
+ *		18 Nov 1993, modified to make "^" command toggle, and to make
+ *			     up/down row commands simulate scrolling.
  *		29 Oct 1993, ifdef-ident, port to HP/UX
  *		28 Sep 1993, gcc warnings
  *		23 Jul 1992, in '~' command, do chdir to resolve symbolic links
@@ -1131,8 +1133,10 @@ private	int	uprow(
 		}
 	}
 	if (k != node) {
-		while (k < showbase)
-			(void)fd_bak(1);
+		while (showbase > k
+		   &&  showbase > 0) {
+			showbase--;
+		}
 	} else
 		beep();
 	return(k);
@@ -1158,8 +1162,12 @@ private	int	downrow(
 		}
 	}
 	if (k != node) {
-		while (k > showlast)
-			(void)fd_fwd(1);
+		while (showlast < k
+		    && showlast < FDlast) {
+			showbase++;
+			showdiff = -1;
+			(void)limits(showbase,showbase);
+		}
 	} else
 		beep();
 	return(k);
@@ -1251,6 +1259,9 @@ public	RING *	ft_view(
 
 		case '^':	if (showbase != row) {
 					showbase = row;
+					showdiff = -1;
+				} else if ((row - TOSHOW) > 0) {
+					(void)uprow(row, TOSHOW - 1, MAXLVL);
 					showdiff = -1;
 				}
 				break;

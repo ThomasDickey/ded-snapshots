@@ -1,5 +1,5 @@
 #if	!defined(NO_IDENT)
-static	char	Id[] = "$Id: dedfind.c,v 12.3 1993/10/29 20:30:51 dickey Exp $";
+static	char	Id[] = "$Id: dedfind.c,v 12.4 1993/11/18 20:14:41 dickey Exp $";
 #endif
 
 /*
@@ -7,6 +7,8 @@ static	char	Id[] = "$Id: dedfind.c,v 12.3 1993/10/29 20:30:51 dickey Exp $";
  * Author:	T.E.Dickey
  * Created:	18 Nov 1987
  * Modified:
+ *		18 Nov 1993, corrected infinite loop when current-file happened
+ *			     to be a symbolic link.
  *		29 Oct 1993, ifdef-ident, port to HP/UX.
  *		28 Sep 1993, gcc warnings
  *		02 Dec 1992, show message "no other match".
@@ -76,9 +78,9 @@ public	void	dedfind(
 				j = -1;
 			} else if ((found = GOT_REGEX(expr,gNAME(j))) != 0) {
 				break;
-			} else if (gLTXT(j) != 0) {
-				if ((found = GOT_REGEX(expr,gLTXT(j))) != 0)
-					break;
+			} else if ((gLTXT(j) != 0)
+			    && (found = GOT_REGEX(expr,gLTXT(j))) != 0) {
+				break;
 			} else if (j == gbl->curfile) {
 				found = FALSE;
 				break;

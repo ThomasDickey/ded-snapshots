@@ -1,5 +1,5 @@
 #if	!defined(NO_IDENT)
-static	char	Id[] = "$Id: dedview.c,v 12.5 1993/11/17 19:06:24 dickey Exp $";
+static	char	Id[] = "$Id: dedview.c,v 12.6 1993/11/18 19:19:22 dickey Exp $";
 #endif
 
 /*
@@ -692,6 +692,7 @@ public	RING *	tab2VIEW _ONE(RING *,gbl)
 		next_view();
 		if (ring_view())
 			showC(vue->gbl);
+		showMARK(vue->gbl->Xbase);
 	} else
 		dedmsg(gbl, "no other viewport");
 	return vue->gbl;

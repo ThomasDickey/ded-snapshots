@@ -1,4 +1,4 @@
-$Id: release.txt,v 12.2 1993/09/24 15:24:00 dickey Exp $
+$Id: release.txt,v 12.3 1993/11/18 19:40:38 dickey Exp $
 
 --------------------------------------------------------------------------------
 
@@ -6,6 +6,8 @@ Version 13.0:
 ------------
 
 Modified to address all gcc warnings.  Tested with Purify (demo only).
+
+Port to HP/UX 9.01 (System V clone).
 
 Version 12.0:
 ------------
