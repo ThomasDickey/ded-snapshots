@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	Id[] = "$Id: dedring.c,v 10.23 1992/05/27 16:55:32 dickey Exp $";
+static	char	Id[] = "$Id: dedring.c,v 11.0 1992/07/23 11:58:39 ste_cm Rel $";
 #endif
 
 /*
@@ -7,6 +7,7 @@ static	char	Id[] = "$Id: dedring.c,v 10.23 1992/05/27 16:55:32 dickey Exp $";
  * Author:	T.E.Dickey
  * Created:	27 Apr 1988
  * Modified:
+ *		23 Jul 1992, fixes to 'ring_rename()'
  *		12 May 1992, somehow omitted use of sort-key.
  *		01 Apr 1992, convert most global variables to RING-struct.
  *		28 Feb 1992, changed type of 'cmd_sh'.
@@ -140,6 +141,43 @@ private	void	ring_copy(
 }
 
 /*
+ * Find the insertion-point for a path, assuming that it is not in the ring.
+ */
+private	RING *	FindInsert(
+	_AR1(char *,	path))
+	_DCL(char *,	path)
+{
+	register RING	*p	= ring,
+			*q	= 0;
+	while (p) {
+		if (CMP_PATH(path, p) < 0)
+			break;
+		q = p;
+		p = p->_link;
+	}
+	return q;
+}
+
+/*
+ * 
+ */
+private	void	InsertAfter(
+	_ARX(RING *,	old)
+	_AR1(RING *,	new)
+		)
+	_DCL(RING *,	old)
+	_DCL(RING *,	new)
+{
+	if (old) {
+		new->_link	= old->_link;
+		old->_link	= new;
+	} else {
+		new->_link	= ring;
+		ring		= new;
+	}
+}
+
+/*
  * Find the given path in the directory list (sorted in the same way that
  * 'ftree' would sort them).
  * patch: main program quit exits only one list at a time (except 'Q' command)
@@ -153,24 +191,13 @@ private	RING *	Insert(
 	_DCL(char *,	path)
 	_DCL(char *,	pattern)
 {
-	RING	*p	= ring,
-		*q	= 0;
+	register RING	*p;
 
 	/*
 	 * Resolve pathname in case it was a symbolic link
 	 */
 	if (!path_RESOLVE(gbl, path))
 		return 0;
-
-	while (p) {
-	int	cmp = CMP_PATH(path, p);
-		if (cmp == 0)
-			return (p);
-		else if (cmp < 0)
-			break;
-		q = p;
-		p = p->_link;
-	}
 
 	/*
 	 * Make a new entry, using all of the current state except for
@@ -187,13 +214,7 @@ private	RING *	Insert(
 	p->curfile     = 0;
 	p->numfiles    = 0;
 
-	if (q) {
-		p->_link	= q->_link;
-		q->_link	= p;
-	} else {
-		p->_link	= ring;
-		ring		= p;
-	}
+	InsertAfter(FindInsert(path), p);
 	return (p);
 }
 
@@ -537,10 +558,8 @@ public	void	ring_rename(
 	_DCL(char *,	oldname)
 	_DCL(char *,	newname)
 {
-	register RING	*p, *q, *r;
+	register RING	*p, *q;
 	register RING	*mark	= 0;
-	register RING	*curr	= ring_get(gbl->new_wd);
-	auto	 RING	old;
 	auto	 int	len, n;
 	auto	 char	oldtemp[MAXPATHLEN],
 			newtemp[MAXPATHLEN],
@@ -558,35 +577,39 @@ public	void	ring_rename(
 
 	for (p = ring; (p != 0) && (p != mark); p = q) {
 		q = p->_link;
-		(void) strcpy(tmp, p->new_wd);
-		if ((len = is_subpath(oldname, tmp)) >= 0) {
-			old = *p;
-			(void) DeLink(tmp);
+		if ((len = is_subpath(oldname, p->new_wd)) >= 0) {
 
-			(void)pathcat(tmp, newname, tmp + len);
-			r = gbl;
+			(void)DeLink(strcpy(tmp, p->new_wd));
+			(void)pathcat(p->new_wd, newname, tmp + len);
+			InsertAfter(FindInsert(p->new_wd), p);
 
-			(void)strcpy(old.new_wd, r->new_wd);
-			old._link = r->_link;
-			*r = old;
-
-			for (n = 0; n < r->top_argc; n++) {
-				register char	*s = r->top_argv[n];
+			for (n = 0; n < p->top_argc; n++) {
+				register char	*s = p->top_argv[n];
 				auto	char	tmp2[MAXPATHLEN];
 
 				if ((len = is_subpath(oldname, s)) < 0)
 					continue;
-				r->top_argv[n] = txtalloc(
+				p->top_argv[n] = txtalloc(
 					pathcat(tmp2, newname, s + len));
 			}
 
 #ifdef	TEST
-			dlog_comment(".moved:%s\n", tmp);
+			dlog_comment(".moved:%s\n", p->new_wd);
 #endif
-			if (p == curr) {
-				int	ok = chdir(strcpy(gbl->new_wd, tmp));
-				dlog_comment("RING-chdir %s =>%d\n", tmp,ok);
+			/*
+			 * If we renamed our current directory, reset.
+			 */
+			if (p == gbl) {
+				int	ok = chdir(gbl->new_wd);
+				dlog_comment("RING-chdir %s =>%d\n",
+					p->new_wd, ok);
 			}
+
+			/*
+			 * If the rename made the names go forward, we will be
+			 * able to cut short our scan when we get to the first
+			 * one we have already moved.
+			 */
 			if (!mark)
 				mark = p;
 		}

@@ -1,4 +1,4 @@
-# $Id: Makefile,v 10.1 1992/02/28 10:57:22 dickey Exp $
+# $Id: Makefile,v 11.0 1992/07/23 12:05:48 ste_cm Rel $
 # make-file for testing unix directory editor
 #
 ####### (Development) ##########################################################
@@ -13,7 +13,8 @@ SCRIPTS	=\
 CMD_FILES=\
 	test1.cmd\
 	test2.cmd\
-	test3.cmd
+	test3.cmd\
+	test4.cmd
 
 SOURCES	= README $(SCRIPTS) $(CMD_FILES)
 
