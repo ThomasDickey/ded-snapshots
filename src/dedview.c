@@ -1,5 +1,5 @@
 #if	!defined(NO_IDENT)
-static	char	Id[] = "$Id: dedview.c,v 12.3 1993/10/29 20:30:49 dickey Exp $";
+static	char	Id[] = "$Id: dedview.c,v 12.5 1993/11/17 19:06:24 dickey Exp $";
 #endif
 
 /*
@@ -7,6 +7,8 @@ static	char	Id[] = "$Id: dedview.c,v 12.3 1993/10/29 20:30:49 dickey Exp $";
  * Author:	T.E.Dickey
  * Created:	03 Apr 1992, from 'ded.c'
  * Modified:
+ *		17 Nov 1993, modify 'top2VIEW()' to make "^" command a toggle.
+ *			     Modified up/down line code to simulate scrolling.
  *		29 Oct 1993, ifdef-ident, port to HP/UX.
  *		28 Sep 1993, gcc warnings
  *		02 Dec 1992, fix current-position in 'markC()'
@@ -417,8 +419,11 @@ public	void	upLINE(
 		gbl->curfile = 0;
 
 	if (gbl->curfile < vue->base_file) {
-		while (gbl->curfile < vue->base_file)
-			backward(gbl, 1);
+		while (gbl->curfile < vue->base_file
+		 && vue->base_file > 0) {
+			vue->base_file -= 1;
+			setup_view(gbl);
+		}
 		showFILES(gbl,FALSE,FALSE);
 	} else
 		showC(gbl);
@@ -437,8 +442,11 @@ public	void	downLINE(
 		gbl->curfile = gbl->numfiles-1;
 
 	if (gbl->curfile > vue->last_file) {
-		while (gbl->curfile > vue->last_file)
-			forward(gbl, 1);
+		while (gbl->curfile > vue->last_file
+		 && vue->last_file < (gbl->numfiles - 1)) {
+			vue->base_file += 1;
+			setup_view(gbl);
+		}
 		showFILES(gbl,FALSE,FALSE);
 	} else
 		showC(gbl);
@@ -640,12 +648,20 @@ public	RING *	splitVIEW _ONE(RING *,gbl)
 }
 
 /*
- * Adjust the viewport to put the current file at the top.
+ * Adjust the viewport to put the current file at the top, or (if it is already
+ * at the top) to the bottom of the viewport.
  */
 public	void	top2VIEW _ONE(RING *,gbl)
 {
-	if (baseVIEW(gbl) != gbl->curfile) {
-		vue->base_file = gbl->curfile;
+	register int	inx = gbl->curfile;
+
+	if (baseVIEW(gbl) == inx) {
+		inx -= (vue->last_row - vue->base_row - 2);
+		if (inx < 0)
+			inx = 0;
+	}
+	if (inx != vue->base_file) {
+		vue->base_file = inx;
 		showFILES(gbl,FALSE,FALSE);
 	}
 }
