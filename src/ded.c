@@ -1,5 +1,5 @@
 #ifndef	NO_SCCS_ID
-static	char	sccs_id[] = "@(#)ded.c	1.9 88/03/28 09:02:59";
+static	char	sccs_id[] = "@(#)ded.c	1.10 88/04/05 15:57:42";
 #endif	NO_SCCS_ID
 
 /*
@@ -618,6 +618,10 @@ char	bfr[BUFSIZ];
 	}
 	edittext('g', cmdcol[1], UIDLEN, strcpy(bfr, gid2s(cSTAT.st_gid)));
 	if ((gid = s2gid(bfr)) >= 0) {
+	char	newgrp[BUFSIZ];
+	static	char	*fmt = "chgrp -f %s %s";
+
+		(void)strcpy(newgrp, gid2s(gid));
 		for (j = 0; j < numfiles; j++) {
 			if (flist[j].s.st_gid == gid)	continue;
 			if (flist[j].flag || (j == curfile)) {
@@ -629,14 +633,19 @@ char	bfr[BUFSIZ];
 					}
 					flist[j].s.st_gid = gid;
 				} else {
-					sprintf(bfr, "chgrp -f %s %s",
-						gid2s(gid),
-						fixname(j));
-					system(bfr);
+					sprintf(bfr, fmt, newgrp, fixname(j));
+					(void)system(bfr);
 				}
 				fixtime(j);
-				changed++;
+				if (!root) {
+					statLINE(j);
+					showLINE(j);
+					showC();
+				} else
+					changed++;
 				if (flist[j].s.st_gid != gid) {
+					sprintf(bfr, fmt, newgrp, fixname(j));
+					dedmsg(bfr);
 					beep();
 					break;
 				}

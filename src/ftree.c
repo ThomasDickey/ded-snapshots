@@ -1,5 +1,5 @@
 #ifndef	NO_SCCS_ID
-static	char	sccs_id[] = "@(#)ftree.c	1.18 88/03/25 06:56:40";
+static	char	sccs_id[] = "@(#)ftree.c	1.19 88/04/05 16:08:37";
 #endif
 
 /*
@@ -460,7 +460,7 @@ int	fid,
 	(void)strcat(strcpy(FDname, getenv("HOME")), "/.ftree");
 	if ((fid = open(FDname, O_RDONLY)) != 0) {
 		if (stat(FDname, &sb) < 0)
-			failed("stat \".ftree\"");
+			return;
 		if (sb.st_mtime <= FDtime) {
 			(void)close(fid);
 			return;
