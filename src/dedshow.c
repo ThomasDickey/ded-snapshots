@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	Id[] = "$Id: dedshow.c,v 9.1 1991/07/11 12:51:35 dickey Exp $";
+static	char	Id[] = "$Id: dedshow.c,v 10.0 1991/10/18 08:41:27 ste_cm Rel $";
 #endif
 
 /*
@@ -7,6 +7,7 @@ static	char	Id[] = "$Id: dedshow.c,v 9.1 1991/07/11 12:51:35 dickey Exp $";
  * Author:	T.E.Dickey
  * Created:	01 Dec 1987
  * Modified:
+ *		18 Oct 1991, converted to ANSI
  *		11 Jul 1991, interface to 'to_work'
  *		12 Sep 1988, to handle continuation lines
  *
@@ -20,8 +21,12 @@ static	char	Id[] = "$Id: dedshow.c,v 9.1 1991/07/11 12:51:35 dickey Exp $";
 
 #include	"ded.h"
 
-dedshow(tag, arg)
-char	*tag, *arg;
+dedshow(
+_ARX(char *,	tag)
+_AR1(char *,	arg)
+	)
+_DCL(char *,	tag)
+_DCL(char *,	arg)
 {
 	auto	int	len	= strlen(arg),
 			base	= 0,

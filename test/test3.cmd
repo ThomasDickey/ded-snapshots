@@ -1,5 +1,5 @@
 	# PROCESS BEGUN
-	# argv[0] = '../bin/ded'
+	# argv[0] = 'ded'
 	# argv[1] = '-t/tmp'
 	# argv[2] = '-ctest3.cmd'
 	# argv[3] = '-ltest3.out'

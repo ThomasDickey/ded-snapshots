@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	Id[] = "$Id: dedtype.c,v 9.6 1991/07/19 07:45:49 dickey Exp $";
+static	char	Id[] = "$Id: dedtype.c,v 10.0 1991/10/18 10:14:53 ste_cm Rel $";
 #endif
 
 /*
@@ -7,6 +7,7 @@ static	char	Id[] = "$Id: dedtype.c,v 9.6 1991/07/19 07:45:49 dickey Exp $";
  * Author:	T.E.Dickey
  * Created:	16 Nov 1987
  * Modified:
+ *		18 Oct 1991, converted to ANSI
  *		19 Jul 1991, changed interface to 'markset()'
  *		01 Jul 1991, corrected column-limit logic
  *		04 Jun 1991, forgot to reset column on successive blank-lines
@@ -56,13 +57,18 @@ static	int	Shift,			/* left/right shift-column */
 		tabstop;
 
 static
-typeinit()
+typeinit(_AR0)
 {
 	text[Tlen = Tcol = 0] = EOS;
 }
 
 static
-typeline(y,skip)
+typeline(
+_ARX(int,	y)
+_AR1(int,	skip)
+	)
+_DCL(int,	y)
+_DCL(int,	skip)
 {
 	if (!skip) {
 		move(y,0);
@@ -91,8 +97,7 @@ typeline(y,skip)
 }
 
 static
-typeover(c)
-register c;
+typeover _ONE(register int,c)
 {
 	if (Tcol <= END_COL) {
 		if (over[Tcol] = text[Tcol]) {
@@ -111,8 +116,14 @@ register c;
 }
 
 static
-typeconv(c,binary,stripped)
-register c;
+typeconv(
+_ARX(int,	c)
+_ARX(int,	binary)
+_AR1(int,	stripped)
+	)
+_DCL(int,	c)
+_DCL(int,	binary)
+_DCL(int,	stripped)
 {
 	char	dot	= stripped ? ' ' : '.';
 
@@ -157,8 +168,7 @@ register c;
 }
 
 static
-GetC(fp)
-FILE	*fp;
+GetC _ONE(FILE *,fp)
 {
 	register int c = fgetc(fp);
 	if (feof(fp) || ferror(fp) || dedsigs(TRUE))
@@ -168,8 +178,16 @@ FILE	*fp;
 	return (c);
 }
 
-dedtype(name,binary,stripped,isdir)
-char	*name;
+dedtype(
+_ARX(char *,	name)
+_ARX(int,	binary)
+_ARX(int,	stripped)
+_AR1(int,	isdir)
+	)
+_DCL(char *,	name)
+_DCL(int,	binary)
+_DCL(int,	stripped)
+_DCL(int,	isdir)
 {
 static	char	tmp_name[L_tmpnam];
 struct	stat	sb;
@@ -223,7 +241,7 @@ int	c,			/* current character */
 	if (fp) {
 		static	OFF_T	*infile;
 		static	unsigned maxpage = 0;
-		auto	int	replay	= 0;
+		auto	int	again	= 0;
 
 		dlog_comment("type \"%s\" (%s %s)\n",
 			name,
@@ -232,14 +250,14 @@ int	c,			/* current character */
 		to_work(FALSE);
 		while (!done) {
 
-			if (replay) {
-				page -= replay;
+			if (again) {
+				page -= again;
 				if (page < 0) page = 0;
 				if (fseek(fp, infile[page], 0) < 0) {
 					done = -1;
 					break;
 				}
-				replay = 0;
+				again = 0;
 			}
 
 			y	= mark_W + 1;
@@ -290,7 +308,7 @@ int	c,			/* current character */
 			} else {
 				if (feof(fp)) {
 					skip = 0;
-					replay = 1;
+					again = 1;
 				} else
 					skip--;
 				continue;
@@ -299,11 +317,11 @@ int	c,			/* current character */
 			switch (dlog_char(&count,1)) {
 			case CTL('K'):
 				deddump();
-				replay = 1;
+				again = 1;
 				break;
 			case 'w':
 				retouch(0);
-				replay = 1;
+				again = 1;
 				break;
 			case '\t':
 				if (binary)
@@ -312,7 +330,7 @@ int	c,			/* current character */
 					tabstop = (count <= 1)
 						? (tabstop == 8 ? 4 : 8)
 						: count;
-				replay  = 1;
+				again  = 1;
 				break;
 			case 'q':
 				done = 1;
@@ -320,7 +338,7 @@ int	c,			/* current character */
 			case ARO_UP:
 			case '\b':
 			case 'b':
-				replay = count + 1;
+				again = count + 1;
 				break;
 			case ARO_DOWN:
 			case '\n':
@@ -339,23 +357,23 @@ int	c,			/* current character */
 					Shift -= (shift * count);
 					if (Shift < 0)	Shift = 0;
 				}
-				replay = 1;
+				again = 1;
 				break;
 			case ARO_RIGHT:
 				if (binary)
 					beep();
 				else
 					Shift += (shift * count);
-				replay = 1;
+				again = 1;
 				break;
 				/* move work-area marker */
 			case 'A':	count = -count;
 			case 'a':
 				markset(mark_W + count,FALSE);
-				replay = 1;
+				again = 1;
 				break;
 			default:
-				replay = 1;
+				again = 1;
 				beep();
 			}
 		}

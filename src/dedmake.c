@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	Id[] = "$Id: dedmake.c,v 9.2 1991/10/16 12:44:18 dickey Exp $";
+static	char	Id[] = "$Id: dedmake.c,v 10.0 1991/10/18 10:26:18 ste_cm Rel $";
 #endif
 
 /*
@@ -103,8 +103,8 @@ _DCL(char *,	to_edit)
 			return TRUE;
 		}
 		dedmsg(sys_errlist[errno]);
-		dedline(-TRUE);			/* force refresh! */
-		replay(-1);
+		(void)dedline(-TRUE);		/* force refresh! */
+		(void)replay(-1);
 		return FALSE;
 	}
 	statMAKE(0);				/* undo it -- gave up */

@@ -1,4 +1,4 @@
-# $Id: Makefile,v 9.1 1991/09/09 07:39:19 dickey Exp $
+# $Id: Makefile,v 10.0 1991/10/18 10:41:39 ste_cm Rel $
 # make-file for testing unix directory editor
 #
 ####### (Development) ##########################################################
@@ -25,7 +25,7 @@ destroy:
 sources:	$(SOURCES)
 lint.out:
 lincnt.out:
-run_tests:	$(SOURCES)	; $@.sh
+run_tests:	$(SOURCES)	; sh -c '$@.sh 2>&1 | tee -a $@.out'
 
 ####### (Details of Productions) ###############################################
 $(SOURCES):			; $(GET) $@

@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	Id[] = "$Id: deddoit.c,v 9.3 1991/07/24 12:05:05 dickey Exp $";
+static	char	Id[] = "$Id: deddoit.c,v 10.0 1991/10/18 08:49:23 ste_cm Rel $";
 #endif
 
 /*
@@ -7,6 +7,7 @@ static	char	Id[] = "$Id: deddoit.c,v 9.3 1991/07/24 12:05:05 dickey Exp $";
  * Author:	T.E.Dickey
  * Created:	17 Nov 1987
  * Modified:
+ *		18 Oct 1991, converted to ANSI
  *		24 Jul 1991, added codes u,g,v,y
  *		18 Apr 1991, modified interface of 'dedwait()'
  *		16 Apr 1991, absorb backslash only when it precedes "#" or "%",
@@ -31,19 +32,13 @@ static	char	Id[] = "$Id: deddoit.c,v 9.3 1991/07/24 12:05:05 dickey Exp $";
  * patch:	should permit repeat-count to 'r', 'e' commands, as well as F,B.
  */
 #include	"ded.h"
-extern	char	*fixname();
-extern	char	*dedrung();
-extern	char	*gid2s();
-extern	char	*pathcat();
-extern	char	*uid2s();
 
 /*
  * Return a pointer to a leaf of a given name
  */
 static
 char *
-subleaf(name)
-char	*name;
+subleaf _ONE(char *,name)
 {
 char	*leaf	= name;
 #ifdef	apollo
@@ -61,8 +56,7 @@ char	*leaf	= name;
  */
 static
 char *
-subroot(name)
-char	*name;
+subroot _ONE(char *,name)
 {
 char	*root;
 	if (!(root = strrchr(name, '.')))
@@ -75,12 +69,18 @@ char	*root;
  * from the ":" modifiers defined for "csh".
  */
 static
-Expand(code, b_subs, l_subs)
-char	*b_subs;
+Expand(
+_ARX(int,	code)
+_ARX(char *,	b_subs)
+_AR1(int,	l_subs)
+	)
+_DCL(int,	code)
+_DCL(char *,	b_subs)
+_DCL(int,	l_subs)
 {
 	char	temp[BUFSIZ];
 	char	name[BUFSIZ],
-	*from	= 0;
+		*from;
 
 	if (strchr("NHRET", code))
 		abspath(pathcat(name, new_wd, cNAME));
@@ -140,20 +140,23 @@ char	*b_subs;
 			from = "?";
 	}
 
-	if (from) {
-		(void)ded2string(temp, sizeof(temp), from, TRUE);
-		if (strlen(b_subs) + strlen(temp) < l_subs - 1)
-			(void)strcat(b_subs, temp);
-		else
-			return(l_subs);
-	}
-	return(strlen(b_subs));
+	(void)ded2string(temp, sizeof(temp), from, TRUE);
+	if (strlen(b_subs) + strlen(temp) < l_subs - 1) {
+		(void)strcat(b_subs, temp);
+		return(strlen(b_subs));
+	} else
+		return(l_subs);
 }
 
 /*
  * Prompt for, substitute and execute a shell command.
  */
-deddoit(key,sense)
+deddoit(
+_ARX(int,	key)
+_AR1(int,	sense)
+	)
+_DCL(int,	key)
+_DCL(int,	sense)
 {
 	register int	c, j, k;
 	register char	*s;

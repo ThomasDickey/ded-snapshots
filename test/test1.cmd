@@ -1,5 +1,5 @@
 	# PROCESS BEGUN
-	# argv[0] = '../bin/ded'
+	# argv[0] = 'ded'
 	# argv[1] = '-t/tmp'
 	# argv[2] = '-ctest1.cmd'
 	# argv[3] = '-ltest1.out'
@@ -21,7 +21,7 @@
 1j
 1t	# type "ded.hlp" (text file)
 1q
-1h	# type "CM_TOOLS/test/../bin/ded.hlp" (text file)
+1h	# type "CM_TOOLS/bin/ded.hlp" (text file)
 1q
 1D	# path: CM_TOOLS/bin
 1j	# path: CM_TOOLS/src

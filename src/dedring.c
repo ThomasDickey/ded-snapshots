@@ -1,73 +1,29 @@
 #ifndef	lint
-static	char	Id[] = "$Id: dedring.c,v 9.0 1991/05/15 13:57:49 ste_cm Rel $";
+static	char	Id[] = "$Id: dedring.c,v 9.6 1991/10/18 10:03:31 dickey Exp $";
 #endif
 
 /*
  * Title:	dedring.c (ded: ring of directories)
  * Author:	T.E.Dickey
  * Created:	27 Apr 1988
- * $Log: dedring.c,v $
- * Revision 9.0  1991/05/15 13:57:49  ste_cm
- * BASELINE Mon Jun 10 10:09:56 1991 -- apollo sr10.3
- *
- *		Revision 8.2  91/05/15  13:57:49  dickey
- *		apollo sr10.3 cpp complains about tag on #endif
- *		
- *		Revision 8.1  91/04/04  09:08:41  dickey
- *		guard against 'getwd()' failure.
- *		
- *		Revision 8.0  90/05/23  11:16:30  ste_cm
- *		BASELINE Mon Aug 13 15:06:41 1990 -- LINCNT, ADA_TRANS
- *		
- *		Revision 7.2  90/05/23  11:16:30  dickey
- *		added a missing case to handle 'set_pattern' arg of 'dedring'
- *		(when we are using CTL(E) command like CTL(R)).
- *		
- *		Revision 7.1  90/05/23  09:30:35  dickey
- *		modified 'dedring()' so that an initial scan-pattern can be
- *		specified, to support the CTL(E) command.
- *		
- *		Revision 7.0  90/03/02  12:09:20  ste_cm
- *		BASELINE Mon Apr 30 09:54:01 1990 -- (CPROTO)
- *		
- *		Revision 6.0  90/03/02  12:09:20  ste_cm
- *		BASELINE Thu Mar 29 07:37:55 1990 -- maintenance release (SYNTHESIS)
- *		
- *		Revision 5.2  90/03/02  12:09:20  dickey
- *		set 'no_worry' flag after successfully reading new-directory
- *		
- *		Revision 5.1  90/01/30  08:42:26  dickey
- *		save/restore T_opt
- *		
- *		Revision 5.0  89/10/05  16:58:38  ste_cm
- *		BASELINE Fri Oct 27 12:27:25 1989 -- apollo SR10.1 mods + ADA_PITS 4.0
- *		
- *		Revision 4.2  89/10/05  16:58:38  dickey
- *		save/restore 'cmdcol[]' per-list
- *		
- *		Revision 4.1  89/10/04  15:20:09  dickey
- *		save/restore A_opt, O_opt
- *		
- *		Revision 4.0  89/05/26  14:15:32  ste_cm
- *		BASELINE Thu Aug 24 10:20:06 EDT 1989 -- support:navi_011(rel2)
- *		
- *		Revision 3.0  89/05/26  14:15:32  ste_cm
- *		BASELINE Mon Jun 19 14:21:57 EDT 1989
- *		
- *		Revision 2.2  89/05/26  14:15:32  dickey
- *		don't inherit read-expression in new directory (too confusing)
- *		
- *		Revision 2.1  89/05/26  13:06:58  dickey
- *		added 'toscan', 'scan_expr' to ring-data.
- *		don't reset 'clr_sh' on entry to ring -- do this only in
- *		'deddoit()'
- *		
- *		Revision 2.0  88/09/12  15:52:31  ste_cm
- *		BASELINE Thu Apr  6 13:14:13 EDT 1989
- *		
- *		Revision 1.20  88/09/12  15:52:31  dickey
- *		sccs2rcs keywords
- *		
+ * Modified:
+ *		18 Oct 1991, converted to ANSI
+ *		15 May 1991, apollo sr10.3 cpp complains about tag on #endif
+ *		04 Apr 1991, guard against 'getwd()' failure.
+ *		23 May 1990, added a missing case to handle 'set_pattern' arg of
+ *			     'dedring' (when we are using CTL(E) command like
+ *			     CTL(R)).  Modified 'dedring()' so that an initial
+ *			     scan-pattern can be specified, to support the
+ *			     CTL(E) command.
+ *		02 Mar 1990, set 'no_worry' flag after successfully reading new-
+ *			     directory.
+ *		30 Jan 1990, save/restore T_opt
+ *		05 Oct 1989, save/restore 'cmdcol[]' per-list
+ *		04 Oct 1989, save/restore A_opt, O_opt
+ *		26 May 1989, don't inherit read-expression in new directory (too
+ *			     confusing).  Added 'toscan', 'scan_expr' to ring-
+ *			     data.  Don't reset 'clr_sh' on entry to ring -- do
+ *			     this only in 'deddoit()'
  *		01 Aug 1988, save/restore Xbase,Ybase
  *		11 Jul 1988, added 'tagsort'.
  *		08 Jul 1988, save/restore/clear Y_opt, AT_opt a la Z_opt.
@@ -88,10 +44,6 @@ static	char	Id[] = "$Id: dedring.c,v 9.0 1991/05/15 13:57:49 ste_cm Rel $";
  */
 
 #include	"ded.h"
-extern	FLIST	*dedfree();
-extern	char	**vecalloc();
-extern	char	*txtalloc();
-extern	int	no_worry;
 
 /*
  * The RING structure saves global data which lets us restore the state
@@ -151,8 +103,12 @@ static	RING	*ring,		/* directory-list */
  * Translate pathname to internal form, so strcmp will sort it properly
  */
 static
-trans(dst,src)
-char	*dst, *src;
+trans(
+_ARX(char *,	dst)
+_AR1(char *,	src)
+	)
+_DCL(char *,	dst)
+_DCL(char *,	src)
 {
 register int c;
 	do {
@@ -165,8 +121,12 @@ register int c;
  * Translate pathname to external form
  */
 static
-untrans(dst,src)
-char	*dst, *src;
+untrans(
+_ARX(char *,	dst)
+_AR1(char *,	src)
+	)
+_DCL(char *,	dst)
+_DCL(char *,	src)
 {
 register int c;
 	do {
@@ -180,8 +140,7 @@ register int c;
  */
 #define	SAVE(n)		p->n = n
 static
-save(p)
-RING	*p;
+save _ONE(RING *,p)
 {
 	register int	j;
 	trans(p->new_wd, new_wd);
@@ -226,8 +185,7 @@ RING	*p;
  */
 #define	UNSAVE(n)	n = p->n
 static
-unsave(p)
-RING	*p;
+unsave _ONE(RING *,p)
 {
 	register int	j;
 	untrans(new_wd, p->new_wd);
@@ -274,9 +232,14 @@ RING	*p;
  */
 static
 RING *
-insert(path, first, pattern)
-char	*path;
-char	*pattern;
+insert(
+_ARX(char *,	path)
+_ARX(int,	first)
+_AR1(char *,	pattern)
+	)
+_DCL(char *,	path)
+_DCL(int,	first)
+_DCL(char *,	pattern)
 {
 RING	*p	= ring,
 	*q	= 0;
@@ -329,8 +292,7 @@ char	bfr[BUFSIZ];
  */
 static
 RING *
-ring_get(path)
-char	*path;
+ring_get _ONE(char *,path)
 {
 RING	*p;
 char	tmp[BUFSIZ];
@@ -346,8 +308,7 @@ char	tmp[BUFSIZ];
  * Release storage for a given entry in the directory-list
  */
 static
-remove (path)
-char	*path;
+remove _ONE(char *,path)
 {
 RING	*p	= ring_get(path),
 	*q	= ring;
@@ -380,8 +341,7 @@ RING	*p	= ring_get(path),
  */
 static
 RING *
-ring_fwd(path)
-char	*path;
+ring_fwd _ONE(char *,path)
 {
 register RING *p;
 char	tmp[BUFSIZ];
@@ -405,8 +365,7 @@ char	tmp[BUFSIZ];
  */
 static
 RING *
-ring_bak(path)
-char	*path;
+ring_bak _ONE(char *,path)
 {
 register RING *p, *q;
 int	cmp;
@@ -435,8 +394,7 @@ char	tmp[BUFSIZ];
 }
 
 static
-do_a_scan(newp)
-RING	*newp;
+do_a_scan _ONE(RING *,newp)
 {
 	if (dedscan(newp->top_argc, newp->top_argv)) {
 		curfile = 0;
@@ -452,12 +410,18 @@ RING	*newp;
 /************************************************************************
  *	public entrypoints						*
  ************************************************************************/
-dedring(path, cmd, count, set_pattern, pattern)
-char	*path;
-int	cmd;
-int	count;
-int	set_pattern;
-char	*pattern;
+dedring(
+_ARX(char *,	path)
+_ARX(int,	cmd)
+_ARX(int,	count)
+_ARX(int,	set_pattern)
+_AR1(char *,	pattern)
+	)
+_DCL(char *,	path)
+_DCL(int,	cmd)
+_DCL(int,	count)
+_DCL(int,	set_pattern)
+_DCL(char *,	pattern)
 {
 RING	*oldp,
 	*newp	= 0;
@@ -569,8 +533,7 @@ char	tmp[BUFSIZ];
 /*
  * Returns true if the given path is present in the ring
  */
-dedrang(path)
-char	*path;
+dedrang _ONE(char *,path)
 {
 	return (ring_get(path) != 0);
 }
@@ -579,7 +542,7 @@ char	*path;
  * Returns a pointer to the pathname forward/or backward in the ring.
  */
 char *
-dedrung(count)
+dedrung _ONE(int,count)
 {
 RING	*oldp	= insert(new_wd, FALSE, (char *)0),
 	*newp;

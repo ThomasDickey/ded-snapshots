@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	what[] = "$Id: sortset.c,v 9.4 1991/07/17 07:33:20 dickey Exp $";
+static	char	what[] = "$Id: sortset.c,v 10.0 1991/10/18 09:53:44 ste_cm Rel $";
 #endif
 
 /*
@@ -7,6 +7,7 @@ static	char	what[] = "$Id: sortset.c,v 9.4 1991/07/17 07:33:20 dickey Exp $";
  * Author:	T.E.Dickey
  * Created:	01 Dec 1989 (from ded.c)
  * Modified:
+ *		18 Oct 1991, converted to ANSI
  *		17 Jul 1991, added '@', 'D' sorts
  *		28 Jun 1991, added 'P' (apollo sr10)
  *		11 Dec 1989, corrected call on 'dlog_char()'
@@ -60,7 +61,12 @@ static	char	*sort_msg[] = {
 
 #define	LOOP(j)	for (j = 0; j < sizeof(sort_msg)/sizeof(sort_msg[0]); j++)
 
-sortset(ord,opt)
+sortset(
+_ARX(int,	ord)
+_AR1(int,	opt)
+	)
+_DCL(int,	ord)
+_DCL(int,	opt)
 {
 	if (*sortc == EOS) {
 		register int	j, k = 0;
@@ -82,7 +88,7 @@ sortset(ord,opt)
  * to review the current sorting mode (by '?'), or to re-sort with the
  * present direction (with newline or return).
  */
-sortget(c)
+sortget _ONE(int,c)
 {
 	auto	char	bfr[80];
 	register int	j, k;
