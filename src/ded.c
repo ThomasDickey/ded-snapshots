@@ -1,5 +1,5 @@
 #ifndef	NO_SCCS_ID
-static	char	sccs_id[] = "@(#)ded.c	1.2 87/11/25 09:00:00";
+static	char	sccs_id[] = "@(#)ded.c	1.3 87/11/30 10:41:51";
 #endif	NO_SCCS_ID
 
 /*
@@ -44,6 +44,7 @@ static	int	tag_count;		/* number of tagged files */
 /*
  * Other, private main-module state:
  */
+static	int	in_screen;		/* TRUE if we have successfully init'ed */
 static	char	whoami[BUFSIZ],		/* my execution-path */
 		howami[BUFSIZ];		/* my help-file */
 
@@ -149,11 +150,28 @@ int	c,
 }
 
 /*
+ * Determine if the given entry is a file, directory or none of these.
+ */
+realstat(inx)
+{
+register j = flist[inx].s.st_mode;
+
+	if (isLINK(j)) {
+	struct	stat	sb;
+		j = (stat(flist[inx].name, &sb) >= 0) ? sb.st_mode : 0;
+	}
+	if (isFILE(j))	return(0);
+	if (isDIR(j))	return(1);
+	return (-1);
+}
+
+/*
  * Sound audible alarm
  */
 beep()
 {
-	putchar('\007');
+	if (putchar('\007') != EOF)
+		(void)fflush(stdout);
 }
 
 /*
@@ -161,8 +179,8 @@ beep()
  */
 blip(c)
 {
-	putchar(c);
-	fflush(stdout);
+	if (putchar(c) != EOF)
+		(void)fflush(stdout);
 }
 
 /*
@@ -186,6 +204,26 @@ extern	char	*sys_errlist[];
 	printw("** %s: %s", msg, sys_errlist[errno]);
 	clrtoeol();
 	showC();
+}
+
+/*
+ * Fatal-error exit from this process
+ */
+fatal(msg)
+char	*msg;
+{
+	if (in_screen) {
+		if (msg) {
+			move(LINES-1,0);
+			clrtoeol();
+			refresh();
+		}
+		resetty();
+		endwin();
+	}
+	if (msg)
+		printf("-------- \n?? %-79s\n-------- \n", msg);
+	exit(1);
 }
 
 /*
@@ -671,7 +709,6 @@ extern	char	*optarg;
 
 #include	"version.h"
 
-struct	stat	sb;
 register j;
 int	c,
 	lastc	= '?',
@@ -703,13 +740,19 @@ int	c,
 			exit(1);
 	}
 
-	(void)initscr();
+	if (!initscr())			fatal("initscr");
+	in_screen = TRUE;
+	if (LINES > BUFSIZ || COLS > BUFSIZ) {
+	char	bfr[80];
+		sprintf(bfr, "screen too big: %d by %d\n", LINES, COLS);
+		fatal(bfr);
+	}
 	rawterm();
 
 	/* patch: should trim repeated items from arg-list */
 	argv += optind;
 	argc -= optind;
-	if (!dedscan(argc, argv))	exit(0);
+	if (!dedscan(argc, argv))	fatal((char *)0);
 
 	mark_W = (LINES/2);
 	Xbase = Ybase = 0;
@@ -884,14 +927,18 @@ int	c,
 
 	case 'e':
 	case 'v':	/* enter new process with current file */
-			if (stat(cNAME, &sb) < 0) {
-				warn(cNAME);
-			} else if (isDIR(sb.st_mode)) {
-				to_work();
-				forkfile(whoami);
-			} else
+			switch (realstat(curfile)) {
+			case 0:
 				forkfile(c == 'e' ? ENV(EDITOR)
 						  : ENV(BROWSE));
+				break;
+			case 1:
+				to_work();
+				forkfile(whoami);
+				break;
+			default:
+				dedmsg("cannot edit this item");
+			}
 			break;
 
 	case 'm':	to_work();
@@ -903,7 +950,8 @@ int	c,
 			c = 't';	/* force work-clear if 'q' */
 			break;
 	case 't':
-	case 'T':	dedtype(cNAME,(c == 'T'));
+	case 'T':	if (realstat(curfile) >= 0)
+				dedtype(cNAME,(c == 'T'));
 			c = 't';	/* force work-clear if 'q' */
 			break;
 
@@ -928,9 +976,16 @@ int	c,
 	case 'E':	/* enter new directory on ring */
 	case 'F':	/* move forward in directory-ring */
 	case 'B':	/* move backward in directory-ring */
+	case '=':	/* rename file */
+#ifdef	apollo
+	case CTL(e):	/* pad-edit */
+	case CTL(v):	/* pad-view */
+#endif	apollo
 
 	default:	beep();
 	}; lastc = c; }
+
+	resetty();
 	endwin();
 	exit(0);
 	/*NOTREACHED*/
