@@ -1,3 +1,106 @@
+1992-04-07  dickey@software.org
+
+	* src/dedview.c: saving curfile is better than cNAME
+
+	* src/dedview.c:
+	introduce new pointer 'vue' so I can start decoupling the
+	VIEW structures from RING structures
+
+	* src/ded.c: lint
+
+	* src/dedview.c: hid as much as I can (quitVIEW, Ybase).
+	added 'top2VIEW()' to do this.
+
+	* src/ded.h: make 'Ybase' hidden in 'dedview.c'
+	make showVIEW, quitVIEW private.
+	added 'top2VIEW()'
+
+	* src/ded.c: use 'top2VIEW()' so I can hide Ybase value in dedview.c
+
+	* src/dedview.c: made setup_view, next_view, save_view private
+	make forward/backward private; added scrollVIEW for use
+	by the main program.
+
+	* src/restat.c: use 'baseVIEW()' rather than 'Ybase'
+
+1992-04-07  ste_cm@software.org
+
+	* src/restat.c: BASELINE Thu Jul 16 09:39:01 1992 -- EBPM4 support
+
+	* src/restat.c:
+	BASELINE Thu May  6 14:26:47 1993 -- split from CM_TOOLS #11
+
+1992-04-07  dickey@software.org
+
+	* src/ded.c: use scrollVIEW rather than hack with forward+backward
+
+	* src/ded.h: make viewset/forward/backward/saveVIEW/nextVIEW private.
+	added entry scrollVIEW
+
+	* src/ded.c: corrected def of 'failed()'
+
+	* src/ded.c: moved 'dedsort()' calls into 'dedscan()'
+	simplified 'rescan()' using 'findFILE()'
+
+	* src/dedscan.c:
+	always do sort with 'dedsort()' on conclusion of successful
+	scan.
+
+1992-04-07  ste_cm@software.org
+
+	* src/dedscan.c: BASELINE Thu Jul 16 09:39:01 1992 -- EBPM4 support
+
+1992-04-07  dickey@software.org
+
+	* src/dedring.c: moved 'dedsort()' calls into 'dedscan()'
+	do_a_scan from 'ring_args()' to consolidate initialization.
+
+	* src/ded.h: made 'rescan()' private
+
+	* src/restat.c: RCS_BASE
+
+	* src/ded.c, src/ded.h: split off 'dedmsgs.c', 'dedtags.c' & 'restat.c'
+
+	* src/Makefile: split off dedmsgs, dedtags & restat
+
+	* test/test2.cmd: split off 'dedmsgs.c', 'dedtags.c' & 'restat.c'
+
+1992-04-07  ste_cm@software.org
+
+	* test/test2.cmd: BASELINE Thu Jul 16 09:39:01 1992 -- EBPM4 support
+
+1992-04-07  dickey@software.org
+
+	* test/test1.cmd: split off 'dedmsgs.c', 'dedtags.c' & 'restat.c'
+
+1992-04-07  ste_cm@software.org
+
+	* test/test1.cmd: BASELINE Thu Jul 16 09:39:01 1992 -- EBPM4 support
+
+1992-04-07  dickey@software.org
+
+	* src/dedview.c: split off 'restat.c'
+
+	* src/dedmsgs.c: RCS_BASE
+
+1992-04-07  ste_cm@software.org
+
+	* src/dedmsgs.c: BASELINE Thu Jul 16 09:39:01 1992 -- EBPM4 support
+
+	* src/dedmsgs.c:
+	BASELINE Thu May  6 14:26:47 1993 -- split from CM_TOOLS #11
+
+1992-04-07  dickey@software.org
+
+	* src/dedtags.c: RCS_BASE
+
+1992-04-07  ste_cm@software.org
+
+	* src/dedtags.c: BASELINE Thu Jul 16 09:39:01 1992 -- EBPM4 support
+
+	* src/dedtags.c:
+	BASELINE Thu May  6 14:26:47 1993 -- split from CM_TOOLS #11
+
 1992-04-06  dickey@software.org
 
 	* src/dedview.c, src/dedtype.c: Xbase:local

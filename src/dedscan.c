@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	Id[] = "$Id: dedscan.c,v 10.13 1992/04/06 16:16:28 dickey Exp $";
+static	char	Id[] = "$Id: dedscan.c,v 11.0 1992/04/07 10:29:40 ste_cm Rel $";
 #endif
 
 /*
@@ -383,6 +383,11 @@ public	int	dedscan _ONE(RING *,gbl)
 	}
 	if (debug)
 		dedwait(gbl, FALSE);
+
+	gbl->curfile = 0;
+	dedsort(gbl);
+	gbl->curfile = 0;	/* ensure consistent initial */
+
 	return(gbl->numfiles);
 }
 

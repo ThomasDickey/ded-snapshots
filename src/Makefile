@@ -1,4 +1,4 @@
-# $Id: Makefile,v 10.7 1992/04/03 14:34:34 dickey Exp $
+# $Id: Makefile,v 10.8 1992/04/07 07:48:38 dickey Exp $
 # MAKE-file for directory editor
 #
 ####### (Environment) ##########################################################
@@ -33,6 +33,7 @@ CSRC	=\
 	dedfree.c \
 	dedline.c \
 	dedmake.c \
+	dedmsgs.c \
 	dedname.c \
 	dedread.c \
 	dedring.c \
@@ -40,12 +41,14 @@ CSRC	=\
 	dedshow.c \
 	dedsigs.c \
 	dedsort.c \
+	dedtags.c \
 	dedtype.c \
 	deduniq.c \
 	dedview.c \
 	dedwait.c \
 	dlog.c \
 	ftree.c \
+	restat.c \
 	showpath.c \
 	sortset.c
 HSRC	= \
@@ -61,6 +64,7 @@ OBJS	= \
 	$Z(dedfree.o) \
 	$Z(dedline.o) \
 	$Z(dedmake.o) \
+	$Z(dedmsgs.o) \
 	$Z(dedname.o) \
 	$Z(dedread.o) \
 	$Z(dedring.o) \
@@ -68,12 +72,14 @@ OBJS	= \
 	$Z(dedshow.o) \
 	$Z(dedsigs.o) \
 	$Z(dedsort.o) \
+	$Z(dedtags.o) \
 	$Z(dedtype.o) \
 	$Z(deduniq.o) \
 	$Z(dedview.o) \
 	$Z(dedwait.o) \
 	$Z(dlog.o) \
 	$Z(ftree.o) \
+	$Z(restat.o) \
 	$Z(showpath.o) \
 	$Z(sortset.o)
 #
