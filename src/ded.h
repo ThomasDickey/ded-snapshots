@@ -3,7 +3,7 @@
 
 #ifdef	MAIN
 #ifndef	lint
-static	char	*ded_h = "$Id: ded.h,v 12.1 1993/09/21 20:31:34 dickey Exp $";
+static	char	*ded_h = "$Id: ded.h,v 12.2 1993/09/28 13:15:55 dickey Exp $";
 #endif
 #endif	/* MAIN */
 
@@ -39,12 +39,7 @@ extern	char	*sys_errlist[];
 #define	private	static
 #define	public
 
-/*
- * Definitions to make linting easier
- */
 #define	FREE(p)		dofree(p)
-#define	_ONE(t,a)	(_AR1(t,a)) _DCL(t,a)
-#define _one(t,a)	(_ar1(t,a))
 
 /*
  * SYSTEM5/BSD4.x differences between regular-expression handling:
@@ -705,7 +700,9 @@ extern	int	get_inline(
 
 extern	DYN **	inline_text(_ar0);
 extern	HIST **	inline_hist(_ar0);
+#ifdef	DEBUG
 extern	int	inline_hidden(_ar0);
+#endif
 
 /* *** "showpath.c" *** */
 extern	void	showpath(

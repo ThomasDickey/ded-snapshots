@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	Id[] = "$Id: dedsigs.c,v 12.1 1993/09/21 17:35:20 dickey Exp $";
+static	char	Id[] = "$Id: dedsigs.c,v 12.2 1993/09/28 12:21:22 dickey Exp $";
 #endif
 
 /*
@@ -7,6 +7,7 @@ static	char	Id[] = "$Id: dedsigs.c,v 12.1 1993/09/21 17:35:20 dickey Exp $";
  * Author:	T.E.Dickey
  * Created:	03 Aug 1988
  * Modified:
+ *		28 Sep 1993, gcc warnings
  *		18 Oct 1991, converted to ANSI.  Show signal-number in 'dedquit'
  *		11 Jun 1991, lint (apollo sr10.2)
  *		16 May 1991, mods to accommodate apollo sr10.3

@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	Id[] = "$Id: dlog.c,v 12.1 1993/09/21 20:14:14 dickey Exp $";
+static	char	Id[] = "$Id: dlog.c,v 12.2 1993/09/28 12:21:23 dickey Exp $";
 #endif
 
 /*
@@ -7,6 +7,7 @@ static	char	Id[] = "$Id: dlog.c,v 12.1 1993/09/21 20:14:14 dickey Exp $";
  * Author:	T.E.Dickey
  * Created:	14 Mar 1989
  * Modified:
+ *		28 Sep 1993, gcc warnings
  *		28 Aug 1992, implemented inline history in 'dlog_string()'. 
  *		18 Oct 1991, converted to ANSI
  *		09 Sep 1991, lint

@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	Id[] = "$Id: dedsort.c,v 12.1 1993/09/21 20:17:41 dickey Exp $";
+static	char	Id[] = "$Id: dedsort.c,v 12.2 1993/09/28 12:21:19 dickey Exp $";
 #endif
 
 /*
@@ -7,6 +7,7 @@ static	char	Id[] = "$Id: dedsort.c,v 12.1 1993/09/21 20:17:41 dickey Exp $";
  * Author:	T.E.Dickey
  * Created:	11 Nov 1987
  * Modified:
+ *		28 Sep 1993, gcc warnings
  *		20 Nov 1992, use 'cm_qsort.h' definitions.
  *		01 Apr 1992, convert most global variables to RING-struct.
  *		06 Feb 1992, make 'Z' sort by difference between checkin-time

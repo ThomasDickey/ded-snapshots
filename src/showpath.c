@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	Id[] = "$Id: showpath.c,v 12.1 1993/09/21 20:30:07 dickey Exp $";
+static	char	Id[] = "$Id: showpath.c,v 12.2 1993/09/28 12:21:23 dickey Exp $";
 #endif
 
 /*
@@ -7,6 +7,7 @@ static	char	Id[] = "$Id: showpath.c,v 12.1 1993/09/21 20:30:07 dickey Exp $";
  * Author:	T.E.Dickey
  * Created:	01 Feb 1990
  * Modified:
+ *		28 Sep 1993, gcc warnings
  *		18 Oct 1991, converted to ANSI
  *		31 May 1991, added 'base' argument to control highlighting of a
  *			     portion of the path.

@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	Id[] = "$Id: inline.c,v 12.1 1993/09/21 20:29:13 dickey Exp $";
+static	char	Id[] = "$Id: inline.c,v 12.3 1993/09/28 13:15:43 dickey Exp $";
 #endif
 
 /*
@@ -7,6 +7,7 @@ static	char	Id[] = "$Id: inline.c,v 12.1 1993/09/21 20:29:13 dickey Exp $";
  * Author:	T.E.Dickey
  * Created:	11 Aug 1992 (from 'dedline.c')
  * Modified:
+ *		28 Sep 1993, gcc warnings
  *
  * Function:	Procedures which manage in-line editing of particular fields
  *		of the file-list.
@@ -329,7 +330,9 @@ public	HIST **	inline_hist(_AR0)
 	return &(p->hist);
 }
 
+#ifdef	DEBUG
 public	int	inline_hidden(_AR0)
 {
 	return re_edit;
 }
+#endif

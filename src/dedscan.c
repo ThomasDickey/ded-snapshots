@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	Id[] = "$Id: dedscan.c,v 12.1 1993/09/21 17:34:56 dickey Exp $";
+static	char	Id[] = "$Id: dedscan.c,v 12.2 1993/09/28 12:21:21 dickey Exp $";
 #endif
 
 /*
@@ -7,6 +7,7 @@ static	char	Id[] = "$Id: dedscan.c,v 12.1 1993/09/21 17:34:56 dickey Exp $";
  * Author:	T.E.Dickey
  * Created:	09 Nov 1987
  * Modified:
+ *		28 Sep 1993, gcc warnings
  *		01 Apr 1992, convert most global variables to RING-struct.
  *		02 Jan 1992, make this work properly if only a filename is
  *			     specified.
