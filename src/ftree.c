@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	Id[] = "$Id: ftree.c,v 10.18 1992/04/03 11:14:58 dickey Exp $";
+static	char	Id[] = "$Id: ftree.c,v 10.19 1992/04/06 12:06:49 dickey Exp $";
 #endif
 
 /*
@@ -112,8 +112,6 @@ static	char	Id[] = "$Id: ftree.c,v 10.18 1992/04/03 11:14:58 dickey Exp $";
 
 #include	<fcntl.h>
 
-#define	dedmsg	waitmsg	/* ...so we don't call 'showC' from this module */
-
 #ifdef	apollo
 #define	TOP	2
 #define	ROOT	"//"
@@ -180,6 +178,18 @@ static	FTREE	*ftree;			/* array of database entries	*/
 /************************************************************************
  *	Database Manipulation						*
  ************************************************************************/
+
+	/*ARGSUSED*/
+private	void	my_dedmsg(
+	_ARX(RING *,	gbl)
+	_AR1(char *,	msg)
+		)
+	_DCL(RING *,	gbl)
+	_DCL(char *,	msg)
+{
+	waitmsg(msg);
+#define	dedmsg	my_dedmsg /* ...so we don't call 'showC' from this module */
+}
 
 private	int	ok_rename(
 	_ARX(char *,	oldname)
@@ -365,6 +375,7 @@ private	int	fd_find (
 	_DCL(int,	cmd)
 	_DCL(int,	old)
 {
+	static	RING *	gbl;		/* dummy for REGEX stuff	*/
 	static	int	next = 0;	/* last-direction		*/
 	static	char	pattern[MAXPATHLEN],
 			*expr;		/* regex-state/output		*/
@@ -1337,7 +1348,7 @@ public	RING *	ft_view(
 			break;
 		/* dump the current screen */
 		case CTL('K'):
-			deddump();
+			deddump(gbl);
 			break;
 
 #define	SKIP_THIS(num)	dedring(gbl, fd_path(cwdpath, row), c, num, FALSE, (char *)0)

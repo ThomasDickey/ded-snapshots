@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	Id[] = "$Id: dedname.c,v 10.4 1992/04/02 12:37:55 dickey Exp $";
+static	char	Id[] = "$Id: dedname.c,v 12.0 1992/04/06 12:00:32 ste_cm Rel $";
 #endif
 
 /*
@@ -36,24 +36,24 @@ _DCL(char *,	newname)
 #ifdef	SYSTEM5
 		if (isFILE(gSTAT(x).st_mode)) {
 			if (link(oldname, newname) < 0) {
-				warn(newname);
+				warn(gbl, newname);
 				return (-1);
 			}
 			if (unlink(oldname) < 0) {
-				warn(oldname);
+				warn(gbl, oldname);
 				return (-1);
 			}
 			ok = TRUE;
 		} else {
 			char	bfr[BUFSIZ];
 			FORMAT(bfr, "cannot rename \"%s\"", gNAME(x));
-			dedmsg(bfr);
+			dedmsg(gbl, bfr);
 			return (-1);
 		}
 		/* patch: should do 'system()' to rename directory, etc. */
 #else	/* !SYSTEM5 */
 		if (rename(oldname, newname) < 0) {
-			warn(newname);
+			warn(gbl, newname);
 			return (-1);
 		}
 		ok = TRUE;

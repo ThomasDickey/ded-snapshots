@@ -3,7 +3,7 @@
 
 #ifdef	MAIN
 #ifndef	lint
-static	char	*ded_h = "$Id: ded.h,v 10.33 1992/04/03 16:47:12 dickey Exp $";
+static	char	*ded_h = "$Id: ded.h,v 10.44 1992/04/06 16:36:15 dickey Exp $";
 #endif
 #endif	/* MAIN */
 
@@ -39,14 +39,14 @@ extern	char	*regcmp(),
 #define	OLD_REGEX(expr)		if (expr) free(expr)
 #define	NEW_REGEX(expr,pattern)	((expr = regcmp(pattern,0)) != 0)
 #define	GOT_REGEX(expr,string)	(regex(expr, string, 0) != 0)
-#define	BAD_REGEX(expr)		dedmsg("illegal expression")
+#define	BAD_REGEX(expr)		dedmsg(gbl, "illegal expression")
 #else	/* SYSTEM5 */
 extern	char	*re_comp();	/* returns 0 or error message */
 extern	int	re_exec();	/* (return > 0): match */
 #define	OLD_REGEX(expr)
 #define	NEW_REGEX(expr,pattern)	((expr = re_comp(pattern)) == 0)
 #define	GOT_REGEX(expr,string)	(re_exec(string) != 0)
-#define	BAD_REGEX(expr)		dedmsg(expr)
+#define	BAD_REGEX(expr)		dedmsg(gbl, expr)
 #endif	/* SYSTEM5 */
 
 #define	OFF_T	long		/* lint libraries should have 'off_t' */
@@ -107,17 +107,6 @@ typedef	FLIST	{
 /*
  * Short-hand expressions:
  */
-#define	xENTRY(x)	FOO->flist[x]	/* passed as global */
-#define	xNAME(x)	xENTRY(x).name
-#define	xSTAT(x)	xENTRY(x).s
-#define	xLTXT(x)	xENTRY(x).ltxt
-#define	xFLAG(x)	xENTRY(x).flag
-#define	xDORD(x)	xENTRY(x).dord
-
-#define	xVERS(x)	xENTRY(x).z_vers
-#define	xLOCK(x)	xENTRY(x).z_lock
-#define	xTIME(x)	xENTRY(x).z_time
-
 #define	gENTRY(x)	gbl->flist[x]	/* passed-thru as argument */
 #define	gNAME(x)	gENTRY(x).name
 #define	gSTAT(x)	gENTRY(x).s
@@ -129,7 +118,7 @@ typedef	FLIST	{
 #define	gLOCK(x)	gENTRY(x).z_lock
 #define	gTIME(x)	gENTRY(x).z_time
 
-#define	cENTRY		xENTRY(FOO->curfile)
+#define	cENTRY		gENTRY(gbl->curfile)
 #define	cNAME		cENTRY.name
 #define	cSTAT		cENTRY.s
 #define	cLTXT		cENTRY.ltxt
@@ -206,9 +195,7 @@ typedef	RING {
  */
 MAIN	char	old_wd[BUFSIZ];	/* original working-directory */
 MAIN	int	mark_W,		/* row of work-area marker */
-		Xbase,
 		Ybase;
-MAIN	RING	*FOO;		/* current list (patch: 'X' command?) */
 
 /* *** "ded.c" *** */
 extern	int	debug;
@@ -218,18 +205,18 @@ extern	void	to_exit(
 		_ar1(int,	last));
 
 extern	int	realstat(
+		_arx(RING *,	gbl)
 		_arx(int,	inx)
 		_ar1(STAT *,	sb));
 
 extern	void	clearmsg(_ar0);
 
-extern	char	*err_msg(
+extern	void	dedmsg(
+		_arx(RING *,	gbl)
 		_ar1(char *,	msg));
 
-extern	int	dedmsg(
-		_ar1(char *,	msg));
-
-extern	int	warn(
+extern	void	warn(
+		_arx(RING *,	gbl)
 		_ar1(char *,	msg));
 
 extern	int	waitmsg(
@@ -242,25 +229,31 @@ extern	int	failed(
 		_ar1(char *,	msg));
 
 extern	int	user_says(
+		_arx(RING *,	gbl)
 		_ar1(int,	ok));
 
 extern	int	findFILE(
 		_arx(RING *,	gbl)
 		_ar1(char *,	name));
 
-extern	int	showSCCS(_ar0);
+extern	void	showSCCS(
+		_ar1(RING *,	gbl));
 
-extern	int	retouch(
+extern	void	retouch(
+		_arx(RING *,	gbl)
 		_ar1(int,	row));
 
-extern	int	rescan(
+extern	RING *	rescan(
+		_arx(RING *,	gbl)
 		_arx(int,	fwd)
 		_ar1(char *,	backto));
 
-extern	int	restat(
+extern	void	restat(
+		_arx(RING *,	gbl)
 		_ar1(int,	group));
 
-extern	int	resleep(
+extern	void	resleep(
+		_arx(RING *,	gbl)
 		_arx(int,	count)
 		_fn1(void,	func));
 
@@ -281,7 +274,8 @@ extern	void	deddoit(
 		_ar1(int,	sense));
 
 /* *** "deddump.c" *** */
-extern	int	deddump(_ar0);
+extern	void	deddump(
+		_ar1(RING *,	gbl));
 
 /* *** "dedfind.c" *** */
 extern	void	dedfind(
@@ -381,9 +375,7 @@ extern	void	ring_rename(
 
 /* *** "dedscan.c" *** */
 extern	int	dedscan(
-		_arx(RING *,	gbl)
-		_arx(int,	argc)
-		_ar1(char **,	argv));
+		_ar1(RING *,	gbl));
 
 extern	void	statSCCS(
 		_arx(RING *,	gbl)
@@ -404,6 +396,7 @@ extern	int	path_RESOLVE(
 
 /* *** "dedshow.c" *** */
 extern	int	dedshow(
+		_arx(RING *,	gbl)
 		_arx(char *,	tag)
 		_ar1(char *,	arg));
 
@@ -448,6 +441,7 @@ extern	int	move2row(
 extern	void	clear_work(_ar0);
 
 extern	void	to_work(
+		_arx(RING *,	gbl)
 		_ar1(int,	clear_it));
 
 extern	int	to_file(
@@ -502,7 +496,8 @@ extern	void	showFILES(
 extern	void	openVIEW(
 		_ar1(RING *,	gbl));
 
-extern	void	saveVIEW(_ar0);
+extern	void	saveVIEW(
+		_ar1(RING *,	gbl));
 
 extern	void	quitVIEW(
 		_ar1(RING *,	gbl));
@@ -514,17 +509,21 @@ extern	void	nextVIEW(
 		_arx(RING *,	gbl)
 		_ar1(int,	save));
 
-extern	void	showC(_ar0);
+extern	void	showC(
+		_ar1(RING *,	gbl));
 
 extern	void	tab2VIEW(
 		_ar1(RING *,	gbl));
 
 extern	void	markC(
+		_arx(RING *,	gbl)
 		_ar1(int,	on));
 
-extern	void	restat_l(_ar0);
+extern	void	restat_l(
+		_ar1(RING *,	gbl));
 
-extern	void	restat_W(_ar0);
+extern	void	restat_W(
+		_ar1(RING *,	gbl));
 
 extern	int	baseVIEW(
 		_ar1(RING *,	gbl));
@@ -533,7 +532,8 @@ extern	int	lastVIEW(
 		_ar1(RING *,	gbl));
 
 /* *** "dedwait.c" *** */
-extern	int	dedwait(
+extern	void	dedwait(
+		_arx(RING *,	gbl)
 		_ar1(int,	cursed));
 
 /* *** "ded2s.c" *** */

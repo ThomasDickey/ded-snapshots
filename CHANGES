@@ -1,3 +1,156 @@
+1992-04-06  dickey@software.org
+
+	* src/dedview.c, src/dedtype.c: Xbase:local
+
+1992-04-06  ste_cm@software.org
+
+	* src/dedtype.c: BASELINE Thu Jul 16 09:39:01 1992 -- EBPM4 support
+
+1992-04-06  dickey@software.org
+
+	* src/dedline.c, src/ded.c, src/ded.h: Xbase:local
+
+	* src/ded.c, src/dedring.c, src/dedscan.c, src/ded.h: dedscan:interface
+
+	* src/ded.h, src/dedview.c, src/dedsort.c, src/dedscan.c, src/dedmake.c:
+	curfile-macros
+
+1992-04-06  ste_cm@software.org
+
+	* src/dedmake.c: BASELINE Thu Jul 16 09:39:01 1992 -- EBPM4 support
+
+1992-04-06  dickey@software.org
+
+	* src/dedline.c, src/deddoit.c, src/ded.c: curfile-macros
+
+	* src/ded.h: eradicate FOO
+
+	* src/ded.c: finally! eradicated FOO (global data)
+
+	* src/ded.c: propagate RING-struct via 'pattern_args()'
+
+	* src/ded.h: rescan:interface
+
+	* src/ded.c: mods to rescan & old_args to get rid of FOO
+
+	* src/ded.c: typo
+
+	* src/ded.c: juggling to percolate RING-pointer up past 'old_args()'
+
+	* src/ded.c:
+	new local procedure 'edit_directory()' to remove some global-data
+
+	* src/ftree.c: dedmsg,deddump:interfaces
+
+	* src/ded.h: dedmsg,warn,deddump:interfaces
+
+	* src/dedtype.c: warn:interface
+
+	* src/ded.c: dedmsg,warn,deddump:interfaces
+
+	* src/dedscan.c: warn:interface
+
+	* src/dedname.c: dedmsg,warn:interface
+
+1992-04-06  ste_cm@software.org
+
+	* src/dedname.c: BASELINE Thu Jul 16 09:39:01 1992 -- EBPM4 support
+
+	* src/dedname.c:
+	BASELINE Thu May  6 14:26:47 1993 -- split from CM_TOOLS #11
+
+1992-04-06  dickey@software.org
+
+	* src/dedline.c: dedmsg,warn:interface
+
+	* src/deddump.c: deddump,warn:interface
+
+1992-04-06  ste_cm@software.org
+
+	* src/deddump.c: BASELINE Thu Jul 16 09:39:01 1992 -- EBPM4 support
+
+	* src/deddump.c:
+	BASELINE Thu May  6 14:26:47 1993 -- split from CM_TOOLS #11
+
+1992-04-06  dickey@software.org
+
+	* src/deddoit.c: warn:interface
+
+	* src/sortset.c: dedmsg:interface
+
+1992-04-06  ste_cm@software.org
+
+	* src/sortset.c: BASELINE Thu Jul 16 09:39:01 1992 -- EBPM4 support
+
+1992-04-06  dickey@software.org
+
+	* src/dedview.c, src/dedmake.c, src/dedfind.c: dedmsg:interface
+
+1992-04-06  ste_cm@software.org
+
+	* src/dedfind.c: BASELINE Thu Jul 16 09:39:01 1992 -- EBPM4 support
+
+1992-04-06  dickey@software.org
+
+	* src/ded.c: interfaces to 'show_message()' & 'realstat()'
+
+	* src/ded.h: realstat:interface
+
+	* src/ded.c: more FOO's gone!
+
+	* src/ded.h: resleep:interface
+
+	* src/ded.h, src/ded.c, src/dedscan.c, src/deddoit.c, src/dedwait.c:
+	retouch,dedwait:interfaces
+
+1992-04-06  ste_cm@software.org
+
+	* src/dedwait.c: BASELINE Thu Jul 16 09:39:01 1992 -- EBPM4 support
+
+1992-04-06  dickey@software.org
+
+	* src/dedtype.c: retouch,dedwait:interfaces
+
+	* src/ded.c, src/dedline.c, src/dedview.c, src/ded.h:
+	restat,rescan:interface
+
+	* src/ded.c, src/ded.h, src/dedview.c, src/deddoit.c, src/sortset.c, src/deduniq.c:
+	dedview:interfaces
+
+1992-04-06  ste_cm@software.org
+
+	* src/deduniq.c: BASELINE Thu Jul 16 09:39:01 1992 -- EBPM4 support
+
+	* src/deduniq.c:
+	BASELINE Thu May  6 14:26:47 1993 -- split from CM_TOOLS #11
+
+1992-04-06  dickey@software.org
+
+	* src/dedtype.c, src/dedshow.c: dedview:interfaces
+
+1992-04-06  ste_cm@software.org
+
+	* src/dedshow.c: BASELINE Thu Jul 16 09:39:01 1992 -- EBPM4 support
+
+	* src/dedshow.c:
+	BASELINE Thu May  6 14:26:47 1993 -- split from CM_TOOLS #11
+
+1992-04-06  dickey@software.org
+
+	* src/dedread.c: dedview:interfaces
+
+1992-04-06  ste_cm@software.org
+
+	* src/dedread.c: BASELINE Thu Jul 16 09:39:01 1992 -- EBPM4 support
+
+1992-04-06  dickey@software.org
+
+	* src/dedfind.c: dedview:interfaces
+
+	* test/test2.cmd, test/test1.cmd: split out 'dedview.c'
+
+	* src/dedmake.c, src/dedline.c: dedview:interfaces
+
 1992-04-03  dickey@software.org
 
 	* src/ded.h: oops: introduced a typo into _ONE macro

@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	Id[] = "$Id: deddoit.c,v 10.9 1992/04/03 12:42:43 dickey Exp $";
+static	char	Id[] = "$Id: deddoit.c,v 10.13 1992/04/06 15:38:06 dickey Exp $";
 #endif
 
 /*
@@ -77,9 +77,9 @@ private	void	Expand(
 	_DCL(int,	code)
 	_DCL(DYN *,	subs)
 {
-	char *	cur_name =  gNAME(gbl->curfile);
-	STAT *	cur_stat = &gSTAT(gbl->curfile);
-	FLIST *	cur_item = &gENTRY(gbl->curfile);
+	char *	cur_name =  cNAME;
+	STAT *	cur_stat = &cSTAT;
+	FLIST *	cur_item = &cENTRY;
 	char	temp[BUFSIZ],
 		name[BUFSIZ],
 		*from;
@@ -169,7 +169,7 @@ public	void	deddoit(
 	else if (sense > 1)
 		gbl->clr_sh = TRUE;
 
-	to_work(TRUE);
+	to_work(gbl,TRUE);
 	PRINTW("%c Command: ", gbl->clr_sh ? '%' : '!');
 	getyx(stdscr,j,k);
 	clrtobot();
@@ -195,7 +195,7 @@ public	void	deddoit(
 			(void)strtrim(dyn_string(gbl->cmd_sh));
 		} else {
 			PRINTW("(no command)");
-			showC();
+			showC(gbl);
 			return;
 		}
 	} else
@@ -244,7 +244,7 @@ public	void	deddoit(
 			APPEND(Subs, This);
 		}
 	}
-	dedshow("> ", dyn_string(Subs));
+	dedshow(gbl, "> ", dyn_string(Subs));
 	refresh();
 
 	if (*dyn_string(Subs)) {
@@ -256,11 +256,11 @@ public	void	deddoit(
 		(void)dedsigs(FALSE);	/* prevent child from killing us */
 		dlog_comment("execute %s\n", dyn_string(Subs));
 		if (system(dyn_string(Subs)) < 0)
-			warn("system");
+			warn(gbl, "system");
 		(void)dedsigs(TRUE);
 		rawterm();
-		if (gbl->clr_sh) dedwait(TRUE);
+		if (gbl->clr_sh) dedwait(gbl, TRUE);
 		dlog_elapsed();
 	}
-	showC();
+	showC(gbl);
 }

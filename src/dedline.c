@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	Id[] = "$Id: dedline.c,v 10.10 1992/04/03 13:57:10 dickey Exp $";
+static	char	Id[] = "$Id: dedline.c,v 10.15 1992/04/06 16:37:42 dickey Exp $";
 #endif
 
 /*
@@ -290,14 +290,14 @@ private	int	save_Xbase (
 	_DCL(RING *,	gbl)
 	_DCL(int,	col)
 {
-	auto	int	old = Xbase;
-	if (col < Xbase)
-		Xbase = 0;
-	if (col > (Xbase + COLS - 1))
-		Xbase = col;
-	if (old != Xbase)
+	auto	int	old = gbl->Xbase;
+	if (col < gbl->Xbase)
+		gbl->Xbase = 0;
+	if (col > (gbl->Xbase + COLS - 1))
+		gbl->Xbase = col;
+	if (old != gbl->Xbase)
 		showFILES(gbl,FALSE,FALSE);
-	return (col - Xbase);
+	return (col - gbl->Xbase);
 }
 
 private	int	change_protection _ONE(RING *,gbl)
@@ -322,12 +322,12 @@ private	int	change_protection _ONE(RING *,gbl)
 				if (has_extended_acl(gbl, x)
 					&& !OWNER(x)) {
 					errno = EPERM;
-					warn(gNAME(x));
+					warn(gbl, gNAME(x));
 					break;
 				}
 #endif
 				if (chmod(gNAME(x), c) < 0) {
-					warn(gNAME(x));
+					warn(gbl, gNAME(x));
 					break;
 				}
 				fixtime(gbl, x);
@@ -347,7 +347,7 @@ private	int	change_protection _ONE(RING *,gbl)
 public	void	editprot _ONE(RING *,gbl)
 {
 	register
-	STAT	*sb	= &gSTAT(gbl->curfile);
+	STAT	*sb	= &cSTAT;
 	int	y	= file2row(gbl->curfile),
 		x	= 0,
 		c;
@@ -438,7 +438,7 @@ public	void	editprot _ONE(RING *,gbl)
 		gbl->P_opt = opt;
 		showLINE(gbl, gbl->curfile);
 	}
-	restat(changed);
+	restat(gbl,changed);
 }
 
 /*
@@ -576,7 +576,7 @@ public	int	edittext(
 public	void	edit_uid _ONE(RING *,gbl)
 {
 	register int j;
-	int	uid	= gSTAT(gbl->curfile).st_uid,
+	int	uid	= cSTAT.st_uid,
 		changed	= FALSE;
 	char	bfr[BUFSIZ];
 
@@ -596,7 +596,7 @@ public	void	edit_uid _ONE(RING *,gbl)
 			if (GROUPED(j)) {
 				if (chown(gNAME(j),
 					uid, (int)gSTAT(j).st_gid) < 0) {
-					warn(gNAME(j));
+					warn(gbl, gNAME(j));
 					break;
 				}
 				fixtime(gbl, j);
@@ -605,7 +605,7 @@ public	void	edit_uid _ONE(RING *,gbl)
 			}
 		}
 	}
-	restat(changed);
+	restat(gbl,changed);
 }
 
 /*
@@ -614,7 +614,7 @@ public	void	edit_uid _ONE(RING *,gbl)
 public	void	edit_gid _ONE(RING *,gbl)
 {
 	register int j;
-	int	gid	= gSTAT(gbl->curfile).st_gid,
+	int	gid	= cSTAT.st_gid,
 		changed	= FALSE,
 		root	= (geteuid() == 0);
 	char	bfr[BUFSIZ];
@@ -640,7 +640,7 @@ public	void	edit_gid _ONE(RING *,gbl)
 				if (root) {
 					if (chown(gNAME(j),
 						(int)gSTAT(j).st_uid, gid) < 0){
-						warn(gNAME(j));
+						warn(gbl, gNAME(j));
 						break;
 					}
 					gSTAT(j).st_gid = gid;
@@ -652,19 +652,19 @@ public	void	edit_gid _ONE(RING *,gbl)
 				if (!root) {
 					statLINE(gbl, j);
 					showLINE(gbl, j);
-					showC();
+					showC(gbl);
 				} else
 					changed++;
 				if (gSTAT(j).st_gid != gid) {
 					FORMAT(bfr, fmt, newgrp, fixname(gbl,j));
-					dedmsg(bfr);
+					dedmsg(gbl, bfr);
 					beep();
 					break;
 				}
 			}
 		}
 	}
-	restat(changed);
+	restat(gbl,changed);
 }
 
 /*
@@ -677,7 +677,7 @@ public	void	editname _ONE(RING *,gbl)
 	auto	 char	bfr[BUFSIZ];
 
 #define	EDITNAME(n)	edittext(gbl, '=', gbl->cmdcol[CCOL_NAME], sizeof(bfr), name2bfr(bfr, n))
-	if (EDITNAME(gNAME(gbl->curfile)) && strcmp(gNAME(gbl->curfile), bfr)) {
+	if (EDITNAME(cNAME) && strcmp(cNAME, bfr)) {
 		if (dedname(gbl, gbl->curfile, bfr) >= 0) {
 			(void)dedsigs(TRUE);	/* reset interrupt count */
 			re_edit = TRUE;
@@ -699,7 +699,7 @@ public	void	editname _ONE(RING *,gbl)
 			re_edit = FALSE;
 		}
 	}
-	restat(changed);
+	restat(gbl,changed);
 }
 
 #ifdef	S_IFLNK
@@ -721,7 +721,7 @@ public	void	editlink(
 	cmd_link = (cmd == '<');
 
 #define	EDITLINK(n)	edittext(gbl, cmd, col, sizeof(bfr), link2bfr(gbl, bfr, n))
-	if (!gLTXT(gbl->curfile))
+	if (!cLTXT)
 		beep();
 	else {
 		auto	int	restore = FALSE;
@@ -751,7 +751,7 @@ public	void	editlink(
 		PRINTW("=> ");
 		col += 3;
 		if (EDITLINK(gbl->curfile)
-		&&  strcmp(gLTXT(gbl->curfile),
+		&&  strcmp(cLTXT,
 			subslink(gbl, bfr, gbl->curfile))) {
 			if (relink(gbl, gbl->curfile, bfr)) {
 				(void)dedsigs(TRUE);
@@ -778,7 +778,7 @@ public	void	editlink(
 		if (restore && !changed)
 			showFILES(gbl,FALSE,FALSE);
 	}
-	restat(changed);
+	restat(gbl,changed);
 }
 #endif	/* S_IFLNK */
 

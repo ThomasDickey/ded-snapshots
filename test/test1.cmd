@@ -55,6 +55,7 @@
 	# "dedsort.c"
 	# "dedtype.c"
 	# "deduniq.c"
+	# "dedview.c"
 	# "dedwait.c"
 	# "dlog.c"
 	# "ftree.c"

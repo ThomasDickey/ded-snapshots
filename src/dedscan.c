@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	Id[] = "$Id: dedscan.c,v 10.9 1992/04/03 13:58:27 dickey Exp $";
+static	char	Id[] = "$Id: dedscan.c,v 10.13 1992/04/06 16:16:28 dickey Exp $";
 #endif
 
 /*
@@ -260,15 +260,10 @@ private	int	argstat(
  * Arguments:   argc, argv passed down from the original invocation,	*
  *		with leading options parsed off.			*
  ************************************************************************/
-public	int	dedscan(
-	_ARX(RING *,	gbl)
-	_ARX(int,	argc)
-	_AR1(char **,	argv)
-		)
-	_DCL(RING *,	gbl)
-	_DCL(int,	argc)
-	_DCL(char **,	argv)
+public	int	dedscan _ONE(RING *,gbl)
 {
+	auto	int	argc	= gbl->top_argc;
+	auto	char **	argv	= gbl->top_argv;
 	DIR		*dp;
 	struct	direct	*de;
 	register int	j, k;
@@ -289,7 +284,7 @@ public	int	dedscan(
 	} else {
 		abshome(pathcat(gbl->new_wd, old_wd, argv[0]));
 		if (!path_RESOLVE(gbl, gbl->new_wd)) {
-			warn(gbl->new_wd);
+			warn(gbl, gbl->new_wd);
 			return(0);
 		}
 		if ((common = argstat(gbl, gbl->new_wd, FALSE)) > 0) {
@@ -387,7 +382,7 @@ public	int	dedscan(
 		}
 	}
 	if (debug)
-		dedwait(FALSE);
+		dedwait(gbl, FALSE);
 	return(gbl->numfiles);
 }
 
@@ -490,7 +485,7 @@ public	void	statMAKE (
 				while (x-- > gbl->curfile)
 					gENTRY(x+1) = gENTRY(x);
 			}
-			gENTRY(gbl->curfile) = save;
+			cENTRY = save;
 		}
 	} else {	/* remove entry */
 		if ((x = lookup(gbl, null)) >= 0) {

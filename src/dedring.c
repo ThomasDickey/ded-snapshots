@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	Id[] = "$Id: dedring.c,v 10.18 1992/04/03 11:00:56 dickey Exp $";
+static	char	Id[] = "$Id: dedring.c,v 10.19 1992/04/06 16:16:42 dickey Exp $";
 #endif
 
 /*
@@ -297,7 +297,7 @@ private	RING *	ring_bak _ONE(char *,path)
 
 private	int	do_a_scan _ONE(RING *,newp)
 {
-	if (dedscan(newp, newp->top_argc, newp->top_argv)) {
+	if (dedscan(newp)) {
 		newp->curfile = 0;
 		dedsort(newp);
 		newp->curfile = 0;	/* ensure consistent initial */

@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	Id[] = "$Id: dedread.c,v 10.2 1992/04/02 07:48:56 dickey Exp $";
+static	char	Id[] = "$Id: dedread.c,v 11.0 1992/04/06 08:44:28 ste_cm Rel $";
 #endif
 
 /*
@@ -35,7 +35,7 @@ public	int	dedread(
 	register int	j,k;
 	auto	char	text[BUFSIZ], *expr;
 
-	to_work(TRUE);
+	to_work(gbl,TRUE);
 	PRINTW("Pattern: ");
 	getyx(stdscr,j,k);
 	clrtobot();
@@ -49,22 +49,22 @@ public	int	dedread(
 
 	dlog_string(text,sizeof(text),FALSE);
 	if ((*pattern_ != 0) && !strcmp(text, *pattern_)) {
-		showC();
+		showC(gbl);
 		return (change_needed);
 	} else if (!*text) {
 		*pattern_ = 0;
-		showC();
+		showC(gbl);
 		OLD_REGEX(gbl->scan_expr);
 		return (TRUE);
 	} else if (NEW_REGEX(expr,text)) {
-		showC();
+		showC(gbl);
 		*pattern_ = txtalloc(text);
 		OLD_REGEX(gbl->scan_expr);
 		gbl->scan_expr = expr;
 		return (TRUE);
 	} else {
 		BAD_REGEX(expr);
-		showC();
+		showC(gbl);
 		return (FALSE);
 	}
 }

@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	Id[] = "$Id: deddump.c,v 10.0 1991/10/18 09:49:40 ste_cm Rel $";
+static	char	Id[] = "$Id: deddump.c,v 12.0 1992/04/06 11:59:48 ste_cm Rel $";
 #endif
 
 /*
@@ -16,9 +16,9 @@ static	char	Id[] = "$Id: deddump.c,v 10.0 1991/10/18 09:49:40 ste_cm Rel $";
 
 #include	"ded.h"
 
-deddump(_AR0)
+public	void	deddump _ONE(RING *,gbl)
 {
 	char	bfr[BUFSIZ];
 	if (win2file(stdscr, pathcat(bfr, gethome(), "ded.log")) < 0)
-		warn(bfr);
+		warn(gbl, bfr);
 }
