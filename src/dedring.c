@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	sccs_id[] = "@(#)dedring.c	1.4 88/05/02 16:19:45";
+static	char	sccs_id[] = "@(#)dedring.c	1.5 88/05/05 12:55:37";
 #endif	lint
 
 /*
@@ -7,6 +7,7 @@ static	char	sccs_id[] = "@(#)dedring.c	1.4 88/05/02 16:19:45";
  * Author:	T.E.Dickey
  * Created:	27 Apr 1988
  * Modified:
+ *		05 May 1988, added 'Q' command.
  *		02 May 1988, fixed repeat count on 'F', 'B' commands.
  *			     Added 'q' command.
  *
@@ -344,11 +345,21 @@ RING	*oldp,
 			path = newp->new_wd;
 		}
 		break;
-	case 'q':
+	case 'q':		/* release & move forward */
 		path = new_wd;
 		while (count-- > 0) {
 		char	tmp[BUFSIZ];
 			if ((newp = forward(path)) == oldp)
+				return(FALSE);
+			remove(path);
+			path = strcpy (tmp, newp->new_wd);
+		}
+		break;
+	case 'Q':		/* release & move backward */
+		path = new_wd;
+		while (count-- > 0) {
+		char	tmp[BUFSIZ];
+			if ((newp = backward(path)) == oldp)
 				return(FALSE);
 			remove(path);
 			path = strcpy (tmp, newp->new_wd);
