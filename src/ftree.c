@@ -1,11 +1,12 @@
 #ifndef	NO_SCCS_ID
-static	char	sccs_id[] = "@(#)ftree.c	1.39 88/05/10 13:19:43";
+static	char	sccs_id[] = "@(#)ftree.c	1.40 88/05/11 12:29:54";
 #endif
 
 /*
  * Author:	T.E.Dickey
  * Created:	02 Sep 1987
  * Modified:
+ *		11 May 1988, added 'ft_rename' entrypoint.
  *		09 May 1988, do chdir before interpreting 'readlink()'.
  *		06 May 1988, added 'W' command.  Also, in cursor movement, make
  *			     newline force cursor rightwards.  Portable regex.
@@ -32,6 +33,7 @@ static	char	sccs_id[] = "@(#)ftree.c	1.39 88/05/10 13:19:43";
  *		ft_linkto
  *		ft_remove
  *		ft_purge
+ *		ft_rename
  *		ft_scan
  *		ft_stat
  *		ft_view
@@ -67,13 +69,7 @@ extern	char	*txtalloc(),
 #define	ROOT	"/"
 #endif
 
-#define	MAXPATHLEN	BUFSIZ
-
 #define	TOSHOW	(LINES-1)	/* lines to show on a screen */
-
-#define	PRINTF	(void)printf
-#define	FPRINTF	(void)fprintf
-#define	FORMAT	(void)sprintf
 
 #define	NORMAL	0
 #define	MARKED	1
@@ -258,6 +254,23 @@ register int j;
 			fd_repur(j);
 		}
 	}
+}
+
+/*
+ * Purge a particular node and its descendents
+ */
+static
+do_purge(node)
+{
+register int j;
+	fd_repur(node);
+	for (j = node; j < FDlast; j++) {
+		ftree[j] = ftree[j+1];
+		if (ftree[j].f_root > node)
+			ftree[j].f_root--;
+	}
+	FDlast--;
+	FDdiff++;
 }
 
 /*
@@ -453,17 +466,24 @@ register int j, k;
 
 	for (j = 1; j <= FDlast; j++) {
 		if (ftree[j].f_mark & MARKED) {
-			fd_repur(j);
-			for (k = j; k < FDlast; k++) {
-				ftree[k] = ftree[k+1];
-				if (ftree[k].f_root > j)
-					ftree[k].f_root--;
-			}
-			FDlast--;
-			FDdiff++;
+			do_purge(j);
 			j--;
 		}
 	}
+}
+
+/*
+ * Rename a directory or link.
+ * patch: for now, simply do a delete/insert, but should complete this by
+ *	copying a tree.
+ */
+ft_rename(old, new)
+char	*old, *new;
+{
+register int	j;
+	if ((j = do_find(old)) >= 0)
+		do_purge(j);
+	ft_insert(new);
 }
 
 /*

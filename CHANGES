@@ -1,3 +1,21 @@
+1988-05-11  dickey@software.org
+
+	* src/dedname.c: New file.
+
+	* src/version.h: use 'rename()' on bsd4.2 to rename directories.
+
+	* src/README: more bugs...
+
+	* src/ded.c: broke out 'dedname()'; lint.
+
+	* src/dedfind.c, src/ded2s.c: lint
+
+	* src/ftree.c: added (first cut) of 'ft_rename()' entrypoint.
+
+	* src/ded.h: more lint-definitions.
+
+	* src/Makefile: broke 'dedname.c' out of 'ded.c'
+
 1988-05-10  dickey@software.org
 
 	* src/version.h: use 'txtalloc()'.
