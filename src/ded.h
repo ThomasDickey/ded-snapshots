@@ -19,7 +19,7 @@
 
 #ifdef	MAIN
 #if	!defined(NO_IDENT)
-static const char ded_h[] = "$Id: ded.h,v 12.63 2002/07/05 13:55:00 tom Exp $";
+static const char ded_h[] = "$Id: ded.h,v 12.64 2003/07/02 21:46:01 tom Exp $";
 #endif
 #endif	/* MAIN */
 
@@ -191,7 +191,7 @@ static const char ded_h[] = "$Id: ded.h,v 12.63 2002/07/05 13:55:00 tom Exp $";
 	unsigned numfiles;	/* total files in display-list */
 	unsigned curfile;	/* current file on which to operate */
 	int	tag_count;	/* current # of tagged files */
-	off_t	tag_bytes;	/* ...corresponding total of bytes */
+	long	tag_bytes;	/* ...corresponding total of bytes */
 	long	tag_blocks;	/* ...corresponding total of blocks */
 	};
 

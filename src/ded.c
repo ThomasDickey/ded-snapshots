@@ -3,6 +3,8 @@
  * Author:	T.E.Dickey
  * Created:	09 Nov 1987
  * Modified:
+ *		03 Jul 2003, move dedsigs() after initscr() to avoid conflict
+ *			     with ncurses' sigwinch() handler.
  *		21 Dec 2002, use setlocale(), needed with ncursesw
  *		16 Apr 2002, make 'T' a 4-way toggle, showing seconds if T=3.
  *		30 Jan 2001, avoid aborting on initscr failure (use -d option,
@@ -165,7 +167,7 @@
 
 #include <locale.h>
 
-MODULE_ID("$Header: /users/source/archives/ded.vcs/src/RCS/ded.c,v 12.73 2002/12/21 20:31:16 tom Exp $")
+MODULE_ID("$Header: /users/source/archives/ded.vcs/src/RCS/ded.c,v 12.74 2003/07/02 22:58:37 tom Exp $")
 
 #define	EDITOR	DEFAULT_EDITOR
 #define	BROWSE	DEFAULT_BROWSE
@@ -1015,8 +1017,6 @@ _MAIN
 	}
 
 	save_terminal();
-	(void)dedsigs(TRUE);
-	(void)dedsize((RING *)0);
 
 	if (getenv("TERM") == 0) {
 		FPRINTF(stderr, "$TERM is not set\n");
@@ -1033,6 +1033,8 @@ _MAIN
 		return(FAIL);
 	}
 #endif
+	(void)dedsigs(TRUE);
+	(void)dedsize((RING *)0);
 
 #if defined(HAVE_WSCRL)
 	(void)scrollok(stdscr, TRUE);
