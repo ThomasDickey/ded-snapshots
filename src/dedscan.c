@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	Id[] = "$Id: dedscan.c,v 7.2 1990/07/27 08:28:37 dickey Exp $";
+static	char	Id[] = "$Id: dedscan.c,v 8.0 1990/08/13 13:44:29 ste_cm Rel $";
 #endif	lint
 
 /*
@@ -7,12 +7,18 @@ static	char	Id[] = "$Id: dedscan.c,v 7.2 1990/07/27 08:28:37 dickey Exp $";
  * Author:	T.E.Dickey
  * Created:	09 Nov 1987
  * $Log: dedscan.c,v $
- * Revision 7.2  1990/07/27 08:28:37  dickey
- * modified 'argstat()' and 'dedstat()' so that 'dedstat()' does
- * all of the stat-work.  Did this so that it calls 'statSCCS()'
- * for all directory arguments, making 'l' command work properly.
- * Also, this eliminates a redundant 'stat()' in 'argstat()'.
+ * Revision 8.0  1990/08/13 13:44:29  ste_cm
+ * BASELINE Mon Aug 13 15:06:41 1990 -- LINCNT, ADA_TRANS
  *
+ *		Revision 7.3  90/08/13  13:44:29  dickey
+ *		lint
+ *		
+ *		Revision 7.2  90/07/27  08:35:25  dickey
+ *		modified 'argstat()' and 'dedstat()' so that 'dedstat()' does
+ *		all of the stat-work.  Did this so that it calls 'statSCCS()'
+ *		for all directory arguments, making 'l' command work properly.
+ *		Also, this eliminates a redundant 'stat()' in 'argstat()'.
+ *		
  *		Revision 7.1  90/05/16  08:14:49  dickey
  *		added code to strip prefixes which are common to the new-wd,
  *		but not among the other arguments.
@@ -188,7 +194,7 @@ char	*argv[];
 						ft_insert(name);
 					}
 				}
-				closedir(dp);
+				(void)closedir(dp);
 				if (!numfiles)
 					waitmsg("no files found");
 			} else {
