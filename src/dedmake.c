@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	Id[] = "$Id: dedmake.c,v 10.0 1991/10/18 10:26:18 ste_cm Rel $";
+static	char	Id[] = "$Id: dedmake.c,v 10.1 1992/01/16 15:47:14 dickey Exp $";
 #endif
 
 /*
@@ -7,6 +7,7 @@ static	char	Id[] = "$Id: dedmake.c,v 10.0 1991/10/18 10:26:18 ste_cm Rel $";
  * Author:	T.E.Dickey
  * Created:	12 Sep 1988
  * Modified:
+ *		16 Jan 1992, force 'dedline()' off on exit.
  *		16 Oct 1991, modified to allow command-replay
  *		15 Oct 1991, converted to ANSI
  *		15 May 1991, apollo sr10.3 cpp complains about tag on #endif
@@ -141,4 +142,5 @@ dedmake _ONE(int,firstc)
 	do {
 		(void)strcpy(bfr, (hard >= 0) ? xNAME(hard) : cNAME);
 	} while (!made_or_quit(firstc, mode, hard, bfr));
+	(void)dedline(FALSE);
 }
