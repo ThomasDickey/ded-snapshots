@@ -1,5 +1,5 @@
 #ifndef	NO_SCCS_ID
-static	char	sccs_id[] = "@(#)ftree.c	1.20 88/04/21 10:37:54";
+static	char	sccs_id[] = "@(#)ftree.c	1.22 88/04/22 09:14:58";
 #endif
 
 /*
@@ -19,6 +19,7 @@ static	char	sccs_id[] = "@(#)ftree.c	1.20 88/04/21 10:37:54";
  *		ft_read
  *		ft_write
  *		ft_insert
+ *		ft_linkto
  *		ft_remove
  *		ft_purge
  *		ft_scan
@@ -390,6 +391,21 @@ register int j, this, last = 0;
 	}
 	return(last);
 }
+
+#ifndef	SYSTEM5
+/*
+ * Enter a symbolic link into the database.
+ */
+ft_linkto(path)
+char	*path;
+{
+int	row;
+	ft_insert(path);
+	row = do_find(path);
+	markit(row,LINKED,TRUE);
+	/* patch: store pointer to show 'readlink()' */
+}
+#endif	SYSTEM5
 
 /*
  * Mark nodes below a given path in the database for removal, unless they
@@ -881,7 +897,7 @@ register int j;
 		/* Screen refresh */
 		case 'w':	showdiff = -1;
 				savewin();
-				unsavewin(TRUE);
+				unsavewin(TRUE,0);
 				break;
 
 		/* toggle flag which controls whether we show dependents */
@@ -955,7 +971,6 @@ struct	direct	*d;
 struct	stat	sb;
 int	count	= 0;
 char	old[MAXPATHLEN],
-	new[MAXPATHLEN],
 	bfr[MAXPATHLEN], *s_ = bfr;
 
 	abspath(strcpy(old,"."));
@@ -966,7 +981,6 @@ char	old[MAXPATHLEN],
 	else if ((dp = opendir(bfr)) != 0) {
 		if (strcmp(bfr,zero))	*s_++ = '/';
 		while (d = readdir(dp)) {
-			*new = '\0';
 			fd_slow(count++);
 			FORMAT(s_, "%s", d->d_name);
 			if (dotname(s_))		continue;
@@ -974,20 +988,13 @@ char	old[MAXPATHLEN],
 			if ((int)sb.st_ino <= 0)	continue;
 #ifndef	SYSTEM5
 			if (isLINK(sb.st_mode)) {
-				if (stat(bfr, &sb) < 0)	continue;
-				if (readlink(bfr, new, sizeof(new)) <= 0)
-					*new = '\0';
-			}
+				if (stat(bfr, &sb) >= 0)
+					if (isDIR(sb.st_mode))
+						ft_linkto(bfr);
+			} else
 #endif	SYSTEM5
-			if (!isDIR(sb.st_mode))		continue;
-			ft_insert(bfr);
-#ifndef	SYSTEM5
-			if (*new) {
-			int	row = do_find(bfr);
-				markit(row,LINKED,TRUE);
-				/* patch: store pointer to show 'readlink()' */
-			}
-#endif	SYSTEM5
+			if (isDIR(sb.st_mode))
+				ft_insert(bfr);
 		}
 		(void)closedir(dp);
 	}

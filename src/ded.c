@@ -1,5 +1,5 @@
 #ifndef	NO_SCCS_ID
-static	char	sccs_id[] = "@(#)ded.c	1.12 88/04/21 14:43:41";
+static	char	sccs_id[] = "@(#)ded.c	1.13 88/04/22 06:53:31";
 #endif	NO_SCCS_ID
 
 /*
@@ -361,15 +361,22 @@ int	col = cmdcol[2] - Xbase;
 /*
  * Repaint the screen
  */
-retouch()
+retouch(row)
 {
 int	y,x;
+#ifdef	apollo
+	if (resizewin()) {
+		markset(mark_W);
+		showFILES();
+		return;
+	}
+#endif	apollo
 	getyx(stdscr,y,x);
 	move(mark_W+1,0);
 	clrtobot();
 	move(y,x);
 	savewin();
-	unsavewin(TRUE);
+	unsavewin(TRUE,row);
 }
 
 static
@@ -669,7 +676,7 @@ int	pid ,
 		rawterm();
 		chdir(new_wd);
 		if (normal) {
-			retouch();
+			retouch(0);
 			restat(FALSE);
 		}
 	} else if (pid < 0) {
@@ -859,7 +866,7 @@ char	tpath[BUFSIZ];
 
 	case 'q':	/* quit this process */
 			if (lastc == 't')
-				retouch();
+				retouch(mark_W+1);
 			else
 				quit = TRUE;
 			break;
@@ -889,14 +896,7 @@ char	tpath[BUFSIZ];
 			break;
 
 	case 'w':	/* refresh window */
-#ifdef	apollo
-			if (resizewin()) {
-				markset(mark_W);
-				showFILES();
-				break;
-			}
-#endif	apollo
-			retouch();
+			retouch(0);
 			break;
 
 	case 'l':	/* re-stat line */
@@ -904,7 +904,7 @@ char	tpath[BUFSIZ];
 			break;
 
 	case ' ':	/* clear workspace */
-			retouch();
+			retouch(mark_W+1);
 			break;
 
 	case 'r':
@@ -1018,10 +1018,10 @@ char	tpath[BUFSIZ];
 				refresh();
 				ft_write();
 				forkfile(whoami, tpath, FALSE);
-				unsavewin(TRUE);
+				unsavewin(TRUE,0);
 				ft_read(new_wd);
 			}
-			unsavewin(FALSE);
+			unsavewin(FALSE,0);
 			break;
 
 			/* patch: not implemented */
