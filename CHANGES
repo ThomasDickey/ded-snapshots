@@ -1,3 +1,18 @@
+2003-07-02  Thomas E. Dickey  <dickey@invisible-island.net>
+
+	* src/ded.c:
+	noticed (I don't use it that much anymore) that ded was not resizing.
+	One possible cause (actually was in winresize()), was that dedsigs()
+	was called before initscr().  That made ded's sigwinch handler override
+	ncurses'.  Putting it after lets ncurses return a KEY_RESIZE in cmdch(),
+	which works nicer than the arrangement where ded does it all.
+
+	* src/ded.h: change tag_bytes to a long, since off_t != long (NetBSD)
+
+	* src/dedcolor.c:
+	remove A_INVIS, since NetBSD curses does not implement it, and it was only
+	amusing anyway.
+
 2003-04-26  Thomas E. Dickey  <dickey@invisible-island.net>
 
 	* user/ded.man: add CVS to list of things DED_CM_LOOKUP covers

@@ -16,7 +16,7 @@
  */
 #include "ded.h"
 
-MODULE_ID("$Id: dedcolor.c,v 12.18 2002/07/05 13:55:00 tom Exp $")
+MODULE_ID("$Id: dedcolor.c,v 12.19 2003/07/02 21:45:15 tom Exp $")
 
 #if defined(HAVE_HAS_COLORS)
 
@@ -97,7 +97,6 @@ private	void	SaveColor(
 		{"UNDERLINE",	A_UNDERLINE},
 		{"REVERSE",	A_REVERSE},
 		{"DIM",		A_DIM},
-		{"INVIS",	A_INVIS},
 		{"BLINK",	A_BLINK},
 		{"BOLD",	A_BOLD}
 	}, my_color_names[] = {
@@ -139,7 +138,6 @@ private	void	SaveColor(
 			case  4:	attr |= A_UNDERLINE;	break;
 			case  5:	attr |= A_BLINK;	break;
 			case  7:	attr |= A_REVERSE;	break;
-			case  8:	attr |= A_INVIS;	break;
 			/* text (foreground) color */
 			case 30:	forg = COLOR_BLACK;	break;
 			case 31:	forg = COLOR_RED;	break;
