@@ -1,4 +1,4 @@
-$Id: README,v 5.0 1989/10/13 09:08:28 ste_cm Rel $
+$Id: README,v 10.0 1990/01/11 09:38:50 ste_cm Rel $
 
 --(TO-DO)----------------------------------------------------------------------
 
@@ -59,12 +59,11 @@ $Id: README,v 5.0 1989/10/13 09:08:28 ste_cm Rel $
 	window, I get a screen-update glitch: apollo vt100 optimizes to
 	permit up to 3 lines upward; curses has lost its notion of the
 	column.  Should make 'blip()' able to reset curses' position.
-	Observed this in ~hofkin, who has links
-		spc-gould -> /network/software/u1/hofkin
-		src -> /network/mips/src/src1/npsources/src
-	which slow the stat down.  '_puts()' is not a simple solution...
+	Observed this when cursor is on the last line of the file-list screen.
+	('_puts()' is not a simple solution...)
 
-89/10/13:
-	on apollo sr10.1, trying to read stuff in //storage/dist, I noticed
-	that a 'R' command from ftree fails, while the 'E' command works.
-	It appears that the 'stat()' call is flakier in sr10.1 than 'lstat()'
+90/01/11:
+	should reduce the number of 'getwd()' and 'abspath()' calls needed
+	in the interfaces to 'dedring' and 'ftree'.  this would aid performance.
+
+	note that the '=' command in 'ftree' has not been completed.
