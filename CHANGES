@@ -1,3 +1,22 @@
+1994-10-05  Thomas E. Dickey  <dickey@clark.net>
+
+	* src/ded2s.c:
+	used 'getgroups()' to construct a more accurate executable-access test.
+	also corrected root's handling of the permission bits
+
+	* src/dedscan.c:
+	moved the code to reset the CmVision directory-state to just before trying
+	to get the lock-status.
+
+	* src/history.c: simplified the repeat-count for show-history
+
+	* src/history.c: use MODULE_ID
+
+1994-09-28  Thomas E. Dickey  <dickey@clark.net>
+
+	* src/dedscan.c:
+	invoke code to purge CmVision directory info when (re)scanning a directory
+
 1994-09-27  Thomas E. Dickey  <dickey@clark.net>
 
 	* src/dedscan.c: moved some code into td_lib's cm-functions
