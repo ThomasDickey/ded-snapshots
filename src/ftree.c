@@ -1,5 +1,5 @@
 #ifndef	NO_SCCS_ID
-static	char	sccs_id[] = "@(#)ftree.c	1.12 87/09/30 11:30:13";
+static	char	sccs_id[] = "@(#)ftree.c	1.13 87/10/01 13:15:18";
 #endif
 
 /*
@@ -903,7 +903,7 @@ ft_write()
 #endif	DEBUG
 			(void)write(fid, ftree, (FDlast+1) * sizeof(FTREE));
 			(void)close(fid);
-		} else if (errno != EPERM)
+		} else if (errno != EPERM && errno != EACCES)
 			failed(FDname);
 	}
 	(void)time(&FDtime);
