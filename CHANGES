@@ -1,3 +1,9 @@
+1994-05-27  Thomas E. Dickey  <dickey@clark.net>
+
+	* src/dlog.c: use HAVE_STDARG_H
+
+	* src/ded.h: first cut of autoconf adaptation for <regex.h>
+
 1994-05-24  Thomas E. Dickey  <dickey@clark.net>
 
 	* src/ftree.c:
