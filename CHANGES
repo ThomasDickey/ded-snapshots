@@ -1,3 +1,7 @@
+1993-09-24  dickey@software.org
+
+	* certify/release.txt, certify/config.txt: gcc-warnings
+
 1993-09-21  dickey@software.org
 
 	* src/Makefile: use LINK symbol
