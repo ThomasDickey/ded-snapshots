@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	sccs_id[] = "@(#)dedring.c	1.14 88/06/27 08:26:42";
+static	char	sccs_id[] = "@(#)dedring.c	1.15 88/07/08 05:59:15";
 #endif	lint
 
 /*
@@ -7,6 +7,7 @@ static	char	sccs_id[] = "@(#)dedring.c	1.14 88/06/27 08:26:42";
  * Author:	T.E.Dickey
  * Created:	27 Apr 1988
  * Modified:
+ *		08 Jul 1988, save/restore/clear Y_opt, AT_opt a la Z_opt.
  *		27 Jun 1988, made 'dedrung()' work ok with count.
  *		16 Jun 1988, added code to save/restore AT_opt.
  *		25 May 1988, don't force V/Z-mode continuation on dedscan.
@@ -53,6 +54,7 @@ typedef	struct	_ring	{
 			U_opt,
 #ifdef	Z_RCS_SCCS
 			V_opt,
+			Y_opt,
 			Z_opt;
 #endif	Z_RCS_SCCS
 	unsigned	numfiles;
@@ -121,6 +123,7 @@ RING	*p;
 	SAVE(U_opt);
 #ifdef	Z_RCS_SCCS
 	SAVE(V_opt);
+	SAVE(Y_opt);
 	SAVE(Z_opt);
 #endif	Z_RCS_SCCS
 	SAVE(numfiles);
@@ -154,6 +157,7 @@ RING	*p;
 	UNSAVE(U_opt);
 #ifdef	Z_RCS_SCCS
 	UNSAVE(V_opt);
+	UNSAVE(Y_opt);
 	UNSAVE(Z_opt);
 #endif	Z_RCS_SCCS
 	UNSAVE(numfiles);
@@ -400,6 +404,8 @@ char	tmp[BUFSIZ];
 			Z_opt = 0;
 #endif	Z_RCS_SCCS
 #ifndef	SYSTEM5
+			AT_opt = 0;
+
 			/*
 			 * Coerce translation of pathnames in case part of the
 			 * path was a symbolic link.  We assume that 'getwd()'

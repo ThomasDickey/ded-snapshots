@@ -1,5 +1,6 @@
 /*
  * Version-identifier for DED
+ * 08 Jul 1988, corrections to @,Y toggles, testing ftree-rename.
  * 16 Jun 1988, added '@'-toggle.
  * 07 Jun 1988, added CTL(K) command.
  * 06 Jun 1988, provided clean recover for 'R' if no files are found.
@@ -26,4 +27,4 @@
  * 01 Dec 1987, added '*', '^' commands, made '%' refresh screen
  * 25 Nov 1987, added sccs-support (V,z,Z toggles, V,z,Z sorts)
  */
-static	char	version[] = "@(#)DED Directory Editor (88/06/16 08:23:13)";
+static	char	version[] = "@(#)DED Directory Editor (88/07/08 06:04:33)";
