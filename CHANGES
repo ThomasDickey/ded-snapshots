@@ -1,3 +1,9 @@
+1992-02-20  dickey@software.org
+
+	* src/dedring.c: collapsed trans/untrans together.
+	corrected logic of 'ring_bak()', which was causing 'B'
+	command to be incorrect.
+
 1992-02-18  dickey@software.org
 
 	* src/README: *** empty log message ***

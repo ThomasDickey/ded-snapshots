@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	Id[] = "$Id: dedring.c,v 10.3 1992/02/18 09:37:13 dickey Exp $";
+static	char	Id[] = "$Id: dedring.c,v 10.4 1992/02/20 13:27:36 dickey Exp $";
 #endif
 
 /*
@@ -7,6 +7,7 @@ static	char	Id[] = "$Id: dedring.c,v 10.3 1992/02/18 09:37:13 dickey Exp $";
  * Author:	T.E.Dickey
  * Created:	27 Apr 1988
  * Modified:
+ *		20 Feb 1992, correction to 'ring_bak()'
  *		17 Feb 1992, added 'dedrering()' to make renaming work ok.
  *		21 Nov 1991, added 'tag_opt'
  *		18 Oct 1991, converted to ANSI
@@ -42,7 +43,7 @@ static	char	Id[] = "$Id: dedring.c,v 10.3 1992/02/18 09:37:13 dickey Exp $";
  * Function:	Save the current state of the directory editor and scan
  *		a new directory.
  *
- * patch:	loop on ring_fwd/ring_bak may be confused with 'trans'.
+ * patch:	loop on ring_fwd/ring_bak may be confused with 'Toggle()'.
  */
 
 #include	"ded.h"
@@ -103,39 +104,27 @@ static	RING	*ring,		/* directory-list */
  ************************************************************************/
 
 /*
- * Translate pathname to internal form, so strcmp will sort it properly
+ * Translate slashes to newlines, forcing strcmp to yield a nice sort-compare.
+ * Just in case we had a newline there, make it a slash (unlikely).
  */
 static
-trans(
+char *
+Toggle(
 _ARX(char *,	dst)
 _AR1(char *,	src)
 	)
 _DCL(char *,	dst)
 _DCL(char *,	src)
 {
-register int c;
+	auto	char	*base = dst;
+	register int	c;
 	do {
-		if ((c = *src++) == '/')
-			c = '\n';
+		switch (c = *src++) {
+		case '\n':	c = '/';	break;
+		case '/':	c = '\n';	break;
+		}
 	} while (*dst++ = c);
-}
-
-/*
- * Translate pathname to external form
- */
-static
-untrans(
-_ARX(char *,	dst)
-_AR1(char *,	src)
-	)
-_DCL(char *,	dst)
-_DCL(char *,	src)
-{
-register int c;
-	do {
-		if ((c = *src++) == '\n')
-			c = '/';
-	} while (*dst++ = c);
+	return base;
 }
 
 #ifdef	TEST
@@ -151,7 +140,7 @@ dump_ring _ONE(char *,tag)
 
 	dlog_comment("RING-%s:\n", tag);
 	for (p = ring; p; p = p->_link) {
-		untrans(tmp, p->new_wd);
+		(void) Toggle(tmp, p->new_wd);
 		dlog_comment("%c%#8x \"%s\"\n",
 			!strcmp(tmp,new_wd) ? '>' : ' ', p, tmp);
 	}
@@ -168,7 +157,7 @@ static
 save _ONE(RING *,p)
 {
 	register int	j;
-	trans(p->new_wd, new_wd);
+	(void) Toggle(p->new_wd, new_wd);
 	SAVE(toscan);
 	SAVE(scan_expr);
 	(void)strcpy(p->bfr_sh, bfr_sh);
@@ -214,7 +203,7 @@ static
 unsave _ONE(RING *,p)
 {
 	register int	j;
-	untrans(new_wd, p->new_wd);
+	(void) Toggle(new_wd, p->new_wd);
 	UNSAVE(toscan);
 	UNSAVE(scan_expr);
 	(void)strcpy(bfr_sh, p->bfr_sh);
@@ -272,7 +261,7 @@ RING	*p	= ring,
 	*q	= 0;
 char	bfr[BUFSIZ];
 
-	trans(bfr, path);
+	(void) Toggle(bfr, path);
 	while (p) {
 	int	cmp = strcmp(bfr, p->new_wd);
 		if (cmp == 0) {
@@ -324,7 +313,7 @@ ring_get _ONE(char *,path)
 	RING	*p;
 	char	tmp[BUFSIZ];
 
-	trans(tmp, path);
+	(void) Toggle(tmp, path);
 
 	for (p = ring; p; p = p->_link)
 		if (!strcmp(tmp, p->new_wd))
@@ -387,9 +376,10 @@ static
 RING *
 ring_fwd _ONE(char *,path)
 {
-register RING *p;
-char	tmp[BUFSIZ];
-	trans(tmp, path);
+	register RING *p;
+	auto	 char	tmp[BUFSIZ];
+
+	(void) Toggle(tmp, path);
 
 	for (p = ring; p; p = p->_link) {
 	int	cmp = strcmp(tmp, p->new_wd);
@@ -411,25 +401,22 @@ static
 RING *
 ring_bak _ONE(char *,path)
 {
-register RING *p, *q;
-int	cmp;
-char	tmp[BUFSIZ];
-	trans(tmp, path);
+	register RING *p, *q;
+
+	auto	char	tmp[BUFSIZ];
+	auto	char	bfr[MAXPATHLEN];
+
+	(void) Toggle(tmp, path);
 
 	if (p = ring) {
-		cmp = strcmp(tmp, p->new_wd);
-		if (cmp <= 0) {	/* loop-backward to end */
+		if (strcmp(tmp, p->new_wd) <= 0) {
 			while (q = p->_link)
 				p = q;
 		} else while (p) {
 			if (q = p->_link) {
-				cmp = strcmp(tmp, q->new_wd);
-				if (cmp == 0)
+				if (strcmp(tmp, q->new_wd) <= 0)
 					break;
-				else if (cmp < 0)
-					return (q);
-				else
-					p = q;
+				p = q;
 			} else
 				break;
 		}
@@ -605,7 +592,7 @@ dedrung _ONE(int,count)
 			count++;
 		}
 		if (newp != 0) {
-			untrans(path = temp, newp->new_wd);
+			(void) Toggle(path = temp, newp->new_wd);
 			if (newp == oldp)
 				break;
 		} else
@@ -650,7 +637,7 @@ _DCL(char *,	newname)
 
 	for (p = ring; (p != 0) && (p != mark); p = q) {
 		q = p->_link;
-		untrans(tmp, p->new_wd);
+		(void) Toggle(tmp, p->new_wd);
 		if ((len = is_subpath(oldname, tmp)) >= 0) {
 			old = *p;
 			(void) DeLink(tmp);
