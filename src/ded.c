@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	Id[] = "$Header: /users/source/archives/ded.vcs/src/RCS/ded.c,v 9.10 1991/07/19 07:46:43 dickey Exp $";
+static	char	Id[] = "$Header: /users/source/archives/ded.vcs/src/RCS/ded.c,v 9.11 1991/07/22 07:13:10 dickey Exp $";
 #endif
 
 /*
@@ -7,9 +7,12 @@ static	char	Id[] = "$Header: /users/source/archives/ded.vcs/src/RCS/ded.c,v 9.10
  * Author:	T.E.Dickey
  * Created:	09 Nov 1987
  * $Log: ded.c,v $
- * Revision 9.10  1991/07/19 07:46:43  dickey
- * added parm to 'markset()' to tell if we must clear workspace
+ * Revision 9.11  1991/07/22 07:13:10  dickey
+ * quote filename before using it in 'forkfile()'
  *
+ *		Revision 9.10  91/07/19  07:52:29  dickey
+ *		added parm to 'markset()' to tell if we must clear workspace
+ *		
  *		Revision 9.9  91/07/16  13:09:13  dickey
  *		modified logic of 'edithead()' to account for the case in
  *		which the current entry contains '/'.
@@ -1185,9 +1188,14 @@ static
 forkfile(arg0, arg1, normal)
 char	*arg0, *arg1;
 {
+	char	quoted[MAXPATHLEN];
+
+	*quoted = EOS;
+	catarg(quoted, arg1);
+
 	resetty();
 	dlog_comment("execute %s %s\n", arg0, arg1);
-	if (execute(arg0, arg1) < 0)
+	if (execute(arg0, quoted) < 0)
 		warn(arg0);
 	dlog_elapsed();
 	rawterm();
