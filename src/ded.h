@@ -3,7 +3,7 @@
 
 #ifdef	MAIN
 #if	!defined(NO_IDENT)
-static	char	*ded_h = "$Id: ded.h,v 12.25 1994/07/10 19:20:52 tom Exp $";
+static	char	*ded_h = "$Id: ded.h,v 12.26 1994/07/11 00:15:30 tom Exp $";
 #endif
 #endif	/* MAIN */
 
@@ -82,6 +82,7 @@ static	char	*ded_h = "$Id: ded.h,v 12.25 1994/07/10 19:20:52 tom Exp $";
 	char	*name;		/* name (within working-directory)	*/
 	char	*ltxt;		/* what link resolves to		*/
 	Stat_t	s;		/* stat()-block				*/
+	short	namlen;		/* length of 'name' field		*/
 	short	dord;		/* directory-order, for "d" sort	*/
 	char	flag;		/* tag-flag				*/
 #ifdef	Z_RCS_SCCS
