@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	Id[] = "$Id: deddoit.c,v 10.13 1992/04/06 15:38:06 dickey Exp $";
+static	char	Id[] = "$Id: deddoit.c,v 10.14 1992/05/13 09:52:22 dickey Exp $";
 #endif
 
 /*
@@ -7,6 +7,7 @@ static	char	Id[] = "$Id: deddoit.c,v 10.13 1992/04/06 15:38:06 dickey Exp $";
  * Author:	T.E.Dickey
  * Created:	17 Nov 1987
  * Modified:
+ *		13 May 1992, corrected handling of errors in 'system()'
  *		01 Apr 1992, convert most global variables to RING-struct.
  *		28 Feb 1992, use dynamic-strings to remove buffer-length limits
  *		18 Oct 1991, converted to ANSI
@@ -248,6 +249,7 @@ public	void	deddoit(
 	refresh();
 
 	if (*dyn_string(Subs)) {
+		int	ok = TRUE;
 		for (s = dyn_string(Subs); *s; s++)
 			if (!isascii(*s))
 				*s = toascii(*s);
@@ -255,11 +257,14 @@ public	void	deddoit(
 		resetty();
 		(void)dedsigs(FALSE);	/* prevent child from killing us */
 		dlog_comment("execute %s\n", dyn_string(Subs));
-		if (system(dyn_string(Subs)) < 0)
+		errno = 0;
+		if (system(dyn_string(Subs)) < 0 || errno != 0) {
+			ok = FALSE;
 			warn(gbl, "system");
+		}
 		(void)dedsigs(TRUE);
 		rawterm();
-		if (gbl->clr_sh) dedwait(gbl, TRUE);
+		if (ok && gbl->clr_sh) dedwait(gbl, TRUE);
 		dlog_elapsed();
 	}
 	showC(gbl);
