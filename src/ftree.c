@@ -1,5 +1,5 @@
 #ifndef	NO_IDENT
-static	char	Id[] = "$Id: ftree.c,v 12.24 1994/07/17 21:35:12 tom Exp $";
+static	char	Id[] = "$Id: ftree.c,v 12.25 1994/07/19 23:37:54 tom Exp $";
 #endif
 
 /*
@@ -198,6 +198,7 @@ static	int	FDdiff,			/* number of changes made	*/
 		showsccs = TRUE;	/* control display of 'sccs'	*/
 static	char	zero[] = ROOT,
 		*caller_top,		/* caller's current directory	*/
+		*viewer_top,		/* viewer's current directory	*/
 		*gap = zero + (TOP-1);
 static	FTREE	*ftree;			/* array of database entries	*/
 
@@ -1367,12 +1368,11 @@ private	int	ft_update (
 		_DCL(int,	row)
 		_DCL(int *,	level)
 {
-	auto	 char	cwdpath[MAXPATHLEN];
 	auto	int	c = fd_level(row);
 
 	if (c < *level)
 		*level = c;	/* loosely drag down level */
-	return ft_show(gbl, fd_path(cwdpath,row), caller_top, row, *level);
+	return ft_show(gbl, fd_path(viewer_top,row), caller_top, row, *level);
 }
 
 /*
@@ -1428,6 +1428,7 @@ public	RING *	ft_view(
 	resize_row = &row;
 	resize_lvl = &lvl;
 #endif
+	viewer_top = cwdpath;
 	*cmdp = 'E';	/* the most common return-value */
 
 	/* Set initial position. This has to be done by assuming the 'path'

@@ -1,3 +1,11 @@
+1994-07-19  Thomas E. Dickey  <dickey@clark.net>
+
+	* src/ftree.c:
+	added variable 'viewer_top' to fix something that I broke when working
+	on the resizing code: the default value given to the '@' command.
+
+	* src/dedcmds.c: use MODULE_ID
+
 1994-07-18  Thomas E. Dickey  <dickey@clark.net>
 
 	* src/README: fix some, break some
