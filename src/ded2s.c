@@ -1,5 +1,5 @@
 #ifndef	NO_SCCS_ID
-static	char	sccs_id[] = "@(#)ded2s.c	1.2 87/11/25 08:51:09";
+static	char	sccs_id[] = "@(#)ded2s.c	1.3 88/04/11 07:03:50";
 #endif	NO_SCCS_ID
 
 /*
@@ -136,7 +136,7 @@ char	*t,
 	/* translate the filename */
 	cmdcol[3] = bfr - base;
 	len -= (bfr-base);
-	bfr += name2s(bfr, name, len);
+	bfr += name2s(bfr, name, len, FALSE);
 
 	if (isDIR(mj)) {
 		*bfr++ = '/';
@@ -146,7 +146,7 @@ char	*t,
 		*bfr++ = '>';
 		*bfr++ = ' ';
 		len -= (bfr-base);
-		bfr += name2s(bfr, t, len);
+		bfr += name2s(bfr, t, len, FALSE);
 	} else if (executable(s))	*bfr++ = '*';
 	*bfr = '\0';
 }
@@ -215,14 +215,17 @@ char	*t	= ctime(&fdate);	/* 0123456789.123456789.123 */
 /*
  * Convert a filename-string to printing form (for display)
  */
-static
-name2s(bfr,name,len)
+name2s(bfr, name, len, esc)
 char	*bfr, *name;
+int	len;
+int	esc;		/* true if we escape dollar-signs, etc. */
 {
-char	*base = bfr;
+char	*base = bfr,
+	*escape = esc ? "\\" : "";
 register int c;
 
 	while ((c = *name++) && len-- > 0) {
+#ifdef	apollo
 		if (U_opt) {	/* show underlying apollo filenames */
 			if (isascii(c) && isgraph(c)) {
 				if (isalpha(c) && isupper(c)) {
@@ -236,9 +239,21 @@ register int c;
 				*bfr++ = ':';
 				*bfr++ = '_';
 			} else {
-				sprintf(bfr, "#%02x", c);
+				sprintf(bfr, "%s#%02x", escape, c);
 				bfr += strlen(bfr);
 			}
+		} else
+#endif	apollo
+		if (esc) {
+			if(iscntrl(c)
+			|| isspace(c)
+			|| (c == '$')
+			|| (c == '\\')
+			|| (c == '>')
+			|| (c == '&')
+			|| (c == '#'))
+				*bfr++ = '\\';	/* escape the nasty thing */
+			*bfr++ = c;
 		} else {
 			if (isascii(c) && isgraph(c)) {
 				*bfr++ = c;
@@ -246,5 +261,6 @@ register int c;
 				*bfr++ = '?';
 		}
 	}
+	*bfr = '\0';
 	return (bfr-base);
 }
