@@ -1,3 +1,65 @@
+1994-07-23  Thomas E. Dickey  <dickey@clark.net>
+
+	* src/ftree.c: addchnstr doesn't move.
+
+	* user/ded.man: added note about '*' repeat-count
+
+	* certify/release.txt: '*' repeat-count
+
+	* src/version.h: Allow '*' to have repeat count.
+	Handle empty directories better (force '.').
+	Mods for $DED_TREE.
+	Revised ftree display; do left/right scroll; renamed 'A' to '&'.
+	Support for auxiliary character set/ncurses.
+	Added color support.
+	Allow resizing (if curses supports it).
+
+	* src/README: fixed some
+
+	* src/history.c:
+	added 'show_history()'; shows the command-stack after the current command.
+
+	* src/ded.h: mods to make '*' command accept repeat-count
+
+	* src/dedshow.c:
+	made 'dedshow2()' public, so I can use it from 'show_history()'
+
+	* src/dedshow.c: use MODULE_ID
+
+	* src/deddoit.c:
+	moved 'cmd_history' to public view, for use in 'show_history()'
+
+	* src/ded.c: split out 'show_history()'
+
+	* src/ftree.c: make the '=' rename command have history
+
+	* src/dedscan.c:
+	force '.' into empty filelists to simplify adding files to empty directories
+
+	* src/dedline.c:
+	removed a hack that I'd used on the apollo: it was possible to chgrp a
+	file from the command line, when the system call 'chown()' wouldn't.
+
+	* src/dedline.c: compiler-warning (gcc on Solaris)
+
+	* certify/release.txt: doc'd a bunch of changes to ftree
+
+	* src/README: fixed some things in ftree...
+
+	* src/ftree.c: use macros for f_mark more extensively
+	Modified so that marking entries doesn't set (W) status.
+	Modified so that 'R' rescan of directory doesn't modify V-flag.
+
+	* src/ftree.c: implemented repeat-count for 'V' command
+
+	* src/ded.hlp: ftree 'V' command allows repeat-count
+
+	* src/ded.h: added entrypoint 'ft_set_levels()'
+
+	* user/ded.man: added repeat-count for ftree 'V' command
+
+	* src/ftree.c: don't let resize move our cursor
+
 1994-07-19  Thomas E. Dickey  <dickey@clark.net>
 
 	* src/ftree.c:

@@ -1,5 +1,5 @@
 #if	!defined(NO_IDENT)
-static	char	Id[] = "$Id: dedline.c,v 12.9 1994/07/02 20:29:33 tom Exp $";
+static	char	Id[] = "$Id: dedline.c,v 12.11 1994/07/23 23:15:47 tom Exp $";
 #endif
 
 /*
@@ -7,6 +7,7 @@ static	char	Id[] = "$Id: dedline.c,v 12.9 1994/07/02 20:29:33 tom Exp $";
  * Author:	T.E.Dickey
  * Created:	01 Aug 1988 (from 'ded.c')
  * Modified:
+ *		23 Jul 1994, removed apollo chgrp hack (spawning commands).
  *		29 Oct 1993, ifdef-ident
  *		28 Sep 1993, gcc warnings
  *		27 May 1992, make '<' substitution recognize "%D" and "%d".
@@ -348,7 +349,7 @@ private	int	change_protection (
 					break;
 				}
 #endif
-				if (chmod(gNAME(x), c) < 0) {
+				if (chmod(gNAME(x), (mode_t)c) < 0) {
 					warn(gbl, gNAME(x));
 					break;
 				}
@@ -596,8 +597,7 @@ public	void	edit_gid (
 {
 	register int j;
 	int	gid	= cSTAT.st_gid,
-		changed	= FALSE,
-		root	= (geteuid() == 0);
+		changed	= FALSE;
 	char	bfr[BUFSIZ];
 
 	if (!gbl->G_opt) {
@@ -607,42 +607,24 @@ public	void	edit_gid (
 
 	if (EDITTEXT('g', CCOL_GID, UIDLEN, strcpy(bfr, gid2s(gid)))
 	&&  (gid = s2gid(bfr)) >= 0) {
-		auto	char	newgrp[BUFSIZ];
-		static	char	*fmt = "chgrp -f %s %s";
 
 		(void)dedsigs(TRUE);	/* reset interrupt-count */
-		(void)strcpy(newgrp, gid2s(gid));
 		for (j = 0; j < gbl->numfiles; j++) {
-			if (gSTAT(j).st_gid == gid)	continue;
+			if (gSTAT(j).st_gid == gid)
+				continue;
 			if (dedsigs(TRUE)) {
 				waitmsg(gNAME(j));
 				break;
 			}
 			if (GROUPED(j)) {
-				if (root) {
-					if (chown(gNAME(j),
-						(int)gSTAT(j).st_uid, gid) < 0){
-						warn(gbl, gNAME(j));
-						break;
-					}
-					gSTAT(j).st_gid = gid;
-				} else {
-					FORMAT(bfr, fmt, newgrp, fixname(gbl,j));
-					(void)system(bfr);
-				}
-				fixtime(gbl, j);
-				if (!root) {
-					statLINE(gbl, j);
-					showLINE(gbl, j);
-					showC(gbl);
-				} else
-					changed++;
-				if (gSTAT(j).st_gid != gid) {
-					FORMAT(bfr, fmt, newgrp, fixname(gbl,j));
-					dedmsg(gbl, bfr);
-					beep();
+				if (chown(gNAME(j),
+					(int)gSTAT(j).st_uid, gid) < 0){
+					warn(gbl, gNAME(j));
 					break;
 				}
+				gSTAT(j).st_gid = gid;
+				fixtime(gbl, j); /* some systems touch too */
+				changed++;
 			}
 		}
 	}

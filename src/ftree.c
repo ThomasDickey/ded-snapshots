@@ -1,13 +1,15 @@
 #ifndef	NO_IDENT
-static	char	Id[] = "$Id: ftree.c,v 12.25 1994/07/19 23:37:54 tom Exp $";
+static	char	Id[] = "$Id: ftree.c,v 12.28 1994/07/23 15:45:12 tom Exp $";
 #endif
 
 /*
  * Author:	T.E.Dickey
  * Created:	02 Sep 1987
  * Modified:
+ *		23 Jul 1994, implemented repeat-count for 'V'.
  *		17 Jul 1994, implemented left/right scrolling.
  *		16 Jul 1994, redesign display, taking advantage of Sys5-curses
+ *		29 Jun 1994, changes for display-resizing.
  *		02 Jun 1994, allow environment variable DED_TREE to set full
  *			     ".ftree" path.
  *		24 May 1994, allow leaves with non-printing characters.
@@ -143,6 +145,7 @@ static	char	Id[] = "$Id: ftree.c,v 12.25 1994/07/19 23:37:54 tom Exp $";
 #define	LOSHOW	(4)		/* first line to show directory name on */
 #define	TOSHOW	(LINES-LOSHOW)	/* lines to show on a screen */
 
+/* these bit-flags are stored in the .ftree file */
 #define	NORMAL	0
 #define	MARKED	1
 #define	VISITED	2
@@ -154,7 +157,9 @@ static	char	Id[] = "$Id: ftree.c,v 12.25 1994/07/19 23:37:54 tom Exp $";
 
 #define	PRE(j,c)	(ftree[j].f_name[0] == c)
 #define	ALL_SHOW(j)	(all_show || !(PRE(j,'.') || PRE(j,'$')))
+#define	zSCCS(j)	(ftree[j].f_mark & NOSCCS)
 #define	zMARK(j)	(ftree[j].f_mark & MARKED)
+#define	zHIDE(j)	(ftree[j].f_mark & NOVIEW)
 #define	zLINK(j)	(ftree[j].f_mark & LINKED)
 #define	zROOT(j)	(ftree[j].f_root)
 
@@ -361,7 +366,7 @@ private	void	fd_add_path(
 				this = FDlast;
 
 			ftree[this].f_root = last;
-			ftree[this].f_mark = NORMAL;
+			ftree[this].f_mark &= ~(MARKED | LINKED | NOVIEW);
 			ftree[this].f_name = txtalloc(name);
 			if (!showsccs && is_sccs(this))
 				ftree[this].f_mark |= NOSCCS;
@@ -549,12 +554,12 @@ private	int	fd_show (
 	_AR1(int,	node))
 	_DCL(int,	node)
 {
-	if (ftree[node].f_mark & NOSCCS)
+	if (zSCCS(node))
 		return(FALSE);
 	if (!ALL_SHOW(node))
 		return(FALSE);
 	while ((node = ftree[node].f_root) != 0) {
-		if (ftree[node].f_mark & NOVIEW)
+		if (zHIDE(node))
 			return(FALSE);
 		if (!ALL_SHOW(node))
 			return(FALSE);
@@ -910,7 +915,7 @@ public	void	ft_read(
 	/* inherit sense of 'Z' toggle from database */
 	showsccs = TRUE;
 	for (j = 0; j <= FDlast; j++) {
-		if (ftree[j].f_mark & NOSCCS) {
+		if (zSCCS(j)) {
 			showsccs = FALSE;
 			break;
 		}
@@ -930,14 +935,14 @@ private	void	fd_annotate(
 	_DCL(int,	node)
 	_DCL(char *,	buffer)
 {
-	(void)strcpy(buffer, (ftree[node].f_mark & LINKED) ? "@" : gap);
+	(void)strcpy(buffer, zLINK(node) ? "@" : gap);
 #ifdef	apollo
 	if (node == 0)
 		(void)strcat(buffer, zero+1);
 #endif
-	if (ftree[node].f_mark & NOVIEW)
+	if (zHIDE(node))
 		(void)strcat(buffer, " ...");
-	if (ftree[node].f_mark & MARKED)
+	if (zMARK(node))
 		(void)strcat(buffer, " (Purge)");
 }
 
@@ -1075,10 +1080,10 @@ private	int	ft_show(
 				fd_annotate(gbl, j, end);
 
 				if (strlen(bfr) > count) {
-					if (ftree[j].f_mark & MARKED)
+					if (zMARK(j))
 						standout();
 					PRINTW(fmt, limit, bfr + count);
-					if (ftree[j].f_mark & MARKED)
+					if (zMARK(j))
 						standend();
 					limit -= (strlen(bfr) - count);
 					count = 0;
@@ -1214,7 +1219,8 @@ private	void	markit(
 
 	if (on)			f->f_mark |= flag;
 	else			f->f_mark &= ~flag;
-	if (old != f->f_mark)	FDdiff++;
+	if ((old & ~MARKED) != (f->f_mark & ~MARKED))
+		FDdiff++;
 }
 
 /*
@@ -1229,12 +1235,12 @@ private	void	scroll_to (
 		node = 0;
 	j = node;
 
-	if (ftree[j].f_mark & NOSCCS)
+	if (zSCCS(j))
 		toggle_sccs();
 	while ((j = ftree[j].f_root) != 0) {	/* ensure this is visible! */
-		if (ftree[j].f_mark & NOVIEW)
+		if (zHIDE(j))
 			markit(j,NOVIEW,FALSE);
-		if (ftree[j].f_mark & NOSCCS)
+		if (zSCCS(j))
 			toggle_sccs();
 	}
 	(void)limits(showbase,showbase);
@@ -1388,7 +1394,8 @@ public	int	ft_resize(_AR0)
 {
 	if (tree_visible) {
 		showdiff = -1;
-		*resize_row = ft_update(resize_gbl, showbase, resize_lvl);
+		scroll_to(*resize_row);
+		(void)ft_update(resize_gbl, *resize_row, resize_lvl);
 		return TRUE;
 	}
 	return FALSE;
@@ -1704,9 +1711,10 @@ public	RING *	ft_view(
 		case 'e':
 			(void)fd_path(cwdpath, row);
 #ifdef	S_IFLNK
-			if (ftree[row].f_mark & LINKED) {
-			char	bfr[BUFSIZ];
-			int	len;
+			if (zLINK(row)) {
+				char	bfr[BUFSIZ];
+				int	len;
+
 				(void)chdir(fd_path(bfr, ftree[row].f_root));
 				len = readlink(cwdpath, bfr, sizeof(bfr));
 				if (len <= 0) {
@@ -1729,7 +1737,7 @@ public	RING *	ft_view(
 			return gbl;
 
 		/* Scan/delete nodes */
-		case 'R':	if (ftree[row].f_mark & LINKED)
+		case 'R':	if (zLINK(row))
 					beep();
 				else
 					(void)ft_scan(gbl, row, num, fd_level(row));
@@ -1749,7 +1757,7 @@ public	RING *	ft_view(
 				break;
 		case 'p':	num = -1;
 				for (j = FDlast; j > 0; j--)
-					if (ftree[j].f_mark & MARKED)
+					if (zMARK(j))
 						num = 0;
 					else if (num == 0)
 						num = j;
@@ -1814,19 +1822,7 @@ public	RING *	ft_view(
 
 		/* toggle flag which controls whether we show dependents */
 		case 'V':
-			if (row) {
-				int	found	= FALSE;
-				for (j = row+1; j <= FDlast; j++) {
-					if (ftree[j].f_root == row) {
-						found = TRUE;
-						markit(row,NOVIEW,!(ftree[row].f_mark & NOVIEW));
-						break;
-					}
-				}
-				if (!found)
-					markit(row,NOVIEW,FALSE);
-			} else
-				beep();
+			ft_set_levels(row, num);
 			break;
 
 		/* toggle flag which controls whether we show 'sccs' */
@@ -1991,6 +1987,43 @@ public	int	ft_scan(
 	}
 	(void)chdir(gbl->new_wd);
 	return (0);
+}
+
+/*
+ * Set/toggle the number of levels shown below the present node.
+ */
+public	void	ft_set_levels (
+	_ARX(int,	row)
+	_AR1(int,	levels)
+		)
+	_DCL(int,	row)
+	_DCL(int,	levels)
+{
+	int	found	= FALSE;
+	int	toggle	= (levels == 1);
+	register int	j;
+
+	for (j = row+1; j <= FDlast; j++) {
+		if (ftree[j].f_root == row) {
+			found = TRUE;
+			if (toggle) {
+				markit(row, NOVIEW, !zHIDE(row));
+				break;
+			} else if (levels > 2) {
+				markit(row, NOVIEW, FALSE);
+				ft_set_levels(j, levels-1);
+			} else {
+				markit(row, NOVIEW, FALSE);
+				markit(j, NOVIEW, (j+1 <= FDlast)
+					&& ftree[j+1].f_root == j);
+			}
+		} else if (!toggle && (fd_level(j) <= fd_level(row))) {
+			break;
+		}
+	}
+	if (!found) {	/* just in case we're cleaning up after purge */
+		markit(row, NOVIEW, FALSE);
+	}
 }
 
 /*

@@ -1,4 +1,4 @@
-$Id: release.txt,v 12.4 1994/07/01 00:39:57 tom Exp $
+$Id: release.txt,v 12.5 1994/07/23 15:50:20 tom Exp $
 
 --------------------------------------------------------------------------------
 
@@ -10,14 +10,33 @@ Modified to address all gcc warnings.  Tested with Purify (demo only).
 Ports:
 	+ HP/UX 9.01 (System V clone).
 	+ Linux (Posix clone).
+	+ Intergraph (CLIX 3.1)
+	+ SGI (IRIX)
 
 New features:
 
 	+ adjusted several commands for better consistency and extensibility
-	  between the filelist and directory trees.
+	  between the filelist and directory trees:
+
+		+ renamed hidden-files command in directory tree to '&'.
+
+		+ implemented repeat-count for 'V' command.
+
+		+ marking entries in directory tree doesn't set write-flag.
+
+		+ rescanning directory tree doesn't change view-flags.
+
 	+ autoconf{igure} script.
+
 	+ made the display resizable (e.g., when running in an xterm).
+
 	+ added mouse support (in xterm).
+
+	+ added color support for Linux (with ncurses 1.8.5).
+
+	+ implemented left/right scrolling in the directory-tree display.
+
+	+ highlight the current level of the directory tree for navigation.
 
 Version 12.0:
 ------------

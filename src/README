@@ -1,20 +1,12 @@
-$Id: README,v 12.10 1994/07/19 00:37:51 tom Exp $
+$Id: README,v 12.11 1994/07/23 15:48:37 tom Exp $
 
 --(TO-DO)----------------------------------------------------------------------
-
-88/05/10:
-	There is a hole: if I resize in ftree, the unsavewin() may
-	not work correctly, since we will be restoring to a different size.
 
 88/05/16:
 	Don't think that csh-like symbolic links are processed correctly
 	(e.g., "~/src").  Probably should modify linkstat (and corresponding
 	inline code in ftree) to do a readlink/abspath/stat (on apollo at
 	least).
-
-88/09/1:
-	For SYSTEM5, should use 'wrefresh(curscr)' to forcibly refresh the
-	screen.
 
 88/09/08:
 	should consider processing '~'-style stuff in '@'-toggle, even tho
@@ -37,13 +29,11 @@ $Id: README,v 12.10 1994/07/19 00:37:51 tom Exp $
 	ftree jump-commands.
 
 93/11/01:
-	modify 'V'-tree command to accept repeat-count; use this to set
-	visibility to the given level.
-
 	modify to support Sys5-curses (including keypad stuff).
 
 DED:
-	make signals work properly for aborting the scan of long directory
+	make signals work properly for aborting the scan of long directory trees
+	and lists.
 
 	when ftree's 'R' hits an unreadable directory, allow q/g response.
 
@@ -56,7 +46,7 @@ DED:
 	make all keys rebindable.
 	config-file to control edit-keys
 
-	e/E commands
+	rationalize e/E commands
 
 	empty directories
 
@@ -73,7 +63,7 @@ DED:
 	make "x" command split window horizontally, combine with commands
 	for setting displayable fields as in FLIST.
 
-	make ftree's rename-command have command history.
+	make ftree's rename-command have command/editing history.
 
 	fix pathname-parsing for things like (in ftree) "~foo/bar"
 
@@ -84,6 +74,8 @@ DED:
 
 	make link-substitution allow "%r" and "%e", etc.
 
+	make command-substitution/repetition a la 'files'
+
 	make ^A toggle workspace completely on/off
 
 	make argument on '*' show items within stack.
@@ -93,12 +85,14 @@ DED:
 
 	make a message-table instead of the beeping.
 
-	make this work with very long pathnames in the directory tree.
-
 	use nicer characters than "*" and "=>" in ftree
 
-	ftree-rename displays a blank if the cursor is right on the end of the
-	line when toggling insert-mode.
+	chown/chgrp should copy the current entry, not replay the editing
+	codes.
 
-	don't count the purge-flag in the database when deciding to set
-	the write-needed flag.
+	in directory-tree, allow 0, 1, 2, ..., $ to set the cursor to
+	the corresponding directory level.
+
+	find why ncurses doesn't make colors in color xterm.
+
+	split ded.c and ftree.c into smaller modules.
