@@ -1,3 +1,9 @@
+1993-11-24  dickey@software.org
+
+	* src/ded.h: defined ANSI_VARARGS for sr10.2
+
+	* src/dedmsgs.c: try to guard against out-of-range values for 'errno'
+
 1993-11-23  dickey@software.org
 
 	* test/test1.cmd, test/test2.cmd: added:dedblip.c
