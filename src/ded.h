@@ -3,7 +3,7 @@
 
 #ifdef	MAIN
 #if	!defined(NO_IDENT)
-static	char	*ded_h = "$Id: ded.h,v 12.8 1993/11/24 15:53:16 dickey Exp $";
+static	char	*ded_h = "$Id: ded.h,v 12.9 1993/12/16 16:08:17 dickey Exp $";
 #endif
 #endif	/* MAIN */
 
@@ -197,6 +197,7 @@ extern	int	re_exec(_ar1(char *,s));  /* (return > 0): match */
 		clr_sh,		/* true if we clear-screen after SHELL	*/
 		Xbase, Ybase,	/* viewport (for scrolling) */
 		curfile,	/* current file on which to operate */
+		mrkfile,	/* current file marked with 'markC()' */
 		dateopt,	/* date-option (a,c,m = 0,1,2) */
 		sortord,	/* sort-order (TRUE=reverse) */
 		sortopt,	/* sort-option (a character) */

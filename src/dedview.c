@@ -1,5 +1,5 @@
 #if	!defined(NO_IDENT)
-static	char	Id[] = "$Id: dedview.c,v 12.10 1993/12/01 18:09:40 dickey Exp $";
+static	char	Id[] = "$Id: dedview.c,v 12.11 1993/12/16 16:24:58 dickey Exp $";
 #endif
 
 /*
@@ -7,6 +7,7 @@ static	char	Id[] = "$Id: dedview.c,v 12.10 1993/12/01 18:09:40 dickey Exp $";
  * Author:	T.E.Dickey
  * Created:	03 Apr 1992, from 'ded.c'
  * Modified:
+ *		16 Dec 1993, added 'mrkfile' flag to cleanup 'markC()' logic.
  *		19 Nov 1993, added 'row2VIEW()' for mouse-support.
  *		17 Nov 1993, modify 'top2VIEW()' to make "^" command a toggle.
  *			     Modified up/down line code to simulate scrolling.
@@ -715,9 +716,14 @@ public	void	markC(
 	if (col >= 0) {
 		register int y,x;
 		(void)move2row(gbl->curfile, col);
-		getyx(stdscr,y,x);
-		addch((chtype)(on ? '*' : ' '));
-		(void)move(y,x);
+
+		if (!on || (gbl->mrkfile < 0)) {
+			gbl->mrkfile = on ? gbl->curfile : -1;
+
+			getyx(stdscr,y,x);
+			addch((chtype)(on ? '*' : ' '));
+			(void)move(y,x);
+		}
 	}
 }
 
