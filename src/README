@@ -1,4 +1,4 @@
-$Id: README,v 11.0 1992/02/28 08:09:19 ste_cm Rel $
+$Id: README,v 11.1 1992/08/27 11:22:09 dickey Exp $
 
 --(TO-DO)----------------------------------------------------------------------
 
@@ -48,17 +48,11 @@ $Id: README,v 11.0 1992/02/28 08:09:19 ste_cm Rel $
 	should reduce the number of 'getwd()' and 'abspath()' calls needed
 	in the interfaces to 'dedring' and 'ftree'.  this would aid performance.
 
-92/02/18:
-	if user renames a directory in 'ftree', should check to see if the
-	name appeared in any of the filelists and update the corresponding
-	entry.
-
-92/02/21:
-	make 'rawgets()' handle the functions needed for 'edittext()', revise
-	calls on these to consolidate/simplify (cf: '=' command in 'ftree').
-
 92/02/28:
 	use dynamic strings where buffer-size restrictions occur (e.g., in
 	shell-commands).
 
 	allow link to soft-link (actually to the link-target).
+
+1992/aug/20:
+	in 'wrawgets()', display unprintable chars as '?'.
