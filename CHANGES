@@ -1,3 +1,16 @@
+1992-11-20  dickey@software.org
+
+	* src/Makefile: added dependency of dedsort.o on cm_qsort.h
+
+	* src/dedsort.c: use "cm_qsort.h" definitions
+
+	* src/ded.h, src/ded.c: added 3rd arg to _FNX macros
+
+1992-11-20  ste_cm@software.org
+
+	* src/ded.c:
+	BASELINE Thu May  6 14:26:47 1993 -- split from CM_TOOLS #11
+
 1992-10-16  dickey@software.org
 
 	* src/dedline.c:

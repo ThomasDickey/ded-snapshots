@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	Id[] = "$Id: dedsort.c,v 11.0 1992/04/10 08:07:23 ste_cm Rel $";
+static	char	Id[] = "$Id: dedsort.c,v 11.1 1992/11/20 14:52:21 dickey Exp $";
 #endif
 
 /*
@@ -7,6 +7,7 @@ static	char	Id[] = "$Id: dedsort.c,v 11.0 1992/04/10 08:07:23 ste_cm Rel $";
  * Author:	T.E.Dickey
  * Created:	11 Nov 1987
  * Modified:
+ *		20 Nov 1992, use 'cm_qsort.h' definitions.
  *		01 Apr 1992, convert most global variables to RING-struct.
  *		06 Feb 1992, make 'Z' sort by difference between checkin-time
  *			     and modification-time.
@@ -34,7 +35,10 @@ static	char	Id[] = "$Id: dedsort.c,v 11.0 1992/04/10 08:07:23 ste_cm Rel $";
  *
  * Function:	Perform display-list sorting for DED directory editor.
  */
+
+#define	QSORT_SRC	FLIST
 #include	"ded.h"
+#include	"cm_qsort.h"
 
 #ifdef	apollo_sr10
 #include	<acl.h>
@@ -237,13 +241,10 @@ public	int	dedsort_cmp(
  * used only via 'dedsort()'.
  */
 private	RING *	local;	/* so we can hack qsort's interface */
-private	int	compare(
-	_ARX(FLIST *,	p1)
-	_AR1(FLIST *,	p2)
-		)
-	_DCL(FLIST *,	p1)
-	_DCL(FLIST *,	p2)
+private	QSORT_FUNC(compare)
 {
+	QSORT_CAST(q1,p1)
+	QSORT_CAST(q2,p2)
 	int	cmp = dedsort_cmp(local, p1, p2);
 
 	if (!cmp) {

@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	Id[] = "$Header: /users/source/archives/ded.vcs/src/RCS/ded.c,v 11.16 1992/10/09 08:09:17 dickey Exp $";
+static	char	Id[] = "$Header: /users/source/archives/ded.vcs/src/RCS/ded.c,v 12.0 1992/11/20 14:38:03 ste_cm Rel $";
 #endif
 
 /*
@@ -406,7 +406,7 @@ int	y,x;
 public	void	resleep(
 	_ARX(RING *,	gbl)
 	_ARX(int,	count)
-	_FN1(void,	func)
+	_FN1(void,	func,	(_AR1(RING*,g)))
 		)
 	_DCL(RING *,	gbl)
 	_DCL(int,	count)

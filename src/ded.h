@@ -3,7 +3,7 @@
 
 #ifdef	MAIN
 #ifndef	lint
-static	char	*ded_h = "$Id: ded.h,v 11.14 1992/08/28 09:47:50 dickey Exp $";
+static	char	*ded_h = "$Id: ded.h,v 11.15 1992/11/20 14:40:07 dickey Exp $";
 #endif
 #endif	/* MAIN */
 
@@ -253,7 +253,7 @@ extern	void	retouch(
 extern	void	resleep(
 		_arx(RING *,	gbl)
 		_arx(int,	count)
-		_fn1(void,	func));
+		_fn1(void,	func,	(_AR1(RING*,g))));
 
 extern	char	*fixname(
 		_arx(RING *,	gbl)
