@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	sccs_id[] = "@(#)ded.c	1.58 89/01/18 10:45:51";
+static	char	sccs_id[] = "@(#)ded.c	1.60 89/01/23 11:14:31";
 #endif	lint
 
 /*
@@ -7,6 +7,8 @@ static	char	sccs_id[] = "@(#)ded.c	1.58 89/01/18 10:45:51";
  * Author:	T.E.Dickey
  * Created:	09 Nov 1987
  * Modified:
+ *		23 Jan 1989, added 'N' sort
+ *		20 Jan 1989, added '-t' option.
  *		18 Jan 1989, added '#' command.
  *		12 Sep 1988, show blip during '@'.  Added 'c' command.
  *		02 Sep 1988, added '>' command.
@@ -102,9 +104,10 @@ static	int	tag_count;		/* number of tagged files */
  */
 static	int	in_screen;		/* TRUE if we have successfully init'ed */
 static	char	whoami[BUFSIZ],		/* my execution-path */
+		*tree_opt,		/* my file-tree database */
 		howami[BUFSIZ];		/* my help-file */
 
-static	char	sortc[] = ".cdgilnprstuwGTUyvzZ";/* valid sort-keys */
+static	char	sortc[] = ".cdgGilnNprstTuUwyvzZ";/* valid sort-keys */
 					/* (may correspond with cmds) */
 
 /************************************************************************
@@ -785,7 +788,7 @@ editfile(readonly, pad)
 		to_work();
 		ft_write();
 		forkfile(whoami, cNAME, TRUE);
-		ft_read(new_wd);
+		ft_read(new_wd, tree_opt);
 		break;
 	default:
 		dedmsg("cannot edit this item");
@@ -817,17 +820,11 @@ int	c,
 char	tpath[BUFSIZ],
 	dpath[BUFSIZ];
 
+	(void)sortset('s', 'n');
 	PRINTF("%s\r\n", version+4);	/* show me when entering process */
 	(void)fflush(stdout);
-	(void)sortset('s', 'n');
-	ft_read(getwd(old_wd));
 
-	/* find which copy I am executing from, for future use */
-	if (which(whoami, sizeof(whoami), argv[0], old_wd) <= 0)
-		failed("which-path");
-	FORMAT(howami, "%s.hlp", whoami);
-
-	while ((c = getopt(argc, argv, "GIPSUZr:s:zd")) != EOF) switch (c) {
+	while ((c = getopt(argc, argv, "GIPSUZr:s:zdt:")) != EOF) switch (c) {
 	case 'G':	G_opt = !G_opt;	break;
 	case 'I':	I_opt = !I_opt;	break;
 	case 'P':	P_opt = !P_opt;	break;
@@ -841,9 +838,18 @@ char	tpath[BUFSIZ],
 	case 'r':	if (!sortset(c,*optarg))	usage();
 			break;
 	case 'd':	debug = TRUE;	break;
+	case 't':	tree_opt = optarg;	break;
 	default:	usage();
 			exit(1);
 	}
+
+	if (!tree_opt)	tree_opt = gethome();
+	ft_read(getwd(old_wd), tree_opt);
+
+	/* find which copy I am executing from, for future use */
+	if (which(whoami, sizeof(whoami), argv[0], old_wd) <= 0)
+		failed("which-path");
+	FORMAT(howami, "%s.hlp", whoami);
 
 	(void)dedsigs(TRUE);
 	if (!initscr())			failed("initscr");
@@ -1164,7 +1170,7 @@ char	tpath[BUFSIZ],
 				ft_write();
 				forkfile(whoami, tpath, FALSE);
 				unsavewin(TRUE,0);
-				ft_read(new_wd);
+				ft_read(new_wd, tree_opt);
 			    }
 			} while (!new_tree(tpath, 'E', 1));
 			break;

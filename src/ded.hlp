@@ -83,6 +83,7 @@ Display-Adjustment:
 		i	inode
 		l	number of links
 		n	filename
+		N	leaf-name
 		p	file-protection mask/mode.
 		g	group-id (lexically)
 		G	group-id (numerically)
@@ -148,7 +149,8 @@ Operations on Files:
   >		Edit link-text name of current symbolic link.  Editing is done
 		as in 'u' command, except that '>' completes command.  Links
 		which are grouped are renamed using the template formed by
-		your command.
+		your command.  The strings '%F' and '%B' are substituted to
+		the forward/backward directory-ring names.
 
   "		Repeat the last p/u/g/= command.  This uses the actual
 		set of characters typed for the command, so an editing
@@ -217,6 +219,7 @@ Directory Tree:
   '?', 'n' and 'N' search works in the directory-tree (though it finds only
   leaf names, rather than full paths).
 
+  A		Toggle visibility of names beginning with '.' or '$'.
   B		Move backward (with wraparound) in the list of directories.
   D		Toggle between directory-tree and file-list display.
   E		Enter a new file-list at the indicated directory-name.
@@ -239,3 +242,4 @@ Directory Tree:
   _		Clear list of marked names.
   p		Purge marked names.
   @		Jump to specified path.
+  ~		Shortened version of '@', presets prompt to "~".

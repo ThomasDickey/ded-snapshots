@@ -1,12 +1,25 @@
 #ifndef	lint
-static	char	sccs_id[] = "@(#)dedsort.c	1.14 89/01/18 10:27:28";
+static	char	sccs_id[] = "$Header: /users/source/archives/ded.vcs/src/RCS/dedsort.c,v 4.0 1989/01/23 09:57:37 ste_cm Rel $";
 #endif	lint
 
 /*
  * Title:	dedsort.c (ded-sort)
  * Author:	T.E.Dickey
  * Created:	11 Nov 1987
- * Modified:
+ * $Log: dedsort.c,v $
+ * Revision 4.0  1989/01/23 09:57:37  ste_cm
+ * BASELINE Thu Aug 24 10:20:06 EDT 1989 -- support:navi_011(rel2)
+ *
+ *		Revision 3.0  89/01/23  09:57:37  ste_cm
+ *		BASELINE Mon Jun 19 14:21:57 EDT 1989
+ *		
+ *		Revision 2.0  89/01/23  09:57:37  ste_cm
+ *		BASELINE Thu Apr  6 13:14:13 EDT 1989
+ *		
+ *		Revision 1.16  89/01/23  09:57:37  dickey
+ *		sccs2rcs keywords
+ *		
+ *		23 Jan 1989, added 'N' sort.
  *		18 Jan 1989, made 'dedsort_cmp()' public, for use by 'deduniq()'
  *		13 Sep 1988, use external 'ftype()', 'ftype2()'.
  *		27 Jul 1988, corrected 'y' sort, in case no RCS/SCCS file exists
@@ -20,6 +33,7 @@ static	char	sccs_id[] = "@(#)dedsort.c	1.14 89/01/18 10:27:28";
 #include	"ded.h"
 extern	char	*ftype();
 extern	char	*ftype2();
+extern	char	*pathleaf();
 
 #define	CHECKED(p)	(p->z_time == p->s.st_mtime)
 #define	CMPX(m)		(p1->m > p2->m ? -1 : (p1->m < p2->m ? 1 : 0))
@@ -117,6 +131,8 @@ char	bfr[BUFSIZ];
 			/* compare uid/gid fields lexically */
 	case 'u':	cmp  = CMP2S(uid2s,st_uid);	break;
 	case 'g':	cmp  = CMP2S(gid2s,st_gid);	break;
+	case 'N':	(void)strcpy(bfr, pathleaf(p2->name));
+			cmp  = strcmp(pathleaf(p1->name), bfr);	break;
 	default:	cmp  = strcmp(p1->name, p2->name);
 	}
 	return (cmp);
