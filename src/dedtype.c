@@ -1,5 +1,13 @@
+#ifndef	lint
+static	char	sccs_id[] = "@(#)dedtype.c	1.2 87/11/24 13:34:35";
+#endif	lint
+
 /*
- * Title:	dedtype.c
+ * Title:	dedtype.c (type files for ded)
+ * Author:	T.E.Dickey
+ * Created:	16 Nov 1987
+ * Modified:
+ *
  * Function:	Display a text or binary file in the workspace.  For
  *		text-files we recognize backspace and carriage-return
  *		overstrikes.  These are converted to highlights.
@@ -212,7 +220,7 @@ int	c,			/* current character */
 				fseek(fp, infile[page], 0L);
 			}
 		}
-		fclose(fp);
+		(void)fclose(fp);
 		move(LINES+1,0);
 		clrtobot();
 		showC();
