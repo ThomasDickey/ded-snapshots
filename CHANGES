@@ -1,3 +1,13 @@
+1997-01-12  Thomas E. Dickey  <dickey@clark.net>
+
+	* src/dedscan.c: more mods to single-file argument list.
+
+1997-01-08  Thomas E. Dickey  <dickey@clark.net>
+
+	* src/dedscan.c:
+	wow: long-lasting bug.  If I specified a filename as argument, I didn't
+	ensure that the .flist array was allocated.
+
 1996-12-27  Thomas E. Dickey  <dickey@clark.net>
 
 	* src/dlog.c:
