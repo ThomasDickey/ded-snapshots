@@ -1,10 +1,16 @@
 /*
  * Version-identifier for DED
  * $Log: version.h,v $
- * Revision 2.3  1989/06/06 08:39:37  dickey
- * corrected change to 'dedscan()' which broke '@' command.
- * modified blip-call in Z-toggle to show successful sccs/RCS lookup.
+ * Revision 3.0  1989/06/13 08:00:37  ste_cm
+ * BASELINE Mon Jun 19 14:21:57 EDT 1989
  *
+ *		Revision 2.4  89/06/13  08:00:37  dickey
+ *		corrected pointer-bug which made CTL/R command fail on sun
+ *		
+ *		Revision 2.3  89/06/06  08:39:37  dickey
+ *		corrected change to 'dedscan()' which broke '@' command.
+ *		modified blip-call in Z-toggle to show successful sccs/RCS lookup.
+ *		
  *		Revision 2.2  89/06/05  15:52:26  dickey
  *		simplified logic in dedscan, ftree which sets logical links in file-tree
  *		
@@ -69,4 +75,4 @@
  * 01 Dec 1987, added '*', '^' commands, made '%' refresh screen
  * 25 Nov 1987, added sccs-support (V,z,Z toggles, V,z,Z sorts)
  */
-static	char	version[] = "$Date: 1989/06/06 08:39:37 $";
+static	char	version[] = "$Date: 1989/06/13 08:00:37 $";
