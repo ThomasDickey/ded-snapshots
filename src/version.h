@@ -1,10 +1,13 @@
 /*
- * $Id: version.h,v 9.2 1991/07/02 17:48:21 dickey Exp $
+ * $Id: version.h,v 9.3 1991/07/11 11:13:51 dickey Exp $
  * Version-identifier for DED
  * $Log: version.h,v $
- * Revision 9.2  1991/07/02 17:48:21  dickey
- * made file-list 'S' and 'P' commands 3-way.
+ * Revision 9.3  1991/07/11 11:13:51  dickey
+ * minor nits about screen refresh
  *
+ *		Revision 9.2  91/07/02  17:48:21  dickey
+ *		made file-list 'S' and 'P' commands 3-way.
+ *		
  *		Revision 9.1  91/06/28  07:57:26  dickey
  *		corrected code which knows about effective/real user-id
  *		(e.g., flag for executable, permission for chmod).
@@ -194,4 +197,4 @@
  * 01 Dec 1987, added '*', '^' commands, made '%' refresh screen
  * 25 Nov 1987, added sccs-support (V,z,Z toggles, V,z,Z sorts)
  */
-static	char	version[] = "$Date: 1991/07/02 17:48:21 $";
+static	char	version[] = "$Date: 1991/07/11 11:13:51 $";

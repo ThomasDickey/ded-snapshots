@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	Id[] = "$Id: dedline.c,v 9.1 1991/06/28 07:36:38 dickey Exp $";
+static	char	Id[] = "$Id: dedline.c,v 9.2 1991/07/11 10:44:15 dickey Exp $";
 #endif
 
 /*
@@ -7,10 +7,14 @@ static	char	Id[] = "$Id: dedline.c,v 9.1 1991/06/28 07:36:38 dickey Exp $";
  * Author:	T.E.Dickey
  * Created:	01 Aug 1988 (from 'ded.c')
  * $Log: dedline.c,v $
- * Revision 9.1  1991/06/28 07:36:38  dickey
- * corrected code which tests for user's id (look at effective
- * uid, not real-uid).
+ * Revision 9.2  1991/07/11 10:44:15  dickey
+ * modified interface to 'showFILES()' so that workspace is not
+ * cleared when doing the inline operations.
  *
+ *		Revision 9.1  91/06/28  08:05:02  dickey
+ *		corrected code which tests for user's id (look at effective
+ *		uid, not real-uid).
+ *		
  *		Revision 9.0  91/05/15  13:40:16  ste_cm
  *		BASELINE Mon Jun 10 10:09:56 1991 -- apollo sr10.3
  *		
@@ -288,7 +292,7 @@ int	col;			/* leftmost column we need to show */
 	if (col > (Xbase + COLS - 1))
 		Xbase = col;
 	if (old != Xbase)
-		showFILES(FALSE);
+		showFILES(FALSE,FALSE);
 	return (col - Xbase);
 }
 
@@ -547,7 +551,7 @@ char	bfr[BUFSIZ];
 
 	if (G_opt == 1) {
 		G_opt = 0;
-		showFILES(FALSE);
+		showFILES(FALSE,FALSE);
 	}
 	if (edittext('u', cmdcol[CCOL_UID], UIDLEN, strcpy(bfr, uid2s(uid)))
 	&&  (uid = s2uid(bfr)) >= 0) {
@@ -586,7 +590,7 @@ char	bfr[BUFSIZ];
 
 	if (!G_opt) {
 		G_opt = 1;
-		showFILES(FALSE);
+		showFILES(FALSE,FALSE);
 	}
 	if (edittext('g', cmdcol[CCOL_GID], UIDLEN, strcpy(bfr, gid2s(gid)))
 	&&  (gid = s2gid(bfr)) >= 0) {
@@ -735,7 +739,7 @@ editlink(cmd)
 			}
 		}
 		if (restore && !changed)
-			showFILES(FALSE);
+			showFILES(FALSE,FALSE);
 	}
 	restat(changed);
 }

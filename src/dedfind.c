@@ -1,45 +1,14 @@
 #ifndef	lint
-static	char	Id[] = "$Id: dedfind.c,v 9.0 1991/05/15 13:39:04 ste_cm Rel $";
+static	char	Id[] = "$Id: dedfind.c,v 9.1 1991/07/11 12:53:36 dickey Exp $";
 #endif
 
 /*
  * Title:	dedfind.c (find item in ded's file list)
  * Author:	T.E.Dickey
  * Created:	18 Nov 1987
- * $Log: dedfind.c,v $
- * Revision 9.0  1991/05/15 13:39:04  ste_cm
- * BASELINE Mon Jun 10 10:09:56 1991 -- apollo sr10.3
- *
- *		Revision 8.1  91/05/15  13:39:04  dickey
- *		apollo sr10.3 cpp complains about tag on #endif
- *		
- *		Revision 8.0  89/08/25  08:53:40  ste_cm
- *		BASELINE Mon Aug 13 15:06:41 1990 -- LINCNT, ADA_TRANS
- *		
- *		Revision 7.0  89/08/25  08:53:40  ste_cm
- *		BASELINE Mon Apr 30 09:54:01 1990 -- (CPROTO)
- *		
- *		Revision 6.0  89/08/25  08:53:40  ste_cm
- *		BASELINE Thu Mar 29 07:37:55 1990 -- maintenance release (SYNTHESIS)
- *		
- *		Revision 5.0  89/08/25  08:53:40  ste_cm
- *		BASELINE Fri Oct 27 12:27:25 1989 -- apollo SR10.1 mods + ADA_PITS 4.0
- *		
- *		Revision 4.1  89/08/25  08:53:40  dickey
- *		use 'scroll_to_file()'
- *		
- *		Revision 4.0  89/03/14  11:16:57  ste_cm
- *		BASELINE Thu Aug 24 10:20:06 EDT 1989 -- support:navi_011(rel2)
- *		
- *		Revision 3.0  89/03/14  11:16:57  ste_cm
- *		BASELINE Mon Jun 19 14:21:57 EDT 1989
- *		
- *		Revision 2.0  89/03/14  11:16:57  ste_cm
- *		BASELINE Thu Apr  6 13:14:13 EDT 1989
- *		
- *		Revision 1.9  89/03/14  11:16:57  dickey
- *		sccs2rcs keywords
- *		
+ * Modified:
+ *		11 Jul 1991, interface to 'to_work()'
+ *		25 Aug 1989, use 'scroll_to_file()'
  *		14 Mar 1989, interface to 'dlog' module.
  *		06 May 1988, portable regex.
  *		25 Mar 1988, use 'rawgets()' for input.
@@ -60,7 +29,7 @@ static	int	order;		/* saves last legal search order */
 
 	if (key == '/' || key == '?') {
 
-		to_work();
+		to_work(TRUE);
 		PRINTW("Target: ");
 		getyx(stdscr,j,k);
 		clrtobot();

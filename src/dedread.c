@@ -1,28 +1,17 @@
 #ifndef	lint
-static	char	Id[] = "$Id: dedread.c,v 9.0 1991/05/15 13:57:21 ste_cm Rel $";
+static	char	Id[] = "$Id: dedread.c,v 9.1 1991/07/11 12:52:51 dickey Exp $";
 #endif
 
 /*
  * Title:	dedread.c (modify read-list expression)
  * Author:	T.E.Dickey
  * Created:	26 May 1989
- * $Log: dedread.c,v $
- * Revision 9.0  1991/05/15 13:57:21  ste_cm
- * BASELINE Mon Jun 10 10:09:56 1991 -- apollo sr10.3
- *
- *		Revision 8.2  91/05/15  13:57:21  dickey
- *		apollo sr10.3 cpp complains about tag on #endif
- *		
- *		Revision 8.1  91/04/18  08:05:39  dickey
- *		added flag to control whether identical pattern returns
- *		true or false (so that if nothing is found, we can force
- *		re-invocation of this procedure).
- *		
- *		Revision 8.0  90/05/23  08:09:14  ste_cm
- *		BASELINE Mon Aug 13 15:06:41 1990 -- LINCNT, ADA_TRANS
- *		
- *		Revision 7.1  90/05/23  08:09:14  dickey
- *		make the pattern to be set an argument
+ * Modified:
+ *		11 Jul 1991, interface to 'to_work()'
+ *		18 Apr 1991, added flag to control whether identical pattern
+ *			     returns true or false (so that if nothing is found,
+ *			     we can force re-invocation of this procedure).
+ *		23 May 1990, make the pattern to be set an argument
  *		
  *
  * Function:	Modifies the 'toscan' value, which controls the selection of
@@ -39,7 +28,7 @@ char	**pattern_;
 	register int	j,k;
 	auto	char	text[BUFSIZ], *expr;
 
-	to_work();
+	to_work(TRUE);
 	PRINTW("Pattern: ");
 	getyx(stdscr,j,k);
 	clrtobot();

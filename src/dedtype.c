@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	Id[] = "$Id: dedtype.c,v 9.1 1991/07/01 13:00:15 dickey Exp $";
+static	char	Id[] = "$Id: dedtype.c,v 9.4 1991/07/11 12:43:13 dickey Exp $";
 #endif
 
 /*
@@ -228,7 +228,7 @@ int	c,			/* current character */
 			name,
 			binary ? "binary" : "text",
 			isdir  ? "directory" : "file");
-		to_work();
+		to_work(FALSE);
 		while (!done) {
 
 			if (replay) {
@@ -245,8 +245,8 @@ int	c,			/* current character */
 			blank	= TRUE;
 
 			markC(TRUE);
+			showMARK(Shift);
 			move(y, 0);
-			clrtobot();
 			typeinit();
 
 			if (page+2 > maxpage) {
@@ -359,15 +359,13 @@ int	c,			/* current character */
 			}
 		}
 		FCLOSE(fp);
+		showMARK(Xbase);
 		if (isdir && !binary)
 			(void)unlink(tmp_name);
 		if (done < 0)
 			warn("fseek");
-		else {
-			move(LINES+1,0);
-			clrtobot();
+		else
 			showC();
-		}
 	} else
 		warn(name);
 }
