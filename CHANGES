@@ -1,3 +1,9 @@
+2004-03-08  Thomas E. Dickey  <dickey@invisible-island.net>
+
+	* src/dedview.c: add a cast to ensure that "%ld" honored.
+
+	* configure.in: remove certify
+
 2004-03-07  Thomas E. Dickey  <dickey@invisible-island.net>
 
 	* src/boxchars.c, src/ded.c, src/ded2s.c, src/dedblip.c, src/dedcmds.c, src/dedcolor.c, src/deddoit.c, src/deddump.c, src/dedfind.c, src/dedfree.c, src/dedline.c, src/dedmake.c, src/dedmsgs.c, src/dedname.c, src/dedread.c, src/dedring.c, src/dedscan.c, src/dedshow.c, src/dedsigs.c, src/dedsize.c, src/dedsort.c, src/dedtags.c, src/dedtype.c, src/deduniq.c, src/dedview.c, src/dedwait.c, src/dlog.c, src/ftree.c, src/history.c, src/inline.c, src/restat.c, src/showpath.c, src/sortset.c:
