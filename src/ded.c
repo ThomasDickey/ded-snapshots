@@ -1,5 +1,5 @@
 #if	!defined(NO_IDENT)
-static	char	Id[] = "$Header: /users/source/archives/ded.vcs/src/RCS/ded.c,v 12.32 1994/09/27 23:30:36 tom Exp $";
+static	char	Id[] = "$Header: /users/source/archives/ded.vcs/src/RCS/ded.c,v 12.33 1994/11/13 21:34:04 tom Exp $";
 #endif
 
 /*
@@ -900,11 +900,8 @@ _MAIN
 	case 'c':	dlog_read(optarg);			break;
 	case 'l':	log_opt = dlog_open(optarg,argc,argv);	break;
 	case 's':
-	case 'r':	if (!sortset(gbl, c,*optarg))	usage();
-#ifdef	Z_RCS_SCCS
-			if (needSCCS(gbl,c))
-				gbl->Z_opt = -1;
-#endif	/* Z_RCS_SCCS */
+	case 'r':	if (!sortset(gbl, c,*optarg))
+				usage();
 			break;
 	case 'd':	debug++;		break;
 	case 't':	tree_opt = optarg;	break;
@@ -912,6 +909,12 @@ _MAIN
 	default:	usage();
 			/*NOTREACHED*/
 	}
+
+#ifdef	Z_RCS_SCCS
+	/* if we're going to sort by checkin-date, ensure we read the dates */
+	if (needSCCS(gbl,gbl->sortopt))
+		gbl->Z_opt = -1;
+#endif	/* Z_RCS_SCCS */
 
 #define	DED_TREE	".ftree"
 	if (tree_opt != 0) {
