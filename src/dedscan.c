@@ -93,7 +93,7 @@
 #include	<rcsdefs.h>
 #include	<sccsdefs.h>
 
-MODULE_ID("$Id: dedscan.c,v 12.38 2001/12/11 14:09:28 tom Exp $")
+MODULE_ID("$Id: dedscan.c,v 12.39 2002/07/03 13:22:18 tom Exp $")
 
 #define	def_doalloc	FLIST_alloc
 	/*ARGSUSED*/
@@ -578,7 +578,7 @@ private	char *	make_EXPR (
 		*d = temp;
 	*d++ = '^';
 	while (*s) {
-		if (ispunct(*s)) {
+		if (ispunct(UCH(*s))) {
 			if (*s == '?') {
 				*d++ = '.';
 				s++;

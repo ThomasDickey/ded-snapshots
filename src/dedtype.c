@@ -58,7 +58,7 @@
 #define		DIR_PTYPES	/* includes directory-stuff */
 #include	"ded.h"
 
-MODULE_ID("$Id: dedtype.c,v 12.30 2000/01/24 11:56:07 tom Exp $")
+MODULE_ID("$Id: dedtype.c,v 12.31 2002/07/03 13:22:18 tom Exp $")
 
 typedef	struct	{
 	OFF_T	offset;
@@ -162,7 +162,7 @@ private	void	typeover (
 	}
 
 	if ((Over[Tcol] = Text[Tcol]) != EOS) {
-		if (ispunct(Text[Tcol]))
+		if (ispunct(UCH(Text[Tcol])))
 			Text[Tcol] = c;
 	} else
 		Text[Tcol] = c;
@@ -205,7 +205,7 @@ private	int	typeconv(
 		} else if (isspace(c)) {
 			if (c == '\n') {
 				while (Tlen > 0
-				&& isspace(Text[Tlen-1]))
+				&& isspace(UCH(Text[Tlen-1])))
 					Tlen--;
 				return (TRUE);
 			} else if (c == '\t') {
