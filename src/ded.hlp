@@ -177,16 +177,22 @@ Directory Tree:
   '?', 'n' and 'N' search works in the directory-tree (though it finds only
   leaf names, rather than full paths).
 
-  q		Quit the current file-list, move forward.
-  Q		Quit the current file-list, move backward.
-  W		Write directory-tree database (normally done on exit).
+  B		Move backward (with wraparound) in the list of directories.
   D		Toggle between directory-tree and file-list display.
   E		Enter a new file-list at the indicated directory-name.
   e		Enter a new ded-process at the indicated directory-name.
   F		Move forward (with wraparound) in the list of directories.
-  B		Move backward (with wraparound) in the list of directories.
+  I		Toggle searchability (with '/', etc) of inVisible directories.
+  q		Quit the current file-list, move forward.
+  Q		Quit the current file-list, move backward.
   R		Read directory names at the current position (also done
 		automatically whenever a file-list is constructed).
+  U		toggle filename display (unix vs apollo)
+  V		Toggle visibility of lower-level directories.
+  w		Refresh the screen.
+  W		Write directory-tree database (normally done on exit).
+  Z		Toggle visibility of sccs & RCS directories.
+
   +		Mark directory name for removal from database.
   -		Unmark directory name.
   _		Clear list of marked names.

@@ -1,5 +1,5 @@
 #ifndef	NO_SCCS_ID
-static	char	sccs_id[] = "@(#)ded.c	1.21 88/05/11 13:19:07";
+static	char	sccs_id[] = "@(#)ded.c	1.23 88/05/16 14:50:58";
 #endif	NO_SCCS_ID
 
 /*
@@ -7,6 +7,7 @@ static	char	sccs_id[] = "@(#)ded.c	1.21 88/05/11 13:19:07";
  * Author:	T.E.Dickey
  * Created:	09 Nov 1987
  * Modified:
+ *		13 May 1988, provide walkback on Apollo after 'failed()'.
  *		11 May 1988, use 'rename()' if it is available.
  *		03 May 1988, added 'P', 's', 't' subcommands to editprot.
  *		02 May 1988, forgot to allow arrow keys in insert-mode of
@@ -27,7 +28,7 @@ static	char	sccs_id[] = "@(#)ded.c	1.21 88/05/11 13:19:07";
 
 #define	MAIN
 #include	"ded.h"
-#include	<ctype.h>
+#include	<sys/signal.h>
 extern	char	*getenv(),
 		*strchr();
 
@@ -234,7 +235,12 @@ char	*msg;
 	to_exit(msg != 0);
 	if (msg)
 		PRINTF("-------- \n?? %-79s\n-------- \n", msg);
+#ifdef	apollo
+	(void)kill(getpid(), SIGKILL);
+	for (;;);	/* when terminated, will be able to use 'tb' */
+#else	apollo
 	exit(1);
+#endif	apollo
 }
 
 /*
@@ -934,7 +940,7 @@ char	tpath[BUFSIZ],
 	PRINTF("%s\r\n", version+4);	/* show me when entering process */
 	(void)fflush(stdout);
 	(void)sortset('s', 'n');
-	ft_read(getcwd(old_wd, sizeof(old_wd)-2));
+	ft_read(getwd(old_wd));
 
 	/* find which copy I am executing from, for future use */
 	if (which(whoami, sizeof(whoami), argv[0], old_wd) <= 0)

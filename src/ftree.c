@@ -1,11 +1,16 @@
 #ifndef	NO_SCCS_ID
-static	char	sccs_id[] = "@(#)ftree.c	1.40 88/05/11 12:29:54";
+static	char	sccs_id[] = "@(#)ftree.c	1.42 88/05/16 09:46:45";
 #endif
 
 /*
  * Author:	T.E.Dickey
  * Created:	02 Sep 1987
  * Modified:
+ *		16 May 1988, added 'U' command.
+ *		13 May 1988, use 'txtalloc()' in 'ft_read()' -- should be
+ *			     eventually cheaper: less memory.  Treat RCS
+ *			     directories same as sccs-directories whith 'Z'.
+ *			     Added 'I' command.
  *		11 May 1988, added 'ft_rename' entrypoint.
  *		09 May 1988, do chdir before interpreting 'readlink()'.
  *		06 May 1988, added 'W' command.  Also, in cursor movement, make
@@ -100,6 +105,7 @@ static	int	FDdiff,			/* number of changes made	*/
 		showbase,		/* base of current display	*/
 		showlast,		/* last line in current display	*/
 		showdiff = -1,		/* controls re-display		*/
+		out_of_sight,		/* TRUE to suppress search	*/
 		savesccs,		/* original state of 'showsccs'	*/
 		showsccs = TRUE;	/* control display of 'sccs'	*/
 static	char	zero[] = ROOT,
@@ -163,6 +169,7 @@ static	char	pattern[MAXPATHLEN],
 
 register int	step,
 	new = old,
+	skip,
 	looped = 0;
 
 	if (cmd == '?' || cmd == '/') {
@@ -181,8 +188,9 @@ register int	step,
 			if (looped++ && (new == old)) { beep();	return(-1); }
 			else if ((new += step) < 0)		new = FDlast;
 			else if (new > FDlast)			new = 0;
+			skip = (out_of_sight && !fd_show(new));
 		}
-		while (! GOT_REGEX(expr, ftree[new].f_name));
+		while (skip || !GOT_REGEX(expr, ftree[new].f_name));
 		return(new);
 	}
 #ifndef	TEST
@@ -359,9 +367,9 @@ register FTREE *f;
 
 			ftree[this].f_root = last;
 			ftree[this].f_mark = NORMAL;
-			if (!showsccs && !strcmp(name, "sccs"))
-				ftree[this].f_mark |= NOSCCS;
 			ftree[this].f_name = txtalloc(name);
+			if (!showsccs && is_sccs(this))
+				ftree[this].f_mark |= NOSCCS;
 		}
 
 		last = this;
@@ -462,14 +470,11 @@ register int j;
  */
 ft_purge()
 {
-register int j, k;
+register int j;
 
-	for (j = 1; j <= FDlast; j++) {
-		if (ftree[j].f_mark & MARKED) {
-			do_purge(j);
-			j--;
-		}
-	}
+	for (j = 1; j <= FDlast; j++)
+		if (ftree[j].f_mark & MARKED)
+			do_purge(j--);
 }
 
 /*
@@ -540,9 +545,10 @@ int	fid,
 			if (read(fid, heap, (int)size) != size)
 				failed("heap \".ftree\"");
 			for (j = 0; j <= FDlast; j++) {
-				ftree[j].f_name = s;
+				ftree[j].f_name = txtalloc(s);
 				s += strlen(s) + 1;
 			}
+			FREE(heap);
 		}
 		(void)close(fid);
 #ifdef	DEBUG
@@ -555,6 +561,7 @@ int	fid,
 	ft_insert(first ? first : ".");
 
 	/* inherit sense of 'Z' toggle from database */
+	showsccs = TRUE;
 	for (j = 0; j <= FDlast; j++) {
 		if (ftree[j].f_mark & NOSCCS) {
 			showsccs = FALSE;
@@ -580,8 +587,16 @@ char	*marker,
 
 	move(row++,0);
 	node = limits(showbase, node);
-	printw("path: %.*s", COLS-8, path);
+	j = COLS-8;
+	k = FDdiff || (savesccs != showsccs);
+	if (k)
+		j -= 4;
+	printw("path: %.*s", j, path);
 	clrtoeol();
+	if (k) {	/* show W-command if we have pending diffs */
+		move(0, COLS-5);
+		printw(" (W)");
+	}
 	if (showdiff != FDdiff) {
 		for (j = showbase; j <= showlast; j++) {
 			if (!fd_show(j)) continue;
@@ -595,15 +610,17 @@ char	*marker,
 			for (k = fd_level(j); k > 0; k--)
 				addstr(fd_line(k));
 			if (ftree[j].f_mark & MARKED)	standout();
+			(void)name2s(bfr, ftree[j].f_name, sizeof(bfr), FALSE);
 			printw("%s%s",
-				ftree[j].f_name,
+				bfr,
 				(ftree[j].f_mark &LINKED) ? "@" : gap);
 			if (ftree[j].f_mark & MARKED)	standend();
 #ifdef	apollo
 			if (j == 0)
 				printw("%s", zero+1);
 #endif	apollo
-			if (ftree[j].f_mark & NOVIEW) printw(" (V)");
+			if (ftree[j].f_mark & NOVIEW)
+				printw(out_of_sight ? " (I/V)": " (V)");
 			if (ftree[j].f_mark & MARKED) printw(" (+)");
 			clrtoeol();
 		}
@@ -738,6 +755,23 @@ int	old = f->f_mark;
 	if (old != f->f_mark)	FDdiff++;
 }
 
+/*
+ * Returns TRUE iff the name of the node corresponds to a source-control
+ * directory.
+ */
+static
+is_sccs(node)
+{
+register FTREE *f = &ftree[node];
+	if (!strcmp(f->f_name, "sccs"))	return (TRUE);
+	if (!strcmp(f->f_name, "RCS"))	return (TRUE);
+	return (FALSE);
+}
+
+/*
+ * Toggles the state of the sccs-directory visibility, and coerces all nodes
+ * to correspond to the new state.
+ */
 static
 toggle_sccs()
 {
@@ -745,19 +779,28 @@ register int j;
 	showsccs = !showsccs;
 	for (j = 1; j <= FDlast; j++) {
 	register FTREE *f = &ftree[j];
-		if (!strcmp(f->f_name,"sccs")) {
-			f->f_mark ^= NOSCCS;
-			showdiff = -1;
+		if (is_sccs(j)) {
+			if (f->f_mark & NOSCCS) {
+				if (showsccs) {
+					f->f_mark ^= NOSCCS;
+					showdiff = -1;
+				}
+			} else if (!showsccs) {
+				f->f_mark ^= NOSCCS;
+				showdiff = -1;
+			}
 		}
 	}
 }
 
+/*
+ * Set up for display of the given node.  If it is not visible, make it so.
+ */
 static
 scroll_to(node)
 {
 register int j = node;
-	if (!strcmp(ftree[j].f_name, "sccs") && !showsccs)
-		showsccs = TRUE;
+
 	if (ftree[j].f_mark & NOSCCS)
 		toggle_sccs();
 	while (j = ftree[j].f_root) {	/* ensure this is visible! */
@@ -920,6 +963,7 @@ register int j;
 			(void)strcpy(path, cwdpath);
 			if (!num && (c == 'q' || c == 'Q'))
 				return('E');
+			showdiff = -1;	/* always refresh '*', '=>' marks */
 			break;
 
 		/* Exit from this program (back to 'fl') */
@@ -1007,6 +1051,23 @@ register int j;
 		case 'W':
 				ft_write();
 				break;
+
+		/*
+		 * toggle flag which controls whether invisible directories
+		 * can be found by a search.
+		 */
+		case 'I':
+			out_of_sight = !out_of_sight;
+			showdiff = -1;
+			break;
+
+#ifdef	apollo
+		/* toggle flag showing Aegis/Unix names */
+		case 'U':
+			U_opt = !U_opt;
+			showdiff = -1;
+			break;
+#endif	apollo
 
 		/* toggle flag which controls whether we show dependents */
 		case 'V':

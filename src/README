@@ -24,8 +24,6 @@ To do:
 	Add a logfile/script facility to try to flush out bugs in ftree.
 
 88/05/03:
-	Replace stralloc with txtalloc, don't use strfree.
-
 	ft_insert does not check for apollo links such as /usr/lib mapping
 	to /bsd4.2/usr/lib, since only the /usr part is a link.  This causes
 	confusion also in the F,B,E commands.  If I make 'abspath()' translate
@@ -36,15 +34,10 @@ To do:
 88/05/06:
 	Repeat count on search (e.g., "/") commands?
 
-	Extra mode in ftree which prevents us from finding inVisible items?
-
 	Gould: does not use newer convention for daylight-savings time.
 
 88/05/10:
-	The 'resizewin()' code does not always work correctly -- sometimes
-	it crashes.  It seems that this code beats heavily on malloc.
-
-	Also, there is a hole: if I resize in ftree, the unsavewin() may
+	There is a hole: if I resize in ftree, the unsavewin() may
 	not work correctly, since we will be restoring to a different size.
 
 	The top_argv checking in 'dedring' does not take into account invocation
@@ -66,3 +59,20 @@ To do:
 
 	The 'R' command from file-list should do a dedring-quit if no files
 	are found in the current directory, rather than a full quit.
+
+	The 'E' command from directory-tree spits out a nasty message if the
+	tree is out of date...
+
+88/05/16:
+	Should do better margin trimming in 'ft_show' and 'ded2s()'.
+
+	Don't think that csh-like symbolic links are processed correctly
+	(e.g., "~/src").  Probably should modify linkstat (and corresponding
+	inline code in ftree) to do a readlink/abspath/stat (on apollo at
+	least).
+
+	The 'h' and backspace command in ftree should not be sticky with
+	level.
+
+	Apollo routine c_$map_to_unix may simplify the hack I made in
+	abspath.

@@ -1,5 +1,5 @@
 #ifndef	NO_SCCS_ID
-static	char	sccs_id[] = "@(#)dedscan.c	1.9 88/05/10 13:18:54";
+static	char	sccs_id[] = "@(#)dedscan.c	1.11 88/05/16 14:51:32";
 #endif	NO_SCCS_ID
 
 /*
@@ -7,6 +7,7 @@ static	char	sccs_id[] = "@(#)dedscan.c	1.9 88/05/10 13:18:54";
  * Author:	T.E.Dickey
  * Created:	09 Nov 1987
  * Modified:
+ *		13 May 1988, put only links-to-directory via 'ft_linkto()'.
  *		09 May 1988, corrected full-name computation for ftree.
  *		22 Apr 1988, use external 'txtalloc()', integrated with ftree.
  *
@@ -54,7 +55,7 @@ char	name[BUFSIZ];
 				return(0);
 			}
 				/* mark dep's for purge */
-			ft_remove(getcwd(new_wd, sizeof(new_wd)-2));
+			ft_remove(getwd(new_wd));
 			if (dp = opendir(".")) {
 			int	len = strlen(strcpy(name, new_wd));
 				if (name[len-1] != '/') {
@@ -71,7 +72,7 @@ char	name[BUFSIZ];
 #ifndef	SYSTEM5
 					if ((j == 0)
 					&&  ((j = lookup(de->d_name)) >= 0)
-					&&  (isLINK(flist[j].s.st_mode)))
+					&&  (linkstat(name,flist+j)) )
 						ft_linkto(name);
 #endif	SYSTEM5
 				}
@@ -180,6 +181,7 @@ char	bfr[BUFSIZ];
 	}
 	if (isDIR(f_->s.st_mode))
 		return(1);
+#ifndef	SYSTEM5
 	if (isLINK(f_->s.st_mode)) {
 		len = readlink(name, bfr, sizeof(bfr));
 		if (len > 0) {
@@ -188,6 +190,7 @@ char	bfr[BUFSIZ];
 			f_->ltxt = txtalloc(bfr);
 		}
 	}
+#endif	SYSTEM5
 #ifdef	Z_SCCS
 	statSCCS(name, f_);
 #endif	Z_SCCS
@@ -204,22 +207,39 @@ argstat(name, list)
 char	*name;
 {
 FLIST	fb;
-struct	stat	sb;
 
 	Zero(&fb);
 	if (dedstat(name, &fb) >= 0) {
-		if (!list && isLINK(fb.s.st_mode)) {
-			if (stat(name, &sb) >= 0) {
-				if (isDIR(sb.st_mode))
-					return(2);	/* link to directory */
-			}
-		}
+#ifndef	SYSTEM5
+		if (!list && linkstat(name, &fb))
+			return(2);			/* link to directory */
+#endif	SYSTEM5
 		if (!isDIR(fb.s.st_mode) || list)
 			append(name, &fb);
 		return(isDIR(fb.s.st_mode) ? 1 : 0);	/* directory ? */
 	}
 	return(-1);					/* not found */
 }
+
+/*
+ * Test a name to see if it is a symbolic link to a directory.
+ */
+#ifndef	SYSTEM5
+static
+linkstat(name, f)
+char	*name;
+FLIST	*f;
+{
+struct	stat	sb;
+	if (isLINK(f->s.st_mode)) {
+		if (stat(name, &sb) >= 0) {
+			if (isDIR(sb.st_mode))
+				return(TRUE);	/* link to directory */
+		}
+	}
+	return (FALSE);
+}
+#endif	SYSTEM5
 
 /************************************************************************
  *	alternate entrypoints						*
