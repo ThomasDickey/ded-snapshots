@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	Id[] = "$Id: dedscan.c,v 7.0 1990/04/25 13:35:39 ste_cm Rel $";
+static	char	Id[] = "$Id: dedscan.c,v 7.1 1990/05/16 08:02:22 dickey Exp $";
 #endif	lint
 
 /*
@@ -7,9 +7,13 @@ static	char	Id[] = "$Id: dedscan.c,v 7.0 1990/04/25 13:35:39 ste_cm Rel $";
  * Author:	T.E.Dickey
  * Created:	09 Nov 1987
  * $Log: dedscan.c,v $
- * Revision 7.0  1990/04/25 13:35:39  ste_cm
- * BASELINE Mon Apr 30 09:54:01 1990 -- (CPROTO)
+ * Revision 7.1  1990/05/16 08:02:22  dickey
+ * added code to strip prefixes which are common to the new-wd,
+ * but not among the other arguments.
  *
+ *		Revision 7.0  90/04/25  13:35:39  ste_cm
+ *		BASELINE Mon Apr 30 09:54:01 1990 -- (CPROTO)
+ *		
  *		Revision 6.5  90/04/25  13:35:39  dickey
  *		corrected code which tries to circumvent unreadable old_wd
  *		(had broken the 'R' command in that fix...)
@@ -228,6 +232,14 @@ char	*argv[];
 				failed(new_wd);
 			for (j = 0; j < numfiles; j++)
 				xNAME(j) = txtalloc(xNAME(j) + common);
+		} else {
+			size_t	len = strlen(new_wd);
+			for (j = 0; j < argc; j++) {
+				if (strlen(s = argv[j]) > len
+				&&  s[len] == '/'
+				&&  !strncmp(new_wd,s,len))
+					xNAME(j) = txtalloc(xNAME(j) + len + 1);
+			}
 		}
 	}
 	if (debug)

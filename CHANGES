@@ -1,3 +1,9 @@
+1990-05-16  dickey@software.org
+
+	* src/dedscan.c:
+	added code to strip prefixes which are common to the new-wd,
+	but not among the other arguments.
+
 1990-05-11  dickey@software.org
 
 	* test/run_test.sh: set umask to make test repeatable
