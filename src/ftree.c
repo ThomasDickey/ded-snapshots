@@ -1,11 +1,12 @@
 #if	!defined(NO_IDENT)
-static	char	Id[] = "$Id: ftree.c,v 12.10 1994/05/23 00:20:22 tom Exp $";
+static	char	Id[] = "$Id: ftree.c,v 12.11 1994/05/24 23:23:02 tom Exp $";
 #endif
 
 /*
  * Author:	T.E.Dickey
  * Created:	02 Sep 1987
  * Modified:
+ *		24 May 1994, allow leaves with non-printing characters.
  *		19 Nov 1993, added mouse-support.
  *		18 Nov 1993, modified to make "^" command toggle, and to make
  *			     up/down row commands simulate scrolling.
@@ -844,10 +845,6 @@ private	void	read_ftree _ONE(char *,the_file)
 				return;
 			s[size] = EOS;
 			for (j = 0; j <= FDlast; j++) {
-				if (*s != EOS && !isprint(*s)) {
-					(void)ft_init("? corrupted heap");
-					return;
-				}
 				ftree[j].f_name = txtalloc(s);
 				s += strlen(s) + 1;
 			}

@@ -1,5 +1,5 @@
 #if	!defined(NO_IDENT)
-static	char	Id[] = "$Id: ded2s.c,v 12.4 1993/12/06 14:22:45 dickey Exp $";
+static	char	Id[] = "$Id: ded2s.c,v 12.5 1994/05/24 00:59:42 tom Exp $";
 #endif
 
 /*
@@ -64,12 +64,17 @@ static	char	Id[] = "$Id: ded2s.c,v 12.4 1993/12/06 14:22:45 dickey Exp $";
 #ifdef	apollo_sr10
 #include	<acl.h>
 #include	<apollo/base.h>
-char	*type_uid2s();
+char	*type_uid2s _ar1(STAT *,s);
 #endif
 
-#ifdef	SYSTEM5
-#include	<sys/sysmacros.h>
+#if MAJOR_IN_MKDEV
+#  include	<sys/mkdev.h>
+#else
+#  if MAJOR_IN_SYSMACROS
+#    include	<sys/sysmacros.h>
+#  endif
 #endif
+
 #ifndef	_toupper
 #define	_toupper	toupper
 #endif

@@ -1,5 +1,5 @@
 #if	!defined(NO_IDENT)
-static	char	Id[] = "$Header: /users/source/archives/ded.vcs/src/RCS/ded.c,v 12.11 1994/04/27 22:42:48 tom Exp $";
+static	char	Id[] = "$Header: /users/source/archives/ded.vcs/src/RCS/ded.c,v 12.12 1994/05/24 01:03:39 tom Exp $";
 #endif
 
 /*
@@ -7,6 +7,7 @@ static	char	Id[] = "$Header: /users/source/archives/ded.vcs/src/RCS/ded.c,v 12.1
  * Author:	T.E.Dickey
  * Created:	09 Nov 1987
  * Modified:
+ *		23 May 1994, port to Solaris.
  *		26 Apr 1994, provided sys5-like defaults for EDITOR, etc.
  *		23 Nov 1993, new blip-code.
  *		19 Nov 1993, added xterm-mouse support.
@@ -270,7 +271,7 @@ public	void	to_exit _ONE(int,last)
 			refresh();
 		}
 		cookterm();
-#ifndef	SYSTEM5			/* patch: apollo 'endwin()' ? */
+#if	!SYS5_CURSES		/* patch: apollo 'endwin()' ? */
 		endwin();
 #endif
 	}
@@ -965,6 +966,7 @@ _MAIN
 		*stdin = *p;
 	}
 
+	save_terminal();
 	(void)dedsigs(TRUE);
 	if (!initscr())			failed("initscr");
 	in_screen = TRUE;
@@ -1160,7 +1162,7 @@ _MAIN
 			break;
 
 	case ' ':	/* clear workspace */
-#ifdef	SYSTEM5
+#if	SYS5_CURSES
 			if (lastc == c)
 				clearok(stdscr, TRUE);
 #endif

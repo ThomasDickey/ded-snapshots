@@ -1,3 +1,8 @@
+1994-05-24  Thomas E. Dickey  <dickey@clark.net>
+
+	* src/ftree.c:
+	Philip Hood had a directory name consisting of a backspace. Ded broke.
+
 1994-05-23  Thomas E. Dickey  <dickey@clark.net>
 
 	* src/ded.h: use new include for fcntl.h
