@@ -3,6 +3,7 @@
  * Author:	T.E.Dickey
  * Created:	14 Mar 1989
  * Modified:
+ *		27 Dec 1996, move ANSI_VARARGS ifdef to configure-script.
  *		01 Dec 1993, moved most 'refresh()' calls under 'dlog_char()'
  *		29 Oct 1993, ifdef-ident
  *		28 Sep 1993, gcc warnings
@@ -31,7 +32,7 @@
 #include	"ded.h"
 #include	<time.h>
 
-MODULE_ID("$Id: dlog.c,v 12.15 1996/01/13 14:56:56 tom Exp $")
+MODULE_ID("$Id: dlog.c,v 12.16 1996/12/27 19:59:32 tom Exp $")
 
 #define	NOW		time((time_t *)0)
 
@@ -653,13 +654,7 @@ public	void	dlog_name (
 /*
  * Write a comment to the log-file (with trailing newline in 'fmt').
  */
-#if HAVE_STDARG_H && PROTOTYPES
-#define ANSI_VARARGS 1
-#else
-#define ANSI_VARARGS 0
-#endif
-
-#if ANSI_VARARGS
+#ifdef ANSI_VARARGS
 #define	args_VARARGS1	_ARX(char *,fmt) _DOTS
 #define	decl_VARARGS1	_DCL(char *,fmt) _DCL(va_list *,app)
 #else
@@ -680,7 +675,7 @@ public	void	dlog_comment(args_VARARGS1)
 	decl_VARARGS1
 {
 	auto	va_list	args;
-#if !ANSI_VARARGS
+#ifndef ANSI_VARARGS
 	auto	char	*fmt;
 #endif
 	static	DYN	*msg, *tmp;
@@ -692,7 +687,7 @@ public	void	dlog_comment(args_VARARGS1)
 
 	PENDING(comment,FALSE);
 	FPRINTF(log_fp, "\t# ");
-#if ANSI_VARARGS
+#ifdef ANSI_VARARGS
 	va_start(args,fmt);
 #else
 	va_start(args);

@@ -1,3 +1,8 @@
+1996-12-27  Thomas E. Dickey  <dickey@clark.net>
+
+	* src/dlog.c:
+	moved condition for ANSI_VARARGS into td_lib configure-script
+
 1996-04-10  Thomas E. Dickey  <dickey@clark.net>
 
 	* src/dedblip.c:
