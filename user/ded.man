@@ -1,4 +1,4 @@
-.\" $Id: ded.man,v 12.1 1994/07/01 23:13:09 tom Exp $
+.\" $Id: ded.man,v 12.2 1994/07/17 01:27:38 tom Exp $
 .if t .ds T \(tm
 .if n .ds T (tm)
 .
@@ -1144,7 +1144,7 @@ writes the database file (if changes have occurred).
 .PP
 Commands which modify the display characteristics are:
 .TP
-.B A
+.B &
 Sets a flag which causes \fBded\fR to suppress
 names (and their dependents) which begin with "." or "$".
 .TP

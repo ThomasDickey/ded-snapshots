@@ -1,3 +1,14 @@
+1994-07-17  Thomas E. Dickey  <dickey@clark.net>
+
+	* src/ded2s.c: split out 'dblks()' as library function 'fileblocks()'
+
+	* src/ded.h:
+	split out 'ded_blocks()' as library function 'fileblocks()'
+
+	* src/ftree.c:
+	implemented automatic left/right scrolling for the cases in which the
+	number of levels of a node is too wide for the display.
+
 1994-07-16  Thomas E. Dickey  <dickey@clark.net>
 
 	* user/ded.man: renamed flist-A command to '&'
