@@ -1,3 +1,7 @@
+2002-06-29  Thomas E. Dickey  <dickey@invisible-island.net>
+
+	* mkdirs.sh: resync with my-autoconf
+
 2002-04-16  Thomas E. Dickey  <dickey@invisible-island.net>
 
 	* user/ded.man: check-manpage nits
