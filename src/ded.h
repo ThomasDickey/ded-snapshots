@@ -1,4 +1,4 @@
-/* @(#)ded.h	1.17 88/06/16 07:55:00 */
+/* @(#)ded.h	1.18 88/07/11 07:28:32 */
 
 /*
  * Created:	09 Nov 1987
@@ -171,6 +171,7 @@ MAIN	int	top_argc,
 		dateopt,	/* date-option (a,c,m = 0,1,2) */
 		sortord,	/* sort-order (TRUE=reverse) */
 		sortopt,	/* sort-option (a character) */
+		tagsort,	/* sort tagged files apart from others */
 #ifndef	SYSTEM5
 		AT_opt,		/* show symbolic link target */
 #endif	SYSTEM5

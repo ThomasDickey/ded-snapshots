@@ -1,5 +1,5 @@
 #ifndef	NO_SCCS_ID
-static	char	sccs_id[] = "@(#)ded.c	1.34 88/06/29 06:29:25";
+static	char	sccs_id[] = "@(#)ded.c	1.35 88/07/11 07:28:53";
 #endif	NO_SCCS_ID
 
 /*
@@ -7,6 +7,7 @@ static	char	sccs_id[] = "@(#)ded.c	1.34 88/06/29 06:29:25";
  * Author:	T.E.Dickey
  * Created:	09 Nov 1987
  * Modified:
+ *		11 Jul 1988, added '+' mode to sort.
  *		16 Jun 1988, added '@' toggle.
  *		07 Jun 1988, added CTL(K) screen-dump
  *		06 Jun 1988, if 'R' finds nothing, do 'F' to recover before 'q'.
@@ -1176,7 +1177,10 @@ char	tpath[BUFSIZ],
 			break;
 
 	case 'r':
-	case 's':	if (sortset(c,cmdch((int *)0))) {
+	case 's':	j = cmdch((int *)0);
+			if (tagsort = (j == '+'))
+				j = cmdch((int *)0);
+			if (sortset(c,j)) {
 				dedsort();
 				(void)to_file();
 				showFILES();

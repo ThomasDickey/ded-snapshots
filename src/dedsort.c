@@ -1,5 +1,5 @@
 #ifndef	NO_SCCS_ID
-static	char	sccs_id[] = "@(#)dedsort.c	1.5 88/06/01 07:43:51";
+static	char	sccs_id[] = "@(#)dedsort.c	1.6 88/07/11 07:38:36";
 #endif	NO_SCCS_ID
 
 /*
@@ -7,6 +7,7 @@ static	char	sccs_id[] = "@(#)dedsort.c	1.5 88/06/01 07:43:51";
  * Author:	T.E.Dickey
  * Created:	11 Nov 1987
  * Modified:
+ *		11 Jul 1988, use 'tagsort' variable to group tagged-files.
  *		01 Jun 1988, added 'y' sort.
  *		23 May 1988, use 'dotcmp()' for version, '.'-sorts.
  *		09 May 1988, make devices sort-size separately from files.
@@ -55,6 +56,13 @@ FLIST	*p1, *p2;
 {
 register int cmp = 0;
 char	bfr[BUFSIZ];
+
+	if (tagsort) {
+		if (p1->flag && !p2->flag)
+			return (-1);
+		if (p2->flag && !p1->flag)
+			return (1);
+	}
 
 	switch (sortopt) {
 			/* patch: N sort from 'fl' would be nice... */
