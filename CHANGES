@@ -1,3 +1,11 @@
+1988-05-25  dickey@software.org
+
+	* src/ded.c:
+	corrected some refresh-related stuff with 'edittext()' calls & tags.
+
+	* src/dedring.c:
+	reset V,Z sccs/rcs flags when entering new directory with 'E'.
+
 1988-05-24  dickey@software.org
 
 	* src/Makefile: added 'all' production.
