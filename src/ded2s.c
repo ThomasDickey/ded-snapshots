@@ -1,5 +1,5 @@
-#if	!defined(NO_IDENT)
-static	char	Id[] = "$Id: ded2s.c,v 12.16 1994/07/18 01:05:45 tom Exp $";
+#ifndef NO_IDENT
+static	char	Id[] = "$Id: ded2s.c,v 12.17 1994/10/06 00:37:24 tom Exp $";
 #endif
 
 /*
@@ -7,6 +7,7 @@ static	char	Id[] = "$Id: ded2s.c,v 12.16 1994/07/18 01:05:45 tom Exp $";
  * Author:	T.E.Dickey
  * Created:	09 Nov 1987
  * Modified:
+ *		05 Oct 1994, refined executable-access test with getgroups.
  *		29 Oct 1993, ifdef-ident
  *		28 Sep 1993, gcc warnings
  *		23 Nov 1992, for RCS version 5, show differences in ztime/mtime
@@ -60,6 +61,16 @@ static	char	Id[] = "$Id: ded2s.c,v 12.16 1994/07/18 01:05:45 tom Exp $";
 #include	"ded.h"
 #include	<time.h>
 #include	<ctype.h>
+
+#if HAVE_GETGROUPS
+#  if HAVE_SYS_PARAM_H
+#    include <sys/param.h>
+#  else
+#    ifndef NGROUPS
+#      define NGROUPS 10
+#    endif
+#  endif
+#endif
 
 #ifdef	apollo_sr10
 #include	<acl.h>
@@ -392,14 +403,30 @@ public	int	ded_access (
 	int	uid = geteuid();
 	int	gid = getegid();
 
-	if (!uid) {		/* root can do anything */
-		uid = s->st_uid;
-		gid = s->st_gid;
+#if HAVE_GETGROUPS
+	static	gid_t	groups[NGROUPS];
+	static	int	initialized, total;
+	register int	j;
+
+	if (!initialized) {
+		total = getgroups(NGROUPS, groups);
+		initialized = TRUE;
 	}
-	if (uid == s->st_uid)
+	for (j = 0; j < total; j++) {
+		if (s->st_gid == groups[j]) {
+			gid = groups[j];
+			break;
+		}
+	}
+#endif
+
+	if (!uid) {		/* root can do anything */
+		return (s->st_mode & (mask | (mask >> 3) | (mask >> 6)));
+	} else if (uid == s->st_uid) {
 		return (s->st_mode & mask);
-	else if (gid == s->st_gid)
+	} else if (gid == s->st_gid) {
 		return (s->st_mode & (mask >> 3));
+	}
 	return (s->st_mode & (mask >> 6));
 }
 

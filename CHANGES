@@ -1,3 +1,7 @@
+1994-10-06  Thomas E. Dickey  <dickey@clark.net>
+
+	* src/dedscan.c: oops: used wrong filename-arg for purge_cmv_dir
+
 1994-10-05  Thomas E. Dickey  <dickey@clark.net>
 
 	* src/ded2s.c:
