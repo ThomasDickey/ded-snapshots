@@ -1,3 +1,7 @@
+1994-08-15  Thomas E. Dickey  <dickey@clark.net>
+
+	* src/dedscan.c: split out 'lastrev()'
+
 1994-08-12  Thomas E. Dickey  <dickey@clark.net>
 
 	* src/ftree.c, src/ded.c, src/dedscan.c, src/dedview.c, src/boxchars.c:

@@ -1,5 +1,5 @@
 #if	!defined(NO_IDENT)
-static	char	Id[] = "$Id: dedscan.c,v 12.12 1994/08/12 21:14:10 tom Exp $";
+static	char	Id[] = "$Id: dedscan.c,v 12.13 1994/08/15 23:51:11 tom Exp $";
 #endif
 
 /*
@@ -7,6 +7,7 @@ static	char	Id[] = "$Id: dedscan.c,v 12.12 1994/08/12 21:14:10 tom Exp $";
  * Author:	T.E.Dickey
  * Created:	09 Nov 1987
  * Modified:
+ *		03 Aug 1994, split out 'lastrev()'
  *		23 Jul 1994, force "." into empty filelists.
  *		23 Nov 1993, new blip-code.
  *		29 Oct 1993, ifdef-ident, port to HP/UX.
@@ -473,29 +474,11 @@ public	void	statSCCS(
 {
 	if (gbl->Z_opt) {
 		if (isFILE(f_->s.st_mode)) {
-			int	n;
-			TRY	try;
-			for (n = 0; (try = try_order(n)) != DontTry; n++) {
-#ifdef	Z_RCS
-				if (try == TryRcs) {
-					LAST(rcslast);
-				}
-#endif
-#ifdef	Z_SCCS
-				if (try == TrySccs) {
-					LAST(sccslast);
-				}
-#endif
-#if defined(Z_RCS) || defined(Z_SCCS)
-				if (try == TryCmVision) {
-					LAST(cmv_last);
-				}
-#endif
-				if (f_->z_time != 0
-				 || f_->z_vers[0] != '?'
-				 || f_->z_lock[0] != '?')
-				 break;
-			}
+			lastrev(gbl->new_wd,
+				name,
+				&(f_->z_vers),
+				&(f_->z_time),
+				&(f_->z_lock));
 #ifdef	Z_RCS
 		} else if (isDIR(f_->s.st_mode)
 			&& sameleaf(name,rcs_dir())) {
