@@ -1,10 +1,13 @@
-# $Id: Makefile,v 5.1 1989/12/01 13:39:32 dickey Exp $
+# $Id: Makefile,v 5.2 1990/02/01 12:53:32 dickey Exp $
 # MAKE-file for directory editor
 #
 # $Log: Makefile,v $
-# Revision 5.1  1989/12/01 13:39:32  dickey
-# broke 'sortset.c' out of 'ded.c'
+# Revision 5.2  1990/02/01 12:53:32  dickey
+# added module 'showpath.c'
 #
+#        Revision 5.1  89/12/01  13:39:32  dickey
+#        broke 'sortset.c' out of 'ded.c'
+#        
 #        Revision 5.0  89/10/04  11:16:19  ste_cm
 #        BASELINE Fri Oct 27 12:27:25 1989 -- apollo SR10.1 mods + ADA_PITS 4.0
 #        
@@ -59,6 +62,7 @@ CSRC	=\
 	ded2s.c \
 	dlog.c \
 	ftree.c \
+	showpath.c \
 	sortset.c
 HSRC	= \
 	ded.h \
@@ -84,6 +88,7 @@ OBJS	= \
 	ded2s.o \
 	dlog.o \
 	ftree.o \
+	showpath.o \
 	sortset.o
 #
 SOURCES	= Makefile README $(CSRC) $(HSRC) ded.hlp

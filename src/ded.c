@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	what[] = "$Id: ded.c,v 5.2 1990/01/30 08:09:49 dickey Exp $";
+static	char	what[] = "$Id: ded.c,v 5.3 1990/02/01 12:54:33 dickey Exp $";
 #endif	lint
 
 /*
@@ -7,12 +7,15 @@ static	char	what[] = "$Id: ded.c,v 5.2 1990/01/30 08:09:49 dickey Exp $";
  * Author:	T.E.Dickey
  * Created:	09 Nov 1987
  * $Log: ded.c,v $
- * Revision 5.2  1990/01/30 08:09:49  dickey
- * added 'T' (date+time) toggle and command-option to match.
- * altered 't' command so "2t" types binary-file.
- * modified shell-command stuff so 0/2 repeat-count on ':' or
- * '.' can reset/set the clear-screen flag of '!'/'%' commands
+ * Revision 5.3  1990/02/01 12:54:33  dickey
+ * use 'showpath()' to handle long pathname-display
  *
+ *		Revision 5.2  90/01/30  08:48:34  dickey
+ *		added 'T' (date+time) toggle and command-option to match.
+ *		altered 't' command so "2t" types binary-file.
+ *		modified shell-command stuff so 0/2 repeat-count on ':' or
+ *		'.' can reset/set the clear-screen flag of '!'/'%' commands
+ *		
  *		Revision 5.1  89/12/01  14:36:00  dickey
  *		broke out 'sortset()' module
  *		
@@ -549,7 +552,7 @@ showWHAT()
 	move(Yhead,0);
 	if (tag_count)	standout();
 	PRINTW("%2d of %2d [%ctime] %", curfile+1, numfiles, datechr[dateopt]);
-	PRINTW("%.*s", COLS-((stdscr->_curx)+2), new_wd);
+	showpath(new_wd, 999, 0);
 	if (tag_count)	standend();
 	clrtoeol();
 }
