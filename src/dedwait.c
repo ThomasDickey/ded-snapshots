@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	sccs_id[] = "@(#)dedwait.c	1.1 87/12/01 11:11:35";
+static	char	sccs_id[] = "@(#)dedwait.c	1.2 88/04/21 08:38:16";
 #endif	lint
 
 /*
@@ -28,5 +28,5 @@ int	c;
 
 	do	c = cmdch((int *)0);
 	while	(c != '\n' && c != '\r');
-	retouch(0);
+	retouch();
 }

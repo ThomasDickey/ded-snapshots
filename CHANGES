@@ -1,3 +1,19 @@
+1988-04-21  dickey@software.org
+
+	* src/version.h: refresh/resize enhancements
+
+	* src/ded.c:
+	generally fixed up refresh/repaint using new modules savewin & resizewin
+
+	* src/ded.hlp: partial fix to refresh problems.
+
+	* src/dedtype.c: added 'w' (refresh) command.
+
+	* src/ftree.c:
+	corrected 'w' (refresh) so it works properly with curses.
+
+	* src/dedwait.c: lint
+
 1988-04-11  dickey@software.org
 
 	* src/version.h: 'U' command affects '#'-substitution now too.

@@ -1,5 +1,5 @@
 #ifndef	NO_SCCS_ID
-static	char	sccs_id[] = "@(#)ftree.c	1.19 88/04/05 16:08:37";
+static	char	sccs_id[] = "@(#)ftree.c	1.20 88/04/21 10:37:54";
 #endif
 
 /*
@@ -880,7 +880,8 @@ register int j;
 
 		/* Screen refresh */
 		case 'w':	showdiff = -1;
-				(void)touchwin(curscr);
+				savewin();
+				unsavewin(TRUE);
 				break;
 
 		/* toggle flag which controls whether we show dependents */

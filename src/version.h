@@ -1,5 +1,6 @@
 /*
  * Version-identifier for DED
+ * 21 Apr 1988, corrections/enhancements to screen-refresh logic.
  * 11 Apr 1988, integrated 'U' command so we can issue either Aegis or Unix
  *		commands.
  * 25 Mar 1988, implemented ':'.  Provided 'D', 'e' commands interfacing to
@@ -8,4 +9,4 @@
  * 01 Dec 1987, added '*', '^' commands, made '%' refresh screen
  * 25 Nov 1987, added sccs-support (V,z,Z toggles, V,z,Z sorts)
  */
-static	char	version[] = "@(#)DED Directory Editor (88/04/11 07:08:24)";
+static	char	version[] = "@(#)DED Directory Editor (88/04/21 14:44:54)";

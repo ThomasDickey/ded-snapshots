@@ -175,11 +175,7 @@ To do:
 
   Provide for 2-display lists/viewports.
 
-  Provide (apollo) for automatically resizing the
-  display if the window size changes.
-
-  Provide 'w' commands in work-area
-  pager, as well as repeat-count on 'f'.
+  Provide repeat-count on 'f' command in work-area pager
 
   Correct apollo message about trying to open nil-files
   (they are not directories!)
@@ -188,3 +184,5 @@ To do:
   go thru 'system()' call (which always goes thru /bin/sh).
 
   Integrate 'padedit()' error messages with 'ded'.
+
+  Make inline edit and rawgets more alike
