@@ -1,3 +1,11 @@
+1992-03-20  dickey@software.org
+
+	* src/Makefile: typo
+
+	* src/dedtype.c:
+	modified last change so that if the file to be restat'd if
+	a symbolic link, we will show the target-stat while typing
+
 1992-03-12  dickey@software.org
 
 	* src/dedtype.c:

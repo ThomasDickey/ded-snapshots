@@ -1,4 +1,4 @@
-# $Id: Makefile,v 10.4 1992/03/12 12:07:37 dickey Exp $
+# $Id: Makefile,v 10.5 1992/03/20 12:52:36 dickey Exp $
 # MAKE-file for directory editor
 #
 ####### (Environment) ##########################################################
@@ -98,7 +98,7 @@ $Z:	$(OBJS)
 $(THIS).o:	$(DED_H) $(THIS).c version.h
 $(OBJS):	$(DED_H)
 $Z(ded2s.o):	$I/acl.h
-$Z(dedscan.o:	$I/rcsdefs.h $I/sccsdefs.h
+$Z(dedscan.o):	$I/rcsdefs.h $I/sccsdefs.h
 $Z(ftree.o):	$I/rcsdefs.h $I/sccsdefs.h
 #
 ####### (Development) ##########################################################
