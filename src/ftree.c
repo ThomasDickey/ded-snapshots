@@ -1,14 +1,24 @@
 #ifndef	lint
-static	char	Id[] = "$Id: ftree.c,v 4.2 1989/09/06 15:40:10 dickey Exp $";
+static	char	Id[] = "$Id: ftree.c,v 5.0 1989/10/16 09:19:21 ste_cm Rel $";
 #endif	lint
 
 /*
  * Author:	T.E.Dickey
  * Created:	02 Sep 1987
  * $Log: ftree.c,v $
- * Revision 4.2  1989/09/06 15:40:10  dickey
- * use ACC_PTYPES rather than inline def's
+ * Revision 5.0  1989/10/16 09:19:21  ste_cm
+ * BASELINE Fri Oct 27 12:27:25 1989 -- apollo SR10.1 mods + ADA_PITS 4.0
  *
+ *		Revision 4.4  89/10/16  09:19:21  dickey
+ *		re-simplified 'ft_stat()' (don't need lstat)
+ *		
+ *		Revision 4.3  89/10/16  09:17:39  dickey
+ *		altered 'ft_stat()' so we don't look at stat.st_ino (don't
+ *		assume inode is positive!), and to use lstat/stat combination
+ *		
+ *		Revision 4.2  89/09/06  15:45:30  dickey
+ *		use ACC_PTYPES rather than inline def's
+ *		
  *		Revision 4.1  89/08/25  07:44:50  dickey
  *		use 'wrepaint()' rather than savewin/unsavewin
  *		
@@ -1455,9 +1465,9 @@ int	interrupted = 0;
 ft_stat(name, leaf)
 char	*name, *leaf;
 {
-struct	stat	sb;
-	if (stat(leaf, &sb) >= 0
-	&&  (int)sb.st_ino > 0) {
+	auto	struct	stat	sb;
+
+	if (stat(leaf, &sb) >= 0) {
 		if (isDIR(sb.st_mode))
 			ft_insert(name);
 	}
