@@ -53,7 +53,7 @@
 
 #include	"ded.h"
 
-MODULE_ID("$Id: dedline.c,v 12.16 1995/11/05 21:31:15 tom Exp $")
+MODULE_ID("$Id: dedline.c,v 12.17 1995/11/06 00:00:44 tom Exp $")
 
 #define	CHMOD(n)	(gSTAT(n).st_mode & 07777)
 #define	OWNER(n)	((geteuid() == 0) || (gSTAT(x).st_uid == geteuid()))
@@ -699,15 +699,20 @@ public	void	editlink(
 			for (j = 0; j < gbl->numfiles; j++) {
 				if (j == gbl->curfile)
 					continue;
-				if (gFLAG(j) && gLTXT(j)) {
-					if (move2row(j, col)) {
+				if (gFLAG(j) && gLTXT(j)
+				 && move2row(j, col)) {
+					int	y0, y1, x;
+					getyx(stdscr, y0, x);
+					if (COLS - x > 3) {
 						standout();
 						PRINTW("-> ");
 						standend();
 						PRINTW("%.*s",
 							COLS - col - 3,
 							link2bfr(gbl, bfr, j));
-						clrtoeol();
+						getyx(stdscr, y1, x);
+						if (y1 == y0)
+							clrtoeol();
 						restore = TRUE;
 					}
 				}

@@ -20,7 +20,7 @@
 
 #include	"ded.h"
 
-MODULE_ID("$Id: dedview.c,v 12.26 1995/11/05 23:59:55 tom Exp $")
+MODULE_ID("$Id: dedview.c,v 12.28 1995/11/06 01:00:05 tom Exp $")
 
 #define	MINLIST	2		/* minimum length of file-list + header */
 #define	MINWORK	3		/* minimum size of work-area */
@@ -250,8 +250,14 @@ private	void	show_line(
 			}
 		}
 		getyx(stdscr, y, x);
-		if (!trimmed && line == y)
+		if (!trimmed
+		 && (line == y)		/* bsd4.3 curses wraps */
+#if CURSES_LIKE_BSD44
+		 && (x+1 < wMaxX(stdscr))
+#endif
+		   ) {
 			clrtoeol();
+		}
 	}
 }
 
