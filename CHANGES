@@ -1,3 +1,7 @@
+1989-01-25  dickey@software.org
+
+	* src/dedline.c: corrected decoding of "B" for ">" command.
+
 1989-01-23  dickey@software.org
 
 	* src/version.h: added '~'-ftree command
