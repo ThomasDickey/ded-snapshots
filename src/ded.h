@@ -19,9 +19,13 @@
 
 #ifdef	MAIN
 #if	!defined(NO_IDENT)
-static const char ded_h[] = "$Id: ded.h,v 12.57 1998/05/30 01:38:20 tom Exp $";
+static const char ded_h[] = "$Id: ded.h,v 12.58 1999/08/17 01:24:42 tom Exp $";
 #endif
 #endif	/* MAIN */
+
+#ifndef S_IEXEC
+#define S_IEXEC 0100	/* BeOS lacks this */
+#endif
 
 #if HAVE_STDARG_H && PROTOTYPES
 #include	<stdarg.h>

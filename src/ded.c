@@ -3,6 +3,7 @@
  * Author:	T.E.Dickey
  * Created:	09 Nov 1987
  * Modified:
+ *		16 Aug 1999, use ttyname() for BeOS port.
  *		10 Aug 1999, change -b to a toggle, allow curses to decide if
  *			     box characters are available.
  *		29 May 1998, compile with g++
@@ -156,7 +157,7 @@
 #define	MAIN
 #include	"ded.h"
 
-MODULE_ID("$Header: /users/source/archives/ded.vcs/src/RCS/ded.c,v 12.62 1999/08/10 11:16:02 tom Exp $")
+MODULE_ID("$Header: /users/source/archives/ded.vcs/src/RCS/ded.c,v 12.63 1999/08/17 01:28:53 tom Exp $")
 
 #define	EDITOR	DEFAULT_EDITOR
 #define	BROWSE	DEFAULT_BROWSE
@@ -984,9 +985,14 @@ _MAIN
 
 	/* protect against pipes */
 	if (!isatty(fileno(stdin))) {
-		FILE	*p = freopen("/dev/tty", "r", stdin);
-		if (!p)	failed("reopen stdin");
-		*stdin = *p;
+# if HAVE_TTYNAME
+		char	*tty = ttyname(fileno(stderr));
+# else
+		char	*tty = "/dev/tty";
+# endif
+		if ((freopen(tty, "r", stdin)) == 0
+		 || !isatty(fileno(stdin)))
+			failed("reopen stdin");
 	}
 
 	save_terminal();
