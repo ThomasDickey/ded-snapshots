@@ -1,3 +1,16 @@
+1989-12-08  dickey@software.org
+
+	* src/version.h: added ":"-prompt scrolling for sort-commands
+
+	* src/ded.hlp: added note about ":"-sort
+
+	* src/sortset.c:
+	added ':' special-sort to allow user to scroll among all
+	sort options before selecting.
+
+	* src/ded.h: lint ("ded_h" declaration).
+	moved 'apollo_sr10' definition to "ptypes.h"
+
 1989-12-01  dickey@software.org
 
 	* src/ded.hlp: documented special sort-keys '?' and newline

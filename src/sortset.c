@@ -1,11 +1,16 @@
 #ifndef	lint
-static	char	what[] = "$Id: sortset.c,v 5.1 1989/12/01 14:54:54 dickey Exp $";
+static	char	what[] = "$Id: sortset.c,v 5.2 1989/12/08 10:23:00 dickey Exp $";
 #endif	lint
 
 /*
  * Title:	sortset.c (set sort-parms)
  * Author:	T.E.Dickey
  * Created:	01 Dec 1989 (from ded.c)
+ * $Log: sortset.c,v $
+ * Revision 5.2  1989/12/08 10:23:00  dickey
+ * added ':' special-sort to allow user to scroll among all
+ * sort options before selecting.
+ *
  *
  * Function:	Set sort-argument for ded, encapsulating knowledge of the
  *		particular sort-keys available (see also 'dedsort.c')
@@ -72,7 +77,7 @@ sortset(ord,opt)
 sortget(c)
 {
 	auto	char	bfr[80];
-	register int	j;
+	register int	j, k;
 
 	if (c == '?') {
 		LOOP(j)
@@ -84,6 +89,53 @@ sortget(c)
 		c = 0;
 	} else if (c == '\r' || c == '\n') {
 		c = sortopt;
+	} else if (c == ':') {
+		auto	int	y,x,
+				done = FALSE,
+				first = TRUE,
+				find, found;
+
+		to_work();
+		PRINTW("Sort:> ");
+		getyx(stdscr,y,x);
+		find = sortopt;
+		while (!done) {
+			found = FALSE;
+			LOOP(k) {
+				if (*sort_msg[k] == find) {
+					c = *strcpy(bfr, sort_msg[k]);
+					found = TRUE;
+					break;
+				}
+			}
+			if (found) {
+				j = k;
+				move(y,x);
+				PRINTW("%s", bfr);
+				clrtobot();
+			} else {
+				dedmsg("up/down keys=scroll, return=select");
+				beep();
+			}
+			move(y,x-2);
+			refresh();
+			k = strlen(sortc) - 1;
+			switch (found = dlog_char((int *)0, first)) {
+			case ARO_UP: 	if (--j < 0)	j = k;
+					find = *sort_msg[j];	break;
+			case ARO_DOWN:	if (++j > k)	j = 0;
+					find = *sort_msg[j];	break;
+			case 'q':
+					c = 0;
+					to_work();
+					showC();
+					/* fall-thru */
+			case '\r':
+			case '\n':	done = TRUE;		break;
+			default:	find = found;
+			}
+			first = FALSE;
+		}
 	}
 	return (c);
 }

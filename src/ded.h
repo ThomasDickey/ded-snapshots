@@ -1,5 +1,7 @@
 #ifdef	MAIN
-static	char	*ded_h = "$Id: ded.h,v 5.0 1989/10/12 14:13:19 ste_cm Rel $";
+#ifndef	lint
+static	char	*ded_h = "$Id: ded.h,v 5.1 1989/12/08 08:10:40 dickey Exp $";
+#endif	/* lint */
 #endif
 
 /*
@@ -61,12 +63,6 @@ extern	int	re_exec();	/* (return > 0): match */
 #else
 #ifdef	Z_RCS
 #define	Z_RCS_SCCS
-#endif
-#endif
-
-#ifdef	apollo
-#ifdef	__STDC__
-#define	apollo_sr10
 #endif
 #endif
 
