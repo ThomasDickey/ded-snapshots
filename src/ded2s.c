@@ -1,6 +1,6 @@
-#ifndef	NO_SCCS_ID
-static	char	sccs_id[] = "@(#)ded2s.c	1.11 88/06/16 09:10:34";
-#endif	NO_SCCS_ID
+#ifndef	lint
+static	char	sccs_id[] = "@(#)ded2s.c	1.12 88/07/28 09:11:30";
+#endif	lint
 
 /*
  * Title:	ded2s.c (ded-stat to string)
@@ -31,6 +31,9 @@ extern  char	*ctime();
 
 extern	char	*uid2s(),
 		*gid2s();
+#ifndef	_toupper
+#define	_toupper	toupper
+#endif	_toupper
 
 #define SIXDAYS		(6 * 24 * HOUR)
 #define SIXMONTHS	(30 * SIXDAYS)
