@@ -1,3 +1,8 @@
+1988-07-06  dickey@software.org
+
+	* src/ftree.c:
+	rewrote 'ft_rename()' so that children are moved with parent.
+
 1988-06-29  dickey@software.org
 
 	* src/ftree.c:
