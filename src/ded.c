@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	sccs_id[] = "@(#)ded.c	1.46 88/08/04 07:43:55";
+static	char	sccs_id[] = "@(#)ded.c	1.47 88/08/10 15:39:34";
 #endif	lint
 
 /*
@@ -160,7 +160,9 @@ to_exit(last)
 			refresh();
 		}
 		resetty();
+#ifndef	SYSTEM5			/* patch: apollo 'endwin()' ? */
 		endwin();
+#endif
 	}
 }
 
