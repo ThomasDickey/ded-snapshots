@@ -1,5 +1,5 @@
 #ifndef	NO_SCCS_ID
-static	char	sccs_id[] = "@(#)ded.c	1.33 88/06/16 09:29:21";
+static	char	sccs_id[] = "@(#)ded.c	1.34 88/06/29 06:29:25";
 #endif	NO_SCCS_ID
 
 /*
@@ -225,10 +225,17 @@ extern	char	*sys_errlist[];
  * used when we have put a message up and may be going back to the
  * directory tree display.
  */
-waitmsg()
+waitmsg(msg)
+char	*msg;
 {
+	if (msg) {
+		move(LINES-1,0);
+		printw("** %s", msg);
+		clrtoeol();
+	}
 	move(LINES-1,0);
 	refresh();
+	beep();
 	(void)cmdch((int *)0);	/* pause beside error message */
 }
 
@@ -491,7 +498,7 @@ char	*path;
 	if (new_args(path, cmd, count))
 		return (TRUE);
 	(void)strcpy(path, new_wd);
-	waitmsg();
+	waitmsg((char *)0);
 	return (FALSE);
 }
 
