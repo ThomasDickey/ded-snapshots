@@ -114,18 +114,27 @@ Operations on Files:
 		is edited inline and the result used for all
 		selected entries.  Editing is done with single
 		characters.  Toggle insert/cursor modes with
-		up or down arrows.
+		the tab-key.
 
-		u	(cursor) complete command
+		u	(cursor) complete command (also newline).
 		q	(cursor) abort command
-		{backspace} deletes previous character
-		{delete} deletes current character
-		{newline} deletes remainder of field
+		{erase-char} deletes previous character
+		{kill-char} deletes current character
+		CTL/B	move cursor to beginning of field
+		CTL/F	move cursor to end of field
 
   g		Edit group-id field.  The current entry's gid
 		is edited inline, and the result used for all
 		selected entries.  Editing is done as in 'u'
 		command, except that 'g' completes command.
+
+  =		Edit name of current file.  Editing is done as in 'u'
+		command, except that '=' completes command.  Files which are
+		grouped are renamed using the template formed by your command.
+
+  "		Repeat the last p/u/g/= command.  This uses the actual
+		set of characters typed for the command, so an editing
+		template may be made.
 
   e		If the current entry is a directory, spawn
 		a new DED process with that as argument.
@@ -166,6 +175,15 @@ Directory Tree:
   leaf names, rather than full paths).
 
   D		Toggle between directory-tree and file-list display.
+  E		Enter a new file-list at the indicated directory-name.
+  F		Move forward (with wraparound) in the list of directories.
+  B		Move backward (with wraparound) in the list of directories.
+  R		Read directory names at the current position (also done
+		automatically whenever a file-list is constructed).
+  +		Mark directory name for removal from database.
+  -		Unmark directory name.
+  _		Clear list of marked names.
+  p		Purge marked names.
   @		Jump to specified path.
 
 To do:
@@ -182,8 +200,6 @@ To do:
 
   Make spawned processes inherit options from current one
 
-  Add directory-tree display
-
   Provide for 2-display lists/viewports.
 
   Provide repeat-count on 'f' command in work-area pager
@@ -195,8 +211,6 @@ To do:
   go thru 'system()' call (which always goes thru /bin/sh).
 
   Integrate 'padedit()' error messages with 'ded'.
-
-  Make inline edit and rawgets more alike.
 
   Integrate calls on 'resizewin()' with all 'w' commands (e.g., in ftree)
 
