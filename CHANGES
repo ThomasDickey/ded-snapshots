@@ -1,3 +1,21 @@
+1995-09-04  Thomas E. Dickey  <dickey@clark.net>
+
+	* user/ded.man: updated
+
+	* src/version.h:
+	changes to support autoconf, /etc/DIR_COLOR.  Added "-b" and "-e" options
+	(temporary!), and extended &-toggle to all dot-files.  Some bug-fixes for
+	ring-maintainence.  Modified viewport handling to make toggling between
+	lists more stable.  In td_lib, added module to support CmVision, and
+	environment variables $DED_TREE, $DED_CM_LOOKUP.  Also in td_lib, mods
+	for resizing support with ncurses, and using btree to speedup uid2s, gid2s.
+
+	* src/README: did some.
+
+	* src/showpath.c: bsd4.4 curses mods
+
+	* src/showpath.c: use MODULE_ID
+
 1995-09-03  Thomas E. Dickey  <dickey@clark.net>
 
 	* src/dedring.c:

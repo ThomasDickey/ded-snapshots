@@ -1,3 +1,7 @@
+#ifndef	NO_IDENT
+static	char	Id[] = "$Id: dedcolor.c,v 12.6 1994/10/18 00:31:35 tom Exp $";
+#endif
+
 /*
  * Title:	dedcolor.c (ded color support)
  * Author:	T.E.Dickey
@@ -12,8 +16,6 @@
  * Note:	This was written/debugged on a Linux system using ncurses.
  */
 #include "ded.h"
-
-MODULE_ID("$Id: dedcolor.c,v 12.7 1994/10/18 00:31:35 tom Exp $")
 
 #if HAVE_HAS_COLORS
 

@@ -1,5 +1,5 @@
 #if	!defined(NO_IDENT)
-static	char	Id[] = "$Id: dedring.c,v 12.9 1995/09/03 23:15:43 tom Exp $";
+static	char	Id[] = "$Id: dedring.c,v 12.10 1995/09/04 00:20:50 tom Exp $";
 #endif
 
 /*
@@ -123,10 +123,6 @@ private	void	ring_copy(
 	SAVE(top_argc);
 	for (j = 0; j < CCOL_MAX; j++)
 		SAVE(cmdcol[j]);
-	for (j = 0; j < PORT_MAX; j++) {
-		SAVE(base_of[j]);
-		SAVE(item_of[j]);
-	}
 	SAVE(top_argv);
 	SAVE(clr_sh);
 	SAVE(Xbase);
@@ -211,6 +207,7 @@ private	RING *	Insert(
 	_DCL(char *,	pattern)
 {
 	register RING	*p;
+	register int	j;
 
 	/*
 	 * Resolve pathname in case it was a symbolic link
@@ -233,6 +230,10 @@ private	RING *	Insert(
 	p->curfile     = 0;
 	p->mrkfile     = gbl->mrkfile;
 	p->numfiles    = 0;
+	for (j = 0; j < PORT_MAX; j++) {
+		p->base_of[j] = 0;
+		p->item_of[j] = 0;
+	}
 
 	InsertAfter(FindInsert(path), p);
 	return (p);

@@ -1,3 +1,7 @@
+#if	!defined(NO_IDENT)
+static	char	Id[] = "$Id: dedwait.c,v 12.4 1994/07/10 02:16:47 tom Exp $";
+#endif
+
 /*
  * Title:	dedwait.c (ded wait-for-RETURN)
  * Author:	T.E.Dickey
@@ -16,8 +20,6 @@
  */
 
 #include	"ded.h"
-
-MODULE_ID("$Id: dedwait.c,v 12.5 1994/07/10 02:16:47 tom Exp $")
 
 /*ARGSUSED*/
 public	void	dedwait(

@@ -1,4 +1,4 @@
-MANIFEST for ded, version t19950903
+MANIFEST for ded, version v950903
 --------------------------------------------------------------------------------
 MANIFEST                        this file
 COPYING                         copyright notice for DED
@@ -18,7 +18,6 @@ src/ded.h                       common definitions of DED
 src/ded.hlp                     help-file for DED
 src/ded2s.c                     convert file-entry to string
 src/dedblip.c                   consolidates blip-logic to show a number, not simply a character.
-src/dedcmds.c                   DED command tables
 src/dedcolor.c                  first cut of module to cache color information
 src/deddoit.c                   execute shell commands
 src/deddump.c                   dump screen
@@ -45,7 +44,6 @@ src/dlog.c                      logging functions
 src/ftree.c                     directory-tree for DED
 src/history.c                   save/restore history records
 src/inline.c                    split out from 'dedline.c' so I can rewrite the memory-management of the
-src/rcfile.c                    DED ".dedrc" file processing
 src/restat.c                    split off restat-stuff from 'ded.c'
 src/showpath.c                  encapsulates display of long pathnames for 'ded' and 'ftree', using
 src/sortset.c                   controls setting of sort-options & display/modification of preset option

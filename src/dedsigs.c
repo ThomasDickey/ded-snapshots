@@ -1,3 +1,7 @@
+#if	!defined(NO_IDENT)
+static	char	Id[] = "$Id: dedsigs.c,v 12.10 1995/07/04 14:07:26 tom Exp $";
+#endif
+
 /*
  * Title:	dedsigs.c (catch/ignore signals)
  * Author:	T.E.Dickey
@@ -19,8 +23,6 @@
  */
 
 #include	"ded.h"
-
-MODULE_ID("$Id: dedsigs.c,v 12.11 1995/07/04 14:07:26 tom Exp $")
 
 static	int	caught;		/* counts number of interrupts */
 static	int	init	= -1;	/* last-flag, to prevent redundant 'signal()' */

@@ -1,3 +1,7 @@
+#if	!defined(NO_IDENT)
+static	char	Id[] = "$Id: dedmake.c,v 12.4 1995/09/03 19:40:25 tom Exp $";
+#endif
+
 /*
  * Title:	dedmake.c (make entry for ded)
  * Author:	T.E.Dickey
@@ -19,8 +23,6 @@
  */
 
 #include	"ded.h"
-
-MODULE_ID("$Id: dedmake.c,v 12.5 1995/09/03 19:40:25 tom Exp $")
 
 private	int	makeit(
 	_ARX(RING *,	gbl)

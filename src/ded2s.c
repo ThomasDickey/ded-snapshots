@@ -1,3 +1,7 @@
+#ifndef NO_IDENT
+static	char	Id[] = "$Id: ded2s.c,v 12.18 1994/11/13 20:37:33 tom Exp $";
+#endif
+
 /*
  * Title:	ded2s.c (ded-stat to string)
  * Author:	T.E.Dickey
@@ -57,8 +61,6 @@
 #include	"ded.h"
 #include	<time.h>
 #include	<ctype.h>
-
-MODULE_ID("$Id: ded2s.c,v 12.19 1994/11/13 20:37:33 tom Exp $")
 
 #ifdef	apollo_sr10
 #include	<acl.h>

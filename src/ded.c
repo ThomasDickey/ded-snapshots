@@ -1,3 +1,7 @@
+#if	!defined(NO_IDENT)
+static	char	Id[] = "$Header: /users/source/archives/ded.vcs/src/RCS/ded.c,v 12.40 1995/09/03 20:02:52 tom Exp $";
+#endif
+
 /*
  * Title:	ded.c (directory-editor)
  * Author:	T.E.Dickey
@@ -145,8 +149,6 @@
 
 #define	MAIN
 #include	"ded.h"
-
-MODULE_ID("$Header: /users/source/archives/ded.vcs/src/RCS/ded.c,v 12.41 1995/09/03 20:02:52 tom Exp $")
 
 #define	EDITOR	DEFAULT_EDITOR
 #define	BROWSE	DEFAULT_BROWSE

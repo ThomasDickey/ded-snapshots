@@ -1,3 +1,7 @@
+#ifndef NO_IDENT
+static	char	Id[] = "$Id: dedview.c,v 12.23 1995/09/03 23:48:42 tom Exp $";
+#endif
+
 /*
  * Title:	dedview.c (viewport procedures)
  * Author:	T.E.Dickey
@@ -18,8 +22,6 @@
  */
 
 #include	"ded.h"
-
-MODULE_ID("$Id: dedview.c,v 12.24 1995/09/03 23:48:42 tom Exp $")
 
 #define	MINLIST	2		/* minimum length of file-list + header */
 #define	MINWORK	3		/* minimum size of work-area */
