@@ -1,5 +1,5 @@
 #ifndef	NO_IDENT
-static	char	Id[] = "$Id: ftree.c,v 12.37 1995/07/04 16:28:35 tom Exp $";
+static	char	Id[] = "$Id: ftree.c,v 12.38 1995/07/30 18:02:12 tom Exp $";
 #endif
 
 /*
@@ -1458,7 +1458,7 @@ public	RING *	ft_view(
 		row = ft_update(gbl, row, &lvl);
 		switch(c = dlog_char(gbl, &num, 1)) {
 		/* Ordinary cursor movement */
-		case ARO_LEFT:
+		case KEY_LEFT:
 		case '\b':
 		case 'h':	if (lvl > 0) {
 					lvl -= num;
@@ -1469,15 +1469,15 @@ public	RING *	ft_view(
 				break;
 		case '\n':
 				lvl = MAXLVL;
-		case ARO_DOWN:
+		case KEY_DOWN:
 		case 'j':	row = downrow(row,num,lvl);	break;
-		case ARO_UP:
+		case KEY_UP:
 		case 'k':	row = uprow(row,num,lvl);	break;
-		case ARO_RIGHT:
+		case KEY_RIGHT:
 		case 'l':	lvl += num;			break;
 
 #ifndef	NO_XTERM_MOUSE
-	case ARO_MOUSE:
+	case KEY_MOUSE:
 			if (xt_mouse.released) {
 				if (xt_mouse.button == 1
 				 && xt_mouse.row >= LOSHOW-1) {

@@ -1,5 +1,5 @@
 #if	!defined(NO_IDENT)
-static	char	Id[] = "$Header: /users/source/archives/ded.vcs/src/RCS/ded.c,v 12.37 1995/07/04 16:28:37 tom Exp $";
+static	char	Id[] = "$Header: /users/source/archives/ded.vcs/src/RCS/ded.c,v 12.38 1995/07/30 17:59:34 tom Exp $";
 #endif
 
 /*
@@ -994,12 +994,12 @@ _MAIN
 
 	while (gbl != 0) { switch (c = dlog_char(gbl, &count, 1)) {
 			/* scrolling */
-	case ARO_UP:
+	case KEY_UP:
 	case '\b':
 	case 'k':	upLINE(gbl, count);
 			break;
 
-	case ARO_DOWN:
+	case KEY_DOWN:
 	case '\n':
 	case 'j':	downLINE(gbl, count);
 			break;
@@ -1011,7 +1011,7 @@ _MAIN
 			break;
 
 #ifndef	NO_XTERM_MOUSE
-	case ARO_MOUSE:
+	case KEY_MOUSE:
 			if (xt_mouse.released) {
 				if (xt_mouse.button == 1) {
 					gbl = row2VIEW(gbl, xt_mouse.row);
@@ -1025,7 +1025,7 @@ _MAIN
 			}
 			break;
 #endif
-	case ARO_LEFT:	if (gbl->Xbase > 0) {
+	case KEY_LEFT:	if (gbl->Xbase > 0) {
 				if ((gbl->Xbase -= x_scroll() * count) < 0)
 					gbl->Xbase = 0;
 				showFILES(gbl,FALSE);
@@ -1033,7 +1033,7 @@ _MAIN
 				dedmsg(gbl, "already at left margin");
 			break;
 
-	case ARO_RIGHT:	if ((j = (gbl->Xbase + (x_scroll() * count))) < 990) {
+	case KEY_RIGHT:	if ((j = (gbl->Xbase + (x_scroll() * count))) < 990) {
 				gbl->Xbase = j;
 				showFILES(gbl,FALSE);
 			} else

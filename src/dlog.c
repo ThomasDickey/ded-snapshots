@@ -1,7 +1,3 @@
-#if	!defined(NO_IDENT)
-static	char	Id[] = "$Id: dlog.c,v 12.11 1994/12/16 20:36:09 tom Exp $";
-#endif
-
 /*
  * Title:	dlog.c
  * Author:	T.E.Dickey
@@ -34,6 +30,8 @@ static	char	Id[] = "$Id: dlog.c,v 12.11 1994/12/16 20:36:09 tom Exp $";
 
 #include	"ded.h"
 #include	<time.h>
+
+MODULE_ID("$Id: dlog.c,v 12.13 1995/07/30 18:01:50 tom Exp $")
 
 #define	NOW		time((time_t *)0)
 
@@ -539,7 +537,7 @@ public	char *	dlog_string(
 			edited = dyn_copy(edited, to_hist);
 		}
 
-		if (c == ARO_UP) {
+		if (c == KEY_UP) {
 			if (!nnn)
 				edited = dyn_copy(edited, to_hist);
 
@@ -555,7 +553,7 @@ public	char *	dlog_string(
 				nnn++;
 			} else IGNORE
 
-		} else if (c == ARO_DOWN) {
+		} else if (c == KEY_DOWN) {
 			if (!history)
 				IGNORE
 

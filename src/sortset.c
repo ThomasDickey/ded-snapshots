@@ -1,7 +1,3 @@
-#if	!defined(NO_IDENT)
-static	char	Id[] = "$Id: sortset.c,v 12.7 1994/06/28 00:24:06 tom Exp $";
-#endif
-
 /*
  * Title:	sortset.c (set sort-parms)
  * Author:	T.E.Dickey
@@ -23,6 +19,8 @@ static	char	Id[] = "$Id: sortset.c,v 12.7 1994/06/28 00:24:06 tom Exp $";
  */
 
 #include	"ded.h"
+
+MODULE_ID("$Id: sortset.c,v 12.9 1995/07/30 18:02:42 tom Exp $")
 
 public	char	sortc[128];
 
@@ -146,9 +144,9 @@ public	int	sortget(
 			move(y,x-2);
 			k = strlen(sortc) - 1;
 			switch (found = dlog_char(gbl, (int *)0, 0)) {
-			case ARO_UP: 	if (--j < 0)	j = k;
+			case KEY_UP: 	if (--j < 0)	j = k;
 					find = *sort_msg[j];	break;
-			case ARO_DOWN:	if (++j > k)	j = 0;
+			case KEY_DOWN:	if (++j > k)	j = 0;
 					find = *sort_msg[j];	break;
 			case 'q':
 					c = 0;
