@@ -1,3 +1,20 @@
+1988-04-22  dickey@software.org
+
+	* src/ded.hlp: began documenting directory-tree
+
+	* src/ftree.c: added 'ft_linkto' entrypoint.
+
+	* src/dedscan.c: integration with 'ftree' module
+
+	* src/dedwait.c: reinstated argument to 'retouch()'.
+
+	* src/ded.c:
+	reinstated argument of 'retouch()'; moved resizewin() code there.
+
+	* src/ftree.c: modified interface to 'unsavewin()'.
+
+	* src/dedtype.c: modified interface to unsavewin().
+
 1988-04-21  dickey@software.org
 
 	* src/version.h: refresh/resize enhancements

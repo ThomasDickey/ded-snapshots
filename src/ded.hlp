@@ -156,6 +156,17 @@ Shell commands:
   :		Edit text of last !/% command, re-execute.
   .		Re-execute last !/% command.
 
+Directory Tree:
+--------------
+  DED maintains a database of directory names (in your home directory,
+  called ".ftree").  You may scroll in this display, as well as enter
+  a new DED process from it.  Cursor movement may be done not only up and
+  down as in the file-list, but also left and right a la 'vi'.  The '/',
+  '?', 'n' and 'N' search works in the directory-tree (though it finds only
+  leaf names, rather than full paths).
+
+  D		Toggle between directory-tree and file-list display.
+  @		Jump to specified path.
 
 To do:
 -----
@@ -185,4 +196,8 @@ To do:
 
   Integrate 'padedit()' error messages with 'ded'.
 
-  Make inline edit and rawgets more alike
+  Make inline edit and rawgets more alike.
+
+  Integrate calls on 'resizewin()' with all 'w' commands (e.g., in ftree)
+
+  Document editing rules for rawgets.

@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	sccs_id[] = "@(#)dedtype.c	1.4 88/04/21 10:46:43";
+static	char	sccs_id[] = "@(#)dedtype.c	1.5 88/04/22 06:50:36";
 #endif	lint
 
 /*
@@ -174,7 +174,7 @@ int	c,			/* current character */
 			switch (cmdch(&count)) {
 			case 'w':
 				savewin();
-				unsavewin(TRUE);
+				unsavewin(TRUE,0);
 				replay = 1;
 				break;
 			case 'q':

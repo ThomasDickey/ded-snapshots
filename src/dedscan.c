@@ -1,5 +1,5 @@
 #ifndef	NO_SCCS_ID
-static	char	sccs_id[] = "@(#)dedscan.c	1.3 88/03/24 13:15:25";
+static	char	sccs_id[] = "@(#)dedscan.c	1.4 88/04/22 09:07:56";
 #endif	NO_SCCS_ID
 
 /*
@@ -7,20 +7,22 @@ static	char	sccs_id[] = "@(#)dedscan.c	1.3 88/03/24 13:15:25";
  * Author:	T.E.Dickey
  * Created:	09 Nov 1987
  * Modified:
+ *		22 Apr 1988, use external 'stralloc()', integrated with ftree.
  *
  * Function:	Scan a list of arguments, to make up a display list.
- * Arguments:   argc, argv passed down from the original invocation, with leading
- *		options parsed off.
+ * Arguments:   argc, argv passed down from the original invocation, with
+ *		leading options parsed off.
  */
 #include	"ded.h"
-
-/********************************************************************************
- *	dedscan(@)								*
- *------------------------------------------------------------------------------*
- * Function:	Scan a list of arguments, to make up a display list.		*
- * Arguments:   argc, argv passed down from the original invocation, with	*
- *		leading options parsed off.					*
- *******************************************************************************/
+extern	char	*stralloc();
+
+/************************************************************************
+ *	dedscan(@)							*
+ *----------------------------------------------------------------------*
+ * Function:	Scan a list of arguments, to make up a display list.	*
+ * Arguments:   argc, argv passed down from the original invocation,	*
+ *		with leading options parsed off.			*
+ ************************************************************************/
 dedscan(argc, argv)
 char	*argv[];
 {
@@ -57,32 +59,49 @@ char	name[BUFSIZ];
 				return(0);
 			}
 			getcwd(new_wd, sizeof(new_wd)-2);
+			ft_remove(new_wd);	/* mark dep's for purge */
 			if (dp = opendir(".")) {
+			int	len = strlen(strcat(strcpy(name, new_wd), "/"));
 				while (de = readdir(dp)) {
-					(void)argstat(strcpy(name, de->d_name), TRUE);
+					j = argstat(strcpy(name+len,
+							de->d_name), TRUE);
+					if (j > 0)
+						ft_insert(name);
+#ifndef	SYSTEM5
+					if ((j == 0)
+					&&  ((j = lookup(de->d_name)) >= 0)
+					&&  (isLINK(flist[j].s.st_mode)))
+						ft_linkto(name);
+#endif	SYSTEM5
 				}
 				closedir(dp);
 				if (!numfiles)
 					dedmsg("no files found");
 			}
+			ft_purge();	/* remove items not reinserted */
 		}
 	}
 	return(numfiles);
 }
-
-/********************************************************************************
- *	local procedures							*
- *******************************************************************************/
+
+/************************************************************************
+ *	local procedures						*
+ ************************************************************************/
 
 /*
- * Allocate space for, and load, a null-terminated string.  Return its address.
+ * Find a given name in the display list, returning -1 if not found, or index.
  */
 static
-char *
-stralloc(d,s)
-char	*d, *s;
+lookup(name)
+char	*name;
 {
-	return (strcpy(doalloc(d, (unsigned)strlen(s)+1), s));
+register int j;
+
+	for (j = 0; j < numfiles; j++) {
+		if (!strcmp(flist[j].name, name))
+			return (j);
+	}
+	return (-1);
 }
 
 /*
@@ -93,16 +112,14 @@ append(name, f_)
 char	*name;
 FLIST	*f_;
 {
-register int j;
+register int j = lookup(name);
 
 	blip('.');
-	for (j = 0; j < numfiles; j++) {
-		if (!strcmp(flist[j].name, name)) {
-			name          = flist[j].name;
-			flist[j]      = *f_;
-			flist[j].name = name;
-			return;
-		}
+	if (j >= 0) {
+		name          = flist[j].name;
+		flist[j]      = *f_;
+		flist[j].name = name;
+		return;
 	}
 
 	/* append a new entry on the end of the list */
@@ -110,7 +127,7 @@ register int j;
 
 	Zero(&flist[numfiles]);
 	flist[numfiles]      = *f_;
-	flist[numfiles].name = stralloc((char *)0, name);
+	flist[numfiles].name = stralloc(name);
 	numfiles++;
 }
 
@@ -166,7 +183,8 @@ char	bfr[BUFSIZ];
 		len = readlink(name, bfr, sizeof(bfr));
 		if (len > 0) {
 			bfr[len] = EOS;
-			f_->ltxt = stralloc(f_->ltxt, bfr);
+			if (f_->ltxt)	strfree(f_->ltxt);
+			f_->ltxt = stralloc(bfr);
 		}
 	}
 #ifdef	Z_SCCS
@@ -192,19 +210,19 @@ struct	stat	sb;
 		if (!list && isLINK(fb.s.st_mode)) {
 			if (stat(name, &sb) >= 0) {
 				if (isDIR(sb.st_mode))
-					return(TRUE);
+					return(2);	/* link to directory */
 			}
 		}
 		if (!isDIR(fb.s.st_mode) || list)
 			append(name, &fb);
-		return(isDIR(fb.s.st_mode));
+		return(isDIR(fb.s.st_mode) ? 1 : 0);	/* directory ? */
 	}
-	return(-1);
+	return(-1);					/* not found */
 }
-
-/********************************************************************************
- *	alternate entrypoints							*
- *******************************************************************************/
+
+/************************************************************************
+ *	alternate entrypoints						*
+ ************************************************************************/
 
 /*
  * This entrypoint explicitly examines a file to see what sccs file relates
