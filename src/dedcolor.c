@@ -15,7 +15,7 @@
  */
 #include "ded.h"
 
-MODULE_ID("$Id: dedcolor.c,v 12.11 1997/01/19 03:49:22 tom Exp $")
+MODULE_ID("$Id: dedcolor.c,v 12.12 1997/09/13 12:40:05 tom Exp $")
 
 #if HAVE_HAS_COLORS
 
@@ -112,7 +112,8 @@ private	void	SaveColor(
 	int	attr	= A_NORMAL,
 		forg	= default_foreground,
 		bakg	= default_background;
-	int	n, found = FALSE;
+	size_t	n;
+	int	found = FALSE;
 	char	*temp;
 
 	/* patch: how can I get the values for color-pair #0? */
@@ -210,7 +211,7 @@ private	const	KEYWORD	*FindKeyword(
 	{"RW",     ByMode,	"RW"},	/* readable/writeable */
 	{"RWX",    ByMode,	"RWX"}	/* readable/writeable */
 	};
-	int	n;
+	size_t	n;
 
 	for (n = 0; n < SIZEOF(keywords); n++)
 		if (!strcmp(keywords[n].name, name))

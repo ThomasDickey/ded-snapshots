@@ -13,7 +13,7 @@
 
 #include	"ded.h"
 
-MODULE_ID("$Id: dedfree.c,v 12.2 1993/10/29 20:27:01 tom Exp $")
+MODULE_ID("$Id: dedfree.c,v 12.3 1997/09/13 13:05:00 tom Exp $")
 
 FLIST *
 dedfree(
@@ -23,7 +23,7 @@ _AR1(unsigned,	num)
 _DCL(FLIST *,	fp)
 _DCL(unsigned,	num)
 {
-register int j;
+	register unsigned j;
 
 	if (fp != 0) {	/* we are rescanning display-list */
 		for (j = 0; j < num; j++) {

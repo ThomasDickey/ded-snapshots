@@ -36,11 +36,11 @@
  * Function:	Perform display-list sorting for DED directory editor.
  */
 
-#define	QSORT_SRC	FLIST
-#include	"ded.h"
-#include	"td_qsort.h"
+#include	<ded.h>
+#define	QSORT_SRC	const FLIST
+#include	<td_qsort.h>
 
-MODULE_ID("$Id: dedsort.c,v 12.7 1994/07/12 23:38:01 tom Exp $")
+MODULE_ID("$Id: dedsort.c,v 12.8 1997/09/13 13:33:20 tom Exp $")
 
 #ifdef	apollo_sr10
 #include	<acl.h>
@@ -87,13 +87,13 @@ private	char *	f_type (
  * equivalent, +/- according to the direction of the inequality.
  */
 public	int	dedsort_cmp(
-	_ARX(RING *,	gbl)
-	_ARX(FLIST *,	p1)
-	_AR1(FLIST *,	p2)
+	_ARX(RING *,		gbl)
+	_ARX(const FLIST *,	p1)
+	_AR1(const FLIST *,	p2)
 		)
-	_DCL(RING *,	gbl)
-	_DCL(FLIST *,	p1)
-	_DCL(FLIST *,	p2)
+	_DCL(RING *,		gbl)
+	_DCL(const FLIST *,	p1)
+	_DCL(const FLIST *,	p2)
 {
 	register int	cmp = 0;
 	auto	 char	bfr[BUFSIZ];

@@ -1,5 +1,5 @@
 boxchars
-ded2s
+ded2s		$(srcdir)	$(TD_INC)/acl.h
 dedblip
 dedcolor
 deddoit
@@ -12,18 +12,18 @@ dedmsgs
 dedname
 dedread
 dedring
-dedscan
+dedscan		$(srcdir)	$(RCSDEFS_H) $(SCCSDEFS_H)
 dedshow
 dedsigs
 dedsize
-dedsort
+dedsort		$(srcdir)	$(QSORT_H)
 dedtags
 dedtype
 deduniq
 dedview
 dedwait
 dlog
-ftree
+ftree		$(srcdir)	$(RCSDEFS_H) $(SCCSDEFS_H)
 history
 inline
 restat

@@ -1,6 +1,31 @@
-dnl $Id: aclocal.m4,v 12.1 1997/09/12 01:36:02 tom Exp $
+dnl $Id: aclocal.m4,v 12.3 1997/09/13 14:48:52 tom Exp $
 dnl Macros for DED configure script.
 dnl ---------------------------------------------------------------------------
+dnl ---------------------------------------------------------------------------
+dnl Allow user to disable a normally-on option.
+AC_DEFUN([CF_ARG_DISABLE],
+[CF_ARG_OPTION($1,[$2 (default: on)],[$3],[$4],yes)])dnl
+dnl ---------------------------------------------------------------------------
+dnl Restricted form of AC_ARG_ENABLE that ensures user doesn't give bogus
+dnl values.
+dnl
+dnl Parameters:
+dnl $1 = option name
+dnl $2 = help-string 
+dnl $3 = action to perform if option is not default
+dnl $4 = action if perform if option is default
+dnl $5 = default option value (either 'yes' or 'no')
+AC_DEFUN([CF_ARG_OPTION],
+[AC_ARG_ENABLE($1,[$2],[test "$enableval" != ifelse($5,no,yes,no) && enableval=ifelse($5,no,no,yes)
+  if test "$enableval" != "$5" ; then
+ifelse($3,,[    :]dnl
+,[    $3]) ifelse($4,,,[
+  else
+    $4])
+  fi],[enableval=$5 ifelse($4,,,[
+  $4
+])dnl
+  ])])dnl
 dnl ---------------------------------------------------------------------------
 dnl Check if we're accidentally using a cache from a different machine.
 dnl Derive the system name, as a check for reusing the autoconf cache.
@@ -32,21 +57,31 @@ fi
 dnl ---------------------------------------------------------------------------
 dnl You can always use "make -n" to see the actual options, but it's hard to
 dnl pick out/analyze warning messages when the compile-line is long.
+dnl
+dnl Sets:
+dnl	ECHO_LD - symbol to prefix "cc -o" lines
+dnl	RULE_CC - symbol to put before implicit "cc -c" lines (e.g., .c.o)
+dnl	SHOW_CC - symbol to put before explicit "cc -c" lines
+dnl	ECHO_CC - symbol to put before any "cc" line
+dnl
 AC_DEFUN([CF_DISABLE_ECHO],[
 AC_MSG_CHECKING(if you want to see long compiling messages)
 CF_ARG_DISABLE(echo,
 	[  --disable-echo          test: display \"compiling\" commands],
 	[
     ECHO_LD='@echo linking [$]@;'
-    SHOW_CC='	@echo compiling [$]<'
+    RULE_CC='	@echo compiling [$]<'
+    SHOW_CC='	@echo compiling [$]@'
     ECHO_CC='@'
 ],[
     ECHO_LD=''
+    RULE_CC='# compiling'
     SHOW_CC='# compiling'
     ECHO_CC=''
 ])
 AC_MSG_RESULT($enableval)
 AC_SUBST(ECHO_LD)
+AC_SUBST(RULE_CC)
 AC_SUBST(SHOW_CC)
 AC_SUBST(ECHO_CC)
 ])dnl
@@ -97,6 +132,10 @@ dnl Locate TD_LIB, which is either installed, with headers, library and
 dnl include-file for make, or in a directory side-by-side with the current
 dnl program's configure script. Use the side-by-side version in preference
 dnl to the installed version, to facilitate development.
+dnl
+dnl Sets:
+dnl	TD_LIB_rules - actual path of td_lib.mk
+dnl
 AC_DEFUN([CF_FIND_TDLIB],
 [
 AC_MSG_CHECKING(for td_lib in side-by-side directory)
@@ -121,6 +160,12 @@ AC_CACHE_VAL(cf_cv_tdlib_devel,[
 AC_MSG_RESULT($cf_cv_tdlib_devel)
 
 if test "$cf_cv_tdlib_devel" = no ; then
+    CF_HEADER_PATH(cf_search,td)
+    # get all matches, since we're including <ptypes.h> and <td/ptypes.h>
+    for cf_incdir in $cf_search
+    do
+	test -f $cf_incdir/td/td_config.h && CFLAGS="-I$cf_incdir $CFLAGS"
+    done
     CF_FIND_LIBRARY(td,[
 #define TESTING_CONFIG_H
 #include <td/ptypes.h>],[
@@ -143,6 +188,22 @@ if test "$cf_cv_tdlib_devel" = no ; then
 fi
 
 AC_SUBST(TD_LIB_rules)
+])dnl
+dnl ---------------------------------------------------------------------------
+dnl Construct a search-list for a nonstandard header-file
+AC_DEFUN([CF_HEADER_PATH],
+[$1=""
+if test -d "$includedir"  ; then
+test "$includedir" != NONE       && $1="[$]$1 $includedir $includedir/$2"
+fi
+if test -d "$oldincludedir"  ; then
+test "$oldincludedir" != NONE    && $1="[$]$1 $oldincludedir $oldincludedir/$2"
+fi
+if test -d "$prefix"; then
+test "$prefix" != NONE           && $1="[$]$1 $prefix/include $prefix/include/$2"
+fi
+test "$prefix" != /usr/local     && $1="[$]$1 /usr/local/include /usr/local/include/$2"
+test "$prefix" != /usr           && $1="[$]$1 /usr/include /usr/include/$2"
 ])dnl
 dnl ---------------------------------------------------------------------------
 dnl Construct a search-list for a nonstandard library-file
@@ -328,6 +389,95 @@ if test -n "[$]cf_cv_$1"; then
 else
   AC_MSG_RESULT((not found))
 fi
+])dnl
+dnl ---------------------------------------------------------------------------
+dnl Append predefined lists to $2/makefile, given a path to a directory that
+dnl has a 'modules' file in $1.
+dnl
+dnl The library is named $Z, to avoid problems with parentheses.
+AC_DEFUN([CF_SRC_MAKEFILE],
+[
+cf_mod=$1/$2/modules
+cf_out=$2/makefile
+if test -f $cf_mod ; then
+${AWK-awk} <$cf_mod >>$cf_out '
+BEGIN	{
+		found = 0;
+	}
+	{
+		if ( found == 0 )
+		{
+			printf "\nCSRC="
+			found = 1;
+		}
+		printf " \\\n\t%s.c", [$]1
+	}
+END	{
+		print ""
+	}
+'
+	if test $cf_cv_ar_rules = yes ; then
+${AWK-awk} <$cf_mod >>$cf_out '
+BEGIN	{
+		found = 0;
+	}
+	{
+		if ( found == 0 )
+		{
+			printf "\nOBJS="
+			found = 1;
+		}
+		printf " \\\n\t$Z(%s.o)", [$]1
+	}
+END	{
+		print ""
+	}
+'
+	else
+${AWK-awk} <$cf_mod >>$cf_out '
+BEGIN	{
+		found = 0;
+	}
+	{
+		if ( found == 0 )
+		{
+			printf "\nOBJS="
+			found = 1;
+		}
+		printf " \\\n\t%s.o", [$]1
+	}
+END	{
+		print ""
+	}
+'
+	fi
+ifelse($3,,,[
+	cat >>$cf_out <<CF_EOF
+
+
+${make_include_left}$3${make_include_right}
+CF_EOF
+])
+test -f $1/$2/makefile.2nd && \
+    cat $1/$2/makefile.2nd >>$2/makefile
+
+	if test $cf_cv_ar_rules = yes ; then
+cat >>$cf_out <<CF_EOF
+
+\$Z:	\$(OBJS)
+	\$(RANLIB) \$Z
+CF_EOF
+	else
+cat >>$cf_out <<CF_EOF
+
+\$Z:	\$(OBJS)
+	\$(AR) \$Z \$(OBJS)
+	\$(RANLIB) \$Z
+CF_EOF
+	fi
+fi
+test -f $1/$2/makefile.end && \
+    cat $1/$2/makefile.end >>$2/makefile
 ])dnl
 dnl ---------------------------------------------------------------------------
 dnl Make an uppercase version of a variable

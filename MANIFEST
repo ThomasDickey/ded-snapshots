@@ -1,4 +1,4 @@
-MANIFEST for ded, version t19970912
+MANIFEST for ded, version t19970913
 --------------------------------------------------------------------------------
 MANIFEST                        this file
 COPYING                         copyright notice for DED
@@ -49,6 +49,7 @@ src/dlog.c                      logging functions
 src/ftree.c                     directory-tree for DED
 src/history.c                   save/restore history records
 src/inline.c                    split out from 'dedline.c' so I can rewrite the memory-management of the
+src/makefile.2nd                second part of src/makefile
 src/makefile.in                 template for src/makefile
 src/modules                     modules for ded.a
 src/rcfile.c                    DED ".dedrc" file processing

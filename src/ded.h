@@ -19,7 +19,7 @@
 
 #ifdef	MAIN
 #if	!defined(NO_IDENT)
-static const char ded_h[] = "$Id: ded.h,v 12.44 1997/01/19 03:50:49 tom Exp $";
+static const char ded_h[] = "$Id: ded.h,v 12.45 1997/09/13 13:33:45 tom Exp $";
 #endif
 #endif	/* MAIN */
 
@@ -443,8 +443,8 @@ extern	void	dedsize(
 /* *** "dedsort.c" *** */
 extern	int	dedsort_cmp(
 		_arx(RING *,	gbl)
-		_arx(FLIST *,	p1)
-		_ar1(FLIST *,	p2));
+		_arx(const FLIST *,	p1)
+		_ar1(const FLIST *,	p2));
 
 extern	void	dedsort(
 		_ar1(RING *,	gbl));
