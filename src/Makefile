@@ -1,37 +1,44 @@
-# @(#)Makefile	1.3 87/11/25 08:51:38
+# @(#)Makefile	1.5 87/12/01 12:06:16
 # MAKE-file for directory editor
+B	= ~/bin
 DED_H   = ded.h
 CFLAGS  = $(DEFINES) $(INCLUDES) -O
-OBJS	=\
-	ded.o\
-        dedfind.o\
-        deddoit.o\
-        dedscan.o\
-	dedsort.o\
-	dedtype.o\
-	ded2s.o\
-	doalloc.o
 LIBS	=\
 	../lib/lib.a
 #
-ded:	$(OBJS) $(LIBS)
-	$(CC) -o $@ $(OBJS) $(LIBS) -lcurses -ltermcap
+ded:	ded.o ded.a $(LIBS)
+	$(CC) -o $@ ded.o ded.a $(LIBS) -lcurses -ltermcap
 	chmod 755 $@
+#
+ded.a:	\
+        dedfind.o\
+        deddoit.o\
+        dedscan.o\
+	dedshow.o\
+	dedsort.o\
+	dedtype.o\
+	dedwait.o\
+	ded2s.o
+	ar rv $@ $?
 #
 ded.o:	        $(DED_H) ded.c version.h
 deddoit.o:      $(DED_H) deddoit.c
 dedfind.o:      $(DED_H) dedfind.c
 dedscan.o:      $(DED_H) dedscan.c
+dedshow.o:      $(DED_H) dedshow.c
 dedsort.o:      $(DED_H) dedsort.c
 dedtype.o:      $(DED_H) dedtype.c
+dedwait.o:      $(DED_H) dedwait.c
 ded2s.o:        $(DED_H) ded2s.c
 #
 clean:
 	rm -f *.o
 clobber: clean
-install:
-	rm -f ~/bin/ded ~/bin/ded.hlp
-	cp ded ded.hlp ~/bin
+install:	$B/ded\
+		$B/ded.hlp
+#
+$B/ded:		ded	; rm -f $@;cp $? $@
+$B/ded.hlp:	ded.hlp	; rm -f $@;cp $? $@
 #
 lint.out:
 	tdlint -lcurses -ltd\

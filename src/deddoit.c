@@ -1,5 +1,5 @@
 #ifndef	NO_SCCS_ID
-static	char	sccs_id[] = "@(#)deddoit.c	1.2 87/11/24 13:40:59";
+static	char	sccs_id[] = "@(#)deddoit.c	1.3 87/12/01 11:08:30";
 #endif	NO_SCCS_ID
 
 /*
@@ -14,8 +14,7 @@ static	char	sccs_id[] = "@(#)deddoit.c	1.2 87/11/24 13:40:59";
 #include	"ded.h"
 extern	char	*fixname();
 
-static	char	text[BUFSIZ],
-		subs[BUFSIZ];
+static	char	subs[BUFSIZ];
 
 static
 expand(code)
@@ -52,19 +51,24 @@ int	c, j, k;
 	refresh();
 
 	resetty();
-	if ((key != '.') || (text[0] == EOS)) {
-		getstr(text);
+	if (key == '!')
+		clr_sh = FALSE;
+	else if (key == '%')
+		clr_sh = TRUE;
+
+	if ((key != '.') || (bfr_sh[0] == EOS)) {
+		getstr(bfr_sh);
 	} else
 		printw("(ditto)\n");
 
 	subs[k = 0] = EOS;
-	for (j = 0; text[j]; j++) {
-		c = text[j];
+	for (j = 0; bfr_sh[j]; j++) {
+		c = bfr_sh[j];
 		if (c == '#')
 			k = expand('n');
 		else if (c == '%') {
-			if (text[j+1])
-				k = expand(text[++j]);
+			if (bfr_sh[j+1])
+				k = expand(bfr_sh[++j]);
 			else
 				k = expand('?');
 		} else {
@@ -72,10 +76,11 @@ int	c, j, k;
 			subs[k] = EOS;
 		}
 	}
-	printw("> \"%.*s\"\n", COLS-1, subs);
+	dedshow("> ", subs);
 	refresh();
 
 	if (*subs) system(subs);
 	rawterm();
+	if (clr_sh) dedwait();
 	showC();
 }

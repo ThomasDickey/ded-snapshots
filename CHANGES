@@ -1,3 +1,30 @@
+1987-12-01  dickey@software.org
+
+	* src/Makefile:
+	oops: BSD 'make' does not inherit environment variables...
+
+	* src/ded.c:
+	Broke out 'command()' as 'cmdch()'.  Renamed 'fatal()' to 'failed()'.
+	Added '*', '^', '' commands.
+
+	* src/version.h: more cleanup.
+
+	* src/dedwait.c: New file.
+
+	* src/deddoit.c:
+	Changed 'text[]' to global 'bfr_sh[]'.  Added logic for 'clr_sh'.
+
+	* src/Makefile: Made a more conventional install-production.
+	Put most objects into archive to shorten the length of command-lines.
+
+	* src/ded.hlp: corrections to '', '*', '.' documentation.  Added '^'.
+
+	* src/dedshow.c: New file.
+
+	* src/ded.h: added global state of SHELL-command (bfr_sh, clr_sh).
+
+	* src/dedtype.c: broke out 'command()' as 'cmdch()'
+
 1987-11-30  dickey@software.org
 
 	* src/ded.c: more error checking

@@ -1,4 +1,4 @@
-/* @(#)ded.h	1.2 87/11/25 07:46:11 */
+/* @(#)ded.h	1.3 87/12/01 10:18:39 */
 
 /*
  * Created:	09 Nov 1987
@@ -93,14 +93,15 @@ typedef	struct	{
 #define	cFLAG	flist[curfile].flag
 
 MAIN	char	old_wd[BUFSIZ],	/* original working-directory */
-		new_wd[BUFSIZ];	/* current working directory */
+		new_wd[BUFSIZ],	/* current working directory */
+		bfr_sh[BUFSIZ];	/* last $SHELL-command			*/
 
 MAIN	FLIST	*flist;		/* pointer to display-list */
 
 MAIN	int	cmdcol[4],	/* column in which to show cursor */
 				/* 0=mode, 1=uid/gid, 2=normal */
 		mark_W,		/* row of work-area marker */
-		count,		/* repeat-count for current command */
+		clr_sh,		/* true if we clear-screen after SHELL	*/
 		curfile,	/* current file on which to operate */
 		dateopt,	/* date-option (a,c,m = 0,1,2) */
 		sortord,	/* sort-order (TRUE=reverse) */
