@@ -1,3 +1,18 @@
+1992-09-02  dickey@software.org
+
+	* test/test5.cmd: stifled some stuff I didn't want in stderr
+
+1992-09-02  ste_cm@software.org
+
+	* test/test5.cmd:
+	BASELINE Thu May  6 14:26:47 1993 -- split from CM_TOOLS #11
+
+1992-09-02  dickey@software.org
+
+	* src/dlog.c:
+	removed redundant else-if in 'dlog_string()' processing of
+	down-arrow.
+
 1992-08-28  dickey@software.org
 
 	* user/ded.man: documented the other changes
