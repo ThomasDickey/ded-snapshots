@@ -1,5 +1,5 @@
 #if	!defined(NO_IDENT)
-static	char	Id[] = "$Header: /users/source/archives/ded.vcs/src/RCS/ded.c,v 12.35 1995/01/28 14:21:04 tom Exp $";
+static	char	Id[] = "$Header: /users/source/archives/ded.vcs/src/RCS/ded.c,v 12.36 1995/04/22 21:14:19 tom Exp $";
 #endif
 
 /*
@@ -560,7 +560,8 @@ public	void	fixtime(
 	_DCL(RING *,	gbl)
 	_DCL(int,	j)
 {
-	if (setmtime(gNAME(j), gSTAT(j).st_mtime) < 0)	warn(gbl, "utime");
+	if (setmtime(gNAME(j), gSTAT(j).st_mtime, gSTAT(j).st_atime) < 0)
+		warn(gbl, "utime");
 }
 
 /*
