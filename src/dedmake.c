@@ -1,49 +1,17 @@
 #ifndef	lint
-static	char	Id[] = "$Id: dedmake.c,v 9.0 1991/05/15 13:57:00 ste_cm Rel $";
+static	char	Id[] = "$Id: dedmake.c,v 9.1 1991/10/15 16:54:10 dickey Exp $";
 #endif
 
 /*
  * Title:	dedmake.c (make entry for ded)
  * Author:	T.E.Dickey
  * Created:	12 Sep 1988
- * $Log: dedmake.c,v $
- * Revision 9.0  1991/05/15 13:57:00  ste_cm
- * BASELINE Mon Jun 10 10:09:56 1991 -- apollo sr10.3
- *
- *		Revision 8.2  91/05/15  13:57:00  dickey
- *		apollo sr10.3 cpp complains about tag on #endif
- *		
- *		Revision 8.1  91/04/18  08:58:58  dickey
- *		added command "cL" to create hard link (implicitly to the
- *		current entry).
- *		
- *		Revision 8.0  89/10/05  17:02:20  ste_cm
- *		BASELINE Mon Aug 13 15:06:41 1990 -- LINCNT, ADA_TRANS
- *		
- *		Revision 7.0  89/10/05  17:02:20  ste_cm
- *		BASELINE Mon Apr 30 09:54:01 1990 -- (CPROTO)
- *		
- *		Revision 6.0  89/10/05  17:02:20  ste_cm
- *		BASELINE Thu Mar 29 07:37:55 1990 -- maintenance release (SYNTHESIS)
- *		
- *		Revision 5.0  89/10/05  17:02:20  ste_cm
- *		BASELINE Fri Oct 27 12:27:25 1989 -- apollo SR10.1 mods + ADA_PITS 4.0
- *		
- *		Revision 4.1  89/10/05  17:02:20  dickey
- *		modified treatment of 'cmdcol[]' (cf: showFILES)
- *		
- *		Revision 4.0  89/03/15  08:41:59  ste_cm
- *		BASELINE Thu Aug 24 10:20:06 EDT 1989 -- support:navi_011(rel2)
- *		
- *		Revision 3.0  89/03/15  08:41:59  ste_cm
- *		BASELINE Mon Jun 19 14:21:57 EDT 1989
- *		
- *		Revision 2.0  89/03/15  08:41:59  ste_cm
- *		BASELINE Thu Apr  6 13:14:13 EDT 1989
- *		
- *		Revision 1.6  89/03/15  08:41:59  dickey
- *		sccs2rcs keywords
- *		
+ * Modified:
+ *		15 Oct 1991, converted to ANSI
+ *		15 May 1991, apollo sr10.3 cpp complains about tag on #endif
+ *		18 Apr 1991, added command "cL" to create hard link (implicitly
+ *			     to the current entry).
+ *		05 Oct 1989, modified treatment of 'cmdcol[]' (cf: showFILES)
  *		14 Mar 1989, interface to 'dlog'
  *		28 Feb 1989, invoke 'ft_insert()' for new directories
  *
@@ -51,14 +19,16 @@ static	char	Id[] = "$Id: dedmake.c,v 9.0 1991/05/15 13:57:00 ste_cm Rel $";
  */
 
 #include	"ded.h"
-#include	<sys/errno.h>
-extern	char	*txtalloc();
-extern	int	errno;
-extern	char	*sys_errlist[];
 
 static
-makeit(name, mode, hard)
-char	*name;
+makeit(
+_ARX(char *,	name)
+_ARX(int,	mode)
+_AR1(int,	hard)
+	)
+_DCL(char *,	name)
+_DCL(int,	mode)
+_DCL(int,	hard)
 {
 	int	fid;
 
@@ -101,7 +71,7 @@ char	*name;
 	return (TRUE);
 }
 
-dedmake()
+dedmake(_AR0)
 {
 	auto	struct	stat	sb;
 	auto	int	mode;

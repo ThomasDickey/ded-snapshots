@@ -1,219 +1,90 @@
 #ifndef	lint
-static	char	Id[] = "$Header: /users/source/archives/ded.vcs/src/RCS/ded.c,v 9.14 1991/10/11 17:06:16 dickey Exp $";
+static	char	Id[] = "$Header: /users/source/archives/ded.vcs/src/RCS/ded.c,v 9.15 1991/10/15 09:48:36 dickey Exp $";
 #endif
 
 /*
  * Title:	ded.c (directory-editor)
  * Author:	T.E.Dickey
  * Created:	09 Nov 1987
- * $Log: ded.c,v $
- * Revision 9.14  1991/10/11 17:06:16  dickey
- * lint
- *
- *		Revision 9.13  91/09/09  08:17:25  dickey
- *		lint
- *		
- *		Revision 9.12  91/08/16  13:59:31  dickey
- *		added interpretation of "2T"
- *		
- *		Revision 9.11  91/07/22  07:13:10  dickey
- *		quote filename before using it in 'forkfile()'
- *		
- *		Revision 9.10  91/07/19  07:52:29  dickey
- *		added parm to 'markset()' to tell if we must clear workspace
- *		
- *		Revision 9.9  91/07/16  13:09:13  dickey
- *		modified logic of 'edithead()' to account for the case in
- *		which the current entry contains '/'.
- *		
- *		Revision 9.8  91/07/12  08:46:37  dickey
- *		last change introduced errs in 'count_tags()'
- *		
- *		Revision 9.7  91/07/12  08:20:51  dickey
- *		added CTL/G command to show tagged files (+blocks/bytes).
- *		cleanup some message code.
- *		
- *		Revision 9.6  91/07/11  13:00:09  dickey
- *		modified interface to to_work()
- *		
- *		Revision 9.5  91/07/11  11:12:28  dickey
- *		broke-out 'showMARK()' for use in 'dedtype()'
- *		
- *		Revision 9.4  91/07/11  10:52:49  dickey
- *		modified interface to 'showFILES()' so that scrolling (in a
- *		given file-list) and inline/toggle operations do not cause
- *		the workspace to be cleared.
- *		
- *		Revision 9.3  91/07/02  17:46:01  dickey
- *		made S_opt, P_opt 3-way toggles.
- *		
- *		Revision 9.2  91/06/28  08:29:15  dickey
- *		lint (apollo sr10.3)
- *		
- *		Revision 9.1  91/06/20  09:19:10  dickey
- *		don't need "-" special argument to make pipe-args.
- *		
- *		Revision 9.0  91/05/31  08:27:42  ste_cm
- *		BASELINE Mon Jun 10 10:09:56 1991 -- apollo sr10.3
- *		
- *		Revision 8.8  91/05/31  08:27:42  dickey
- *		modified interface to 'showpath()'
- *		
- *		Revision 8.7  91/05/15  13:37:09  dickey
- *		mods to accommodate apollo sr10.3
- *		
- *		Revision 8.6  91/04/22  08:24:18  dickey
- *		re-open standard input if we were reading from a pipe.
- *		
- *		Revision 8.5  91/04/18  08:07:14  dickey
- *		mods to 'dedwait()' and 'dedread()' to debug and guard against
- *		user-pattern not finding files.
- *		
- *		Revision 8.4  91/04/16  08:58:11  dickey
- *		suppress empty-strings from argument list
- *		
- *		Revision 8.3  91/04/16  08:18:19  dickey
- *		interpret "-" argument as read-from-standard-input
- *		
- *		Revision 8.2  91/04/04  09:28:13  dickey
- *		guard against 'getwd()' failure.
- *		
- *		Revision 8.1  90/08/27  09:43:19  dickey
- *		mods to make error-reporting routines work properly if they
- *		are called before screen is initialized, etc., to support mods
- *		to "ftree.c" for better error recovery.
- *		
- *		Revision 8.0  90/05/23  12:00:28  ste_cm
- *		BASELINE Mon Aug 13 15:06:41 1990 -- LINCNT, ADA_TRANS
- *		
- *		Revision 7.5  90/05/23  12:00:28  dickey
- *		corrected bug in 'new_tree()' introduced in last change
- *		
- *		Revision 7.4  90/05/23  11:28:25  dickey
- *		allow CTL(E) command from directory-tree as well
- *		
- *		Revision 7.3  90/05/23  09:26:49  dickey
- *		modified so that CTL(E) and CTL(V) on a directory will cause
- *		a prompt for read-pattern a la CTL(R).
- *		
- *		Revision 7.2  90/05/18  16:51:53  dickey
- *		modified 'edithead()' so it does the "right" thing when going
- *		to an Apollo DSEE revision
- *		
- *		Revision 7.1  90/05/07  07:42:45  dickey
- *		make "-t" option inherit into subprocesses
- *		
- *		Revision 7.0  90/04/17  09:09:56  ste_cm
- *		BASELINE Mon Apr 30 09:54:01 1990 -- (CPROTO)
- *		
- *		Revision 6.1  90/04/17  09:09:56  dickey
- *		simplified/corrected code for 'edithead()'
- *		
- *		Revision 6.0  90/03/06  08:31:03  ste_cm
- *		BASELINE Thu Mar 29 07:37:55 1990
- *		-- maintenance release (SYNTHESIS)
- *		
- *		Revision 5.10  90/03/06  08:31:03  dickey
- *		lint
- *		
- *		Revision 5.9  90/03/06  08:17:46  dickey
- *		test for sort-keys which assume RCS/SCCS scanning is in effecect
- *		and perform scanning if it has not been done.
- *		
- *		Revision 5.8  90/03/05  13:33:37  dickey
- *		forgot to init reply-buffer in 'user_says()'
- *		
- *		Revision 5.7  90/03/02  12:12:03  dickey
- *		set 'no_worry' in 'dedring()', not 'new_args()'
- *		
- *		Revision 5.6  90/03/02  08:57:19  dickey
- *		modified quit-behavior so that if user has gone into any
- *		directory other than the original one, he will be prompted
- *		on quit.  added "-n" option so this doesn't happen in a
- *		subprocess.
- *		
- *		Revision 5.5  90/03/02  08:21:02  dickey
- *		added special case for typing contents of directory-file.
- *		
- *		Revision 5.4  90/02/07  09:51:39  dickey
- *		modified '#' command (deduniq-proc) to 3 modes of operation.
- *		
- *		Revision 5.3  90/02/01  12:54:33  dickey
- *		use 'showpath()' to handle long pathname-display
- *		
- *		Revision 5.2  90/01/30  08:48:34  dickey
- *		added 'T' (date+time) toggle and command-option to match.
- *		altered 't' command so "2t" types binary-file.
- *		modified shell-command stuff so 0/2 repeat-count on ':' or
- *		'.' can reset/set the clear-screen flag of '!'/'%' commands
- *		
- *		Revision 5.1  89/12/01  14:36:00  dickey
- *		broke out 'sortset()' module
- *		
- *		Revision 5.0  89/10/12  15:36:54  ste_cm
- *		BASELINE Fri Oct 27 12:27:25 1989
- *		-- apollo SR10.1 mods + ADA_PITS 4.0
- *		
- *		Revision 4.5  89/10/12  15:36:54  dickey
- *		converted 'I', 'G' commands to three-state toggles
- *		
- *		Revision 4.4  89/10/06  09:37:01  dickey
- *		modified 'showFILES()' so that on certain calls we reset the
- *		'cmdcol[]' array.
- *		
- *		Revision 4.3  89/10/04  16:46:48  dickey
- *		added -a, -O options
- *		added &, O toggles
- *		added o, O sorts
- *		
- *		Revision 4.2  89/08/25  08:52:50  dickey
- *		added new procedure 'scroll_to_file()'
- *		so 'E'-command on link can go to link-target.
- *		
- *		Revision 4.1  89/08/25  08:22:15  dickey
- *		use 'wrepaint()' rather than savewin/unsavewin.  added
- *		arg to 'realstat()' for 'E'-enhancement.
- *		
- *		Revision 4.0  89/08/22  16:31:22  ste_cm
- *		BASELINE Thu Aug 24 10:20:06 EDT 1989 -- support:navi_011(rel2)
- *		
- *		Revision 3.2  89/08/22  16:31:22  dickey
- *		if user tries to apply 'E' command to symbolic-link-to-file,
- *		edit instead the directory containing the target file.
- *		
- *		Revision 3.1  89/08/11  14:22:57  dickey
- *		added/used procedure 'move2row()'
- *		
- *		Revision 3.0  89/06/06  08:38:13  ste_cm
- *		BASELINE Mon Jun 19 14:21:57 EDT 1989
- *		
- *		Revision 2.4  89/06/06  08:38:13  dickey
- *		made blip-call for 'Z' toggle show results like '#'.
- *		
- *		Revision 2.3  89/05/31  08:21:11  dickey
- *		revised/updated 'usage()'
- *		
- *		Revision 2.2  89/05/26  14:05:00  dickey
- *		corrected last mod so failed-rescan keeps original
- *		name to find in resulting list
- *		
- *		Revision 2.1  89/05/26  13:38:22  dickey
- *		added CTL/R command to control read-selection
- *		
- *		Revision 2.0  89/04/03  09:41:04  ste_cm
- *		BASELINE Thu Apr  6 13:14:13 EDT 1989
- *		
- *		Revision 1.65  89/04/03  09:41:04  dickey
- *		use of 'showFILES()' in 'restat_W()' did not work (?).  Recoded
- *		using 'showLINE()' and 'showC()'.
- *		
- *		Revision 1.64  89/03/24  08:36:36  dickey
- *		added "-c" (command-script) option, and changed version to RCS
- *		format using sscanf hack.
- *		
- *		Revision 1.63  89/03/15  09:12:02  dickey
- *		sccs2rcs keywords
- *		
+ * Modified:
+ *		15 Oct 1991, converted to ANSI
+ *		16 Aug 1991, added interpretation of "2T"
+ *		22 Jul 1991, quote filename before using it in 'forkfile()'
+ *		10 Jul 1991, added parm to 'markset()' to tell if we must clear
+ *			     workspace
+ *		16 Jul 1991, modified logic of 'edithead()' to account for the
+ *			     case in which the current entry contains '/'.
+ *		12 Jul 1991, added CTL/G command to show tagged files
+ *			     (+blocks/bytes).  Cleanup some message code.
+ *		11 Jul 1991, modified interface to to_work().  Broke-out
+ *			     'showMARK()' for use in 'dedtype()'.  Modified
+ *			     interface to 'showFILES()' so that scrolling (in a
+ *			     given file-list) and inline/toggle operations do
+ *			     not cause the workspace to be cleared.
+ *		02 Jul 1991, made S_opt, P_opt 3-way toggles.
+ *		28 Jun 1991, lint (apollo sr10.3)
+ *		20 Jun 1991, don't need "-" special argument to make pipe-args.
+ *		31 May 1991, modified interface to 'showpath()'
+ *		15 May 1991, mods to accommodate apollo sr10.3
+ *		22 Apr 1991, re-open standard input if we were reading from a
+ *			     pipe.
+ *		18 Apr 1991, mods to 'dedwait()' and 'dedread()' to debug and
+ *			     guard against user-pattern not finding files.
+ *		16 Apr 1991, suppress empty-strings from argument list.
+ *		04 Apr 1991, guard against 'getwd()' failure.
+ *		27 Aug 1990, mods to make error-reporting routines work properly
+ *			     if they are called before screen is initialized,
+ *			     etc., to support mods to "ftree.c" for better error
+ *			     recovery.
+ *		23 May 1990, Modified so that CTL(E) and CTL(V) on a directory
+ *			     will cause a prompt for read-pattern a la CTL(R).
+ *			     Allow CTL(E) command from directory-tree as well
+ *		18 May 1990, modified 'edithead()' so it does the "right" thing
+ *			     when going to an Apollo DSEE revision.
+ *		07 May 1990, make "-t" option inherit into subprocesses
+ *		17 Apr 1990, simplified/corrected code for 'edithead()'
+ *		06 Mar 1990, test for sort-keys which assume RCS/SCCS scanning
+ *			     is in effect and perform scanning if it has not
+ *			     been done.
+ *		05 Mar 1990, forgot to init reply-buffer in 'user_says()'
+ *		02 Mar 1990, set 'no_worry' in 'dedring()', not 'new_args()'.
+ *			     Modified quit-behavior so that if user has gone
+ *			     into any directory other than the original one, he
+ *			     will be prompted on quit.  Added "-n" option so
+ *			     this doesn't happen in a subprocess.  Added
+ *			     special case for typing contents of directory-file.
+ *		07 Feb 1990, modified '#' command (deduniq-proc) to 3 modes of
+ *			     operation.
+ *		01 Feb 1990, use 'showpath()' to handle long pathname-display
+ *		30 Jan 1990, added 'T' (date+time) toggle and command-option to
+ *			     match.  Altered 't' command so "2t" types binary-
+ *			     file.  Modified shell-command stuff so 0/2 repeat-
+ *			     count on ':' or '.' can reset/set the clear-screen
+ *			     flag of '!'/'%' commands
+ *		01 Dec 1989, broke out 'sortset()' module
+ *		12 Oct 1989, converted 'I', 'G' commands to three-state toggles
+ *		06 Oct 1989, modified 'showFILES()' so that on certain calls we
+ *			     reset the 'cmdcol[]' array.
+ *		04 Oct 1989, added -a, -O options.  Added &, O toggles.  Added
+ *			     o, O sorts.
+ *		25 Aug 1989, added new procedure 'scroll_to_file()' so 'E'-
+ *			     command on link can go to link-target.  Use
+ *			     'wrepaint()' rather than savewin/unsavewin.  Added
+ *			     arg to 'realstat()' for 'E'-enhancement.
+ *		22 Aug 1989, if user tries to apply 'E' command to symbolic-
+ *			     link-to-file, edit instead the directory containing
+ *			     the target file.
+ *		11 Aug 1989, added/used procedure 'move2row()'
+ *		06 Jun 1989, made blip-call for 'Z' toggle show results like
+ *			     '#'.
+ *		31 May 1989, revised/updated 'usage()'
+ *		26 May 1989, Corrected last mod so failed-rescan keeps original
+ *			     name to find in resulting list.  Added CTL/R
+ *			     command to control read-selection
+ *		03 Apr 1989, use of 'showFILES()' in 'restat_W()' did not work
+ *			     (?).  Recoded using 'showLINE()' and 'showC()'.
+ *		24 Mar 1989, added "-c" (command-script) option, and changed
+ *			     version to RCS format using sscanf hack.
  *		15 Mar 1989, if log-option is set, pass this to subprocess ded.
  *		14 Mar 1989, added '-l' option for logging.
  *		13 Mar 1989, added '<' command (short-form of '>')
@@ -267,10 +138,9 @@ static	char	Id[] = "$Header: /users/source/archives/ded.vcs/src/RCS/ded.c,v 9.14
 #include	<signal.h>
 #include	<errno.h>
 extern	char	*dlog_open();
-extern	char	*pathcat();
 extern	char	*sys_errlist[];
-extern	char	*txtalloc();
-extern	char	**vecalloc();
+
+#define	_ONE(t,a)	(_AR1(t,a)) _DCL(t,a)
 
 #ifndef	EDITOR
 #define	EDITOR	"/usr/ucb/vi"
@@ -334,7 +204,12 @@ static	char	whoami[BUFSIZ],		/* my execution-path */
  * Returns 0, 1 or 2 for a three-way toggle
  */
 static
-one_or_both(opt,val)
+one_or_both(
+_ARX(int,	opt)
+_AR1(int,	val)
+	)
+_DCL(int,	opt)
+_DCL(int,	val)
 {
 	if (val == 0)
 		opt = 0;
@@ -350,7 +225,7 @@ one_or_both(opt,val)
  * Also, set 'Ynext' to the row number of the first line after the viewport.
  */
 static
-viewset()
+viewset(_AR0)
 {
 	register int	j	= curview + 1;
 
@@ -361,8 +236,12 @@ viewset()
 
 #ifdef	S_IFLNK
 static
-edithead(dst, leaf)
-char	*dst,*leaf;
+edithead(
+_ARX(char *,	dst)
+_AR1(char *,	leaf)
+	)
+_DCL(char *,	dst)
+_DCL(char *,	leaf)
 {
 	extern	char		*pathhead();
 	auto	struct	stat	sb;
@@ -403,7 +282,7 @@ char	*dst,*leaf;
  * current viewport.
  */
 int
-file2row(n)
+file2row _ONE(int,n)
 {
 	return ((n - Ybase) + Yhead + 1);
 }
@@ -412,7 +291,12 @@ file2row(n)
  * Move to the indicated row; return FALSE if it does not correspond to a
  * currently-displayed line.
  */
-move2row(n,col)
+move2row(
+_ARX(int,	n)
+_AR1(int,	col)
+	)
+_DCL(int,	n)
+_DCL(int,	col)
 {
 	if (n >= Ybase && n <= Ylast) {
 		move(file2row(n), col);
@@ -424,7 +308,7 @@ move2row(n,col)
 /*
  * Exit from window mode
  */
-to_exit(last)
+to_exit _ONE(int,last)
 {
 	if (in_screen) {
 		if (last) {
@@ -442,7 +326,7 @@ to_exit(last)
 /*
  * Clear the work-area, and move the cursor there.
  */
-clear_work()
+clear_work(_AR0)
 {
 	move(mark_W + 1, 0);
 	clrtobot();
@@ -453,7 +337,7 @@ clear_work()
 /*
  * Clear the work area, move the cursor there after setting marker
  */
-to_work(clear_it)
+to_work _ONE(int,clear_it)
 {
 	markC(TRUE);
 	if (clear_it)
@@ -463,7 +347,7 @@ to_work(clear_it)
 /*
  * Scroll, as needed, to put current-file in the window
  */
-to_file()
+to_file(_AR0)
 {
 	register int	code;
 	viewset();		/* ensure that Ylast is up to date */
@@ -474,7 +358,7 @@ to_file()
 	return(code);
 }
 
-scroll_to_file(inx)
+scroll_to_file _ONE(int,inx)
 {
 	if (curfile != inx) {
 		curfile = inx;
@@ -489,7 +373,12 @@ scroll_to_file(inx)
  * Move the workspace marker.  If we are in split-screen mode, also adjust the
  * length of the current viewport.  Finally, re-display the screen.
  */
-markset(num,reset_work)
+markset(
+_ARX(int,	num)
+_AR1(int,	reset_work)
+	)
+_DCL(int,	num)
+_DCL(int,	reset_work)
 {
 	int	lo = (Yhead + MINLIST * (maxview - curview)),
 		hi = (LINES - MINWORK);
@@ -523,8 +412,12 @@ markset(num,reset_work)
 /*
  * Determine if the given entry is a file, directory or none of these.
  */
-realstat(inx, sb)
-struct	stat	*sb;
+realstat(
+_ARX(int,	inx)
+_AR1(struct stat*,sb)
+	)
+_DCL(int,	inx)
+_DCL(struct stat*,sb)
 {
 register j = xSTAT(inx).st_mode;
 
@@ -543,8 +436,14 @@ register j = xSTAT(inx).st_mode;
  * Print an error/warning message, optionally pausing
  */
 static
-show_message(tag, msg, pause)
-char	*tag, *msg;
+show_message(
+_ARX(char *,	tag)
+_ARX(char *,	msg)
+_AR1(int,	pause)
+	)
+_DCL(char *,	tag)
+_DCL(char *,	msg)
+_DCL(int,	pause)
 {
 	if (in_screen) {
 		move(LINES-1,0);
@@ -567,8 +466,7 @@ char	*tag, *msg;
 }
 
 char	*
-err_msg(msg)
-char	*msg;
+err_msg _ONE(char *,msg)
 {
 	static	char	bfr[BUFSIZ];
 	if (msg == 0)	msg = "?";
@@ -576,22 +474,21 @@ char	*msg;
 	return (bfr);
 }
 
-dedmsg(msg)	char *msg; { show_message("dedmsg", msg, FALSE); }
-warn(msg)	char *msg; { show_message("warn", err_msg(msg), FALSE); }
+dedmsg		_ONE(char *,msg) { show_message("dedmsg", msg, FALSE); }
+warn		_ONE(char *,msg) { show_message("warn", err_msg(msg), FALSE); }
 
 /*
  * Wait for the user to hit a key before the next screen is shown.  This is
  * used when we have put a message up and may be going back to the
  * directory tree display.
  */
-waitmsg(msg)	char *msg; { show_message("waitmsg", msg, TRUE); }
-wait_warn(msg)	char *msg; { waitmsg(err_msg(msg)); }
+waitmsg		_ONE(char *,msg) { show_message("waitmsg", msg, TRUE); }
+wait_warn	_ONE(char *,msg) { waitmsg(err_msg(msg)); }
 
 /*
  * Fatal-error exit from this process
  */
-failed(msg)
-char	*msg;
+failed _ONE(char *,msg)
 {
 	if (debug) {
 		FPRINTF(stderr, "failed?");
@@ -612,7 +509,9 @@ char	*msg;
 /*
  * Prompt user for yes/no response
  */
-user_says(ok)
+user_says(
+_AR1(int,	ok))
+_DCL(int,	ok)
 {
 	int	y,x;
 	char	reply[8];
@@ -637,8 +536,7 @@ user_says(ok)
  * This is used to reposition after sorting, etc, and uses the feature that
  * strings in 'txtalloc()' are uniquely determined by their address.
  */
-findFILE(name)
-char	*name;
+findFILE _ONE(char *,name)
 {
 	register int j;
 	for (j = 0; j < numfiles; j++)
@@ -651,7 +549,7 @@ char	*name;
  * Move the cursor up/down the specified number of lines, scrolling
  * to a new screen if necessary.
  */
-upLINE(n)
+upLINE _ONE(int,n)
 {
 	curfile -= n;
 	if (curfile < 0)		curfile = 0;
@@ -662,7 +560,7 @@ upLINE(n)
 		showC();
 }
 
-downLINE(n)
+downLINE _ONE(int,n)
 {
 	curfile += n;
 	if (curfile >= numfiles)	curfile = numfiles-1;
@@ -673,7 +571,7 @@ downLINE(n)
 		showC();
 }
 
-showDOWN()
+showDOWN(_AR0)
 {
 	showLINE(curfile);
 	dlog_name(cNAME);
@@ -689,7 +587,7 @@ showDOWN()
 /*
  * Recompute viewport line-limits for forward/backward scrolling
  */
-forward(n)
+forward _ONE(int,n)
 {
 	while (n-- > 0) {
 		if (Ylast < (numfiles-1)) {
@@ -700,7 +598,7 @@ forward(n)
 	}
 }
 
-backward(n)
+backward _ONE(int,n)
 {
 	while (n-- > 0) {
 		if (Ybase > 0) {
@@ -717,7 +615,7 @@ backward(n)
  * path) as well as the current setting of the 'C' command.  If any files are
  * tagged, show the heading highlighted.
  */
-showWHAT()
+showWHAT(_AR0)
 {
 	static	char	datechr[] = "acm";
 
@@ -737,7 +635,7 @@ showWHAT()
 /*
  * Display the given line.  If it is tagged, highlight the name.
  */
-showLINE(j)
+showLINE _ONE(int,j)
 {
 int	col, len;
 char	bfr[BUFSIZ];
@@ -765,7 +663,7 @@ char	bfr[BUFSIZ];
 /*
  * Display all files in the current viewport
  */
-showVIEW()
+showVIEW(_AR0)
 {
 	register int j;
 
@@ -782,7 +680,7 @@ showVIEW()
 /*
  * Display the marker which precedes the workspace
  */
-showMARK(col)
+showMARK _ONE(int,col)
 {
 	register int j, k;
 	char	scale[20];
@@ -800,7 +698,12 @@ showMARK(col)
  * remaining stuff on the screen (position in each viewport and workspace
  * marker).
  */
-showFILES(reset_cols,reset_work)
+showFILES(
+_ARX(int,	reset_cols)
+_AR1(int,	reset_work)
+	)
+_DCL(int,	reset_cols)
+_DCL(int,	reset_work)
 {
 	register int j;
 
@@ -827,7 +730,7 @@ showFILES(reset_cols,reset_work)
  * Open a new viewport by splitting the current one after the current file.
  */
 static
-openVIEW()
+openVIEW(_AR0)
 {
 	if (maxview < MAXVIEW) {
 		saveVIEW();
@@ -853,7 +756,7 @@ openVIEW()
  * Store parameters corresponding to the current viewport
  */
 static
-saveVIEW()
+saveVIEW(_AR0)
 {
 	register VIEW *p = &viewlist[curview];
 	p->Yhead = Yhead;
@@ -866,7 +769,7 @@ saveVIEW()
  * the new screen contents.
  */
 static
-quitVIEW()
+quitVIEW(_AR0)
 {
 	register int j;
 
@@ -886,7 +789,7 @@ quitVIEW()
  * Switch to the next viewport (do not re-display, this is handled elsewhere)
  */
 static
-nextVIEW(save)
+nextVIEW _ONE(int,save)
 {
 	register VIEW *p;
 
@@ -902,7 +805,7 @@ nextVIEW(save)
 }
 
 #ifdef	Z_RCS_SCCS
-showSCCS()
+showSCCS(_AR0)
 {
 register int j;
 	if (!Z_opt) {		/* catch up */
@@ -920,7 +823,7 @@ register int j;
 /*
  * Set the cursor to the current file, noting this in the viewport header.
  */
-showC()
+showC(_AR0)
 {
 	register int	x = cmdcol[CCOL_CMD] - Xbase;
 
@@ -937,7 +840,7 @@ showC()
  * Flag the current-file in the display (i.e., when leaving the current
  * line for the work-area).
  */
-markC(on)
+markC _ONE(int,on)
 {
 int	col = cmdcol[CCOL_CMD] - Xbase;
 
@@ -950,7 +853,7 @@ int	col = cmdcol[CCOL_CMD] - Xbase;
 /*
  * Repaint the screen
  */
-retouch(row)
+retouch _ONE(int,row)
 {
 int	y,x;
 #ifdef	apollo
@@ -968,8 +871,13 @@ int	y,x;
 	wrepaint(stdscr,row);
 }
 
-rescan(fwd, backto)		/* re-scan argument list */
-char	*backto;		/* name to reset to, if possible */
+	/* re-scan argument list */
+rescan(
+_ARX(int,	fwd)
+_AR1(char *,	backto)		/* name to reset to, if possible */
+	)
+_DCL(int,	fwd)
+_DCL(char *,	backto)
 {
 	register int	j;
 
@@ -992,7 +900,8 @@ char	*backto;		/* name to reset to, if possible */
 	return (FALSE);
 }
 
-restat(group)		/* re-'stat()' the current line, and optionally group */
+	/* re-'stat()' the current line, and optionally group */
+restat _ONE(int,group)
 {
 	if (group) {
 	register int j;
@@ -1010,12 +919,12 @@ restat(group)		/* re-'stat()' the current line, and optionally group */
 	showC();
 }
 
-restat_l()
+restat_l(_AR0)
 {
 	restat(TRUE);
 }
 
-restat_W()
+restat_W(_AR0)
 {
 	register int j;
 	for (j = Ybase; j <= Ylast; j++) {
@@ -1028,8 +937,12 @@ restat_W()
 /*
  * Process the given function in a repeat-loop which is interruptable.
  */
-resleep(count,func)
-int	(*func)();
+resleep(
+_ARX(int,	count)
+_FN1(int,	func)
+	)
+_DCL(int,	count)
+_DCL(int,	(*func)())
 {
 	register int	interrupted = 1,
 			last	= count;
@@ -1055,7 +968,7 @@ int	(*func)();
  * Initialize counters associated with tags
  */
 static
-init_tags()
+init_tags(_AR0)
 {
 	tag_count = 0;
 	tag_bytes = 0;
@@ -1063,7 +976,7 @@ init_tags()
 }
 
 static
-tag_entry(inx)
+tag_entry _ONE(int,inx)
 {
 	if (!xFLAG(inx)) {
 		xFLAG(inx) = TRUE;
@@ -1074,7 +987,7 @@ tag_entry(inx)
 }
 
 static
-untag_entry(inx)
+untag_entry _ONE(int,inx)
 {
 	if (xFLAG(inx)) {
 		xFLAG(inx) = FALSE;
@@ -1088,7 +1001,7 @@ untag_entry(inx)
  * Re-count the files which are tagged
  */
 static
-count_tags()
+count_tags(_AR0)
 {
 	register int j;
 	init_tags();
@@ -1104,9 +1017,20 @@ count_tags()
  * Use the 'dedring()' module to switch to a different file-list
  */
 static
-new_args(path, cmd, count, flags, set_pattern, pattern)
-char	*path;
-char	*pattern;
+new_args(
+_ARX(char *,	path)
+_ARX(int,	cmd)
+_ARX(int,	count)
+_ARX(int,	flags)
+_ARX(int,	set_pattern)
+_AR1(char *,	pattern)
+	)
+_DCL(char *,	path)
+_DCL(int,	cmd)
+_DCL(int,	count)
+_DCL(int,	flags)
+_DCL(int,	set_pattern)
+_DCL(char *,	pattern)
 {
 int	ok;
 
@@ -1129,7 +1053,12 @@ int	ok;
  * Set list to an old set of arguments
  */
 static
-old_args(cmd, count)
+old_args(
+_ARX(int,	cmd)
+_AR1(int,	count)
+	)
+_DCL(int,	cmd)
+_DCL(int,	count)
 {
 	auto	 char	tpath[MAXPATHLEN];
 	return (new_args(
@@ -1141,8 +1070,7 @@ old_args(cmd, count)
  * Open a (new) argument-list, setting the scan-pattern
  */
 static
-pattern_args(path)
-char	*path;
+pattern_args _ONE(char *,path)
 {
 	char	*pattern = 0;
 	while (dedread(&pattern, FALSE)) {
@@ -1157,8 +1085,12 @@ char	*path;
  * it fails.
  */
 static
-new_tree(path, cmd)
-char	*path;
+new_tree(
+_ARX(char *,	path)
+_AR1(int,	cmd)
+	)
+_DCL(char *,	path)
+_DCL(int,	cmd)
 {
 	if (iscntrl(cmd)) {
 		if (pattern_args(path))
@@ -1174,7 +1106,7 @@ char	*path;
  * Apollo, we may have names with '$' and other special characters.
  */
 char *
-fixname(j)
+fixname _ONE(int,j)
 {
 static	char	nbfr[BUFSIZ];
 	(void)ded2string(nbfr, sizeof(nbfr), xNAME(j), TRUE);
@@ -1183,9 +1115,9 @@ static	char	nbfr[BUFSIZ];
 
 /*
  * Adjust mtime-field so that chmod, chown do not alter it.
- * This fixes Apollo kludges!
+ * This fixes Apollo/NFS kludges!
  */
-fixtime(j)
+fixtime _ONE(int,j)
 {
 	if (setmtime(xNAME(j), xSTAT(j).st_mtime) < 0)	warn("utime");
 }
@@ -1194,8 +1126,14 @@ fixtime(j)
  * Spawn a subprocess, wait for completion.
  */
 static
-forkfile(arg0, arg1, normal)
-char	*arg0, *arg1;
+forkfile(
+_ARX(char *,	arg0)
+_ARX(char *,	arg1)
+_AR1(int,	normal)
+	)
+_DCL(char *,	arg0)
+_DCL(char *,	arg1)
+_DCL(int,	normal)
 {
 	char	quoted[MAXPATHLEN];
 
@@ -1219,7 +1157,12 @@ char	*arg0, *arg1;
  * Enter an editor (separate process) for the current-file/directory.
  */
 static
-editfile(readonly, extended)
+editfile(
+_ARX(int,	readonly)
+_AR1(int,	extended)
+	)
+_DCL(int,	readonly)
+_DCL(int,	extended)
 {
 	struct	stat	sb;
 	char	*editor = (readonly ? ENV(BROWSE) : ENV(EDITOR));
@@ -1257,8 +1200,7 @@ editfile(readonly, extended)
  
 static
 void
-trace_pipe(arg)
-char	*arg;
+trace_pipe _ONE(char *,arg)
 {
 	if (debug) {
 		if (debug > 1) {
@@ -1273,7 +1215,7 @@ char	*arg;
  *	main program							*
  ************************************************************************/
 
-usage()
+usage(_AR0)
 {
 	extern	char	sortc[];
 	auto	char	tmp[BUFSIZ];

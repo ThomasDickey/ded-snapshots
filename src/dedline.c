@@ -1,78 +1,35 @@
 #ifndef	lint
-static	char	Id[] = "$Id: dedline.c,v 9.2 1991/07/11 10:44:15 dickey Exp $";
+static	char	Id[] = "$Id: dedline.c,v 9.3 1991/10/15 16:39:31 dickey Exp $";
 #endif
 
 /*
  * Title:	dedline.c (directory-editor inline editing)
  * Author:	T.E.Dickey
  * Created:	01 Aug 1988 (from 'ded.c')
- * $Log: dedline.c,v $
- * Revision 9.2  1991/07/11 10:44:15  dickey
- * modified interface to 'showFILES()' so that workspace is not
- * cleared when doing the inline operations.
- *
- *		Revision 9.1  91/06/28  08:05:02  dickey
- *		corrected code which tests for user's id (look at effective
- *		uid, not real-uid).
- *		
- *		Revision 9.0  91/05/15  13:40:16  ste_cm
- *		BASELINE Mon Jun 10 10:09:56 1991 -- apollo sr10.3
- *		
- *		Revision 8.2  91/05/15  13:40:16  dickey
- *		mods to accommodate apollo sr10.3
- *		
- *		Revision 8.1  91/04/18  10:43:16  dickey
- *		fixed end-of-buffer code for 'edittext()' (caused spurious
- *		data overwrites).
- *		
- *		Revision 8.0  90/03/06  08:26:44  ste_cm
- *		BASELINE Mon Aug 13 15:06:41 1990 -- LINCNT, ADA_TRANS
- *		
- *		Revision 7.0  90/03/06  08:26:44  ste_cm
- *		BASELINE Mon Apr 30 09:54:01 1990 -- (CPROTO)
- *		
- *		Revision 6.0  90/03/06  08:26:44  ste_cm
- *		BASELINE Thu Mar 29 07:37:55 1990 -- maintenance release (SYNTHESIS)
- *		
- *		Revision 5.1  90/03/06  08:26:44  dickey
- *		lint
- *		
- *		Revision 5.0  89/10/26  11:58:38  ste_cm
- *		BASELINE Fri Oct 27 12:27:25 1989 -- apollo SR10.1 mods + ADA_PITS 4.0
- *		
- *		Revision 4.3  89/10/26  11:58:38  dickey
- *		altered 'editmode()' to reduce number of register variables
- *		used (bypasses bug on sun3)
- *		
- *		Revision 4.2  89/10/12  16:09:10  dickey
- *		altered format so that uid,gid columns are not necessarily
- *		obscured (G_opt == 2).  also, prevent chmod if object has
- *		extended acls -- and user is not owner (prevents trouble!)
- *		
- *		Revision 4.1  89/10/06  09:40:17  dickey
- *		modified treatment of 'cmdcol[]' (cf: showFILES)
- *		
- *		Revision 4.0  89/08/11  14:26:07  ste_cm
- *		BASELINE Thu Aug 24 10:20:06 EDT 1989 -- support:navi_011(rel2)
- *		
- *		Revision 3.1  89/08/11  14:26:07  dickey
- *		modified "<" command so that we show all intermediate
- *		substitutions (i.e., "%F", "%B" and "#") which would be
- *		applied to a tagged-group -- before we begin editing.
- *		
- *		Revision 3.0  89/06/12  13:12:51  ste_cm
- *		BASELINE Mon Jun 19 14:21:57 EDT 1989
- *		
- *		Revision 2.1  89/06/12  13:12:51  dickey
- *		corrected '<' command-substitution, which lost chars after
- *		the '#' substitution.
- *		
- *		Revision 2.0  89/03/14  13:19:29  ste_cm
- *		BASELINE Thu Apr  6 13:14:13 EDT 1989
- *		
- *		Revision 1.14  89/03/14  13:19:29  dickey
- *		sccs2rcs keywords
- *		
+ * Modified:
+ *		15 Oct 1991, converted to ANSI.
+ *		11 Jul 1991, modified interface to 'showFILES()' so that
+ *			     workspace is not cleared when doing the inline
+ *			     operations.
+ *		28 Jun 1991, corrected code which tests for user's id (look at
+ *			     effective uid, not real-uid).
+ *		15 May 1991, mods to accommodate apollo sr10.3
+ *		18 Apr 1991, fixed end-of-buffer code for 'edittext()' (caused
+ *			     spurious data overwrites).
+ *		06 Mar 1990, lint
+ *		26 Oct 1989, altered 'editmode()' to reduce number of register
+ *			     variables used (bypasses bug on sun3)
+ *		12 Oct 1989, altered format so that uid,gid columns are not
+ *			     necessarily obscured (G_opt == 2).  Also, prevent
+ *			     chmod if object has extended acls -- and user is
+ *			     not owner (prevents trouble!)
+ *		06 Oct 1989, modified treatment of 'cmdcol[]' (cf: showFILES)
+ *		11 Aug 1989, modified "<" command so that we show all
+ *			     intermediate substitutions (i.e., "%F", "%B" and
+ *			     "#") which would be applied to a tagged-group --
+ *			     before we begin editing.
+ *		12 Jun 1989, corrected '<' command-substitution, which lost
+ *			     chars after the '#' substitution.
  *		14 Mar 1989, added '<' to do %F, %B, # substitution (was in '>')
  *			     Interface to 'dlog'.
  *		23 Jan 1989, in '>', '=', do nothing if no text changed.
@@ -88,9 +45,6 @@ static	char	Id[] = "$Id: dedline.c,v 9.2 1991/07/11 10:44:15 dickey Exp $";
  */
 
 #include	"ded.h"
-extern	char	*dedrung();
-extern	char	*fixname();
-extern	char	*txtalloc();
 
 static	int	re_edit;		/* flag for 'edittext()' */
 static	char	lastedit[BUFSIZ];	/* command-stream for 'edittext()' */
@@ -104,7 +58,7 @@ static	char	lastedit[BUFSIZ];	/* command-stream for 'edittext()' */
  * 'lastedit[]' is reserved to tell us what the command was.
  */
 static
-replay(cmd)
+replay _ONE(int,cmd)
 {
 	int	c;
 	static	int	in_edit;
@@ -132,9 +86,12 @@ replay(cmd)
  */
 static
 char *
-name2bfr(dst,src)
-char	*dst;
-char	*src;
+name2bfr(
+_ARX(char *,	dst)
+_AR1(char *,	src)
+	)
+_DCL(char *,	dst)
+_DCL(char *,	src)
 {
 	(void)name2s(dst, BUFSIZ, src, FALSE);
 	return (dst);
@@ -146,7 +103,7 @@ char	*src;
  */
 #ifdef	S_IFLNK
 static
-at_save()
+at_save(_AR0)
 {
 	if (!AT_opt) {	/* chmod applies only to target of symbolic link */
 		return (at_last(TRUE));
@@ -159,7 +116,7 @@ at_save()
  * value and re-stat them.  Return a count of the number of links.
  */
 static
-at_last(flag)
+at_last _ONE(int,flag)
 {
 	register int x;
 	register int changed = 0;
@@ -179,8 +136,12 @@ at_last(flag)
  * Assign a new target for a symbolic link.
  */
 static
-relink(x, name)
-char	*name;
+relink(
+_ARX(int,	x)
+_AR1(char *,	name)
+	)
+_DCL(int,	x)
+_DCL(char *,	name)
 {
 	dlog_comment("relink \"%s\" (link=%s)\n", name, xNAME(x));
 	if (unlink(xNAME(x)) >= 0) {
@@ -199,9 +160,16 @@ static	int	cmd_link;	/* true if we use short-form */
  * can later expand it.
  */
 static
-subspath(path, count, short_form, x)
-char	*path;
-char	*short_form;
+subspath(
+_ARX(char *,	path)
+_ARX(int,	count)
+_ARX(char *,	short_form)
+_AR1(int,	x)
+	)
+_DCL(char *,	path)
+_DCL(int,	count)
+_DCL(char *,	short_form)
+_DCL(int,	x)
 {
 	register char	*p = dedrung(count);
 	register size_t	len = strlen(p);
@@ -235,8 +203,12 @@ char	*short_form;
 
 static
 char *
-link2bfr(dst, x)
-char	*dst;
+link2bfr(
+_ARX(char *,	dst)
+_AR1(int,	x)
+	)
+_DCL(char *,	dst)
+_DCL(int,	x)
 {
 	(void)name2bfr(dst, xLTXT(x));
 	if (cmd_link) {
@@ -251,8 +223,12 @@ char	*dst;
  */
 static
 char *
-subslink(bfr,x)
-char	*bfr;
+subslink(
+_ARX(char *,	bfr)
+_AR1(int,	x)
+	)
+_DCL(char *,	bfr)
+_DCL(int,	x)
 {
 	auto	char	tmp[BUFSIZ];
 	register char	*s = strcpy(tmp, bfr);
@@ -283,8 +259,7 @@ char	*bfr;
  * Coerce Xbase (left/right scrolling) so we can display a given column
  */
 static
-save_Xbase(col)
-int	col;			/* leftmost column we need to show */
+save_Xbase _ONE(int,col) /* leftmost column we need to show */
 {
 	auto	int	old = Xbase;
 	if (col < Xbase)
@@ -306,7 +281,7 @@ int	col;			/* leftmost column we need to show */
 #define	CHMOD(n)	(xSTAT(n).st_mode & 07777)
 #define	OWNER(n)	((geteuid() == 0) || (xSTAT(x).st_uid == geteuid()))
 
-editprot()
+editprot(_AR0)
 {
 register
 int	y	= file2row(curfile),
@@ -426,8 +401,16 @@ int	at_flag	= at_save();
  * moving within the line, and for setting/resetting insert mode.  Use
  * backspace to delete characters.
  */
-edittext(endc, col, len, bfr)
-char	*bfr;
+edittext(
+_ARX(int,	endc)
+_ARX(int,	col)
+_ARX(int,	len)
+_AR1(char *,	bfr)
+	)
+_DCL(int,	endc)
+_DCL(int,	col)
+_DCL(int,	len)
+_DCL(char *,	bfr)
 {
 int	y	= file2row(curfile),
 	x	= 0,
@@ -542,7 +525,7 @@ int	at_flag	= ((endc == 'u') || (endc == 'g')) ? at_save() : FALSE;
 /*
  * Change file's owner.
  */
-edit_uid()
+edit_uid(_AR0)
 {
 register int j;
 int	uid	= cSTAT.st_uid,
@@ -580,7 +563,7 @@ char	bfr[BUFSIZ];
 /*
  * Change file's group.
  */
-edit_gid()
+edit_gid(_AR0)
 {
 register int j;
 int	gid	= cSTAT.st_gid,
@@ -639,7 +622,7 @@ char	bfr[BUFSIZ];
 /*
  * Change file's name
  */
-editname()
+editname(_AR0)
 {
 	auto	 int	changed	= 0;
 	register int	j;
@@ -675,7 +658,7 @@ editname()
 /*
  * Change file's link-text
  */
-editlink(cmd)
+editlink _ONE(int,cmd)
 {
 	auto	 int	col,
 			changed	= 0;
@@ -748,7 +731,7 @@ editlink(cmd)
 /*
  * Initiate/conclude repetition of inline editing.
  */
-dedline(flag)
+dedline _ONE(int,flag)
 {
 	return ((re_edit = flag) ? *lastedit : 0);
 }

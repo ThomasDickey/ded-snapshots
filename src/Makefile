@@ -1,4 +1,4 @@
-# $Id: Makefile,v 9.1 1991/09/09 07:39:09 dickey Exp $
+# $Id: Makefile,v 9.2 1991/10/15 16:22:30 dickey Exp $
 # MAKE-file for directory editor
 #
 ####### (Environment) ##########################################################
@@ -10,10 +10,11 @@ GET	= checkout
 ####### (Command-line Options) #################################################
 DED_H	= ded.h $I/ptypes.h $I/common.h $I/cmdch.h
 INCLUDES= -I. -I$I
+CPP_OPTS= $(DEFINES) $(INCLUDES)
 CFLAGS	=
 LIBS	= $L/lib.a
 DATE	= echo '****'`date` >> $@
-LINTOPT	= $(DEFINES) $(INCLUDES) -ltd -lcurses -lapollo
+LINTOPT	= $(CPP_OPTS) -ltd -lcurses -lapollo
 #
 ####### (Standard Lists) #######################################################
 ALL	= $B/ded $B/ded.hlp
@@ -103,7 +104,13 @@ $(SOURCES):			; $(GET) $@
 lint.out:	$(CSRC)		; $(DATE); tdlint $(LINTOPT) $(CSRC) >>$@
 lincnt.out:	$(CSRC)		; $(DATE); lincnt $(CSRC) >>$@
 
+CPROTO	= cproto -e -i -fo'\\n\\t\\t' -fp'\\n\\t\\t'
+
+.PRECIOUS:	proto.h
+proto.h:	$(CSRC)		; $(CPROTO) $(CPP_OPTS) $? >$@
+
 .SUFFIXES:
-.SUFFIXES: .c .o
-.c.o:
-	$(CC) $(CFLAGS) $(INCLUDES) $(DEFINES) -c $<
+.SUFFIXES: .c .i .o .proto
+.c.o:		; $(CC) $(CPP_OPTS) $(CFLAGS) -c $<
+.c.i:		; $(CC) $(CPP_OPTS) -E -C $< >$@
+.c.proto:	; $(CPROTO) $(CPP_OPTS) $< >$@

@@ -1,8 +1,11 @@
+#ifndef	_ded_h
+#define	_ded_h
+
 #ifdef	MAIN
 #ifndef	lint
-static	char	*ded_h = "$Id: ded.h,v 9.2 1991/07/24 12:18:41 dickey Exp $";
-#endif	/* lint */
+static	char	*ded_h = "$Id: ded.h,v 9.4 1991/10/15 16:34:09 dickey Exp $";
 #endif
+#endif	/* MAIN */
 
 /*
  * Created:	09 Nov 1987
@@ -11,22 +14,17 @@ static	char	*ded_h = "$Id: ded.h,v 9.2 1991/07/24 12:18:41 dickey Exp $";
 
 #define		CUR_PTYPES	/* use "curses" */
 #define		STR_PTYPES	/* use "strrchr" */
-#include	"ptypes.h"
+#include	<ptypes.h>
 #include	<ctype.h>
-#include	<sys/errno.h>
-#include	"cmdch.h"
-extern	void	blip();
-extern	char	*getenv();
-extern	int	errno;
-
-extern	char	*gethome(),	/* find home-directory		*/
-		*gid2s(),	/* translate gid to string	*/
-		*uid2s();	/* translate uid to string	*/
+#include	<errno.h>
+#include	<cmdch.h>
+extern	char	*sys_errlist[];
 
 /*
  * Definitions to make linting easier
  */
 #define	FREE(p)		dofree(p)
+#define	_ONE(t,a)	(_AR1(t,a)) _DCL(t,a)
 
 /*
  * SYSTEM5/BSD4.x differences between regular-expression handling:
@@ -66,8 +64,11 @@ extern	int	re_exec();	/* (return > 0): match */
 /*
  * Miscellaneous definitions
  */
-extern	char	*dftenv();
+#ifdef	__STDCPP__
+#define	ENV(n)	dftenv(n,#n)
+#else
 #define	ENV(n)	dftenv(n,"n")
+#endif
 
 #define	UIDLEN	9		/* length of uid/gid field */
 
@@ -169,3 +170,345 @@ MAIN	int	V_opt,		/* show sccs-versions */
 #endif	/* Z_RCS_SCCS */
 
 MAIN unsigned	numfiles;	/* total files in display-list */
+
+/* *** "ded.c" *** */
+extern	int	file2row(
+		_ar1(int,	n));
+
+extern	int	move2row(
+		_arx(int,	n)
+		_ar1(int,	col));
+
+extern	int	to_exit(
+		_ar1(int,	last));
+
+extern	int	clear_work(_ar0);
+
+extern	int	to_work(
+		_ar1(int,	clear_it));
+
+extern	int	to_file(_ar0);
+
+extern	int	scroll_to_file(
+		_ar1(int,	inx));
+
+extern	int	markset(
+		_arx(int,	num)
+		_ar1(int,	reset_work));
+
+extern	int	realstat(
+		_arx(int,	inx)
+		_ar1(struct stat *,sb));
+
+extern	char	*err_msg(
+		_ar1(char *,	msg));
+
+extern	int	dedmsg(
+		_ar1(char *,	msg));
+
+extern	int	warn(
+		_ar1(char *,	msg));
+
+extern	int	waitmsg(
+		_ar1(char *,	msg));
+
+extern	int	wait_warn(
+		_ar1(char *,	msg));
+
+extern	int	failed(
+		_ar1(char *,	msg));
+
+extern	int	user_says(
+		_ar1(int,	ok));
+
+extern	int	findFILE(
+		_ar1(char *,	name));
+
+extern	int	upLINE(
+		_ar1(int,	n));
+
+extern	int	downLINE(
+		_ar1(int,	n));
+
+extern	int	showDOWN(_ar0);
+
+extern	int	forward(
+		_ar1(int,	n));
+
+extern	int	backward(
+		_ar1(int,	n));
+
+extern	int	showWHAT(_ar0);
+
+extern	int	showLINE(
+		_ar1(int,	j));
+
+extern	int	showVIEW(_ar0);
+
+extern	int	showMARK(
+		_ar1(int,	col));
+
+extern	int	showFILES(
+		_arx(int,	reset_cols)
+		_ar1(int,	reset_work));
+
+extern	int	showSCCS(_ar0);
+
+extern	int	showC(_ar0);
+
+extern	int	markC(
+		_ar1(int,	on));
+
+extern	int	retouch(
+		_ar1(int,	row));
+
+extern	int	rescan(
+		_arx(int,	fwd)
+		_ar1(char *,	backto));
+
+extern	int	restat(
+		_ar1(int,	group));
+
+extern	int	restat_l(_ar0);
+
+extern	int	restat_W(_ar0);
+
+extern	int	resleep(
+		_arx(int,	count)
+		_fn1(int,	func));
+
+extern	char	*fixname(
+		_ar1(int,	j));
+
+extern	int	fixtime(
+		_ar1(int,	j));
+
+extern	int	usage(_ar0);
+
+extern	int	main(
+		_arx(int,	argc)
+		_ar1(char **,	argv));
+
+/* *** "deddoit.c" *** */
+extern	int	deddoit(
+		_arx(int,	key)
+		_ar1(int,	sense));
+
+/* *** "deddump.c" *** */
+extern	int	deddump(_ar0);
+
+/* *** "dedfind.c" *** */
+extern	int	dedfind(
+		_ar1(int,	key));
+
+/* *** "dedfree.c" *** */
+extern	FLIST	*dedfree(
+		_arx(FLIST *,	fp)
+		_ar1(unsigned,	num));
+
+/* *** "dedline.c" *** */
+extern	int	editprot(_ar0);
+
+extern	int	edittext(
+		_arx(int,	endc)
+		_arx(int,	col)
+		_arx(int,	len)
+		_ar1(char *,	bfr));
+
+extern	int	edit_uid(_ar0);
+
+extern	int	edit_gid(_ar0);
+
+extern	int	editname(_ar0);
+
+extern	int	editlink(
+		_ar1(int,	cmd));
+
+extern	int	dedline(
+		_ar1(int,	flag));
+
+/* *** "dedmake.c" *** */
+extern	int	dedmake(_ar0);
+
+/* *** "dedname.c" *** */
+extern	int	dedname(
+		_arx(int,	x)
+		_ar1(char *,	newname));
+
+/* *** "dedread.c" *** */
+extern	int	dedread(
+		_arx(char *,	*pattern_)
+		_ar1(int,	change_needed));
+
+extern	int	init_scan(_ar0);
+
+extern	int	ok_scan(
+		_ar1(char *,	name));
+
+/* *** "dedring.c" *** */
+extern	int	dedring(
+		_arx(char *,	path)
+		_arx(int,	cmd)
+		_arx(int,	count)
+		_arx(int,	set_pattern)
+		_ar1(char *,	pattern));
+
+extern	int	dedrang(
+		_ar1(char *,	path));
+
+extern	char	*dedrung(
+		_ar1(int,	count));
+
+/* *** "dedscan.c" *** */
+extern	int	dedscan(
+		_arx(int,	argc)
+		_ar1(char **,	argv));
+
+extern	int	statSCCS(
+		_arx(char *,	name)
+		_ar1(FLIST *,	f_));
+
+extern	int	statLINE(
+		_ar1(int,	j));
+
+extern	int	statMAKE(
+		_ar1(int,	mode));
+
+extern	int	path_RESOLVE(
+		_ar1(char *,	path));
+
+/* *** "dedshow.c" *** */
+extern	int	dedshow(
+		_arx(char *,	tag)
+		_ar1(char *,	arg));
+
+/* *** "dedsigs.c" *** */
+extern	int	dedsigs(
+		_ar1(int,	flag));
+
+/* *** "dedsort.c" *** */
+extern	int	dedsort_cmp(
+		_arx(FLIST *,	p1)
+		_ar1(FLIST *,	p2));
+
+extern	int	dedsort(_ar0);
+
+/* *** "dedtype.c" *** */
+extern	int	dedtype(
+		_arx(char *,	name)
+		_arx(int,	binary)
+		_arx(int,	stripped)
+		_ar1(int,	isdir));
+
+/* *** "deduniq.c" *** */
+extern	int	deduniq(
+		_ar1(int,	level));
+
+/* *** "dedwait.c" *** */
+extern	int	dedwait(
+		_ar1(int,	cursed));
+
+/* *** "ded2s.c" *** */
+extern	int	ded2s(
+		_arx(int,	inx)
+		_arx(char *,	bfr)
+		_ar1(int,	len));
+
+extern	int	ded2string(
+		_arx(char *,	bfr)
+		_arx(int,	len)
+		_arx(char *,	name)
+		_ar1(int,	flag));
+
+extern	char	*type_uid2s(
+		_ar1(struct stat *,s));
+
+extern	int	has_extended_acl(
+		_ar1(int,	x));
+
+/* *** "dlog.c" *** */
+extern	int	dlog_read(
+		_ar1(char *,	name));
+
+extern	char	*dlog_open(
+		_arx(char *,	name)
+		_arx(int,	argc)
+		_ar1(char **,	argv));
+
+extern	int	dlog_reopen(_ar0);
+
+extern	int	dlog_close(_ar0);
+
+extern	int	dlog_exit(
+		_ar1(int,	code));
+
+extern	int	dlog_char(
+		_arx(int,	*count_)
+		_ar1(int,	begin));
+
+extern	int	dlog_string(
+		_arx(char *,	s)
+		_arx(int,	len)
+		_ar1(int,	wrap));
+
+extern	int	dlog_elapsed(_ar0);
+
+extern	int	dlog_flush(_ar0);
+
+extern	int	dlog_name(
+		_ar1(char *,	name));
+
+extern	int	dlog_comment(
+#ifdef	__STDC__
+		...
+#endif
+		);
+
+/* *** "ftree.c" *** */
+extern	int	ft_insert(
+		_ar1(char *,	path));
+
+extern	int	ft_remove(
+		_arx(char *,	path)
+		_ar1(int,	all));
+
+extern	int	ft_purge(_ar0);
+
+extern	int	ft_rename(
+		_arx(char *,	old)
+		_ar1(char *,	new));
+
+extern	int	ft_read(
+		_arx(char *,	first)
+		_ar1(char *,	home_dir));
+
+extern	int	ft_view(
+		_ar1(char *,	path));
+
+extern	int	ft_scan(
+		_arx(int,	node)
+		_arx(int,	levels)
+		_ar1(int,	base));
+
+extern	int	ft_stat(
+		_arx(char *,	name)
+		_ar1(char *,	leaf));
+
+extern	int	ft_write(_ar0);
+
+/* *** "showpath.c" *** */
+extern	int	showpath(
+		_arx(char *,	path)
+		_arx(int,	level)
+		_arx(int,	base)
+		_ar1(int,	margin));
+
+/* *** "sortset.c" *** */
+extern	int	sortset(
+		_arx(int,	ord)
+		_ar1(int,	opt));
+
+extern	int	sortget(
+		_ar1(int,	c));
+
+#endif	/* _ded_h */
