@@ -1,11 +1,12 @@
 #ifndef	lint
-static	char	sccs_id[] = "@(#)ftree.c	1.62 89/01/23 13:30:58";
+static	char	sccs_id[] = "@(#)ftree.c	1.63 89/03/07 09:22:47";
 #endif	lint
 
 /*
  * Author:	T.E.Dickey
  * Created:	02 Sep 1987
  * Modified:
+ *		07 Mar 1989, forgot that 'strchr()' will also search for a null.
  *		23 Jan 1989, to support 'A' toggle and '~' home-command
  *		20 Jan 1989, to support "-t" option of DED.
  *		09 Sep 1988, adjusted '=' to permit "~" expressions.
@@ -106,7 +107,8 @@ extern	char	*rcs_dir(),
 
 #define	MAXLVL	999
 
-#define	ALL_SHOW(j)	(all_show || (strchr(".$", ftree[node].f_name[0]) == 0))
+#define	PRE(j,c)	(ftree[j].f_name[0] == c)
+#define	ALL_SHOW(j)	(all_show || !(PRE(j,'.') || PRE(j,'$')))
 #define	zMARK(j)	(ftree[j].f_mark & MARKED)
 #define	zLINK(j)	(ftree[j].f_mark & LINKED)
 #define	zROOT(j)	(ftree[j].f_root)
@@ -1074,6 +1076,10 @@ char	*path;
 				if (c == '~')
 					(void)strcpy(cwdpath, "~");
 				rawgets(cwdpath,sizeof(cwdpath),FALSE);
+				if (!*cwdpath) {
+					c = -1;
+					beep();
+				}
 			}
 			if (c != '@' && c != '~')
 				c = fd_find(cwdpath,c,row);
