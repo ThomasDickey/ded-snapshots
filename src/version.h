@@ -1,11 +1,19 @@
 /*
- * $Id: version.h,v 8.3 1991/04/04 09:28:42 dickey Exp $
+ * $Id: version.h,v 8.5 1991/04/16 08:54:39 dickey Exp $
  * Version-identifier for DED
  * $Log: version.h,v $
- * Revision 8.3  1991/04/04 09:28:42  dickey
- * mods to recover/proceed when 'chdir()' works but 'getwd()'
- * does not (execute, but no read permission in path).
+ * Revision 8.5  1991/04/16 08:54:39  dickey
+ * absorb backslash in shell command only when "#" or "%"
+ * follows (briefer).
  *
+ *		Revision 8.4  91/04/16  08:16:39  dickey
+ *		modified so that "-" argument causes DED to read a list of
+ *		arguments from stdin (no wildcard expansion!)
+ *		
+ *		Revision 8.3  91/04/04  09:28:42  dickey
+ *		mods to recover/proceed when 'chdir()' works but 'getwd()'
+ *		does not (execute, but no read permission in path).
+ *		
  *		Revision 8.2  91/04/01  12:34:48  dickey
  *		added CTL/I (tab) subcommand to 't' (type) to alter tabs.
  *		
@@ -165,4 +173,4 @@
  * 01 Dec 1987, added '*', '^' commands, made '%' refresh screen
  * 25 Nov 1987, added sccs-support (V,z,Z toggles, V,z,Z sorts)
  */
-static	char	version[] = "$Date: 1991/04/04 09:28:42 $";
+static	char	version[] = "$Date: 1991/04/16 08:54:39 $";

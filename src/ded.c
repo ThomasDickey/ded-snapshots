@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	what[] = "$Id: ded.c,v 8.2 1991/04/04 09:28:13 dickey Exp $";
+static	char	what[] = "$Id: ded.c,v 8.4 1991/04/16 08:54:12 dickey Exp $";
 #endif	lint
 
 /*
@@ -7,9 +7,15 @@ static	char	what[] = "$Id: ded.c,v 8.2 1991/04/04 09:28:13 dickey Exp $";
  * Author:	T.E.Dickey
  * Created:	09 Nov 1987
  * $Log: ded.c,v $
- * Revision 8.2  1991/04/04 09:28:13  dickey
- * guard against 'getwd()' failure.
+ * Revision 8.4  1991/04/16 08:54:12  dickey
+ * suppress empty-strings from argument list
  *
+ *		Revision 8.3  91/04/16  08:18:19  dickey
+ *		interpret "-" argument as read-from-standard-input
+ *		
+ *		Revision 8.2  91/04/04  09:28:13  dickey
+ *		guard against 'getwd()' failure.
+ *		
  *		Revision 8.1  90/08/27  09:43:19  dickey
  *		mods to make error-reporting routines work properly if they
  *		are called before screen is initialized, etc., to support mods
@@ -1275,6 +1281,18 @@ char	*argv[];
 		(void)strcat(strcat(whoami, " -l"), log_opt);
 	(void)strcat(whoami, " -n");
 
+	if (optind < argc
+	 && !strcmp(argv[optind], "-")) {
+		argc = fp2argv(stdin, &argv);
+		optind = 0;
+		for (j = 0; j < argc; j++) {
+			register char *s = argv[j];
+			register int  len = strlen(s) - 1;
+			if (len >= 0 && s[len] == '\n')
+				s[len] = EOS;	/* trim trailing newline */
+		}
+	}
+
 	(void)dedsigs(TRUE);
 	if (!initscr())			failed("initscr");
 	in_screen = TRUE;
@@ -1291,6 +1309,8 @@ char	*argv[];
 	if (optind < argc) {
 		for (j = 0; j < argc - optind; j++) {
 			char *s = txtalloc(argv[j+optind]);
+			if (*s == EOS)
+				continue;
 			for (k = 0; k < j; k++)
 				/* look for repeats (same pointer) */
 				if (top_argv[k] == s)

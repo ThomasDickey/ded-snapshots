@@ -1,3 +1,21 @@
+1991-04-16  dickey@software.org
+
+	* src/version.h: absorb backslash in shell command only when "#" or "%"
+	follows (briefer).
+
+	* src/ded.c: suppress empty-strings from argument list
+
+	* src/deddoit.c:
+	absorb backslash only when it precedes "#" or "%", to make
+	typing commands with backslashes simpler (though inconsistent).
+	also, made the static buffers auto (cleaner code).
+
+	* src/version.h:
+	modified so that "-" argument causes DED to read a list of
+	arguments from stdin (no wildcard expansion!)
+
+	* src/ded.c: interpret "-" argument as read-from-standard-input
+
 1991-04-04  dickey@software.org
 
 	* src/version.h:
