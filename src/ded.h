@@ -1,4 +1,4 @@
-/* @(#)ded.h	1.15 88/06/01 07:33:19 */
+/* @(#)ded.h	1.16 88/06/06 09:36:10 */
 
 /*
  * Created:	09 Nov 1987
@@ -15,6 +15,7 @@ extern	char	*getenv(),
 		*strcpy();
 
 extern	char	*doalloc(),	/* (re)allocate memory		*/
+		*gethome(),	/* find home-directory		*/
 		*gid2s(),	/* translate gid to string	*/
 		*uid2s();	/* translate uid to string	*/
 
