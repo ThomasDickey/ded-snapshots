@@ -1,5 +1,5 @@
 #if	!defined(NO_IDENT)
-static	char	Id[] = "$Id: dedtype.c,v 12.14 1994/07/02 20:29:51 tom Exp $";
+static	char	Id[] = "$Id: dedtype.c,v 12.15 1994/07/04 14:16:25 tom Exp $";
 #endif
 
 /*
@@ -7,6 +7,7 @@ static	char	Id[] = "$Id: dedtype.c,v 12.14 1994/07/02 20:29:51 tom Exp $";
  * Author:	T.E.Dickey
  * Created:	16 Nov 1987
  * Modified:
+ *		04 Jul 1994, prevent nonascii characters from echoing.
  *		09 May 1994, Linux's 'ftell()' clears eof-flag.
  *		29 Oct 1993, ifdef-ident, port to HP/UX.
  *		28 Sep 1993, gcc warnings
@@ -187,10 +188,12 @@ private	int	typeconv(
 				while (Tcol % tabstop) 
 					typeover(' ');
 			}
-		} else
+		} else {
 			typeover(dot);
-	} else
+		}
+	} else if (OptBinary) {
 		typeover(dot);
+	}
 	if (OptBinary)
 		if (Tlen - Shift >= COLS-1)
 			return(TRUE);
