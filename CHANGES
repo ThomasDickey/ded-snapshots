@@ -1,3 +1,16 @@
+1994-06-27  Thomas E. Dickey  <dickey@clark.net>
+
+	* src/ded.c, src/dlog.c, src/dedsize.c, src/ded.h: unused-argument
+
+	* src/ftree.c, src/ded.h, src/ded.c, src/dedsize.c, src/dlog.c, src/sortset.c, src/inline.c, src/dedwait.c, src/dedtype.c, src/dedmsgs.c:
+	window-resize
+
+	* src/dedsize.c: first cut of using 'on_winch()'
+
+	* src/ded.c: revised interface to 'dedsize()'
+
+	* src/ded.h: added prototype for 'dedsize()'
+
 1994-06-26  Thomas E. Dickey  <dickey@clark.net>
 
 	* src/ded.c: added quick hack to work on 'dedsize()'

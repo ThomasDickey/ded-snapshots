@@ -3,7 +3,7 @@
 
 #ifdef	MAIN
 #if	!defined(NO_IDENT)
-static	char	*ded_h = "$Id: ded.h,v 12.18 1994/06/26 22:22:21 tom Exp $";
+static	char	*ded_h = "$Id: ded.h,v 12.19 1994/06/27 23:28:25 tom Exp $";
 #endif
 #endif	/* MAIN */
 
@@ -408,6 +408,15 @@ extern	void	dedshow(
 /* *** "dedsigs.c" *** */
 extern	int	dedsigs(
 		_ar1(int,	flag));
+
+/* *** "dedsize.c" *** */
+#ifdef SIGWINCH
+extern	void	dedsize(
+		_arx(RING *,	gbl)
+		_ar1(int *,	row));
+#else
+#define		dedsize(gbl,row)	/* nothing */
+#endif
 
 /* *** "dedsort.c" *** */
 extern	int	dedsort_cmp(
