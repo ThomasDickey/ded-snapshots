@@ -1,4 +1,4 @@
-MANIFEST for ded, version t19920810
+MANIFEST for ded, version t19920811
 --------------------------------------------------------------------------------
 MANIFEST                        this file
 Makefile                        top-level makefile for unix directory editor
@@ -31,6 +31,7 @@ src/dedwait.c                   prompt/wait-for-return
 src/dlog.c                      logging functions
 src/ftree.c                     directory-tree for DED
 src/history.c                   save/restore history records
+src/inline.c                    split out from 'dedline.c' so I can rewrite the memory-management of the
 src/restat.c                    split off restat-stuff from 'ded.c'
 src/showpath.c                  encapsulates display of long pathnames for 'ded' and 'ftree', using
 src/sortset.c                   controls setting of sort-options & display/modification of preset option

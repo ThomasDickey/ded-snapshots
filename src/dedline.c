@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	Id[] = "$Id: dedline.c,v 11.0 1992/06/19 10:02:13 ste_cm Rel $";
+static	char	Id[] = "$Id: dedline.c,v 11.2 1992/08/11 16:58:46 dickey Exp $";
 #endif
 
 /*
@@ -60,48 +60,9 @@ static	char	Id[] = "$Id: dedline.c,v 11.0 1992/06/19 10:02:13 ste_cm Rel $";
 #define	TO_FIRST	CTL('b')
 #define	TO_LAST		CTL('f')
 
-static	int	re_edit;		/* flag for 'edittext()' */
-static	char	lastedit[BUFSIZ];
-
 /************************************************************************
  *	local procedures						*
  ************************************************************************/
-
-/*
- * Store/retrieve field-editing commands.  The first character of the buffer
- * 'lastedit[]' is reserved to tell us what the command was.
- */
-public	int	replay _ONE(int,c)
-{
-	static	int	in_edit;
-
-	if (c != EOS) {
-		switch (c) {
-		case -2:	/* remove all data (quit/abend) */
-			in_edit = 1;
-		case -1:	/* remove prior-data (e.g., for retry/append) */
-			if (in_edit > 0) {
-				c = lastedit[--in_edit];
-				lastedit[in_edit] = EOS;
-			}
-			break;
-		default:
-			lastedit[0] = c;
-			in_edit = 1;
-		}
-	} else {
-		if (re_edit && lastedit[in_edit] != EOS) {
-			c = lastedit[in_edit++];
-		} else {
-			c = dlog_char((int *)0,0);
-			if (c == '\r') c = '\n';
-			lastedit[in_edit++] = c;
-			lastedit[in_edit]   = EOS;
-		}
-	}
-
-	return (c & 0xff);
-}
 
 /*
  * Construct an editable-string for 'editname()' and 'editlink()'.
@@ -428,7 +389,7 @@ public	void	editprot _ONE(RING *,gbl)
 
 	(void)save_Xbase(gbl, gbl->cmdcol[CCOL_PROT]);
 
-	(void)replay('p');
+	ReplayStart('p');
 
 	while (!done) {
 	int	rwx,
@@ -442,15 +403,14 @@ public	void	editprot _ONE(RING *,gbl)
 		cols[2] = cols[1] + rwx;
 
 		move(y, cols[x]);
-		if (re_edit <= 0) refresh();
-		switch (c = replay(EOS)) {
+		switch (c = ReplayChar()) {
 		case '\n':
 		case 'p':
 			changed = change_protection(gbl);
 			done = TRUE;
 			break;
 		case 'q':
-			(void)replay(-2);
+			ReplayQuit();
 			done = TRUE;
 			break;
 		case TO_FIRST:
@@ -550,7 +510,7 @@ public	int	edittext(
 	if (at_flag)
 		showLINE(gbl, gbl->curfile);
 #endif
-	(void)replay(endc);
+	ReplayStart(endc);
 
 	last = (COLS - 1 - col);
 	if (last > len) last = len;
@@ -570,10 +530,9 @@ public	int	edittext(
 			addch(' ');
 		if (!insert)	standend();
 		move(y,x-shift+col);
-		if (re_edit <= 0) refresh();
 
 		delete = -1;
-		c = replay(EOS);
+		c = ReplayChar();
 
 		if (c == '\n') {
 			break;
@@ -604,7 +563,7 @@ public	int	edittext(
 				beep();
 		} else {
 			if (c == 'q') {
-				(void)replay(-2);
+				ReplayQuit();
 				code = FALSE;
 				break;
 			} else if (c == endc) {
@@ -747,7 +706,7 @@ public	void	editname _ONE(RING *,gbl)
 	if (EDITNAME(cNAME) && strcmp(cNAME, bfr)) {
 		if (dedname(gbl, gbl->curfile, bfr) >= 0) {
 			(void)dedsigs(TRUE);	/* reset interrupt count */
-			re_edit = TRUE;
+			hide_inline(TRUE);
 			for (j = 0; j < gbl->numfiles; j++) {
 				if (j == gbl->curfile)
 					continue;
@@ -763,7 +722,7 @@ public	void	editname _ONE(RING *,gbl)
 						break;
 				}
 			}
-			re_edit = FALSE;
+			hide_inline(FALSE);
 		}
 	}
 	restat(gbl,changed);
@@ -823,7 +782,7 @@ public	void	editlink(
 			if (relink(gbl, gbl->curfile, bfr)) {
 				(void)dedsigs(TRUE);
 					/* reset interrupt count */
-				re_edit = TRUE;
+				hide_inline(TRUE);
 				for (j = 0; j < gbl->numfiles; j++) {
 					if (j == gbl->curfile)
 						continue;
@@ -839,7 +798,7 @@ public	void	editlink(
 							break;
 					}
 				}
-				re_edit = FALSE;
+				hide_inline(FALSE);
 			}
 		}
 		if (restore && !changed)
@@ -848,11 +807,3 @@ public	void	editlink(
 	restat(gbl,changed);
 }
 #endif	/* S_IFLNK */
-
-/*
- * Initiate/conclude repetition of inline editing.
- */
-dedline _ONE(int,flag)
-{
-	return ((re_edit = flag) ? *lastedit : 0);
-}

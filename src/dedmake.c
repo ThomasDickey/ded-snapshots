@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	Id[] = "$Id: dedmake.c,v 11.0 1992/04/06 15:43:29 ste_cm Rel $";
+static	char	Id[] = "$Id: dedmake.c,v 12.0 1992/08/11 17:02:41 ste_cm Rel $";
 #endif
 
 /*
@@ -108,8 +108,8 @@ private	int	made_or_quit(
 			return TRUE;
 		}
 		dedmsg(gbl, sys_errlist[errno]);
-		(void)dedline(-TRUE);		/* force refresh! */
-		(void)replay(-1);
+		(void)edit_inline(-TRUE);	/* force refresh! */
+		(void)ReplayTrim();
 		return FALSE;
 	}
 	statMAKE(gbl, 0);			/* undo it -- gave up */
@@ -151,5 +151,5 @@ public	void	dedmake(
 	do {
 		(void)strcpy(bfr, (hard >= 0) ? gNAME(hard) : cNAME);
 	} while (!made_or_quit(gbl, firstc, mode, hard, bfr));
-	(void)dedline(FALSE);
+	(void)edit_inline(FALSE);
 }

@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	Id[] = "$Header: /users/source/archives/ded.vcs/src/RCS/ded.c,v 11.2 1992/08/06 13:52:53 dickey Exp $";
+static	char	Id[] = "$Header: /users/source/archives/ded.vcs/src/RCS/ded.c,v 11.4 1992/08/11 17:01:55 dickey Exp $";
 #endif
 
 /*
@@ -1140,7 +1140,7 @@ _MAIN
 	case '>':	editlink(gbl, c);	break;
 #endif	/* S_IFLNK */
 
-	case '"':	switch (c = dedline(TRUE)) {
+	case '"':	switch (c = edit_inline(TRUE)) {
 			case 'p':	editprot(gbl);		break;
 			case 'u':	edit_uid(gbl);		break;
 			case 'g':	edit_gid(gbl);		break;
@@ -1160,12 +1160,12 @@ _MAIN
 				dedmsg(gbl, temp);
 				}
 			}
-			(void)dedline(FALSE);
+			(void)edit_inline(FALSE);
 			break;
 
 	case 'c':	/* create an entry */
-			(void)replay('c');
-			dedmake(gbl, replay(EOS));
+			ReplayStart('c');
+			dedmake(gbl, ReplayChar());
 			break;
 
 	case CTL('e'):	/* pad-edit */

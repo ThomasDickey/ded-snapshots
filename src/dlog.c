@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	what[] = "$Id: dlog.c,v 11.12 1992/08/10 08:15:07 dickey Exp $";
+static	char	what[] = "$Id: dlog.c,v 11.14 1992/08/11 11:13:16 dickey Exp $";
 #endif
 
 /*
@@ -252,6 +252,8 @@ public	int	dlog_char(
 	return record_char(read_char(count_), count_, begin);
 }
 
+#define	IGNORE	{ beep(); continue; }
+
 /*
  * Obtain a string from the user and log it if logging is active.
  *
@@ -261,7 +263,7 @@ public	int	dlog_char(
  */
 public	char *	dlog_string(
 	_ARX(DYN **,	result)
-	_ARX(DYN **,	inline)	/* patch */
+	_ARX(DYN **,	inline)
 	_ARX(HIST **,	history)
 	_AR1(int,	wrap_len)
 		)
@@ -270,17 +272,18 @@ public	char *	dlog_string(
 	_DCL(HIST **,	history)
 	_DCL(int,	wrap_len)
 {
-	static	DYN	*before, *after, *edited;
+	static	DYN	*original, *before, *after, *trace, *edited;
 	static	char	*i_pref[] = { "^",  " "  },
 			*n_pref[] = { "^ ", ": " };
 
-	int	done	= FALSE;
+	int	done;
 	int	wrap	= wrap_len <= 0;
 	int	len	= wrap ? -wrap_len : wrap_len;
 	int	nnn	= 0;	/* history-index */
 	int	y,x;
-	char	*buffer;
+	char	*buffer, *to_hist, *prior;
 	char	**prefix= inline ? i_pref : n_pref;
+	int	fast_q	= wrap ? EOS : 'q';
 
 	register int	c;
 	register char	*s;
@@ -291,84 +294,120 @@ public	char *	dlog_string(
 	*result = dyn_alloc(*result, (size_t)len+1);
 	buffer  = dyn_string(*result);
 
-	if (inline)
-		dyn_init(inline,1);
-	dyn_init(&after,1);
+	/* Inline-editing records the editing actions in history, not the
+	 * resulting buffer.
+	 */
+	if (inline) {
+		original = dyn_copy(original, buffer);
+		if (s = dyn_string(*inline))
+			trace = dyn_copy(trace, s);
+		else
+			dyn_init(&trace,1);
+	}
 
 	getyx(stdscr,y,x);
-	do {
+
+	for (;;) {
+
+		/*
+		 * Replay the portion of the inline editing from history.
+		 */
+		if (inline && (prior = dyn_string(trace)))
+			(void)wrawgets((WINDOW *)0,
+				buffer,
+				prefix,
+				len,
+				wrap,
+				fast_q,
+				&prior,
+				FALSE);
+
+		/*
+		 * Perform interactive (or scripted) edit:
+		 */
 		before = dyn_copy(before, buffer);
 		after  = dyn_copy(after,  buffer);
-		/*move(y,x-3);PRINTW("%d=",nnn); patch */
+
 		move(y,x);
 		c = wrawgets(stdscr,
 			buffer,
 			prefix,
 			len,
 			wrap,
-			wrap ? EOS : 'q',
+			fast_q,
 			cmd_fp ? &cmd_ptr : (char **)0,
-			history || log_fp);
+			history || inline || log_fp);
+
+		/*
+		 * Record the inline-editing keystrokes
+		 */
+		if (history && inline) {
+			trace = dyn_append(trace, rawgets_log());
+			s = dyn_string(trace);
+
+			/* allow splice */
+			if (trace->cur_length > 0)
+				s[--(trace->cur_length)] = EOS;
+		}
+
+		to_hist = inline ? dyn_string(trace) : buffer;
 
 		/* If any change was made, reset history-index */
 		if (strcmp(dyn_string(before), dyn_string(after))) {
 			nnn = 0;
 			after  = dyn_copy(after,  buffer);
-			edited = dyn_copy(edited, buffer);
+			edited = dyn_copy(edited, to_hist);
 		}
 
 		if (log_fp)
 			record_string(rawgets_log());
 
-		if (history && inline)
-			*inline = dyn_append(*inline, rawgets_log());
-
 		if (c == ARO_UP) {
-			if (!history) {
-				beep();
-				continue;
-			}
+			if (!history) IGNORE
+
 			if (!nnn)
-				edited = dyn_copy(edited, buffer);
+				edited = dyn_copy(edited, to_hist);
+
 			if (s = get_history(*history, nnn)) {
-				if (strcmp(s, buffer))
+				if (strcmp(s, to_hist))
 					;	/* cannot skip */
 				else if (s = get_history(*history, nnn+1))
 					nnn++;
-				else {
-					beep();	/* last and only item */
-					continue;
-				}
+				else IGNORE	/* last and only item */
 				nnn++;
-				(void)strcpy(buffer, s);
-			} else
-				beep();
+			} else IGNORE
+
 		} else if (c == ARO_DOWN) {
-			if (!history) {
-				beep();
-				continue;
-			}
+			if (!history) IGNORE
+
 			if (s = get_history(*history, nnn-2)) {
 				nnn--;
 				if (nnn == 1 && !strcmp(s, dyn_string(edited)))
 					nnn = 0;
-				(void)strcpy(buffer, s);
 			} else if (nnn == 1) {
 				nnn = 0;
-				(void)strcpy(buffer, dyn_string(edited));
-			} else
-				beep();
+				s = dyn_string(edited);
+			} else IGNORE
+
 		} else if (c == '\r' || c == '\n') {
 			done = TRUE;
-		} else	/* assume quit */
+			break;
+		} else {/* assume quit */
 			done = -TRUE;
+			break;
+		}
 
-	} while (!done);
+		*result = dyn_copy(*result, inline ? dyn_string(original) : s);
+		buffer = dyn_string(*result);
+
+		if (inline)
+			trace = dyn_copy(trace, s);
+	}
 
 	PENDING(string,TRUE);
 
 	if (done == TRUE)
-		put_history(history, inline ? dyn_string(*inline) : buffer);
+		put_history(history, to_hist);
 
 	return buffer;
 }
