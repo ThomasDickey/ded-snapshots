@@ -1,5 +1,10 @@
 /*
  * Version-identifier for DED
+ * $Log: version.h,v $
+ * Revision 1.44  1989/03/23 15:12:26  dickey
+ * store RCS date in 'version[]' rather than SCCS date
+ *
+ *
  * 15 Mar 1989, make logging work with subprocesses.
  * 14 Mar 1989, added '<' command and "-l" (logfile) option.
  * 07 Mar 1989, corrected ftree interaction between A/@ commands.
@@ -44,4 +49,4 @@
  * 01 Dec 1987, added '*', '^' commands, made '%' refresh screen
  * 25 Nov 1987, added sccs-support (V,z,Z toggles, V,z,Z sorts)
  */
-static	char	version[] = "$Header: /users/source/archives/ded.vcs/src/RCS/version.h,v 1.43 1989/03/15 09:17:55 dickey Exp $)";
+static	char	version[] = "$Date: 1989/03/23 15:12:26 $";

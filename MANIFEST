@@ -1,6 +1,7 @@
-MANIFEST for ded, version t19890315
+MANIFEST for ded, version t19890323
 --------------------------------------------------------------------------------
 MANIFEST                        this file
+Makefile                        top-level makefile for unix directory editor
 src                             subdirectory
 src/Makefile                    makefile for src-directory
 src/README                      to-do list for DED
