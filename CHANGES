@@ -1,3 +1,23 @@
+1990-04-18  dickey@software.org
+
+	* src/version.h:
+	correction to 'E' command (following symbolic link to file).
+	invoke 'rcslast()' to show "RCS,v" (permit-file) version.
+
+	* src/Makefile: updated include-dependency for 'dedscan.c'
+
+1990-04-18  ste_cm@software.org
+
+	* src/Makefile: BASELINE Mon Apr 30 09:54:01 1990 -- (CPROTO)
+
+	* src/Makefile: BASELINE Mon Aug 13 15:06:41 1990 -- LINCNT, ADA_TRANS
+
+1990-04-18  dickey@software.org
+
+	* src/dedscan.c:
+	invoke 'rcslast()' to pick up information about permit-file
+	(e.g., "RCS,v").
+
 1990-04-17  dickey@software.org
 
 	* src/ded.c: simplified/corrected code for 'edithead()'

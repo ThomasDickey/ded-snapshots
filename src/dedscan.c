@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	Id[] = "$Id: dedscan.c,v 6.0 1989/10/16 08:28:32 ste_cm Rel $";
+static	char	Id[] = "$Id: dedscan.c,v 6.1 1990/04/18 07:36:52 dickey Exp $";
 #endif	lint
 
 /*
@@ -7,9 +7,13 @@ static	char	Id[] = "$Id: dedscan.c,v 6.0 1989/10/16 08:28:32 ste_cm Rel $";
  * Author:	T.E.Dickey
  * Created:	09 Nov 1987
  * $Log: dedscan.c,v $
- * Revision 6.0  1989/10/16 08:28:32  ste_cm
- * BASELINE Thu Mar 29 07:37:55 1990 -- maintenance release (SYNTHESIS)
+ * Revision 6.1  1990/04/18 07:36:52  dickey
+ * invoke 'rcslast()' to pick up information about permit-file
+ * (e.g., "RCS,v").
  *
+ *		Revision 6.0  89/10/16  08:28:32  ste_cm
+ *		BASELINE Thu Mar 29 07:37:55 1990 -- maintenance release (SYNTHESIS)
+ *		
  *		Revision 5.0  89/10/16  08:28:32  ste_cm
  *		BASELINE Fri Oct 27 12:27:25 1989 -- apollo SR10.1 mods + ADA_PITS 4.0
  *		
@@ -75,6 +79,7 @@ static	char	Id[] = "$Id: dedscan.c,v 6.0 1989/10/16 08:28:32 ste_cm Rel $";
 
 #define		DIR_PTYPES	/* includes directory-stuff */
 #include	"ded.h"
+#include	"rcsdefs.h"
 extern	FLIST	*dedfree();
 extern	char	*txtalloc();
 
@@ -388,6 +393,11 @@ FLIST	*f_;
 #ifdef	Z_SCCS
 			LAST(sccslast);
 #endif	Z_SCCS
+#ifdef	Z_RCS
+		} else if (isDIR(f_->s.st_mode)
+			&& sameleaf(name,rcs_dir())) {
+			LAST(rcslast);
+#endif	/* Z_RCS */
 		} else {
 			f_->z_lock =
 			f_->z_vers = "";
