@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	sccs_id[] = "$Header: /users/source/archives/ded.vcs/src/RCS/dedmake.c,v 4.0 1989/03/15 08:41:59 ste_cm Rel $";
+static	char	Id[] = "$Id: dedmake.c,v 8.0 1989/10/05 17:02:20 ste_cm Rel $";
 #endif	lint
 
 /*
@@ -7,9 +7,24 @@ static	char	sccs_id[] = "$Header: /users/source/archives/ded.vcs/src/RCS/dedmake
  * Author:	T.E.Dickey
  * Created:	12 Sep 1988
  * $Log: dedmake.c,v $
- * Revision 4.0  1989/03/15 08:41:59  ste_cm
- * BASELINE Thu Aug 24 10:20:06 EDT 1989 -- support:navi_011(rel2)
+ * Revision 8.0  1989/10/05 17:02:20  ste_cm
+ * BASELINE Mon Aug 13 15:06:41 1990 -- LINCNT, ADA_TRANS
  *
+ *		Revision 7.0  89/10/05  17:02:20  ste_cm
+ *		BASELINE Mon Apr 30 09:54:01 1990 -- (CPROTO)
+ *		
+ *		Revision 6.0  89/10/05  17:02:20  ste_cm
+ *		BASELINE Thu Mar 29 07:37:55 1990 -- maintenance release (SYNTHESIS)
+ *		
+ *		Revision 5.0  89/10/05  17:02:20  ste_cm
+ *		BASELINE Fri Oct 27 12:27:25 1989 -- apollo SR10.1 mods + ADA_PITS 4.0
+ *		
+ *		Revision 4.1  89/10/05  17:02:20  dickey
+ *		modified treatment of 'cmdcol[]' (cf: showFILES)
+ *		
+ *		Revision 4.0  89/03/15  08:41:59  ste_cm
+ *		BASELINE Thu Aug 24 10:20:06 EDT 1989 -- support:navi_011(rel2)
+ *		
  *		Revision 3.0  89/03/15  08:41:59  ste_cm
  *		BASELINE Mon Jun 19 14:21:57 EDT 1989
  *		
@@ -79,7 +94,7 @@ dedmake()
 
 	/* loop until either the user gives up, or supplies a legal name */
 	(void)strcpy(bfr, cNAME);
-	while (edittext('q', cmdcol[3], sizeof(bfr), bfr)) {
+	while (edittext('q', cmdcol[CCOL_NAME], sizeof(bfr), bfr)) {
 		errno = 0;
 		if (stat(bfr, &sb) >= 0)
 			errno = EEXIST;
