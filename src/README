@@ -28,9 +28,6 @@ To do:
 88/05/11:
 	Should provide a rename-leaf command in ftree using '='
 
-	The 'E' command from directory-tree spits out a nasty message if the
-	tree is out of date...
-
 88/05/16:
 	Should do better margin trimming in 'ft_show' and 'ded2s()'.
 
@@ -42,22 +39,14 @@ To do:
 	The 'h' and backspace command in ftree should not be sticky with
 	level.
 
-	Apollo routine c_$map_to_unix may simplify the hack I made in
-	abspath.
-
 88/05/25:
 	Encountered bug (maybe apollo system) which caused vsize-call in
 	'resizewin()' to get strange values after toggling +/- commands
 	several times, then invoking 'w'.
 
-	Should show file-locking state from sccslast.
-
 88/05/26:
 	Should add an 'o'/'O' command to create new files in the list so we
 	don't have to do a rescan to get them.
-
-88/06/10:
-	should escape '[' in system-commands.
 
 88/06/13:
 	sometimes the '@' state in ftree is not cleared when we re-read and
@@ -74,3 +63,12 @@ To do:
 88/08/16:
 	In ftree, if I do a repeated 'q' or 'Q' command which exceeds the
 	number of actual ring-entries, I get a segment violation.
+
+	Also, sometimes the 'R' does not properly quit from the existing
+	ring entry when no files are found.
+
+88/08/19:
+	The 'U' command should be toggled back in the '=' command (unless I
+	decide to permit editing the AEGIS name!).  Also, should consider
+	adding a command to edit link text.  Note that for these, I should
+	also consider letting 'edittext()' use more than one line...
