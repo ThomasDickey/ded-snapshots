@@ -1,5 +1,5 @@
 #ifndef	NO_SCCS_ID
-static	char	sccs_id[] = "@(#)dedfind.c	1.2 87/11/24 08:57:23";
+static	char	sccs_id[] = "@(#)dedfind.c	1.3 88/03/25 07:05:46";
 #endif	NO_SCCS_ID
 
 /*
@@ -7,6 +7,7 @@ static	char	sccs_id[] = "@(#)dedfind.c	1.2 87/11/24 08:57:23";
  * Author:	T.E.Dickey
  * Created:	18 Nov 1987
  * Modified:
+ *		25 Mar 1988, use 'rawgets()' for input.
  *
  * Function:	Search ded's display list (files only) for a specified target
  *		a la 'vi'.
@@ -33,9 +34,8 @@ static	int	order;		/* saves last legal search order */
 		move(j,k);
 		refresh();
 
-		resetty();
-		getstr(text);
-		rawterm();
+		*text = EOS;
+		rawgets(text,sizeof(text),FALSE);
 		if ((s = re_comp(text)) == 0) {
 			if (key == '/')	order = 1;
 			if (key == '?') order = -1;

@@ -1,14 +1,15 @@
 #ifndef	NO_SCCS_ID
-static	char	sccs_id[] = "@(#)ftree.c	1.17 88/03/24 15:09:46";
+static	char	sccs_id[] = "@(#)ftree.c	1.18 88/03/25 06:56:40";
 #endif
 
 /*
  * Author:	T.E.Dickey
  * Created:	02 Sep 1987
  * Modified:
- *		24 Mar 1988, moved under 'ded' directory to begin changes for bsd4.2
- *		09 Dec 1987, began recoding to provide for long (BSD-style) names
- *			     (still does not omit duplication of strings)
+ *		24 Mar 1988, moved under 'ded' directory to begin changes for
+ *			     bsd4.2
+ *		09 Dec 1987, began recoding to provide for long (BSD-style)
+ *			     names (still does not omit duplication of strings)
  *		02 Dec 1987, port to Apollo (leading "//" on pathnames)
  *
  * Function:	This module performs functions supporting a file-tree display.

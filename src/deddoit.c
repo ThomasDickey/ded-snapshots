@@ -1,5 +1,5 @@
 #ifndef	NO_SCCS_ID
-static	char	sccs_id[] = "@(#)deddoit.c	1.4 88/02/01 10:26:18";
+static	char	sccs_id[] = "@(#)deddoit.c	1.6 88/03/25 13:18:35";
 #endif	NO_SCCS_ID
 
 /*
@@ -7,6 +7,9 @@ static	char	sccs_id[] = "@(#)deddoit.c	1.4 88/02/01 10:26:18";
  * Author:	T.E.Dickey
  * Created:	17 Nov 1987
  * Modified:
+ *		25 Mar 1988, use 'rawgets()' for input, helps to implement ':'.
+ *			     Recognize '\' as escape character for '#', '%'
+ *			     insertion.  Added buffer-overflow check.
  *
  * Function:	Execute a shell command
  *
@@ -31,8 +34,10 @@ char	buffer[BUFSIZ];
 			}
 			if (!first)
 				(void)strcat(subs, " ");
-			(void)strcat(subs, buffer);
-			/* patch: check for buffer overflow */
+			if (strlen(subs) + strlen(buffer) < sizeof(subs)-1)
+				(void)strcat(subs, buffer);
+			else
+				return(sizeof(subs));
 			first = FALSE;
 		}
 	}
@@ -48,25 +53,34 @@ int	c, j, k;
 	getyx(stdscr,j,k);
 	clrtobot();
 	move(j,k);
-	refresh();
 
-	resetty();
 	if (key == '!')
 		clr_sh = FALSE;
 	else if (key == '%')
 		clr_sh = TRUE;
 
 	if ((key != '.') || (bfr_sh[0] == EOS)) {
-		getstr(bfr_sh);
+		if (key == ':') {
+			printw("%s", bfr_sh);
+			clrtoeol();
+		} else
+			*bfr_sh = EOS;
+		refresh();
+		rawgets(bfr_sh,sizeof(bfr_sh),FALSE);
 	} else
 		printw("(ditto)\n");
 
 	subs[k = 0] = EOS;
 	for (j = 0; bfr_sh[j]; j++) {
 		c = bfr_sh[j];
-		if (c == '#')
+		if (c == '\\') {
+			if (bfr_sh[j+1]) {
+				subs[k++] = bfr_sh[++j];
+				subs[k] = EOS;
+			}
+		} else if (c == '#') {
 			k = expand('n');
-		else if (c == '%') {
+		} else if (c == '%') {
 			if (bfr_sh[j+1])
 				k = expand(bfr_sh[++j]);
 			else
@@ -75,12 +89,21 @@ int	c, j, k;
 			subs[k++] = c;
 			subs[k] = EOS;
 		}
+		if (k >= sizeof(subs)-1) {
+			*subs = EOS;
+			printw("? command is too long\n");
+			beep();
+			break;
+		}
 	}
 	dedshow("> ", subs);
 	refresh();
 
-	if (*subs) system(subs);
-	rawterm();
-	if (clr_sh && *subs) dedwait();
+	if (*subs) {
+		resetty();
+		system(subs);
+		rawterm();
+		if (clr_sh) dedwait();
+	}
 	showC();
 }

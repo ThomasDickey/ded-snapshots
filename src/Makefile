@@ -1,4 +1,4 @@
-# @(#)Makefile	1.6 88/03/24 13:04:33
+# @(#)Makefile	1.7 88/03/25 06:41:58
 # MAKE-file for directory editor
 B	= ~/bin
 DED_H   = ded.h
@@ -6,16 +6,15 @@ CFLAGS  = $(DEFINES) $(INCLUDES) -O
 LIBS	=\
 	../lib/lib.a
 #
-all:	ded ftree
-#
-ftree:	ftree.o $(LIBS)
-	$(CC) -o $@ ftree.o $(LIBS) -lcurses -ltermcap
-ftree.o: ftree.c
-	$(CC) -I../lib -DTEST -c ftree.c
-#
 ded:	ded.o ded.a $(LIBS)
 	$(CC) -o $@ ded.o ded.a $(LIBS) -lcurses -ltermcap
 	chmod 755 $@
+#
+ftree:	ftree.c $(LIBS)
+	mv ftree.o ftree.o-
+	$(CC) -o $@ -DTEST ftree.c $(LIBS) -lcurses -ltermcap
+	ls -l ftree.*
+	mv ftree.o- ftree.o
 #
 ded.a:	\
         dedfind.o\
@@ -25,7 +24,9 @@ ded.a:	\
 	dedsort.o\
 	dedtype.o\
 	dedwait.o\
-	ded2s.o
+	ded2s.o\
+	fring.o\
+	ftree.o
 	ar rv $@ $?
 #
 ded.o:	        $(DED_H) ded.c version.h
@@ -37,6 +38,8 @@ dedsort.o:      $(DED_H) dedsort.c
 dedtype.o:      $(DED_H) dedtype.c
 dedwait.o:      $(DED_H) dedwait.c
 ded2s.o:        $(DED_H) ded2s.c
+fring.o:	$(DED_H) fring.c
+ftree.o:	$(DED_H) ftree.c
 #
 clean:
 	rm -f *.o

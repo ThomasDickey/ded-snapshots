@@ -1,11 +1,16 @@
 #ifndef	NO_SCCS_ID
-static	char	sccs_id[] = "@(#)ded.c	1.7 88/02/01 10:37:57";
+static	char	sccs_id[] = "@(#)ded.c	1.8 88/03/25 13:25:35";
 #endif	NO_SCCS_ID
 
 /*
  * Title:	ded.c (directory-editor)
  * Author:	T.E.Dickey
  * Created:	09 Nov 1987
+ * Modified:
+ *		25 Mar 1988, corrected 'retouch()' so that last line is cleared,
+ *			     and so we don't have to change terminal-mode.
+ *			     Added ':' command, and began interface to 'ftree'.
+ *		24 Mar 1988, to provide interface to 'ftree.c' module.
  *
  * Function:	Interactively display/modify unix directory structures
  *		and files.
@@ -141,22 +146,15 @@ realstat(inx)
 {
 register j = flist[inx].s.st_mode;
 
+#ifndef	SYSTEM5
 	if (isLINK(j)) {
 	struct	stat	sb;
 		j = (stat(flist[inx].name, &sb) >= 0) ? sb.st_mode : 0;
 	}
+#endif	SYSTEM5
 	if (isFILE(j))	return(0);
 	if (isDIR(j))	return(1);
 	return (-1);
-}
-
-/*
- * Sound audible alarm
- */
-beep()
-{
-	if (putchar('\007') != EOF)
-		(void)fflush(stdout);
 }
 
 /*
@@ -302,6 +300,7 @@ register int j;
 	move(mark_W,0);
 	for (j = 0; j < COLS - 1; j += 10)
 		printw("%.*s", COLS - j - 1, "----:----+");
+	move(mark_W+1,0);
 	clrtobot();
 	showC();
 }
@@ -359,22 +358,18 @@ int	col = cmdcol[2] - Xbase;
 
 /*
  * Repaint the screen
- * patch: this kludge bypasses bug in Apollo curses
  */
 retouch(row)
 {
 chtype	*s;
 
-	resetty();	/* ...otherwise "blank" lines aren't cleared */
-	touchwin(stdscr);
-	touchwin(curscr);
-	while (row < LINES) {	/* force "touchwin()" to work! */
+	while (row < LINES) {
+		/* patch: should use 'addstr()' */
 		for (s = stdscr->_y[row]; *s; *s++ = '?');
 		for (s = curscr->_y[row]; *s; *s++ = '*');
 		row++;
 	}
 	showFILES();
-	rawterm();
 }
 
 static
@@ -656,8 +651,8 @@ char	bfr[BUFSIZ];
  * patch: should parse for options a la 'bldarg()'.
  */
 static
-forkfile(arg0)
-char	*arg0;
+forkfile(arg0, arg1)
+char	*arg0, *arg1;
 {
 int	pid ,
 	status;
@@ -670,16 +665,48 @@ int	pid ,
 			if (c < 0) break;
 		}
 		rawterm();
+		chdir(new_wd);
 		retouch(0);
 		restat(FALSE);
 	} else if (pid < 0) {
 		printf("fork failed\n");
 	} else {
-		execl(arg0, arg0, cNAME, 0L);
+		execl(arg0, arg0, arg1, 0L);
 		exit(0);		/* just in case exec-failed */
 	}
 }
-
+
+/*
+ * Enter an editor (separate process) for the current-file/directory.
+ */
+static
+editfile(readonly, pad)
+{
+	switch (realstat(curfile)) {
+	case 0:
+		to_work();
+#ifdef	apollo
+		if (pad) {
+			if (padedit(cNAME, readonly))
+				beep();
+			restat(FALSE);
+		} else
+#endif	apollo
+			forkfile(readonly ? ENV(BROWSE)
+					  : ENV(EDITOR),
+				 cNAME);
+		break;
+	case 1:
+		to_work();
+		ft_write();
+		forkfile(whoami, cNAME);
+		ft_read(new_wd);
+		break;
+	default:
+		dedmsg("cannot edit this item");
+	}
+}
+ 
 /************************************************************************
  *	main program							*
  ************************************************************************/
@@ -702,11 +729,12 @@ int	c,
 	count,
 	lastc	= '?',
 	quit	= FALSE;
+char	tpath[BUFSIZ];
 
 	(void)printf("%s\r\n", version+4);	/* show me when entering process */
 	(void)fflush(stdout);
 	(void)sortset('s', 'n');
-	getcwd(old_wd, sizeof(old_wd)-2);
+	ft_read(getcwd(old_wd, sizeof(old_wd)-2));
 
 	/* find which copy I am executing from, for future use */
 	which(whoami, sizeof(whoami), argv[0], old_wd);
@@ -888,7 +916,7 @@ int	c,
 					tag_count++;
 				}
 				showLINE(curfile);
-				if (curfile < numfiles)
+				if (curfile < numfiles-1)
 					downLINE(1);
 				else
 					break;
@@ -901,7 +929,7 @@ int	c,
 					tag_count--;
 				}
 				showLINE(curfile);
-				if (curfile < numfiles)
+				if (curfile < numfiles-1)
 					downLINE(1);
 				else
 					break;
@@ -922,41 +950,17 @@ int	c,
 #ifdef	apollo
 	case CTL(e):	/* pad-edit */
 	case CTL(v):	/* pad-view */
-			switch (realstat(curfile)) {
-			case 0:
-				to_work();
-				if (padedit(cNAME, c != CTL(e)) < 0)
-					beep();
-				restat(FALSE);
-				break;
-			case 1:
-				to_work();
-				forkfile(whoami);
-				break;
-			default:
-				dedmsg("cannot edit this item");
-			}
+			editfile(c != CTL(e), TRUE);
 			break;
 #endif	apollo
 
 	case 'e':
 	case 'v':	/* enter new process with current file */
-			switch (realstat(curfile)) {
-			case 0:
-				forkfile(c == 'e' ? ENV(EDITOR)
-						  : ENV(BROWSE));
-				break;
-			case 1:
-				to_work();
-				forkfile(whoami);
-				break;
-			default:
-				dedmsg("cannot edit this item");
-			}
+			editfile(c != 'e', FALSE);
 			break;
 
 	case 'm':	to_work();
-			forkfile(ENV(PAGER));
+			forkfile(ENV(PAGER), cNAME);
 			break;
 
 			/* page thru files in work area */
@@ -969,9 +973,10 @@ int	c,
 			c = 't';	/* force work-clear if 'q' */
 			break;
 
-	case '%':
-	case '!':
-	case '.':	/* execute shell command */
+	case '%':	/* execute shell command with screen refresh */
+	case '!':	/* execute shell command w/o screen refresh */
+	case '.':	/* re-execute last shell command */
+	case ':':	/* edit last shell command */
 			deddoit(c);
 			break;
 
@@ -987,10 +992,24 @@ int	c,
 			dedfind(c);
 			break;
 
-			/* patch: not implemented */
-	case ':':	/* edit last shell command */
-	case 'X':	/* split/join screen (1 or 2 viewports) */
 	case 'D':	/* toggle directory/filelist mode */
+			(void)strcpy(tpath,new_wd);
+			while ((c = ft_view(tpath)) == 'e') {
+			int	y,x;
+
+				getyx(stdscr, y, x);
+				if (++y >= LINES)	y = LINES-1;
+				move(y, x-x);
+				clrtobot();
+				move(y, 0);
+				refresh();
+				forkfile(whoami, tpath);
+			}
+			retouch(0);
+			break;
+
+			/* patch: not implemented */
+	case 'X':	/* split/join screen (1 or 2 viewports) */
 	case 'E':	/* enter new directory on ring */
 	case 'F':	/* move forward in directory-ring */
 	case 'B':	/* move backward in directory-ring */
@@ -1000,6 +1019,7 @@ int	c,
 	}; lastc = c; }
 
 	to_exit(TRUE);
+	ft_write();
 	exit(0);
 	/*NOTREACHED*/
 }
