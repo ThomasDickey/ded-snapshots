@@ -1,3 +1,17 @@
+1997-02-02  Thomas E. Dickey  <dickey@clark.net>
+
+	* src/dedscan.c:
+	fixes a special case where common portion of path was common to all files,
+	and was a relative path.  This broke an assumption in path_RESOLVE.
+
+1997-01-18  Thomas E. Dickey  <dickey@clark.net>
+
+	* src/ded.h: moved dedcolor initialize to that module
+
+	* src/ded.c: add init_dedcolor()
+
+	* src/dedcolor.c: add init_dedcolor() to exploit 'use_default_colors()'
+
 1997-01-12  Thomas E. Dickey  <dickey@clark.net>
 
 	* src/dedscan.c: more mods to single-file argument list.

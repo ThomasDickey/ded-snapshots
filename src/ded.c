@@ -149,7 +149,7 @@
 #define	MAIN
 #include	"ded.h"
 
-MODULE_ID("$Header: /users/source/archives/ded.vcs/src/RCS/ded.c,v 12.48 1996/02/16 20:04:40 tom Exp $")
+MODULE_ID("$Header: /users/source/archives/ded.vcs/src/RCS/ded.c,v 12.49 1997/01/19 03:50:21 tom Exp $")
 
 #define	EDITOR	DEFAULT_EDITOR
 #define	BROWSE	DEFAULT_BROWSE
@@ -989,7 +989,7 @@ _MAIN
 	(void)scrollok(stdscr, TRUE);
 #endif
 #if HAVE_HAS_COLORS
-	(void)start_color();
+	init_dedcolor();
 #endif
 #if HAVE_TYPEAHEAD
 	typeahead(-1);			/* disable it */
