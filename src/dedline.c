@@ -1,5 +1,5 @@
 #if	!defined(NO_IDENT)
-static	char	Id[] = "$Id: dedline.c,v 12.12 1995/01/07 01:40:33 tom Exp $";
+static	char	Id[] = "$Id: dedline.c,v 12.13 1995/07/30 18:00:21 tom Exp $";
 #endif
 
 /*
@@ -424,19 +424,19 @@ public	void	editprot (
 		case TO_LAST:
 			x = 2;
 			break;
-		case ARO_UP:
+		case KEY_UP:
 			init = up_inline();
 			break;
-		case ARO_DOWN:
+		case KEY_DOWN:
 			init = down_inline();
 			break;
-		case ARO_RIGHT:
+		case KEY_RIGHT:
 		case '\f':
 		case ' ':
 			if (x < 2)	x++;
 			else		beep();
 			break;
-		case ARO_LEFT:
+		case KEY_LEFT:
 		case '\b':
 			if (x > 0)	x--;
 			else		beep();

@@ -1,7 +1,3 @@
-#if	!defined(NO_IDENT)
-static	char	Id[] = "$Id: dedtype.c,v 12.15 1994/07/04 14:16:25 tom Exp $";
-#endif
-
 /*
  * Title:	dedtype.c (type files for ded)
  * Author:	T.E.Dickey
@@ -53,6 +49,8 @@ static	char	Id[] = "$Id: dedtype.c,v 12.15 1994/07/04 14:16:25 tom Exp $";
 
 #define		DIR_PTYPES	/* includes directory-stuff */
 #include	"ded.h"
+
+MODULE_ID("$Id: dedtype.c,v 12.17 1995/07/30 18:01:16 tom Exp $")
 
 #define	def_doalloc	OFF_T_alloc
 	/*ARGSUSED*/
@@ -627,7 +625,7 @@ public	void	dedtype(
 				done = TRUE;
 				break;
 
-			case ARO_UP:
+			case KEY_UP:
 			case '\b':
 			case 'b':
 				if (page <= 1 && count > 0)
@@ -635,7 +633,7 @@ public	void	dedtype(
 				else if ((jump += count) > page)
 					jump = page;
 				break;
-			case ARO_DOWN:
+			case KEY_DOWN:
 			case '\n':
 			case ' ':
 			case 'f':
@@ -652,11 +650,11 @@ public	void	dedtype(
 				LeftOrRight( count);
 				break;
 			case CTL('L'):
-			case ARO_LEFT:
+			case KEY_LEFT:
 				LeftOrRight(-shift * count);
 				break;
 			case CTL('R'):
-			case ARO_RIGHT:
+			case KEY_RIGHT:
 				LeftOrRight( shift * count);
 				break;
 
