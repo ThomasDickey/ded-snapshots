@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	what[] = "$Id: ded.c,v 5.3 1990/02/01 12:54:33 dickey Exp $";
+static	char	what[] = "$Id: ded.c,v 5.4 1990/02/07 08:23:10 dickey Exp $";
 #endif	lint
 
 /*
@@ -7,9 +7,12 @@ static	char	what[] = "$Id: ded.c,v 5.3 1990/02/01 12:54:33 dickey Exp $";
  * Author:	T.E.Dickey
  * Created:	09 Nov 1987
  * $Log: ded.c,v $
- * Revision 5.3  1990/02/01 12:54:33  dickey
- * use 'showpath()' to handle long pathname-display
+ * Revision 5.4  1990/02/07 08:23:10  dickey
+ * modified '#' command (deduniq-proc) to 3 modes of operation.
  *
+ *		Revision 5.3  90/02/01  12:54:33  dickey
+ *		use 'showpath()' to handle long pathname-display
+ *		
  *		Revision 5.2  90/01/30  08:48:34  dickey
  *		added 'T' (date+time) toggle and command-option to match.
  *		altered 't' command so "2t" types binary-file.
@@ -864,21 +867,30 @@ int	(*func)();
 }
 
 /*
+ * Re-count the files which are tagged
+ */
+static
+count_tags()
+{
+	register int j;
+	for (j = tag_count = 0; j < numfiles; j++)
+		if (xFLAG(j))
+			tag_count++;
+}
+
+/*
  * Use the 'dedring()' module to switch to a different file-list
  */
 static
 new_args(path, cmd, count)
 char	*path;
 {
-register int j;
 int	ok;
 
 	clear_work();
 	if (ok = dedring(path, cmd, count)) {
 		(void)to_file();
-		for (j = tag_count = 0; j < numfiles; j++)
-			if (xFLAG(j))
-				tag_count++;
+		count_tags();
 		showFILES(TRUE);
 	}
 	(void)chdir(new_wd);
@@ -1300,11 +1312,9 @@ char	*argv[];
 			break;
 
 	case '#':	/* tag files with duplicated fields */
-			count = tag_count;
-			if ((tag_count = deduniq()) || count)
-				showFILES(FALSE);
-			else
-				showC();
+			deduniq(count);
+			count_tags();
+			showFILES(FALSE);
 			break;
 
 			/* tag/untag specific files */

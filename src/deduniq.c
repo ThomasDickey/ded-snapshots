@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	sccs_id[] = "$Header: /users/source/archives/ded.vcs/src/RCS/deduniq.c,v 5.0 1989/03/14 11:20:15 ste_cm Rel $";
+static	char	Id[] = "$Id: deduniq.c,v 5.1 1990/02/07 08:29:56 dickey Exp $";
 #endif	lint
 
 /*
@@ -7,9 +7,13 @@ static	char	sccs_id[] = "$Header: /users/source/archives/ded.vcs/src/RCS/deduniq
  * Author:	T.E.Dickey
  * Created:	18 Jan 1989
  * $Log: deduniq.c,v $
- * Revision 5.0  1989/03/14 11:20:15  ste_cm
- * BASELINE Fri Oct 27 12:27:25 1989 -- apollo SR10.1 mods + ADA_PITS 4.0
+ * Revision 5.1  1990/02/07 08:29:56  dickey
+ * rewrote, using 'level' argument to provide reset/set/all
+ * modes of operation.
  *
+ *		Revision 5.0  89/03/14  11:20:15  ste_cm
+ *		BASELINE Fri Oct 27 12:27:25 1989 -- apollo SR10.1 mods + ADA_PITS 4.0
+ *		
  *		Revision 4.0  89/03/14  11:20:15  ste_cm
  *		BASELINE Thu Aug 24 10:20:06 EDT 1989 -- support:navi_011(rel2)
  *		
@@ -28,37 +32,25 @@ static	char	sccs_id[] = "$Header: /users/source/archives/ded.vcs/src/RCS/deduniq
  */
 #include	"ded.h"
 
-deduniq()
+deduniq(level)
 {
-	register int	j;
-	auto	int	count	= 0;
+	register int	j, k;
 
 	to_work();
-	for (j = 0; j < numfiles; j++)
-		if (xFLAG(j))
-			xFLAG(j) = FALSE;
-
 	tagsort = FALSE;	/* don't confuse 'dedsort_cmp()' */
 
-	for (j = 1; j < numfiles; j++) {
+	for (j = (level > 1); j < numfiles; j++) {
 
-		auto	FLIST	*p = flist + j;
+		k = (level > 1) ? j-1 : curfile;
 
-		if (! dedsort_cmp(p-1,p)) {
+		if (! dedsort_cmp(flist+k, flist+j)) {
 			blip('#');
-			xFLAG(j-1) =
-			xFLAG(j) = TRUE;
-			count++;
+			xFLAG(k) =
+			xFLAG(j) = (level > 0);
+			if (j > 0 && (level > 1))
+				dlog_name(xNAME(k));
+			dlog_name(xNAME(j));
 		} else
 			blip('.');
 	}
-	if (count) {	/* one or more pairs may overlap */
-		count = 0;
-		for (j = 0; j < numfiles; j++)
-			if (xFLAG(j)) {
-				count++;
-				dlog_name(xNAME(j));
-			}
-	}
-	return (count);
 }

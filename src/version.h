@@ -1,13 +1,17 @@
 /*
- * $Id: version.h,v 5.3 1990/01/30 08:50:49 dickey Exp $
+ * $Id: version.h,v 5.4 1990/02/07 09:48:00 dickey Exp $
  * Version-identifier for DED
  * $Log: version.h,v $
- * Revision 5.3  1990/01/30 08:50:49  dickey
- * added '-T' (and 'T' toggle) to show long date+time.
- * added 0/2 repeat-count for ':' and '.' commands so we can
- * reset/set clear-screen state from '!' or '%' commands.
- * new 'T' toggle obsoletes 'T'-command, so this is changed to "2t"
+ * Revision 5.4  1990/02/07 09:48:00  dickey
+ * added 'showpath()' procedure to handle display of very-long
+ * paths.  modified '#' command to provide reset/set/all mode.
  *
+ *		Revision 5.3  90/01/30  08:50:49  dickey
+ *		added '-T' (and 'T' toggle) to show long date+time.
+ *		added 0/2 repeat-count for ':' and '.' commands so we can
+ *		reset/set clear-screen state from '!' or '%' commands.
+ *		new 'T' toggle obsoletes 'T'-command, so this is changed to "2t"
+ *		
  *		Revision 5.2  89/12/08  10:27:43  dickey
  *		added ":"-prompt scrolling for sort-commands
  *		
@@ -120,4 +124,4 @@
  * 01 Dec 1987, added '*', '^' commands, made '%' refresh screen
  * 25 Nov 1987, added sccs-support (V,z,Z toggles, V,z,Z sorts)
  */
-static	char	version[] = "$Date: 1990/01/30 08:50:49 $";
+static	char	version[] = "$Date: 1990/02/07 09:48:00 $";
