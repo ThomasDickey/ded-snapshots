@@ -1,4 +1,4 @@
-# @(#)Makefile	1.19 88/08/03 15:48:24
+# @(#)Makefile	1.20 88/08/12 09:31:42
 # MAKE-file for directory editor
 #
 ####### (Environment) ##########################################################
@@ -7,7 +7,7 @@ I	= ../lib
 GET	= getdelta
 #
 ####### (Command-line Options) #################################################
-DED_H	= ded.h $I/cmdch.h
+DED_H	= ded.h $I/ptypes.h $I/cmdch.h
 INCLUDES= -I. -I$I
 CFLAGS	= $(DEFINES) $(INCLUDES) -O
 LIBS	= ../lib/lib.a
@@ -19,10 +19,10 @@ ALL	= ded ded.hlp
 A	= ded.a
 CSRC	=\
 	ded.c \
+	deddoit.c \
 	deddump.c \
 	dedfind.c \
 	dedfree.c \
-	deddoit.c \
 	dedline.c \
 	dedname.c \
 	dedring.c \
@@ -39,10 +39,10 @@ HSRC	= \
 	version.h
 #
 OBJS	= \
+	deddoit.o \
 	deddump.o \
 	dedfind.o \
 	dedfree.o \
-	deddoit.o \
 	dedline.o \
 	dedname.o \
 	dedring.o \
@@ -61,8 +61,8 @@ MAIN_O	= ded.o $A $(LIBS)
 ####### (Standard Productions) #################################################
 all:		$(ALL)
 #
-clean:				; rm -f *.o *.out
-clobber:	clean		; rm -f $(ALL)
+clean:				; rm -f *.[oa] *.out
+clobber:	clean		; rm -f ded
 destroy:			; rm -f *
 sources:	$(SRCS)
 
@@ -81,26 +81,12 @@ archive: $(OBJS)
 	ar rv $A ($OBJS)
 #
 ded.o:		$(DED_H) ded.c version.h
-deddoit.o:	$(DED_H) deddoit.c
-deddump.o:	$(DED_H) deddump.c
-dedfind.o:	$(DED_H) dedfind.c
-dedfree.o:	$(DED_H) dedfree.c
-dedline.o:	$(DED_H) dedline.c
-dedname.o:	$(DED_H) dedname.c
-dedring.o:	$(DED_H) dedring.c
-dedscan.o:	$(DED_H) dedscan.c
-dedshow.o:	$(DED_H) dedshow.c
-dedsigs.o:		 dedsigs.c
-dedsort.o:	$(DED_H) dedsort.c
-dedtype.o:	$(DED_H) dedtype.c
-dedwait.o:	$(DED_H) dedwait.c
-ded2s.o:	$(DED_H) ded2s.c
-ftree.o:	$(DED_H) ftree.c
+$(OBJS):	$(DED_H)
 #
 $B/ded:		ded		; rm -f $@;cp $? $@
 $B/ded.hlp:	ded.hlp		; rm -f $@;cp $? $@
 #
 ####### (Development) ##########################################################
 $(SRCS):			; $(GET) -s sccs/s.$@
-lint.out:	$(CSRC)		; $(DATE); tdlint $(LINTOPT) $? >>$@
+lint.out:	$(CSRC)		; $(DATE); tdlint $(LINTOPT) $(CSRC) >>$@
 lincnt.out:	$(CSRC)		; $(DATE); lincnt $(CSRC) >>$@

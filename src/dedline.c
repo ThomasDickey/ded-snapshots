@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	sccs_id[] = "@(#)dedline.c	1.4 88/08/10 14:05:18";
+static	char	sccs_id[] = "@(#)dedline.c	1.6 88/08/12 10:15:22";
 #endif	lint
 
 /*
@@ -7,6 +7,7 @@ static	char	sccs_id[] = "@(#)dedline.c	1.4 88/08/10 14:05:18";
  * Author:	T.E.Dickey
  * Created:	01 Aug 1988 (from 'ded.c')
  * Modified:
+ *		12 Aug 1988, apollo sys5 permits symbolic links.
  *		03 Aug 1988, use 'dedsigs()' to permit interrupt of group-ops.
  *			     For edit_uid, edit_gid, ensure that we map-thru
  *			     with symbolic links.
@@ -17,6 +18,7 @@ static	char	sccs_id[] = "@(#)dedline.c	1.4 88/08/10 14:05:18";
 
 #include	"ded.h"
 extern	char	*fixname();
+extern	char	erasechar(), killchar();
 
 static	int	re_edit;		/* flag for 'edittext()' */
 static	char	lastedit[BUFSIZ];	/* command-stream for 'edittext()' */
@@ -56,7 +58,7 @@ replay(cmd)
  * Save AT_opt mode when we are editing inline, and show mapped-thru stat for
  * symbolic links.
  */
-#ifndef	SYSTEM5
+#ifdef	S_IFLNK
 static
 at_save()
 {
@@ -86,7 +88,7 @@ at_last(flag)
 		}
 	return (changed);
 }
-#endif	SYSTEM5
+#endif	S_IFLNK
 
 /************************************************************************
  *	public entrypoints						*
@@ -106,9 +108,9 @@ int	y	= file2row(curfile),
 	opt	= P_opt,
 	changed	= FALSE,
 	done	= FALSE;
-#ifndef	SYSTEM5
+#ifdef	S_IFLNK
 int	at_flag	= at_save();
-#endif	SYSTEM5
+#endif	S_IFLNK
 
 	if (Xbase > 0) {
 		Xbase = 0;
@@ -192,11 +194,11 @@ int	at_flag	= at_save();
 				beep();
 		}
 	}
-#ifndef	SYSTEM5
+#ifdef	S_IFLNK
 	if (at_flag) {		/* we had to toggle because of sym-link	*/
 		(void)at_last(FALSE); /* force stat on the files, cleanup */
 	}
-#endif	SYSTEM5
+#endif	S_IFLNK
 	if (opt != P_opt) {
 		P_opt = opt;
 		showLINE(curfile);
@@ -222,19 +224,19 @@ int	y	= file2row(curfile),
 	delete;
 register char *s;
 
-#ifndef	SYSTEM5
+#ifdef	S_IFLNK
 int	at_flag	= ((endc == 'u') || (endc == 'g')) ? at_save() : FALSE;
-#endif	SYSTEM5
+#endif	S_IFLNK
 
 	if ((col -= Xbase) < 1) {	/* convert to absolute column */
 		col += Xbase;
 		Xbase = 0;
 		showFILES();
 	}
-#ifndef	SYSTEM5
+#ifdef	S_IFLNK
 	else if (at_flag)
 		showLINE(curfile);
-#endif	SYSTEM5
+#endif	S_IFLNK
 	(void)replay(endc);
 
 	for (;;) {
@@ -303,11 +305,11 @@ int	at_flag	= ((endc == 'u') || (endc == 'g')) ? at_save() : FALSE;
 		}
 	}
 
-#ifndef	SYSTEM5
+#ifdef	S_IFLNK
 	if (at_flag) {		/* we had to toggle because of sym-link	*/
 		(void)at_last(FALSE); /* force stat on the files to cleanup */
 	}
-#endif	SYSTEM5
+#endif	S_IFLNK
 	return (code);
 }
 
@@ -317,7 +319,7 @@ int	at_flag	= ((endc == 'u') || (endc == 'g')) ? at_save() : FALSE;
 edit_uid()
 {
 register int j;
-int	uid,
+int	uid	= cSTAT.st_uid,
 	changed	= FALSE;
 char	bfr[BUFSIZ];
 
@@ -325,7 +327,7 @@ char	bfr[BUFSIZ];
 		G_opt = FALSE;
 		showFILES();
 	}
-	if (edittext('u', cmdcol[1], UIDLEN, strcpy(bfr, uid2s(cSTAT.st_uid)))
+	if (edittext('u', cmdcol[1], UIDLEN, strcpy(bfr, uid2s(uid)))
 	&&  (uid = s2uid(bfr)) >= 0) {
 		(void)dedsigs(TRUE);	/* reset interrupt-count */
 		for (j = 0; j < numfiles; j++) {
@@ -355,7 +357,7 @@ char	bfr[BUFSIZ];
 edit_gid()
 {
 register int j;
-int	gid,
+int	gid	= cSTAT.st_gid,
 	changed	= FALSE,
 	root	= (getuid() == 0);
 char	bfr[BUFSIZ];
@@ -364,7 +366,7 @@ char	bfr[BUFSIZ];
 		G_opt = TRUE;
 		showFILES();
 	}
-	if (edittext('g', cmdcol[1], UIDLEN, strcpy(bfr, gid2s(cSTAT.st_gid)))
+	if (edittext('g', cmdcol[1], UIDLEN, strcpy(bfr, gid2s(gid)))
 	&&  (gid = s2gid(bfr)) >= 0) {
 	char	newgrp[BUFSIZ];
 	static	char	*fmt = "chgrp -f %s %s";

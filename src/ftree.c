@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	sccs_id[] = "@(#)ftree.c	1.53 88/08/03 08:24:07";
+static	char	sccs_id[] = "@(#)ftree.c	1.54 88/08/12 08:13:18";
 #endif	lint
 
 /*
@@ -61,9 +61,9 @@ static	char	sccs_id[] = "@(#)ftree.c	1.53 88/08/03 08:24:07";
 #ifdef	TEST
 #define	MAIN
 #endif	TEST
+#define	DIR_PTYPES
 #include	"ded.h"
 
-#include	<stdio.h>
 #include	<fcntl.h>
 #include	<sys/errno.h>
 extern	time_t	time();
@@ -114,11 +114,15 @@ typedef	struct	{
 	char	*f_name;		/* name of directory		*/
 	} FTREE;
 
+#define	def_doalloc	FTREE_alloc
+	/*ARGSUSED*/
+	def_DOALLOC(FTREE)
+
 static	char	FDname[MAXPATHLEN];	/* name of user's database	*/
 static	time_t	FDtime;			/* time: last modified ".ftree"	*/
+static	unsigned FDsize;		/* current sizeof(ftree[])	*/
 static	int	FDdiff,			/* number of changes made	*/
 		FDlast,			/* last used-entry in ftree[]	*/
-		FDsize,			/* current sizeof(ftree[])	*/
 		cant_W,			/* TRUE if last ft_write failed	*/
 		showbase,		/* base of current display	*/
 		showlast,		/* last line in current display	*/
@@ -166,7 +170,7 @@ fd_alloc()
 	if (FDlast >= FDsize) {
 	register int	size = FDsize;
 		FDsize += FDlast + 2;
-		ftree = DOALLOC(FTREE,ftree,FDsize);
+		ftree = DOALLOC(ftree,FTREE,FDsize);
 		while (size < FDsize) {
 			ftree[size].f_root =
 			ftree[size].f_mark = 0;
@@ -431,7 +435,7 @@ register int j, this, last = 0;
 	return(last);
 }
 
-#ifndef	SYSTEM5
+#ifdef	S_IFLNK
 /*
  * Enter a symbolic link into the database.
  */
@@ -444,7 +448,7 @@ int	row;
 	markit(row,LINKED,TRUE);
 	/* patch: store pointer to show 'readlink()' */
 }
-#endif	SYSTEM5
+#endif	S_IFLNK
 
 /*
  * Mark nodes below a given path in the database for removal, unless they
@@ -637,7 +641,7 @@ int	fid,
 
 		/* (3) string-heap */
 		if ((size -= vecsize) > 0) {
-		char	*heap = DOALLOC(char,0,(unsigned)size);
+		char	*heap = doalloc((char *)0, (unsigned)size);
 		register char *s = heap;
 			if (read(fid, heap, (int)size) != size)
 				failed("heap \".ftree\"");
@@ -645,7 +649,7 @@ int	fid,
 				ftree[j].f_name = txtalloc(s);
 				s += strlen(s) + 1;
 			}
-			FREE(heap);
+			dofree(heap);
 		}
 		(void)close(fid);
 #ifdef	DEBUG
@@ -1083,7 +1087,7 @@ register int j;
 		case 'E':
 		case 'e':
 			(void)fd_path(cwdpath, row);
-#ifndef	SYSTEM5
+#ifdef	S_IFLNK
 			if (ftree[row].f_mark & LINKED) {
 			char	bfr[BUFSIZ];
 			int	len;
@@ -1097,7 +1101,7 @@ register int j;
 				abspath(strcpy(cwdpath, bfr));
 				(void)chdir(new_wd);
 			}
-#endif	SYSTEM5
+#endif	S_IFLNK
 			if (access(cwdpath, R_OK | X_OK) < 0) {
 				beep();
 				break;
@@ -1341,13 +1345,13 @@ char	*name, *leaf;
 struct	stat	sb;
 	if (lstat(leaf, &sb) >= 0) {
 		if ((int)sb.st_ino > 0) {
-#ifndef	SYSTEM5
+#ifdef	S_IFLNK
 			if (isLINK(sb.st_mode)) {
 				if (stat(name, &sb) >= 0)
 					if (isDIR(sb.st_mode))
 						ft_linkto(name);
 			} else
-#endif	SYSTEM5
+#endif	S_IFLNK
 			if (isDIR(sb.st_mode))
 				ft_insert(name);
 		}

@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	sccs_id[] = "@(#)dedsort.c	1.9 88/08/09 06:50:45";
+static	char	sccs_id[] = "@(#)dedsort.c	1.11 88/08/12 09:23:47";
 #endif	lint
 
 /*
@@ -50,6 +50,8 @@ register char *s = strrchr(name, '/'),
 #define	CHECKED(p)	(p->z_time == p->s.st_mtime)
 #define	CMPX(m)		(p1->m > p2->m ? -1 : (p1->m < p2->m ? 1 : 0))
 #define	CMP(m)		CMPX(s.m)
+#define	CMP2S(f,m)	cmp = strcmp(strcpy(bfr, f((int)p1->s.m)),\
+						 f((int)p2->s.m))
 
 static
 compare(p1, p2)
@@ -129,18 +131,15 @@ char	bfr[BUFSIZ];
 
 	case 'l':	cmp = CMP(st_nlink);	break;
 	case 'i':	cmp = CMP(st_ino);	break;
+	case 'd':	cmp = p1->dord - p2->dord;	break;
 
 			/* compare uid/gid fields numerically */
 	case 'U':	cmp = CMP(st_uid);	break;
 	case 'G':	cmp = CMP(st_gid);	break;
 
 			/* compare uid/gid fields lexically */
-	case 'u':	(void) strcpy(bfr, uid2s(p1->s.st_uid));
-			cmp  = strcmp(bfr, uid2s(p2->s.st_uid));
-			break;
-	case 'g':	(void) strcpy(bfr, gid2s(p1->s.st_gid));
-			cmp  = strcmp(bfr, gid2s(p2->s.st_gid));
-			break;
+	case 'u':	cmp  = CMP2S(uid2s,st_uid);	break;
+	case 'g':	cmp  = CMP2S(gid2s,st_gid);	break;
 	}
 	if (!cmp)
 		cmp = strcmp(p1->name, p2->name);

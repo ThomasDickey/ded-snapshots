@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	sccs_id[] = "@(#)dedscan.c	1.19 88/08/04 07:49:18";
+static	char	sccs_id[] = "@(#)dedscan.c	1.21 88/08/12 09:28:17";
 #endif	lint
 
 /*
@@ -7,6 +7,10 @@ static	char	sccs_id[] = "@(#)dedscan.c	1.19 88/08/04 07:49:18";
  * Author:	T.E.Dickey
  * Created:	09 Nov 1987
  * Modified:
+ *		12 Aug 1988, added 'dir_order' to support sort into the order
+ *			     in which we obtained names from the directory.
+ *			     This is useful for tracking programs such as
+ *			     'find', which operate in directory-order.
  *		04 Aug 1988, added debug-option
  *		01 Jun 1988, added 'z_lock'.
  *		26 May 1988, made 'flist[]' allocation in chunks.
@@ -19,11 +23,19 @@ static	char	sccs_id[] = "@(#)dedscan.c	1.19 88/08/04 07:49:18";
  * Arguments:   argc, argv passed down from the original invocation, with
  *		leading options parsed off.
  */
+
+#define		DIR_PTYPES	/* includes directory-stuff */
 #include	"ded.h"
 extern	FLIST	*dedfree();
 extern	char	*txtalloc();
 
 extern	int	debug;
+
+#define	def_doalloc	FLIST_alloc
+	/*ARGSUSED*/
+	def_DOALLOC(FLIST)
+
+static	int	dir_order;
 
 /************************************************************************
  *	dedscan(@)							*
@@ -42,6 +54,7 @@ char	*argv[];
 	char	*s;
 
 	flist = dedfree(flist, numfiles);
+	dir_order = 0;
 
 	if (argc == 0) {
 	static	char	dot[]	= ".",
@@ -78,12 +91,12 @@ char	*argv[];
 					j = argstat(strcpy(name+len, s), TRUE);
 					if (j > 0)
 						ft_insert(name);
-#ifndef	SYSTEM5
+#ifdef	S_IFLNK
 					if ((j == 0)
 					&&  ((j = lookup(s)) >= 0)
 					&&  (linkstat(name,flist+j)) )
 						ft_linkto(name);
-#endif	SYSTEM5
+#endif	S_IFLNK
 				}
 				closedir(dp);
 				if (!numfiles)
@@ -137,11 +150,12 @@ register int j = lookup(name);
 
 	/* append a new entry on the end of the list */
 	j = (numfiles | 31) + 1;
-	flist = DOALLOC(FLIST,flist,j);
+	flist = DOALLOC(flist,FLIST,(unsigned)j);
 
 	Zero(&flist[numfiles]);
 	flist[numfiles] = *f_;
 	xNAME(numfiles) = txtalloc(name);
+	xDORD(numfiles) = dir_order++;
 	numfiles++;
 }
 
@@ -186,8 +200,10 @@ dedstat (name, f_)
 char	*name;
 FLIST	*f_;
 {
+#ifdef	S_IFLNK
 int	len;
 char	bfr[BUFSIZ];
+#endif	S_IFLNK
 
 	ReZero(f_);
 
@@ -197,7 +213,7 @@ char	bfr[BUFSIZ];
 	}
 	if (isDIR(f_->s.st_mode))
 		return(1);
-#ifndef	SYSTEM5
+#ifdef	S_IFLNK
 	if (isLINK(f_->s.st_mode)) {
 		len = readlink(name, bfr, sizeof(bfr));
 		if (len > 0) {
@@ -208,7 +224,7 @@ char	bfr[BUFSIZ];
 				(void)stat(name, &f_->s);
 		}
 	}
-#endif	SYSTEM5
+#endif	S_IFLNK
 #ifdef	Z_RCS_SCCS
 	statSCCS(name, f_);
 #endif	Z_RCS_SCCS
@@ -228,10 +244,10 @@ FLIST	fb;
 
 	Zero(&fb);
 	if (dedstat(name, &fb) >= 0) {
-#ifndef	SYSTEM5
+#ifdef	S_IFLNK
 		if (!list && linkstat(name, &fb))
 			return(2);			/* link to directory */
-#endif	SYSTEM5
+#endif	S_IFLNK
 		if (!(fb.ltxt || isDIR(fb.s.st_mode)) || list)
 			append(name, &fb);
 		return(isDIR(fb.s.st_mode) ? 1 : 0);	/* directory ? */
@@ -242,7 +258,7 @@ FLIST	fb;
 /*
  * Test a name to see if it is a symbolic link to a directory.
  */
-#ifndef	SYSTEM5
+#ifdef	S_IFLNK
 static
 linkstat(name, f)
 char	*name;
@@ -257,7 +273,7 @@ struct	stat	sb;
 	}
 	return (FALSE);
 }
-#endif	SYSTEM5
+#endif	S_IFLNK
 
 /************************************************************************
  *	alternate entrypoints						*
@@ -301,6 +317,9 @@ FLIST	*f_;
 statLINE(j)
 {
 	int	flag = xFLAG(j);
+	int	dord = xDORD(j);
+
 	(void)dedstat(xNAME(j), &flist[j]);
 	xFLAG(j) = flag;
+	xDORD(j) = dord;
 }

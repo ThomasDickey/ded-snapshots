@@ -77,6 +77,11 @@ To do:
 	Should redo the ftree-rename so it renames the ring-entries too.
 
 88/08/09:
-	'beep()' and 'blip()' write to stdout, which is not necessarily good.
+	'beep()' and 'blip()' write to stderr, which is not necessarily good.
 	should try to use 'curses' internal routine to send characters, or
-	write to stderr.
+	write to stderr.  I saw beep clobber an escape sequence on the gould.
+
+88/08/12:
+	should add a repeat-count (interruptable) to 'l' and 'W' commands,
+	which would cause a periodic refresh of the selected items (time
+	interval?).

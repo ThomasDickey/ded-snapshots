@@ -1,14 +1,13 @@
-/* @(#)ded.h	1.22 88/08/10 14:29:37 */
+/* @(#)ded.h	1.24 88/08/12 09:22:39 */
 
 /*
  * Created:	09 Nov 1987
  * Function:	Common definitions for 'ded' (directory editor)
  */
-#include	<curses.h>
+
+#define		CUR_PTYPES	/* use "curses" */
+#include	"ptypes.h"
 #include	<ctype.h>
-#include	<sys/types.h>
-#include	<sys/stat.h>
-#include	<sys/dir.h>
 #include	"cmdch.h"
 extern	char	*getenv(),
 		*strcat(),
@@ -22,55 +21,25 @@ extern	char	*doalloc(),	/* (re)allocate memory		*/
 /*
  * Definitions to make linting easier
  */
-#ifdef	lint
-#define	DOALLOC(t,p,n)	(t *)0
-#else	lint
-#define	DOALLOC(t,p,n)	(t *)doalloc((char *)p,(n) * sizeof(t))
-#endif	lint
 #define	FREE(p)		dofree(p)
-
-#define	PRINTF	(void)printf
-#define	FPRINTF	(void)fprintf
-#define	FORMAT	(void)sprintf
 
 #ifndef	MAXPATHLEN
 #define	MAXPATHLEN	BUFSIZ
 #endif	MAXPATHLEN
 
 /*
- * Main difference between SYSTEM5/BSD4.x is the use of sockets & symbolic links
- */
-#ifndef	S_IFSOCK
-#define	SYSTEM5
-#endif	S_IFSOCK
-
-/*
- * SYSTEM5/BSD4.x differences for opening/scanning directories:
- */
-#ifdef	SYSTEM5
-#define	DIR	FILE
-#define	opendir(n)	fopen(n,"r")
-#define	readdir(fp)	(fread(&dbfr, sizeof(dbfr), 1, fp) ? &dbfr : (struct direct *)0)
-#define	closedir(fp)	fclose(fp)
-static	struct	direct	dbfr;
-#endif	SYSTEM5
-
-/*
  * Map differences between BSD4.2 and SYSTEM5 runtime libraries:
  */
 #ifdef	SYSTEM5
-extern	void	exit(), free(), qsort();
-#define	lstat	stat
 #define	getwd(p)	getcwd(p,sizeof(p)-2)
 extern	char	*getcwd();
-typedef struct screen { char	dummy; };
 #else	SYSTEM5
-extern		free(), qsort();
 extern	char	*getwd();
-typedef char	chtype;		/* sys5-curses data-type */
-#define	strchr	index
-#define	strrchr	rindex
 #endif	SYSTEM5
+
+#ifndef	S_IFLNK
+#define	lstat	stat
+#endif	S_IFLNK
 
 /*
  * SYSTEM5/BSD4.x differences between regular-expression handling:
@@ -110,12 +79,6 @@ extern	int	re_exec();	/* (return > 0): match */
 /*
  * Miscellaneous definitions
  */
-#ifndef	TRUE
-#define	TRUE	1
-#define	FALSE	0
-#endif	TRUE
-
-#define	EOS	'\0'
 #define	ENV(n)	n
 
 #define	UIDLEN	9		/* length of uid/gid field */
@@ -140,6 +103,7 @@ typedef	struct	{
 	char		*name;	/* name (within working-directory)	*/
 	char		*ltxt;	/* what link resolves to		*/
 	struct	stat	s;	/* stat()-block				*/
+	short		dord;	/* directory-order, for "d" sort	*/
 	char		flag;	/* tag-flag				*/
 #ifdef	Z_RCS_SCCS
 	char	*z_vers;	/* last sccs-release, version		*/
@@ -155,6 +119,7 @@ typedef	struct	{
 #define	xSTAT(x)	flist[x].s
 #define	xLTXT(x)	flist[x].ltxt
 #define	xFLAG(x)	flist[x].flag
+#define	xDORD(x)	flist[x].dord
 
 #define	cNAME		xNAME(curfile)
 #define	cSTAT		xSTAT(curfile)
@@ -184,9 +149,9 @@ MAIN	int	top_argc,
 		sortord,	/* sort-order (TRUE=reverse) */
 		sortopt,	/* sort-option (a character) */
 		tagsort,	/* sort tagged files apart from others */
-#ifndef	SYSTEM5
+#ifdef	S_IFLNK
 		AT_opt,		/* show symbolic link target */
-#endif	SYSTEM5
+#endif	S_IFLNK
 		G_opt,		/* show uid/gid field */
 		I_opt,		/* show link/inode field */
 		P_opt,		/* show filemode in octal vs normal */

@@ -1,3 +1,47 @@
+1988-08-12  dickey@software.org
+
+	* src/README: more possibilities of commands!
+
+	* src/dedline.c: lint after apollo sys5 port.
+
+	* src/ded.hlp: added "d" sort.
+
+	* src/Makefile: misc cleanup after apollo sys5 port.
+
+	* src/ded.c: added "d" sort.
+
+	* src/dedscan.c: added 'dir_order' variable to support "d" sort.
+
+	* src/dedsort.c: added "d" sort.
+
+	* src/ded.h: added '.dord' member to FLIST to support "d" sort.
+
+	* src/version.h: conclude lint/compile on apollo sys5; added "d" sort.
+
+	* src/dedsigs.c:
+	forgot SIGHUP in the last change; don't try to ignore SIGTERM.
+
+	* src/ftree.c: lint in apollo sys5 environment
+
+	* src/dedsort.c: some lint in apollo sys5 environment
+
+	* src/dedscan.c: lint in apollo sys5 environment
+
+	* src/dedtype.c: linted in apollo sys5 environment
+
+	* src/ded2s.c, src/dedline.c:
+	port to apollo sys5 environment: symbolic links, some lint.
+
+	* src/ded.h: absorbed a lot of definitions into "ptypes.h"
+
+	* src/ded.c: port to apollo sys5 environment: symbolic links.
+
+	* src/dedring.c:
+	port to apollo sys5 environment: symbolic links, some lint.
+
+	* src/dedsigs.c:
+	tinkering with signals so this works better on apollo sys5 environment
+
 1988-08-11  dickey@software.org
 
 	* src/ded.c: moved 'blip()' to common library
