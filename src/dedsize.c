@@ -1,7 +1,3 @@
-#if	!defined(NO_IDENT)
-static	char	Id[] = "$Id: dedsize.c,v 12.6 1994/07/12 23:35:25 tom Exp $";
-#endif
-
 /*
  * Title:	dedsize.c (ded resizing)
  * Author:	T.E.Dickey
@@ -25,20 +21,27 @@ static	char	Id[] = "$Id: dedsize.c,v 12.6 1994/07/12 23:35:25 tom Exp $";
 
 #include "ded.h"
 
+MODULE_ID("$Id: dedsize.c,v 12.8 1995/04/02 00:35:30 tom Exp $")
+
 #ifdef	SIGWINCH
 
 static	RING	*save_gbl;
 
 private	void	handle_resize (_AR0)
 {
-	if (save_gbl == 0)
-		return;
-	dlog_comment("resizewin LINES=%d, COLS=%d\n", LINES, COLS);
-	if (!ft_resize()) {
-		markset(save_gbl, mark_W);
-		/*patch showFILES(save_gbl, FALSE); */
-		if (gets_active)
-			dlog_resize();
+	static	int	working;	/* latch for repeated interrupts */
+
+	if (save_gbl != 0) {
+		if (!working++) {
+			dlog_comment("resizewin LINES=%d, COLS=%d\n", LINES, COLS);
+			if (!ft_resize()) {
+				markset(save_gbl, mark_W);
+				/*patch showFILES(save_gbl, FALSE); */
+				if (gets_active)
+					dlog_resize();
+			}
+		}
+		working--;
 	}
 }
 #endif	/* SIGWINCH */

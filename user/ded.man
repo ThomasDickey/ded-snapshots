@@ -1,4 +1,4 @@
-.\" $Id: ded.man,v 12.4 1994/07/24 01:08:54 tom Exp $
+.\" $Id: ded.man,v 12.5 1995/04/22 21:12:50 tom Exp $
 .if t .ds T \(tm
 .if n .ds T (tm)
 .
@@ -537,9 +537,6 @@ inode
 .B l
 number of links
 .TP
-.B m
-last-modification date
-.TP
 .B n
 filename
 .TP
@@ -559,7 +556,7 @@ file-protection mask/mode.
 (apollo only) file-protection mask/mode, together with the extended-acl flag.
 .TP
 .B r
-last-access date
+last-access (read) date
 .TP
 .B s
 file size
@@ -578,6 +575,9 @@ user-identifier (numerically)
 .TP
 .B v
 rcs/sccs versions
+.TP
+.B w
+last-modification (write) date
 .TP
 .B y
 rcs/sccs lock-owner

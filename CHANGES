@@ -1,3 +1,16 @@
+1995-04-22  Thomas E. Dickey  <dickey@clark.net>
+
+	* src/ded.c:
+	change interface of 'setmtime()' to avoid clobbering 'atime' value (larry ammann)
+
+	* user/ded.man: corrected description of sort-by-modification date
+
+1995-04-01  Thomas E. Dickey  <dickey@clark.net>
+
+	* src/dedsize.c: added a 'working' latch
+
+	* src/dedsize.c: use MODULE_ID
+
 1995-01-28  Thomas E. Dickey  <dickey@clark.net>
 
 	* src/Makefile: some cleanup of symbols
