@@ -1,3 +1,7 @@
+1991-06-20  dickey@software.org
+
+	* src/ded.c: don't need "-" special argument to make pipe-args.
+
 1991-06-11  dickey@software.org
 
 	* src/dedsigs.c: lint (apollo sr10.2)

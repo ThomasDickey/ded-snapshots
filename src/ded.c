@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	Id[] = "$Header: /users/source/archives/ded.vcs/src/RCS/ded.c,v 9.0 1991/05/31 08:27:42 ste_cm Rel $";
+static	char	Id[] = "$Header: /users/source/archives/ded.vcs/src/RCS/ded.c,v 9.1 1991/06/20 08:59:51 dickey Exp $";
 #endif
 
 /*
@@ -7,9 +7,12 @@ static	char	Id[] = "$Header: /users/source/archives/ded.vcs/src/RCS/ded.c,v 9.0 
  * Author:	T.E.Dickey
  * Created:	09 Nov 1987
  * $Log: ded.c,v $
- * Revision 9.0  1991/05/31 08:27:42  ste_cm
- * BASELINE Mon Jun 10 10:09:56 1991 -- apollo sr10.3
+ * Revision 9.1  1991/06/20 08:59:51  dickey
+ * don't need "-" special argument to make pipe-args.
  *
+ *		Revision 9.0  91/05/31  08:27:42  ste_cm
+ *		BASELINE Mon Jun 10 10:09:56 1991 -- apollo sr10.3
+ *		
  *		Revision 8.8  91/05/31  08:27:42  dickey
  *		modified interface to 'showpath()'
  *		
@@ -1169,6 +1172,20 @@ editfile(readonly, extended)
 	}
 }
  
+static
+void
+trace_pipe(arg)
+char	*arg;
+{
+	if (debug) {
+		if (debug > 1) {
+			FPRINTF(stderr, "%s\n", arg);
+			(void)fflush(stderr);
+		} else
+			blip('#');
+	}
+}
+
 /************************************************************************
  *	main program							*
  ************************************************************************/
@@ -1179,6 +1196,7 @@ usage()
 	auto	char	tmp[BUFSIZ];
 	static	char	*tbl[] = {
 			"Usage: ded [options] [filespecs]",
+			"(filespecs may be read from pipe)",
 			"",
 			"Options which alter initial display fields:",
 			"  -A       show \".\" and \"..\" names",
@@ -1271,7 +1289,7 @@ char	*argv[];
 				Z_opt = -1;
 #endif	/* Z_RCS_SCCS */
 			break;
-	case 'd':	debug = TRUE;	break;
+	case 'd':	debug++;		break;
 	case 't':	tree_opt = optarg;	break;
 	case 'n':	no_worry = TRUE;	break;
 	default:	usage();
@@ -1297,9 +1315,10 @@ char	*argv[];
 		(void)strcat(strcat(whoami, " -l"), log_opt);
 	(void)strcat(whoami, " -n");
 
-	if (optind < argc
-	 && !strcmp(argv[optind], "-")) {
-		argc = fp2argv(stdin, &argv);
+	if (!isatty(fileno(stdin))) {
+		if (optind < argc)
+			FPRINTF(stderr, "? ignored arguments, using pipe\n");
+		argc = fp2argv(stdin, &argv, trace_pipe);
 		optind = 0;
 		for (j = 0; j < argc; j++) {
 			register char *s = argv[j];
