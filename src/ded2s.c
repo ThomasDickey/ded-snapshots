@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	Id[] = "$Id: ded2s.c,v 10.0 1991/10/18 09:45:34 ste_cm Rel $";
+static	char	Id[] = "$Id: ded2s.c,v 10.1 1992/02/04 15:37:48 dickey Exp $";
 #endif
 
 /*
@@ -7,6 +7,8 @@ static	char	Id[] = "$Id: ded2s.c,v 10.0 1991/10/18 09:45:34 ste_cm Rel $";
  * Author:	T.E.Dickey
  * Created:	09 Nov 1987
  * Modified:
+ *		04 Feb 1992, show differences between mtime & ztime specially
+ *			     when +/- 1.
  *		18 Oct 1991, converted to ANSI
  *		16 Aug 1991, added interpretation of "2T"
  *		16 Jul 1991, inode-value and number-of-blocks are unsigned
@@ -217,8 +219,15 @@ char	*t,
 	}
 	if (Z_opt != 0) {	/* show relationship between dates */
 		if (mj != 0 && f_->z_time) {
-		long	diff = s->st_mtime - f_->z_time;
-			*bfr++ = ((diff > 0) ? '<' : ((diff < 0) ? '>' : '='));
+			long	diff = s->st_mtime - f_->z_time;
+			int	mark = '=';
+
+			if (diff < 0)
+				mark = (diff == -1) ? '+' : '>';
+			else if (diff > 0)
+				mark = (diff ==  1) ? '-' : '<';
+
+			*bfr++ = mark;
 		} else
 			*bfr++ = ' ';
 		*bfr++ = ' ';
