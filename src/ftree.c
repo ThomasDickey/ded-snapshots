@@ -1,11 +1,13 @@
 #ifndef	lint
-static	char	Id[] = "$Id: ftree.c,v 10.5 1992/02/18 08:09:44 dickey Exp $";
+static	char	Id[] = "$Id: ftree.c,v 10.7 1992/03/30 11:49:29 dickey Exp $";
 #endif
 
 /*
  * Author:	T.E.Dickey
  * Created:	02 Sep 1987
  * Modified:
+ *		30 Mar 1992, in 'ft_write()', copy strings to temp-buffer first
+ *			     to avoid having to make lots of writes.
  *		17 Feb 1992, fix 'V' toggle, 'R' command when no-children.
  *			     Make '=' command work.
  *		18 Oct 1991, converted to ANSI
@@ -1747,19 +1749,28 @@ ft_write(_AR0)
 	if (FDdiff || (savesccs != showsccs)) {
 	int	fid;
 	register int j;
+	register unsigned k;
 #ifdef	DEBUG
 		ft_dump("write");
 #endif
 		cant_W = TRUE;
 		if ((fid = open(FDname, O_WRONLY|O_CREAT|O_TRUNC, 0644)) >= 0) {
+			char *heap;
 #ifdef	DEBUG
 			PRINTF("writing file \"%s\" (%d)\n", FDname, FDlast);
 #endif
 #define	WRT(s,n)	(void)write(fid,(char *)s,(LEN_READ)(n))
 			WRT(&FDlast, sizeof(FDlast));
 			WRT(ftree, ((FDlast+1) * sizeof(FTREE)));
-			for (j = 0; j <= FDlast; j++)
-				WRT(ftree[j].f_name, strlen(ftree[j].f_name)+1);
+
+			for (j = k = 0; j <= FDlast; j++)
+				k += strlen(ftree[j].f_name)+1;
+			heap = doalloc((char *)0, k);
+			for (j = k = 0; j <= FDlast; j++)
+				k += strlen(strcpy(heap+k, ftree[j].f_name)) + 1;
+			(void)write(fid, heap, (LEN_READ)k);
+			free(heap);
+
 			(void)close(fid);
 			cant_W   = FALSE;
 			showdiff = FDdiff = 0;
