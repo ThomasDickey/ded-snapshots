@@ -1,3 +1,12 @@
+1991-10-22  dickey@software.org
+
+	* test/run_test.sh:
+	made this test for batch-mode (cannot run then, because we have no /dev/tty)
+
+1991-10-22  ste_cm@software.org
+
+	* test/run_test.sh: BASELINE Tue Oct 22 12:22:42 1991
+
 1991-10-21  ste_cm@software.org
 
 	* src/ded.h:
