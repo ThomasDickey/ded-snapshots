@@ -1,3 +1,7 @@
+1987-09-11  Thomas E. Dickey
+
+	* src/ftree.c: forward/backward scrolling complete.
+
 1987-09-10  Thomas E. Dickey
 
 	* src/ftree.c: move cursor movement.
