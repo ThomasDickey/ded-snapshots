@@ -3,7 +3,7 @@
 
 #ifdef	MAIN
 #if	!defined(NO_IDENT)
-static	char	*ded_h = "$Id: ded.h,v 12.3 1993/10/29 20:26:14 dickey Exp $";
+static	char	*ded_h = "$Id: ded.h,v 12.4 1993/11/05 18:26:17 dickey Exp $";
 #endif
 #endif	/* MAIN */
 
@@ -19,7 +19,6 @@ static	char	*ded_h = "$Id: ded.h,v 12.3 1993/10/29 20:26:14 dickey Exp $";
 #include	<dyn_str.h>
 #include	<ctype.h>
 #include	<errno.h>
-#include	<cmdch.h>
 
 #if	defined(SYSTEM5)
 #include	<sys/fcntl.h>
