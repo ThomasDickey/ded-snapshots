@@ -3,7 +3,7 @@
 
 #ifdef	MAIN
 #ifndef	lint
-static	char	*ded_h = "$Id: ded.h,v 11.10 1992/08/13 15:52:32 dickey Exp $";
+static	char	*ded_h = "$Id: ded.h,v 11.12 1992/08/17 12:55:02 dickey Exp $";
 #endif
 #endif	/* MAIN */
 
@@ -583,8 +583,9 @@ extern	int	dlog_char(
 
 extern	char *	dlog_string(
 		_arx(DYN **,	result)
-		_arx(DYN **,	inline)	/* patch */
+		_arx(DYN **,	inline)
 		_arx(HIST **,	history)
+		_arx(int,	fast_q)
 		_ar1(int,	wrap_len));
 
 extern	void	dlog_elapsed(_ar0);
@@ -662,6 +663,9 @@ extern	void	hide_inline(
 
 extern	int	edit_inline(
 		_ar1(int,	flag));
+
+extern	int	up_inline(_ar0);
+extern	int	down_inline(_ar0);
 
 extern	int	get_inline(
 		_arx(int,	c)

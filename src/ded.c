@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	Id[] = "$Header: /users/source/archives/ded.vcs/src/RCS/ded.c,v 11.11 1992/08/13 14:21:08 dickey Exp $";
+static	char	Id[] = "$Header: /users/source/archives/ded.vcs/src/RCS/ded.c,v 11.12 1992/08/17 12:56:59 dickey Exp $";
 #endif
 
 /*
@@ -319,7 +319,7 @@ public	int	user_says(
 		move(y,x);
 		refresh();
 		dyn_init(&reply, 8);
-		s = dlog_string(&reply,(DYN **)0,NO_HISTORY,-8);
+		s = dlog_string(&reply,(DYN **)0,NO_HISTORY,EOS,-8);
 		showC(gbl);
 		ok = (*s == 'y' || *s == 'Y');
 	}

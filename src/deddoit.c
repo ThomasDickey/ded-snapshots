@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	Id[] = "$Id: deddoit.c,v 11.3 1992/08/07 08:37:31 dickey Exp $";
+static	char	Id[] = "$Id: deddoit.c,v 11.4 1992/08/17 12:59:07 dickey Exp $";
 #endif
 
 /*
@@ -187,6 +187,7 @@ public	void	deddoit(
 		for (s = dlog_string(&Subs,
 				(DYN **)0,
 				&History,
+				EOS,
 				0);
 				*s; s++) {
 			/* skip leading blanks */
