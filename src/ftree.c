@@ -2,6 +2,7 @@
  * Author:	T.E.Dickey
  * Created:	02 Sep 1987
  * Modified:
+ *		29 Oct 1995, guard 'do_find()' against getwd failure
  *		03 Sep 1995, mods to make '&'-toggle correspond better with
  *			     the same command in the file-list.
  *		04 Jul 1994, use ungetch rather than ungetc.
@@ -126,7 +127,7 @@
 
 #include	<fcntl.h>
 
-MODULE_ID("$Id: ftree.c,v 12.43 1995/09/05 23:17:47 tom Exp $")
+MODULE_ID("$Id: ftree.c,v 12.44 1995/10/29 12:36:29 tom Exp $")
 
 #define	Null	(char *)0	/* some NULL's are simply 0 */
 
@@ -599,6 +600,9 @@ private	int	do_find (
 {
 	char	bfr[MAXPATHLEN];
 	register int j, this, last = 0;
+
+	if (path == 0 || *path == EOS)
+		return(-1);
 
 	abspath(path = strcpy(bfr,path));
 	if (!strcmp(path,zero))
