@@ -2,6 +2,7 @@
  * Author:	T.E.Dickey
  * Created:	02 Sep 1987
  * Modified:
+ *		24 Jan 2000, open in binary-mode for OS/2 EMX and Cygwin.
  *		21 Jul 1998, changes to showpath.
  *		29 May 1998, compile with g++
  *		20 Mar 1997, fix size mismatch (size_t vs int) that caused
@@ -133,7 +134,7 @@
 
 #include	<fcntl.h>
 
-MODULE_ID("$Id: ftree.c,v 12.55 1998/07/21 22:21:19 tom Exp $")
+MODULE_ID("$Id: ftree.c,v 12.56 2000/01/24 11:57:04 tom Exp $")
 
 #define	Null	(char *)0	/* some NULL's are simply 0 */
 
@@ -224,8 +225,8 @@ static	char	*caller_top,		/* caller's current directory	*/
 		*viewer_top;		/* viewer's current directory	*/
 static	FTREE	*ftree;			/* array of database entries	*/
 
-static	const	char	zero[] = ROOT,
-			*gap = zero + (TOP-1);
+static	char	zero[] = ROOT,
+		*gap = zero + (TOP-1);
 
 /************************************************************************
  *	Database Manipulation						*
@@ -292,7 +293,7 @@ private	void	fd_slow(
  */
 private	void	fd_alloc(_AR0)
 {
-	if (FDlast >= FDsize) {
+	if (FDlast >= (int) FDsize) {
 	register unsigned size = FDsize;
 		FDsize += FDlast + 2;
 		ftree = DOALLOC(ftree,FTREE,FDsize);
@@ -871,7 +872,7 @@ private	void	read_ftree (
 	size_t		size;
 
 	/* read the current database */
-	if ((fid = open(the_file, O_RDONLY, 0)) != 0) {
+	if ((fid = open(the_file, O_BINARY|O_RDONLY, 0)) != 0) {
 		if (stat_file(the_file, &sb) < 0)
 			return;
 		if (sb.st_mtime <= FDtime) {
@@ -888,7 +889,7 @@ private	void	read_ftree (
 				(char *)&vecsize, sizeof(vecsize),
 				"size"))
 			return;
-		if ((size / sizeof(FTREE)) < vecsize) {
+		if ((int)(size / sizeof(FTREE)) < vecsize) {
 			(void)ft_init("? size error");
 			return;
 		}
@@ -2040,7 +2041,7 @@ public	int	ft_scan(
 		while ((d = readdir(dp)) != NULL) {
 			(void)strcpy(s_, "*");
 			fd_slow(count++, base, bfr);
-			FORMAT(s_, "%s", d->d_name);
+			FORMAT(s_, "%.*s", (int) NAMLEN(d), d->d_name);
 			if (dotname(s_))		continue;
 			if (ft_stat(bfr, s_))
 				found = TRUE;
@@ -2148,7 +2149,7 @@ public	void	ft_write(_AR0)
 #endif
 		cant_W = TRUE;
 		if ((fid = open(dyn_string(FDname),
-				O_WRONLY|O_CREAT|O_TRUNC,
+				O_BINARY|O_WRONLY|O_CREAT|O_TRUNC,
 				0644)) >= 0) {
 			char *heap;
 #ifdef	DEBUG
