@@ -1,3 +1,14 @@
+1989-10-26  dickey@software.org
+
+	* src/dedline.c:
+	altered 'editmode()' to reduce number of register variables
+	used (bypasses bug on sun3)
+
+1989-10-26  ste_cm@software.org
+
+	* src/dedline.c:
+	BASELINE Fri Oct 27 12:27:25 1989 -- apollo SR10.1 mods + ADA_PITS 4.0
+
 1989-10-16  dickey@software.org
 
 	* src/ftree.c: re-simplified 'ft_stat()' (don't need lstat)
