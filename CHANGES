@@ -1,3 +1,14 @@
+1988-04-11  dickey@software.org
+
+	* src/version.h: 'U' command affects '#'-substitution now too.
+
+	* src/ded2s.c:
+	integrated guts of 'fixname()' here so we can issue Aegis-style commands
+	when 'U' command is set.
+
+	* src/ded.c:
+	integrated 'fixname()', 'name2s()' so we can issue Aegis-style commands.
+
 1988-04-05  dickey@software.org
 
 	* src/ftree.c: don't give up if ".ftree" hasn't been initialized!

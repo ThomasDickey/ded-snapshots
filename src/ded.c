@@ -1,5 +1,5 @@
 #ifndef	NO_SCCS_ID
-static	char	sccs_id[] = "@(#)ded.c	1.10 88/04/05 15:57:42";
+static	char	sccs_id[] = "@(#)ded.c	1.11 88/04/11 07:01:52";
 #endif	NO_SCCS_ID
 
 /*
@@ -400,20 +400,7 @@ char *
 fixname(j)
 {
 static	char	nbfr[BUFSIZ];
-register char	*s, *d;
-	for (s = flist[j].name, d = nbfr; *s; s++) {
-	register int c = *s;
-		if(iscntrl(c)
-		|| isspace(c)
-		|| (c == '$')
-		|| (c == '\\')
-		|| (c == '>')
-		|| (c == '&')
-		|| (c == '#'))
-			*d++ = '\\';	/* escape the nasty thing */
-		*d++ = c;
-	}
-	*d = EOS;
+	(void)name2s(nbfr, flist[j].name, sizeof(nbfr), TRUE);
 	return (nbfr);
 }
 
