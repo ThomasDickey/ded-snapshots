@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	sccs_id[] = "$Header: /users/source/archives/ded.vcs/src/RCS/dedread.c,v 2.1 1989/05/26 13:44:15 dickey Exp $";
+static	char	sccs_id[] = "$Header: /users/source/archives/ded.vcs/src/RCS/dedread.c,v 2.2 1989/05/31 09:09:21 dickey Exp $";
 #endif	lint
 
 /*
@@ -52,6 +52,22 @@ dedread()
 		BAD_REGEX(expr);
 		showC();
 		return (FALSE);
+	}
+}
+
+/*
+ * Initialize the match for regular-expression selection of files.  We need this
+ * entrypoint because the BSD-style code does not save the compiled-expr.
+ */
+init_scan()
+{
+	if (toscan != 0) {
+		dlog_comment("scan for \"%s\"\n", toscan);
+		OLD_REGEX(scan_expr);
+		if (!NEW_REGEX(scan_expr,toscan)) {	/* shouldn't happen */
+			BAD_REGEX(scan_expr);
+			toscan = 0;
+		}
 	}
 }
 

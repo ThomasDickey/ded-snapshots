@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	sccs_id[] = "$Header: /users/source/archives/ded.vcs/src/RCS/dedscan.c,v 2.2 1989/05/26 14:20:57 dickey Exp $";
+static	char	sccs_id[] = "$Header: /users/source/archives/ded.vcs/src/RCS/dedscan.c,v 2.3 1989/05/31 09:03:58 dickey Exp $";
 #endif	lint
 
 /*
@@ -7,9 +7,12 @@ static	char	sccs_id[] = "$Header: /users/source/archives/ded.vcs/src/RCS/dedscan
  * Author:	T.E.Dickey
  * Created:	09 Nov 1987
  * $Log: dedscan.c,v $
- * Revision 2.2  1989/05/26 14:20:57  dickey
- * don't purge ftree if we are using read-expression
+ * Revision 2.3  1989/05/31 09:03:58  dickey
+ * added 'init_scan()' to fix regular-expression kludge
  *
+ *		Revision 2.2  89/05/26  14:20:57  dickey
+ *		don't purge ftree if we are using read-expression
+ *		
  *		Revision 2.1  89/05/26  13:14:42  dickey
  *		use read-selection (CTL/R command) to suppress unwanted names
  *		
@@ -90,6 +93,9 @@ char	*argv[];
 				failed("getwd");
 			if (toscan == 0)
 				ft_remove(new_wd,AT_opt);
+			else
+				init_scan();
+
 			if (dp = opendir(".")) {
 			int	len = strlen(strcpy(name, new_wd));
 				if (name[len-1] != '/') {
