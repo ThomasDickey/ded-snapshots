@@ -3,6 +3,8 @@
  * Author:	T.E.Dickey
  * Created:	03 Apr 1992, from 'ded.c'
  * Modified:
+ *		21 Jul 1998, change filelist header layout to allow for
+ *			     hostname prefix to pathname.
  *		15 Feb 1998, compiler warnings.
  *		16 Feb 1996, use 'freed' parm of redoVIEW (fixes memory bug).
  *		09 Jan 1996, mods for scrolling regions
@@ -23,7 +25,7 @@
 
 #include	"ded.h"
 
-MODULE_ID("$Id: dedview.c,v 12.39 1998/02/16 18:22:46 tom Exp $")
+MODULE_ID("$Id: dedview.c,v 12.40 1998/07/21 22:20:40 tom Exp $")
 
 #define	MINLIST	2		/* minimum length of file-list + header */
 #define	MINWORK	3		/* minimum size of work-area */
@@ -302,22 +304,34 @@ private	void	show_what (
 	_DCL(VIEW *,	vp)
 {
 	auto	RING *	gbl = vp->gbl;
+	auto	char	buffer[80];
 	static	char	datechr[] = "acm";
+	int	y, x;
 
 	move(vp->base_row,0);
-	if (gbl->tag_count)	standout();
-	PRINTW("%2d of %2d [%ctime] ",
-		gbl->curfile + 1,
-		gbl->numfiles,
-		datechr[gbl->dateopt]);
-	if (gbl->tag_opt)
-		PRINTW("(%d files, %ld %s) ",
+	if (gbl->tag_count)
+		standout();
+
+	buffer[0] = EOS;
+	if (gbl->tag_opt) {
+		sprintf(buffer, "(%d files, %ld %s) ",
 			gbl->tag_count,
 			(gbl->tag_opt > 1) ? gbl->tag_bytes : gbl->tag_blocks,
 			(gbl->tag_opt > 1) ? "bytes"   : "blocks");
-	showpath(gbl->new_wd, 999, -1, 0);
-	if (gbl->tag_count)	standend();
-	clrtoeol();
+	}
+	sprintf(buffer + strlen(buffer), "%d of %d [%ctime]",
+		gbl->curfile + 1,
+		gbl->numfiles,
+		datechr[gbl->dateopt]);
+	showpath(gbl->new_wd, 999, -1, strlen(buffer) + 3);
+	getyx(stdscr, y, x);
+	x = COLS - strlen(buffer) - x;
+	while (x-- > 0)
+		addch(' ');
+
+	addstr(buffer);
+	if (gbl->tag_count)
+		standend();
 }
 
 /*
