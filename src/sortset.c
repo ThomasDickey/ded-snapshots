@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	what[] = "$Id: sortset.c,v 5.3 1989/12/11 09:12:28 dickey Exp $";
+static	char	what[] = "$Id: sortset.c,v 8.0 1990/03/06 08:24:51 ste_cm Rel $";
 #endif	lint
 
 /*
@@ -7,9 +7,21 @@ static	char	what[] = "$Id: sortset.c,v 5.3 1989/12/11 09:12:28 dickey Exp $";
  * Author:	T.E.Dickey
  * Created:	01 Dec 1989 (from ded.c)
  * $Log: sortset.c,v $
- * Revision 5.3  1989/12/11 09:12:28  dickey
- * corrected call on 'dlog_char()'
+ * Revision 8.0  1990/03/06 08:24:51  ste_cm
+ * BASELINE Mon Aug 13 15:06:41 1990 -- LINCNT, ADA_TRANS
  *
+ *		Revision 7.0  90/03/06  08:24:51  ste_cm
+ *		BASELINE Mon Apr 30 09:54:01 1990 -- (CPROTO)
+ *		
+ *		Revision 6.0  90/03/06  08:24:51  ste_cm
+ *		BASELINE Thu Mar 29 07:37:55 1990 -- maintenance release (SYNTHESIS)
+ *		
+ *		Revision 5.4  90/03/06  08:24:51  dickey
+ *		lint
+ *		
+ *		Revision 5.3  89/12/11  09:15:20  dickey
+ *		corrected call on 'dlog_char()'
+ *		
  *		Revision 5.2  89/12/08  10:23:00  dickey
  *		added ':' special-sort to allow user to scroll among all
  *		sort options before selecting.
@@ -63,7 +75,7 @@ sortset(ord,opt)
 			sortc[k++] = *sort_msg[j];
 		sortc[k] = EOS;
 	}
-	if (strchr(sortc, opt) != 0) {
+	if (strchr(sortc, (size_t)opt) != 0) {
 		dateopt = opt == 'c'  ? 1 : (opt == 'r' ? 0 : 2);
 		sortopt = opt;
 		sortord = (ord == 'r');

@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	what[] = "$Id: ded.c,v 5.8 1990/03/05 07:28:51 dickey Exp $";
+static	char	what[] = "$Id: ded.c,v 6.0 1990/03/06 08:31:03 ste_cm Rel $";
 #endif	lint
 
 /*
@@ -7,9 +7,19 @@ static	char	what[] = "$Id: ded.c,v 5.8 1990/03/05 07:28:51 dickey Exp $";
  * Author:	T.E.Dickey
  * Created:	09 Nov 1987
  * $Log: ded.c,v $
- * Revision 5.8  1990/03/05 07:28:51  dickey
- * forgot to init reply-buffer in 'user_says()'
+ * Revision 6.0  1990/03/06 08:31:03  ste_cm
+ * BASELINE Thu Mar 29 07:37:55 1990 -- maintenance release (SYNTHESIS)
  *
+ *		Revision 5.10  90/03/06  08:31:03  dickey
+ *		lint
+ *		
+ *		Revision 5.9  90/03/06  08:17:46  dickey
+ *		test for sort-keys which assume RCS/SCCS scanning is in effecect
+ *		and perform scanning if it has not been done.
+ *		
+ *		Revision 5.8  90/03/05  13:33:37  dickey
+ *		forgot to init reply-buffer in 'user_says()'
+ *		
  *		Revision 5.7  90/03/02  12:12:03  dickey
  *		set 'no_worry' in 'dedring()', not 'new_args()'
  *		
@@ -167,6 +177,8 @@ extern	char	**vecalloc();
 #ifndef	PAGER
 #define	PAGER	"/usr/ucb/more"
 #endif	PAGER
+
+#define	needSCCS(c)	(!Z_opt && (strchr("vyZz",(size_t)c) != 0))
 
 #define	MAXVIEW	2		/* number of viewports */
 #define	MINLIST	2		/* minimum length of file-list + header */
@@ -1124,6 +1136,10 @@ char	*argv[];
 	case 'l':	log_opt = dlog_open(optarg,argc,argv);	break;
 	case 's':
 	case 'r':	if (!sortset(c,*optarg))	usage();
+#ifdef	Z_RCS_SCCS
+			if (needSCCS(c))
+				Z_opt = -1;
+#endif	/* Z_RCS_SCCS */
 			break;
 	case 'd':	debug = TRUE;	break;
 	case 't':	tree_opt = optarg;	break;
@@ -1344,6 +1360,10 @@ char	*argv[];
 			if (!(j = sortget(j)))
 				;
 			else if (sortset(c,j)) {
+#ifdef	Z_RCS_SCCS
+				if (needSCCS(j))
+					showSCCS();
+#endif	/* Z_RCS_SCCS */
 				dedsort();
 				(void)to_file();
 				showFILES(FALSE);

@@ -1,3 +1,79 @@
+1990-03-06  dickey@software.org
+
+	* src/ded.c: lint
+
+1990-03-06  ste_cm@software.org
+
+	* src/ded.c:
+	BASELINE Thu Mar 29 07:37:55 1990 -- maintenance release (SYNTHESIS)
+
+1990-03-06  dickey@software.org
+
+	* src/deddoit.c: lint
+
+1990-03-06  ste_cm@software.org
+
+	* src/deddoit.c: BASELINE Mon Apr 30 09:54:01 1990 -- (CPROTO)
+
+	* src/deddoit.c: BASELINE Mon Aug 13 15:06:41 1990 -- LINCNT, ADA_TRANS
+
+	* src/deddoit.c:
+	BASELINE Thu Mar 29 07:37:55 1990 -- maintenance release (SYNTHESIS)
+
+1990-03-06  dickey@software.org
+
+	* src/dedline.c: lint
+
+1990-03-06  ste_cm@software.org
+
+	* src/dedline.c: BASELINE Mon Apr 30 09:54:01 1990 -- (CPROTO)
+
+	* src/dedline.c: BASELINE Mon Aug 13 15:06:41 1990 -- LINCNT, ADA_TRANS
+
+	* src/dedline.c:
+	BASELINE Thu Mar 29 07:37:55 1990 -- maintenance release (SYNTHESIS)
+
+1990-03-06  dickey@software.org
+
+	* src/ftree.c: lint
+
+1990-03-06  ste_cm@software.org
+
+	* src/ftree.c: BASELINE Mon Apr 30 09:54:01 1990 -- (CPROTO)
+
+	* src/ftree.c:
+	BASELINE Thu Mar 29 07:37:55 1990 -- maintenance release (SYNTHESIS)
+
+1990-03-06  dickey@software.org
+
+	* src/sortset.c: lint
+
+1990-03-06  ste_cm@software.org
+
+	* src/sortset.c: BASELINE Mon Apr 30 09:54:01 1990 -- (CPROTO)
+
+	* src/sortset.c: BASELINE Mon Aug 13 15:06:41 1990 -- LINCNT, ADA_TRANS
+
+	* src/sortset.c:
+	BASELINE Thu Mar 29 07:37:55 1990 -- maintenance release (SYNTHESIS)
+
+1990-03-06  dickey@software.org
+
+	* src/ded.c:
+	test for sort-keys which assume RCS/SCCS scanning is in effecect
+	and perform scanning if it has not been done.
+
+	* src/dlog.c: 'cmdch()' can now return explicit zero-count
+
+1990-03-06  ste_cm@software.org
+
+	* src/dlog.c: BASELINE Mon Apr 30 09:54:01 1990 -- (CPROTO)
+
+	* src/dlog.c: BASELINE Mon Aug 13 15:06:41 1990 -- LINCNT, ADA_TRANS
+
+	* src/dlog.c:
+	BASELINE Thu Mar 29 07:37:55 1990 -- maintenance release (SYNTHESIS)
+
 1990-03-05  dickey@software.org
 
 	* test/test1.cmd: adjusted for command-changes
