@@ -1,12 +1,19 @@
 #ifndef	lint
-static	char	sccs_id[] = "@(#)dedsigs.c	1.3 88/08/12 09:10:34";
+static	char	sccs_id[] = "$Header: /users/source/archives/ded.vcs/src/RCS/dedsigs.c,v 2.0 1989/03/15 08:34:45 ste_cm Exp $";
 #endif	lint
 
 /*
  * Title:	dedsigs.c (catch/ignore signals)
  * Author:	T.E.Dickey
  * Created:	03 Aug 1988
- * Modified:
+ * $Log: dedsigs.c,v $
+ * Revision 2.0  1989/03/15 08:34:45  ste_cm
+ * BASELINE Thu Apr  6 13:14:13 EDT 1989
+ *
+ *		Revision 1.5  89/03/15  08:34:45  dickey
+ *		sccs2rcs keywords
+ *		
+ *		15 Mar 1989, use 'dlog' module
  *		12 Aug 1988, in 'catch()' re-catch signal so this works on
  *			     system5.  Also, make 'SIGTERM' go to 'to_exit()'.
  *
@@ -35,9 +42,11 @@ static
 int
 dedquit()
 {
+	static	char	msg[] = "** quit **\n";
 	to_exit(1);
-	(void)printf("** quit **\n");
-	(void)exit(1);
+	FPRINTF(stderr, msg);
+	dlog_comment(msg);
+	dlog_exit(FAIL);
 }
 
 /*

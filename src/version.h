@@ -1,5 +1,6 @@
 /*
  * Version-identifier for DED
+ * 15 Mar 1989, make logging work with subprocesses.
  * 14 Mar 1989, added '<' command and "-l" (logfile) option.
  * 07 Mar 1989, corrected ftree interaction between A/@ commands.
  * 28 Feb 1989, plugged a few holes in ft_insert/ft_linkto calls.
@@ -43,4 +44,4 @@
  * 01 Dec 1987, added '*', '^' commands, made '%' refresh screen
  * 25 Nov 1987, added sccs-support (V,z,Z toggles, V,z,Z sorts)
  */
-static	char	version[] = "@(#)DED Directory Editor (89/03/14 14:00:59)";
+static	char	version[] = "$Header: /users/source/archives/ded.vcs/src/RCS/version.h,v 1.43 1989/03/15 09:17:55 dickey Exp $)";

@@ -1,12 +1,16 @@
 #ifndef	lint
-static	char	sccs_id[] = "@(#)ded.c	1.61 89/03/14 13:19:02";
+static	char	sccs_id[] = "$Header: /users/source/archives/ded.vcs/src/RCS/ded.c,v 1.63 1989/03/15 09:12:02 dickey Exp $";
 #endif	lint
 
 /*
  * Title:	ded.c (directory-editor)
  * Author:	T.E.Dickey
  * Created:	09 Nov 1987
- * Modified:
+ * $Log: ded.c,v $
+ * Revision 1.63  1989/03/15 09:12:02  dickey
+ * sccs2rcs keywords
+ *
+ *		15 Mar 1989, if log-option is set, pass this to subprocess ded.
  *		14 Mar 1989, added '-l' option for logging.
  *		13 Mar 1989, added '<' command (short-form of '>')
  *		23 Jan 1989, added 'N' sort
@@ -57,6 +61,7 @@ static	char	sccs_id[] = "@(#)ded.c	1.61 89/03/14 13:19:02";
 #define	MAIN
 #include	"ded.h"
 #include	<signal.h>
+extern	char	*dlog_open();
 extern	char	*pathcat();
 extern	char	*txtalloc();
 extern	char	**vecalloc();
@@ -105,6 +110,7 @@ static	int	tag_count;		/* number of tagged files */
  */
 static	int	in_screen;		/* TRUE if we have successfully init'ed */
 static	char	whoami[BUFSIZ],		/* my execution-path */
+		*log_opt,		/* log-file option */
 		*tree_opt,		/* my file-tree database */
 		howami[BUFSIZ];		/* my help-file */
 
@@ -313,15 +319,14 @@ char	*msg;
 {
 	to_exit(msg != 0);
 	if (msg)
-		PRINTF("-------- \n?? %-79s\n-------- \n", msg);
+		FPRINTF(stderr, "-------- \n?? %-79s\n-------- \n", msg);
 #ifdef	apollo
 	if (msg) {
 		(void)kill(getpid(), SIGKILL);
 		for (;;);	/* when terminated, will be able to use 'tb' */
 	}
 #endif	apollo
-	dlog_flush();
-	exit(FAIL);
+	dlog_exit(FAIL);
 }
 
 /*
@@ -798,7 +803,9 @@ editfile(readonly, pad)
 	case 1:
 		to_work();
 		ft_write();
+		dlog_close();
 		forkfile(whoami, cNAME, TRUE);
+		dlog_reopen();
 		ft_read(new_wd, tree_opt);
 		break;
 	default:
@@ -832,7 +839,7 @@ char	tpath[BUFSIZ],
 	dpath[BUFSIZ];
 
 	(void)sortset('s', 'n');
-	PRINTF("%s\r\n", version+4);	/* show me when entering process */
+	FPRINTF(stderr, "%s\r\n", version+4);	/* show when entering process */
 	(void)fflush(stdout);
 
 	while ((c = getopt(argc, argv, "GIPSUZl:r:s:zdt:")) != EOF) switch (c) {
@@ -845,14 +852,14 @@ char	tpath[BUFSIZ],
 	case 'Z':	Z_opt = 1;	break;
 	case 'z':	Z_opt = -1;	break;
 #endif	Z_RCS_SCCS
-	case 'l':	dlog_open(optarg,argc,argv);	break;
+	case 'l':	log_opt = dlog_open(optarg,argc,argv);	break;
 	case 's':
 	case 'r':	if (!sortset(c,*optarg))	usage();
 			break;
 	case 'd':	debug = TRUE;	break;
 	case 't':	tree_opt = optarg;	break;
 	default:	usage();
-			exit(FAIL);
+			dlog_exit(FAIL);
 	}
 
 	if (!tree_opt)	tree_opt = gethome();
@@ -861,7 +868,13 @@ char	tpath[BUFSIZ],
 	/* find which copy I am executing from, for future use */
 	if (which(whoami, sizeof(whoami), argv[0], old_wd) <= 0)
 		failed("which-path");
+
+	/* my help-file lives where the binary does */
 	FORMAT(howami, "%s.hlp", whoami);
+
+	/* pass options to lower-level processes of ded */
+	if (log_opt)
+		(void)strcat(strcat(whoami, " -l"), log_opt);
 
 	(void)dedsigs(TRUE);
 	if (!initscr())			failed("initscr");
@@ -1182,7 +1195,9 @@ char	tpath[BUFSIZ],
 				move(y, 0);
 				refresh();
 				ft_write();
+				dlog_close();
 				forkfile(whoami, tpath, FALSE);
+				dlog_reopen();
 				unsavewin(TRUE,0);
 				ft_read(new_wd, tree_opt);
 			    }
@@ -1230,7 +1245,6 @@ char	tpath[BUFSIZ],
 
 	to_exit(TRUE);
 	ft_write();
-	dlog_flush();
-	exit(SUCCESS);
+	dlog_exit(SUCCESS);
 	/*NOTREACHED*/
 }
