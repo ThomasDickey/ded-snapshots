@@ -3,6 +3,7 @@
  * Author:	T.E.Dickey
  * Created:	16 Nov 1987
  * Modified:
+ *		24 Jan 2000, revised directory-macros.
  *		16 Aug 1999, add cast to work with BeOS's long long ino_t.
  *		15 Feb 1998, add home/end/ppage/npage keys.
  *		13 Jan 1996, mods for scrolling regions.  Move search prompt
@@ -57,7 +58,7 @@
 #define		DIR_PTYPES	/* includes directory-stuff */
 #include	"ded.h"
 
-MODULE_ID("$Id: dedtype.c,v 12.29 1999/08/17 01:06:17 tom Exp $")
+MODULE_ID("$Id: dedtype.c,v 12.30 2000/01/24 11:56:07 tom Exp $")
 
 typedef	struct	{
 	OFF_T	offset;
@@ -720,7 +721,7 @@ public	void	dedtype(
 		if ((dp = opendir(name)) != 0) {
 			while ((de = readdir(dp)) != NULL) {
 				(void)ded2string(gbl, bfr,
-					(int)de->d_namlen,
+					NAMLEN(de),
 					de->d_name,
 					FALSE);
 				FPRINTF(InFile, INO_FMT, (long) de->d_ino);
