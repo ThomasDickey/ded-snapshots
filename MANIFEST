@@ -1,4 +1,4 @@
-MANIFEST for ded, version t19880427
+MANIFEST for ded, version t19880428
 --------------------------------------------------------------------------------
 MANIFEST                        this file
 src                             subdirectory
@@ -9,6 +9,7 @@ src/ded.hlp                     help-file for DED
 src/ded2s.c                     convert file-entry to string
 src/deddoit.c                   execute shell commands
 src/dedfind.c                   search within file-list
+src/dedring.c                   manage ring of file-lists
 src/dedscan.c                   read file-list
 src/dedshow.c                   display file-list
 src/dedsort.c                   sorting operation for DED

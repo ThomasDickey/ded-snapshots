@@ -1,11 +1,12 @@
 #ifndef	NO_SCCS_ID
-static	char	sccs_id[] = "@(#)ftree.c	1.24 88/04/27 09:55:39";
+static	char	sccs_id[] = "@(#)ftree.c	1.26 88/04/28 15:18:24";
 #endif
 
 /*
  * Author:	T.E.Dickey
  * Created:	02 Sep 1987
  * Modified:
+ *		28 Apr 1988, integrated with 'ded' via 'dedring()' module.
  *		26 Apr 1988, adjusted 'p' command so we position before changes.
  *		24 Mar 1988, moved under 'ded' directory to begin changes for
  *			     bsd4.2
@@ -48,6 +49,11 @@ extern	char	*getenv(),
 		*strcat(),
 		*strchr(),
 		*strcpy();
+
+#ifndef	R_OK		/* should be in <sys/file.h>, but apollo has conflict */
+#define	R_OK	4
+#define	X_OK	1
+#endif	R_OK
 
 #ifdef	apollo
 #define	TOP	2
@@ -539,11 +545,13 @@ int	fid,
  * status line, moving to the common nodes only if the user directs so.
  */
 static
-ft_show(path, node, level)
-char	*path;
+ft_show(path, home, node, level)
+char	*path, *home;
 {
 register int j, k;
 int	row = 0;
+char	*marker,
+	bfr[BUFSIZ];
 
 	move(row++,0);
 	node = limits(showbase, node);
@@ -553,9 +561,14 @@ int	row = 0;
 		for (j = showbase; j <= showlast; j++) {
 			if (!fd_show(j)) continue;
 			move(row++,0);
-			printw("%4d. ", j);
+			marker = strcmp(fd_path(bfr, j), home) ? ". " : "=>";
+#ifndef	TEST
+			if (*marker == '.' && dedrang(bfr))
+				marker = "* ";
+#endif	TEST
+			printw("%4d%s", j, marker);
 			for (k = fd_level(j); k > 0; k--)
-				printw(fd_line(k));
+				addstr(fd_line(k));
 			if (ftree[j].f_mark & MARKED)	standout();
 			printw("%s%s",
 				ftree[j].f_name,
@@ -747,10 +760,6 @@ int	row,
 	lvl,
 	num,
 	c;
-#ifndef	TEST
-extern	char	*fr_find();
-int	ring	= 1;
-#endif	TEST
 char	cwdpath[MAXPATHLEN];
 char	*newpath;
 register int j;
@@ -768,7 +777,7 @@ register int j;
 
 		c = fd_level(row) + 1;
 		if (c < lvl) lvl = c;	/* loosely drag down level */
-		row = ft_show(fd_path(cwdpath,row), row, lvl);
+		row = ft_show(fd_path(cwdpath,row), path, row, lvl);
 
 		switch(c = cmdch(&num)) {
 		/* Ordinary cursor movement */
@@ -855,15 +864,17 @@ register int j;
 		/* scroll through the directory-ring */
 		case 'F':
 		case 'B':
-			row = do_find(fr_find(c, &ring));
+			(void)dedring(fd_path(cwdpath, row), c, num);
+			row = do_find(strcpy(cwdpath,new_wd));
 			lvl = fd_level(row);
 			scroll_to(row);
+			(void)strcpy(path, cwdpath);
 			break;
 
 		/* Exit from this program (back to 'fl') */
 		case 'E':
 		case 'e':
-			if (chdir(newpath = fd_path(cwdpath,row)) < 0) {
+			if (access(newpath = fd_path(cwdpath,row), R_OK | X_OK) < 0) {
 				beep();
 				break;
 			}
@@ -894,18 +905,24 @@ register int j;
 		case '_':	for (j = 0; j <= FDlast; j++)
 					markit(j,MARKED,FALSE);
 				break;
-		case 'p':	row = - (row + 1);
+		case 'p':	num = -1;
 				for (j = FDlast; j > 0; j--)
 					if (ftree[j].f_mark & MARKED)
-						row = 0;
-					else if (row == 0)
-						row = j;
-				ft_purge();
-				if (row >= 0) {
+						num = 0;
+					else if (num == 0)
+						num = j;
+				if (num >= 0) {
+					ft_purge();
+					while (num > 0) {
+						if (!fd_show(num))
+							num--;
+						else
+							break;
+					}
+					row = num;
 					lvl = fd_level(row);
 					scroll_to(row);
-				} else
-					row = - (row + 1);
+				}
 				break;
 
 		/* Screen refresh */

@@ -1,5 +1,5 @@
 #ifndef	NO_SCCS_ID
-static	char	sccs_id[] = "@(#)ded.c	1.13 88/04/22 06:53:31";
+static	char	sccs_id[] = "@(#)ded.c	1.14 88/04/28 13:19:42";
 #endif	NO_SCCS_ID
 
 /*
@@ -7,6 +7,9 @@ static	char	sccs_id[] = "@(#)ded.c	1.13 88/04/22 06:53:31";
  * Author:	T.E.Dickey
  * Created:	09 Nov 1987
  * Modified:
+ *		28 Apr 1988, added 'new_args()' to integrate with ftree module.
+ *			     Modified 'edittext()' to correspond with rawgets.
+ *			     Added "=" renaming command.
  *		21 Apr 1988, use 'savewin()' module for retouch.  Apollo SR9.7
  *			     changes 'fixtime()'.  Added call on 'resizewin'.
  *		25 Mar 1988, corrected 'retouch()' so that last line is cleared,
@@ -22,6 +25,7 @@ static	char	sccs_id[] = "@(#)ded.c	1.13 88/04/22 06:53:31";
 #include	"ded.h"
 #include	<ctype.h>
 extern	char	*getenv(),
+		*stralloc(),
 		*strchr();
 
 #ifndef	EDITOR
@@ -57,6 +61,9 @@ static	char	whoami[BUFSIZ],		/* my execution-path */
 
 static	char	sortc[] = "cgilnprstuwGTUvzZ";/* valid sort-keys */
 					/* (may correspond with cmds) */
+
+static	int	re_edit;		/* flag for 'edittext()' */
+static	char	lastedit[BUFSIZ];	/* command-stream for 'edittext()' */
 
 /************************************************************************
  *	local procedures						*
@@ -399,6 +406,27 @@ restat(group)		/* re-'stat()' the current line, and optionally group */
 }
 
 /*
+ * Use the 'dedring()' module to switch to a different file-list
+ */
+static
+new_args(path, cmd, count)
+char	*path;
+{
+register int j;
+
+	to_work();
+	if (dedring(path, cmd, count)) {
+		(void)to_file();
+		for (j = tag_count = 0; j < numfiles; j++)
+			if (flist[j].flag)
+				tag_count++;
+		showFILES();
+	} else
+		showC();
+	(void)chdir(new_wd);
+}
+
+/*
  * Convert a name to a form which shell commands can use.  For most
  * names, this is simply a copy of the original name.  However, on
  * Apollo, we may have names with '$' and other special characters.
@@ -438,6 +466,33 @@ time_t	tv[2];
 }
 
 /*
+ * Store/retrieve field-editing commands.  The first character of the buffer
+ * 'lastedit[]' is reserved to tell us what the command was.
+ */
+static
+replay(cmd)
+{
+int	c;
+static	int	in_edit;
+
+	if (cmd) {
+		in_edit = 1;
+		lastedit[0] = cmd;
+	} else {
+		if (re_edit) {
+			c = lastedit[in_edit++];
+		}
+		if (!re_edit) {
+			c = cmdch((int *)0);
+			if (c == '\r') c = '\n';
+			lastedit[in_edit++] = c;
+			lastedit[in_edit]   = EOS;
+		}
+	}
+	return (c);
+}
+
+/*
  * edit protection-code for current & tagged files
  */
 #define	CHMOD(n)	(flist[n].s.st_mode & 07777)
@@ -457,11 +512,13 @@ int	y	= file2row(curfile),
 		showFILES();
 	}
 
+	(void)replay(P_cmd);
+
 	while (!done) {
 		showLINE(curfile);
 		move(y, x);
-		refresh();
-		switch (c = cmdch((int *)0)) {
+		if (!re_edit) refresh();
+		switch (c = replay(0)) {
 		case P_cmd:
 			c = CHMOD(curfile);
 			for (x = 0; x < numfiles; x++) {
@@ -477,7 +534,10 @@ int	y	= file2row(curfile),
 					}
 				}
 			}
+			done = TRUE;
+			break;
 		case 'q':
+			lastedit[0] = EOS;
 			done = TRUE;
 			break;
 		case ARO_RIGHT:
@@ -520,44 +580,68 @@ char	*bfr;
 int	y	= file2row(curfile),
 	x	= 0,
 	c,
+	ec	= erasechar(),
+	kc	= killchar(),
 	insert	= FALSE,
-	done	= FALSE;
+	delete;
+register char *s;
 
-	while (!done) {
-	int	delete = -1;
-		move(y,col);
+	(void)replay(endc);
+
+	for (;;) {
+		move(y,col-1);
+		printw("%c", insert ? ' ' : '^');	/* a la rawgets */
 		if (!insert)	standout();
-		printw("%-*.*s", len, len, bfr);
+		for (s = bfr; *s; s++)
+			addch(isprint(*s) ? *s : '?');
+		while ((s++ - bfr) < len)
+			addch(' ');
 		if (!insert)	standend();
 		move(y,x+col);
-		refresh();
-		switch (c = cmdch((int *)0)) {
-		case ARO_LEFT:	if (x > 0)		x--;	break;
-		case ARO_RIGHT:	if (x < strlen(bfr))	x++;	break;
-		case ARO_UP:
-		case ARO_DOWN:	insert = !insert;		break;
-		case '\b':	delete = x-1;			break;
-		case '\177':	delete = x;			break;
-		case '\n':
-		case '\r':	bfr[x] = EOS;			break;
-		default:
-			if (insert) {
-				if (isascii(c) && isprint(c)) {
-				int	d,j = 0;
-					do {
-						d = c;
-						c = bfr[x+j];
-					} while (bfr[x+(j++)] = d);
-					bfr[len] = EOS;
-					if (x < len)	x++;
-				} else
-					beep();
-			} else {
-				if (c == 'q' || c == endc)
-					done = TRUE;
-				else
-					beep();
-			}
+		if (!re_edit) refresh();
+
+		delete = -1;
+		c = replay(0);
+
+		if (c == '\n') {
+			return (TRUE);
+		} else if (c == '\t') {
+			insert = ! insert;
+		} else if (insert) {
+			if (isascii(c) && isprint(c)) {
+			int	d,j = 0;
+				do {
+					d = c;
+					c = bfr[x+j];
+				} while (bfr[x+(j++)] = d);
+				bfr[len] = EOS;
+				if (x < len)	x++;
+			} else if (c == ec) {
+				delete = x-1;
+			} else if (c == kc) {
+				delete = x;
+			} else if (c == CTL(b)) {
+				x = 0;
+			} else if (c == CTL(f)) {
+				x = strlen(bfr);
+			} else
+				beep();
+		} else {
+			if (c == 'q') {
+				lastedit[0] = EOS;
+				return (FALSE);
+			} else if (c == endc) {
+				return (TRUE);
+			} else if (c == '\b' || c == ARO_LEFT) {
+				if (x > 0)	x--;
+			} else if (c == '\f' || c == ARO_RIGHT) {
+				if (x < strlen(bfr))	x++;
+			} else if (c == CTL(b)) {
+				x = 0;
+			} else if (c == CTL(f)) {
+				x = strlen(bfr);
+			} else
+				beep();
 		}
 		if (delete >= 0) {
 			x = delete;
@@ -581,8 +665,8 @@ char	bfr[UIDLEN+1];
 		G_opt = FALSE;
 		showFILES();
 	}
-	edittext('u', cmdcol[1], UIDLEN, strcpy(bfr, uid2s(cSTAT.st_uid)));
-	if ((uid = s2uid(bfr)) >= 0) {
+	if (edittext('u', cmdcol[1], UIDLEN, strcpy(bfr, uid2s(cSTAT.st_uid)))
+	&&  (uid = s2uid(bfr)) >= 0) {
 		for (j = 0; j < numfiles; j++) {
 			if (flist[j].s.st_uid == uid)	continue;
 			if (flist[j].flag || (j == curfile)) {
@@ -616,8 +700,8 @@ char	bfr[BUFSIZ];
 		G_opt = TRUE;
 		showFILES();
 	}
-	edittext('g', cmdcol[1], UIDLEN, strcpy(bfr, gid2s(cSTAT.st_gid)));
-	if ((gid = s2gid(bfr)) >= 0) {
+	if (edittext('g', cmdcol[1], UIDLEN, strcpy(bfr, gid2s(cSTAT.st_gid)))
+	&&  (gid = s2gid(bfr)) >= 0) {
 	char	newgrp[BUFSIZ];
 	static	char	*fmt = "chgrp -f %s %s";
 
@@ -650,6 +734,72 @@ char	bfr[BUFSIZ];
 					break;
 				}
 			}
+		}
+	}
+	restat(changed);
+}
+
+static
+rename(x, newname)
+char	*newname;
+{
+int	ok	= FALSE;
+char	bfr[BUFSIZ];
+
+	if (strcmp(flist[x].name, newname)) {
+		if (isFILE(flist[x].s.st_mode)) {
+			if (link(flist[x].name, newname) < 0) {
+				warn(newname);
+				return (-1);
+			}
+			if (unlink(flist[x].name) < 0) {
+				warn(flist[x].name);
+				return (-1);
+			}
+			ok = TRUE;
+		} else {
+			sprintf(bfr, "cannot rename \"%s\"", flist[x].name);
+			dedmsg(bfr);
+			return (-1);
+		}
+		/* patch: should do 'system()' to rename directory, etc. */
+		/* patch: if rename-directory, must purge ftree & dedring! */
+	}
+
+	if (ok) {
+		strfree(flist[x].name);
+		flist[x].name = stralloc(newname);
+	}
+	return (0);
+}
+
+/*
+ * Change file's name
+ */
+static
+editname()
+{
+int	len	= COLS - cmdcol[3] - 1,
+	changed	= 0;
+register int	j;
+char	bfr[BUFSIZ];
+
+#define	EDITNAME(n)	edittext('=', cmdcol[3], len, strcpy(bfr, n))
+	if (EDITNAME(cNAME)) {
+		if (rename(curfile, bfr) >= 0) {
+			re_edit = TRUE;
+			for (j = 0; j < numfiles; j++) {
+				if (j == curfile)
+					continue;
+				if (flist[j].flag) {
+					(void)EDITNAME(flist[j].name);
+					if (rename(j, bfr) >= 0)
+						changed++;
+					else
+						break;
+				}
+			}
+			re_edit = FALSE;
 		}
 	}
 	restat(changed);
@@ -740,7 +890,8 @@ int	c,
 	count,
 	lastc	= '?',
 	quit	= FALSE;
-char	tpath[BUFSIZ];
+char	tpath[BUFSIZ],
+	dpath[BUFSIZ];
 
 	(void)printf("%s\r\n", version+4);	/* show me when entering process */
 	(void)fflush(stdout);
@@ -778,9 +929,9 @@ char	tpath[BUFSIZ];
 	rawterm();
 
 	/* patch: should trim repeated items from arg-list */
-	argv += optind;
-	argc -= optind;
-	if (!dedscan(argc, argv))	failed((char *)0);
+	top_argv = argv + optind;
+	top_argc = argc - optind;
+	if (!dedscan(top_argc, top_argv))	failed((char *)0);
 
 	mark_W = (LINES/2);
 	Xbase = Ybase = 0;
@@ -880,7 +1031,7 @@ char	tpath[BUFSIZ];
 	case 'R':	/* re-stat display-list */
 			to_work();
 			tag_count = 0;
-			if (!(quit = !dedscan(argc, argv))) {
+			if (!(quit = !dedscan(top_argc, top_argv))) {
 				curfile = 0;	/* numfiles may be less now */
 				dedsort();
 				Ybase = curfile = 0;
@@ -957,6 +1108,18 @@ char	tpath[BUFSIZ];
 	case P_cmd:	editprot();	break;
 	case 'u':	edit_uid();	break;
 	case 'g':	edit_gid();	break;
+	case '=':	editname();	break;
+
+	case '"':	re_edit = TRUE;
+			switch (*lastedit) {
+			case P_cmd:	editprot();	break;
+			case 'u':	edit_uid();	break;
+			case 'g':	edit_gid();	break;
+			case '=':	editname();	break;
+			default:	beep();
+			}
+			re_edit = FALSE;
+			break;
 
 #ifdef	apollo
 	case CTL(e):	/* pad-edit */
@@ -1004,8 +1167,7 @@ char	tpath[BUFSIZ];
 			break;
 
 	case 'D':	/* toggle directory/filelist mode */
-			savewin();
-			(void)strcpy(tpath,new_wd);
+			(void)strcpy(dpath, strcpy(tpath,new_wd) );
 			while ((c = ft_view(tpath)) == 'e') {
 			int	y,x;
 
@@ -1021,15 +1183,31 @@ char	tpath[BUFSIZ];
 				unsavewin(TRUE,0);
 				ft_read(new_wd);
 			}
-			unsavewin(FALSE,0);
+			if (c == 'E' || c == 'D')
+				new_args(tpath, 'E', 1);
+			else
+				showFILES();
+			break;
+
+	case 'E':	/* enter new directory on ring */
+			if (realstat(curfile) == 1) {
+				new_args(strcat(
+						strcat(
+							strcpy(tpath, new_wd),
+							"/"),
+						cNAME),
+					c, 1);
+			} else
+				beep();
+			break;
+
+	case 'F':	/* move forward in directory-ring */
+	case 'B':	/* move backward in directory-ring */
+			new_args(strcpy(tpath, new_wd), c, count);
 			break;
 
 			/* patch: not implemented */
 	case 'X':	/* split/join screen (1 or 2 viewports) */
-	case 'E':	/* enter new directory on ring */
-	case 'F':	/* move forward in directory-ring */
-	case 'B':	/* move backward in directory-ring */
-	case '=':	/* rename file */
 
 	default:	beep();
 	}; lastc = c; }

@@ -1,3 +1,23 @@
+1988-04-28  dickey@software.org
+
+	* src/dedring.c: forgot to sort new lists after reading them.
+
+	* src/ftree.c: made directory-ring markers more visible.
+	also, in 'p' command, must set pointer to first non-purged *visible* position.
+
+	* src/version.h: ded is essentially complete...
+
+	* src/ded.c:
+	lots of cleanup: ftree integration, inline-editor changes (like rawgets)
+	and the "=" rename command, as well as '"' replay-command.
+
+	* src/ded.hlp:
+	more integration of ftree; made inline editor more like rawgets
+
+	* src/dedring.c: New file.
+
+	* src/ftree.c: integrated with 'dedring()' module
+
 1988-04-27  dickey@software.org
 
 	* src/Makefile: replaced 'fring.c' by 'dedring.c'
