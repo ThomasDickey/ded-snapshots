@@ -1,5 +1,5 @@
 #ifndef	NO_IDENT
-static	char	Id[] = "$Id: ftree.c,v 12.33 1994/11/13 21:18:53 tom Exp $";
+static	char	Id[] = "$Id: ftree.c,v 12.34 1994/12/16 13:35:56 tom Exp $";
 #endif
 
 /*
@@ -1062,7 +1062,7 @@ private	int	ft_show(
 					chtype	*fill = (k != 1)
 							? bar_space
 							: bar_hline;
-#if SYS5_CURSES
+#if HAVE_ADDCHNSTR
 					addchnstr(fill, len);
 #else
 					PRINTW(fmt, len, fill);

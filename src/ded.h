@@ -3,7 +3,7 @@
 
 #ifdef	MAIN
 #if	!defined(NO_IDENT)
-static	char	*ded_h = "$Id: ded.h,v 12.33 1994/11/22 23:44:59 tom Exp $";
+static	char	*ded_h = "$Id: ded.h,v 12.34 1994/12/16 13:29:34 tom Exp $";
 #endif
 #endif	/* MAIN */
 
@@ -23,7 +23,7 @@ static	char	*ded_h = "$Id: ded.h,v 12.33 1994/11/22 23:44:59 tom Exp $";
 #include	<dyn_str.h>	/* dynamic strings */
 #include	<td_regex.h>	/* regular expressions */
 
-#if HAVE_STDARG_H
+#if HAVE_STDARG_H && PROTOTYPES
 #include	<stdarg.h>
 #else
 #include	<varargs.h>
