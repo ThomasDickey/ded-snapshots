@@ -1,3 +1,10 @@
+1991-07-19  dickey@software.org
+
+	* src/ded.c:
+	added parm to 'markset()' to tell if we must clear workspace
+
+	* src/dedtype.c: modified interface to 'markset()'
+
 1991-07-17  dickey@software.org
 
 	* src/version.h, src/dedsort.c, src/ded.hlp, src/sortset.c:

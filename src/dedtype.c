@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	Id[] = "$Id: dedtype.c,v 9.5 1991/07/16 08:02:37 dickey Exp $";
+static	char	Id[] = "$Id: dedtype.c,v 9.6 1991/07/19 07:45:49 dickey Exp $";
 #endif
 
 /*
@@ -7,6 +7,7 @@ static	char	Id[] = "$Id: dedtype.c,v 9.5 1991/07/16 08:02:37 dickey Exp $";
  * Author:	T.E.Dickey
  * Created:	16 Nov 1987
  * Modified:
+ *		19 Jul 1991, changed interface to 'markset()'
  *		01 Jul 1991, corrected column-limit logic
  *		04 Jun 1991, forgot to reset column on successive blank-lines
  *			     that are suppressed.
@@ -350,7 +351,7 @@ int	c,			/* current character */
 				/* move work-area marker */
 			case 'A':	count = -count;
 			case 'a':
-				markset(mark_W + count);
+				markset(mark_W + count,FALSE);
 				replay = 1;
 				break;
 			default:
