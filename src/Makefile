@@ -1,10 +1,12 @@
-# $Id: Makefile,v 9.4 1991/10/18 14:14:50 dickey Exp $
+# $Id: Makefile,v 10.0 1991/12/05 15:12:38 ste_cm Rel $
 # MAKE-file for directory editor
 #
 ####### (Environment) ##########################################################
 B	= ../bin
 I	= ../../common/interface
 L	= ../../common/lib
+
+COPY	= cp -p
 GET	= checkout
 #
 ####### (Command-line Options) #################################################
@@ -85,7 +87,7 @@ sources:	$(SOURCES)
 
 ####### (Details of Productions) ###############################################
 $B/ded:	$(MAIN_O)		; $(CC) -o $@ $(MAIN_O) -lcurses -ltermcap
-$B/ded.hlp:	ded.hlp		; copy -d $@
+$B/ded.hlp:	ded.hlp		; $(COPY) $? $@
 #
 $A:	$(OBJS)
 	ar rv $@ $?
