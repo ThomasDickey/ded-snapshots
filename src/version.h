@@ -1,11 +1,16 @@
 /*
  * Version-identifier for DED
  * $Log: version.h,v $
- * Revision 4.1  1989/08/25 09:30:42  dickey
- * revised window-repainting (to reduce number of malloc/free
- * calls, which causes my apollo vt100 to barf).  Finished the
- * 'E' enhancement by making ded scroll to link-target.
+ * Revision 4.2  1989/10/04 17:02:38  dickey
+ * added code for apollo/sr10.1: show extended acls, added
+ * options '-a' and '-O', with corresponding commands '&' and
+ * 'O', sorts 'o' and 'O'.
  *
+ *		Revision 4.1  89/08/25  09:30:42  dickey
+ *		revised window-repainting (to reduce number of malloc/free
+ *		calls, which causes my apollo vt100 to barf).  Finished the
+ *		'E' enhancement by making ded scroll to link-target.
+ *		
  *		Revision 4.0  89/08/22  16:36:45  ste_cm
  *		BASELINE Thu Aug 24 10:20:06 EDT 1989 -- support:navi_011(rel2)
  *		
@@ -91,4 +96,4 @@
  * 01 Dec 1987, added '*', '^' commands, made '%' refresh screen
  * 25 Nov 1987, added sccs-support (V,z,Z toggles, V,z,Z sorts)
  */
-static	char	version[] = "$Date: 1989/08/25 09:30:42 $";
+static	char	version[] = "$Date: 1989/10/04 17:02:38 $";

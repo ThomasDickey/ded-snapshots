@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	sccs_id[] = "$Header: /users/source/archives/ded.vcs/src/RCS/ded2s.c,v 4.0 1988/08/18 14:55:51 ste_cm Rel $";
+static	char	Id[] = "$Id: ded2s.c,v 4.2 1989/10/04 17:01:06 dickey Exp $";
 #endif	lint
 
 /*
@@ -7,9 +7,16 @@ static	char	sccs_id[] = "$Header: /users/source/archives/ded.vcs/src/RCS/ded2s.c
  * Author:	T.E.Dickey
  * Created:	09 Nov 1987
  * $Log: ded2s.c,v $
- * Revision 4.0  1988/08/18 14:55:51  ste_cm
- * BASELINE Thu Aug 24 10:20:06 EDT 1989 -- support:navi_011(rel2)
+ * Revision 4.2  1989/10/04 17:01:06  dickey
+ * added code to support 'O' toggle (show object-types)
  *
+ *		Revision 4.1  89/10/04  10:25:08  dickey
+ *		added code for apollo SR10.1 which shows a "+" after mode
+ *		like the 'ls' utility on that system.
+ *		
+ *		Revision 4.0  88/08/18  14:55:51  ste_cm
+ *		BASELINE Thu Aug 24 10:20:06 EDT 1989 -- support:navi_011(rel2)
+ *		
  *		Revision 3.0  88/08/18  14:55:51  ste_cm
  *		BASELINE Mon Jun 19 14:21:57 EDT 1989
  *		
@@ -36,6 +43,14 @@ static	char	sccs_id[] = "$Header: /users/source/archives/ded.vcs/src/RCS/ded2s.c
 
 #include	"ded.h"
 #include	<ctype.h>
+
+#ifdef	apollo_sr10
+#include	"acl.h"
+#include	<apollo/base.h>
+#include	<apollo/type_uids.h>
+char	*type_uid2s();
+#endif
+
 #ifdef	SYSTEM5
 #include	<sys/sysmacros.h>
 #endif	SYSTEM5
@@ -72,7 +87,7 @@ char	*t,
 		*bfr++ = modechar(mj); /* translate the type of file */
 		cmdcol[0] = bfr - base;
 
-		(void)strcpy(bfr, "--------- ");
+		(void)strcpy(bfr, "---------");
 		for (c = 0; c < 9; c += 3) {
 			if (mj & (S_IREAD  >> c))	bfr[c]   = 'r';
 			if (mj & (S_IWRITE >> c))	bfr[c+1] = 'w';
@@ -91,13 +106,21 @@ char	*t,
 	}
 #endif	S_IFLNK
 	bfr += strlen(bfr);
+#ifdef	apollo_sr10
+	*bfr++ = is_EXTENDED_ACL(s->st_rfu4) ? '+' : ' ';
+	if (O_opt) {
+		FORMAT(bfr, " %-9.9s ", type_uid2s(s));
+		bfr += field(bfr,mj);
+	}
+#endif
+	*bfr++ = ' ';
 
 	/* translate the number of links, or the inode value */
 #ifdef	apollo
 	if (I_opt)	FORMAT(bfr, "%08x ", s->st_ino);
-#else	apollo
+#else	unix
 	if (I_opt)	FORMAT(bfr, "%5d ", s->st_ino);
-#endif	apollo
+#endif	apollo/unix
 	else		FORMAT(bfr, "%3d ", s->st_nlink);
 	bfr += field(bfr,mj);
 
@@ -258,3 +281,57 @@ char	*bfr, *name;
 {
 	return (name2s(bfr, len, name, flag | (U_opt ? 2 : 0)));
 }
+
+#ifdef	apollo_sr10
+/*
+ * patch: the trait/type manager of sr10 is not documented (yet).  return the
+ * known/fixed types
+ */
+char	*
+type_uid2s(s)
+struct	stat *s;
+{
+	register int	c;
+	register char	*t;
+	static	struct	{
+		uid_$t	*id;
+		char	*name;
+	} list[] = {
+		&case_hm_$uid,		"case_hm",
+		&cmpexe_$uid,		"cmpexe",
+		&coff_$uid,		"coff",
+		&d3m_area_$uid,		"d3m_area",
+		&d3m_sch_$uid,		"d3m_sch",
+		&directory_$uid,	"directory",
+		&dm_edit_$uid,		"dm_edit",
+		&hdr_undef_$uid,	"hdr_undef",
+		&input_pad_$uid,	"ipad",
+		&mbx_$uid,		"mbx",
+		&mt_$uid,		"mt",
+		&nulldev_$uid,		"null",
+		&object_file_$uid,	"obj",
+		&pad_$uid,		"pad",
+		&pty_$slave_uid,	"pty_slave",
+		&pty_$uid,		"pty",
+		&records_$uid,		"records",
+		&sio_$uid,		"sio",
+		&tcp_$uid,		"tcp",
+		&uasc_$uid,		"uasc",
+		&unstruct_$uid,		"unstruct"
+	};
+	t = " ";
+	if (isDIR(s->st_mode))
+		t = "nil";
+	else if (isFILE(s->st_mode) || isDEV(s->st_mode)) {
+		t = "?";
+		for (c = 0; c < sizeof(list)/sizeof(list[0]); c++) {
+			if (list[c].id->high == s->st_rfu4[0]
+			&&  list[c].id->low  == s->st_rfu4[1]) {
+				t = list[c].name;
+				break;
+			}
+		}
+	}
+	return (t);
+}
+#endif

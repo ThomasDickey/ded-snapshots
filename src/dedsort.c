@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	sccs_id[] = "$Header: /users/source/archives/ded.vcs/src/RCS/dedsort.c,v 4.0 1989/01/23 09:57:37 ste_cm Rel $";
+static	char	Id[] = "$Id: dedsort.c,v 4.1 1989/10/04 16:48:36 dickey Exp $";
 #endif	lint
 
 /*
@@ -7,9 +7,12 @@ static	char	sccs_id[] = "$Header: /users/source/archives/ded.vcs/src/RCS/dedsort
  * Author:	T.E.Dickey
  * Created:	11 Nov 1987
  * $Log: dedsort.c,v $
- * Revision 4.0  1989/01/23 09:57:37  ste_cm
- * BASELINE Thu Aug 24 10:20:06 EDT 1989 -- support:navi_011(rel2)
+ * Revision 4.1  1989/10/04 16:48:36  dickey
+ * added o,O sorts
  *
+ *		Revision 4.0  89/01/23  09:57:37  ste_cm
+ *		BASELINE Thu Aug 24 10:20:06 EDT 1989 -- support:navi_011(rel2)
+ *		
  *		Revision 3.0  89/01/23  09:57:37  ste_cm
  *		BASELINE Mon Jun 19 14:21:57 EDT 1989
  *		
@@ -34,6 +37,10 @@ static	char	sccs_id[] = "$Header: /users/source/archives/ded.vcs/src/RCS/dedsort
 extern	char	*ftype();
 extern	char	*ftype2();
 extern	char	*pathleaf();
+
+#ifdef	apollo_sr10
+extern	char	*type_uid2s();
+#endif
 
 #define	CHECKED(p)	(p->z_time == p->s.st_mtime)
 #define	CMPX(m)		(p1->m > p2->m ? -1 : (p1->m < p2->m ? 1 : 0))
@@ -61,6 +68,15 @@ char	bfr[BUFSIZ];
 	switch (sortopt) {
 			/* patch: N sort from 'fl' would be nice... */
 
+#ifdef	apollo_sr10
+			/* sort by object-types (numeric) */
+	case 'o':	cmp = strcmp(type_uid2s(&p1->s), type_uid2s(&p2->s));
+			break;
+
+	case 'O':	if (!(cmp = p1->s.st_rfu4[0] - p2->s.st_rfu4[0]))
+				cmp = p1->s.st_rfu4[1] - p2->s.st_rfu4[1];
+			break;
+#endif
 			/* sort by '.'-separators in name */
 	case '.':	cmp = dotcmp(p1->name, p2->name);
 			break;

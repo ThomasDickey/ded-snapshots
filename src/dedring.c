@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	sccs_id[] = "$Header: /users/source/archives/ded.vcs/src/RCS/dedring.c,v 4.0 1989/05/26 14:15:32 ste_cm Rel $";
+static	char	Id[] = "$Id: dedring.c,v 4.1 1989/10/04 15:20:09 dickey Exp $";
 #endif	lint
 
 /*
@@ -7,9 +7,12 @@ static	char	sccs_id[] = "$Header: /users/source/archives/ded.vcs/src/RCS/dedring
  * Author:	T.E.Dickey
  * Created:	27 Apr 1988
  * $Log: dedring.c,v $
- * Revision 4.0  1989/05/26 14:15:32  ste_cm
- * BASELINE Thu Aug 24 10:20:06 EDT 1989 -- support:navi_011(rel2)
+ * Revision 4.1  1989/10/04 15:20:09  dickey
+ * save/restore A_opt, O_opt
  *
+ *		Revision 4.0  89/05/26  14:15:32  ste_cm
+ *		BASELINE Thu Aug 24 10:20:06 EDT 1989 -- support:navi_011(rel2)
+ *		
  *		Revision 3.0  89/05/26  14:15:32  ste_cm
  *		BASELINE Mon Jun 19 14:21:57 EDT 1989
  *		
@@ -18,7 +21,8 @@ static	char	sccs_id[] = "$Header: /users/source/archives/ded.vcs/src/RCS/dedring
  *		
  *		Revision 2.1  89/05/26  13:06:58  dickey
  *		added 'toscan', 'scan_expr' to ring-data.
- *		don't reset 'clr_sh' on entry to ring -- do this only in 'deddoit()'
+ *		don't reset 'clr_sh' on entry to ring -- do this only in
+ *		'deddoit()'
  *		
  *		Revision 2.0  88/09/12  15:52:31  ste_cm
  *		BASELINE Thu Apr  6 13:14:13 EDT 1989
@@ -74,8 +78,12 @@ typedef	struct	_ring	{
 #ifdef	S_IFLNK
 			AT_opt,
 #endif	S_IFLNK
+			A_opt,
 			G_opt,
 			I_opt,
+#ifdef	apollo_sr10
+			O_opt,
+#endif
 			P_opt,
 			S_opt,
 			U_opt,
@@ -152,8 +160,12 @@ RING	*p;
 #ifdef	S_IFLNK
 	SAVE(AT_opt);
 #endif	S_IFLNK
+	SAVE(A_opt);
 	SAVE(G_opt);
 	SAVE(I_opt);
+#ifdef	apollo_sr10
+	SAVE(O_opt);
+#endif
 	SAVE(P_opt);
 	SAVE(S_opt);
 	SAVE(U_opt);
@@ -191,8 +203,12 @@ RING	*p;
 #ifdef	S_IFLNK
 	UNSAVE(AT_opt);
 #endif	S_IFLNK
+	UNSAVE(A_opt);
 	UNSAVE(G_opt);
 	UNSAVE(I_opt);
+#ifdef	apollo_sr10
+	UNSAVE(O_opt);
+#endif
 	UNSAVE(P_opt);
 	UNSAVE(S_opt);
 	UNSAVE(U_opt);
