@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	sccs_id[] = "$Header: /users/source/archives/ded.vcs/src/RCS/dedsigs.c,v 2.0 1989/03/15 08:34:45 ste_cm Exp $";
+static	char	what[] = "$Header: /users/source/archives/ded.vcs/src/RCS/dedsigs.c,v 5.0 1989/05/10 14:51:14 ste_cm Rel $";
 #endif	lint
 
 /*
@@ -7,11 +7,20 @@ static	char	sccs_id[] = "$Header: /users/source/archives/ded.vcs/src/RCS/dedsigs
  * Author:	T.E.Dickey
  * Created:	03 Aug 1988
  * $Log: dedsigs.c,v $
- * Revision 2.0  1989/03/15 08:34:45  ste_cm
- * BASELINE Thu Apr  6 13:14:13 EDT 1989
+ * Revision 5.0  1989/05/10 14:51:14  ste_cm
+ * BASELINE Fri Oct 27 12:27:25 1989 -- apollo SR10.1 mods + ADA_PITS 4.0
  *
- *		Revision 1.5  89/03/15  08:34:45  dickey
- *		sccs2rcs keywords
+ *		Revision 4.0  89/05/10  14:51:14  ste_cm
+ *		BASELINE Thu Aug 24 10:20:06 EDT 1989 -- support:navi_011(rel2)
+ *		
+ *		Revision 3.0  89/05/10  14:51:14  ste_cm
+ *		BASELINE Mon Jun 19 14:21:57 EDT 1989
+ *		
+ *		Revision 2.1  89/05/10  14:51:14  dickey
+ *		compiled on sun/sparc
+ *		
+ *		Revision 2.0  89/03/15  08:34:45  ste_cm
+ *		BASELINE Thu Apr  6 13:14:13 EDT 1989
  *		
  *		15 Mar 1989, use 'dlog' module
  *		12 Aug 1988, in 'catch()' re-catch signal so this works on
@@ -39,7 +48,7 @@ catch(sig)
 }
 
 static
-int
+SIGS_T
 dedquit()
 {
 	static	char	msg[] = "** quit **\n";

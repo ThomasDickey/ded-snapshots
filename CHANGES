@@ -1,3 +1,17 @@
+1989-05-10  dickey@software.org
+
+	* src/dedsigs.c: compiled on sun/sparc
+
+1989-05-10  ste_cm@software.org
+
+	* src/dedsigs.c:
+	BASELINE Fri Oct 27 12:27:25 1989 -- apollo SR10.1 mods + ADA_PITS 4.0
+
+	* src/dedsigs.c: BASELINE Mon Jun 19 14:21:57 EDT 1989
+
+	* src/dedsigs.c:
+	BASELINE Thu Aug 24 10:20:06 EDT 1989 -- support:navi_011(rel2)
+
 1989-04-03  dickey@software.org
 
 	* src/version.h: patched 'restat_W()' function
