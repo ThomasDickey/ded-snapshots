@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	Id[] = "$Id: dedring.c,v 10.20 1992/04/07 10:28:53 dickey Exp $";
+static	char	Id[] = "$Id: dedring.c,v 10.21 1992/04/09 12:02:34 dickey Exp $";
 #endif
 
 /*
@@ -171,12 +171,17 @@ private	RING *	Insert(
 	RING	*p	= ring,
 		*q	= 0;
 
+	/*
+	 * Resolve pathname in case it was a symbolic link
+	 */
+	if (!path_RESOLVE(gbl, path))
+		return 0;
+
 	while (p) {
 	int	cmp = strcmp(path, p->new_wd);
-		if (cmp == 0) {
-			ring_copy(p,gbl); /* overwrite this slot */
+		if (cmp == 0)
 			return (p);
-		} else if (cmp < 0)
+		else if (cmp < 0)
 			break;
 		q = p;
 		p = p->_link;
@@ -188,6 +193,7 @@ private	RING *	Insert(
 	 */
 	ring_copy(p = ring_alloc(), gbl);
 	(void)strcpy(p->new_wd, path);
+	MakeSortKey(p);
 	p->toscan      = pattern;
 	p->scan_expr   = 0;
 	p->flist       = 0;
@@ -357,11 +363,11 @@ public	void	ring_args(
 	gbl->top_argc = new_argc;
 
 	(void)strcpy(gbl->new_wd, old_wd);
-	MakeSortKey(gbl);
-	ring = gbl;	/* set initial linked-list */
+	ring = gbl;		/* set initial linked-list */
 
 	if (!do_a_scan(gbl))
 		failed((char *)0);
+	MakeSortKey(gbl);	/* ...in case original path was via link */
 	no_worry = save_worry;
 }
 
@@ -396,6 +402,7 @@ public	RING *	dedring(
 	_DCL(int,	set_pattern)
 	_DCL(char *,	pattern)
 {
+	char	temp[MAXPATHLEN];
 	RING	*oldp	= gbl,
 		*newp	= 0;
 	int	success	= TRUE;
@@ -410,6 +417,7 @@ public	RING *	dedring(
 	 */
 	switch (cmd) {
 	case 'E':
+		path = strcpy(temp, path);
 		if ((newp = ring_get(path)) == 0)
 			newp = Insert(gbl, path, pattern);
 		break;
@@ -461,23 +469,8 @@ public	RING *	dedring(
 #endif
 #ifdef	S_IFLNK
 			newp->AT_opt = 0;
-
-			/*
-			 * Coerce translation of pathnames in case part of the
-			 * path was a symbolic link.
-			 */
-			if (path_RESOLVE(newp, newp->new_wd)) {
-				if (strcmp(newp->new_wd, path)) {
-					RING	*tstp;
-					Remove (path);
-					if (!(tstp = ring_get(newp->new_wd)))
-						tstp = Insert(newp, newp->new_wd, pattern);
-					newp = tstp;
-				}
-			} else {
-				success = FALSE;
-			}
-			if (success && newp->numfiles == 0)
+			success = path_RESOLVE(newp, newp->new_wd);
+			if (success && (newp->numfiles == 0))
 #endif
 				success = do_a_scan(newp);
 

@@ -1,3 +1,17 @@
+1992-04-09  dickey@software.org
+
+	* src/dedring.c:
+	hacks to force inserted pathnames to be resolved in case
+	they are symbolic links
+
+	* src/ded.c:
+	corrected logic of 'edithead()' to use .new_wd member rather
+	than redundant 'pathhead()' call.
+
+	* src/ded.h: changed length of old_wd, new_wd to MAXPATHLEN
+
+	* src/ded.c: changed name back again (was confused)
+
 1992-04-08  dickey@software.org
 
 	* src/ded.c: renamed 'edithead()' to 'edit_link()'

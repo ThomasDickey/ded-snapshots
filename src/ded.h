@@ -3,7 +3,7 @@
 
 #ifdef	MAIN
 #ifndef	lint
-static	char	*ded_h = "$Id: ded.h,v 10.50 1992/04/08 11:55:29 dickey Exp $";
+static	char	*ded_h = "$Id: ded.h,v 10.51 1992/04/09 08:44:21 dickey Exp $";
 #endif
 #endif	/* MAIN */
 
@@ -149,13 +149,15 @@ typedef	FLIST	{
 typedef	RING {
 	RING	*_link;
 	DYN	*sort_key;	/* 'new_wd', translated for sorting */
-	char	new_wd[BUFSIZ],
-		*toscan,	/* directory-scan expression	*/
+	char	new_wd[MAXPATHLEN];
+	char	*toscan,	/* directory-scan expression	*/
 		*scan_expr;	/* compiled version of 'toscan'	*/
-	DYN	*cmd_sh;
-	FLIST	*flist;
+	DYN	*cmd_sh;	/* command-string, for %/! operations */
+	FLIST	*flist;		/* list of filenames & STAT-blocks */
+
 	char	**top_argv;
 	int	top_argc;
+
 	int	cmdcol[CCOL_MAX],/* column in which to show cursor */
 				/* 0=mode, 1=uid/gid, 2=normal */
 		clr_sh,		/* true if we clear-screen after SHELL	*/
@@ -186,14 +188,14 @@ typedef	RING {
 #endif
 	unsigned numfiles;	/* total files in display-list */
 	int	tag_count;	/* current # of tagged files */
-	off_t	tag_bytes;
-	long	tag_blocks;
+	off_t	tag_bytes;	/* ...corresponding total of bytes */
+	long	tag_blocks;	/* ...corresponding total of blocks */
 	};
 
 /*
  * Global data (cf: dedring.c)
  */
-MAIN	char	old_wd[BUFSIZ];	/* original working-directory */
+MAIN	char	old_wd[MAXPATHLEN]; /* original working-directory */
 MAIN	int	mark_W;		/* row of work-area marker */
 
 /* *** "ded.c" *** */
