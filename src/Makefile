@@ -1,21 +1,15 @@
-# $Header: /users/source/archives/ded.vcs/src/RCS/Makefile,v 2.0 1989/04/03 08:13:33 ste_cm Exp $
+# $Header: /users/source/archives/ded.vcs/src/RCS/Makefile,v 3.0 1989/05/26 13:00:44 ste_cm Rel $
 # MAKE-file for directory editor
 #
 # $Log: Makefile,v $
-# Revision 2.0  1989/04/03 08:13:33  ste_cm
-# BASELINE Thu Apr  6 13:14:13 EDT 1989
+# Revision 3.0  1989/05/26 13:00:44  ste_cm
+# BASELINE Mon Jun 19 14:21:57 EDT 1989
 #
-#        Revision 1.29  89/04/03  08:13:33  dickey
-#        added README to sources
+#        Revision 2.1  89/05/26  13:00:44  dickey
+#        added 'dedread.c' module
 #        
-#        Revision 1.28  89/03/28  16:23:30  dickey
-#        corrected 'destroy' rule
-#        
-#        Revision 1.27  89/03/28  13:04:04  dickey
-#        added 'run_tests' rule
-#        
-#        Revision 1.26  89/03/23  14:36:35  dickey
-#        revised to CM-standard format
+#        Revision 2.0  89/04/03  08:13:33  ste_cm
+#        BASELINE Thu Apr  6 13:14:13 EDT 1989
 #        
 
 ####### (Environment) ##########################################################
@@ -44,6 +38,7 @@ CSRC	=\
 	dedline.c \
 	dedmake.c \
 	dedname.c \
+	dedread.c \
 	dedring.c \
 	dedscan.c \
 	dedshow.c \
@@ -67,6 +62,7 @@ OBJS	= \
 	dedline.o \
 	dedmake.o \
 	dedname.o \
+	dedread.o \
 	dedring.o \
 	dedscan.o \
 	dedshow.o \

@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	sccs_id[] = "$Header: /users/source/archives/ded.vcs/src/RCS/dedscan.c,v 2.0 1989/03/24 08:37:17 ste_cm Exp $";
+static	char	sccs_id[] = "$Header: /users/source/archives/ded.vcs/src/RCS/dedscan.c,v 2.2 1989/05/26 14:20:57 dickey Exp $";
 #endif	lint
 
 /*
@@ -7,14 +7,14 @@ static	char	sccs_id[] = "$Header: /users/source/archives/ded.vcs/src/RCS/dedscan
  * Author:	T.E.Dickey
  * Created:	09 Nov 1987
  * $Log: dedscan.c,v $
- * Revision 2.0  1989/03/24 08:37:17  ste_cm
- * BASELINE Thu Apr  6 13:14:13 EDT 1989
+ * Revision 2.2  1989/05/26 14:20:57  dickey
+ * don't purge ftree if we are using read-expression
  *
- *		Revision 1.30  89/03/24  08:37:17  dickey
- *		lint
+ *		Revision 2.1  89/05/26  13:14:42  dickey
+ *		use read-selection (CTL/R command) to suppress unwanted names
  *		
- *		Revision 1.29  89/03/15  07:55:45  dickey
- *		sccs2rcs keywords
+ *		Revision 2.0  89/03/24  08:37:17  ste_cm
+ *		BASELINE Thu Apr  6 13:14:13 EDT 1989
  *		
  *		14 Mar 1989, corrections to common-path algorithm
  *		28 Feb 1989, so that AT_opt will force 'ft_linkto()' call if ok.
@@ -86,7 +86,10 @@ char	*argv[];
 				return(0);
 			}
 				/* mark dep's for purge */
-			ft_remove(getwd(new_wd),AT_opt);
+			if (!getwd(new_wd))
+				failed("getwd");
+			if (toscan == 0)
+				ft_remove(new_wd,AT_opt);
 			if (dp = opendir(".")) {
 			int	len = strlen(strcpy(name, new_wd));
 				if (name[len-1] != '/') {
@@ -95,6 +98,8 @@ char	*argv[];
 				}
 				while (de = readdir(dp)) {
 					if (dotname(s = de->d_name))
+						continue;
+					if (!ok_scan(s))
 						continue;
 					if (debug)
 						PRINTF(" file \"%s\"\r\n", s);
@@ -113,7 +118,8 @@ char	*argv[];
 				if (!numfiles)
 					waitmsg("no files found");
 			}
-			ft_purge();	/* remove items not reinserted */
+			if (toscan == 0)
+				ft_purge(); /* remove items not reinserted */
 		}
 	}
 

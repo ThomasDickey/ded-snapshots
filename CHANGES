@@ -1,3 +1,60 @@
+1989-05-26  dickey@software.org
+
+	* src/dedscan.c: don't purge ftree if we are using read-expression
+
+	* src/dedring.c:
+	don't inherit read-expression in new directory (too confusing)
+
+1989-05-26  ste_cm@software.org
+
+	* src/dedring.c: BASELINE Mon Jun 19 14:21:57 EDT 1989
+
+	* src/dedring.c:
+	BASELINE Thu Aug 24 10:20:06 EDT 1989 -- support:navi_011(rel2)
+
+1989-05-26  dickey@software.org
+
+	* src/ded.c: corrected last mod so failed-rescan keeps original
+	name to find in resulting list
+
+	* src/ded.hlp: added CTL/R command
+
+1989-05-26  ste_cm@software.org
+
+	* src/ded.hlp: BASELINE Mon Jun 19 14:21:57 EDT 1989
+
+	* src/ded.hlp:
+	BASELINE Thu Aug 24 10:20:06 EDT 1989 -- support:navi_011(rel2)
+
+1989-05-26  dickey@software.org
+
+	* src/version.h:
+	added ctl/R command to provide per-directory read-selection expression
+
+	* src/dedread.c: RCS_BASE
+
+	* src/ded.c: added CTL/R command to control read-selection
+
+	* src/dedscan.c:
+	use read-selection (CTL/R command) to suppress unwanted names
+
+	* src/dedring.c: added 'toscan', 'scan_expr' to ring-data.
+	don't reset 'clr_sh' on entry to ring -- do this only in 'deddoit()'
+
+	* src/ded.h: added 'toscan', 'scan_expr' to global-variables
+
+1989-05-26  ste_cm@software.org
+
+	* src/ded.h: BASELINE Mon Jun 19 14:21:57 EDT 1989
+
+1989-05-26  dickey@software.org
+
+	* src/Makefile: added 'dedread.c' module
+
+1989-05-26  ste_cm@software.org
+
+	* src/Makefile: BASELINE Mon Jun 19 14:21:57 EDT 1989
+
 1989-05-10  dickey@software.org
 
 	* src/dedsigs.c: compiled on sun/sparc

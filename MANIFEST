@@ -1,4 +1,4 @@
-MANIFEST for ded, version t19890510
+MANIFEST for ded, version t19890526
 --------------------------------------------------------------------------------
 MANIFEST                        this file
 Makefile                        top-level makefile for unix directory editor
@@ -16,6 +16,7 @@ src/dedfree.c                   deallocate memory used in file-list
 src/dedline.c                   inline commands for file-list
 src/dedmake.c                   create file/directory/link for DED
 src/dedname.c                   rename files within file-list
+src/dedread.c                   module which encapsulates knowledge of read-selection expression
 src/dedring.c                   manage ring of file-lists
 src/dedscan.c                   read file-list
 src/dedshow.c                   display file-list
