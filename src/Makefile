@@ -1,10 +1,17 @@
-# @(#)Makefile	1.5 87/12/01 12:06:16
+# @(#)Makefile	1.6 88/03/24 13:04:33
 # MAKE-file for directory editor
 B	= ~/bin
 DED_H   = ded.h
 CFLAGS  = $(DEFINES) $(INCLUDES) -O
 LIBS	=\
 	../lib/lib.a
+#
+all:	ded ftree
+#
+ftree:	ftree.o $(LIBS)
+	$(CC) -o $@ ftree.o $(LIBS) -lcurses -ltermcap
+ftree.o: ftree.c
+	$(CC) -I../lib -DTEST -c ftree.c
 #
 ded:	ded.o ded.a $(LIBS)
 	$(CC) -o $@ ded.o ded.a $(LIBS) -lcurses -ltermcap

@@ -1,3 +1,19 @@
+1988-03-24  dickey@software.org
+
+	* src/ftree.c:
+	don't call 'ft_scan()' from 'i' command if item is a link!
+
+	* src/ftree.c:
+	made this module run standalone (again), this time as a bsd4.2 program.
+
+	* src/ded.h: moved directory-op definitions here from 'dedscan.c'
+
+	* src/dedscan.c:
+	moved <sys/dir.h> & related definitions to "ded.h" to share with ftree.c
+
+	* src/Makefile:
+	temporary: build 'ftree' to get it working in bsd4.2, standalone.
+
 1988-02-01  dickey@software.org
 
 	* src/ded.c:

@@ -1,5 +1,5 @@
 #ifndef	NO_SCCS_ID
-static	char	sccs_id[] = "@(#)dedscan.c	1.2 87/11/25 06:54:24";
+static	char	sccs_id[] = "@(#)dedscan.c	1.3 88/03/24 13:15:25";
 #endif	NO_SCCS_ID
 
 /*
@@ -13,15 +13,6 @@ static	char	sccs_id[] = "@(#)dedscan.c	1.2 87/11/25 06:54:24";
  *		options parsed off.
  */
 #include	"ded.h"
-#include	<sys/dir.h>
-
-#ifdef	SYSTEM5
-#define	DIR	FILE
-#define	opendir(n)	fopen(n,"r")
-#define	readdir(fp)	(fread(dbfr, sizeof(dbfr), 1, fp) ? &dbfr : (struct direct *)0)
-#define	closedir(fp)	fclose(fp)
-static	struct	direct	dbfr;
-#endif	SYSTEM5
 
 /********************************************************************************
  *	dedscan(@)								*

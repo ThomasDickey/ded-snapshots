@@ -1,11 +1,12 @@
 #ifndef	NO_SCCS_ID
-static	char	sccs_id[] = "@(#)ftree.c	1.15 87/12/14 08:42:15";
+static	char	sccs_id[] = "@(#)ftree.c	1.17 88/03/24 15:09:46";
 #endif
 
 /*
  * Author:	T.E.Dickey
  * Created:	02 Sep 1987
  * Modified:
+ *		24 Mar 1988, moved under 'ded' directory to begin changes for bsd4.2
  *		09 Dec 1987, began recoding to provide for long (BSD-style) names
  *			     (still does not omit duplication of strings)
  *		02 Dec 1987, port to Apollo (leading "//" on pathnames)
@@ -27,14 +28,14 @@ static	char	sccs_id[] = "@(#)ftree.c	1.15 87/12/14 08:42:15";
  *		TEST	- make a standalone program (otherwise, part of 'fl')
  */
 
-#include	<ptypes.h>
+#ifdef	TEST
+#define	MAIN
+#endif	TEST
+#include	"ded.h"
 
-#include	<ctype.h>
 #include	<stdio.h>
 #include	<fcntl.h>
-#include	<sys/dir.h>
 #include	<sys/errno.h>
-#include	<sys/stat.h>
 extern	long	time();
 extern	int	errno;
 extern	char	*getenv(),
@@ -44,13 +45,6 @@ extern	char	*getenv(),
 		*strcat(),
 		*strchr(),
 		*strcpy();
-extern	void	free();
-
-#include	"screen.h"
-#ifdef	lint
-#define	doalloc	doalloc4
-#endif	lint
-extern	long	*doalloc();
 
 #ifdef	apollo
 #define	TOP	2
@@ -73,6 +67,7 @@ extern	long	*doalloc();
 #define	VISITED	2
 #define	NOSCCS	4	/* set to disable viewing sccs-directories */
 #define	NOVIEW	8	/* set to disable viewing of a tree */
+#define	LINKED	16	/* set to show link-to-directory */
 
 /************************************************************************
  *	Public data							*
@@ -457,12 +452,12 @@ char	*first;		/* => string defining the initial directory */
 struct	stat sb;
 register int j;
 int	fid,
-	vecsize;
-unsigned size;
+	vecsize,
+	size;
 
 	/* read the current database */
 	(void)strcat(strcpy(FDname, getenv("HOME")), "/.ftree");
-	if ((fid = open(FDname, O_RDONLY)) >= 0) {
+	if ((fid = open(FDname, O_RDONLY)) != 0) {
 		if (stat(FDname, &sb) < 0)
 			failed("stat \".ftree\"");
 		if (sb.st_mtime <= FDtime) {
@@ -475,7 +470,7 @@ unsigned size;
 		size   = sb.st_size  - sizeof(FDlast);
 
 		/* (1) vector-size */
-		if (read(fid, &vecsize, sizeof(vecsize)) != sizeof(FDlast))
+		if (read(fid, (char *)&vecsize, sizeof(vecsize)) != sizeof(FDlast))
 			failed("size \".ftree\"");
 		if ((size / sizeof(FTREE)) < vecsize)
 			failed("? size error");
@@ -491,9 +486,9 @@ unsigned size;
 
 		/* (3) string-heap */
 		if ((size -= vecsize) > 0) {
-		char	*heap = (char *)doalloc((char *)0, size);
+		char	*heap = (char *)doalloc((char *)0, (unsigned)size);
 		register char *s = heap;
-			if (read(fid, heap, size) != size)
+			if (read(fid, heap, (int)size) != size)
 				failed("heap \".ftree\"");
 			for (j = 0; j <= FDlast; j++) {
 				ftree[j].f_name = s;
@@ -543,15 +538,17 @@ int	row = 0;
 			printw("%4d. ", j);
 			for (k = fd_level(j); k > 0; k--)
 				printw(fd_line(k));
+			if (ftree[j].f_mark & MARKED)	standout();
 			printw("%s%s",
 				ftree[j].f_name,
-				gap);
+				(ftree[j].f_mark &LINKED) ? "@" : gap);
+			if (ftree[j].f_mark & MARKED)	standend();
 #ifdef	apollo
 			if (j == 0)
 				printw("%s", zero+1);
 #endif	apollo
-			printw("%c",
-				ftree[j].f_mark ? '*' : ' ');
+			if (ftree[j].f_mark & NOVIEW) printw(" (V)");
+			if (ftree[j].f_mark & MARKED) printw(" (+)");
 			clrtoeol();
 		}
 		clrtobot();
@@ -730,7 +727,7 @@ char	*path;
 static
 int	row,
 	lvl,
-	count	= 0,
+	num,
 	c;
 #ifndef	TEST
 extern	char	*fr_find();
@@ -750,14 +747,14 @@ register int j;
 
 	/* process commands */
 	for (;;) {
-	int	num = count ? count : 1;
 
 		c = fd_level(row) + 1;
 		if (c < lvl) lvl = c;	/* loosely drag down level */
 		row = ft_show(fd_path(cwdpath,row), row, lvl);
 
-		switch(c = getch()) {
+		switch(c = cmdch(&num)) {
 		/* Ordinary cursor movement */
+		case ARO_LEFT:
 		case '\b':
 		case 'h':	if (lvl > 0) {
 					lvl -= num;
@@ -766,10 +763,13 @@ register int j;
 				else
 					beep();
 				break;
+		case ARO_DOWN:
 		case '\r':
 		case '\n':
 		case 'j':	row = downrow(row,num,lvl);	break;
+		case ARO_UP:
 		case 'k':	row = uprow(row,num,lvl);	break;
+		case ARO_RIGHT:
 		case 'l':	lvl += num;			break;
 
 		case 'H':	row = showbase;			break;
@@ -857,9 +857,24 @@ register int j;
 			return(c);
 
 		/* Scan/delete nodes */
-		case 'i':	ft_scan(row);			break;
-		case 'd':	markit(row,MARKED,TRUE);	break;
-		case 'u':	markit(row,MARKED,FALSE);	break;
+		case 'i':	if (ftree[row].f_mark & LINKED)
+					beep();
+				else
+					ft_scan(row);
+				break;
+		case '+':	while (num-- > 0) {
+					markit(row,MARKED,TRUE);
+					row = downrow(row,1,lvl);
+				}
+				break;
+		case '-':	while (num-- > 0) {
+					markit(row,MARKED,FALSE);
+					row = downrow(row,1,lvl);
+				}
+				break;
+		case '_':	for (j = 0; j <= FDlast; j++)
+					markit(j,MARKED,FALSE);
+				break;
 		case 'p':	ft_purge();			break;
 
 		/* Screen refresh */
@@ -887,12 +902,8 @@ register int j;
 			break;
 
 		default:
-			if (isdigit(c))
-				count = (count * 10) + (c - '0');
-			else
-				beep();
+			beep();
 		}
-		if (!isdigit(c))	count = 0;
 	}
 }
 
@@ -937,11 +948,12 @@ register int j, k;
  */
 ft_scan(node)
 {
-struct	direct	d;
+DIR	*dp;
+struct	direct	*d;
 struct	stat	sb;
-int	fid,
-	count	= 0;
+int	count	= 0;
 char	old[MAXPATHLEN],
+	new[MAXPATHLEN],
 	bfr[MAXPATHLEN], *s_ = bfr;
 
 	abspath(strcpy(old,"."));
@@ -949,19 +961,33 @@ char	old[MAXPATHLEN],
 
 	if (chdir(bfr) < 0)
 		perror(bfr);
-	else if ((fid = open(bfr, O_RDONLY)) >= 0) {
+	else if ((dp = opendir(bfr)) != 0) {
 		if (strcmp(bfr,zero))	*s_++ = '/';
-		while (read(fid, &d, sizeof(d)) == sizeof(d)) {
+		while (d = readdir(dp)) {
+			*new = '\0';
 			fd_slow(count++);
-			FORMAT(s_, "%s", d.d_name);
+			FORMAT(s_, "%s", d->d_name);
 			if (dotname(s_))		continue;
-			if (stat(s_, &sb) < 0)		continue;
+			if (lstat(s_, &sb) < 0)		continue;
 			if ((int)sb.st_ino <= 0)	continue;
-#define	isDIR(m)	((S_IFMT & m) == S_IFDIR)
+#ifndef	SYSTEM5
+			if (isLINK(sb.st_mode)) {
+				if (stat(bfr, &sb) < 0)	continue;
+				if (readlink(bfr, new, sizeof(new)) <= 0)
+					*new = '\0';
+			}
+#endif	SYSTEM5
 			if (!isDIR(sb.st_mode))		continue;
 			ft_insert(bfr);
+#ifndef	SYSTEM5
+			if (*new) {
+			int	row = do_find(bfr);
+				markit(row,LINKED,TRUE);
+				/* patch: store pointer to show 'readlink()' */
+			}
+#endif	SYSTEM5
 		}
-		(void)close(fid);
+		(void)closedir(dp);
 	}
 	(void)chdir(old);
 }
@@ -983,8 +1009,8 @@ ft_write()
 #ifdef	DEBUG
 			PRINTF("writing file \"%s\" (%d)\n", FDname, FDlast);
 #endif	DEBUG
-			(void)write(fid, &FDlast, sizeof(FDlast));
-			(void)write(fid, ftree, (FDlast+1) * sizeof(FTREE));
+			(void)write(fid, (char *)&FDlast, sizeof(FDlast));
+			(void)write(fid, ftree, (int)((FDlast+1) * sizeof(FTREE)));
 			for (j = 0; j <= FDlast; j++)
 				(void)write(fid, ftree[j].f_name, strlen(ftree[j].f_name)+1);
 			(void)close(fid);
@@ -1028,8 +1054,8 @@ char	cwdpath[MAXPATHLEN],
 	}
 	if (purge)
 		ft_purge();
-	(void) initscr();
-	setterm (1,-1,-1,-1);	/* raw; noecho; nonl; nocbreak; */
+	if (!initscr())			failed("initscr");
+	rawterm();
 	(void)ft_view(".");
 	move(LINES-1,0);
 	refresh();

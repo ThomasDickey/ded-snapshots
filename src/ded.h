@@ -1,4 +1,4 @@
-/* @(#)ded.h	1.3 87/12/01 10:18:39 */
+/* @(#)ded.h	1.4 88/03/24 13:16:07 */
 
 /*
  * Created:	09 Nov 1987
@@ -8,6 +8,7 @@
 #include	<ctype.h>
 #include	<sys/types.h>
 #include	<sys/stat.h>
+#include	<sys/dir.h>
 extern	char	*getcwd(),
 		*getenv(),
 		*strcat(),
@@ -20,6 +21,14 @@ extern	char	*doalloc(),	/* (re)allocate memory		*/
 #ifndef	S_IFSOCK
 #define	SYSTEM5
 #endif	S_IFSOCK
+
+#ifdef	SYSTEM5
+#define	DIR	FILE
+#define	opendir(n)	fopen(n,"r")
+#define	readdir(fp)	(fread(dbfr, sizeof(dbfr), 1, fp) ? &dbfr : (struct direct *)0)
+#define	closedir(fp)	fclose(fp)
+static	struct	direct	dbfr;
+#endif	SYSTEM5
 
 /*
  * Map differences between BSD4.2 and SYSTEM5
