@@ -1,10 +1,17 @@
 /*
  * Version-identifier for DED
  * $Log: version.h,v $
- * Revision 3.1  1989/08/11 14:30:33  dickey
- * added a bit of error-recovery to 'read_char()'.
- * enhanced '<' command by showing substitution for group.
+ * Revision 4.0  1989/08/22 16:36:45  ste_cm
+ * BASELINE Thu Aug 24 10:20:06 EDT 1989 -- support:navi_011(rel2)
  *
+ *		Revision 3.2  89/08/22  16:36:45  dickey
+ *		augmented 'E' (enter-directory) when applied to symbolic
+ *		link to a file.
+ *		
+ *		Revision 3.1  89/08/11  14:30:33  dickey
+ *		added a bit of error-recovery to 'read_char()'.
+ *		enhanced '<' command by showing substitution for group.
+ *		
  *		Revision 3.0  89/06/13  08:00:37  ste_cm
  *		BASELINE Mon Jun 19 14:21:57 EDT 1989
  *		
@@ -79,4 +86,4 @@
  * 01 Dec 1987, added '*', '^' commands, made '%' refresh screen
  * 25 Nov 1987, added sccs-support (V,z,Z toggles, V,z,Z sorts)
  */
-static	char	version[] = "$Date: 1989/08/11 14:30:33 $";
+static	char	version[] = "$Date: 1989/08/22 16:36:45 $";
