@@ -3,6 +3,7 @@
  * Author:	T.E.Dickey
  * Created:	01 Feb 1990
  * Modified:
+ *		07 Mar 2004, remove K&R support, indent'd
  *		21 Jul 1998, show hostname prefix for pathname
  *		16 Feb 1998, compiler warnings
  *		04 Sep 1995, mods for bsd4.4 curses
@@ -20,119 +21,114 @@
 
 #include	"ded.h"
 
-MODULE_ID("$Id: showpath.c,v 12.9 2002/07/05 13:55:00 tom Exp $")
+MODULE_ID("$Id: showpath.c,v 12.10 2004/03/07 23:25:18 tom Exp $")
 
 #define	DOTLEN	((int)sizeof(ellipsis)-1)
 
-public	void	showpath(
-	_ARX(char *,	path)		/* pathname to display */
-	_ARX(int,	level)		/* level we must show */
-	_ARX(int,	base)		/* first-level to highlight */
-	_AR1(int,	margin)		/* space to allow on right */
-		)
-	_DCL(char *,	path)
-	_DCL(int,	level)
-	_DCL(int,	base)
-	_DCL(int,	margin)
+void
+showpath(char *path,		/* pathname to display */
+	 int level,		/* level we must show */
+	 int base,		/* first-level to highlight */
+	 int margin)		/* space to allow on right */
 {
-	static	char	the_host[MAXPATHLEN];
-	static	char	ellipsis[] = "...";
-	static	int	len_host;
-	register char	*s	= path;
-	auto	int	marker	= (base == -1);
-	auto	int	cols;
-	auto	int	len	= strlen(s);
-	auto	int	left	= 0;
-	auto	int	hilite	= FALSE;
-	auto	char	*d	= s + len;
-	auto	char	*t;
-	auto	int	y, x;
+    static char the_host[MAXPATHLEN];
+    static char ellipsis[] = "...";
+    static int len_host;
+    char *s = path;
+    int marker = (base == -1);
+    int cols;
+    int len = strlen(s);
+    int left = 0;
+    int hilite = FALSE;
+    char *d = s + len;
+    char *t;
+    int y, x;
 
-	if (len_host == 0) {
+    if (len_host == 0) {
 #if defined(HAVE_GETHOSTNAME)
-		gethostname(the_host, sizeof(the_host)-1);
-		if (strlen(the_host) != 0)
-			strcat(the_host, ":");
-		else
+	gethostname(the_host, sizeof(the_host) - 1);
+	if (strlen(the_host) != 0)
+	    strcat(the_host, ":");
+	else
 #endif
-		    strcpy(the_host, "path: ");
-		len_host = strlen(the_host);
-	}
-	getyx(stdscr, y, x);
-	cols = COLS - (x + 2 + margin + len_host);
+	    strcpy(the_host, "path: ");
+	len_host = strlen(the_host);
+    }
+    getyx(stdscr, y, x);
+    cols = COLS - (x + 2 + margin + len_host);
 
-	if (cols <= 0)
-		return;		/* give up (cannot print anything) */
+    if (cols <= 0)
+	return;			/* give up (cannot print anything) */
 
-	if (marker)		/* highlight the slash before the level */
-		base = level;
+    if (marker)			/* highlight the slash before the level */
+	base = level;
 
-	addstr(the_host);
+    addstr(the_host);
 
-	if (base == 0) {
+    if (base == 0) {
+	hilite = TRUE;
+	standout();
+    }
+
+    while (len > (cols - left)) {
+	if (--level < 0)
+	    break;		/* force this to show desired level */
+	while (isSlash(*s))
+	    s++;
+	if ((t = strchr(s, PATH_SLASH)) != NULL) {
+	    if (base-- == 0) {
 		hilite = TRUE;
 		standout();
-	}
+	    }
+	    s = t;
+	    len = d - s;
+	} else
+	    break;		/* will have to truncate on right */
+	if (left == 0)
+	    left = DOTLEN;
+    }
 
-	while (len > (cols - left)) {
-		if (--level < 0)
-			break;	/* force this to show desired level */
-		while (isSlash(*s))
-			s++;
-		if ((t = strchr(s, PATH_SLASH)) != NULL) {
-			if (base-- == 0) {
-				hilite = TRUE;
-				standout();
-			}
-			s = t;
-			len = d - s;
-		} else
-			break;	/* will have to truncate on right */
-		if (left == 0)
-			left = DOTLEN;
-	}
+    if (s != path) {
+	PRINTW("%.*s", cols, ellipsis);
+	cols -= DOTLEN;
+	if (cols <= 0)
+	    return;
+    }
 
-	if (s != path) {
-		PRINTW("%.*s", cols, ellipsis);
-		cols -= DOTLEN;
-		if (cols <= 0)
-			return;
-	}
+    len = d - s;
+    if ((len > cols) && (cols > DOTLEN)) {
+	d -= ((len - cols) + DOTLEN);
+	while ((d > s) && !isSlash(d[-1]))
+	    d--;
+    }
 
-	len = d - s;
-	if ((len > cols) && (cols > DOTLEN)) {
-		d -= ((len - cols) + DOTLEN);
-		while ((d > s) && !isSlash(d[-1]))
-			d--;
-	}
-
-	/* if we didn't start highlighting, try now */
-	len = d - s;
-	if ((base >= 0) && !hilite) {
-		register int	j;
-		for (j = 0; j < len; j++) {
-			if (s[j] == EOS)	/* patch */
-				break;
-			if (isSlash(s[j])) {
-				if (base-- == 0) {
-					hilite = TRUE;
-					if (j != 0) {
-						PRINTW("%.*s", j, s);
-						len -= j;
-						s   += j;
-					}
-					standout();
-					break;
-				}
-			}
+    /* if we didn't start highlighting, try now */
+    len = d - s;
+    if ((base >= 0) && !hilite) {
+	int j;
+	for (j = 0; j < len; j++) {
+	    if (s[j] == EOS)	/* patch */
+		break;
+	    if (isSlash(s[j])) {
+		if (base-- == 0) {
+		    hilite = TRUE;
+		    if (j != 0) {
+			PRINTW("%.*s", j, s);
+			len -= j;
+			s += j;
+		    }
+		    standout();
+		    break;
 		}
+	    }
 	}
+    }
 
-	if (len > 0)
-		PRINTW("%.*s", len, s);
-	if (*d != EOS)
-		PRINTW(ellipsis);
-	if (hilite) {
-		standend();
-	}
+    if (len > 0)
+	PRINTW("%.*s", len, s);
+    if (*d != EOS)
+	PRINTW(ellipsis);
+    if (hilite) {
+	standend();
+    }
 }

@@ -3,6 +3,7 @@
  * Author:	T.E.Dickey
  * Created:	11 May 1988
  * Modified:
+ *		07 Mar 2004, remove K&R support, indent'd
  *		01 Nov 1993, Sys5.4 can rename directories.
  *		29 Oct 1993, ifdef-ident
  *		28 Sep 1993, gcc warnings
@@ -18,59 +19,53 @@
 
 #include	"ded.h"
 
-MODULE_ID("$Id: dedname.c,v 12.8 2002/07/05 13:55:00 tom Exp $")
+MODULE_ID("$Id: dedname.c,v 12.9 2004/03/07 23:25:18 tom Exp $")
 
-int	dedname(
-	_ARX(RING *,	gbl)
-	_ARX(int,	x)
-	_AR1(char *,	newname)
-		)
-	_DCL(RING *,	gbl)
-	_DCL(int,	x)
-	_DCL(char *,	newname)
+int
+dedname(RING * gbl, int x, char *newname)
 {
-	int	ok	= FALSE;
-	char	oldname[MAXPATHLEN];
+    int ok = FALSE;
+    char oldname[MAXPATHLEN];
 
-	if (strcmp(strcpy(oldname, gNAME(x)), newname)) {
-		dlog_comment("rename \"%s\" (name=%s)\n", newname, gNAME(x));
+    if (strcmp(strcpy(oldname, gNAME(x)), newname)) {
+	dlog_comment("rename \"%s\" (name=%s)\n", newname, gNAME(x));
 #if defined(HAVE_RENAME)
-		if (rename(oldname, newname) < 0) {
-			warn(gbl, newname);
-			return (-1);
-		}
-		ok = TRUE;
+	if (rename(oldname, newname) < 0) {
+	    warn(gbl, newname);
+	    return (-1);
+	}
+	ok = TRUE;
 #else
-		if (isFILE(gSTAT(x).st_mode)) {
-			if (link(oldname, newname) < 0) {
-				warn(gbl, newname);
-				return (-1);
-			}
-			if (unlink(oldname) < 0) {
-				warn(gbl, oldname);
-				return (-1);
-			}
-			ok = TRUE;
-		} else {
-			char	bfr[MAXPATHLEN];
-			FORMAT(bfr, "cannot rename \"%s\"", gNAME(x));
-			dedmsg(gbl, bfr);
-			return (-1);
-		}
-		/* patch: should do 'system()' to rename directory, etc. */
-#endif	/* HAVE_RENAME */
-		/*
-		 * If we renamed a directory, update ftree.
-		 */
-		if (isDIR(gSTAT(x).st_mode)) {
-			ring_rename(gbl, oldname, newname);
-			ft_rename(oldname, newname);
-		}
+	if (isFILE(gSTAT(x).st_mode)) {
+	    if (link(oldname, newname) < 0) {
+		warn(gbl, newname);
+		return (-1);
+	    }
+	    if (unlink(oldname) < 0) {
+		warn(gbl, oldname);
+		return (-1);
+	    }
+	    ok = TRUE;
+	} else {
+	    char bfr[MAXPATHLEN];
+	    FORMAT(bfr, "cannot rename \"%s\"", gNAME(x));
+	    dedmsg(gbl, bfr);
+	    return (-1);
 	}
+	/* patch: should do 'system()' to rename directory, etc. */
+#endif /* HAVE_RENAME */
+	/*
+	 * If we renamed a directory, update ftree.
+	 */
+	if (isDIR(gSTAT(x).st_mode)) {
+	    ring_rename(gbl, oldname, newname);
+	    ft_rename(oldname, newname);
+	}
+    }
 
-	if (ok) {
-		txtfree(gNAME(x));
-		gNAME(x) = txtalloc(newname);
-	}
-	return (0);
+    if (ok) {
+	txtfree(gNAME(x));
+	gNAME(x) = txtalloc(newname);
+    }
+    return (0);
 }

@@ -3,6 +3,7 @@
  * Author:	T.E.Dickey
  * Created:	01 Dec 1987
  * Modified:
+ *		07 Mar 2004, remove K&R support, indent'd
  *		21 Oct 1995, show escaped control chars in printable form.
  *		29 Oct 1993, ifdef-ident, port to HP/UX.
  *		28 Sep 1993, gcc warnings
@@ -21,121 +22,112 @@
 
 #include	"ded.h"
 
-MODULE_ID("$Id: dedshow.c,v 12.8 1995/10/21 22:53:56 tom Exp $")
+MODULE_ID("$Id: dedshow.c,v 12.9 2004/03/07 23:25:18 tom Exp $")
 
-private	int	dedshow_c (
-	_AR1(int,	ch))
-	_DCL(int,	ch)
+static int
+dedshow_c(int ch)
 {
-	auto	int	max_Y	= LINES - 1,
-			max_X	= COLS  - 1;
-	register int x, y;
+    int max_Y = LINES - 1, max_X = COLS - 1;
+    int x, y;
 
-	getyx(stdscr, y, x);
-	if (addch((chtype)ch) == ERR)
-		return FALSE;
-	if (++x > max_X) {
-		x = 0;
-		if (++y >= max_Y)
-			return FALSE;
-		move(y,x);
-	}
-	return TRUE;
+    getyx(stdscr, y, x);
+    if (addch((chtype) ch) == ERR)
+	return FALSE;
+    if (++x > max_X) {
+	x = 0;
+	if (++y >= max_Y)
+	    return FALSE;
+	move(y, x);
+    }
+    return TRUE;
 }
 
-public	void	dedshow2 (
-	_AR1(char *,	arg))
-	_DCL(char *,	arg)
+void
+dedshow2(char *arg)
 {
-	register int	y, x, ch;
-	auto	int	max_Y	= LINES - 1,
-			literal	= lnext_char(),
-			escaped	= 0;
-	auto	char	buf[4];
+    int y, x, ch;
+    int max_Y = LINES - 1, literal = lnext_char(), escaped = 0;
+    char buf[4];
 
-	if (arg == 0)
-		return;
+    if (arg == 0)
+	return;
 
-	getyx(stdscr, y, x);
-	if (y >= max_Y)
-		return;
+    getyx(stdscr, y, x);
+    if (y >= max_Y)
+	return;
 
-	while ((ch = *arg++) != EOS) {
+    while ((ch = *arg++) != EOS) {
 
-		if (isascii(ch) || escaped) {
-			if (ch == literal || ch == '\\')
-				escaped = 2;
-			if (!isprint(ch)) {
-				if (escaped) {
-					if (ch == 0177) {
-						if (!dedshow_c('^'))
-							return;
-						ch = '?';
-					} else if (ch >= 0200) {
-						sprintf(buf, "%03o", ch & 0xff);
-						dedshow2(buf);
-						escaped--;
-						continue;
-					} else if (iscntrl(ch)) {
-						if (!dedshow_c('^'))
-							return;
-						ch |= 0100;
-					}
-				} else if (ch == '\t') {
-					ch = ' ';
-				} else if (ch == '\n') {
-					getyx(stdscr, y, x);
-					x = 0;
-					if (++y > max_Y)
-						return;
-					move(y,x);
-					continue;
-				} else {
-					/* ignore other chars */
-					continue;
-				}
-			}
-			if (!dedshow_c(ch))
-				return;
-		} else {
-			if (!dedshow_c('{'))
-				return;
-			standout();
-			dedshow2("...");
-			standend();
-			if (!dedshow_c('}'))
-				return;
-			while ((*arg != EOS) && !isascii(*arg))
-				arg++;
-		}
-		if (escaped > 0)
+	if (isascii(ch) || escaped) {
+	    if (ch == literal || ch == '\\')
+		escaped = 2;
+	    if (!isprint(ch)) {
+		if (escaped) {
+		    if (ch == 0177) {
+			if (!dedshow_c('^'))
+			    return;
+			ch = '?';
+		    } else if (ch >= 0200) {
+			sprintf(buf, "%03o", ch & 0xff);
+			dedshow2(buf);
 			escaped--;
+			continue;
+		    } else if (iscntrl(ch)) {
+			if (!dedshow_c('^'))
+			    return;
+			ch |= 0100;
+		    }
+		} else if (ch == '\t') {
+		    ch = ' ';
+		} else if (ch == '\n') {
+		    getyx(stdscr, y, x);
+		    x = 0;
+		    if (++y > max_Y)
+			return;
+		    move(y, x);
+		    continue;
+		} else {
+		    /* ignore other chars */
+		    continue;
+		}
+	    }
+	    if (!dedshow_c(ch))
+		return;
+	} else {
+	    if (!dedshow_c('{'))
+		return;
+	    standout();
+	    dedshow2("...");
+	    standend();
+	    if (!dedshow_c('}'))
+		return;
+	    while ((*arg != EOS) && !isascii(*arg))
+		arg++;
 	}
+	if (escaped > 0)
+	    escaped--;
+    }
 }
 
-void	dedshow(
-	_ARX(RING *,	gbl)
-	_ARX(char *,	tag)
-	_AR1(char *,	arg)
-		)
-	_DCL(RING *,	gbl)
-	_DCL(char *,	tag)
-	_DCL(char *,	arg)
+void
+dedshow(RING * gbl,
+	char *tag,
+	char *arg)
 {
-	register int	y,x;
+    int y, x;
 
-	getyx(stdscr,y,x);
-	if (y < mark_W) {
-		to_work(gbl,TRUE);
-		x = 0;
-	}
-	if (x > 0) {
-		move(y+1,0);
-	}
+    getyx(stdscr, y, x);
+    if (y < mark_W) {
+	to_work(gbl, TRUE);
+	x = 0;
+    }
+    if (x > 0) {
+	move(y + 1, 0);
+    }
 
-	dedshow2(tag);
-	dedshow2(arg);
-	dedshow2("\n");
+    dedshow2(tag);
+    dedshow2(arg);
+    dedshow2("\n");
 
-	clrtoeol();
+    clrtoeol();
 }

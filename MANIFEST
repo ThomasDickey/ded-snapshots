@@ -1,4 +1,4 @@
-MANIFEST for ded, version t20031129
+MANIFEST for ded, version t20040307
 --------------------------------------------------------------------------------
 MANIFEST                        this file
 COPYING                         copyright notice for DED
@@ -8,11 +8,6 @@ configure.in                    template for DED configure script
 install-sh                      install script
 makefile.in                     template for ./makefile
 mkdirs.sh                       script to make directory-hierarchy
-certify                         subdirectory
-certify/README                  brief description of DED
-certify/config.txt              configuration requirements for DED
-certify/makefile.in             template for certify/makefile
-certify/release.txt             release history for DED
 src                             subdirectory
 src/README                      to-do list for DED
 src/boxchars.c                  encapsulate knowledge of box-characters

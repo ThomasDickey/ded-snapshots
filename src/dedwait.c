@@ -3,6 +3,7 @@
  * Author:	T.E.Dickey
  * Created:	01 Dec 1987
  * Modified:
+ *		07 Mar 2004, remove K&R support, indent'd
  *		29 Oct 1993, ifdef-ident
  *		18 Oct 1991, converted to ANSI
  *		16 May 1991, apollo sr10.3 cpp complains about tag on #endif
@@ -17,36 +18,32 @@
 
 #include	"ded.h"
 
-MODULE_ID("$Id: dedwait.c,v 12.5 1994/07/10 02:16:47 tom Exp $")
+MODULE_ID("$Id: dedwait.c,v 12.6 2004/03/07 23:25:18 tom Exp $")
 
 /*ARGSUSED*/
-public	void	dedwait(
-	_ARX(RING *,	gbl)
-	_AR1(int,	cursed)
-		)
-	_DCL(RING *,	gbl)
-	_DCL(int,	cursed)
+void
+dedwait(RING * gbl, int cursed)
 {
-	register int	c;
-	static	 char	*msg = "Hit <RETURN> to continue";
+    int c;
+    static char *msg = "Hit <RETURN> to continue";
 
-	PRINTF("\n");
-	if (cursed) {	/* assume we are already in raw-mode */
-		move(LINES-1,0);
-		standout();
-		PRINTW("%.*s", COLS-1, msg);
-		standend();
-		PRINTW(" ");
-		clrtoeol();
-	} else {
-		PRINTF("%s", msg);
-		(void)fflush(stdout);
-	}
+    PRINTF("\n");
+    if (cursed) {		/* assume we are already in raw-mode */
+	move(LINES - 1, 0);
+	standout();
+	PRINTW("%.*s", COLS - 1, msg);
+	standend();
+	PRINTW(" ");
+	clrtoeol();
+    } else {
+	PRINTF("%s", msg);
+	(void) fflush(stdout);
+    }
 
-	dlog_flush();
-	do {
-		c = dlog_char(gbl, (int *)0,0);
-	} while	(c != '\n');
-	dlog_comment("%s\n", msg);
-	retouch(gbl,0);
+    dlog_flush();
+    do {
+	c = dlog_char(gbl, (int *) 0, 0);
+    } while (c != '\n');
+    dlog_comment("%s\n", msg);
+    retouch(gbl, 0);
 }

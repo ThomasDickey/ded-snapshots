@@ -3,6 +3,7 @@
  * Author:	T.E.Dickey
  * Created:	18 Nov 1987
  * Modified:
+ *		07 Mar 2004, remove K&R support, indent'd
  *		16 Feb 1998, make 'curfile' unsigned.
  *		18 Nov 1993, corrected infinite loop when current-file happened
  *			     to be a symbolic link.
@@ -23,83 +24,83 @@
  */
 #include	"ded.h"
 
-MODULE_ID("$Id: dedfind.c,v 12.11 1998/02/16 13:26:31 tom Exp $")
+MODULE_ID("$Id: dedfind.c,v 12.12 2004/03/07 23:25:18 tom Exp $")
 
-public	void	dedfind(
-	_ARX(RING *,	gbl)
-	_AR1(int,	key)
-		)
-	_DCL(RING *,	gbl)
-	_DCL(int,	key)
+void
+dedfind(RING * gbl, int key)
 {
-	static	DYN	*text;
-	static	HIST	*History;
-	static	REGEX_T	expr;
-	static	int	ok_expr;
-	static	int	order = 1;	/* saves last legal search order */
-	register char	*s;
-	unsigned j;
-	int	found,
-		next	= order;
+    static DYN *text;
+    static HIST *History;
+    static REGEX_T expr;
+    static int ok_expr;
+    static int order = 1;	/* saves last legal search order */
+    char *s;
+    unsigned j;
+    int found, next = order;
 
-	if (key == '/' || key == '?') {
-		dyn_init(&text, BUFSIZ);
-		if (!(s = dlog_string(gbl, "Target: ", -1, &text,(DYN **)0, &History, EOS, 0)))
-			return;
-		if (key == '/')	order = 1;
-		if (key == '?') order = -1;
-		next = order;
-	} else if ((s = dyn_string(text)) != NULL) {
-		if (key == 'n')	next = order;
-		if (key == 'N')	next = -order;
-	} else {
-		dedmsg(gbl, "No previous regular expression");
-		return;
-	}
+    if (key == '/' || key == '?') {
+	dyn_init(&text, BUFSIZ);
+	if (!(s = dlog_string(gbl, "Target: ", -1, &text, (DYN **) 0,
+			      &History, EOS, 0)))
+	    return;
+	if (key == '/')
+	    order = 1;
+	if (key == '?')
+	    order = -1;
+	next = order;
+    } else if ((s = dyn_string(text)) != NULL) {
+	if (key == 'n')
+	    next = order;
+	if (key == 'N')
+	    next = -order;
+    } else {
+	dedmsg(gbl, "No previous regular expression");
+	return;
+    }
 
-	if (*s == EOS) {
-		if (!ok_expr) {
-			dedmsg(gbl, "No regular expression");
-			return;
-		}
+    if (*s == EOS) {
+	if (!ok_expr) {
+	    dedmsg(gbl, "No regular expression");
+	    return;
+	}
+    } else {
+	if (ok_expr)
+	    OLD_REGEX(expr);
+	if ((ok_expr = NEW_REGEX(expr, s)) == 0) {
+	    BAD_REGEX(expr);
+	    showC(gbl);
+	}
+    }
+    if (ok_expr) {
+	for (j = gbl->curfile, found = FALSE;;) {
+	    if (next > 0) {
+		if ((j += next) >= gbl->numfiles)
+		    j = 0;
+	    } else {
+		if (j == 0)
+		    j = gbl->numfiles;
+		j += next;
+	    }
+	    if ((found = GOT_REGEX(expr, gNAME(j))) != 0) {
+		break;
+	    } else if ((gLTXT(j) != 0)
+		       && (found = GOT_REGEX(expr, gLTXT(j))) != 0) {
+		break;
+	    } else if (j == gbl->curfile) {
+		break;
+	    }
+	}
+	if (found) {
+	    markC(gbl, FALSE);
+	    if (j == gbl->curfile)
+		dedmsg(gbl, "no other matches");
+	    scroll_to_file(gbl, j);
+	    dlog_name(gNAME(j));
 	} else {
-		if (ok_expr)
-			OLD_REGEX(expr);
-		if ((ok_expr = NEW_REGEX(expr,s)) == 0) {
-			BAD_REGEX(expr);
-			showC(gbl);
-		}
+	    char msg[BUFSIZ];
+	    FORMAT(msg, "\"%s\" not found", s);
+	    dedmsg(gbl, msg);
+	    return;
 	}
-	if (ok_expr) {
-		for (j = gbl->curfile, found = FALSE; ; ) {
-			if (next > 0) {
-				if ((j += next) >= gbl->numfiles)
-					j = 0;
-			} else {
-				if (j == 0)
-					j = gbl->numfiles;
-				j += next;
-			}
-			if ((found = GOT_REGEX(expr,gNAME(j))) != 0) {
-				break;
-			} else if ((gLTXT(j) != 0)
-			    && (found = GOT_REGEX(expr,gLTXT(j))) != 0) {
-				break;
-			} else if (j == gbl->curfile) {
-				break;
-			}
-		}
-		if (found) {
-			markC(gbl,FALSE);
-			if (j == gbl->curfile)
-				dedmsg(gbl, "no other matches");
-			scroll_to_file(gbl, j);
-			dlog_name(gNAME(j));
-		} else {
-		char	msg[BUFSIZ];
-			FORMAT(msg, "\"%s\" not found", s);
-			dedmsg(gbl, msg);
-			return;
-		}
-	}
+    }
 }
