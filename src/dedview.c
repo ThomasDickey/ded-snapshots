@@ -1,5 +1,5 @@
 #if	!defined(NO_IDENT)
-static	char	Id[] = "$Id: dedview.c,v 12.17 1994/07/29 17:04:52 tom Exp $";
+static	char	Id[] = "$Id: dedview.c,v 12.18 1994/08/12 21:10:52 tom Exp $";
 #endif
 
 /*
@@ -179,7 +179,9 @@ private	void	show_line(
 			int	adj = gbl->cmdcol[CCOL_NAME];
 			int	col = adj - gbl->Xbase;
 			int	len = (COLS-1) - col;
+#if HAVE_HAS_COLORS
 			int	end = gbl->cmdcol[CCOL_NAME] + gENTRY(j).namlen;
+#endif
 
 			if (col < 0) {
 				adj -= col;

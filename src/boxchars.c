@@ -1,7 +1,3 @@
-#ifndef	NO_IDENT
-static	char	Id[] = "$Id: boxchars.c,v 12.3 1994/07/26 14:24:44 tom Exp $";
-#endif
-
 /*
  * Author:	T.E.Dickey
  * Created:	16 Jul 1994
@@ -12,6 +8,8 @@ static	char	Id[] = "$Id: boxchars.c,v 12.3 1994/07/26 14:24:44 tom Exp $";
  */
 #include	"ded.h"
 
+MODULE_ID("$Id: boxchars.c,v 12.5 1994/08/12 21:09:59 tom Exp $")
+
 #undef	vline
 #undef	hline
 
@@ -19,6 +17,7 @@ public	chtype	bar_space[BAR_WIDTH+1];
 public	chtype	bar_hline[BAR_WIDTH+1];
 public	chtype	bar_ruler[11];
 
+/*ARGSUSED*/
 public	void	boxchars(
 		_AR1(int,	flag))
 		_DCL(int,	flag)
