@@ -1,3 +1,26 @@
+1988-06-01  dickey@software.org
+
+	* src/ded.c: correction to make 'y'-sort work ok.
+
+	* src/ftree.c: added SCCS_DIR environment variable.
+
+	* src/dedscan.c: added 'z_lock' field for rcs/sccs.
+
+	* src/ded2s.c: added 'Y' (lock-owner) field.
+
+	* src/ded.hlp: added Y-toggle, y-sort.
+
+	* src/dedring.c: added 'Y'-toggle, reset with 'V', 'Z'.
+
+	* src/version.h: 'Y' toggle does rcs/sccs locker.
+
+	* src/ded.c: added 'Y' toggle, 'y'-sort.
+
+	* src/dedsort.c: added 'y'-sort for rcs/sccs lock-owner.
+
+	* src/ded.h:
+	added data to control Y-toggle, y-sort for rcs/sccs lock-owner.
+
 1988-05-26  dickey@software.org
 
 	* src/README: new ideas.

@@ -56,6 +56,7 @@ Display-Adjustment:
   S		toggle filesize (in blocks) field
   U		toggle filename display (unix vs apollo)
   V		toggle sccs version display
+  Y		toggle sccs lock-owner display
   Z		toggle sccs filedate display
   z		clear sccs display (reduces overhead)
 
@@ -87,6 +88,7 @@ Display-Adjustment:
 		U	user-id (numerically)
 		v	sccs versions
 		w	last-modification date
+		y	sccs lock-owners
 		z	sccs checkin-dates
                 Z       sccs checkin-dates over modification dates
 		.	sort with dotted components in increasing length.

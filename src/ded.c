@@ -1,5 +1,5 @@
 #ifndef	NO_SCCS_ID
-static	char	sccs_id[] = "@(#)ded.c	1.26 88/05/26 07:44:06";
+static	char	sccs_id[] = "@(#)ded.c	1.28 88/06/01 10:43:57";
 #endif	NO_SCCS_ID
 
 /*
@@ -7,6 +7,7 @@ static	char	sccs_id[] = "@(#)ded.c	1.26 88/05/26 07:44:06";
  * Author:	T.E.Dickey
  * Created:	09 Nov 1987
  * Modified:
+ *		01 Jun 1988, added 'Y' toggle, y-sort.
  *		25 May 1988, fix 'edittext()' for left/right scroll position.
  *			     also, +/- update via 'showDOWN()'.
  *		23 May 1988, use 'setmtime()', corrected masking in 'replay()'.
@@ -70,7 +71,7 @@ static	int	in_screen;		/* TRUE if we have successfully init'ed */
 static	char	whoami[BUFSIZ],		/* my execution-path */
 		howami[BUFSIZ];		/* my help-file */
 
-static	char	sortc[] = ".cgilnprstuwGTUvzZ";/* valid sort-keys */
+static	char	sortc[] = ".cgilnprstuwGTUyvzZ";/* valid sort-keys */
 					/* (may correspond with cmds) */
 
 static	int	re_edit;		/* flag for 'edittext()' */
@@ -82,10 +83,10 @@ static	char	lastedit[BUFSIZ];	/* command-stream for 'edittext()' */
 static
 sortset(ord,opt)
 {
-#ifndef	Z_SCCS
-	if (strchr("vzZ", opt) != 0)
+#ifndef	Z_RCS_SCCS
+	if (strchr("vyzZ", opt) != 0)
 		opt = '?';
-#endif	Z_SCCS
+#endif	Z_RCS_SCCS
 	if (strchr(sortc, opt) != 0) {
 		dateopt = opt == 'c'  ? 1 : (opt == 'r' ? 0 : 2);
 		sortopt = opt;
@@ -364,7 +365,7 @@ register int j;
 	showC();
 }
 
-#ifdef	Z_SCCS
+#ifdef	Z_RCS_SCCS
 showSCCS()
 {
 register int j;
@@ -378,7 +379,7 @@ register int j;
 			}
 	}
 }
-#endif	Z_SCCS
+#endif	Z_RCS_SCCS
 
 /*
  * Set the cursor to the current file, noting this in the viewport header.
@@ -959,10 +960,10 @@ char	tpath[BUFSIZ],
 	case 'P':	P_opt = !P_opt;	break;
 	case 'S':	S_opt = !S_opt;	break;
 	case 'U':	U_opt = !U_opt;	break;
-#ifdef	Z_SCCS
+#ifdef	Z_RCS_SCCS
 	case 'Z':	Z_opt = 1;	break;
 	case 'z':	Z_opt = -1;	break;
-#endif	Z_SCCS
+#endif	Z_RCS_SCCS
 	case 's':
 	case 'r':	if (!sortset(c,*optarg))	usage();
 			break;
@@ -1045,10 +1046,16 @@ char	tpath[BUFSIZ],
 	case 'S':	S_opt = !S_opt; showFILES(); break;
 	case 'U':	U_opt = !U_opt; showFILES(); break;
 
-#ifdef	Z_SCCS
+#ifdef	Z_RCS_SCCS
 	case 'V':	/* toggle sccs-version display */
 			showSCCS();
 			V_opt = !V_opt;
+			showFILES();
+			break;
+
+	case 'Y':	/* show owner of file lock */
+			showSCCS();
+			Y_opt = !Y_opt;
 			showFILES();
 			break;
 
@@ -1064,7 +1071,7 @@ char	tpath[BUFSIZ],
 				showFILES();
 			}
 			break;
-#endif	Z_SCCS
+#endif	Z_RCS_SCCS
 
 	case 'q':	/* quit this process */
 			if (lastc == 't')

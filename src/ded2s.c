@@ -1,5 +1,5 @@
 #ifndef	NO_SCCS_ID
-static	char	sccs_id[] = "@(#)ded2s.c	1.8 88/05/23 06:57:48";
+static	char	sccs_id[] = "@(#)ded2s.c	1.9 88/06/01 10:24:35";
 #endif	NO_SCCS_ID
 
 /*
@@ -7,6 +7,7 @@ static	char	sccs_id[] = "@(#)ded2s.c	1.8 88/05/23 06:57:48";
  * Author:	T.E.Dickey
  * Created:	09 Nov 1987
  * Modified:
+ *		01 Jun 1988, added 'Y_opt' field.
  *		23 May 1988, absorbed 'z_rels' into 'z_vers'.
  *		18 May 1988, show Apollo inodes in hex.
  *		09 May 1988, sockets do not have major/minor numbers.
@@ -106,7 +107,7 @@ char	*t,
 	bfr += field(bfr,mj);
 
 	/* show sccs-date, if any */
-#ifdef	Z_SCCS
+#ifdef	Z_RCS_SCCS
 	if (Z_opt > 0) {
 		time2s(bfr, f_->z_time);
 		bfr += field(bfr,mj);
@@ -119,7 +120,7 @@ char	*t,
 			*bfr++ = ' ';
 		*bfr++ = ' ';
 	}
-#endif	Z_SCCS
+#endif	Z_RCS_SCCS
 
 	/* show the appropriate-date */
 	fdate =	(dateopt == 1)  ? s->st_ctime
@@ -128,12 +129,18 @@ char	*t,
 	time2s(bfr,fdate);
 	bfr += field(bfr,mj);
 
-#ifdef	Z_SCCS
-	if (Z_opt && V_opt) {
-		FORMAT(bfr, "%-7s ", f_->z_vers);
-		bfr += field(bfr, (unsigned)(f_->z_time != 0));
+#ifdef	Z_RCS_SCCS
+	if (Z_opt) {
+		if (V_opt) {	/* show highest version number */
+			FORMAT(bfr, "%-7s ", f_->z_vers);
+			bfr += field(bfr, (unsigned)(f_->z_time != 0));
+		}
+		if (Y_opt) {	/* show current lock */
+			FORMAT(bfr, "%-*.*s ", UIDLEN, UIDLEN, f_->z_lock);
+			bfr += field(bfr, (unsigned)(f_->z_time != 0));
+		}
 	}
-#endif	Z_SCCS
+#endif	Z_RCS_SCCS
 
 	cmdcol[2] = bfr - base;
 	*bfr++ = ' ';
