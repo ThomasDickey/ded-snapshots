@@ -1,5 +1,5 @@
 #if	!defined(NO_IDENT)
-static	char	Id[] = "$Id: dedtype.c,v 12.7 1994/05/09 18:55:26 tom Exp $";
+static	char	Id[] = "$Id: dedtype.c,v 12.8 1994/05/23 00:20:18 tom Exp $";
 #endif
 
 /*
@@ -543,7 +543,7 @@ public	void	dedtype(
 
 	if (isdir && !OptBinary) {
 		DIR	*dp;
-		DIRENT	*de;
+		Dirent_t *de;
 		char	bfr[MAXPATHLEN];
 #ifdef	apollo
 		char	*fmt = "%08x %s\n";

@@ -1,5 +1,5 @@
 #if	!defined(NO_IDENT)
-static	char	Id[] = "$Id: dedscan.c,v 12.6 1993/11/23 17:48:02 dickey Exp $";
+static	char	Id[] = "$Id: dedscan.c,v 12.7 1994/05/23 00:20:14 tom Exp $";
 #endif
 
 /*
@@ -270,7 +270,7 @@ public	int	dedscan _ONE(RING *,gbl)
 	auto	int	argc	= gbl->top_argc;
 	auto	char **	argv	= gbl->top_argv;
 	auto	DIR	*dp;
-	auto	DIRENT	*de;
+	auto	Dirent_t *de;
 	register int	j, k;
 	auto	 int	common = -1;
 	char	name[BUFSIZ];

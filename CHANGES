@@ -1,3 +1,18 @@
+1994-05-23  Thomas E. Dickey  <dickey@clark.net>
+
+	* src/ded.h: use new include for fcntl.h
+
+	* src/ded.c: use SYS5_CURSES
+
+	* src/dedname.c: use HAVE_RENAME
+
+	* src/ded2s.c:
+	use autoconf's tests for 'major()' and 'minor()' includes
+
+1994-05-22  Thomas E. Dickey  <dickey@clark.net>
+
+	* src/ftree.c, src/dedtype.c, src/dedscan.c: rename-DIRENT
+
 1994-05-09  Thomas E. Dickey  <dickey@clark.net>
 
 	* src/dedtype.c:
