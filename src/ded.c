@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	Id[] = "$Header: /users/source/archives/ded.vcs/src/RCS/ded.c,v 9.6 1991/07/11 12:42:44 dickey Exp $";
+static	char	Id[] = "$Header: /users/source/archives/ded.vcs/src/RCS/ded.c,v 9.8 1991/07/12 08:44:30 dickey Exp $";
 #endif
 
 /*
@@ -7,9 +7,16 @@ static	char	Id[] = "$Header: /users/source/archives/ded.vcs/src/RCS/ded.c,v 9.6 
  * Author:	T.E.Dickey
  * Created:	09 Nov 1987
  * $Log: ded.c,v $
- * Revision 9.6  1991/07/11 12:42:44  dickey
- * modified interface to to_work()
+ * Revision 9.8  1991/07/12 08:44:30  dickey
+ * last change introduced errs in 'count_tags()'
  *
+ *		Revision 9.7  91/07/12  08:20:51  dickey
+ *		added CTL/G command to show tagged files (+blocks/bytes).
+ *		cleanup some message code.
+ *		
+ *		Revision 9.6  91/07/11  13:00:09  dickey
+ *		modified interface to to_work()
+ *		
  *		Revision 9.5  91/07/11  11:12:28  dickey
  *		broke-out 'showMARK()' for use in 'dedtype()'
  *		
@@ -287,6 +294,9 @@ static	int	curview,		/* 0..MAXVIEW			*/
 
 static	int	Xscroll;		/* amount by which to left/right */
 static	int	tag_count;		/* number of tagged files */
+static	int	tag_opt;		/* nonzero to show totals */
+static	off_t	tag_bytes;
+static	long	tag_blocks;
 
 /*
  * Other, private main-module state:
@@ -510,20 +520,30 @@ register j = xSTAT(inx).st_mode;
 }
 
 /*
- * Print an error/warning message
+ * Print an error/warning message, optionally pausing
  */
-dedmsg(msg)
-char	*msg;
+static
+show_message(tag, msg, pause)
+char	*tag, *msg;
 {
 	if (in_screen) {
 		move(LINES-1,0);
-		PRINTW("** %s", msg);
+		PRINTW("** %.*s", COLS-4, msg);
 		clrtoeol();
-		showC();
+		if (pause) {
+			/* pause beside error message */
+			/* ...and clear it after pause */
+			move(LINES-1,0);
+			refresh();
+			beep();
+			(void)dlog_char((int *)0,-1);
+			clrtoeol();
+		} else
+			showC();
 	} else {
 		FPRINTF(stderr, "?? %s\n", msg);
 	}
-	dlog_comment("(dedmsg) %s\n", msg);
+	dlog_comment("(%s) %s\n", tag, msg);
 }
 
 char	*
@@ -536,50 +556,16 @@ char	*msg;
 	return (bfr);
 }
 
-warn(msg)
-char	*msg;
-{
-	if (in_screen) {
-		move(LINES-1,0);
-		PRINTW("** %s", err_msg(msg));
-		clrtoeol();
-		showC();
-	} else {
-		FPRINTF(stderr, "?? %s\n", err_msg(msg));
-	}
-	dlog_comment("(warn) %s: %s\n", msg, sys_errlist[errno]);
-}
+dedmsg(msg)	char *msg; { show_message("dedmsg", msg, FALSE); }
+warn(msg)	char *msg; { show_message("warn", err_msg(msg), FALSE); }
 
 /*
  * Wait for the user to hit a key before the next screen is shown.  This is
  * used when we have put a message up and may be going back to the
  * directory tree display.
  */
-waitmsg(msg)
-char	*msg;
-{
-	if (!in_screen) {
-		warn (msg);	/* simplify if we cannot display on screen */
-		return;
-	}
-	if (msg) {
-		move(LINES-1,0);
-		PRINTW("** %s", msg);
-		clrtoeol();
-		dlog_comment("(waitmsg) %s\n", msg);
-	}
-	move(LINES-1,0);
-	refresh();
-	beep();
-	(void)dlog_char((int *)0,-1);	/* pause beside error message */
-	clrtoeol();		/* ...and clear it after pause */
-}
-
-wait_warn(msg)
-char	*msg;
-{
-	waitmsg(err_msg(msg));
-}
+waitmsg(msg)	char *msg; { show_message("waitmsg", msg, TRUE); }
+wait_warn(msg)	char *msg; { waitmsg(err_msg(msg)); }
 
 /*
  * Fatal-error exit from this process
@@ -717,7 +703,12 @@ showWHAT()
 
 	move(Yhead,0);
 	if (tag_count)	standout();
-	PRINTW("%2d of %2d [%ctime] %", curfile+1, numfiles, datechr[dateopt]);
+	PRINTW("%2d of %2d [%ctime] ", curfile+1, numfiles, datechr[dateopt]);
+	if (tag_opt)
+		PRINTW("(%d files, %d %s) ",
+			tag_count,
+			(tag_opt > 1) ? tag_bytes : tag_blocks,
+			(tag_opt > 1) ? "bytes"   : "blocks");
 	showpath(new_wd, 999, -1, 0);
 	if (tag_count)	standend();
 	clrtoeol();
@@ -963,7 +954,7 @@ char	*backto;		/* name to reset to, if possible */
 	register int	j;
 
 	to_work(TRUE);
-	tag_count = 0;
+	init_tags();
 	if (dedscan(top_argc, top_argv)) {
 		curfile = 0;	/* numfiles may be less now */
 		dedsort();
@@ -1041,15 +1032,52 @@ int	(*func)();
 }
 
 /*
+ * Initialize counters associated with tags
+ */
+static
+init_tags()
+{
+	tag_count = 0;
+	tag_bytes = 0;
+	tag_blocks= 0;
+}
+
+static
+tag_entry(inx)
+{
+	if (!xFLAG(inx)) {
+		xFLAG(inx) = TRUE;
+		tag_count++;
+		tag_bytes += xSTAT(inx).st_size;
+		tag_blocks += xSTAT(inx).st_blocks;
+	}
+}
+
+static
+untag_entry(inx)
+{
+	if (xFLAG(inx)) {
+		xFLAG(inx) = FALSE;
+		tag_count--;
+		tag_bytes -= xSTAT(inx).st_size;
+		tag_blocks -= xSTAT(inx).st_blocks;
+	}
+}
+
+/*
  * Re-count the files which are tagged
  */
 static
 count_tags()
 {
 	register int j;
-	for (j = tag_count = 0; j < numfiles; j++)
-		if (xFLAG(j))
-			tag_count++;
+	init_tags();
+	for (j = 0; j < numfiles; j++) {
+		if (xFLAG(j)) {
+			xFLAG(j) = FALSE;
+			tag_entry(j);
+		}
+	}
 }
 
 /*
@@ -1591,29 +1619,32 @@ char	*argv[];
 
 			/* tag/untag specific files */
 	case '+':	while (count-- > 0) {
-				if (!cFLAG) {
-					cFLAG = TRUE;
-					tag_count++;
-				}
+				tag_entry(curfile);
+				if (tag_opt) showWHAT();
 				if (!showDOWN())
 					break;
 			}
 			break;
 
 	case '-':	while (count-- > 0) {
-				if (cFLAG) {
-					cFLAG = FALSE;
-					tag_count--;
-				}
+				untag_entry(curfile);
+				if (tag_opt) showWHAT();
 				if (!showDOWN())
 					break;
 			}
 			break;
 
 	case '_':	for (j = 0; j < numfiles; j++)
-				xFLAG(j) = FALSE;
-			tag_count = 0;
+				untag_entry(j);
+			init_tags();
 			showFILES(FALSE,FALSE);
+			break;
+
+	case CTL('G'):	tag_opt = one_or_both(j = tag_opt,count);
+			if (tag_opt != j) {
+				showWHAT();
+				showC();
+			}
 			break;
 
 			/* edit specific fields */

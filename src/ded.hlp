@@ -1,4 +1,4 @@
-$Id: ded.hlp,v 9.2 1991/07/02 17:51:32 dickey Exp $
+$Id: ded.hlp,v 9.3 1991/07/12 08:23:32 dickey Exp $
 
 DED (Directory EDitor)
 ======================
@@ -58,6 +58,7 @@ Display-Adjustment:
   &		toggle flag controlling display of '.' and '..'
   C		toggle date-field to display
   G		toggle user/group display field.  Use "2G" to show both.
+  CTL/G		toggle summary of tagged files. Use "2CTL/G" to show bytes.
   I		toggle inode/links display field.  Use "2I" to show device too.
   O		toggle flag showing object types
   P		toggle file protection-mode (octal/normal) display field.
