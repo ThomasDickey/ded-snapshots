@@ -1,12 +1,15 @@
-#ifndef	NO_SCCS_ID
-static	char	sccs_id[] = "@(#)deddoit.c	1.8 88/05/18 07:33:31";
-#endif	NO_SCCS_ID
+#ifndef	lint
+static	char	sccs_id[] = "@(#)deddoit.c	1.10 88/08/02 16:17:14";
+#endif	lint
 
 /*
  * Title:	deddoit.c (do it for ded!)
  * Author:	T.E.Dickey
  * Created:	17 Nov 1987
  * Modified:
+ *		02 Aug 1988, so that if nothing is read from 'rawgets()', we
+ *			     don't overwrite the last contents of 'bfr_sh[]'.
+ *			     Use 'execute()' so we can fix signals at one point.
  *		17 May 1988, recoded '%'-substitution to work only on the
  *			     current entry, and to do a variety of subs for it.
  *		27 Apr 1988, modified 'rawgets()' to echo the non-tag string.
@@ -24,6 +27,7 @@ extern	char	*dedrung();
 extern	char	*strchr();
 extern	char	*strrchr();
 
+static	char	temp[BUFSIZ];
 static	char	subs[BUFSIZ];
 
 /*
@@ -66,8 +70,7 @@ char	*root;
 static
 expand(code)
 {
-char	temp[BUFSIZ],
-	name[BUFSIZ],
+	char	name[BUFSIZ],
 	*from	= 0;
 
 	if (strchr("NHRET", code))
@@ -76,10 +79,10 @@ char	temp[BUFSIZ],
 				strcat(
 					strcpy(name, new_wd),
 					"/"),
-				flist[curfile].name)
+				cNAME)
 			);
 	else
-		(void)strcpy(name, flist[curfile].name);
+		(void)strcpy(name, cNAME);
 
 	switch(code) {
 	case 'F':	from = dedrung(1);
@@ -137,7 +140,8 @@ char	temp[BUFSIZ],
  */
 deddoit(key)
 {
-int	c, j, k;
+	register int	c, j, k;
+	register char	*s;
 
 	to_work();
 	printw("Command: ");
@@ -152,9 +156,29 @@ int	c, j, k;
 
 	if ((key != '.') || (bfr_sh[0] == EOS)) {
 		if (key != ':')
-			*bfr_sh = EOS;
+			*subs = EOS;
+		else
+			(void)strcpy(subs, bfr_sh);
 		refresh();
-		rawgets(bfr_sh,sizeof(bfr_sh),TRUE);
+		rawgets(s = subs,sizeof(subs),TRUE);
+		c = FALSE;
+		while (*s) {	/* skip leading blanks */
+			if (!isspace(*s)) {
+				s = strcpy(bfr_sh, s);
+				c = TRUE;
+				break;
+			}
+			s++;
+		}
+		if (c) {	/* trim trailing blanks */
+			s += strlen(s);
+			while (--s > bfr_sh && isspace(*s))
+				*s = EOS;
+		} else {
+			printw("(no command)");
+			showC();
+			return;
+		}
 	} else
 		printw("(ditto)\n");
 
@@ -169,7 +193,7 @@ int	c, j, k;
 		} else if (c == '#') {	/* substitute group */
 		int	first	= TRUE, x;
 			for (x = 0; x < numfiles; x++) {
-				if (flist[x].flag || (x == curfile)) {
+				if (GROUPED(x)) {
 				char	*s = fixname(x);
 					if (!first) {
 						(void)strcat(subs, " ");
@@ -206,8 +230,10 @@ int	c, j, k;
 
 	if (*subs) {
 		resetty();
-		if (system(subs) < 0)
-			warn("system");
+		*temp = EOS;
+		catarg(temp, subs);
+		if (execute("sh -c", temp) < 0)
+			beep();		/* assume 'sh' reports error */
 		rawterm();
 		if (clr_sh) dedwait();
 	}

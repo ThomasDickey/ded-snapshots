@@ -1,6 +1,6 @@
-#ifndef	NO_SCCS_ID
-static	char	sccs_id[] = "@(#)dedfind.c	1.5 88/05/11 13:07:15";
-#endif	NO_SCCS_ID
+#ifndef	lint
+static	char	sccs_id[] = "@(#)dedfind.c	1.6 88/08/02 12:37:42";
+#endif	lint
 
 /*
  * Title:	dedfind.c (find item in ded's file list)
@@ -50,10 +50,10 @@ static	int	order;		/* saves last legal search order */
 				j = numfiles;
 			} else if (j >= numfiles) {
 				j = -1;
-			} else if (found = GOT_REGEX(expr,flist[j].name)) {
+			} else if (found = GOT_REGEX(expr,xNAME(j))) {
 				break;
-			} else if (flist[j].ltxt != 0) {
-				if (found = GOT_REGEX(expr,flist[j].ltxt))
+			} else if (xLTXT(j) != 0) {
+				if (found = GOT_REGEX(expr,xLTXT(j)))
 					break;
 			}
 			if (j == curfile)	break;

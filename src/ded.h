@@ -1,4 +1,4 @@
-/* @(#)ded.h	1.19 88/08/01 11:14:10 */
+/* @(#)ded.h	1.20 88/08/02 12:34:10 */
 
 /*
  * Created:	09 Nov 1987
@@ -151,10 +151,24 @@ typedef	struct	{
 #endif	Z_RCS_SCCS
 	} FLIST;
 
-#define	cNAME	flist[curfile].name
-#define	cSTAT	flist[curfile].s
-#define	cFLAG	flist[curfile].flag
+/*
+ * Short-hand expressions:
+ */
+#define	xNAME(x)	flist[x].name
+#define	xSTAT(x)	flist[x].s
+#define	xLTXT(x)	flist[x].ltxt
+#define	xFLAG(x)	flist[x].flag
 
+#define	cNAME		xNAME(curfile)
+#define	cSTAT		xSTAT(curfile)
+#define	cLTXT		xLTXT(curfile)
+#define	cFLAG		xFLAG(curfile)
+
+#define	GROUPED(n)	(xFLAG(n) || ((n) == curfile))
+
+/*
+ * Global data (cf: dedring.c)
+ */
 MAIN	char	old_wd[BUFSIZ],	/* original working-directory */
 		new_wd[BUFSIZ],	/* current working directory */
 		bfr_sh[BUFSIZ];	/* last $SHELL-command			*/

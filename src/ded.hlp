@@ -34,8 +34,8 @@ Cursor Movement:
 
   f		scroll forward {count} screens
   b		scroll backward {count} screens
-  {left_arrow}	scroll left {count}/3 screens
-  {right_arrow}	scroll right {count}/3 screens
+  {left_arrow}	scroll left {count}/4 screens
+  {right_arrow}	scroll right {count}/4 screens
 
   H		move cursor to first entry on screen
   M		move cursor to middle of screen

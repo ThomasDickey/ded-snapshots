@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	sccs_id[] = "@(#)dedline.c	1.1 88/08/01 13:58:05";
+static	char	sccs_id[] = "@(#)dedline.c	1.2 88/08/02 12:40:03";
 #endif	lint
 
 /*
@@ -60,8 +60,8 @@ at_save()
 
 	if (!AT_opt) {	/* chmod applies only to target of symbolic link */
 		for (x = 0; x < numfiles; x++)
-			if (x == curfile || flist[x].flag)
-				if (flist[x].ltxt) {
+			if (GROUPED(x))
+				if (xLTXT(x)) {
 					AT_opt = TRUE;
 					statLINE(curfile);
 					return (TRUE);
@@ -78,7 +78,7 @@ at_save()
 /*
  * edit protection-code for current & tagged files
  */
-#define	CHMOD(n)	(flist[n].s.st_mode & 07777)
+#define	CHMOD(n)	(xSTAT(n).st_mode & 07777)
 
 editprot()
 {
@@ -117,12 +117,12 @@ int	at_flag	= at_save();
 		case 'p':
 			c = CHMOD(curfile);
 			for (x = 0; x < numfiles; x++) {
-				if (flist[x].flag || x == curfile) {
+				if (GROUPED(x)) {
 					statLINE(x);
 					changed++;
 					if (c != CHMOD(x)) {
-						if (chmod(flist[x].name, c) < 0) {
-							warn(flist[x].name);
+						if (chmod(xNAME(x), c) < 0) {
+							warn(xNAME(x));
 							break;
 						}
 						fixtime(x);
@@ -290,15 +290,15 @@ char	bfr[BUFSIZ];
 	if (edittext('u', cmdcol[1], UIDLEN, strcpy(bfr, uid2s(cSTAT.st_uid)))
 	&&  (uid = s2uid(bfr)) >= 0) {
 		for (j = 0; j < numfiles; j++) {
-			if (flist[j].s.st_uid == uid)	continue;
-			if (flist[j].flag || (j == curfile)) {
-				if (chown(flist[j].name,
-					uid, flist[j].s.st_gid) < 0) {
-					warn(flist[j].name);
+			if (xSTAT(j).st_uid == uid)	continue;
+			if (GROUPED(j)) {
+				if (chown(xNAME(j),
+					uid, xSTAT(j).st_gid) < 0) {
+					warn(xNAME(j));
 					return;
 				}
 				fixtime(j);
-				flist[j].s.st_uid = uid;
+				xSTAT(j).st_uid = uid;
 				changed++;
 			}
 		}
@@ -328,15 +328,15 @@ char	bfr[BUFSIZ];
 
 		(void)strcpy(newgrp, gid2s(gid));
 		for (j = 0; j < numfiles; j++) {
-			if (flist[j].s.st_gid == gid)	continue;
-			if (flist[j].flag || (j == curfile)) {
+			if (xSTAT(j).st_gid == gid)	continue;
+			if (GROUPED(j)) {
 				if (root) {
-					if (chown(flist[j].name,
-						flist[j].s.st_uid, gid) < 0) {
-						warn(flist[j].name);
+					if (chown(xNAME(j),
+						xSTAT(j).st_uid, gid) < 0) {
+						warn(xNAME(j));
 						return;
 					}
-					flist[j].s.st_gid = gid;
+					xSTAT(j).st_gid = gid;
 				} else {
 					FORMAT(bfr, fmt, newgrp, fixname(j));
 					(void)system(bfr);
@@ -348,7 +348,7 @@ char	bfr[BUFSIZ];
 					showC();
 				} else
 					changed++;
-				if (flist[j].s.st_gid != gid) {
+				if (xSTAT(j).st_gid != gid) {
 					FORMAT(bfr, fmt, newgrp, fixname(j));
 					dedmsg(bfr);
 					beep();
@@ -377,8 +377,8 @@ char	bfr[BUFSIZ];
 			for (j = 0; j < numfiles; j++) {
 				if (j == curfile)
 					continue;
-				if (flist[j].flag) {
-					(void)EDITNAME(flist[j].name);
+				if (xFLAG(j)) {
+					(void)EDITNAME(xNAME(j));
 					if (dedname(j, bfr) >= 0)
 						changed++;
 					else

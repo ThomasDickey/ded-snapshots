@@ -1,6 +1,6 @@
-#ifndef	NO_SCCS_ID
-static	char	sccs_id[] = "@(#)dedname.c	1.1 88/05/11 13:41:09";
-#endif	NO_SCCS_ID
+#ifndef	lint
+static	char	sccs_id[] = "@(#)dedname.c	1.2 88/08/02 12:41:25";
+#endif	lint
 
 /*
  * Title:	dedname.c (ded rename)
@@ -50,9 +50,9 @@ int	ok	= FALSE;
 char	oldname[BUFSIZ],
 	bfr[BUFSIZ];
 
-	if (strcmp(strcpy(oldname, flist[x].name), newname)) {
+	if (strcmp(strcpy(oldname, xNAME(x)), newname)) {
 #ifdef	SYSTEM5
-		if (isFILE(flist[x].s.st_mode)) {
+		if (isFILE(xSTAT(x).st_mode)) {
 			if (link(oldname, newname) < 0) {
 				warn(newname);
 				return (-1);
@@ -63,7 +63,7 @@ char	oldname[BUFSIZ],
 			}
 			ok = TRUE;
 		} else {
-			FORMAT(bfr, "cannot rename \"%s\"", flist[x].name);
+			FORMAT(bfr, "cannot rename \"%s\"", xNAME(x));
 			dedmsg(bfr);
 			return (-1);
 		}
@@ -78,7 +78,7 @@ char	oldname[BUFSIZ],
 		/*
 		 * If we renamed a directory, update ftree.
 		 */
-		if (isDIR(flist[x].s.st_mode)) {
+		if (isDIR(xSTAT(x).st_mode)) {
 			fullname(oldname);	/* ...for dedring */
 
 			/* Rename it in the directory-tree */
@@ -96,8 +96,8 @@ char	oldname[BUFSIZ],
 	}
 
 	if (ok) {
-		txtfree(flist[x].name);
-		flist[x].name = txtalloc(newname);
+		txtfree(xNAME(x));
+		xNAME(x) = txtalloc(newname);
 	}
 	return (0);
 }
