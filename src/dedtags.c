@@ -1,7 +1,3 @@
-#if	!defined(NO_IDENT)
-static	char	Id[] = "$Id: dedtags.c,v 12.2 1994/07/02 20:09:53 tom Exp $";
-#endif
-
 /*
  * Title:	dedtags.c (directory-editor tag-file procedures)
  * Author:	T.E.Dickey
@@ -13,6 +9,8 @@ static	char	Id[] = "$Id: dedtags.c,v 12.2 1994/07/02 20:09:53 tom Exp $";
  */
 
 #include	"ded.h"
+
+MODULE_ID("$Id: dedtags.c,v 12.4 1994/07/12 17:44:00 tom Exp $")
 
 /*
  * Initialize counters associated with tags
@@ -37,7 +35,7 @@ public	void	tag_entry(
 		gFLAG(inx) = TRUE;
 		gbl->tag_count++;
 		gbl->tag_bytes += gSTAT(inx).st_size;
-		gbl->tag_blocks += gSTAT(inx).st_blocks;
+		gbl->tag_blocks += ded_blocks(&(gSTAT(inx)));
 	}
 }
 
@@ -52,7 +50,7 @@ public	void	untag_entry(
 		gFLAG(inx) = FALSE;
 		gbl->tag_count--;
 		gbl->tag_bytes -= gSTAT(inx).st_size;
-		gbl->tag_blocks -= gSTAT(inx).st_blocks;
+		gbl->tag_blocks -= ded_blocks(&(gSTAT(inx)));
 	}
 }
 

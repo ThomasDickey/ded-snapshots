@@ -1,4 +1,4 @@
-$Id: README,v 12.4 1994/07/02 20:16:51 tom Exp $
+$Id: README,v 12.6 1994/07/12 16:02:42 tom Exp $
 
 --(TO-DO)----------------------------------------------------------------------
 
@@ -62,8 +62,6 @@ DED:
 
 	save A-flag (hidden files) in .ftree file?
 
-	fix override conflict with DED_TREE variable.
-
 	"o" for options.
 
 	sys_errlist
@@ -117,3 +115,44 @@ DED:
 	'system()', maybe get rid of problems with signals.
 
 	make the top of the directory tree number 1.
+
+BUGS:
+	Linux run_test.sh doesn't come back in proper stty mode (add a debug
+	routine to trap these things).
+
+*** dedview.c	Sun Jul 10 11:59:30 1994
+--- dedview.c+	Sun Jul 10 20:36:12 1994
+***************
+*** 179,184 ****
+--- 179,185 ----
+  			int	adj = gbl->cmdcol[CCOL_NAME];
+  			int	col = adj - gbl->Xbase;
+  			int	len = (COLS-1) - col;
++ 			int	end = gbl->cmdcol[CCOL_NAME] + gENTRY(j).namlen;
+  
+  			if (col < 0) {
+  				adj -= col;
+***************
+*** 195,204 ****
+  					standend();
+  				}
+  #if HAVE_HAS_COLORS
+! 				else if (has_colors()) {
+  					move(line, col);
+  					dedcolor(&(gENTRY(j)));
+! 					PRINTW("%.*s", len, &bfr[adj]);
+  					dedcolor((FLIST *)0);
+  				}
+  #endif /* HAVE_HAS_COLORS */
+--- 196,206 ----
+  					standend();
+  				}
+  #if HAVE_HAS_COLORS
+! 				else if (has_colors()
+! 				 && end > adj) {
+  					move(line, col);
+  					dedcolor(&(gENTRY(j)));
+! 					PRINTW("%.*s", end-adj, &bfr[adj]);
+  					dedcolor((FLIST *)0);
+  				}
+  #endif /* HAVE_HAS_COLORS */

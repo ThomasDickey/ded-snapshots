@@ -1,5 +1,5 @@
 #if	!defined(NO_IDENT)
-static	char	Id[] = "$Id: dedsize.c,v 12.5 1994/06/30 23:59:13 tom Exp $";
+static	char	Id[] = "$Id: dedsize.c,v 12.6 1994/07/12 23:35:25 tom Exp $";
 #endif
 
 /*
@@ -17,6 +17,10 @@ static	char	Id[] = "$Id: dedsize.c,v 12.5 1994/06/30 23:59:13 tom Exp $";
  *
  *		Some Sys5 curses implementations (e.g., on HP/UX) do resizing
  *		of the window structures automatically.
+ *
+ *		I ifdef'd the guts of the 'dedsize()' function because if I
+ *		simply defined 'dedsize()' to nothing, the CLIX 3.1 compiler
+ *		decided that the empty ';' was a syntax error.
  */
 
 #include "ded.h"
@@ -27,6 +31,8 @@ static	RING	*save_gbl;
 
 private	void	handle_resize (_AR0)
 {
+	if (save_gbl == 0)
+		return;
 	dlog_comment("resizewin LINES=%d, COLS=%d\n", LINES, COLS);
 	if (!ft_resize()) {
 		markset(save_gbl, mark_W);
@@ -35,14 +41,15 @@ private	void	handle_resize (_AR0)
 			dlog_resize();
 	}
 }
+#endif	/* SIGWINCH */
 
 public	void	dedsize (
 		_AR1(RING *,	gbl))
 		_DCL(RING *,	gbl)
 {
+#ifdef	SIGWINCH
 	static	void	(*dummy)(_AR0);
-	on_winch(dummy);
 	save_gbl = gbl;
-	on_winch(handle_resize);
+	on_winch(gbl ? handle_resize : dummy);
+#endif	/* SIGWINCH */
 }
-#endif

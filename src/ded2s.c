@@ -1,5 +1,5 @@
 #if	!defined(NO_IDENT)
-static	char	Id[] = "$Id: ded2s.c,v 12.12 1994/07/11 00:28:57 tom Exp $";
+static	char	Id[] = "$Id: ded2s.c,v 12.13 1994/07/12 23:38:51 tom Exp $";
 #endif
 
 /*
@@ -277,7 +277,7 @@ public	void	ded2s(
 		break;
 	default:
 		if (gbl->S_opt >= 1) {
-			FORMAT(bfr, "%5lu ", (unsigned long)s->st_blocks);
+			FORMAT(bfr, "%5lu ", ded_blocks(s));
 			bfr += field(bfr,mj);
 		}
 		if (gbl->S_opt != 1) {
@@ -402,6 +402,15 @@ public	int	ded_access (
 		return (s->st_mode & (mask >> 3));
 	return (s->st_mode & (mask >> 6));
 }
+
+#if !STAT_HAS_ST_BLOCKS
+public	unsigned long	ded_blocks(
+		_AR1(Stat_t *,	sb))
+		_DCL(Stat_t *,	sb)
+{
+	return ((sb->st_size + 1023)/1024);	/* patch */
+}
+#endif	/* !STAT_HAS_ST_BLOCKS */
 
 #ifdef	apollo_sr10
 std_$call	type_$get_name();

@@ -1,5 +1,5 @@
 #!/bin/sh
-# $Id: run_test.sh,v 12.1 1994/06/26 22:59:49 tom Exp $
+# $Id: run_test.sh,v 12.2 1994/07/12 01:04:24 tom Exp $
 #
 # Perform regression tests for unix directory editor.  If we find any problems,
 # show it in the log.
@@ -17,14 +17,22 @@ else	echo '?? cannot run this script in batch-mode'
 	exit 1
 fi
 #
+# Apollo has /com/vt100
 if test -f /com/vt100
 then	TB=/com/tb
 else	rm -f core
-	TB=./traceback.sh
+	TB=./walkback.sh
 fi
 #
 # run from test-versions:
-PATH=:`pwd`:`cd ../bin;pwd`:`cd ../../../bin;pwd`:/bin:/usr/bin:/usr/ucb
+PATH=/bin:/usr/bin:/usr/ucb
+for p in ../../../bin ../../bin ../bin .
+do
+	if test -d $p
+	then
+		PATH="`cd $p;pwd`:$PATH"
+	fi
+done
 export PATH
 #
 umask 022

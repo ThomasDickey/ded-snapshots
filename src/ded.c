@@ -1,5 +1,5 @@
 #if	!defined(NO_IDENT)
-static	char	Id[] = "$Header: /users/source/archives/ded.vcs/src/RCS/ded.c,v 12.24 1994/07/10 15:21:50 tom Exp $";
+static	char	Id[] = "$Header: /users/source/archives/ded.vcs/src/RCS/ded.c,v 12.25 1994/07/12 15:23:34 tom Exp $";
 #endif
 
 /*
@@ -911,8 +911,14 @@ _MAIN
 			/*NOTREACHED*/
 	}
 
-	if (!tree_opt)	tree_opt = gethome();
-	else		abspath(tree_opt = strcpy(tree_bfr, tree_opt));
+#define	DED_TREE	".ftree"
+	if (tree_opt != 0) {
+		abspath(tree_opt = strcpy(tree_bfr, tree_opt));
+		(void)pathcat(tree_opt, tree_opt, DED_TREE);
+	} else {
+		if ((tree_opt = getenv("DED_TREE")) == 0)
+			tree_opt = pathcat(tree_bfr, gethome(), DED_TREE);
+	}
 	if (!getwd(old_wd))
 		(void)strcpy(old_wd, ".");
 	ft_read(old_wd, tree_opt);

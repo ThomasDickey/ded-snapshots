@@ -1,5 +1,5 @@
 #ifndef	NO_IDENT
-static	char	Id[] = "$Id: dedcolor.c,v 12.3 1994/07/10 23:39:49 tom Exp $";
+static	char	Id[] = "$Id: dedcolor.c,v 12.4 1994/07/12 19:02:08 tom Exp $";
 #endif
 
 /*
@@ -106,9 +106,7 @@ private	void	SaveColor(
 		{"CYAN",	COLOR_CYAN},
 		{"WHITE",	COLOR_WHITE}
 	};
-#ifdef	linux
 	int	code;
-#endif
 	int	attr	= A_NORMAL,
 		forg	= FORG_DEFAULT,
 		bakg	= BAKG_DEFAULT;
