@@ -1,92 +1,38 @@
 #ifndef	lint
-static	char	Id[] = "$Id: ded2s.c,v 9.1 1991/06/28 07:22:28 dickey Exp $";
+static	char	Id[] = "$Id: ded2s.c,v 9.2 1991/07/02 17:42:52 dickey Exp $";
 #endif
 
 /*
  * Title:	ded2s.c (ded-stat to string)
  * Author:	T.E.Dickey
  * Created:	09 Nov 1987
- * $Log: ded2s.c,v $
- * Revision 9.1  1991/06/28 07:22:28  dickey
- * corrected code which tests for executable-access (must look
- * at effective-id, not real-id).
- *
- *		Revision 9.0  91/05/16  07:46:18  ste_cm
- *		BASELINE Mon Jun 10 10:09:56 1991 -- apollo sr10.3
- *		
- *		Revision 8.1  91/05/16  07:46:18  dickey
- *		apollo sr10.3 cpp complains about tag on #endif
- *		
- *		Revision 8.0  90/04/24  16:27:56  ste_cm
- *		BASELINE Mon Aug 13 15:06:41 1990 -- LINCNT, ADA_TRANS
- *		
- *		Revision 7.0  90/04/24  16:27:56  ste_cm
- *		BASELINE Mon Apr 30 09:54:01 1990 -- (CPROTO)
- *		
- *		Revision 6.1  90/04/24  16:27:56  dickey
- *		corrected 'time2s()' to handle dates past coming midnight
- *		
- *		Revision 6.0  90/01/30  08:38:15  ste_cm
- *		BASELINE Thu Mar 29 07:37:55 1990 -- maintenance release (SYNTHESIS)
- *		
- *		Revision 5.1  90/01/30  08:38:15  dickey
- *		if 'T_opt' is set, display all date+time fields in long form,
- *		as returned by 'ctime()'
- *		
- *		Revision 5.0  89/10/13  13:39:40  ste_cm
- *		BASELINE Fri Oct 27 12:27:25 1989 -- apollo SR10.1 mods + ADA_PITS 4.0
- *		
- *		Revision 4.11  89/10/13  13:39:40  dickey
- *		gave up on function-prototype for type_$get_name(), since
- *		ref-variables only work for input-args.
- *		
- *		Revision 4.10  89/10/13  09:33:08  dickey
- *		corrected pointer-bug in z_lock/z_vers display
- *		
- *		Revision 4.9  89/10/12  15:53:54  dickey
- *		refined the date-conversion in 'time2s()'.  added procedure
- *		'has_extended_acl()'
- *		
- *		Revision 4.8  89/10/12  09:15:15  dickey
- *		show z_vers, z_lock fields even if z_time is null, since we
- *		may have gotten to the view via a symbolic link.
- *		
- *		Revision 4.7  89/10/12  08:58:57  dickey
- *		recoded 'type_uid2s()' using 'type_$get_name()'
- *		
- *		Revision 4.6  89/10/11  16:47:27  dickey
- *		recoded type-uid table with a pipe-call to 'lty'
- *		
- *		Revision 4.5  89/10/06  08:08:58  dickey
- *		modified computation of 'cmdcol[]' so that it is not reset
- *		per-line, but accumulated in a file-list.  added column
- *		after size-field, since sr10.1 has some long dev-ids!
- *		
- *		Revision 4.4  89/10/05  14:32:44  dickey
- *		corrected treatment of nil-objects
- *		
- *		Revision 4.3  89/10/05  07:57:37  dickey
- *		don't show deleted-files as having extended acls
- *		
- *		Revision 4.2  89/10/04  17:01:06  dickey
- *		added code to support 'O' toggle (show object-types)
- *		
- *		Revision 4.1  89/10/04  10:25:08  dickey
- *		added code for apollo SR10.1 which shows a "+" after mode
- *		like the 'ls' utility on that system.
- *		
- *		Revision 4.0  88/08/18  14:55:51  ste_cm
- *		BASELINE Thu Aug 24 10:20:06 EDT 1989 -- support:navi_011(rel2)
- *		
- *		Revision 3.0  88/08/18  14:55:51  ste_cm
- *		BASELINE Mon Jun 19 14:21:57 EDT 1989
- *		
- *		Revision 2.0  88/08/18  14:55:51  ste_cm
- *		BASELINE Thu Apr  6 13:14:13 EDT 1989
- *		
- *		Revision 1.15  88/08/18  14:55:51  dickey
- *		sccs2rcs keywords
- *		
+ * Modified:
+ *		02 Jul 1991, make S_opt, P_opt 3-way toggles.
+ *		28 Jun 1991, corrected code which tests for executable-access
+ *			     (must look at effective-id, not real-id).
+ *		24 Apr 1990, corrected 'time2s()' to handle dates past coming
+ *			     midnight
+ *		30 Jan 1990, if 'T_opt' is set, display all date+time fields
+ *			     in long form, as returned by 'ctime()'
+ *		13 Oct 1989, gave up on function-prototype for type_$get_name(),
+ *			     since ref-variables only work for input-args.
+ *			     Corrected pointer-bug in z_lock/z_vers display
+ *		12 Oct 1989, refined the date-conversion in 'time2s()'.  Added
+ *			     procedure 'has_extended_acl()'.  Show z_vers,
+ *			     z_lock fields even if z_time is null, since we
+ *			     may have gotten to the view via a symbolic link.
+ *			     recoded 'type_uid2s()' using 'type_$get_name()'
+ *		11 Oct 1989, recoded type-uid table with a pipe-call to 'lty'
+ *		06 Oct 1989, modified computation of 'cmdcol[]' so that it is
+ *			     not reset per-line, but accumulated in a file-list.
+ *			     Added column after size-field, since sr10.1 has
+ *			     some long dev-ids!
+ *		05 Oct 1989, corrected treatment of nil-objects.  Don't show
+ *			     deleted-files as having extended acls.
+ *		04 Oct 1989, added code to support 'O' toggle (show apollo
+ *			     object-types).  Added code for apollo SR10.1 which
+ *			     shows a "+" after mode like the 'ls' utility on
+ *			     that system.
  *		12 Aug 1988, apollo sys5 environment permits symbolic links.
  *		16 Jun 1988, added uppercase-code for AT_opt.
  *		01 Jun 1988, added 'Y_opt' field.
@@ -204,13 +150,21 @@ char	*t,
 
 	bfr = setcol(bfr, CCOL_UID, bfr - base);
 	if (!(G_opt & 1)) {	/* show the user-id */
-		FORMAT(bfr, "%-*.*s ", UIDLEN, UIDLEN, uid2s((int)(s->st_uid)));
+		if (P_opt > 1)
+			FORMAT(bfr, "%-*d ", UIDLEN, (int)(s->st_uid));
+		else
+			FORMAT(bfr, "%-*.*s ",
+				UIDLEN, UIDLEN, uid2s((int)(s->st_uid)));
 		bfr += field(bfr,mj);
 	}
 
 	if (G_opt != 0) {	/* show the group-id */
 		bfr = setcol(bfr, CCOL_GID, bfr - base);
-		FORMAT(bfr, "%-*.*s ", UIDLEN, UIDLEN, gid2s((int)(s->st_gid)));
+		if (P_opt > 1)
+			FORMAT(bfr, "%-*d ", UIDLEN, (int)(s->st_gid));
+		else
+			FORMAT(bfr, "%-*.*s ",
+				UIDLEN, UIDLEN, gid2s((int)(s->st_gid)));
 		bfr += field(bfr,mj);
 	} else
 		cmdcol[CCOL_GID] = cmdcol[CCOL_UID];
@@ -219,12 +173,16 @@ char	*t,
 	switch (mj & S_IFMT) {
 	case S_IFBLK:
 	case S_IFCHR:
-		if (S_opt)
+		if (S_opt >= 1)
 			bfr += strlen(strcpy(bfr, "      "));
-		FORMAT(bfr, "%3d,%3d ", major(s->st_rdev), minor(s->st_rdev));
+		if (S_opt != 1) {
+			FORMAT(bfr, "%3d,%3d ",
+				major(s->st_rdev), minor(s->st_rdev));
+			bfr += field(bfr,mj);
+		}
 		break;
 	default:
-		if (S_opt) {
+		if (S_opt >= 1) {
 			FORMAT(bfr, "%5d ",
 #ifdef	SYSTEM5
 				s->st_size / 1024	/* patch */
@@ -234,9 +192,11 @@ char	*t,
 				);
 			bfr += field(bfr,mj);
 		}
-		FORMAT(bfr, "%7d ", s->st_size);
+		if (S_opt != 1) {
+			FORMAT(bfr, "%7d ", s->st_size);
+			bfr += field(bfr,mj);
+		}
 	}
-	bfr += field(bfr,mj);
 	bfr = setcol(bfr, CCOL_DATE, bfr - base);
 
 	/* show sccs-date, if any */

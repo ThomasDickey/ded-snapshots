@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	Id[] = "$Header: /users/source/archives/ded.vcs/src/RCS/ded.c,v 9.2 1991/06/28 08:18:03 dickey Exp $";
+static	char	Id[] = "$Header: /users/source/archives/ded.vcs/src/RCS/ded.c,v 9.3 1991/07/02 17:23:09 dickey Exp $";
 #endif
 
 /*
@@ -7,9 +7,12 @@ static	char	Id[] = "$Header: /users/source/archives/ded.vcs/src/RCS/ded.c,v 9.2 
  * Author:	T.E.Dickey
  * Created:	09 Nov 1987
  * $Log: ded.c,v $
- * Revision 9.2  1991/06/28 08:18:03  dickey
- * lint (apollo sr10.3)
+ * Revision 9.3  1991/07/02 17:23:09  dickey
+ * made S_opt, P_opt 3-way toggles.
  *
+ *		Revision 9.2  91/06/28  08:29:15  dickey
+ *		lint (apollo sr10.3)
+ *		
  *		Revision 9.1  91/06/20  09:19:10  dickey
  *		don't need "-" special argument to make pipe-args.
  *		
@@ -1453,8 +1456,12 @@ char	*argv[];
 #ifdef	apollo_sr10
 	case 'O':	O_opt = !O_opt; showFILES(TRUE); break;
 #endif
-	case 'P':	P_opt = !P_opt; showFILES(TRUE); break;
-	case 'S':	S_opt = !S_opt; showFILES(TRUE); break;
+	case 'P':	P_opt = one_or_both(j = P_opt,count);
+			showFILES(P_opt != j);
+			break;
+	case 'S':	S_opt = one_or_both(j = S_opt,count);
+			showFILES(S_opt != j);
+			break;
 	case 'T':	T_opt = !T_opt; showFILES(TRUE); break;
 #ifdef	apollo
 	case 'U':	U_opt = !U_opt; showFILES(FALSE);break;

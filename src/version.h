@@ -1,12 +1,15 @@
 /*
- * $Id: version.h,v 9.1 1991/06/28 07:57:26 dickey Exp $
+ * $Id: version.h,v 9.2 1991/07/02 17:48:21 dickey Exp $
  * Version-identifier for DED
  * $Log: version.h,v $
- * Revision 9.1  1991/06/28 07:57:26  dickey
- * corrected code which knows about effective/real user-id
- * (e.g., flag for executable, permission for chmod).
- * Added P-sort (sorts extended-acl-flag).
+ * Revision 9.2  1991/07/02 17:48:21  dickey
+ * made file-list 'S' and 'P' commands 3-way.
  *
+ *		Revision 9.1  91/06/28  07:57:26  dickey
+ *		corrected code which knows about effective/real user-id
+ *		(e.g., flag for executable, permission for chmod).
+ *		Added P-sort (sorts extended-acl-flag).
+ *		
  *		Revision 9.0  91/05/31  09:15:12  ste_cm
  *		BASELINE Mon Jun 10 10:09:56 1991 -- apollo sr10.3
  *		
@@ -191,4 +194,4 @@
  * 01 Dec 1987, added '*', '^' commands, made '%' refresh screen
  * 25 Nov 1987, added sccs-support (V,z,Z toggles, V,z,Z sorts)
  */
-static	char	version[] = "$Date: 1991/06/28 07:57:26 $";
+static	char	version[] = "$Date: 1991/07/02 17:48:21 $";
