@@ -1,3 +1,22 @@
+1995-01-28  Thomas E. Dickey  <dickey@clark.net>
+
+	* src/Makefile: some cleanup of symbols
+
+	* test/test2.cmd: new modules
+
+	* src/ftree.c: fix test-cases with missing log-message
+
+	* test/test1.cmd: new modules
+
+	* src/ded.c: 'box' variable shadows something in bsd-curses
+
+	* src/dedview.c, src/ftree.c: use 'addchnstr()' compatibility function
+
+1995-01-06  Thomas E. Dickey  <dickey@clark.net>
+
+	* src/dedline.c:
+	corrected shift-count used to apply chmod-mask when editing octal number
+
 1994-12-16  Thomas E. Dickey  <dickey@clark.net>
 
 	* src/dlog.c: guarded ifdef for <stdarg.h>

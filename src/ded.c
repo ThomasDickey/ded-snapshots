@@ -1,5 +1,5 @@
 #if	!defined(NO_IDENT)
-static	char	Id[] = "$Header: /users/source/archives/ded.vcs/src/RCS/ded.c,v 12.34 1994/11/22 19:57:38 tom Exp $";
+static	char	Id[] = "$Header: /users/source/archives/ded.vcs/src/RCS/ded.c,v 12.35 1995/01/28 14:21:04 tom Exp $";
 #endif
 
 /*
@@ -860,7 +860,7 @@ _MAIN
 {
 #include	"version.h"
 
-	int	box = FALSE;
+	int	optBox = FALSE;
 	register int	j;
 	auto	Stat_t	sb;
 	auto	int	c,
@@ -880,7 +880,7 @@ _MAIN
 
 	while ((c = getopt(argc, argv, "abGIOPSTUZc:l:r:s:zdt:n")) != EOF)
 	switch (c) {
-	case 'b':	box = TRUE;	break;
+	case 'b':	optBox = TRUE;	break;
 	case 'a':	COMPLEMENT(gbl->A_opt);	break;
 	case 'G':	COMPLEMENT(gbl->G_opt);	break;
 	case 'I':	COMPLEMENT(gbl->I_opt);	break;
@@ -974,7 +974,7 @@ _MAIN
 #if HAVE_TYPEAHEAD
 	typeahead(-1);			/* disable it */
 #endif
-	boxchars(box);
+	boxchars(optBox);
 
 	in_screen = TRUE;
 	if (LINES > BUFSIZ || COLS > BUFSIZ) {
