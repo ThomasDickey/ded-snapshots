@@ -1,3 +1,36 @@
+1991-05-31  dickey@software.org
+
+	* src/version.h:
+	highlight the subtree in ftree 'R' command. mods for apollo
+	sr10.3
+
+1991-05-31  ste_cm@software.org
+
+	* src/version.h: BASELINE Mon Jun 10 10:09:56 1991 -- apollo sr10.3
+
+1991-05-31  dickey@software.org
+
+	* src/showpath.c:
+	added 'base' argument to control highlighting of a portion
+	of the path.
+
+1991-05-31  ste_cm@software.org
+
+	* src/showpath.c: BASELINE Mon Jun 10 10:09:56 1991 -- apollo sr10.3
+
+1991-05-31  dickey@software.org
+
+	* src/ftree.c:
+	modified interface to 'showpath()' so that 'fd_slow()' will
+	highlight subtree scanned by 'ft_scan()'. increased width
+	of number-tag.
+
+	* src/ded.c: modified interface to 'showpath()'
+
+1991-05-31  ste_cm@software.org
+
+	* src/ded.c: BASELINE Mon Jun 10 10:09:56 1991 -- apollo sr10.3
+
 1991-05-16  dickey@software.org
 
 	* src/dedsigs.c: mods to accommodate apollo sr10.3

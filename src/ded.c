@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	Id[] = "$Header: /users/source/archives/ded.vcs/src/RCS/ded.c,v 8.7 1991/05/15 13:37:09 dickey Exp $";
+static	char	Id[] = "$Header: /users/source/archives/ded.vcs/src/RCS/ded.c,v 9.0 1991/05/31 08:27:42 ste_cm Rel $";
 #endif
 
 /*
@@ -7,9 +7,15 @@ static	char	Id[] = "$Header: /users/source/archives/ded.vcs/src/RCS/ded.c,v 8.7 
  * Author:	T.E.Dickey
  * Created:	09 Nov 1987
  * $Log: ded.c,v $
- * Revision 8.7  1991/05/15 13:37:09  dickey
- * mods to accommodate apollo sr10.3
+ * Revision 9.0  1991/05/31 08:27:42  ste_cm
+ * BASELINE Mon Jun 10 10:09:56 1991 -- apollo sr10.3
  *
+ *		Revision 8.8  91/05/31  08:27:42  dickey
+ *		modified interface to 'showpath()'
+ *		
+ *		Revision 8.7  91/05/15  13:37:09  dickey
+ *		mods to accommodate apollo sr10.3
+ *		
  *		Revision 8.6  91/04/22  08:24:18  dickey
  *		re-open standard input if we were reading from a pipe.
  *		
@@ -691,7 +697,7 @@ showWHAT()
 	move(Yhead,0);
 	if (tag_count)	standout();
 	PRINTW("%2d of %2d [%ctime] %", curfile+1, numfiles, datechr[dateopt]);
-	showpath(new_wd, 999, 0);
+	showpath(new_wd, 999, -1, 0);
 	if (tag_count)	standend();
 	clrtoeol();
 }

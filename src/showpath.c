@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	Id[] = "$Id: showpath.c,v 8.1 1991/05/16 07:55:20 dickey Exp $";
+static	char	Id[] = "$Id: showpath.c,v 9.0 1991/05/31 08:54:22 ste_cm Rel $";
 #endif
 
 /*
@@ -7,9 +7,16 @@ static	char	Id[] = "$Id: showpath.c,v 8.1 1991/05/16 07:55:20 dickey Exp $";
  * Author:	T.E.Dickey
  * Created:	01 Feb 1990
  * $Log: showpath.c,v $
- * Revision 8.1  1991/05/16 07:55:20  dickey
- * apollo sr10.3 cpp complains about tag on #endif
+ * Revision 9.0  1991/05/31 08:54:22  ste_cm
+ * BASELINE Mon Jun 10 10:09:56 1991 -- apollo sr10.3
  *
+ *		Revision 8.2  91/05/31  08:54:22  dickey
+ *		added 'base' argument to control highlighting of a portion
+ *		of the path.
+ *		
+ *		Revision 8.1  91/05/16  07:55:20  dickey
+ *		apollo sr10.3 cpp complains about tag on #endif
+ *		
  *		Revision 8.0  90/02/01  15:22:29  ste_cm
  *		BASELINE Mon Aug 13 15:06:41 1990 -- LINCNT, ADA_TRANS
  *		
@@ -33,20 +40,27 @@ static	char	Id[] = "$Id: showpath.c,v 8.1 1991/05/16 07:55:20 dickey Exp $";
 #define	LEFT	4
 #define	RIGHT	3
 
-showpath(path, level, margin)
-char	*path;
-int	level;
-int	margin;
+showpath(path, level, base, margin)
+char	*path;		/* pathname to display */
+int	level;		/* level we must show */
+int	base;		/* first-level to highlight */
+int	margin;		/* space to allow on right */
 {
 	register char	*s	= path;
 	auto	int	cols	= COLS - ((stdscr->_curx) + 2 + margin);
 	auto	int	len	= strlen(s);
 	auto	int	left	= 0;
+	auto	int	hilite	= FALSE;
 	auto	char	*d	= s + len;
 	auto	char	*t;
 
 	if (cols <= 0)
 		return;		/* give up (cannot print anything) */
+
+	if (base == 0) {
+		hilite = TRUE;
+		standout();
+	}
 
 	while (len > (cols - left)) {
 		if (--level < 0)
@@ -54,6 +68,10 @@ int	margin;
 		while (*s == '/')
 			s++;
 		if (t = strchr(s, '/')) {
+			if (base-- == 0) {
+				hilite = TRUE;
+				standout();
+			}
 			s = t + 1;
 			len = d - s;
 		} else
@@ -75,7 +93,29 @@ int	margin;
 		while ((d > s) && (d[-1] != '/'))
 			d--;
 	}
-	PRINTW("%.*s", d - s, s);
+
+	/* if we didn't start highlighting, try now */
+	len = d - s;
+	if (base > 0) {
+		register int	j;
+		for (j = 0; j < len; j++) {
+			if (s[j] == '/')
+				if (base-- == 0) {
+					hilite = TRUE;
+					if (j != 0) {
+						PRINTW("%.*s", j, s);
+						len -= j;
+						s   += j;
+					}
+					standout();
+					break;
+				}
+		}
+	}
+
+	if (len > 0)
+		PRINTW("%.*s", len, s);
 	if (*d != EOS)
 		PRINTW("...");
+	if (hilite) standend();
 }
