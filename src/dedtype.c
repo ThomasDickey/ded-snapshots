@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	Id[] = "$Id: dedtype.c,v 10.1 1992/03/12 13:03:54 dickey Exp $";
+static	char	Id[] = "$Id: dedtype.c,v 10.2 1992/03/20 07:53:01 dickey Exp $";
 #endif
 
 /*
@@ -170,6 +170,7 @@ _DCL(int,	stripped)
 }
 
 static
+int
 GetC _ONE(FILE *,fp)
 {
 	register int c = fgetc(fp);
@@ -178,6 +179,15 @@ GetC _ONE(FILE *,fp)
 	else if (c < 0)
 		c &= 0xff;
 	return (c);
+}
+
+static
+int
+reshow _ONE(int, inlist)
+{
+	statLINE(inlist);
+	showLINE(inlist);
+	return TRUE;
 }
 
 dedtype(
@@ -202,6 +212,7 @@ _DCL(int,	isdir)
 		blank,			/* flag to suppress blank lines */
 		shift	= COLS/3,	/* amount of left/right shift */
 		done	= FALSE,
+		shown	= FALSE,
 		skip	= 0,
 		page	= 0;		/* # of screens done */
 
@@ -302,14 +313,18 @@ _DCL(int,	isdir)
 				PRINTW("---page %d", page);
 				if (inlist >= 0) {
 					int	oldy, oldx;
+					int	save = AT_opt;
+
 					getyx(stdscr,oldy,oldx);
 					standend();
-					statLINE(inlist);
-					showLINE(inlist);
-					markC(TRUE);
+					AT_opt = TRUE;
+					shown  = reshow(inlist);
+					AT_opt = save;
 					length = cSTAT.st_size;
+					markC(TRUE);
 					standout();
 					move(oldy,oldx);
+
 				} else if (fstat(fileno(fp), &sb) >= 0) {
 					length = sb.st_size;
 				}
@@ -394,6 +409,8 @@ _DCL(int,	isdir)
 			}
 		}
 		FCLOSE(fp);
+		if (shown)
+			reshow(inlist);
 		showMARK(Xbase);
 		if (isdir && !binary)
 			(void)unlink(tmp_name);
