@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	sccs_id[] = "@(#)dedline.c	1.3 88/08/03 11:02:07";
+static	char	sccs_id[] = "@(#)dedline.c	1.4 88/08/10 14:05:18";
 #endif	lint
 
 /*
@@ -230,8 +230,11 @@ int	at_flag	= ((endc == 'u') || (endc == 'g')) ? at_save() : FALSE;
 		col += Xbase;
 		Xbase = 0;
 		showFILES();
-	} else if (at_flag)
+	}
+#ifndef	SYSTEM5
+	else if (at_flag)
 		showLINE(curfile);
+#endif	SYSTEM5
 	(void)replay(endc);
 
 	for (;;) {

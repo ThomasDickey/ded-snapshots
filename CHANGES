@@ -1,3 +1,13 @@
+1988-08-10  dickey@software.org
+
+	* src/ded.c:
+	hack to make the terminal reset ok on exit in apollo sys5-environment.
+	still is not right; something about resetty/endwin (?)
+
+	* src/ded.h: made this compile on apollo sys5 environment
+
+	* src/dedline.c: made this compile in apollo sys5-environment
+
 1988-08-09  dickey@software.org
 
 	* src/README: note about beep/blip

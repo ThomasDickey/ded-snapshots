@@ -1,4 +1,4 @@
-/* @(#)ded.h	1.21 88/08/09 06:58:38 */
+/* @(#)ded.h	1.22 88/08/10 14:29:37 */
 
 /*
  * Created:	09 Nov 1987
@@ -50,7 +50,7 @@ extern	char	*doalloc(),	/* (re)allocate memory		*/
 #ifdef	SYSTEM5
 #define	DIR	FILE
 #define	opendir(n)	fopen(n,"r")
-#define	readdir(fp)	(fread(dbfr, sizeof(dbfr), 1, fp) ? &dbfr : (struct direct *)0)
+#define	readdir(fp)	(fread(&dbfr, sizeof(dbfr), 1, fp) ? &dbfr : (struct direct *)0)
 #define	closedir(fp)	fclose(fp)
 static	struct	direct	dbfr;
 #endif	SYSTEM5
@@ -59,7 +59,7 @@ static	struct	direct	dbfr;
  * Map differences between BSD4.2 and SYSTEM5 runtime libraries:
  */
 #ifdef	SYSTEM5
-extern	void	free(), qsort();
+extern	void	exit(), free(), qsort();
 #define	lstat	stat
 #define	getwd(p)	getcwd(p,sizeof(p)-2)
 extern	char	*getcwd();
@@ -99,8 +99,12 @@ extern	int	re_exec();	/* (return > 0): match */
 #define	Z_SCCS			/* compile-in '-z' sccs support */
 #define	Z_RCS			/* compile-in '-z' rcs support */
 
-#if	defined(Z_SCCS) || defined(Z_RCS)
+#ifdef	Z_SCCS
 #define	Z_RCS_SCCS		/* compile-in common sccs/rcs support */
+#else
+#ifdef	Z_RCS
+#define	Z_RCS_SCCS
+#endif
 #endif
 
 /*
