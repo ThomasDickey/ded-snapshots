@@ -1,5 +1,5 @@
 #ifndef	NO_SCCS_ID
-static	char	sccs_id[] = "@(#)ded.c	1.25 88/05/25 15:35:27";
+static	char	sccs_id[] = "@(#)ded.c	1.26 88/05/26 07:44:06";
 #endif	NO_SCCS_ID
 
 /*
@@ -239,8 +239,10 @@ char	*msg;
 	if (msg)
 		PRINTF("-------- \n?? %-79s\n-------- \n", msg);
 #ifdef	apollo
-	(void)kill(getpid(), SIGKILL);
-	for (;;);	/* when terminated, will be able to use 'tb' */
+	if (msg) {
+		(void)kill(getpid(), SIGKILL);
+		for (;;);	/* when terminated, will be able to use 'tb' */
+	}
 #else	apollo
 	exit(1);
 #endif	apollo

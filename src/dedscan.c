@@ -1,5 +1,5 @@
 #ifndef	NO_SCCS_ID
-static	char	sccs_id[] = "@(#)dedscan.c	1.13 88/05/23 07:17:08";
+static	char	sccs_id[] = "@(#)dedscan.c	1.14 88/05/26 07:32:27";
 #endif	NO_SCCS_ID
 
 /*
@@ -7,6 +7,7 @@ static	char	sccs_id[] = "@(#)dedscan.c	1.13 88/05/23 07:17:08";
  * Author:	T.E.Dickey
  * Created:	09 Nov 1987
  * Modified:
+ *		26 May 1988, made 'flist[]' allocation in chunks.
  *		23 May 1988, changed interface to 'rcslast()', 'sccslast()'.
  *		13 May 1988, put only links-to-directory via 'ft_linkto()'.
  *		09 May 1988, corrected full-name computation for ftree.
@@ -126,7 +127,8 @@ register int j = lookup(name);
 	}
 
 	/* append a new entry on the end of the list */
-	flist = DOALLOC(FLIST,flist,numfiles+1);
+	j = (numfiles | 31) + 1;
+	flist = DOALLOC(FLIST,flist,j);
 
 	Zero(&flist[numfiles]);
 	flist[numfiles]      = *f_;
