@@ -1,3 +1,7 @@
+1987-09-15  Thomas E. Dickey
+
+	* src/ftree.c: first version integrated with 'fl'.
+
 1987-09-11  Thomas E. Dickey
 
 	* src/ftree.c: forward/backward scrolling complete.
