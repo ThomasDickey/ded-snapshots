@@ -1,14 +1,23 @@
 #ifndef	lint
-static	char	Id[] = "$Id: ftree.c,v 5.2 1990/02/01 13:25:15 dickey Exp $";
+static	char	Id[] = "$Id: ftree.c,v 7.0 1990/03/06 08:25:57 ste_cm Rel $";
 #endif	lint
 
 /*
  * Author:	T.E.Dickey
  * Created:	02 Sep 1987
  * $Log: ftree.c,v $
- * Revision 5.2  1990/02/01 13:25:15  dickey
- * use 'showpath()' to handle long pathname-display
+ * Revision 7.0  1990/03/06 08:25:57  ste_cm
+ * BASELINE Mon Apr 30 09:54:01 1990 -- (CPROTO)
  *
+ *		Revision 6.0  90/03/06  08:25:57  ste_cm
+ *		BASELINE Thu Mar 29 07:37:55 1990 -- maintenance release (SYNTHESIS)
+ *		
+ *		Revision 5.3  90/03/06  08:25:57  dickey
+ *		lint
+ *		
+ *		Revision 5.2  90/02/01  13:25:15  dickey
+ *		use 'showpath()' to handle long pathname-display
+ *		
  *		Revision 5.1  89/11/13  14:19:15  dickey
  *		added some error recovery in 'ft_read()' against corrupted
  *		".ftree" file (i.e., missing string-heap).
@@ -248,7 +257,7 @@ register int	step,
 	looped = 0;
 
 	if (cmd == '?' || cmd == '/') {
-		if (strchr(buffer, *gap))
+		if (strchr(buffer, (size_t)(*gap)))
 			return(-1);	/* we don't search full-paths */
 		if (*buffer)
 			(void)strcpy(pattern,buffer);
@@ -395,7 +404,7 @@ char	*path;
 	path += (TOP-1);
 	while (*path == *gap) {
 	char	*name = ++path,
-		*next = strchr(name, *gap);
+		*next = strchr(name, (size_t)(*gap));
 
 		if (next != 0)
 			*next = EOS;
@@ -483,7 +492,7 @@ register int j, this, last = 0;
 	path += (TOP-1);
 	while (*path == *gap) {
 	char	*name = ++path,
-		*next = strchr(path, *gap);
+		*next = strchr(path, (size_t)(*gap));
 		if (next) *next = EOS;
 		this = 0;
 		for (j = last+1; j <= FDlast; j++) {
