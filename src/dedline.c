@@ -3,6 +3,7 @@
  * Author:	T.E.Dickey
  * Created:	01 Aug 1988 (from 'ded.c')
  * Modified:
+ *		05 Nov 1995, use 80th column
  *		23 Jul 1994, removed apollo chgrp hack (spawning commands).
  *		29 Oct 1993, ifdef-ident
  *		28 Sep 1993, gcc warnings
@@ -52,7 +53,7 @@
 
 #include	"ded.h"
 
-MODULE_ID("$Id: dedline.c,v 12.15 1995/09/03 19:39:36 tom Exp $")
+MODULE_ID("$Id: dedline.c,v 12.16 1995/11/05 21:31:15 tom Exp $")
 
 #define	CHMOD(n)	(gSTAT(n).st_mode & 07777)
 #define	OWNER(n)	((geteuid() == 0) || (gSTAT(x).st_uid == geteuid()))
@@ -312,7 +313,7 @@ private	int	save_Xbase (
 	auto	int	old = gbl->Xbase;
 	if (col < gbl->Xbase)
 		gbl->Xbase = 0;
-	if (col > (gbl->Xbase + COLS - 1))
+	if (col > (gbl->Xbase + COLS))
 		gbl->Xbase = col;
 	if (old != gbl->Xbase)
 		showFILES(gbl,FALSE);
@@ -704,7 +705,7 @@ public	void	editlink(
 						PRINTW("-> ");
 						standend();
 						PRINTW("%.*s",
-							COLS - col - 4,
+							COLS - col - 3,
 							link2bfr(gbl, bfr, j));
 						clrtoeol();
 						restore = TRUE;

@@ -51,7 +51,7 @@
 
 #include	"ded.h"
 
-MODULE_ID("$Id: dedring.c,v 12.11 1995/09/04 00:20:50 tom Exp $")
+MODULE_ID("$Id: dedring.c,v 12.13 1995/11/05 23:07:50 tom Exp $")
 
 #define	CMP_PATH(a,b)	pathcmp(a, b->new_wd)
 
@@ -354,9 +354,8 @@ private	int	do_a_scan (
  */
 public	RING *	ring_alloc()
 {
-	static	RING q;
 	register RING *p = ALLOC(RING,1);
-	*p = q;
+	(void)memset(p, 0, sizeof(RING));
 	return p;
 }
 
@@ -599,8 +598,8 @@ public	void	ring_rename(
 			newtemp[MAXPATHLEN],
 			tmp[MAXPATHLEN];
 
-	abspath(oldname = pathcat(oldtemp, gbl->new_wd, oldname));
-	abspath(newname = pathcat(newtemp, gbl->new_wd, newname));
+	abspath(oldname = pathcat2(oldtemp, gbl->new_wd, oldname));
+	abspath(newname = pathcat2(newtemp, gbl->new_wd, newname));
 
 	dump_comment(("ring_rename\n"))
 	dump_comment(("...old:%s\n", oldname))
@@ -612,7 +611,7 @@ public	void	ring_rename(
 		if ((len = is_subpath(oldname, p->new_wd)) >= 0) {
 
 			(void)DeLink(strcpy(tmp, p->new_wd));
-			(void)pathcat(p->new_wd, newname, tmp + len);
+			(void)pathcat2(p->new_wd, newname, tmp + len);
 			InsertAfter(FindInsert(p->new_wd), p);
 
 			for (n = 0; n < p->top_argc; n++) {
@@ -622,7 +621,7 @@ public	void	ring_rename(
 				if ((len = is_subpath(oldname, s)) < 0)
 					continue;
 				p->top_argv[n] = txtalloc(
-					pathcat(tmp2, newname, s + len));
+					pathcat2(tmp2, newname, s + len));
 			}
 
 			dump_comment((".moved:%s\n", p->new_wd))

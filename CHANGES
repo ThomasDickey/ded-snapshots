@@ -1,3 +1,46 @@
+1995-11-05  Thomas E. Dickey  <dickey@clark.net>
+
+	* src/dedview.c: tuned for bsd44 curses
+
+	* src/dedview.c: additional fix for bsd44 curses
+
+	* src/dedline.c: bsd43 curses wraps when I printw to 80th column
+
+	* src/dedview.c: bsd43 curses wraps when I printw to the 80th column
+
+	* src/version.h: mods to prevent tilde-expansion in list-entries
+
+	* src/ded.c, src/dedring.c, src/deddoit.c, src/dedscan.c:
+	tilde-expansion
+
+	* src/version.h:
+	mods to handle/display control characters better in shell
+	commands. mods to make workspace pager scroll by single
+	lines. mods to display in 80th column. mods to use 'const',
+	and dyn_string() to cut down on data+bss sections.
+
+	* src/ftree.c: use 'const' & 'dyn_string()' to cut down on data+bss
+
+	* src/dlog.c: cut down on data-section
+
+	* src/dedcolor.c: use 'const'
+
+	* src/dedscan.c: cut down on data-section
+
+	* src/dedring.c: cut down on data section
+
+	* src/dedmsgs.c: cut down on data-section
+
+	* src/ded.h: use 'const' for identifier
+
+	* src/sortset.c: use 'const'
+
+	* src/dedline.c: use 80th column
+
+1995-11-04  Thomas E. Dickey  <dickey@clark.net>
+
+	* src/ded.c: dropped SYS5_CURSES definition
+
 1995-11-02  Thomas E. Dickey  <dickey@clark.net>
 
 	* src/dedview.c: use 80th column

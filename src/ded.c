@@ -3,6 +3,7 @@
  * Author:	T.E.Dickey
  * Created:	09 Nov 1987
  * Modified:
+ *		05 Nov 1995, mods to prevent tilde-expansion in cNAME
  *		30 Aug 1995, added "-e" option.
  *		16 Jul 1994, allow DED_TREE to be file or directory.
  *		23 May 1994, port to Solaris.
@@ -146,7 +147,7 @@
 #define	MAIN
 #include	"ded.h"
 
-MODULE_ID("$Header: /users/source/archives/ded.vcs/src/RCS/ded.c,v 12.41 1995/09/03 20:02:52 tom Exp $")
+MODULE_ID("$Header: /users/source/archives/ded.vcs/src/RCS/ded.c,v 12.43 1995/11/05 23:20:36 tom Exp $")
 
 #define	EDITOR	DEFAULT_EDITOR
 #define	BROWSE	DEFAULT_BROWSE
@@ -204,7 +205,7 @@ private	int	edithead(
 
 	if (cLTXT != 0) {
 		dlog_comment("try to edit link-head \"%s\"\n", cLTXT);
-		(void)pathcat(dst, gbl->new_wd, cLTXT);
+		(void)pathcat2(dst, gbl->new_wd, cLTXT);
 		(void)strcpy(dst, pathhead(dst, &sb));
 		dlog_comment("... becomes pathname  \"%s\"\n", dst);
 		(void)strcpy(leaf, cLTXT);
@@ -620,20 +621,21 @@ private	RING *	run_editor(
 	char	tpath[MAXPATHLEN];
 
 	dlog_name(cNAME);
+	(void)pathcat2(tpath, gbl->new_wd, cNAME);
 	switch (realstat(gbl, gbl->curfile, &sb)) {
 	case 0:	/* edit-file */
 		to_work(gbl,TRUE);
 		if (extended) {
-			if (padedit(cNAME, readonly, editor) < 0)
+			if (padedit(tpath, readonly, editor) < 0)
 				beep();
 			restat(gbl,FALSE);
 		} else
-			forkfile(gbl, editor, cNAME, TRUE);
+			forkfile(gbl, editor, tpath, TRUE);
 		break;
 	case 1:	/* edit-directory */
 		if (extended) {
 			RING *new;
-			if ((new = pattern_args(gbl, pathcat(tpath, gbl->new_wd, cNAME))) != NULL)
+			if ((new = pattern_args(gbl, tpath)) != NULL)
 				gbl = new;
 		} else {
 			to_work(gbl,TRUE);
@@ -666,7 +668,7 @@ private	RING *	edit_directory (
 
 	if (realstat(gbl, gbl->curfile, &sb) == 1) {
 		if (!(new = new_args(gbl,
-			pathcat(tpath, gbl->new_wd, cNAME),
+			pathcat2(tpath, gbl->new_wd, cNAME),
 			'E', 1, 3, FALSE, (char *)0)))
 			return gbl;
 
@@ -1175,7 +1177,7 @@ _MAIN
 			break;
 
 	case ' ':	/* clear workspace */
-#if	SYS5_CURSES
+#if	!CURSES_LIKE_BSD
 			if (lastc == c)
 				clearok(stdscr, TRUE);
 #endif

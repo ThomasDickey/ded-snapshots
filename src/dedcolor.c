@@ -13,7 +13,7 @@
  */
 #include "ded.h"
 
-MODULE_ID("$Id: dedcolor.c,v 12.7 1994/10/18 00:31:35 tom Exp $")
+MODULE_ID("$Id: dedcolor.c,v 12.8 1995/11/05 21:47:48 tom Exp $")
 
 #if HAVE_HAS_COLORS
 
@@ -80,12 +80,13 @@ private	int	CreatePair(
  * usable in [n]curses.
  */
 private	void	SaveColor(
-		_ARX(KEYWORD *,	name)
-		_AR1(char *,	spec))
+		_ARX(const KEYWORD *,	name)
+		_AR1(char *,		spec)
+			)
 		_DCL(KEYWORD *,	name)
 		_DCL(char *,	spec)
 {
-	static	struct	{
+	static	const	struct	{
 		char	*name;
 		int	code;
 	} attr_names[] = {
@@ -186,11 +187,12 @@ private	void	SaveColor(
 }
 
 /* lookup a predefined keyword for the DIR_COLORS file */
-private	KEYWORD	*FindKeyword(
+private	const	KEYWORD	*FindKeyword(
 		_AR1(char *,	name))
 		_DCL(char *,	name)
 {
-static	KEYWORD keywords [] = {
+	static	const
+	KEYWORD keywords [] = {
 	{"NORMAL", ByType,	"?"},	/* global default */
 	{"FILE",   ByType,	"-"},	/* normal file */
 	{"DIR",    ByType,	"d"},	/* directory */
@@ -219,7 +221,7 @@ private	void	ParseColorFile (_AR0)
 {
 	FILE	*fp;
 	char	bfr[BUFSIZ], *s;
-	KEYWORD	*p;
+	const	KEYWORD	*p;
 
 	if ((fp = fopen(color_file, "r")) != 0) {
 		while (fgets(bfr, sizeof(bfr), fp) != 0) {
