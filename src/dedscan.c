@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	Id[] = "$Id: dedscan.c,v 6.3 1990/04/24 11:28:50 dickey Exp $";
+static	char	Id[] = "$Id: dedscan.c,v 7.0 1990/04/25 13:35:39 ste_cm Rel $";
 #endif	lint
 
 /*
@@ -7,10 +7,22 @@ static	char	Id[] = "$Id: dedscan.c,v 6.3 1990/04/24 11:28:50 dickey Exp $";
  * Author:	T.E.Dickey
  * Created:	09 Nov 1987
  * $Log: dedscan.c,v $
- * Revision 6.3  1990/04/24 11:28:50  dickey
- * modified 'argstat()' so that if shell (e.g., Bourne) passes
- * a "~" argument, we expand it properly.
+ * Revision 7.0  1990/04/25 13:35:39  ste_cm
+ * BASELINE Mon Apr 30 09:54:01 1990 -- (CPROTO)
  *
+ *		Revision 6.5  90/04/25  13:35:39  dickey
+ *		corrected code which tries to circumvent unreadable old_wd
+ *		(had broken the 'R' command in that fix...)
+ *		
+ *		Revision 6.4  90/04/25  08:18:54  dickey
+ *		refined pathname-conversion using 'abshome()' followed by
+ *		'getwd()' when needed, rather than 'abspath()' to avoid
+ *		confusion with symbolic links.
+ *		
+ *		Revision 6.3  90/04/24  11:34:25  dickey
+ *		modified 'argstat()' so that if shell (e.g., Bourne) passes
+ *		a "~" argument, we expand it properly.
+ *		
  *		Revision 6.2  90/04/23  13:55:06  dickey
  *		modify initial 'chdir()' so we try to recover from unreadable
  *		directory (e.g., when invoking "su" from a protected directory)
@@ -128,15 +140,13 @@ char	*argv[];
 			&&  argstat(argv[j], TRUE) >= 0)
 				common = 0;
 	} else {
-		if ((common = argstat(argv[0], FALSE)) > 0) {
-			abspath(pathcat(new_wd, old_wd, argv[0]));
-			if (chdir(new_wd) < 0) {
-				warn(new_wd);
-				return(0);
-			}
+		abshome(pathcat(new_wd, old_wd, argv[0]));
+		if (chdir(new_wd) < 0 || !getwd(new_wd)) {
+			warn(new_wd);
+			return(0);
+		}
+		if ((common = argstat(new_wd, FALSE)) > 0) {
 				/* mark dep's for purge */
-			if (!getwd(new_wd))
-				failed("getwd");
 			if (toscan == 0)
 				ft_remove(new_wd,AT_opt);
 			else
@@ -166,6 +176,9 @@ char	*argv[];
 				closedir(dp);
 				if (!numfiles)
 					waitmsg("no files found");
+			} else {
+				waitmsg("cannot open directory");
+				return(0);
 			}
 			if (toscan == 0)
 				ft_purge(); /* remove items not reinserted */
@@ -210,8 +223,8 @@ char	*argv[];
 				name, common);
 			if (chdir(strcpy(new_wd,old_wd)) < 0)
 				failed(old_wd);
-			abspath(strcpy(new_wd, name));
-			if (chdir(new_wd) < 0)
+			abshome(strcpy(new_wd, name));
+			if (chdir(new_wd) < 0 || !getwd(new_wd))
 				failed(new_wd);
 			for (j = 0; j < numfiles; j++)
 				xNAME(j) = txtalloc(xNAME(j) + common);
@@ -357,7 +370,7 @@ char	*name;
 	char	full[BUFSIZ];
 
 	if (*name == '~')	/* permit "~" from Bourne-shell */
-		abspath(name = strcpy(full, name));
+		abshome(name = strcpy(full, name));
 
 	Zero(&fb);
 	if (dedstat(name, &fb) >= 0) {
