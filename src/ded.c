@@ -3,6 +3,7 @@
  * Author:	T.E.Dickey
  * Created:	09 Nov 1987
  * Modified:
+ *		08 Apr 2000, remove unneeded call for ncurses' trace().
  *		16 Aug 1999, use ttyname() for BeOS port.
  *		10 Aug 1999, change -b to a toggle, allow curses to decide if
  *			     box characters are available.
@@ -157,7 +158,7 @@
 #define	MAIN
 #include	"ded.h"
 
-MODULE_ID("$Header: /users/source/archives/ded.vcs/src/RCS/ded.c,v 12.64 2000/01/17 20:03:39 tom Exp $")
+MODULE_ID("$Header: /users/source/archives/ded.vcs/src/RCS/ded.c,v 12.65 2000/04/08 20:24:16 tom Exp $")
 
 #define	EDITOR	DEFAULT_EDITOR
 #define	BROWSE	DEFAULT_BROWSE
@@ -888,9 +889,6 @@ _MAIN
 
 	RING	*gbl = ring_alloc();
 
-#ifdef NCURSES_VERSION
-	trace(0);
-#endif
 	(void)sortset(gbl, 's', 'n');
 	(void)sscanf(version, "%*s %s %s", tpath, dpath);
 	FPRINTF(stderr, "DED Directory Editor (%s %s)\r\n", tpath, dpath);
