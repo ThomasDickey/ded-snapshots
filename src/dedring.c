@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	sccs_id[] = "@(#)dedring.c	1.13 88/06/16 08:14:39";
+static	char	sccs_id[] = "@(#)dedring.c	1.14 88/06/27 08:26:42";
 #endif	lint
 
 /*
@@ -7,6 +7,7 @@ static	char	sccs_id[] = "@(#)dedring.c	1.13 88/06/16 08:14:39";
  * Author:	T.E.Dickey
  * Created:	27 Apr 1988
  * Modified:
+ *		27 Jun 1988, made 'dedrung()' work ok with count.
  *		16 Jun 1988, added code to save/restore AT_opt.
  *		25 May 1988, don't force V/Z-mode continuation on dedscan.
  *		18 May 1988, added 'dedrung()' entry.
@@ -456,18 +457,20 @@ char	show[BUFSIZ];
 char	temp[BUFSIZ],
 	*path	= new_wd;
 
-	if (count > 0) {
-		while (count-- > 0) {
-			if ((newp = ring_fwd(path)) == oldp)
-				break;
-			untrans(path = temp, newp->new_wd);
+	while (count != 0) {
+		if (count > 0) {
+			newp = ring_fwd(path);
+			count--;
+		} else if (count < 0) {
+			newp = ring_bak(path);
+			count++;
 		}
-	} else if (count < 0) {
-		while (count++ < 0) {
-			if ((newp = ring_bak(path)) == oldp)
-				break;
+		if (newp != 0) {
 			untrans(path = temp, newp->new_wd);
-		}
+			if (newp == oldp)
+				break;
+		} else
+			break;
 	}
 	return (strcpy(show, path));
 }

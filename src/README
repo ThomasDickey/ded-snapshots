@@ -90,3 +90,6 @@ To do:
 88/06/16:
 	The '@' toggle should be tested & set in the u,g commands since these
 	map through to the target rather than the link.
+
+88/06/27:
+	Should redo the ftree-rename so it renames the ring-entries too.
