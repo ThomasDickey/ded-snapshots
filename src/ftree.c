@@ -1,14 +1,17 @@
 #ifndef	lint
-static	char	Id[] = "$Id: ftree.c,v 9.0 1991/06/04 08:32:39 ste_cm Rel $";
+static	char	Id[] = "$Id: ftree.c,v 9.1 1991/06/28 08:15:22 dickey Exp $";
 #endif
 
 /*
  * Author:	T.E.Dickey
  * Created:	02 Sep 1987
  * $Log: ftree.c,v $
- * Revision 9.0  1991/06/04 08:32:39  ste_cm
- * BASELINE Mon Jun 10 10:09:56 1991 -- apollo sr10.3
+ * Revision 9.1  1991/06/28 08:15:22  dickey
+ * lint (apollo sr10.3)
  *
+ *		Revision 9.0  91/06/04  08:32:39  ste_cm
+ *		BASELINE Mon Jun 10 10:09:56 1991 -- apollo sr10.3
+ *		
  *		Revision 8.5  91/06/04  08:32:39  dickey
  *		corrected logic in q/Q/F/B commands which caused program to
  *		hang when call on 'fd_ring()' failed to find a path.
@@ -294,7 +297,7 @@ register int	step,
 	looped = 0;
 
 	if (cmd == '?' || cmd == '/') {
-		if (strchr(buffer, (size_t)(*gap)))
+		if (strchr(buffer, (*gap)))
 			return(-1);	/* we don't search full-paths */
 		if (*buffer)
 			(void)strcpy(pattern,buffer);
@@ -441,7 +444,7 @@ char	*path;
 	path += (TOP-1);
 	while (*path == *gap) {
 	char	*name = ++path,
-		*next = strchr(name, (size_t)(*gap));
+		*next = strchr(name, (*gap));
 
 		if (next != 0)
 			*next = EOS;
@@ -529,7 +532,7 @@ register int j, this, last = 0;
 	path += (TOP-1);
 	while (*path == *gap) {
 	char	*name = ++path,
-		*next = strchr(path, (size_t)(*gap));
+		*next = strchr(path, (*gap));
 		if (next) *next = EOS;
 		this = 0;
 		for (j = last+1; j <= FDlast; j++) {

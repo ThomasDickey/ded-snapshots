@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	Id[] = "$Id: ded2s.c,v 9.0 1991/05/16 07:46:18 ste_cm Rel $";
+static	char	Id[] = "$Id: ded2s.c,v 9.1 1991/06/28 07:22:28 dickey Exp $";
 #endif
 
 /*
@@ -7,9 +7,13 @@ static	char	Id[] = "$Id: ded2s.c,v 9.0 1991/05/16 07:46:18 ste_cm Rel $";
  * Author:	T.E.Dickey
  * Created:	09 Nov 1987
  * $Log: ded2s.c,v $
- * Revision 9.0  1991/05/16 07:46:18  ste_cm
- * BASELINE Mon Jun 10 10:09:56 1991 -- apollo sr10.3
+ * Revision 9.1  1991/06/28 07:22:28  dickey
+ * corrected code which tests for executable-access (must look
+ * at effective-id, not real-id).
  *
+ *		Revision 9.0  91/05/16  07:46:18  ste_cm
+ *		BASELINE Mon Jun 10 10:09:56 1991 -- apollo sr10.3
+ *		
  *		Revision 8.1  91/05/16  07:46:18  dickey
  *		apollo sr10.3 cpp complains about tag on #endif
  *		
@@ -305,19 +309,17 @@ static
 executable(s)
 struct	stat *s;
 {
-int	uid = getuid();
-int	gid = getgid();
+	int	uid = geteuid();
+	int	gid = getegid();
 
 	if (!uid) {		/* root can do anything */
 		uid = s->st_uid;
 		gid = s->st_gid;
 	}
-	if (uid == s->st_uid) {
-		if (s->st_mode & S_IEXEC)		return(TRUE);
-	}
-	if (gid == s->st_gid) {
-		if (s->st_mode & (S_IEXEC >> 3))	return(TRUE);
-	}
+	if (uid == s->st_uid)
+		return (s->st_mode & S_IEXEC);
+	else if (gid == s->st_gid)
+		return (s->st_mode & (S_IEXEC >> 3));
 	return (s->st_mode & (S_IEXEC >> 6));
 }
 

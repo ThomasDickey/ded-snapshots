@@ -1,3 +1,29 @@
+1991-06-28  dickey@software.org
+
+	* src/ded.c, src/deddoit.c, src/ftree.c, src/sortset.c:
+	lint (apollo sr10.3)
+
+	* src/ded.h: lint (defined 'blip()')
+
+	* src/version.h:
+	corrected code which knows about effective/real user-id
+	(e.g., flag for executable, permission for chmod).
+	Added P-sort (sorts extended-acl-flag).
+
+	* src/ded.hlp, src/sortset.c: added P-sort
+
+	* src/dedsort.c:
+	added P-sort (same as p-sort, but keeps "+" for apollo-sr10
+	extended-acls sorted into groups)
+
+	* src/dedline.c:
+	corrected code which tests for user's id (look at effective
+	uid, not real-uid).
+
+	* src/ded2s.c:
+	corrected code which tests for executable-access (must look
+	at effective-id, not real-id).
+
 1991-06-20  dickey@software.org
 
 	* src/ded.c: don't need "-" special argument to make pipe-args.
