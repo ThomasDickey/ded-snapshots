@@ -3,6 +3,7 @@
  * Author:	T.E.Dickey
  * Created:	01 Feb 1990
  * Modified:
+ *		21 Jul 1998, show hostname prefix for pathname
  *		16 Feb 1998, compiler warnings
  *		04 Sep 1995, mods for bsd4.4 curses
  *		17 Jul 1994, if base is -1, highlight the level-marker.
@@ -19,7 +20,7 @@
 
 #include	"ded.h"
 
-MODULE_ID("$Id: showpath.c,v 12.7 1998/02/16 18:27:34 tom Exp $")
+MODULE_ID("$Id: showpath.c,v 12.8 1998/07/21 22:21:54 tom Exp $")
 
 #define	DOTLEN	((int)sizeof(ellipsis)-1)
 
@@ -34,7 +35,9 @@ public	void	showpath(
 	_DCL(int,	base)
 	_DCL(int,	margin)
 {
+	static	char	the_host[MAXPATHLEN];
 	static	char	ellipsis[] = "...";
+	static	int	len_host;
 	register char	*s	= path;
 	auto	int	marker	= (base == -1);
 	auto	int	cols;
@@ -45,14 +48,26 @@ public	void	showpath(
 	auto	char	*t;
 	auto	int	y, x;
 
+	if (len_host == 0) {
+#if HAVE_GETHOSTNAME
+		gethostname(the_host, sizeof(the_host)-1);
+		if (strlen(the_host) != 0)
+			strcat(the_host, ":");
+		else
+#endif
+		    strcpy(the_host, "path: ");
+		len_host = strlen(the_host);
+	}
 	getyx(stdscr, y, x);
-	cols = COLS - (x + 2 + margin);
+	cols = COLS - (x + 2 + margin + len_host);
 
 	if (cols <= 0)
 		return;		/* give up (cannot print anything) */
 
 	if (marker)		/* highlight the slash before the level */
 		base = level;
+
+	addstr(the_host);
 
 	if (base == 0) {
 		hilite = TRUE;

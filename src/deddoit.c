@@ -35,7 +35,7 @@
  */
 #include	"ded.h"
 
-MODULE_ID("$Id: deddoit.c,v 12.16 1998/02/15 23:45:34 tom Exp $")
+MODULE_ID("$Id: deddoit.c,v 12.17 1998/07/03 01:22:58 tom Exp $")
 
 /*
  * Return a pointer to a leaf of a given name
@@ -141,7 +141,7 @@ private	void	Expand(
 #ifdef	Z_RCS_SCCS
 	case 'v':	if (!(from = cur_item->z_vers)) from = "?";
 			break;
-	case 'y':	if (!(from = cur_item->z_lock)) from = "?";
+	case 'o':	if (!(from = cur_item->z_lock)) from = "?";
 			break;
 #endif
 	default:

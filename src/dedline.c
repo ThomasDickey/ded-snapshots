@@ -56,7 +56,7 @@
 
 #include	"ded.h"
 
-MODULE_ID("$Id: dedline.c,v 12.23 1998/03/01 23:54:59 tom Exp $")
+MODULE_ID("$Id: dedline.c,v 12.24 1998/07/21 23:08:33 tom Exp $")
 
 #define	CHMOD(n)	(gSTAT(n).st_mode & 07777)
 #define	OWNER(n)	((geteuid() == 0) || (gSTAT(x).st_uid == geteuid()))
@@ -598,7 +598,7 @@ public	void	edit_gid (
 	_AR1(RING *,	gbl))
 	_DCL(RING *,	gbl)
 {
-#if HAVE_CHGRP
+#if HAVE_CHOWN
 	register unsigned j;
 	int	gid	= cSTAT.st_gid,
 		changed	= FALSE;

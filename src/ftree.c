@@ -2,6 +2,7 @@
  * Author:	T.E.Dickey
  * Created:	02 Sep 1987
  * Modified:
+ *		21 Jul 1998, changes to showpath.
  *		29 May 1998, compile with g++
  *		20 Mar 1997, fix size mismatch (size_t vs int) that caused
  *			     core-dump on OSF/1.
@@ -132,7 +133,7 @@
 
 #include	<fcntl.h>
 
-MODULE_ID("$Id: ftree.c,v 12.54 1998/05/30 12:14:52 tom Exp $")
+MODULE_ID("$Id: ftree.c,v 12.55 1998/07/21 22:21:19 tom Exp $")
 
 #define	Null	(char *)0	/* some NULL's are simply 0 */
 
@@ -1012,7 +1013,6 @@ private	int	ft_show(
 	row = LOSHOW;
 	node = limits(showbase, node);
 	k = FDdiff || (savesccs != showsccs);
-	PRINTW("path: ");
 	dlog_comment("path: %s\n", path);
 	showpath(path, level, -1, k ? 5 : 0);
 	clrtoeol();

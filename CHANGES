@@ -1,3 +1,17 @@
+1998-07-21  Thomas E. Dickey  <dickey@clark.net>
+
+	* src/dedline.c: oops: wrong ifdef for chown vs chgrp
+
+	* src/showpath.c: show hostname prefix on pathname
+
+	* src/ftree.c: changed showpath so we show the hostname
+
+	* src/dedview.c: reordered the filelist header
+
+1998-07-02  Thomas E. Dickey  <dickey@clark.net>
+
+	* src/deddoit.c: missed a 'y' to 'o' change
+
 1998-05-30  Thomas E. Dickey  <dickey@clark.net>
 
 	* src/ftree.c: correction - I did the 'ENTRIES' code on Mar 20.
