@@ -1,5 +1,5 @@
 
-# $Id: makefile.2nd,v 12.2 1998/02/15 18:31:37 tom Exp $
+# $Id: makefile.2nd,v 12.3 1998/03/01 23:57:21 tom Exp $
 # second part of MAKE-file for directory editor
 
 MAIN_C	= $(THIS).c $(CSRC)
@@ -21,7 +21,7 @@ tags:		$(MAIN_C)	; $(CTAGS) $(MAIN_C)
 ####### (Details of Productions) ###############################################
 $B:				; mkdir $@
 
-$B/$(THIS):	$(MAIN_O) $(LIB_DEPS)
+$B/$(THIS)$x:	$(MAIN_O) $(LIB_DEPS)
 	@echo linking $@
 	@$(LINK) -o $@ $(MAIN_O) $(CURSES_LIBS)
 

@@ -61,7 +61,7 @@
 #include	<time.h>
 #include	<ctype.h>
 
-MODULE_ID("$Id: ded2s.c,v 12.22 1998/02/16 21:12:21 tom Exp $")
+MODULE_ID("$Id: ded2s.c,v 12.23 1998/03/01 21:11:45 tom Exp $")
 
 #if MAJOR_IN_MKDEV
 #  include	<sys/mkdev.h>
@@ -69,6 +69,11 @@ MODULE_ID("$Id: ded2s.c,v 12.22 1998/02/16 21:12:21 tom Exp $")
 #  if MAJOR_IN_SYSMACROS
 #    include	<sys/sysmacros.h>
 #  endif
+#endif
+
+#ifdef __EMX__
+#define major(d) (d)
+#define minor(d) (d)
 #endif
 
 #define ONE_WEEK	(7 * 24 * HOUR)
@@ -204,7 +209,9 @@ public	void	ded2s(
 		}
 		if (mj & S_ISUID)			bfr[2]   = 's';
 		if (mj & S_ISGID)			bfr[5]   = 's';
+#ifdef S_ISVTX
 		if (mj & S_ISVTX)			bfr[8]   = 't';
+#endif
 	}
 
 #ifdef	S_IFLNK
@@ -253,7 +260,9 @@ public	void	ded2s(
 
 	/* show the file-size (or major/minor device codes, if device) */
 	switch (mj & S_IFMT) {
+#ifdef S_IFBLK
 	case S_IFBLK:
+#endif
 	case S_IFCHR:
 		if (gbl->S_opt >= 1)
 			bfr += strlen(strcpy(bfr, "      "));
