@@ -1,6 +1,15 @@
 #ifndef	NO_SCCS_ID
-static	char	sccs_id[] = "@(#)ded.c	1.1 87/11/20 08:27:36";
+static	char	sccs_id[] = "@(#)ded.c	1.2 87/11/25 09:00:00";
 #endif	NO_SCCS_ID
+
+/*
+ * Title:	ded.c (directory-editor)
+ * Author:	T.E.Dickey
+ * Created:	09 Nov 1987
+ *
+ * Function:	Interactively display/modify unix directory structures
+ *		and files.
+ */
 
 #define	MAIN
 #include	"ded.h"
@@ -38,7 +47,7 @@ static	int	tag_count;		/* number of tagged files */
 static	char	whoami[BUFSIZ],		/* my execution-path */
 		howami[BUFSIZ];		/* my help-file */
 
-static	char	sortc[] = "cgilnprstuwGTU";/* valid sort-keys */
+static	char	sortc[] = "cgilnprstuwGTUvzZ";/* valid sort-keys */
 					/* (may correspond with cmds) */
 
 /************************************************************************
@@ -47,6 +56,10 @@ static	char	sortc[] = "cgilnprstuwGTU";/* valid sort-keys */
 static
 sortset(ord,opt)
 {
+#ifndef	Z_SCCS
+	if (strchr("vzZ", opt) != 0)
+		opt = '?';
+#endif	Z_SCCS
 	if (strchr(sortc, opt) != 0) {
 		dateopt = opt == 'c'  ? 1 : (opt == 'r' ? 0 : 2);
 		sortopt = opt;
@@ -136,24 +149,6 @@ int	c,
 }
 
 /*
- * Set terminal to single-character mode
- */
-rawterm()
-{
-#ifdef	apollo
-	_tty.sg_flags |=  RAW;
-	_tty.sg_flags &= ~ECHO;
-	_pfast   =
-	_rawmode = TRUE;
-	_echoit  = FALSE;
-	stty(_tty_ch, &_tty);	/* single op avoids timing bug */
-#else	apollo
-	raw();
-	noecho();
-#endif	SYSTEM5
-}
-
-/*
  * Sound audible alarm
  */
 beep()
@@ -162,9 +157,19 @@ beep()
 }
 
 /*
- * Print an error/waring message
+ * Show a "blip" while (re)stating files, etc.
  */
-tell(msg)
+blip(c)
+{
+	putchar(c);
+	fflush(stdout);
+}
+
+/*
+ * Print an error/warning message
+ */
+dedmsg(msg)
+char	*msg;
 {
 	move(LINES-1,0);
 	printw("** %s", msg);
@@ -285,6 +290,22 @@ register int j;
 	clrtobot();
 	showC();
 }
+
+#ifdef	Z_SCCS
+showSCCS()
+{
+register int j;
+	if (!Z_opt) {		/* catch up */
+		to_work();
+		Z_opt = -1;
+		for (j = 0; j < numfiles; j++)
+			if (!flist[j].z_time) {
+				statSCCS(flist[j].name, &flist[j]);
+				blip('*');
+			}
+	}
+}
+#endif	Z_SCCS
 
 /*
  * Set the cursor to the current file, noting this in the viewport header.
@@ -648,12 +669,16 @@ char	*argv[];
 extern	int	optind;
 extern	char	*optarg;
 
+#include	"version.h"
+
 struct	stat	sb;
 register j;
 int	c,
 	lastc	= '?',
 	quit	= FALSE;
 
+	(void)printf("%s\r\n", version+4);	/* show me when entering process */
+	(void)fflush(stdout);
 	(void)sortset('s', 'n');
 	getcwd(old_wd, sizeof(old_wd)-2);
 
@@ -661,11 +686,16 @@ int	c,
 	which(whoami, sizeof(whoami), argv[0], old_wd);
 	sprintf(howami, "%s.hlp", whoami);
 
-	while ((c = getopt(argc, argv, "GIPSr:s:")) != EOF) switch (c) {
+	while ((c = getopt(argc, argv, "GIPSUZr:s:z")) != EOF) switch (c) {
 	case 'G':	G_opt = !G_opt;	break;
 	case 'I':	I_opt = !I_opt;	break;
 	case 'P':	P_opt = !P_opt;	break;
 	case 'S':	S_opt = !S_opt;	break;
+	case 'U':	U_opt = !U_opt;	break;
+#ifdef	Z_SCCS
+	case 'Z':	Z_opt = 1;	break;
+	case 'z':	Z_opt = -1;	break;
+#endif	Z_SCCS
 	case 's':
 	case 'r':	if (!sortset(c,*optarg))	usage();
 			break;
@@ -735,6 +765,28 @@ int	c,
 	case 'I':	I_opt = !I_opt; showFILES(); break;
 	case 'P':	P_opt = !P_opt; showFILES(); break;
 	case 'S':	S_opt = !S_opt; showFILES(); break;
+	case 'U':	U_opt = !U_opt; showFILES(); break;
+
+#ifdef	Z_SCCS
+	case 'V':	/* toggle sccs-version display */
+			showSCCS();
+			V_opt = !V_opt;
+			showFILES();
+			break;
+
+	case 'Z':	/* toggle sccs-date display */
+			showSCCS();
+			Z_opt = -Z_opt;
+			showFILES();
+			break;
+
+	case 'z':	/* cancel sccs-display */
+			if (Z_opt) {
+				Z_opt = 0;
+				showFILES();
+			}
+			break;
+#endif	Z_SCCS
 
 	case 'q':	/* quit this process */
 			if (lastc == 't')
@@ -788,7 +840,7 @@ int	c,
 				beep();
 			break;
 
-	case 'D':	if (++dateopt > 2)	dateopt = 0;
+	case 'C':	if (++dateopt > 2)	dateopt = 0;
 			showFILES();
 			break;
 
@@ -867,6 +919,15 @@ int	c,
 	case 'N':	/* execute a search command */
 			dedfind(c);
 			break;
+
+			/* patch: not implemented */
+	case ':':	/* edit last shell command */
+	case '*':	/* display last shell command */
+	case 'X':	/* split/join screen (1 or 2 viewports) */
+	case 'D':	/* toggle directory/filelist mode */
+	case 'E':	/* enter new directory on ring */
+	case 'F':	/* move forward in directory-ring */
+	case 'B':	/* move backward in directory-ring */
 
 	default:	beep();
 	}; lastc = c; }

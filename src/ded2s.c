@@ -1,3 +1,19 @@
+#ifndef	NO_SCCS_ID
+static	char	sccs_id[] = "@(#)ded2s.c	1.2 87/11/25 08:51:09";
+#endif	NO_SCCS_ID
+
+/*
+ * Title:	ded2s.c (ded-stat to string)
+ * Author:	T.E.Dickey
+ * Created:	09 Nov 1987
+ * Modified:
+ *
+ * Function:	Convert ded's FLIST structure to printing form (controlled by
+ *		options).  In doing so, save into the global 'cmdcol[]' the
+ *		index of various fields to which we may wish to move the
+ *		cursor.
+ */
+
 #include	"ded.h"
 #include	<ctype.h>
 #ifdef	SYSTEM5
@@ -9,17 +25,19 @@ extern  char	*ctime();
 extern	char	*uid2s(),
 		*gid2s();
 
-#define SIXDAYS	 (6 * 24 * 3600L)
+#define SIXDAYS		(6 * 24 * HOUR)
 #define SIXMONTHS	(30 * SIXDAYS)
 
 ded2s(inx, bfr, len)
 register char	*bfr;
 {
-struct	stat	*s = &flist[inx].s;
-time_t  fdate, now = time((time_t *)0);
-register int	mj, c;
+FLIST		*f_	= &flist[inx];
+struct	stat	*s	= &(f_->s);
+time_t  fdate;
+register unsigned mj;
+register int	c;
 char	*t,
-	*name = flist[inx].name,
+	*name = f_->name,
 	*base = bfr;
 
 	/* Translate the filemode (type+protection) */
@@ -81,46 +99,61 @@ char	*t,
 	}
 	bfr += field(bfr,mj);
 
+	/* show sccs-date, if any */
+#ifdef	Z_SCCS
+	if (Z_opt > 0) {
+		time2s(bfr, f_->z_time);
+		bfr += field(bfr,mj);
+	}
+	if (Z_opt != 0) {	/* show relationship between dates */
+		if (mj != 0 && f_->z_time) {
+		long	diff = s->st_mtime - f_->z_time;
+			*bfr++ = ((diff > 0) ? '<' : ((diff < 0) ? '>' : '='));
+		} else
+			*bfr++ = ' ';
+		*bfr++ = ' ';
+	}
+#endif	Z_SCCS
+
 	/* show the appropriate-date */
 	fdate =	(dateopt == 1)  ? s->st_ctime
 				: (dateopt == 0 ? s->st_atime
 						: s->st_mtime);
-	t = ctime(&fdate);			/* 0123456789.123456789.123 */
-	t[24] = 0;				/* ddd mmm DD HH:MM:SS YYYY */
-
-	if ((now - SIXDAYS) < fdate) {	  /* ddd HH:MM:SS */
-		sprintf(bfr, "%.4s%.8s", t, t+11);
-	} else if ((now - SIXMONTHS) < fdate) { /* mmm DD HH:MM */
-		sprintf(bfr, "%.12s", t+4);
-	} else {				/* mmm DD YYYY  */
-		sprintf(bfr, "%.7s%.4s ", t+4, t+20);
-	}
+	time2s(bfr,fdate);
 	bfr += field(bfr,mj);
-	*bfr++ = ' ';
+
+#ifdef	Z_SCCS
+	if (Z_opt && V_opt) {
+		sprintf(bfr, "%3d.%-3d ", f_->z_rels, f_->z_vers);
+		bfr += field(bfr, (f_->z_time != 0));
+	}
+#endif	Z_SCCS
+
 	cmdcol[2] = bfr - base;
 	*bfr++ = ' ';
 	*bfr++ = ' ';
 
 	/* translate the filename */
 	cmdcol[3] = bfr - base;
-	while ((c = *name++) && len-- > 0) {
-		if (isascii(c) && isgraph(c))
-			*bfr++ = c;
-		else
-			*bfr++ = '?';
-	}
+	len -= (bfr-base);
+	bfr += name2s(bfr, name, len);
+
 	if (isDIR(mj)) {
 		*bfr++ = '/';
-	} else if (isLINK(mj) && ((t = flist[inx].ltxt) != 0)) {
+	} else if (isLINK(mj) && ((t = f_->ltxt) != 0)) {
 		*bfr++ = ' ';
 		*bfr++ = '-';
 		*bfr++ = '>';
 		*bfr++ = ' ';
-		bfr += strlen(strcpy(bfr, t));
+		len -= (bfr-base);
+		bfr += name2s(bfr, t, len);
 	} else if (executable(s))	*bfr++ = '*';
 	*bfr = '\0';
 }
-
+
+/************************************************************************
+ *	local procedures						*
+ ***********************************************************************/
 static
 executable(s)
 struct	stat *s;
@@ -147,10 +180,71 @@ int	gid = getgid();
 static
 field(bfr, mode)
 char	*bfr;
+unsigned mode;
 {
 register char *s = bfr;
 register int len = strlen(s);
 	if (mode == 0)
 		while (*s)	*s++ = ' ';
 	return (len);
+}
+
+/*
+ * Convert a unix time to an appropriate printing-string
+ */
+static
+time2s(bfr,fdate)
+char	*bfr;
+time_t  fdate;
+{
+time_t  now	= time((time_t *)0);
+char	*t	= ctime(&fdate);	/* 0123456789.123456789.123 */
+	t[24]	= 0;			/* ddd mmm DD HH:MM:SS YYYY */
+
+	if ((now - SIXDAYS) < fdate) {	  /* ddd HH:MM:SS */
+		sprintf(bfr, "%.4s%.8s ", t, t+11);
+	} else if ((now - SIXMONTHS) < fdate) { /* mmm DD HH:MM */
+		sprintf(bfr, "%.12s ", t+4);
+	} else {				/* mmm DD YYYY  */
+		sprintf(bfr, "%.7s%.4s  ", t+4, t+20);
+	}
+	if (fdate == 0L)
+		(void)field(bfr,0);
+}
+
+/*
+ * Convert a filename-string to printing form (for display)
+ */
+static
+name2s(bfr,name,len)
+char	*bfr, *name;
+{
+char	*base = bfr;
+register int c;
+
+	while ((c = *name++) && len-- > 0) {
+		if (U_opt) {	/* show underlying apollo filenames */
+			if (isascii(c) && isgraph(c)) {
+				if (isalpha(c) && isupper(c)) {
+					*bfr++ = ':';
+					c = _tolower(c);
+				} else if ((c == ':')
+				||	   (c == '.' && bfr == base))
+					*bfr++ = ':';
+				*bfr++ = c;
+			} else if (c == ' ') {
+				*bfr++ = ':';
+				*bfr++ = '_';
+			} else {
+				sprintf(bfr, "#%02x", c);
+				bfr += strlen(bfr);
+			}
+		} else {
+			if (isascii(c) && isgraph(c)) {
+				*bfr++ = c;
+			} else
+				*bfr++ = '?';
+		}
+	}
+	return (bfr-base);
 }

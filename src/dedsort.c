@@ -1,12 +1,16 @@
 #ifndef	NO_SCCS_ID
-static	char	sccs_id[] = "@(#)dedsort.c	1.1 87/11/20 08:13:40";
+static	char	sccs_id[] = "@(#)dedsort.c	1.2 87/11/25 08:42:56";
 #endif	NO_SCCS_ID
 
 /*
- * Function:	Perform sorting for DED directory editor.
+ * Title:	dedsort.c (ded-sort)
+ * Author:	T.E.Dickey
+ * Created:	11 Nov 1987
+ * Modified:
+ *
+ * Function:	Perform display-list sorting for DED directory editor.
  */
 #include	"ded.h"
-extern	void	qsort();
 
 static
 char *
@@ -38,7 +42,9 @@ register char *s = strrchr(name, '/'),
 	return(t);
 }
 
-#define	CMP(m)	(p1->s.m > p2->s.m ? -1 : (p1->s.m < p2->s.m ? 1 : 0))
+#define	CHECKED(p)	(p->z_time == p->s.st_mtime)
+#define	CMPX(m)		(p1->m > p2->m ? -1 : (p1->m < p2->m ? 1 : 0))
+#define	CMP(m)		CMPX(s.m)
 
 static
 compare(p1, p2)
@@ -67,6 +73,21 @@ char	bfr[BUFSIZ];
 	case 'w':	cmp = CMP(st_mtime);	break;
 	case 'r':	cmp = CMP(st_atime);	break;
 	case 'c':	cmp = CMP(st_ctime);	break;
+#ifdef	Z_SCCS
+	case 'Z':
+	case 'z':	if (!(cmp = CMPX(z_time)))
+				cmp = CMP(st_mtime);
+			if (sortopt == 'Z') {
+				if (CHECKED(p1) && !CHECKED(p2))
+					cmp = 1;
+				else if (!CHECKED(p1) && CHECKED(p2))
+					cmp = -1;
+			}
+			break;
+	case 'v':	if (!(cmp = CMPX(z_rels)))
+				cmp = CMPX(z_vers);
+			break;
+#endif	Z_SCCS
 
 	case 's':	cmp = CMP(st_size);	break;
 	case 'l':	cmp = CMP(st_nlink);	break;

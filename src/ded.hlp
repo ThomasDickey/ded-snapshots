@@ -14,6 +14,7 @@ Options:
   I		toggle inode/links display field
   P		toggle file-protection display field
   S		toggle filesize (in blocks) field
+  Z (or z)	toggle sccs-data display
   r{key}
   s{key}	provide initial sort (or reverse) by {key}.
 
@@ -47,11 +48,15 @@ Cursor Movement:
 
 Display-Adjustment:
 ------------------
-  D		toggle date-field to display
+  C		toggle date-field to display
   G		toggle user/group display field
   I		toggle inode/links display field
   P		toggle file protection-mode (octal/normal) display field
   S		toggle filesize (in blocks) field
+  U		toggle filename display (unix vs apollo)
+  V		toggle sccs version display
+  Z		toggle sccs filedate display
+  z		clear sccs display (reduces overhead)
 
   A		move workspace marker up {count} lines
   a		move workspace marker down {count} lines
@@ -66,20 +71,22 @@ Display-Adjustment:
   s{key}	sort entries.  The {key} suffix denotes the fields
 		which are compared:
 
+		c	last-change date
+		i	inode
+		l	number of links
 		n	filename
+		p	file-protection mask/mode.
+		g	group-id (lexically)
+		G	group-id (numerically)
+		r	last-access date
+		s	size
 		t	filetype (after first '.')
 		T	filetype (after last '.')
-		w	last-modification date
-		r	last-access date
-		c	last-change date
-		s	size
-		l	number of links
-		p	file-protection mask/mode.
-		i	inode
 		u	user-id (lexically)
-		g	group-id (lexically)
 		U	user-id (numerically)
-		G	group-id (numerically)
+		v	sccs versions
+		w	last-modification date
+		z	sccs checkin-dates
 
 Operations on Files:
 -------------------
