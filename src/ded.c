@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	sccs_id[] = "@(#)ded.c	1.54 88/09/01 09:09:28";
+static	char	sccs_id[] = "@(#)ded.c	1.55 88/09/02 06:28:26";
 #endif	lint
 
 /*
@@ -7,6 +7,7 @@ static	char	sccs_id[] = "@(#)ded.c	1.54 88/09/01 09:09:28";
  * Author:	T.E.Dickey
  * Created:	09 Nov 1987
  * Modified:
+ *		02 Sep 1988, added '>' command.
  *		01 Sep 1988, trim repeats in 'argv[]'.
  *		17 Aug 1988, added repeat (sleep) count to 'W', 'l'.
  *		12 Aug 1988, apollo sys5 environment permits symbolic links.
@@ -1066,12 +1067,18 @@ char	tpath[BUFSIZ],
 	case 'u':	edit_uid();	break;
 	case 'g':	edit_gid();	break;
 	case '=':	editname();	break;
+#ifdef	S_IFLNK
+	case '>':	editlink();	break;
+#endif	S_IFLNK
 
 	case '"':	switch (dedline(TRUE)) {
 			case 'p':	editprot();	break;
 			case 'u':	edit_uid();	break;
 			case 'g':	edit_gid();	break;
 			case '=':	editname();	break;
+#ifdef	S_IFLNK
+			case '>':	editlink();	break;
+#endif	S_IFLNK
 			default:	dedmsg("no inline command saved");
 			}
 			(void)dedline(FALSE);

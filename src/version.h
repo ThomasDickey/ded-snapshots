@@ -1,5 +1,6 @@
 /*
  * Version-identifier for DED
+ * 02 Sep 1988, added '>' link-edit command.
  * 01 Sep 1988, edit 'argv[]' for repeats & common pathname.
  * 16 Aug 1988, added repeat-count to 'W' and 'l' file-list commands.
  * 12 Aug 1988, added "d" sort; lint/compile on apollo sys5 environment.
@@ -34,4 +35,4 @@
  * 01 Dec 1987, added '*', '^' commands, made '%' refresh screen
  * 25 Nov 1987, added sccs-support (V,z,Z toggles, V,z,Z sorts)
  */
-static	char	version[] = "@(#)DED Directory Editor (88/09/01 09:10:27)";
+static	char	version[] = "@(#)DED Directory Editor (88/09/02 07:40:13)";

@@ -67,12 +67,15 @@ To do:
 	Also, sometimes the 'R' does not properly quit from the existing
 	ring entry when no files are found.
 
-88/08/19:
-	The 'U' command should be toggled back in the '=' command (unless I
-	decide to permit editing the AEGIS name!).  Also, should consider
-	adding a command to edit link text.  Note that for these, I should
-	also consider letting 'edittext()' use more than one line...
-
 88/09/1:
 	For SYSTEM5, should use 'wrefresh(curscr)' to forcibly refresh the
 	screen.
+
+88/09/02:
+	In 'dedtype()', should be more efficient about skipping (i.e., suppress
+	the curses actions).  This should be simple, since we need only count
+	line-feeds.
+
+	ft_rename() does not handle properly the "//" or "/" level stuff.
+
+	If '@'-toggle is active, stat-info sent to 'ft_insert()' will be wrong.

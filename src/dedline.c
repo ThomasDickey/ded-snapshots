@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	sccs_id[] = "@(#)dedline.c	1.8 88/08/17 09:45:34";
+static	char	sccs_id[] = "@(#)dedline.c	1.10 88/09/02 13:13:30";
 #endif	lint
 
 /*
@@ -7,6 +7,7 @@ static	char	sccs_id[] = "@(#)dedline.c	1.8 88/08/17 09:45:34";
  * Author:	T.E.Dickey
  * Created:	01 Aug 1988 (from 'ded.c')
  * Modified:
+ *		02 Sep 1988, added 'editlink()'
  *		12 Aug 1988, apollo sys5 permits symbolic links.
  *		03 Aug 1988, use 'dedsigs()' to permit interrupt of group-ops.
  *			     For edit_uid, edit_gid, ensure that we map-thru
@@ -18,6 +19,7 @@ static	char	sccs_id[] = "@(#)dedline.c	1.8 88/08/17 09:45:34";
 
 #include	"ded.h"
 extern	char	*fixname();
+extern	char	*txtalloc();
 
 static	int	re_edit;		/* flag for 'edittext()' */
 static	char	lastedit[BUFSIZ];	/* command-stream for 'edittext()' */
@@ -87,7 +89,37 @@ at_last(flag)
 		}
 	return (changed);
 }
+
+/*
+ * Assign a new target for a symbolic link.
+ */
+static
+relink(x, name)
+char	*name;
+{
+	if (unlink(xNAME(x)) >= 0) {
+		if (symlink(name, xNAME(x)) >= 0)
+			return (TRUE);
+		(void)symlink(xLTXT(x), xNAME(x));	/* try to restore */
+	}
+	waitmsg(xNAME(x));
+	return (FALSE);
+}
 #endif	S_IFLNK
+
+/*
+ * Construct an editable-string for 'editname()' and 'editlink()'.
+ * All nonprinting characters will be shown as '?'.
+ */
+static
+char *
+name2bfr(dst,src)
+char	*dst;
+char	*src;
+{
+	(void)name2s(dst, BUFSIZ, src, FALSE);
+	return (dst);
+}
 
 /************************************************************************
  *	public entrypoints						*
@@ -216,6 +248,8 @@ char	*bfr;
 int	y	= file2row(curfile),
 	x	= 0,
 	c,
+	shift	= 0,			/* kludge to permit long edits */
+	last,				/* length of edit-window */
 	code	= TRUE,
 	ec	= erasechar(),
 	kc	= killchar(),
@@ -227,6 +261,8 @@ register char *s;
 int	at_flag	= ((endc == 'u') || (endc == 'g')) ? at_save() : FALSE;
 #endif	S_IFLNK
 
+	if (len < strlen(bfr) + 2)
+		len = strlen(bfr) + 2;
 	if ((col -= Xbase) < 1) {	/* convert to absolute column */
 		col += Xbase;
 		Xbase = 0;
@@ -238,16 +274,24 @@ int	at_flag	= ((endc == 'u') || (endc == 'g')) ? at_save() : FALSE;
 #endif	S_IFLNK
 	(void)replay(endc);
 
+	last = (COLS - 1 - col);
+	if (last > len) last = len;
+
 	for (;;) {
 		move(y,col-1);
-		printw("%c", insert ? ' ' : '^');	/* a la rawgets */
+		PRINTW("%c", insert ? ' ' : '^');	/* a la rawgets */
 		if (!insert)	standout();
-		for (s = bfr; *s; s++)
+		c = last;
+		while (shift > x)
+			shift -= 5;
+		while ((x - shift) >= last)
+			shift += 5;
+		for (s = bfr + shift; (*s != EOS) && (c-- > 0); s++)
 			addch(isprint(*s) ? *s : '?');
-		while ((s++ - bfr) < len)
+		while (c-- > 0)
 			addch(' ');
 		if (!insert)	standend();
-		move(y,x+col);
+		move(y,x-shift+col);
 		if (!re_edit) refresh();
 
 		delete = -1;
@@ -414,12 +458,11 @@ char	bfr[BUFSIZ];
  */
 editname()
 {
-int	len	= COLS - (cmdcol[3] - Xbase) - 1,
-	changed	= 0;
-register int	j;
-char	bfr[BUFSIZ];
+	auto	 int	changed	= 0;
+	register int	j;
+	auto	 char	bfr[BUFSIZ];
 
-#define	EDITNAME(n)	edittext('=', cmdcol[3], len, strcpy(bfr, n))
+#define	EDITNAME(n)	edittext('=', cmdcol[3], sizeof(bfr), name2bfr(bfr, n))
 	if (EDITNAME(cNAME)) {
 		if (dedname(curfile, bfr) >= 0) {
 			(void)dedsigs(TRUE);	/* reset interrupt count */
@@ -444,6 +487,51 @@ char	bfr[BUFSIZ];
 	}
 	restat(changed);
 }
+
+#ifdef	S_IFLNK
+/*
+ * Change file's link-text
+ */
+editlink()
+{
+	auto	 int	col	= cmdcol[3] + 3,
+			changed	= 0;
+	register int	j;
+	auto	 char	bfr[BUFSIZ];
+
+#define	EDITLINK(n)	edittext('>', col, sizeof(bfr), name2bfr(bfr, xLTXT(n)))
+	if (!xLTXT(curfile))
+		beep();
+	else {
+		move(file2row(curfile), cmdcol[3] - Xbase);
+		PRINTW("=> ");
+		if (EDITLINK(curfile)) {
+			if (relink(curfile, bfr)) {
+				(void)dedsigs(TRUE);
+					/* reset interrupt count */
+				re_edit = TRUE;
+				for (j = 0; j < numfiles; j++) {
+					if (j == curfile)
+						continue;
+					if (dedsigs(TRUE)) {
+						waitmsg(xNAME(j));
+						break;
+					}
+					if (xFLAG(j) && xLTXT(j)) {
+						(void)EDITLINK(j);
+						if (relink(j, bfr))
+							changed++;
+						else
+							break;
+					}
+				}
+				re_edit = FALSE;
+			}
+		}
+	}
+	restat(changed);
+}
+#endif	S_IFLNK
 
 /*
  * Initiate/conclude repetition of inline editing.

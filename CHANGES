@@ -1,3 +1,27 @@
+1988-09-02  dickey@software.org
+
+	* src/README: fix some, find some.
+
+	* src/dedline.c:
+	mods to 'edittext()' so use can edit buffer wider than the available
+	screen (auto-scrolls left/right).
+
+	* src/ftree.c:
+	use 'rcs_dir()' and 'sccs_dir()' to encapsulate RCS/SCCS directory names.
+
+	* src/dedtype.c: oops: 'clearerr()' resets 'feof()' as well!
+
+	* src/dedscan.c:
+	reallocate names instead of adjusting pointers (safer).
+
+	* src/dedline.c: added 'editlink()'.
+
+	* src/version.h: added '>' command.
+
+	* src/README, src/ded.hlp: added '>' link-edit command.
+
+	* src/ded.c: added '>' command.
+
 1988-09-01  dickey@software.org
 
 	* src/dedtype.c: break out of get-loop if interrupt or error.

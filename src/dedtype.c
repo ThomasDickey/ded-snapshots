@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	sccs_id[] = "@(#)dedtype.c	1.13 88/09/01 15:37:08";
+static	char	sccs_id[] = "@(#)dedtype.c	1.14 88/09/02 08:30:54";
 #endif	lint
 
 /*
@@ -176,7 +176,7 @@ int	c,			/* current character */
 						break;
 				}
 			}
-			clearerr(fp);
+			if (!feof(fp) && ferror(fp))	clearerr(fp);
 
 			while (y < LINES-1)
 				y = typeline(y);
