@@ -3,6 +3,7 @@
  * Author:	T.E.Dickey
  * Created:	01 Feb 1990
  * Modified:
+ *		16 Feb 1998, compiler warnings
  *		04 Sep 1995, mods for bsd4.4 curses
  *		17 Jul 1994, if base is -1, highlight the level-marker.
  *		29 Oct 1993, ifdef-ident
@@ -18,9 +19,9 @@
 
 #include	"ded.h"
 
-MODULE_ID("$Id: showpath.c,v 12.6 1995/09/04 16:47:20 tom Exp $")
+MODULE_ID("$Id: showpath.c,v 12.7 1998/02/16 18:27:34 tom Exp $")
 
-#define	DOTLEN	(sizeof(ellipsis)-1)
+#define	DOTLEN	((int)sizeof(ellipsis)-1)
 
 public	void	showpath(
 	_ARX(char *,	path)		/* pathname to display */

@@ -4,6 +4,7 @@
  * Created:	01 Aug 1988 (from 'ded.c')
  * Modified:
  *		15 Feb 1998, remove special code for apollo sr10
+ *			     fix compiler warnings.
  *		05 Nov 1995, use 80th column
  *		23 Jul 1994, removed apollo chgrp hack (spawning commands).
  *		29 Oct 1993, ifdef-ident
@@ -54,7 +55,7 @@
 
 #include	"ded.h"
 
-MODULE_ID("$Id: dedline.c,v 12.21 1998/02/16 02:02:02 tom Exp $")
+MODULE_ID("$Id: dedline.c,v 12.22 1998/02/16 13:29:31 tom Exp $")
 
 #define	CHMOD(n)	(gSTAT(n).st_mode & 07777)
 #define	OWNER(n)	((geteuid() == 0) || (gSTAT(x).st_uid == geteuid()))
@@ -205,7 +206,7 @@ private	char *	link2bfr(
 				{"%d",	0},
 				{"%D",	old_wd}
 			};
-		register int	j;
+		register unsigned j;
 		size_t	maxlen	= 0;
 
 		ppp[0].path = ring_path(gbl, 1);
@@ -492,7 +493,8 @@ public	int	edittext(
 {
 	static	DYN	*result;
 	int	y	= file2row(gbl->curfile),
-		code	= TRUE;
+		code	= TRUE,
+		limit	= strlen(bfr) + 2;
 	register char *s;
 
 #ifdef	S_IFLNK
@@ -502,8 +504,8 @@ public	int	edittext(
 #endif
 
 	dlog_comment("before \"%s\"\n", bfr);
-	if (len < strlen(bfr) + 2)
-		len = strlen(bfr) + 2;
+	if (len < limit)
+		len = limit;
 	col = save_Xbase(gbl, col);
 #ifdef	S_IFLNK
 	if (at_flag)

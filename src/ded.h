@@ -19,7 +19,7 @@
 
 #ifdef	MAIN
 #if	!defined(NO_IDENT)
-static const char ded_h[] = "$Id: ded.h,v 12.52 1998/02/16 02:07:43 tom Exp $";
+static const char ded_h[] = "$Id: ded.h,v 12.55 1998/02/16 21:03:56 tom Exp $";
 #endif
 #endif	/* MAIN */
 
@@ -155,7 +155,6 @@ static const char ded_h[] = "$Id: ded.h,v 12.52 1998/02/16 02:07:43 tom Exp $";
 		item_of[PORT_MAX],/* nominal current-file of viewport */
 		clr_sh,		/* true if we clear-screen after SHELL	*/
 		Xbase, Ybase,	/* viewport (for scrolling) */
-		curfile,	/* current file on which to operate */
 		mrkfile,	/* current file marked with 'markC()' */
 		dateopt,	/* date-option (a,c,m = 0,1,2) */
 		sortord,	/* sort-order (TRUE=reverse) */
@@ -174,10 +173,11 @@ static const char ded_h[] = "$Id: ded.h,v 12.52 1998/02/16 02:07:43 tom Exp $";
 		U_opt;		/* show underlying file-info */
 #ifdef	Z_RCS_SCCS
 	int	V_opt,		/* show sccs-versions */
-		Y_opt,		/* show sccs-locks */
+		O_opt,		/* show sccs-lock owners */
 		Z_opt;		/* show sccs-information */
 #endif
 	unsigned numfiles;	/* total files in display-list */
+	unsigned curfile;	/* current file on which to operate */
 	int	tag_count;	/* current # of tagged files */
 	off_t	tag_bytes;	/* ...corresponding total of bytes */
 	long	tag_blocks;	/* ...corresponding total of blocks */
@@ -482,10 +482,10 @@ extern	void	deduniq(
 
 /* *** "dedview.c" *** */
 extern	int	file2row(
-		_ar1(int,	n));
+		_ar1(unsigned,	n));
 
 extern	int	move2row(
-		_arx(int,	n)
+		_arx(unsigned,	n)
 		_ar1(int,	col));
 
 extern	void	clear_work(_ar0);
@@ -499,11 +499,11 @@ extern	int	to_file(
 
 extern	void	scroll_to_file(
 		_arx(RING *,	gbl)
-		_ar1(int,	inx));
+		_ar1(unsigned,	inx));
 
 extern	void	markset(
 		_arx(RING *,	gbl)
-		_ar1(int,	num));
+		_ar1(unsigned,	num));
 
 extern	void	upLINE(
 		_arx(RING *,	gbl)
@@ -560,11 +560,9 @@ extern	void	markC(
 		_arx(RING *,	gbl)
 		_ar1(int,	on));
 
-extern	int	baseVIEW(
-		_ar1(RING *,	gbl));
+extern	unsigned baseVIEW(_ar0);
 
-extern	int	lastVIEW(
-		_ar1(RING *,	gbl));
+extern	int	lastVIEW(_ar0);
 
 extern	RING *	row2VIEW(
 		_arx(RING *,	gbl)

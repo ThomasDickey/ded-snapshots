@@ -1,4 +1,4 @@
-MANIFEST for ded, version v980215
+MANIFEST for ded, version t19980216
 --------------------------------------------------------------------------------
 MANIFEST                        this file
 COPYING                         copyright notice for DED
@@ -16,6 +16,7 @@ certify/release.txt             release history for DED
 src                             subdirectory
 src/README                      to-do list for DED
 src/boxchars.c                  encapsulate knowledge of box-characters
+src/ccodes.rc                   sample $HOME/.dir_colors using ANSI numeric coding
 src/ded.c                       main program of DED
 src/ded.h                       common definitions of DED
 src/ded.hlp                     help-file for DED
