@@ -1,3 +1,7 @@
+1988-05-05  dickey@software.org
+
+	* src/dedring.c: added 'Q' command.
+
 1988-05-03  dickey@software.org
 
 	* src/ftree.c: purge obsolete items in 'ft_scan()'.
