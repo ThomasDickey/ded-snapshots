@@ -1,3 +1,7 @@
+1993-11-05  dickey@software.org
+
+	* src/Makefile, src/ded.h: absorbed:cmdch.h
+
 1993-11-01  dickey@software.org
 
 	* src/README: to-do list from HP/UX port

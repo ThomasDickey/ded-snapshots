@@ -1,4 +1,4 @@
-# $Id: Makefile,v 12.1 1993/09/21 20:49:04 dickey Exp $
+# $Id: Makefile,v 12.2 1993/11/05 18:36:14 dickey Exp $
 # MAKE-file for directory editor
 
 THIS	= ded
@@ -8,7 +8,7 @@ include $(TOP)/td_lib/support/td_lib.mk
 ####### (Standard Lists) #######################################################
 LINTLIBS= -ltd -lcurses -lapollo
 
-DED_H	= $(THIS).h $(CURSES_H) $I/cmdch.h $I/dyn_str.h
+DED_H	= $(THIS).h $(CURSES_H) $I/dyn_str.h
 
 ALL	= $B/$(THIS) $B/$(THIS).hlp
 
