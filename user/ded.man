@@ -1,4 +1,4 @@
-.\" $Id: ded.man,v 10.0 1991/10/16 13:53:47 ste_cm Rel $
+.\" $Id: ded.man,v 11.0 1992/05/27 17:02:10 ste_cm Rel $
 .de DS
 .RS
 .nf
@@ -758,8 +758,16 @@ For example, you might edit links beginning with
 .TP
 .B <
 Like "\fB>\fR", except that the special substrings
-"\fB%F\fR" and "\fB%B\fR" are translated into the
-forward and backward directory paths in the ring of file lists, and
+"\fB%F\fR",
+"\fB%B\fR",
+"\fB%D\fR" and
+"\fB%d\fR"
+are translated into the
+forward,
+backward,
+original and
+current
+directory paths in the ring of file lists, and
 "\fB#\fR" is translated into the current entry's name.
 .TP
 \fB"\fR

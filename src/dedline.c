@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	Id[] = "$Id: dedline.c,v 10.15 1992/04/06 16:37:42 dickey Exp $";
+static	char	Id[] = "$Id: dedline.c,v 10.16 1992/05/27 16:58:20 dickey Exp $";
 #endif
 
 /*
@@ -7,6 +7,7 @@ static	char	Id[] = "$Id: dedline.c,v 10.15 1992/04/06 16:37:42 dickey Exp $";
  * Author:	T.E.Dickey
  * Created:	01 Aug 1988 (from 'ded.c')
  * Modified:
+ *		27 May 1992, make '<' substitution recognize "%D" and "%d".
  *		01 Apr 1992, convert most global variables to RING-struct.
  *		12 Nov 1991, killchar in 'edittext()' was not properly erasing
  *			     the buffer.
@@ -52,6 +53,7 @@ static	char	Id[] = "$Id: dedline.c,v 10.15 1992/04/06 16:37:42 dickey Exp $";
 
 #include	"ded.h"
 
+#define	SIZEOF(v)	(sizeof(v)/sizeof(v[0]))
 #define	CHMOD(n)	(gSTAT(n).st_mode & 07777)
 #define	OWNER(n)	((geteuid() == 0) || (gSTAT(x).st_uid == geteuid()))
 
@@ -183,47 +185,51 @@ private	int	cmd_link;	/* true if we use short-form */
  * Substitute a symbolic link into short-form, so that the 'subslink()' code
  * can later expand it.
  */
-private	int	subspath(
-	_ARX(RING *,	gbl)
+private	int	subs_path(
 	_ARX(char *,	path)
-	_ARX(int,	count)
-	_ARX(char *,	short_form)
-	_AR1(int,	x)
+	_ARX(char *,	result)
+	_AR1(char *,	short_form)
 		)
-	_DCL(RING *,	gbl)
 	_DCL(char *,	path)
-	_DCL(int,	count)
+	_DCL(char *,	result)
 	_DCL(char *,	short_form)
-	_DCL(int,	x)
 {
-	register char	*p = ring_path(gbl, count);
-	register size_t	len = strlen(p);
+	register size_t	len = strlen(path);
 	auto	 int	changed = FALSE;
 	auto	 char	tmp[BUFSIZ];
 
-	if (!path[len]) {		/* exact match ? */
-		if (!strcmp(path,p)) {
-			(void)strcpy(path, short_form);
+	if (!result[len]) {		/* exact match ? */
+		if (!strcmp(result,path)) {
+			(void)strcpy(result, short_form);
 			changed = TRUE;
 		}
-	} else if (path[len] == '/') {	/* prefix-match ? */
-		if (!strncmp(path,p,len)) {
-			(void)strcpy(tmp, path+len);
-			(void)strcat(strcpy(path++, short_form), tmp);
+	} else if (result[len] == '/') { /* prefix-match ? */
+		if (!strncmp(result,path,len)) {
+			(void)strcpy(tmp, result+len);
+			(void)strcat(strcpy(result, short_form), tmp);
 			changed = TRUE;
 		}
-	}
-	if (changed)
-		path += strlen(short_form);
-	len = strlen(gNAME(x));
-	while (*path) {			/* substitute current-name */
-		if (!strncmp(path, gNAME(x), len)) {
-			(void)strcpy(tmp, path+len);
-			(void)strcat(strcpy(path, "#"), tmp);
-		}
-		path++;
 	}
 	return (changed);
+}
+
+private	void	subs_leaf(
+	_ARX(char *,	leaf)
+	_AR1(char *,	result)
+		)
+	_DCL(char *,	leaf)
+	_DCL(char *,	result)
+{
+	auto	 char	tmp[BUFSIZ];
+	auto	 size_t	len = strlen(leaf);
+
+	while (*result) {		/* substitute current-name */
+		if (!strncmp(result, leaf, len)) {
+			(void)strcpy(tmp, result+len);
+			(void)strcat(strcpy(result, "#"), tmp);
+		}
+		result++;
+	}
 }
 
 private	char *	link2bfr(
@@ -237,8 +243,59 @@ private	char *	link2bfr(
 {
 	(void)name2bfr(dst, gLTXT(x));
 	if (cmd_link) {
-		if (!subspath(gbl, dst, 1, "%F", x))
-			(void)subspath(gbl, dst, -1, "%B", x);
+		static	struct	{
+			char	*code;
+			char	*path;
+			} ppp[] = {
+				"%F",	0,
+				"%B",	0,
+				"%d",	0,
+				"%D",	old_wd
+			};
+		register int	j;
+		size_t	maxlen	= 0;
+
+		ppp[0].path = ring_path(gbl, 1);
+		ppp[1].path = ring_path(gbl, -1);
+		ppp[2].path = ring_path(gbl, 0);
+
+		/* ignore duplicates */
+		if (!strcmp(ppp[0].path, ppp[2].path)) ppp[0].path = 0;
+		if (!strcmp(ppp[1].path, ppp[2].path)) ppp[1].path = 0;
+		if (!strcmp(ppp[3].path, ppp[2].path)) ppp[3].path = 0;
+
+		/* find a starting length */
+		for (j = 0; j < SIZEOF(ppp); j++) {
+			if (ppp[j].path != 0) {
+				size_t	len = strlen(ppp[j].path);
+				if (len > maxlen)
+					maxlen = len;
+			}
+		}
+
+		/* match, looking for the longest strings first */
+		do {
+			size_t	next = 0;
+			for (j = 0; j < SIZEOF(ppp); j++) {
+				char	*path	= ppp[j].path;
+				if (path != 0) {
+					size_t	len = strlen(path);
+					if (len < maxlen) {
+						if (len > next)
+							next = len;
+					} else if (subs_path(path,
+						dst, ppp[j].code)) {
+						next = 0;
+						break;
+					} else
+						ppp[j].path = 0;
+				}
+			}
+			maxlen = next;
+
+		} while (maxlen > 0);
+
+		subs_leaf(gNAME(x), dst);
 	}
 	return (dst);
 }
@@ -262,11 +319,20 @@ private	char *	subslink(
 
 	while (*d = *s) {
 		if (*s++ == '%') {
-			if (*s++ == 'F')
+			switch (*s++) {
+			case 'F':
 				d += strlen(strcpy(d, ring_path(gbl, 1)));
-			else if (s[-1] == 'B')
+				break;
+			case 'B':
 				d += strlen(strcpy(d, ring_path(gbl, -1)));
-			else {
+				break;
+			case 'D':
+				d += strlen(strcpy(d, old_wd));
+				break;
+			case 'd':
+				d += strlen(strcpy(d, ring_path(gbl, 0)));
+				break;
+			default:
 				d++;
 				s--;	/* point back just after '%' */
 			}
