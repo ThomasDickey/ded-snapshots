@@ -32,7 +32,7 @@
 #include	"ded.h"
 #include	<time.h>
 
-MODULE_ID("$Id: dlog.c,v 12.16 1996/12/27 19:59:32 tom Exp $")
+MODULE_ID("$Id: dlog.c,v 12.17 2001/05/15 21:21:17 tom Exp $")
 
 #define	NOW		time((time_t *)0)
 
@@ -126,13 +126,13 @@ private	void	supply_newline (
 #define	PENDING(s,flag)	flush_pending(flag)
 
 private	void	flush_pending (
-	_AR1(int,	newline))
-	_DCL(int,	newline)
+	_AR1(int,	new_line))
+	_DCL(int,	new_line)
 {
 	if (log_fp) {
 		register char	*s = dyn_string(pending);
 		if (s != 0 && *s != EOS) {
-			FPRINTF(log_fp, "%s%s", s, newline ? "\n" : "");
+			FPRINTF(log_fp, "%s%s", s, new_line ? "\n" : "");
 			dyn_init(&pending, 1);
 		}
 	}

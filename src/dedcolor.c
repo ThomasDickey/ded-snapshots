@@ -16,7 +16,7 @@
  */
 #include "ded.h"
 
-MODULE_ID("$Id: dedcolor.c,v 12.15 2001/01/30 01:04:52 tom Exp $")
+MODULE_ID("$Id: dedcolor.c,v 12.16 2001/05/15 21:16:30 tom Exp $")
 
 #if HAVE_HAS_COLORS
 
@@ -54,8 +54,8 @@ private	int	CreatePair(
 		_DCL(int,	foreground)
 		_DCL(int,	background)
 {
-	static	int	used_pairs;	/* # of entries we've used so far */
-	int	n;
+	static	short	used_pairs;	/* # of entries we've used so far */
+	short	n;
 
 	if (foreground == default_foreground
 	 && background == default_background)
@@ -100,7 +100,7 @@ private	void	SaveColor(
 		{"INVIS",	A_INVIS},
 		{"BLINK",	A_BLINK},
 		{"BOLD",	A_BOLD}
-	}, color_names[] = {
+	}, my_color_names[] = {
 		{"BLACK",	COLOR_BLACK},
 		{"RED",		COLOR_RED},
 		{"GREEN",	COLOR_GREEN},
@@ -172,12 +172,12 @@ private	void	SaveColor(
 		 && (*spec == 'f' || *spec == 'b')
 		 && (temp = strchr(spec, '=')) != 0) {
 			temp++;
-			for (n = 0; n < SIZEOF(color_names); n++) {
-				if (!strucmp(temp, color_names[n].name)) {
+			for (n = 0; n < SIZEOF(my_color_names); n++) {
+				if (!strucmp(temp, my_color_names[n].name)) {
 					if (*spec == 'f')
-						forg = color_names[n].code;
+						forg = my_color_names[n].code;
 					else
-						bakg = color_names[n].code;
+						bakg = my_color_names[n].code;
 					break;
 				}
 			}
