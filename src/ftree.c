@@ -1,11 +1,13 @@
 #if	!defined(NO_IDENT)
-static	char	Id[] = "$Id: ftree.c,v 12.11 1994/05/24 23:23:02 tom Exp $";
+static	char	Id[] = "$Id: ftree.c,v 12.12 1994/06/02 23:56:05 tom Exp $";
 #endif
 
 /*
  * Author:	T.E.Dickey
  * Created:	02 Sep 1987
  * Modified:
+ *		02 Jun 1994, allow environment variable DED_TREE to set full
+ *			     ".ftree" path.
  *		24 May 1994, allow leaves with non-printing characters.
  *		19 Nov 1993, added mouse-support.
  *		18 Nov 1993, modified to make "^" command toggle, and to make
@@ -787,7 +789,8 @@ private	int	ok_read(
 	LEN_READ	got = read(fid,s,ask);
 	if (got != ask) {
 		char	bfr[BUFSIZ];
-		FORMAT(bfr, "%s (got %d, asked %d)", msg, got, ask);
+		dlog_comment("%s (got %d, asked %d)", msg, got, ask);
+		FORMAT(bfr, "%s \"%s\", msg, FDname);
 		return (ft_init(msg));
 	}
 	return (TRUE);
@@ -817,7 +820,7 @@ private	void	read_ftree _ONE(char *,the_file)
 		/* (1) vector-size */
 		if (!ok_read(fid,
 				(char *)&vecsize, sizeof(vecsize),
-				"size \".ftree\""))
+				"size"))
 			return;
 		if ((size / sizeof(FTREE)) < vecsize) {
 			(void)ft_init("? size error");
@@ -832,7 +835,7 @@ private	void	read_ftree _ONE(char *,the_file)
 		vecsize *= sizeof(FTREE);
 		if (!ok_read(fid,
 				(char *)ftree, (LEN_READ)vecsize,
-				"read \".ftree\""))
+				"read"))
 			return;
 
 		/* (3) string-heap */
@@ -841,7 +844,7 @@ private	void	read_ftree _ONE(char *,the_file)
 		register char *s = heap;
 			if (!ok_read(fid,
 					heap, (LEN_READ)size,
-					"heap \".ftree\""))
+					"heap"))
 				return;
 			s[size] = EOS;
 			for (j = 0; j <= FDlast; j++) {
@@ -877,8 +880,13 @@ public	void	ft_read(
 	_DCL(char *,	home_dir)
 {
 	register int	j;
+	register char	*s;
 
-	read_ftree(pathcat(FDname, home_dir, ".ftree"));
+	if ((s = getenv("DED_TREE")) != 0)
+		(void)strcpy(FDname, s);
+	else
+		(void)pathcat(FDname, home_dir, ".ftree");
+	read_ftree(FDname);
 	FDdiff = 0;
 
 	/* append the current directory to the list */

@@ -1,3 +1,8 @@
+1994-06-02  Thomas E. Dickey  <dickey@clark.net>
+
+	* src/ftree.c:
+	use environment variable to alleviate mount-problems with SunOS system
+
 1994-05-30  Thomas E. Dickey  <dickey@clark.net>
 
 	* src/ded2s.c: more casts, from Solaris
