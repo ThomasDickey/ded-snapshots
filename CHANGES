@@ -1,3 +1,11 @@
+1987-09-17  Thomas E. Dickey
+
+	* src/ftree.c:
+	broke out 'abspath()' to try to reduce the clutter caused by 'denode()'!
+
+	* src/ftree.c:
+	ensure that an arbitrary node will be visible (e.g., when originally invoking the display).
+
 1987-09-16  Thomas E. Dickey
 
 	* src/ftree.c: mods to support 'fring' module.
