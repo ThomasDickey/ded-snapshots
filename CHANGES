@@ -1,3 +1,14 @@
+1994-10-19  Thomas E. Dickey  <dickey@clark.net>
+
+	* src/dedview.c:
+	corrected a limit-check for very long colored filenames
+
+1994-10-17  Thomas E. Dickey  <dickey@clark.net>
+
+	* src/dedcolor.c: compiler warning: uninitialized variable 'found'
+
+	* src/dedcolor.c: use MODULE_ID
+
 1994-10-16  Thomas E. Dickey  <dickey@clark.net>
 
 	* src/dedring.c:
