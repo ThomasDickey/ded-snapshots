@@ -1,11 +1,12 @@
 #ifndef	lint
-static	char	sccs_id[] = "@(#)ftree.c	1.57 88/09/02 10:28:35";
+static	char	sccs_id[] = "@(#)ftree.c	1.58 88/09/07 07:40:08";
 #endif	lint
 
 /*
  * Author:	T.E.Dickey
  * Created:	02 Sep 1987
  * Modified:
+ *		07 Sep 1988, fixes to q/Q.
  *		02 Sep 1988, use 'rcs_dir()' and 'sccs_dir()'
  *		03 Aug 1988, use 'dedsigs()' in 'R' command to permit interrupt.
  *		27 Jul 1988, reversed initial sense of 'I'.  Corrected display
@@ -801,6 +802,27 @@ fd_bak(num)
 	return(showbase);
 }
 
+/*
+ * Scroll to current ring-entry
+ */
+static
+fd_ring(path, row_, level_)
+char	*path;
+int	*row_, *level_;
+{
+	char	cwdpath[BUFSIZ];
+	if ((*row_ = do_find(strcpy(cwdpath,new_wd))) < 0) {
+		/* path was deleted, put it back */
+		/* patch: should do ft_stat, recover if err */
+		ft_insert(cwdpath);
+		*row_ = do_find(cwdpath);
+	}
+	*level_ = fd_level(*row_);
+	scroll_to(*row_);
+	(void)strcpy(path, cwdpath);
+	showdiff = -1;		/* always refresh '*', '=>' marks */
+}
+
 static
 uprow(node,count,level)
 {
@@ -919,13 +941,12 @@ register int j = node;
 ft_view(path)
 char	*path;
 {
-static
-int	row,
-	lvl,
-	num,
-	c;
-char	cwdpath[MAXPATHLEN];
-register int j;
+	auto	 int	row,
+			lvl,
+			num,
+			c;
+	auto	 char	cwdpath[MAXPATHLEN];
+	register int	j;
 
 	/* set initial position */
 	abspath(strcpy(cwdpath,path));
@@ -938,7 +959,7 @@ register int j;
 	/* process commands */
 	for (;;) {
 
-		c = fd_level(row) + 1;
+		c = fd_level(row);
 		if (c < lvl) lvl = c;	/* loosely drag down level */
 		row = ft_show(fd_path(cwdpath,row), path, row, lvl);
 
@@ -1066,22 +1087,22 @@ register int j;
 		/* quit lists in directory-ring */
 		case 'Q':
 		case 'q':
+			while (num-- > 0) {
+				j = dedring(fd_path(cwdpath, row), c, 1);
+				if (!j)
+					break;
+				if (is_sccs(row) && (savesccs != showsccs))
+					toggle_sccs();
+			}
+			fd_ring(path, &row, &lvl);
+			if (!j)
+				return('E');
+			break;
 		/* scroll through the directory-ring */
 		case 'F':
 		case 'B':
 			num = dedring(fd_path(cwdpath, row), c, num);
-			if ((row = do_find(strcpy(cwdpath,new_wd))) < 0) {
-				/* path was deleted, put it back */
-				/* patch: should do ft_stat, recover if err */
-				ft_insert(cwdpath);
-				row = do_find(cwdpath);
-			}
-			lvl = fd_level(row);
-			scroll_to(row);
-			(void)strcpy(path, cwdpath);
-			if (!num && (c == 'q' || c == 'Q'))
-				return('E');
-			showdiff = -1;	/* always refresh '*', '=>' marks */
+			fd_ring(path, &row, &lvl);
 			break;
 
 		/* Exit from this program (back to 'fl') */
