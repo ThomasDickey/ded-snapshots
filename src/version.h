@@ -1,9 +1,13 @@
 /*
  * Version-identifier for DED
  * $Log: version.h,v $
- * Revision 2.2  1989/06/05 15:52:26  dickey
- * simplified logic in dedscan, ftree which sets logical links in file-tree
+ * Revision 2.3  1989/06/06 08:39:37  dickey
+ * corrected change to 'dedscan()' which broke '@' command.
+ * modified blip-call in Z-toggle to show successful sccs/RCS lookup.
  *
+ *		Revision 2.2  89/06/05  15:52:26  dickey
+ *		simplified logic in dedscan, ftree which sets logical links in file-tree
+ *		
  *		Revision 2.1  89/05/26  13:46:44  dickey
  *		added ctl/R command to provide per-directory read-selection expression
  *		
@@ -65,4 +69,4 @@
  * 01 Dec 1987, added '*', '^' commands, made '%' refresh screen
  * 25 Nov 1987, added sccs-support (V,z,Z toggles, V,z,Z sorts)
  */
-static	char	version[] = "$Date: 1989/06/05 15:52:26 $";
+static	char	version[] = "$Date: 1989/06/06 08:39:37 $";
