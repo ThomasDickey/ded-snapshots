@@ -1,3 +1,9 @@
+1996-04-10  Thomas E. Dickey  <dickey@clark.net>
+
+	* src/dedblip.c:
+	mods to make this work before curses is initialized (i.e., when piping
+	to ded with "-d" option set).
+
 1996-03-16  Thomas E. Dickey  <dickey@clark.net>
 
 	* src/version.h: memory leaks, mod to redoVIEW interface.

@@ -3,6 +3,7 @@
  * Author:	T.E.Dickey
  * Created:	23 Nov 1993
  * Modified:
+ *		10 Apr 1996, made this work before curses is initialized
  *
  * Function:	Encapsulates logic that displays (in the work area) a message
  *		showing the progress of long scanning operations.  This was
@@ -12,7 +13,7 @@
  */
 #include "ded.h"
 
-MODULE_ID("$Id: dedblip.c,v 12.5 1993/11/23 18:40:30 tom Exp $")
+MODULE_ID("$Id: dedblip.c,v 12.6 1996/04/10 23:24:52 tom Exp $")
  
 #define	L_PAREN '('
 #define	R_PAREN ')'
@@ -44,6 +45,26 @@ void	set_dedblip (
 	}
 }
 
+static
+void	PutChar(
+	_AR1(int,	c))
+	_DCL(int,	c)
+{
+	if (in_screen)
+		addch(c);
+	else
+		fputc(c, stderr);
+}
+
+static
+void	PutText(
+	_AR1(char *,	s))
+	_DCL(char *,	s)
+{
+	while (*s != EOS)
+		PutChar(*s++);
+}
+
 void	put_dedblip (
 	_AR1(int,	code))
 	_DCL(int,	code)
@@ -51,6 +72,7 @@ void	put_dedblip (
 	register BLIP *	table;
 	register int	n;
 	register char *	s;
+	char	temp[20];
 
 	for (table = blips, n = 0; table->label != 0; table++, n++) {
 		if (code == *(table->label) || (n == 0)) {
@@ -58,30 +80,39 @@ void	put_dedblip (
 		}
 	}
 
-	move(mark_W+1,0);
+	if (in_screen)
+		move(mark_W+1,0);
 	for (table = blips, n = 0; table->label != 0; table++) {
 		if (table->total != 0) {
 			if (n != 0) {
 				if (n != 1)
-					addch(',');
-				addch(' ');
+					PutChar(',');
+				PutChar(' ');
 			}
 			if (n == 1)
-				addch(L_PAREN);
+				PutChar(L_PAREN);
 
-			PRINTW("%d", table->total);
+			FORMAT(temp, "%d", table->total);
+			PutText(temp);
 			s = table->label;
 			if (*(++s)) {
-				PRINTW(" %s", s);
+				PutChar(' ');
+				PutText(s);
 				if (table->total > 1)
-					addstr(table->plural);
+					PutText(table->plural);
 			}
 			n++;
 		}
 	}
 	if (n > 1)
-		addch(R_PAREN);
-	clrtoeol();
-	move(mark_W+1,0);
-	refresh();
+		PutChar(R_PAREN);
+
+	if (in_screen) {
+		clrtoeol();
+		move(mark_W+1,0);
+		refresh();
+	} else {
+		fputc('\r', stderr);
+		fflush(stderr);
+	}
 }
