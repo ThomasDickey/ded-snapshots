@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	sccs_id[] = "@(#)dedmake.c	1.3 89/02/28 08:07:02";
+static	char	sccs_id[] = "@(#)dedmake.c	1.4 89/03/14 10:33:55";
 #endif	lint
 
 /*
@@ -7,6 +7,7 @@ static	char	sccs_id[] = "@(#)dedmake.c	1.3 89/02/28 08:07:02";
  * Author:	T.E.Dickey
  * Created:	12 Sep 1988
  * Modified:
+ *		14 Mar 1989, interface to 'dlog'
  *		28 Feb 1989, invoke 'ft_insert()' for new directories
  *
  * Function:	Create a new directory/file/link
@@ -53,7 +54,7 @@ dedmake()
 	auto	char	bfr[BUFSIZ];
 
 	/* make a dummy entry */
-	switch (cmdch((int *)0)) {
+	switch (dlog_char((int *)0,1)) {
 	case 'd':	mode = S_IFDIR;	break;
 	case 'f':	mode = S_IFREG;	break;
 #ifdef	S_IFLNK

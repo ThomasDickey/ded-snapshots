@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	sccs_id[] = "@(#)dedscan.c	1.26 89/02/28 08:09:05";
+static	char	sccs_id[] = "@(#)dedscan.c	1.27 89/03/14 13:23:53";
 #endif	lint
 
 /*
@@ -32,8 +32,6 @@ static	char	sccs_id[] = "@(#)dedscan.c	1.26 89/02/28 08:09:05";
 #define		DIR_PTYPES	/* includes directory-stuff */
 #include	"ded.h"
 extern	FLIST	*dedfree();
-extern	char	*strchr();
-extern	char	*strrchr();
 extern	char	*txtalloc();
 
 extern	int	debug;
@@ -118,7 +116,9 @@ char	*argv[];
 	if (common == 0 && numfiles != 0) {
 		common = strlen(strcpy(name,argv[0]));
 		for (j = 0; j < argc; j++) {
-			char	*z = argv[j];
+			auto	char	*z = argv[j];
+
+			dlog_comment("scan(%d) \"%s\"\n", j, z);
 			if ((k = strlen(z)) > common
 			&&  !strncmp(z, name, common))
 				continue;
@@ -147,6 +147,8 @@ char	*argv[];
 		}
 
 		if (common > 0 && chdir(name) >= 0) {
+			dlog_comment("common path = \"%s\" (len=%d)\n",
+				name, common);
 			abspath(strcpy(new_wd, name));
 			for (j = 0; j < numfiles; j++)
 				xNAME(j) = txtalloc(xNAME(j) + common);

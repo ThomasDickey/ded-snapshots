@@ -1,12 +1,28 @@
 #ifndef	lint
-static	char	sccs_id[] = "@(#)deddoit.c	1.14 88/09/12 15:36:13";
+static	char	sccs_id[] = "$Header: /users/source/archives/ded.vcs/src/RCS/deddoit.c,v 5.0 1989/03/14 13:19:15 ste_cm Rel $";
 #endif	lint
 
 /*
  * Title:	deddoit.c (do it for ded!)
  * Author:	T.E.Dickey
  * Created:	17 Nov 1987
- * Modified:
+ * $Log: deddoit.c,v $
+ * Revision 5.0  1989/03/14 13:19:15  ste_cm
+ * BASELINE Fri Oct 27 12:27:25 1989 -- apollo SR10.1 mods + ADA_PITS 4.0
+ *
+ *		Revision 4.0  89/03/14  13:19:15  ste_cm
+ *		BASELINE Thu Aug 24 10:20:06 EDT 1989 -- support:navi_011(rel2)
+ *		
+ *		Revision 3.0  89/03/14  13:19:15  ste_cm
+ *		BASELINE Mon Jun 19 14:21:57 EDT 1989
+ *		
+ *		Revision 2.0  89/03/14  13:19:15  ste_cm
+ *		BASELINE Thu Apr  6 13:14:13 EDT 1989
+ *		
+ *		Revision 1.16  89/03/14  13:19:15  dickey
+ *		sccs2rcs keywords
+ *		
+ *		14 Mar 1989, interface to 'dlog' module.
  *		03 Aug 1988, Use 'dedsigs()' so we can fix signals at one point.
  *		02 Aug 1988, so that if nothing is read from 'rawgets()', we
  *			     don't overwrite the last contents of 'bfr_sh[]'.
@@ -25,8 +41,6 @@ static	char	sccs_id[] = "@(#)deddoit.c	1.14 88/09/12 15:36:13";
 extern	char	*fixname();
 extern	char	*dedrung();
 extern	char	*pathcat();
-extern	char	*strchr();
-extern	char	*strrchr();
 
 static	char	temp[BUFSIZ];
 static	char	subs[BUFSIZ];
@@ -155,7 +169,7 @@ deddoit(key)
 		else
 			(void)strcpy(subs, bfr_sh);
 		refresh();
-		rawgets(s = subs,sizeof(subs),TRUE);
+		dlog_string(s = subs,sizeof(subs),TRUE);
 		c = FALSE;
 		while (*s) {	/* skip leading blanks */
 			if (!isspace(*s)) {
@@ -226,11 +240,13 @@ deddoit(key)
 	if (*subs) {
 		resetty();
 		(void)dedsigs(FALSE);	/* prevent child from killing us */
+		dlog_comment("execute %s\n", subs);
 		if (system(subs) < 0)
 			warn("system");
 		(void)dedsigs(TRUE);
 		rawterm();
 		if (clr_sh) dedwait();
+		dlog_elapsed();
 	}
 	showC();
 }

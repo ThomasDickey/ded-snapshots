@@ -1,4 +1,4 @@
-/* @(#)ded.h	1.24 88/08/12 09:22:39 */
+/* $Header: /users/source/archives/ded.vcs/src/RCS/ded.h,v 2.0 1989/03/14 13:18:03 ste_cm Exp $ */
 
 /*
  * Created:	09 Nov 1987
@@ -33,9 +33,13 @@ extern	char	*doalloc(),	/* (re)allocate memory		*/
 #ifdef	SYSTEM5
 #define	getwd(p)	getcwd(p,sizeof(p)-2)
 extern	char	*getcwd();
-#else	SYSTEM5
+#else	BSD
 extern	char	*getwd();
-#endif	SYSTEM5
+#define	strchr	index
+#define	strrchr	rindex
+#endif	SYSTEM5/BSD
+extern	char	*strchr();
+extern	char	*strrchr();
 
 #ifndef	S_IFLNK
 #define	lstat	stat
