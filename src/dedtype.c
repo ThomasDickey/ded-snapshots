@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	Id[] = "$Id: dedtype.c,v 11.6 1992/08/04 16:04:53 dickey Exp $";
+static	char	Id[] = "$Id: dedtype.c,v 11.10 1992/08/05 09:26:46 dickey Exp $";
 #endif
 
 /*
@@ -7,6 +7,7 @@ static	char	Id[] = "$Id: dedtype.c,v 11.6 1992/08/04 16:04:53 dickey Exp $";
  * Author:	T.E.Dickey
  * Created:	16 Nov 1987
  * Modified:
+ *		05 Aug 1992, added search commands, and '<', '>'.
  *		04 Aug 1992, use dynamic-buffers to allow wide files
  *		01 Apr 1992, convert most global variables to RING-struct.
  *		12 Mar 1992, if typing a file from the filelist, update the
@@ -32,7 +33,7 @@ static	char	Id[] = "$Id: dedtype.c,v 11.6 1992/08/04 16:04:53 dickey Exp $";
  *		17 Aug 1988, test for error return from 'fseek()'.
  *		07 Jun 1988, added CTL(K) command.
  *		02 May 1988, fixed repeat-count for forward-command.
- *			     Dynamically allocate 'InFile[].'
+ *			     Dynamically allocate 'PageAt[].'
  *
  * Function:	Display a text or binary file in the workspace.  For
  *		text-files we recognize backspace and carriage-return
@@ -56,18 +57,23 @@ static	char	Id[] = "$Id: dedtype.c,v 11.6 1992/08/04 16:04:53 dickey Exp $";
 #define	Text	dyn_string(my_text)
 #define	Over	dyn_string(my_over)
 
-static	OFF_T	*InFile;
+/******************************************************************************/
+static	FILE	*InFile;
+static	OFF_T	*PageAt;
 static	DYN	*my_text,		/* converted display-text */
 		*my_over;		/* overstrike/underline flags */
+static	char	*ToFind;		/* compiled search-expression */
 static	int	OptBinary,
 		OptStripped,
+		UsePattern,		/* set true to cause matching */
+		HadPattern,		/* set true iff we found pattern */
 		Shift,			/* left/right shift-column */
 		Tlen,			/* strlen(Text) */
 		Tcol,			/* current column in Text[] */
 		tabstop;
 
-static
-typeinit(_AR0)
+/******************************************************************************/
+private	void	typeinit(_AR0)
 {
 	Text[Tlen = Tcol = 0] = EOS;
 }
@@ -81,13 +87,22 @@ private	int	typeline(
 {
 	if (!skip) {
 		move(y,0);
-		if (Tlen > Shift) {
-		int	now	= Shift,
-			j;
+		Tlen	-= Shift;
+		if (Tlen > COLS-1)
+			Tlen = COLS-1;
 
-			Tlen	-= Shift;
-			if (Tlen > COLS-1)
-				Tlen = COLS-1;
+		if (UsePattern && GOT_REGEX(ToFind, Text)) {
+			HadPattern = TRUE;
+			standout();
+			if (Tlen > 0)
+				PRINTW("%.*s", Tlen, Text + Shift);
+			else
+				PRINTW(" ");
+			standend();
+		} else if (Tlen > 0) {
+			int	now	= Shift,
+				j;
+
 			while (Tlen > 0) {
 				for (j = now; j < now+Tlen; j++) {
 					if (Over[j] != Over[now])	break;
@@ -171,10 +186,10 @@ private	int	typeconv(
 	return (FALSE);
 }
 
-private	int	GetC _ONE(FILE *,fp)
+private	int	GetC (_AR0)
 {
-	register int c = fgetc(fp);
-	if (feof(fp) || ferror(fp) || dedsigs(TRUE))
+	register int c = fgetc(InFile);
+	if (feof(InFile) || ferror(InFile) || dedsigs(TRUE))
 		c = EOF;
 	else if (c < 0)
 		c &= 0xff;
@@ -193,31 +208,46 @@ private	int	reshow(
 	return TRUE;
 }
 
+/*
+ * Save our current position so we can replay the current page.
+ */
 private	void	MarkPage(
-	_ARX(FILE *,	fp)
-	_AR1(int,	page)
-		)
-	_DCL(FILE *,	fp)
+	_AR1(int,	page))
 	_DCL(int,	page)
 {
 	static	unsigned maxpage = 0;
 
 	if (page+2 > maxpage) {
 		maxpage = page + 100;
-		InFile = DOALLOC(InFile,OFF_T,maxpage);
+		PageAt = DOALLOC(PageAt,OFF_T,maxpage);
 	}
-	InFile[page] = ftell(fp);
-
+	PageAt[page] = ftell(InFile);
 }
 
+/*
+ * Reposition at a given top-of-page marker.
+ */
+private	JumpBackwards(
+	_ARX(int *,	page)
+	_AR1(int,	jump)
+		)
+	_DCL(int *,	page)
+	_DCL(int,	jump)
+{
+	*page -= jump;
+	if (*page < 0)
+		return -1;
+	return fseek(InFile, PageAt[*page], 0);
+}
+
+/*
+ * Read the file's contents for the given page and set up the display in case
+ * we decide to use it.
+ */
 private	int	StartPage(
-	_ARX(RING *,	gbl)
-	_ARX(FILE *,	fp)
 	_ARX(int *,	page)
 	_AR1(int,	skip)
 		)
-	_DCL(RING *,	gbl)
-	_DCL(FILE *,	fp)
 	_DCL(int *,	page)
 	_DCL(int,	skip)
 {
@@ -225,15 +255,15 @@ private	int	StartPage(
 	int	blank	= TRUE,		/* flag to suppress blank lines */
 		y	= mark_W + 1;
 
-	markC(gbl,TRUE);
 	showMARK(Shift);
 	move(y, 0);
 	typeinit();
+	HadPattern = FALSE;
 
-	MarkPage(fp, *page);
+	MarkPage(*page);
 	*page += 1;
 
-	while ((c = GetC(fp)) != EOF) {
+	while ((c = GetC()) != EOF) {
 		if (typeconv(c)) {
 			if ((Tlen == 0) && blank) {
 				typeinit();
@@ -245,7 +275,7 @@ private	int	StartPage(
 				break;
 		}
 	}
-	if (!feof(fp) && ferror(fp))	clearerr(fp);
+	if (!feof(InFile) && ferror(InFile))	clearerr(InFile);
 
 	return y;
 }
@@ -253,13 +283,11 @@ private	int	StartPage(
 private	int	FinishPage(
 	_ARX(RING *,	gbl)
 	_ARX(int,	inlist)
-	_ARX(FILE *,	fp)
 	_ARX(int,	page)
 	_AR1(int,	y)
 		)
 	_DCL(RING *,	gbl)
 	_DCL(int,	inlist)
-	_DCL(FILE *,	fp)
 	_DCL(int,	page)
 	_DCL(int,	y)
 {
@@ -287,12 +315,12 @@ private	int	FinishPage(
 		standout();
 		move(oldy,oldx);
 
-	} else if (fstat(fileno(fp), &sb) >= 0) {
+	} else if (fstat(fileno(InFile), &sb) >= 0) {
 		length = sb.st_size;
 	}
 	if (length != 0)
 		PRINTW(": %.1f%%",
-			(ftell(fp) * 100.)/ length);
+			(ftell(InFile) * 100.)/ length);
 	PRINTW("---");
 	standend();
 	PRINTW(" ");
@@ -303,11 +331,8 @@ private	int	FinishPage(
 }
 
 private	void	IgnorePage(
-	_ARX(int,	page)
-	_AR1(int,	skip)
-		)
+	_AR1(int,	page))
 	_DCL(int,	page)
-	_DCL(int,	skip)
 {
 	move(LINES-1,0);
 	standout();
@@ -316,6 +341,127 @@ private	void	IgnorePage(
 	PRINTW(" ");
 	clrtoeol();
 	refresh();
+}
+
+/*
+ * Test if the current expression is equivalent to the last one.
+ */
+private	int	SamePattern(
+	_AR1(char *,	expr))
+	_DCL(char *,	expr)
+{
+	static	DYN	*last;
+	register char	*s = dyn_string(last);
+
+	if (s != 0) {
+		if (*s != EOS) {
+			if (*expr == EOS
+			 || !strcmp(s, expr))
+				return TRUE;
+		}
+	}
+
+	last = dyn_copy(last, expr);
+	if (*expr == EOS) {
+		beep();
+		UsePattern = FALSE;
+		return TRUE;
+	}
+	return FALSE;
+}
+
+private	void	FindPattern(
+	_ARX(RING *,	gbl)
+	_ARX(int *,	page)
+	_AR1(int,	key)
+		)
+	_DCL(RING *,	gbl)
+	_DCL(int *,	page)
+	_DCL(int,	key)
+{
+	register char	*s;
+	auto	int	y,x,
+			next,
+			save	= *page;
+	static	DYN	*text;
+	static	int	order;		/* saves last legal search order */
+
+	if (key == '/' || key == '?') {
+
+		to_work(gbl,TRUE);
+		PRINTW("Target: ");
+		getyx(stdscr,y,x);
+		clrtobot();
+		move(y,x);
+		refresh();
+
+		dyn_init(&text, BUFSIZ);
+		s = dlog_string(&text,0);
+		if (key == '/')	order = 1;
+		if (key == '?') order = -1;
+		next = order;
+
+	} else if (order && (s = dyn_string(text))) {
+		next = (key == 'n') ? order : -order;
+	} else {
+		waitmsg("No previous regular expression");
+		return;
+	}
+
+	OLD_REGEX(ToFind);
+	if (NEW_REGEX(ToFind,s)) {
+
+		UsePattern = TRUE;
+		if (SamePattern(s)) {
+			if (ispunct(key))
+				return;
+		} else {
+			if (next < 0)
+				;
+			else if (JumpBackwards(page, 1) < 0)
+				return;
+		}
+
+		if (next < 0) {
+			while (JumpBackwards(page, 2) >= 0) {
+				(void)StartPage(page, FALSE);
+				if (HadPattern)
+					return;
+			}
+		} else {
+			while (!feof(InFile)) {
+				(void)StartPage(page, FALSE);
+				if (HadPattern)
+					return;
+			}
+		}
+
+		*page = save;
+		if (JumpBackwards(page, 1) >= 0)
+			(void)StartPage(page, FALSE);
+		waitmsg("Expression not found");
+
+	} else {
+		order = 0;
+		UsePattern = FALSE;
+		BAD_REGEX(ToFind);
+		showC(gbl);
+	}
+}
+
+/*
+ * Recompute the left-margin of the workspace.
+ */
+private	LeftOrRight(
+	_AR1(int,	count))
+	_DCL(int,	count)
+{
+	if (OptBinary || ((count < 0) && !Shift))
+		beep();
+	else {
+		Shift += count;
+		if (Shift < 0)	Shift = 0;
+	}
 }
 
 /******************************************************************************/
@@ -334,10 +480,10 @@ public	void	dedtype(
 	_DCL(int,	stripped)
 	_DCL(int,	isdir)
 {
-	FILE	*fp;
+	register int	c;
 	int	count,			/* ...and repeat-count */
 		y,			/* current line-in-screen */
-		shift	= COLS/3,	/* amount of left/right shift */
+		shift	= COLS/4,	/* amount of left/right shift */
 		done	= FALSE,
 		shown	= FALSE,
 		skip	= 0,
@@ -345,6 +491,7 @@ public	void	dedtype(
 
 	tabstop = 8;
 	Shift	= 0;
+	UsePattern  = FALSE;
 	OptBinary   = binary;
 	OptStripped = stripped;
 
@@ -357,7 +504,7 @@ public	void	dedtype(
 #else
 		char		*fmt = "%5u %s\n";
 #endif
-		if ((fp = tmpfile()) == 0) {
+		if ((InFile = tmpfile()) == 0) {
 			warn(gbl, "tmp-file");
 			return;
 		}
@@ -367,19 +514,19 @@ public	void	dedtype(
 					(int)de->d_namlen,
 					de->d_name,
 					FALSE);
-				FPRINTF(fp, fmt, de->d_ino, bfr);
+				FPRINTF(InFile, fmt, de->d_ino, bfr);
 			}
 			(void)closedir(dp);
-			rewind(fp);
+			rewind(InFile);
 		} else {
 			warn(gbl, "opendir");
-			FCLOSE(fp);
+			FCLOSE(InFile);
 			return;
 		}
 	} else
-		fp = fopen(name, "r");
+		InFile = fopen(name, "r");
 
-	if (fp) {
+	if (InFile) {
 		auto	int	jump	= 0;
 
 		dlog_comment("type \"%s\" (%s %s)\n",
@@ -394,30 +541,27 @@ public	void	dedtype(
 		while (!done) {
 
 			if (jump) {
-				page -= jump;
-				if (page < 0) page = 0;
-				if (fseek(fp, InFile[page], 0) < 0) {
-					done = -1;
+				if (done = JumpBackwards(&page, jump))
 					break;
-				}
 				jump = 0;
 			}
 
-			y = StartPage(gbl, fp, &page, skip);
-
+			markC(gbl, TRUE);
+			y = StartPage(&page, skip);
 			if (skip) {
-				if (feof(fp)) {
+				if (feof(InFile)) {
 					skip = 0;
 					jump = 1;
 				} else {
-					IgnorePage(page, skip--);
+					IgnorePage(page);
+					skip--;
 				}
 				continue;
 			}
-			shown |= FinishPage(gbl, inlist, fp, page, y);
+			shown |= FinishPage(gbl, inlist, page, y);
 			jump  = 1;
 
-			switch (dlog_char(&count,1)) {
+			switch (c = dlog_char(&count,1)) {
 			case CTL('K'):
 				deddump(gbl);
 				break;
@@ -432,16 +576,18 @@ public	void	dedtype(
 						? (tabstop == 8 ? 4 : 8)
 						: count;
 				break;
+
 			case 'q':
-				done = 1;
+				done = TRUE;
 				break;
+
 			case ARO_UP:
 			case '\b':
 			case 'b':
 				if (page <= 1 && count > 0)
 					beep();
-				else
-					jump += count;
+				else if ((jump += count) > page)
+					jump = page;
 				break;
 			case ARO_DOWN:
 			case '\n':
@@ -450,36 +596,42 @@ public	void	dedtype(
 			case 'f':
 				jump = 0;
 				skip = count - 1;
-				if (feof(fp))
-					if (fseek(fp, InFile[--page], 0) < 0)
-						done = -1;
+				if (feof(InFile))
+					done = JumpBackwards(&page, 1);
+				break;
+
+			case '<':
+				LeftOrRight(-count);
+				break;
+			case '>':
+				LeftOrRight( count);
 				break;
 			case CTL('L'):
 			case ARO_LEFT:
-				if (OptBinary || !Shift)
-					beep();
-				else {
-					Shift -= (shift * count);
-					if (Shift < 0)	Shift = 0;
-				}
+				LeftOrRight(-shift * count);
 				break;
 			case CTL('R'):
 			case ARO_RIGHT:
-				if (OptBinary)
-					beep();
-				else
-					Shift += (shift * count);
+				LeftOrRight( shift * count);
 				break;
+
 				/* move work-area marker */
 			case 'A':	count = -count;
 			case 'a':
 				markset(gbl, mark_W + count,FALSE);
 				break;
+
+			case '/':
+			case '?':
+			case 'n':
+			case 'N':
+				FindPattern(gbl, &page, c);
+				break;
 			default:
 				beep();
 			}
 		}
-		FCLOSE(fp);
+		FCLOSE(InFile);
 		if (shown)
 			(void)reshow(gbl, inlist);
 		showMARK(gbl->Xbase);

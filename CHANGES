@@ -1,3 +1,36 @@
+1992-08-05  dickey@software.org
+
+	* src/Makefile: use include-defs from common.mk
+
+	* src/Makefile: use defs in 'common.mk'
+
+	* src/ftree.c: corrected one of the error messages in 'fd_find()'
+	use nonzero length arg in calls on 'dlog_string()' to force
+	it to use nowrap mode.
+
+	* src/dlog.c: corrected sense of wrap argument for 'rawgets()'
+
+	* src/ftree.c: make better error-tests in 'fd_find()'
+
+	* src/dedtype.c: lint
+
+	* src/version.h:
+	added '/', '?', 'n', 'N' search commands to workspace pager.
+	also added '<' and '>' commands to workspace pager.
+
+	* src/dedtype.c: correction to backward search (all ok now?)
+
+	* src/dedtype.c: implemented most of the n/N commands
+	make 'fp' global as 'InFile'
+
+	* src/dedtype.c:
+	added first part of 'FindPattern()' -- search within the
+	current screen.  Must still add logic for n/N commands.
+
+	* src/dedview.c:
+	rewrote 'showMARK()', since it did not properly account for
+	the units-part of the col-argument.
+
 1992-08-04  dickey@software.org
 
 	* src/dedtype.c: added 'IgnorePage()' so I can see it happening!

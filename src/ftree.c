@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	Id[] = "$Id: ftree.c,v 11.1 1992/08/04 13:47:34 dickey Exp $";
+static	char	Id[] = "$Id: ftree.c,v 11.3 1992/08/05 12:59:36 dickey Exp $";
 #endif
 
 /*
@@ -387,14 +387,21 @@ private	int	fd_find (
 		looped = 0;
 
 	if (cmd == '?' || cmd == '/') {
-		if (strchr(buffer, (*gap)))
+		if (strchr(buffer, (*gap))) {
+			waitmsg("\"/\" not allowed in search-path");
 			return(-1);	/* we don't search full-paths */
+		}
 		if (*buffer)
 			(void)strcpy(pattern,buffer);
 		step =
 		next = (cmd == '/') ? 1 : -1;
 	} else
 		step = (cmd == 'n') ? next : -next;
+
+	if (!*pattern && strchr("?/nN", cmd)) {
+		waitmsg("No previous regular expression");
+		return(-1);
+	}
 
 	OLD_REGEX(expr);
 	if (NEW_REGEX(expr,pattern)) {
@@ -403,8 +410,7 @@ private	int	fd_find (
 			else if ((new += step) < 0)		new = FDlast;
 			else if (new > FDlast)			new = 0;
 			skip = (out_of_sight && !fd_show(new));
-		}
-		while (skip || !GOT_REGEX(expr, ftree[new].f_name));
+		} while (skip || !GOT_REGEX(expr, ftree[new].f_name));
 		return(new);
 	}
 	BAD_REGEX(expr);
@@ -1280,8 +1286,7 @@ public	RING *	ft_view(
 			PRINTW("line: ");
 			clrtoeol();
 
-			dyn_init(&my_text, MAXPATHLEN);
-			s = dlog_string(&my_text,0);
+			s = dlog_string(&my_text,MAXPATHLEN);
 
 			if (!strcmp(s, "$"))
 				c = FDlast;
@@ -1310,7 +1315,7 @@ public	RING *	ft_view(
 
 				my_text = dyn_copy(my_text,
 					(c == '~') ? "~" : cwdpath);
-				s = dlog_string(&my_text,0);
+				s = dlog_string(&my_text,MAXPATHLEN);
 
 				if (!*s && c != '@') {
 					c = -1;
@@ -1347,7 +1352,7 @@ public	RING *	ft_view(
 				move(node2row(row),node2col(row,MAXLVL));
 
 				my_text = dyn_copy(my_text, ftree[row].f_name);
-				s = dlog_string(&my_text,0);
+				s = dlog_string(&my_text,MAXPATHLEN);
 
 				abspath(strcpy(bfr,s));
 
