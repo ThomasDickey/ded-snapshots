@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	Id[] = "$Id: dedsort.c,v 5.0 1989/10/12 15:47:10 ste_cm Rel $";
+static	char	Id[] = "$Id: dedsort.c,v 8.0 1990/01/22 15:04:29 ste_cm Rel $";
 #endif	lint
 
 /*
@@ -7,9 +7,21 @@ static	char	Id[] = "$Id: dedsort.c,v 5.0 1989/10/12 15:47:10 ste_cm Rel $";
  * Author:	T.E.Dickey
  * Created:	11 Nov 1987
  * $Log: dedsort.c,v $
- * Revision 5.0  1989/10/12 15:47:10  ste_cm
- * BASELINE Fri Oct 27 12:27:25 1989 -- apollo SR10.1 mods + ADA_PITS 4.0
+ * Revision 8.0  1990/01/22 15:04:29  ste_cm
+ * BASELINE Mon Aug 13 15:06:41 1990 -- LINCNT, ADA_TRANS
  *
+ *		Revision 7.0  90/01/22  15:04:29  ste_cm
+ *		BASELINE Mon Apr 30 09:54:01 1990 -- (CPROTO)
+ *		
+ *		Revision 6.0  90/01/22  15:04:29  ste_cm
+ *		BASELINE Thu Mar 29 07:37:55 1990 -- maintenance release (SYNTHESIS)
+ *		
+ *		Revision 5.1  90/01/22  15:04:29  dickey
+ *		corrections to 'v'-sort
+ *		
+ *		Revision 5.0  89/10/12  15:47:10  ste_cm
+ *		BASELINE Fri Oct 27 12:27:25 1989 -- apollo SR10.1 mods + ADA_PITS 4.0
+ *		
  *		Revision 4.4  89/10/12  15:47:10  dickey
  *		refined inode-, uid-, gid-sorts so that if I_opt or G_opt are
  *		in two-column mode, we sort what the user sees.
@@ -99,8 +111,9 @@ char	*s;
 dedsort_cmp(p1, p2)
 FLIST	*p1, *p2;
 {
-register int cmp = 0;
-char	bfr[BUFSIZ];
+	register int	cmp = 0;
+	auto	 char	bfr[BUFSIZ];
+	auto	 char	*s1, *s2;
 
 	if (tagsort) {
 		if (p1->flag && !p2->flag)
@@ -153,11 +166,13 @@ char	bfr[BUFSIZ];
 					cmp = -1;
 			}
 			break;
-	case 'v':	if (p1->z_time && p2->z_time)
-				cmp = -dotcmp(p1->z_vers, p2->z_vers);
-			else if (p1->z_time)
+	case 'v':	if (!(s1 = p1->z_vers))	s1 = "";
+			if (!(s2 = p2->z_vers))	s2 = "";
+			if (*s1 && *s2)
+				cmp = -dotcmp(s1, s2);
+			else if (*s1)
 				cmp = -1;
-			else if (p2->z_time)
+			else if (*s2)
 				cmp = 1;
 			break;
 	case 'y':	if (p1->z_time && p2->z_time)
