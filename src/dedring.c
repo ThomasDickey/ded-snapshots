@@ -1,5 +1,5 @@
 #if	!defined(NO_IDENT)
-static	char	Id[] = "$Id: dedring.c,v 12.6 1994/10/16 17:32:06 tom Exp $";
+static	char	Id[] = "$Id: dedring.c,v 12.7 1994/11/22 23:44:05 tom Exp $";
 #endif
 
 /*
@@ -7,6 +7,7 @@ static	char	Id[] = "$Id: dedring.c,v 12.6 1994/10/16 17:32:06 tom Exp $";
  * Author:	T.E.Dickey
  * Created:	27 Apr 1988
  * Modified:
+ *		22 Nov 1994, quitVIEW fix.
  *		16 Oct 1994, fixed a missing abspath in 'E' ring operation.
  *		29 Oct 1993, ifdef-ident, port to HP/UX.
  *		28 Sep 1993, gcc warnings
@@ -471,6 +472,7 @@ public	RING *	dedring(
 			return(0);
 		Remove(path);
 		path = newp->new_wd;
+		quitVIEW(gbl);
 	}
 
 	/*

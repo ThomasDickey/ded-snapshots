@@ -1,5 +1,5 @@
 #if	!defined(NO_IDENT)
-static	char	Id[] = "$Id: dedview.c,v 12.19 1994/10/19 23:17:11 tom Exp $";
+static	char	Id[] = "$Id: dedview.c,v 12.20 1994/11/22 23:35:02 tom Exp $";
 #endif
 
 /*
@@ -710,6 +710,28 @@ public	RING *	splitVIEW (
 	if (maxview > 1)	gbl = quit_view(gbl);
 	else			openVIEW(gbl);
 	return gbl;
+}
+
+/*
+ * Cleanup data, forcing a single viewport.  This is used when quitting
+ * RING-structs from the directory tree, so that we don't have an obsolete RING
+ * pointer in one of the viewports.
+ */
+public	void	quitVIEW(
+	_AR1(RING *,	gbl))
+	_DCL(RING *,	gbl)
+{
+	if (maxview > 1) {
+		register int j;
+		for (j = 0; j < maxview; j++) {
+			if (viewlist[j].gbl == gbl) {
+				maxview = 1;
+				curview = 0;
+				save_view(gbl);
+				break;
+			}
+		}
+	}
 }
 
 /*

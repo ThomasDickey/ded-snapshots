@@ -1,5 +1,5 @@
 #if	!defined(NO_IDENT)
-static	char	Id[] = "$Header: /users/source/archives/ded.vcs/src/RCS/ded.c,v 12.33 1994/11/13 21:34:04 tom Exp $";
+static	char	Id[] = "$Header: /users/source/archives/ded.vcs/src/RCS/ded.c,v 12.34 1994/11/22 19:57:38 tom Exp $";
 #endif
 
 /*
@@ -970,6 +970,9 @@ _MAIN
 	if (!initscr())			failed("initscr");
 #if HAVE_HAS_COLORS
 	(void)start_color();
+#endif
+#if HAVE_TYPEAHEAD
+	typeahead(-1);			/* disable it */
 #endif
 	boxchars(box);
 

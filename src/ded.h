@@ -3,7 +3,7 @@
 
 #ifdef	MAIN
 #if	!defined(NO_IDENT)
-static	char	*ded_h = "$Id: ded.h,v 12.32 1994/07/24 00:57:34 tom Exp $";
+static	char	*ded_h = "$Id: ded.h,v 12.33 1994/11/22 23:44:59 tom Exp $";
 #endif
 #endif	/* MAIN */
 
@@ -532,6 +532,9 @@ extern	void	scrollVIEW(
 		_ar1(int,	count));
 
 extern	RING *	splitVIEW(
+		_ar1(RING *,	gbl));
+
+extern	void	quitVIEW(
 		_ar1(RING *,	gbl));
 
 extern	void	top2VIEW(
