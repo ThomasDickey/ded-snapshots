@@ -1,3 +1,27 @@
+1991-11-21  dickey@software.org
+
+	* src/ded.c: make 'tag_opt' public
+
+1991-11-21  ste_cm@software.org
+
+	* src/ded.c: BASELINE Thu Nov 21 07:36:21 1991
+
+1991-11-21  dickey@software.org
+
+	* src/dedring.c: save/unsave tag_opt
+
+1991-11-21  ste_cm@software.org
+
+	* src/dedring.c: BASELINE Thu Nov 21 07:36:21 1991
+
+1991-11-21  dickey@software.org
+
+	* src/ded.h: make tag_opt public
+
+1991-11-21  ste_cm@software.org
+
+	* src/ded.h: BASELINE Thu Nov 21 07:36:21 1991
+
 1991-11-12  dickey@software.org
 
 	* src/dedline.c:

@@ -3,7 +3,7 @@
 
 #ifdef	MAIN
 #ifndef	lint
-static	char	*ded_h = "$Id: ded.h,v 9.9 1991/10/21 15:31:52 ste_cm Exp $";
+static	char	*ded_h = "$Id: ded.h,v 10.0 1991/11/21 07:26:19 ste_cm Rel $";
 #endif
 #endif	/* MAIN */
 
@@ -151,6 +151,7 @@ MAIN	int	top_argc,
 		sortord,	/* sort-order (TRUE=reverse) */
 		sortopt,	/* sort-option (a character) */
 		tagsort,	/* sort tagged files apart from others */
+		tag_opt,	/* show totals for tagged files */
 #ifdef	S_IFLNK
 		AT_opt,		/* show symbolic link target */
 #endif	/* S_IFLNK */

@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	Id[] = "$Id: dedring.c,v 9.6 1991/10/18 10:03:31 dickey Exp $";
+static	char	Id[] = "$Id: dedring.c,v 10.0 1991/11/21 07:27:15 ste_cm Rel $";
 #endif
 
 /*
@@ -7,6 +7,7 @@ static	char	Id[] = "$Id: dedring.c,v 9.6 1991/10/18 10:03:31 dickey Exp $";
  * Author:	T.E.Dickey
  * Created:	27 Apr 1988
  * Modified:
+ *		21 Nov 1991, added 'tag_opt'
  *		18 Oct 1991, converted to ANSI
  *		15 May 1991, apollo sr10.3 cpp complains about tag on #endif
  *		04 Apr 1991, guard against 'getwd()' failure.
@@ -67,6 +68,7 @@ typedef	struct	_ring	{
 			sortord,
 			sortopt,
 			tagsort,
+			tag_opt,
 #ifdef	S_IFLNK
 			AT_opt,
 #endif
@@ -159,6 +161,7 @@ save _ONE(RING *,p)
 	SAVE(sortord);
 	SAVE(sortopt);
 	SAVE(tagsort);
+	SAVE(tag_opt);
 #ifdef	S_IFLNK
 	SAVE(AT_opt);
 #endif
@@ -204,6 +207,7 @@ unsave _ONE(RING *,p)
 	UNSAVE(sortord);
 	UNSAVE(sortopt);
 	UNSAVE(tagsort);
+	UNSAVE(tag_opt);
 #ifdef	S_IFLNK
 	UNSAVE(AT_opt);
 #endif
