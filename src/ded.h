@@ -3,7 +3,7 @@
 
 #ifdef	MAIN
 #if	!defined(NO_IDENT)
-static	char	*ded_h = "$Id: ded.h,v 12.30 1994/07/18 01:05:24 tom Exp $";
+static	char	*ded_h = "$Id: ded.h,v 12.31 1994/07/23 14:10:55 tom Exp $";
 #endif
 #endif	/* MAIN */
 
@@ -670,6 +670,10 @@ extern	int	ft_scan(
 		_arx(int,	node)
 		_arx(int,	levels)
 		_ar1(int,	base));
+
+public	void	ft_set_levels (
+		_arx(int,	row)
+		_ar1(int,	levels));
 
 extern	int	ft_stat(
 		_arx(char *,	name)
