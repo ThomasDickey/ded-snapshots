@@ -1,4 +1,4 @@
-.\" $Id: ded.man,v 12.6 1995/09/04 23:29:11 tom Exp $
+.\" $Id: ded.man,v 12.7 1995/11/02 01:26:59 tom Exp $
 .if t .ds T \(tm
 .if n .ds T (tm)
 .
@@ -954,6 +954,12 @@ move the workspace marker up \fIcount\fR lines, redisplay.
 move the workspace marker down \fIcount\fR lines,
 redisplay.
 .TP
+.B ^
+scroll to the beginning of the file.
+.TP
+.B $
+scroll to the end of the file.
+.TP
 .B f
 scroll forward \fIcount\fR sub-screens
 (also, the \fIspace\fR and \fInewline\fR keys).
@@ -961,13 +967,29 @@ scroll forward \fIcount\fR sub-screens
 .B b
 scroll backward \fIcount\fR sub-screens (also, the \fIbackspace\fR key).
 .TP
-.I left-arrow
-scroll left \fIcount\fR/4 screens
-(also, the CTL/L key).
+.I h
+scroll left \fIcount\fR columns
+(also, the \fIleft-arrow\fR key).
 .TP
-.I right-arrow
+.I j
+scroll down \fIcount\fR rows
+(also, the \fIdown-arrow\fR key).
+.TP
+.I k
+scroll up \fIcount\fR rows
+(also, the \fIup-arrow\fR key).
+.TP
+.I l
+scroll right \fIcount\fR columns
+(also, the \fIright-arrow\fR key).
+.TP
+.I <
+scroll left \fIcount\fR/4 screens
+(also, the \fICTL/L\fR key).
+.TP
+.I >
 scroll right \fIcount\fR/4 screens
-(also, the CTL/R key).
+(also, the \fICTL/R\fR key).
 .PP
 The "\fB/\fR", "\fB?\fR", "\fBn\fR" and "\fBN\fR" search commands work
 in the workspace pager.
