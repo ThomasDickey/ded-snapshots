@@ -11,9 +11,9 @@
 1k	# path: CM_TOOLS/src
 1k	# path: CM_TOOLS/bin
 1E	# chdir CM_TOOLS/bin
-1%ls\s-l\r
+1%ls\s-l\n
 	# execute ls -l
-\r	# Hit <RETURN> to continue
+\n	# Hit <RETURN> to continue
 	# ELAPSED TIME
 1st
 1p44p	# chmod 445 ded
@@ -30,7 +30,7 @@
 1st
 1Z
 1\s
-1!\\#\sdummy\scomment,\sduring\swait\r
+1!\\#\sdummy\scomment,\sduring\swait\n
 	# execute # dummy comment, during wait
 	# ELAPSED TIME
 3l
@@ -84,7 +84,7 @@
 1ss
 9b
 1z
-1\r
+1\n
 1k
 1Z
 1\s
@@ -100,5 +100,5 @@
 1.	# execute # dummy comment, during wait
 	# ELAPSED TIME
 3l
-1qyes\r
+1qyes\n
 	# PROCESS ENDED

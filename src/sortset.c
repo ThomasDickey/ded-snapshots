@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	what[] = "$Id: sortset.c,v 11.0 1992/04/06 11:59:08 ste_cm Rel $";
+static	char	what[] = "$Id: sortset.c,v 12.0 1992/08/12 09:27:50 ste_cm Rel $";
 #endif
 
 /*
@@ -109,7 +109,7 @@ public	int	sortget(
 				break;
 			}
 		c = 0;
-	} else if (c == '\r' || c == '\n') {
+	} else if (c == '\n') {
 		c = gbl->sortopt;
 	} else if (c == ':') {
 		auto	int	y,x,
@@ -151,7 +151,6 @@ public	int	sortget(
 					to_work(gbl,TRUE);
 					showC(gbl);
 					/* fall-thru */
-			case '\r':
 			case '\n':	done = TRUE;		break;
 			default:	find = found;
 			}

@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	Id[] = "$Id: dedwait.c,v 11.0 1992/04/06 10:12:10 ste_cm Rel $";
+static	char	Id[] = "$Id: dedwait.c,v 12.0 1992/08/12 09:28:40 ste_cm Rel $";
 #endif
 
 /*
@@ -43,8 +43,9 @@ public	void	dedwait(
 	}
 
 	dlog_flush();
-	do	c = dlog_char((int *)0,0);
-	while	(c != '\n' && c != '\r');
+	do {
+		c = dlog_char((int *)0,0);
+	} while	(c != '\n');
 	dlog_comment("%s\n", msg);
 	retouch(gbl,0);
 }

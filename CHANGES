@@ -1,3 +1,44 @@
+1992-08-12  dickey@software.org
+
+	* src/ded.c: introduced '-command (though it does not work yet!)
+
+	* src/inline.c: lint
+
+	* src/inline.c:
+	oops: forgot to kludge the DYN-string's cur_length member
+
+	* src/inline.c:
+	modified so this uses a dynamic-string rather than static
+	buffer.  also, map returns to newlines.
+
+	* src/dlog.c, src/dedwait.c: map-returns
+
+1992-08-12  ste_cm@software.org
+
+	* src/dedwait.c:
+	BASELINE Thu May  6 14:26:47 1993 -- split from CM_TOOLS #11
+
+1992-08-12  dickey@software.org
+
+	* src/ftree.c, src/sortset.c: map-returns
+
+1992-08-12  ste_cm@software.org
+
+	* src/sortset.c:
+	BASELINE Thu May  6 14:26:47 1993 -- split from CM_TOOLS #11
+
+1992-08-12  dickey@software.org
+
+	* src/dedtype.c, src/ded.c, test/test4.cmd, test/test3.cmd, test/test2.cmd, test/test1.cmd:
+	map-returns
+
+	* src/dlog.c: 'encode_logch()' no longer assumes that its output-buffer
+	is non-empty.
+
+	* src/inline.c:  added a debug-trace
+
+	* src/ded.c: fixed warning-message in '"' command
+
 1992-08-11  dickey@software.org
 
 	* src/Makefile: split-out:inline.c
