@@ -1,3 +1,35 @@
+1989-10-13  dickey@software.org
+
+	* src/dedtype.c:
+	trim lines containing blanks so we don't display extra gaps
+
+1989-10-13  ste_cm@software.org
+
+	* src/dedtype.c:
+	BASELINE Fri Oct 27 12:27:25 1989 -- apollo SR10.1 mods + ADA_PITS 4.0
+
+1989-10-13  dickey@software.org
+
+	* src/ded2s.c:
+	gave up on function-prototype for type_$get_name(), since
+	ref-variables only work for input-args.
+
+1989-10-13  ste_cm@software.org
+
+	* src/ded2s.c:
+	BASELINE Fri Oct 27 12:27:25 1989 -- apollo SR10.1 mods + ADA_PITS 4.0
+
+1989-10-13  dickey@software.org
+
+	* src/ded2s.c: corrected pointer-bug in z_lock/z_vers display
+
+	* src/README: added note about sr10 bug in 'stat()'
+
+1989-10-13  ste_cm@software.org
+
+	* src/README:
+	BASELINE Fri Oct 27 12:27:25 1989 -- apollo SR10.1 mods + ADA_PITS 4.0
+
 1989-10-12  dickey@software.org
 
 	* src/version.h: tuned apollo sr10.1 code (type-uid display).

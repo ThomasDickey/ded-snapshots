@@ -1,7 +1,9 @@
-To do:
------
-  Use SHELL environment variable & bldargs() so we needn't
-  go thru 'system()' call (which always goes thru /bin/sh).
+$Id: README,v 5.0 1989/10/13 09:08:28 ste_cm Rel $
+
+--(TO-DO)----------------------------------------------------------------------
+
+	should add an option to use SHELL environment variable & bldargs() so
+	we needn't go thru 'system()' call (which always goes thru /bin/sh).
 
 88/05/03:
 	ft_insert does not check for apollo links such as /usr/lib mapping
@@ -61,3 +63,8 @@ To do:
 		spc-gould -> /network/software/u1/hofkin
 		src -> /network/mips/src/src1/npsources/src
 	which slow the stat down.  '_puts()' is not a simple solution...
+
+89/10/13:
+	on apollo sr10.1, trying to read stuff in //storage/dist, I noticed
+	that a 'R' command from ftree fails, while the 'E' command works.
+	It appears that the 'stat()' call is flakier in sr10.1 than 'lstat()'

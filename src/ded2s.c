@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	Id[] = "$Id: ded2s.c,v 4.9 1989/10/12 15:53:54 dickey Exp $";
+static	char	Id[] = "$Id: ded2s.c,v 5.0 1989/10/13 13:39:40 ste_cm Rel $";
 #endif	lint
 
 /*
@@ -7,10 +7,20 @@ static	char	Id[] = "$Id: ded2s.c,v 4.9 1989/10/12 15:53:54 dickey Exp $";
  * Author:	T.E.Dickey
  * Created:	09 Nov 1987
  * $Log: ded2s.c,v $
- * Revision 4.9  1989/10/12 15:53:54  dickey
- * refined the date-conversion in 'time2s()'.  added procedure
- * 'has_extended_acl()'
+ * Revision 5.0  1989/10/13 13:39:40  ste_cm
+ * BASELINE Fri Oct 27 12:27:25 1989 -- apollo SR10.1 mods + ADA_PITS 4.0
  *
+ *		Revision 4.11  89/10/13  13:39:40  dickey
+ *		gave up on function-prototype for type_$get_name(), since
+ *		ref-variables only work for input-args.
+ *		
+ *		Revision 4.10  89/10/13  09:33:08  dickey
+ *		corrected pointer-bug in z_lock/z_vers display
+ *		
+ *		Revision 4.9  89/10/12  15:53:54  dickey
+ *		refined the date-conversion in 'time2s()'.  added procedure
+ *		'has_extended_acl()'
+ *		
  *		Revision 4.8  89/10/12  09:15:15  dickey
  *		show z_vers, z_lock fields even if z_time is null, since we
  *		may have gotten to the view via a symbolic link.
@@ -88,6 +98,8 @@ extern	char	*uid2s(),
 
 #define ONE_WEEK	(7 * 24 * HOUR)
 #define SIXMONTHS	(26 * ONE_WEEK)
+
+#define	OK_S(s)		(s != 0 && s[0] != '?')
 
 static
 char	*
@@ -227,12 +239,14 @@ char	*t,
 #ifdef	Z_RCS_SCCS
 	if (Z_opt) {
 		if (V_opt) {	/* show highest version number */
-			FORMAT(bfr, "%-7s ", f_->z_vers);
-			bfr += field(bfr, (unsigned)(f_->z_vers[0] != '?'));
+			if (!(t = f_->z_vers))	t = "";
+			FORMAT(bfr, "%-7s ", t);
+			bfr += field(bfr, (unsigned)(OK_S(t)));
 		}
 		if (Y_opt) {	/* show current lock */
-			FORMAT(bfr, "%-*.*s ", UIDLEN, UIDLEN, f_->z_lock);
-			bfr += field(bfr, (unsigned)(f_->z_lock[0] != '?'));
+			if (!(t = f_->z_lock))	t = "";
+			FORMAT(bfr, "%-*.*s ", UIDLEN, UIDLEN, t);
+			bfr += field(bfr, (unsigned)(OK_S(t)));
 		}
 	}
 #endif	Z_RCS_SCCS
@@ -341,12 +355,7 @@ char	*bfr, *name;
 }
 
 #ifdef	apollo_sr10
-extern	type_$get_name(
-		uid_$t		&vol,
-		uid_$t		&tid,
-		name_$name_t	&tname,
-		short		&nlen,
-		status_$t	&st);
+std_$call	type_$get_name();
 
 typedef	struct	_lty {
 	struct	_lty	*link;
