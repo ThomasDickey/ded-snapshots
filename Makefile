@@ -1,4 +1,4 @@
-# $Id: Makefile,v 10.2 1992/02/04 10:38:54 dickey Exp $
+# $Id: Makefile,v 11.0 1992/02/27 09:56:50 ste_cm Rel $
 # Top-level makefile for unix directory-editor
 
 ####### (Development) ##########################################################
@@ -44,6 +44,6 @@ deinstall:		; rm -f $(ALL)
 
 ####### (Details of Productions) ###############################################
 bin:				; mkdir $@
-$(MFILES):			; $(GET) -x $@
+$(MFILES):			; $(GET) $@
 $B/$(PROG):	bin/$(PROG)	; $(PUT)
 $B/$(PROG).hlp:	bin/$(PROG).hlp	; $(PUT)
