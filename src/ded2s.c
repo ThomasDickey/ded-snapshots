@@ -1,5 +1,5 @@
 #if	!defined(NO_IDENT)
-static	char	Id[] = "$Id: ded2s.c,v 12.11 1994/07/10 19:21:02 tom Exp $";
+static	char	Id[] = "$Id: ded2s.c,v 12.12 1994/07/11 00:28:57 tom Exp $";
 #endif
 
 /*
@@ -346,7 +346,8 @@ public	void	ded2s(
 	/* translate the filename */
 	SETCOL(bfr, CCOL_NAME);
 	len -= (bfr-base);
-	bfr += ded2string(gbl, bfr, len, name, FALSE);
+	f_->namlen = ded2string(gbl, bfr, len, name, FALSE);
+	bfr += f_->namlen;
 
 #ifdef	S_IFLNK
 	if ((t = f_->ltxt) != 0) {
