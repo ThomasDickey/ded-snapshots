@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	Id[] = "$Id: deddoit.c,v 8.1 1991/04/16 08:47:24 dickey Exp $";
+static	char	Id[] = "$Id: deddoit.c,v 8.2 1991/04/17 07:33:09 dickey Exp $";
 #endif	lint
 
 /*
@@ -7,11 +7,14 @@ static	char	Id[] = "$Id: deddoit.c,v 8.1 1991/04/16 08:47:24 dickey Exp $";
  * Author:	T.E.Dickey
  * Created:	17 Nov 1987
  * $Log: deddoit.c,v $
- * Revision 8.1  1991/04/16 08:47:24  dickey
- * absorb backslash only when it precedes "#" or "%", to make
- * typing commands with backslashes simpler (though inconsistent).
- * also, made the static buffers auto (cleaner code).
+ * Revision 8.2  1991/04/17 07:33:09  dickey
+ * modified interface of 'dedwait()'
  *
+ *		Revision 8.1  91/04/16  08:51:20  dickey
+ *		absorb backslash only when it precedes "#" or "%", to make
+ *		typing commands with backslashes simpler (though inconsistent).
+ *		also, made the static buffers auto (cleaner code).
+ *		
  *		Revision 8.0  90/03/06  08:27:14  ste_cm
  *		BASELINE Mon Aug 13 15:06:41 1990 -- LINCNT, ADA_TRANS
  *		
@@ -265,7 +268,7 @@ deddoit(key,sense)
 			warn("system");
 		(void)dedsigs(TRUE);
 		rawterm();
-		if (clr_sh) dedwait();
+		if (clr_sh) dedwait(TRUE);
 		dlog_elapsed();
 	}
 	showC();

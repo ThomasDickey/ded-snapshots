@@ -1,3 +1,12 @@
+1991-04-17  dickey@software.org
+
+	* src/dedscan.c: modified debug-trace to make it easier to watch
+
+	* src/dedwait.c:
+	added flag to allow this to be used for debugging (non-curses)
+
+	* src/deddoit.c: modified interface of 'dedwait()'
+
 1991-04-16  dickey@software.org
 
 	* src/version.h: absorb backslash in shell command only when "#" or "%"

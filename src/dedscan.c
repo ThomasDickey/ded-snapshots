@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	Id[] = "$Id: dedscan.c,v 8.1 1991/04/04 09:15:08 dickey Exp $";
+static	char	Id[] = "$Id: dedscan.c,v 8.2 1991/04/17 08:01:53 dickey Exp $";
 #endif	lint
 
 /*
@@ -7,9 +7,12 @@ static	char	Id[] = "$Id: dedscan.c,v 8.1 1991/04/04 09:15:08 dickey Exp $";
  * Author:	T.E.Dickey
  * Created:	09 Nov 1987
  * $Log: dedscan.c,v $
- * Revision 8.1  1991/04/04 09:15:08  dickey
- * guard against 'getwd()' failure.
+ * Revision 8.2  1991/04/17 08:01:53  dickey
+ * modified debug-trace to make it easier to watch
  *
+ *		Revision 8.1  91/04/04  09:15:08  dickey
+ *		guard against 'getwd()' failure.
+ *		
  *		Revision 8.0  90/08/13  13:44:29  ste_cm
  *		BASELINE Mon Aug 13 15:06:41 1990 -- LINCNT, ADA_TRANS
  *		
@@ -188,8 +191,6 @@ char	*argv[];
 							continue;
 					if (!ok_scan(s))
 						continue;
-					if (debug)
-						PRINTF(" file \"%s\"\r\n", s);
 					j = argstat(strcpy(name+len, s), TRUE);
 					if (!dotname(s)
 					&&  j > 0
@@ -215,6 +216,8 @@ char	*argv[];
 	 * find the longest common leading pathname component and readjust
 	 * everything if it is nonnull.
 	 */
+	if (debug)
+		PRINTF("common=%d, numfiles=%d\r\n", common, numfiles);
 	if (common == 0 && numfiles != 0) {
 		common = strlen(strcpy(name,argv[0]));
 		for (j = 0; (j < argc) && (common > 0); j++) {
@@ -263,7 +266,7 @@ char	*argv[];
 		}
 	}
 	if (debug)
-		dedwait();
+		dedwait(FALSE);
 	return(numfiles);
 }
 
@@ -403,6 +406,9 @@ char	*name;
 	FLIST	fb;
 	char	full[BUFSIZ];
 	int	code;
+
+	if (debug)
+		PRINTF(" stat \"%s\" %slist\r\n", name, list ? "" : "no");
 
 	if (*name == '~')	/* permit "~" from Bourne-shell */
 		abshome(name = strcpy(full, name));
