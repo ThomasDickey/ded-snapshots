@@ -1,10 +1,16 @@
-# $Id: Makefile,v 8.0 1990/04/18 07:42:02 ste_cm Rel $
+# $Id: Makefile,v 9.0 1990/08/27 08:12:09 ste_cm Rel $
 # MAKE-file for directory editor
 #
 # $Log: Makefile,v $
-# Revision 8.0  1990/04/18 07:42:02  ste_cm
-# BASELINE Mon Aug 13 15:06:41 1990 -- LINCNT, ADA_TRANS
+# Revision 9.0  1990/08/27 08:12:09  ste_cm
+# BASELINE Mon Jun 10 10:09:56 1991 -- apollo sr10.3
 #
+#        Revision 8.1  90/08/27  08:12:09  dickey
+#        really need to lint with apollo stuff, tho not portable
+#        
+#        Revision 8.0  90/04/18  07:42:02  ste_cm
+#        BASELINE Mon Aug 13 15:06:41 1990 -- LINCNT, ADA_TRANS
+#        
 #        Revision 7.0  90/04/18  07:42:02  ste_cm
 #        BASELINE Mon Apr 30 09:54:01 1990 -- (CPROTO)
 #        
@@ -29,7 +35,7 @@ INCLUDES= -I. -I$I
 CFLAGS	=
 LIBS	= $L/lib.a
 DATE	= echo '****'`date` >> $@
-LINTOPT	= $(DEFINES) $(INCLUDES) -ltd -lcurses
+LINTOPT	= $(DEFINES) $(INCLUDES) -ltd -lcurses -lapollo
 #
 ####### (Standard Lists) #######################################################
 ALL	= $B/ded $B/ded.hlp

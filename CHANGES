@@ -1,3 +1,22 @@
+1990-08-27  dickey@software.org
+
+	* src/version.h: added better error recovery to ".ftree" read/write
+
+	* src/ded.c:
+	mods to make error-reporting routines work properly if they
+	are called before screen is initialized, etc., to support mods
+	to "ftree.c" for better error recovery.
+
+	* src/ftree.c:
+	modified 'ft_read()' and 'ft_write()' to try to recover from
+	missing/corrupt ".ftree" file.
+
+	* src/Makefile: really need to lint with apollo stuff, tho not portable
+
+1990-08-27  ste_cm@software.org
+
+	* src/Makefile: BASELINE Mon Jun 10 10:09:56 1991 -- apollo sr10.3
+
 1990-08-13  dickey@software.org
 
 	* src/dedscan.c: lint

@@ -1,14 +1,18 @@
 #ifndef	lint
-static	char	Id[] = "$Id: ftree.c,v 8.0 1990/05/23 10:51:18 ste_cm Rel $";
+static	char	Id[] = "$Id: ftree.c,v 8.1 1990/08/27 08:38:21 dickey Exp $";
 #endif	lint
 
 /*
  * Author:	T.E.Dickey
  * Created:	02 Sep 1987
  * $Log: ftree.c,v $
- * Revision 8.0  1990/05/23 10:51:18  ste_cm
- * BASELINE Mon Aug 13 15:06:41 1990 -- LINCNT, ADA_TRANS
+ * Revision 8.1  1990/08/27 08:38:21  dickey
+ * modified 'ft_read()' and 'ft_write()' to try to recover from
+ * missing/corrupt ".ftree" file.
  *
+ *		Revision 8.0  90/05/23  10:51:18  ste_cm
+ *		BASELINE Mon Aug 13 15:06:41 1990 -- LINCNT, ADA_TRANS
+ *		
  *		Revision 7.2  90/05/23  10:51:18  dickey
  *		set initial "=>" marker in 'ft_view()' so that caller can
  *		give an arbitrary 'path' value (e.g., when error-recovering
@@ -136,7 +140,8 @@ static	char	Id[] = "$Id: ftree.c,v 8.0 1990/05/23 10:51:18 ste_cm Rel $";
 #include	<sys/errno.h>
 extern	time_t	time();
 extern	int	errno;
-extern	char	*rcs_dir(),
+extern	char	*pathcat(),
+		*rcs_dir(),
 		*sccs_dir(),
 		*txtalloc();
 
@@ -678,19 +683,37 @@ char	*old, *new;
 	FDlast--;
 }
 
-/*
- * Initialize this module, by reading the file-tree database from the user's
- * home directory.
- *
- * The database file is stored:
- *	1) the number of entries in the vector
- *	2) the vector (with name-pointers adjusted to integer indices)
- *	3) the string-heap
- */
-#define	RDT(s,n)	(read(fid,(char *)s,(LEN_READ)(n)) == n)
-ft_read(first,home_dir)
-char	*first;		/* => string defining the initial directory */
-char	*home_dir;
+
+/* recover from corrupt .ftree file by initializing to empty-state */
+static
+ft_init(msg)
+char	*msg;
+{
+	waitmsg(msg);
+	FDtime = time((time_t *)0);
+	FDlast = 0;
+	fd_alloc();
+	return (FALSE);
+}
+
+/* read from the .ftree file, testing for consistency in sizes */
+static
+ok_read(fid,s,ask,msg)
+char	*s;
+char	*msg;
+{
+	LEN_READ	got = read(fid,s,ask);
+	if (got != ask) {
+		char	bfr[BUFSIZ];
+		FORMAT(bfr, "%s (got %d, asked %d)", msg, got, ask);
+		return (ft_init(msg));
+	}
+	return (TRUE);
+}
+
+static
+read_ftree(the_file)
+char	*the_file;
 {
 	struct		stat sb;
 	register int	j;
@@ -699,9 +722,8 @@ char	*home_dir;
 			size;
 
 	/* read the current database */
-	(void)strcat(strcpy(FDname, home_dir), "/.ftree");
-	if ((fid = open(FDname, O_RDONLY)) != 0) {
-		if (stat(FDname, &sb) < 0)
+	if ((fid = open(the_file, O_RDONLY)) != 0) {
+		if (stat(the_file, &sb) < 0)
 			return;
 		if (sb.st_mtime <= FDtime) {
 			(void)close(fid);
@@ -713,10 +735,14 @@ char	*home_dir;
 		size   = sb.st_size  - sizeof(FDlast);
 
 		/* (1) vector-size */
-		if (!RDT(&vecsize, sizeof(vecsize)))
-			failed("size \".ftree\"");
-		if ((size / sizeof(FTREE)) < vecsize)
-			failed("? size error");
+		if (!ok_read(fid,
+				(char *)&vecsize, sizeof(vecsize),
+				"size \".ftree\""))
+			return;
+		if ((size / sizeof(FTREE)) < vecsize) {
+			(void)ft_init("? size error");
+			return;
+		}
 
 		/* (2) vector-contents */
 		if (vecsize > FDlast)
@@ -724,19 +750,25 @@ char	*home_dir;
 		fd_alloc();
 		vecsize++;		/* account for 0'th node */
 		vecsize *= sizeof(FTREE);
-		if (!RDT(ftree, vecsize))
-			failed("read \".ftree\"");
+		if (!ok_read(fid,
+				(char *)ftree, vecsize,
+				"read \".ftree\""))
+			return;
 
 		/* (3) string-heap */
 		if ((size -= vecsize) > 0) {
 		char	*heap = doalloc((char *)0, (unsigned)(size+1));
 		register char *s = heap;
-			if (!RDT(heap, size))
-				failed("heap \".ftree\"");
+			if (!ok_read(fid,
+					heap, size,
+					"heap \".ftree\""))
+				return;
 			s[size] = EOS;
 			for (j = 0; j <= FDlast; j++) {
-				if (*s != EOS && !isprint(*s))
-					failed("? corrupted heap");
+				if (*s != EOS && !isprint(*s)) {
+					(void)ft_init("? corrupted heap");
+					return;
+				}
 				ftree[j].f_name = txtalloc(s);
 				s += strlen(s) + 1;
 			}
@@ -750,6 +782,24 @@ char	*home_dir;
 		ft_dump("read");
 #endif	DEBUG
 	}
+}
+
+/*
+ * Initialize this module, by reading the file-tree database from the user's
+ * home directory.
+ *
+ * The database file is stored:
+ *	1) the number of entries in the vector
+ *	2) the vector (with name-pointers adjusted to integer indices)
+ *	3) the string-heap
+ */
+ft_read(first,home_dir)
+char	*first;		/* => string defining the initial directory */
+char	*home_dir;
+{
+	register int	j;
+
+	read_ftree(pathcat(FDname, home_dir, ".ftree"));
 	FDdiff = 0;
 
 	/* append the current directory to the list */
@@ -1543,8 +1593,10 @@ ft_write()
 			showdiff = FDdiff = 0;
 			savesccs = showsccs;
 			(void)time(&FDtime);
-		} else if (errno != EPERM && errno != EACCES)
-			failed(FDname);
+		} else if (errno != EPERM
+			&& errno != ENOENT
+			&& errno != EACCES)
+			wait_warn(FDname);
 	}
 }
 
@@ -1590,12 +1642,5 @@ char	cwdpath[MAXPATHLEN],
 	ft_write();
 	(void)exit(0);
 	/*NOTREACHED*/
-}
-
-failed(s)
-char	*s;
-{
-	perror(s);
-	exit(1);
 }
 #endif	TEST
