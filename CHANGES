@@ -1,3 +1,17 @@
+1991-10-15  dickey@software.org
+
+	* src/dedmake.c, src/dedline.c: converted to ANSI
+
+	* src/ded.h:
+	added prototype-definitions for all modules in this directory
+
+	* src/Makefile: added rules for generating prototypes
+
+	* src/ded.h: corrected ENV-macro (for ANSI cpp)
+	removed obsolete externs
+
+	* src/ded.c: converted to ANSI
+
 1991-10-11  dickey@software.org
 
 	* src/ded.c: lint
