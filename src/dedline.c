@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	Id[] = "$Id: dedline.c,v 12.0 1992/10/16 11:08:19 ste_cm Rel $";
+static	char	Id[] = "$Id: dedline.c,v 12.1 1993/09/21 17:33:10 dickey Exp $";
 #endif
 
 /*
@@ -196,10 +196,10 @@ private	char *	link2bfr(
 			char	*code;
 			char	*path;
 			} ppp[] = {
-				"%F",	0,
-				"%B",	0,
-				"%d",	0,
-				"%D",	old_wd
+				{"%F",	0},
+				{"%B",	0},
+				{"%d",	0},
+				{"%D",	old_wd}
 			};
 		register int	j;
 		size_t	maxlen	= 0;
@@ -267,7 +267,7 @@ private	char *	subslink(
 	register char	*d = bfr;
 	register char	*t;
 
-	while (*d = *s) {
+	while ((*d = *s) != EOS) {
 		if (*s++ == '%') {
 			switch (*s++) {
 			case 'F':
@@ -288,7 +288,8 @@ private	char *	subslink(
 			}
 		} else if (*d == '#') {
 			t = gNAME(x);
-			while (*d = *t++)	d++;
+			while ((*d = *t++) != EOS)
+				d++;
 		} else
 			d++;
 	}
@@ -512,12 +513,12 @@ public	int	edittext(
 	move(y,col);
 	result = dyn_alloc(result, (size_t)len+1);
 	result = dyn_copy (result, bfr);
-	if (s = dlog_string(
+	if ((s = dlog_string(
 			&result,
 			inline_text(),
 			inline_hist(),
 			endc,
-			len)) {
+			len)) != NULL) {
 		(void)strcpy(bfr, s);
 		ReplayFinish();
 	} else {

@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	Id[] = "$Id: dedsigs.c,v 12.0 1991/10/18 10:17:55 ste_cm Rel $";
+static	char	Id[] = "$Id: dedsigs.c,v 12.1 1993/09/21 17:35:20 dickey Exp $";
 #endif
 
 /*
@@ -59,9 +59,10 @@ SIGNAL_FUNC(dedquit)
  * Process signals: we may catch interrupts, but try to clean up and exit if
  * we get a quit-signal.
  */
-dedsigs _ONE(int,flag)
+int	dedsigs _ONE(int,flag)
 {
 	int	code	= caught;
+
 	caught = 0;		/* reset interrupt-count */
 	if (flag != init) {
 		if (init < 0) {

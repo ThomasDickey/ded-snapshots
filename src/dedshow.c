@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	Id[] = "$Id: dedshow.c,v 12.0 1992/04/06 08:45:16 ste_cm Rel $";
+static	char	Id[] = "$Id: dedshow.c,v 12.1 1993/09/21 17:35:07 dickey Exp $";
 #endif
 
 /*
@@ -71,14 +71,14 @@ Show _ONE(char *,arg)
 	}
 }
 
-dedshow(
-_ARX(RING *,	gbl)
-_ARX(char *,	tag)
-_AR1(char *,	arg)
-	)
-_DCL(RING *,	gbl)
-_DCL(char *,	tag)
-_DCL(char *,	arg)
+void	dedshow(
+	_ARX(RING *,	gbl)
+	_ARX(char *,	tag)
+	_AR1(char *,	arg)
+		)
+	_DCL(RING *,	gbl)
+	_DCL(char *,	tag)
+	_DCL(char *,	arg)
 {
 	register int	y,x;
 

@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	Id[] = "$Id: dedsort.c,v 12.0 1993/04/27 11:03:49 ste_cm Rel $";
+static	char	Id[] = "$Id: dedsort.c,v 12.1 1993/09/21 20:17:41 dickey Exp $";
 #endif
 
 /*
@@ -140,8 +140,8 @@ public	int	dedsort_cmp(
 #ifdef	apollo_sr10
 	case 'P':
 #endif
-	case 'p':	cmp	= modechar(p1->s.st_mode)
-				- modechar(p2->s.st_mode);
+	case 'p':	cmp	= modechar((unsigned)(p1->s.st_mode))
+				- modechar((unsigned)(p2->s.st_mode));
 			if (!cmp) {
 				cmp = CMP(st_mode);
 #ifdef	apollo_sr10

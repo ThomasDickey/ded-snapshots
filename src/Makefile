@@ -1,4 +1,4 @@
-# $Id: Makefile,v 12.0 1993/05/06 13:19:59 ste_cm Rel $
+# $Id: Makefile,v 12.1 1993/09/21 20:49:04 dickey Exp $
 # MAKE-file for directory editor
 
 THIS	= ded
@@ -82,7 +82,7 @@ MAIN_O	= $(THIS).o $Z $(LIBS)
 all\
 install:	$B $(SOURCES) $(ALL)
 
-clean:				; rm -f $(CLEAN)
+clean:				; rm -f $(CLEAN) $Z
 clobber:	clean		; rm -f $(ALL)
 destroy:			; $(DESTROY)
 run_test:
@@ -90,7 +90,7 @@ sources:	$(SOURCES)
 
 ####### (Details of Productions) ###############################################
 $B:				; mkdir $@
-$B/$(THIS):	$(MAIN_O)	; $(CC) -o $@ $(MAIN_O) -lcurses -ltermcap
+$B/$(THIS):	$(MAIN_O)	; $(LINK) -o $@ $(MAIN_O) -lcurses -ltermcap
 $B/$(THIS).hlp:	$(THIS).hlp	; $(PUT)
 
 $Z:	$(OBJS)
@@ -110,3 +110,4 @@ lincnt.out:	$(CSRC)		; $(DATE); lincnt $(CSRC) >>$@
 
 .PRECIOUS:	proto.h
 proto.h:	$(CSRC)		; $(CPROTO) $(CPP_OPTS) $? >$@
+tags:		$(CSRC)		; dotags $(CSRC)

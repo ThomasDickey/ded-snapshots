@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	Id[] = "$Id: dedview.c,v 12.0 1992/12/02 09:03:03 ste_cm Rel $";
+static	char	Id[] = "$Id: dedview.c,v 12.1 1993/09/21 17:37:30 dickey Exp $";
 #endif
 
 /*
@@ -106,7 +106,7 @@ private	RING *	ring_view (_AR0)
 	RING	*gbl = vue->gbl;
 
 	while (chdir(gbl->new_wd) < 0)
-		if (gbl = dedring(gbl, gbl->new_wd, 'F', 1, FALSE, (char *)0))
+		if ((gbl = dedring(gbl, gbl->new_wd, 'F', 1, FALSE, (char *)0)) != NULL)
 			save_view(gbl);
 		else
 			break;

@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	Id[] = "$Id: dedname.c,v 12.0 1992/04/06 12:00:32 ste_cm Rel $";
+static	char	Id[] = "$Id: dedname.c,v 12.1 1993/09/21 17:33:50 dickey Exp $";
 #endif
 
 /*
@@ -19,14 +19,14 @@ static	char	Id[] = "$Id: dedname.c,v 12.0 1992/04/06 12:00:32 ste_cm Rel $";
 
 #include	"ded.h"
 
-dedname(
-_ARX(RING *,	gbl)
-_ARX(int,	x)
-_AR1(char *,	newname)
-	)
-_DCL(RING *,	gbl)
-_DCL(int,	x)
-_DCL(char *,	newname)
+int	dedname(
+	_ARX(RING *,	gbl)
+	_ARX(int,	x)
+	_AR1(char *,	newname)
+		)
+	_DCL(RING *,	gbl)
+	_DCL(int,	x)
+	_DCL(char *,	newname)
 {
 	int	ok	= FALSE;
 	char	oldname[BUFSIZ];

@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	Id[] = "$Id: ftree.c,v 12.0 1992/12/02 08:52:33 ste_cm Rel $";
+static	char	Id[] = "$Id: ftree.c,v 12.1 1993/09/21 20:28:20 dickey Exp $";
 #endif
 
 /*
@@ -159,6 +159,12 @@ typedef	struct	{
 	/*ARGSUSED*/
 	def_DOALLOC(FTREE)
 
+private	int	is_sccs _one(int,node);
+private	int	fd_show _one(int,node);
+private	int	limits(
+			_arx(int,	base)
+			_ar1(int,	row));
+
 static	char	FDname[MAXPATHLEN];	/* name of user's database	*/
 static	time_t	FDtime;			/* time: last modified ".ftree"	*/
 static	unsigned FDsize;		/* current sizeof(ftree[])	*/
@@ -296,7 +302,7 @@ private	void	fd_add_path(
 			*next = EOS;
 
 		/* double-check link/directory here */
-		if (check = (is_subpath(validated, bfr) < 0) ) {
+		if ((check = (is_subpath(validated, bfr) < 0) ) != 0) {
 			if (lstat(bfr, &sb) < 0)
 				/* patch: remove this & all children */
 				break;
@@ -424,7 +430,8 @@ private	int	fd_level _ONE(int,this)
 {
 	register int level = this ? 1 : 0;
 
-	while (this = ftree[this].f_root) level++;
+	while ((this = ftree[this].f_root) != 0)
+		level++;
 	return(level);
 }
 
@@ -480,7 +487,8 @@ private	char *	fd_path(
 		(void)strcpy(tmp, bfr);
 		(void)strcat(strcat(strcpy(bfr, gap), ftree[node].f_name), tmp);
 	}
-	while (node = ftree[node].f_root);
+	while ((node = ftree[node].f_root) != 0)
+		;
 #if	(TOP > 1)
 	(void)strcpy(tmp, bfr);
 	(void)strcpy(bfr, zero+1);
@@ -498,7 +506,7 @@ private	int	fd_show _ONE(int,node)
 		return(FALSE);
 	if (!ALL_SHOW(node))
 		return(FALSE);
-	while (node = ftree[node].f_root) {
+	while ((node = ftree[node].f_root) != 0) {
 		if (ftree[node].f_mark & NOVIEW)
 			return(FALSE);
 		if (!ALL_SHOW(node))
@@ -626,7 +634,7 @@ public	void	ft_purge _ONE(RING *,gbl)
 		char	tmp[BUFSIZ], *s;
 
 		(void)strcpy(tmp, gbl->new_wd);
-		for (j = 1; s = ring_path(gbl, j); j++) {
+		for (j = 1; (s = ring_path(gbl, j)) != NULL; j++) {
 			ft_insert(s);
 			if (!strcmp(s,tmp))
 				break;
@@ -759,7 +767,7 @@ private	void	read_ftree _ONE(char *,the_file)
 			size;
 
 	/* read the current database */
-	if ((fid = open(the_file, O_RDONLY)) != 0) {
+	if ((fid = open(the_file, O_RDONLY, 0)) != 0) {
 		if (stat_file(the_file, &sb) < 0)
 			return;
 		if (sb.st_mtime <= FDtime) {
@@ -1054,7 +1062,7 @@ private	void	scroll_to _ONE(int,node)
 
 	if (ftree[j].f_mark & NOSCCS)
 		toggle_sccs();
-	while (j = ftree[j].f_root) {	/* ensure this is visible! */
+	while ((j = ftree[j].f_root) != 0) {	/* ensure this is visible! */
 		if (ftree[j].f_mark & NOVIEW)
 			markit(j,NOVIEW,FALSE);
 		if (ftree[j].f_mark & NOSCCS)
@@ -1189,6 +1197,7 @@ public	RING *	ft_view(
 			num,
 			c;
 	auto	 char	cwdpath[MAXPATHLEN];
+	auto	 char	ignore;
 	register int	j;
 	register char	*s;
 
@@ -1297,7 +1306,7 @@ public	RING *	ft_view(
 
 			if (!strcmp(s, "$"))
 				c = FDlast;
-			else if (sscanf(s, "%d%c", &c, &num) != 1)
+			else if (sscanf(s, "%d%c", &c, &ignore) != 1)
 				c = -1;
 
 			if (c >= 0 && c <= FDlast) {
@@ -1400,7 +1409,7 @@ public	RING *	ft_view(
 		case 'q':
 			while (num-- > 0) {
 				tmp = SKIP_THIS(1);
-				if (j = (tmp != 0))
+				if ((j = (tmp != 0)) != 0)
 					gbl = tmp;
 				else
 					break;
@@ -1408,7 +1417,7 @@ public	RING *	ft_view(
 					toggle_sccs();
 			}
 			while (!fd_ring(gbl, path, &row, &lvl)) {
-				if (tmp = QUIT_THIS(1))
+				if ((tmp = QUIT_THIS(1)) != 0)
 					gbl = tmp;
 				else
 					return gbl;
@@ -1419,10 +1428,10 @@ public	RING *	ft_view(
 		/* scroll through the directory-ring */
 		case 'F':
 		case 'B':
-			if (tmp = SKIP_THIS(num))
+			if ((tmp = SKIP_THIS(num)) != 0)
 				gbl = tmp;
 			while (!fd_ring(gbl, path, &row, &lvl)) {
-				if (tmp = QUIT_THIS(1))
+				if ((tmp = QUIT_THIS(1)) != 0)
 					gbl = tmp;
 				else
 					return gbl;
@@ -1684,14 +1693,14 @@ public	int	ft_scan(
 	else if ((dp = opendir(bfr)) != 0) {
 		ft_remove(bfr,TRUE);
 		if (strcmp(bfr,zero))	*s_++ = '/';
-		while (d = readdir(dp)) {
+		while ((d = readdir(dp)) != NULL) {
 			(void)strcpy(s_, "*");
 			fd_slow(count++, base, bfr);
 			FORMAT(s_, "%s", d->d_name);
 			if (dotname(s_))		continue;
 			if (ft_stat(bfr, s_))
 				found = TRUE;
-			if (interrupted = dedsigs(TRUE))
+			if ((interrupted = dedsigs(TRUE)) != 0)
 				break;	/* exit loop so we can cleanup */
 		}
 		ft_purge(gbl);

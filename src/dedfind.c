@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	Id[] = "$Id: dedfind.c,v 12.0 1992/12/02 09:31:16 ste_cm Rel $";
+static	char	Id[] = "$Id: dedfind.c,v 12.1 1993/09/21 17:32:06 dickey Exp $";
 #endif
 
 /*
@@ -53,7 +53,7 @@ public	void	dedfind(
 		if (key == '/')	order = 1;
 		if (key == '?') order = -1;
 		next = order;
-	} else if (s = dyn_string(text)) {
+	} else if ((s = dyn_string(text)) != NULL) {
 		if (order) {
 			if (key == 'n')	next = order;
 			if (key == 'N')	next = -order;
@@ -70,10 +70,10 @@ public	void	dedfind(
 				j = gbl->numfiles;
 			} else if (j >= gbl->numfiles) {
 				j = -1;
-			} else if (found = GOT_REGEX(expr,gNAME(j))) {
+			} else if ((found = GOT_REGEX(expr,gNAME(j))) != 0) {
 				break;
 			} else if (gLTXT(j) != 0) {
-				if (found = GOT_REGEX(expr,gLTXT(j)))
+				if ((found = GOT_REGEX(expr,gLTXT(j))) != 0)
 					break;
 			} else if (j == gbl->curfile) {
 				found = FALSE;

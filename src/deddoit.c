@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	Id[] = "$Id: deddoit.c,v 12.0 1992/08/24 08:19:07 ste_cm Rel $";
+static	char	Id[] = "$Id: deddoit.c,v 12.1 1993/09/21 17:16:37 dickey Exp $";
 #endif
 
 /*
@@ -46,7 +46,7 @@ private	char *	subleaf _ONE(char *,name)
 #ifdef	apollo
 	if (*leaf == '/')	leaf++;
 #endif
-	if (leaf = strrchr(leaf, '/'))
+	if ((leaf = strrchr(leaf, '/')) != NULL)
 		leaf++;
 	else
 		leaf = name;
