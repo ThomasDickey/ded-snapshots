@@ -1,4 +1,4 @@
-.\" $Id: ded.man,v 12.0 1992/08/28 15:58:50 ste_cm Rel $
+.\" $Id: ded.man,v 12.1 1994/07/01 23:13:09 tom Exp $
 .if t .ds T \(tm
 .if n .ds T (tm)
 .
@@ -694,10 +694,12 @@ The \fIform-feed\fR (\fICTL/L\fR) key does the same thing.
 .I up-arrow
 saves the current set of editing keystrokes and replays an older set from
 the command's history.
+\fICTL/P\fR does the same thing.
 .TP
 .I down-arrow
 saves the current set of editing keystrokes and replays an newer set from
 the command's history.
+\fICTL/N\fR does the same thing.
 .TP
 .I CTL/I
 toggles between \fBcursor\fR and \fBinsert\fR modes.
@@ -731,8 +733,8 @@ complete command (a newline or return also completes the command)
 .B q
 abort command
 .TP
-.I \[0\-7\]
-set chmod-field
+.I octal-digit
+set chmod-field to the given value, which must be in the range 0 to 7.
 .TP
 .I space
 move cursor right 3 columns (or the next octal

@@ -1,4 +1,4 @@
-$Id: release.txt,v 12.3 1993/11/18 19:40:38 dickey Exp $
+$Id: release.txt,v 12.4 1994/07/01 00:39:57 tom Exp $
 
 --------------------------------------------------------------------------------
 
@@ -7,7 +7,17 @@ Version 13.0:
 
 Modified to address all gcc warnings.  Tested with Purify (demo only).
 
-Port to HP/UX 9.01 (System V clone).
+Ports:
+	+ HP/UX 9.01 (System V clone).
+	+ Linux (Posix clone).
+
+New features:
+
+	+ adjusted several commands for better consistency and extensibility
+	  between the filelist and directory trees.
+	+ autoconf{igure} script.
+	+ made the display resizable (e.g., when running in an xterm).
+	+ added mouse support (in xterm).
 
 Version 12.0:
 ------------

@@ -1,4 +1,4 @@
-$Id: README,v 12.2 1993/11/19 21:17:13 dickey Exp $
+$Id: README,v 12.3 1994/07/01 00:33:42 tom Exp $
 
 --(TO-DO)----------------------------------------------------------------------
 
@@ -54,3 +54,53 @@ $Id: README,v 12.2 1993/11/19 21:17:13 dickey Exp $
 	visibility to the given level.
 
 	modify to support Sys5-curses (including keypad stuff).
+
+DED:
+	make signals work properly for aborting the scan of long directory
+
+	when ftree's 'R' hits an unreadable directory, allow q/g response.
+
+	save A-flag (hidden files) in .ftree file?
+
+	fix override conflict with DED_TREE variable.
+
+	"o" for options.
+
+	resize
+
+	sys_errlist
+
+	:-commands
+
+	make all keys rebindable.
+	config-file to control edit-keys
+
+	e/E commands
+
+	empty directories
+
+	sys5 curses/vt100 character set
+
+	&-command toggle _all_ hidden files
+
+	allow 'R' command to be interrupted (get partial-scan)
+
+	allow ^R command to read from a pipe.
+
+	allow workspace-viewer in ftree.
+
+	use name-completion from vile.
+
+	make "x" command split window horizontally, combine with commands
+	for setting displayable fields as in FLIST.
+
+	in ftree, highlight the current "/" when moving the cursor left/right.
+
+	make ftree's rename-command have command history.
+
+	fix pathname-parsing for things like (in ftree) "~foo/bar"
+
+	make interface for CVS (like rcslast).
+
+	make "o" command (in workspace viewer) for toggling options in
+	user-friendly manner.

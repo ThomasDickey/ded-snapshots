@@ -1,5 +1,5 @@
 #if	!defined(NO_IDENT)
-static	char	Id[] = "$Id: dlog.c,v 12.8 1994/06/29 00:36:42 tom Exp $";
+static	char	Id[] = "$Id: dlog.c,v 12.9 1994/07/01 00:09:21 tom Exp $";
 #endif
 
 /*
@@ -317,7 +317,44 @@ public	int	dlog_char(
 	return c;
 }
 
+/*
+ * If we're given a nonnull prompt-string, clear the work-area and display
+ * the prompt.
+ */
+public	void	dlog_prompt (
+		_ARX(RING *,	gbl)
+		_AR1(char *,	prompt)
+			)
+		_DCL(RING *,	gbl)
+		_DCL(char *,	prompt)
+{
+	int	y,x;
+	if (prompt != 0) {
+		to_work(gbl, TRUE);
+		addstr(prompt);
+		getyx(stdscr, y, x);
+		clrtobot();
+		move(y,x);
+	}
+}
+
+/******************************************************************************/
 #define	IGNORE	{ beep(); s = to_hist; }
+
+/*
+ * We need these variables cached to be able to reconstruct the prompt prefix
+ * when resizing the window.
+ */
+static	RING	*gets_g_data;
+static	char	*gets_prompt;
+
+#ifdef	SIGWINCH
+public	void	dlog_resize (_AR0)
+{
+	dlog_prompt(gets_g_data, gets_prompt);
+	getyx(stdscr, y_rawgets, x_rawgets);
+}
+#endif
 
 /*
  * Obtain a string from the user and log it if logging is active.
@@ -328,6 +365,7 @@ public	int	dlog_char(
  */
 public	char *	dlog_string(
 	_ARX(RING *,	gbl)
+	_ARX(char *,	prompt)		/* nonnull iff we're using work-area */
 	_ARX(DYN **,	result)
 	_ARX(DYN **,	inflag)
 	_ARX(HIST **,	history)
@@ -335,6 +373,7 @@ public	char *	dlog_string(
 	_AR1(int,	wrap_len)
 		)
 	_DCL(RING *,	gbl)
+	_DCL(char *,	prompt)
 	_DCL(DYN **,	result)
 	_DCL(DYN **,	inflag)
 	_DCL(HIST **,	history)
@@ -365,6 +404,8 @@ public	char *	dlog_string(
 	*result = dyn_alloc(*result, (size_t)len+1);
 	buffer  = dyn_string(*result);
 
+	gets_g_data = gbl;
+	dlog_prompt(gbl, gets_prompt = prompt);
 
 	/* Inline-editing records the editing actions in history, not the
 	 * resulting buffer.  If we are also reading from a command-file,
@@ -423,6 +464,7 @@ public	char *	dlog_string(
 		after  = dyn_copy(after,  buffer);
 
 		move(y,x);
+		gets_active = TRUE;
 		dedsize(gbl);
 		c = wrawgets(stdscr,
 			buffer,
@@ -436,6 +478,7 @@ public	char *	dlog_string(
 			use_script ? &script_ptr : (char **)0,
 			history || inflag || log_fp);
 		dedsize((RING *)0);
+		gets_active = FALSE;
 
 		/* account for chars we read from command-file */
 		if (*cmd_ptr) {
