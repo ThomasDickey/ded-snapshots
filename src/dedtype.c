@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	Id[] = "$Id: dedtype.c,v 5.1 1990/03/02 08:16:06 dickey Exp $";
+static	char	Id[] = "$Id: dedtype.c,v 7.0 1990/03/05 10:42:09 ste_cm Rel $";
 #endif	lint
 
 /*
@@ -7,11 +7,20 @@ static	char	Id[] = "$Id: dedtype.c,v 5.1 1990/03/02 08:16:06 dickey Exp $";
  * Author:	T.E.Dickey
  * Created:	16 Nov 1987
  * $Log: dedtype.c,v $
- * Revision 5.1  1990/03/02 08:16:06  dickey
- * for the special case of a directory-file, create a temporary
- * file with the inode-values and names of the files.  Display
- * this instead of the raw contents of the directory.
+ * Revision 7.0  1990/03/05 10:42:09  ste_cm
+ * BASELINE Mon Apr 30 09:54:01 1990 -- (CPROTO)
  *
+ *		Revision 6.0  90/03/05  10:42:09  ste_cm
+ *		BASELINE Thu Mar 29 07:37:55 1990 -- maintenance release (SYNTHESIS)
+ *		
+ *		Revision 5.2  90/03/05  10:42:09  dickey
+ *		port to sun3 (os3.4)
+ *		
+ *		Revision 5.1  90/03/02  08:19:22  dickey
+ *		for the special case of a directory-file, create a temporary
+ *		file with the inode-values and names of the files.  Display
+ *		this instead of the raw contents of the directory.
+ *		
  *		Revision 5.0  89/10/13  13:43:28  ste_cm
  *		BASELINE Fri Oct 27 12:27:25 1989 -- apollo SR10.1 mods + ADA_PITS 4.0
  *		
@@ -51,7 +60,6 @@ static	char	Id[] = "$Id: dedtype.c,v 5.1 1990/03/02 08:16:06 dickey Exp $";
 
 #define		DIR_PTYPES	/* includes directory-stuff */
 #include	"ded.h"
-extern	FILE	*tmpfile();
 
 #define	def_doalloc	OFF_T_alloc
 	/*ARGSUSED*/
@@ -168,6 +176,7 @@ FILE	*fp;
 dedtype(name,binary,isdir)
 char	*name;
 {
+static	char	tmp_name[L_tmpnam];
 struct	stat	sb;
 FILE	*fp;
 int	c,			/* current character */
@@ -190,8 +199,13 @@ int	c,			/* current character */
 #else
 		char		*fmt = "%5d %s\n";
 #endif
-		if ((fp = tmpfile())     != 0
-		&&  (dp = opendir(name)) != 0) {
+		FORMAT(tmp_name, "%s/ded%d", P_tmpdir, getpid());
+		(void)unlink(tmp_name);
+		if ((fp = fopen(tmp_name,"w+")) == 0) {
+			warn("tmp-file");
+			return;
+		}
+		if ((dp = opendir(name)) != 0) {
 			while (de = readdir(dp)) {
 				(void)ded2string(bfr,
 					(int)de->d_namlen,
@@ -201,6 +215,11 @@ int	c,			/* current character */
 			}
 			closedir(dp);
 			rewind(fp);
+		} else {
+			warn("opendir");
+			FCLOSE(fp);
+			(void)unlink(tmp_name);
+			return;
 		}
 	} else
 		fp = fopen(name, "r");
@@ -334,6 +353,8 @@ int	c,			/* current character */
 			}
 		}
 		FCLOSE(fp);
+		if (isdir && !binary)
+			(void)unlink(tmp_name);
 		if (done < 0)
 			warn("fseek");
 		else {

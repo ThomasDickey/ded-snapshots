@@ -15,11 +15,11 @@
 1p444p	# chmod 444 ded
 1p555p	# chmod 555 ded
 1j
-1t	# type "ded.hlp" (text)
+1t	# type "ded.hlp" (text file)
 1\s
 1b
 1q
-1h	# type "CM_TOOLS/test/../bin/ded.hlp" (text)
+1h	# type "CM_TOOLS/test/../bin/ded.hlp" (text file)
 1\s
 1b
 1q
@@ -61,7 +61,7 @@ u
 1E	# chdir CM_TOOLS/src
 1st
 1\s
-1#	# "Makefile"
+2#	# "Makefile"
 	# "RCS"
 	# "README"
 	# "ded.c"
@@ -84,6 +84,7 @@ u
 	# "dedwait.c"
 	# "dlog.c"
 	# "ftree.c"
+	# "showpath.c"
 	# "sortset.c"
 	# "ded.h"
 	# "version.h"
@@ -107,6 +108,7 @@ u
 	# "dedwait.o"
 	# "dlog.o"
 	# "ftree.o"
+	# "showpath.o"
 	# "sortset.o"
 1/ded.a
 	# "ded.a"
@@ -124,7 +126,7 @@ u
 1k
 1b
 99b
-1t	# type "Makefile" (text)
+1t	# type "Makefile" (text file)
 1q
 1\R
 1\L
@@ -209,4 +211,5 @@ u
 1F	# path: CM_TOOLS/test
 1Q	# path: CM_TOOLS/src
 1q	# chdir CM_TOOLS/src
-1q	# PROCESS ENDED
+1qyes
+	# PROCESS ENDED

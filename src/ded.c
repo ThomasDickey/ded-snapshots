@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	what[] = "$Id: ded.c,v 5.7 1990/03/02 12:08:37 dickey Exp $";
+static	char	what[] = "$Id: ded.c,v 5.8 1990/03/05 07:28:51 dickey Exp $";
 #endif	lint
 
 /*
@@ -7,9 +7,12 @@ static	char	what[] = "$Id: ded.c,v 5.7 1990/03/02 12:08:37 dickey Exp $";
  * Author:	T.E.Dickey
  * Created:	09 Nov 1987
  * $Log: ded.c,v $
- * Revision 5.7  1990/03/02 12:08:37  dickey
- * set 'no_worry' in 'dedring()', not 'new_args()'
+ * Revision 5.8  1990/03/05 07:28:51  dickey
+ * forgot to init reply-buffer in 'user_says()'
  *
+ *		Revision 5.7  90/03/02  12:12:03  dickey
+ *		set 'no_worry' in 'dedring()', not 'new_args()'
+ *		
  *		Revision 5.6  90/03/02  08:57:19  dickey
  *		modified quit-behavior so that if user has gone into any
  *		directory other than the original one, he will be prompted
@@ -491,6 +494,7 @@ user_says(ok)
 		clrtobot();
 		move(y,x);
 		refresh();
+		*reply = EOS;
 		dlog_string(reply,sizeof(reply),FALSE);
 		ok = (*reply == 'y') || (*reply == 'Y');
 		showC();

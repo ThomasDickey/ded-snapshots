@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	Id[] = "$Id: deduniq.c,v 5.2 1990/02/08 13:05:15 dickey Exp $";
+static	char	Id[] = "$Id: deduniq.c,v 8.0 1990/03/05 13:18:44 ste_cm Rel $";
 #endif	lint
 
 /*
@@ -7,9 +7,21 @@ static	char	Id[] = "$Id: deduniq.c,v 5.2 1990/02/08 13:05:15 dickey Exp $";
  * Author:	T.E.Dickey
  * Created:	18 Jan 1989
  * $Log: deduniq.c,v $
- * Revision 5.2  1990/02/08 13:05:15  dickey
- * don't tag current entry unless other entries match!
+ * Revision 8.0  1990/03/05 13:18:44  ste_cm
+ * BASELINE Mon Aug 13 15:06:41 1990 -- LINCNT, ADA_TRANS
  *
+ *		Revision 7.0  90/03/05  13:18:44  ste_cm
+ *		BASELINE Mon Apr 30 09:54:01 1990 -- (CPROTO)
+ *		
+ *		Revision 6.0  90/03/05  13:18:44  ste_cm
+ *		BASELINE Thu Mar 29 07:37:55 1990 -- maintenance release (SYNTHESIS)
+ *		
+ *		Revision 5.3  90/03/05  13:18:44  dickey
+ *		corrected logging of selected-names
+ *		
+ *		Revision 5.2  90/02/08  13:08:56  dickey
+ *		don't tag current entry unless other entries match!
+ *		
  *		Revision 5.1  90/02/07  08:29:56  dickey
  *		rewrote, using 'level' argument to provide reset/set/all
  *		modes of operation.
@@ -38,24 +50,27 @@ static	char	Id[] = "$Id: deduniq.c,v 5.2 1990/02/08 13:05:15 dickey Exp $";
 deduniq(level)
 {
 	register int	j, k;
+	auto	 int	old, new;
 
 	to_work();
 	tagsort = FALSE;	/* don't confuse 'dedsort_cmp()' */
 
-	for (j = (level > 1); j < numfiles; j++) {
+	for (j = (level > 1), old = FALSE; j < numfiles; j++) {
 
 		k = (level > 1) ? j-1 : curfile;
 
-		if (k == j)
+		if (new = (k == j)) {
 			blip('*');
-		else if (! dedsort_cmp(flist+k, flist+j)) {
+			dlog_name(xNAME(k));
+		} else if (new = (! dedsort_cmp(flist+k, flist+j)) ) {
 			blip('#');
 			xFLAG(k) =
 			xFLAG(j) = (level > 0);
-			if (j > 0 && (level > 1))
+			if (!old)
 				dlog_name(xNAME(k));
 			dlog_name(xNAME(j));
 		} else
 			blip('.');
+		old = new;
 	}
 }
