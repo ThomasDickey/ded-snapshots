@@ -1,3 +1,14 @@
+1989-08-08  dickey@software.org
+
+	* src/ded.h:
+	use 'dftenv()' procedure to make EDITOR/BROWSER/PAGER set by
+	user's environent (oops...)
+
+1989-08-08  ste_cm@software.org
+
+	* src/ded.h:
+	BASELINE Thu Aug 24 10:20:06 EDT 1989 -- support:navi_011(rel2)
+
 1989-07-25  dickey@software.org
 
 	* src/dedname.c:

@@ -1,4 +1,4 @@
-/* $Header: /users/source/archives/ded.vcs/src/RCS/ded.h,v 3.0 1989/05/26 13:06:26 ste_cm Rel $ */
+/* $Id: ded.h,v 4.0 1989/08/08 13:49:03 ste_cm Rel $ */
 
 /*
  * Created:	09 Nov 1987
@@ -78,7 +78,8 @@ extern	int	re_exec();	/* (return > 0): match */
 /*
  * Miscellaneous definitions
  */
-#define	ENV(n)	n
+extern	char	*dftenv();
+#define	ENV(n)	dftenv(n,"n")
 
 #define	UIDLEN	9		/* length of uid/gid field */
 
