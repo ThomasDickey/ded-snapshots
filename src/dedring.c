@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	sccs_id[] = "@(#)dedring.c	1.12 88/06/01 10:06:33";
+static	char	sccs_id[] = "@(#)dedring.c	1.13 88/06/16 08:14:39";
 #endif	lint
 
 /*
@@ -7,6 +7,7 @@ static	char	sccs_id[] = "@(#)dedring.c	1.12 88/06/01 10:06:33";
  * Author:	T.E.Dickey
  * Created:	27 Apr 1988
  * Modified:
+ *		16 Jun 1988, added code to save/restore AT_opt.
  *		25 May 1988, don't force V/Z-mode continuation on dedscan.
  *		18 May 1988, added 'dedrung()' entry.
  *		06 May 1988, added coercion for paths which may contain a
@@ -41,6 +42,9 @@ typedef	struct	_ring	{
 			dateopt,
 			sortord,
 			sortopt,
+#ifndef	SYSTEM5
+			AT_opt,
+#endif	SYSTEM5
 			G_opt,
 			I_opt,
 			P_opt,
@@ -106,6 +110,9 @@ RING	*p;
 	SAVE(dateopt);
 	SAVE(sortord);
 	SAVE(sortopt);
+#ifndef	SYSTEM5
+	SAVE(AT_opt);
+#endif	SYSTEM5
 	SAVE(G_opt);
 	SAVE(I_opt);
 	SAVE(P_opt);
@@ -136,6 +143,9 @@ RING	*p;
 	UNSAVE(dateopt);
 	UNSAVE(sortord);
 	UNSAVE(sortopt);
+#ifndef	SYSTEM5
+	UNSAVE(AT_opt);
+#endif	SYSTEM5
 	UNSAVE(G_opt);
 	UNSAVE(I_opt);
 	UNSAVE(P_opt);

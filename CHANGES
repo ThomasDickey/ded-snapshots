@@ -1,3 +1,28 @@
+1988-06-16  dickey@software.org
+
+	* src/README: new release: added '@' toggle.
+
+	* src/ded.c: save/restore AT_opt if needed in 'editprot()'.
+
+	* src/ded2s.c: for '@' toggle, keep showing link-to-directory name.
+
+	* src/dedscan.c: more tinkering with AT_opt versus ltxt values.
+
+	* src/version.h: added '@' toggle.
+
+	* src/dedring.c: added AT_opt to global state.
+
+	* src/ded.c: corrected fall-thru in 'failed()' for apollo.
+	added code to toggle symbolic-link display (AT_opt).
+
+	* src/ded2s.c:
+	added code to show filemode of symbolic links in uppercase if AT_opt is set.
+
+	* src/ded.h: added AT_opt (for '@' toggle)
+
+	* src/ded.hlp:
+	added '@' toggle so we can control display of symbolic links vs target
+
 1988-06-13  dickey@software.org
 
 	* src/README: more bugss..

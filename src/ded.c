@@ -1,5 +1,5 @@
 #ifndef	NO_SCCS_ID
-static	char	sccs_id[] = "@(#)ded.c	1.31 88/06/07 06:37:14";
+static	char	sccs_id[] = "@(#)ded.c	1.33 88/06/16 09:29:21";
 #endif	NO_SCCS_ID
 
 /*
@@ -7,6 +7,7 @@ static	char	sccs_id[] = "@(#)ded.c	1.31 88/06/07 06:37:14";
  * Author:	T.E.Dickey
  * Created:	09 Nov 1987
  * Modified:
+ *		16 Jun 1988, added '@' toggle.
  *		07 Jun 1988, added CTL(K) screen-dump
  *		06 Jun 1988, if 'R' finds nothing, do 'F' to recover before 'q'.
  *		01 Jun 1988, added 'Y' toggle, y-sort.
@@ -245,9 +246,8 @@ char	*msg;
 		(void)kill(getpid(), SIGKILL);
 		for (;;);	/* when terminated, will be able to use 'tb' */
 	}
-#else	apollo
-	exit(1);
 #endif	apollo
+	exit(1);
 }
 
 /*
@@ -546,6 +546,27 @@ static	int	in_edit;
 }
 
 /*
+ * Save AT_opt mode when we are editing inline
+ */
+#ifndef	SYSTEM5
+static
+at_save()
+{
+register int x;
+	if (!AT_opt) {	/* chmod applies only to target of symbolic link */
+		for (x = 0; x < numfiles; x++)
+			if (x == curfile || flist[x].flag)
+				if (flist[x].ltxt) {
+					AT_opt = TRUE;
+					statLINE(curfile);
+					return (TRUE);
+				}
+	}
+	return (FALSE);
+}
+#endif	SYSTEM5
+
+/*
  * edit protection-code for current & tagged files
  */
 #define	CHMOD(n)	(flist[n].s.st_mode & 07777)
@@ -553,12 +574,16 @@ static	int	in_edit;
 static
 editprot()
 {
+register
 int	y	= file2row(curfile),
 	x	= 0,
 	c,
 	opt	= P_opt,
 	changed	= FALSE,
 	done	= FALSE;
+#ifndef	SYSTEM5
+int	at_flag	= at_save();
+#endif	SYSTEM5
 
 	if (Xbase > 0) {
 		Xbase = 0;
@@ -637,6 +662,12 @@ int	y	= file2row(curfile),
 				beep();
 		}
 	}
+#ifndef	SYSTEM5
+	if (at_flag) {		/* we had to toggle because of sym-link	*/
+		AT_opt = FALSE;	/* restore mode we toggled from		*/
+		changed = TRUE;	/* force restat on the files anyway	*/
+	}
+#endif	SYSTEM5
 	if (opt != P_opt) {
 		P_opt = opt;
 		showLINE(curfile);
@@ -1041,6 +1072,18 @@ char	tpath[BUFSIZ],
 			break;
 
 			/* display-toggles */
+#ifndef	SYSTEM5
+	case '@':	AT_opt= !AT_opt;
+			count = 0;
+			for (j = 0; j < numfiles; j++) {
+				if (flist[j].ltxt)
+					statLINE(j);
+					count++;
+			}
+			if (count)
+				showFILES();
+			break;
+#endif	SYSTEM5
 	case 'G':	G_opt = !G_opt; showFILES(); break;
 	case 'I':	I_opt = !I_opt; showFILES(); break;
 	case 'P':	P_opt = !P_opt; showFILES(); break;

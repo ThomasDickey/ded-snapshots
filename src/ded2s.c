@@ -1,5 +1,5 @@
 #ifndef	NO_SCCS_ID
-static	char	sccs_id[] = "@(#)ded2s.c	1.9 88/06/01 10:24:35";
+static	char	sccs_id[] = "@(#)ded2s.c	1.11 88/06/16 09:10:34";
 #endif	NO_SCCS_ID
 
 /*
@@ -7,6 +7,7 @@ static	char	sccs_id[] = "@(#)ded2s.c	1.9 88/06/01 10:24:35";
  * Author:	T.E.Dickey
  * Created:	09 Nov 1987
  * Modified:
+ *		16 Jun 1988, added uppercase-code for AT_opt.
  *		01 Jun 1988, added 'Y_opt' field.
  *		23 May 1988, absorbed 'z_rels' into 'z_vers'.
  *		18 May 1988, show Apollo inodes in hex.
@@ -65,6 +66,14 @@ char	*t,
 		if (mj & S_ISGID)			bfr[5]   = 's';
 		if (mj & S_ISVTX)			bfr[8]   = 't';
 	}
+
+#ifndef	SYSTEM5
+	/* show symbolic link target mode in uppercase */
+	if (AT_opt && f_->ltxt) {
+		for (t = base; *t; t++)
+			if (isalpha(*t))	*t = _toupper(*t);
+	}
+#endif	SYSTEM5
 	bfr += strlen(bfr);
 
 	/* translate the number of links, or the inode value */
@@ -151,15 +160,18 @@ char	*t,
 	len -= (bfr-base);
 	bfr += name2s(bfr, name, len, FALSE);
 
-	if (isDIR(mj)) {
-		*bfr++ = '/';
-	} else if (isLINK(mj) && ((t = f_->ltxt) != 0)) {
+#ifndef	SYSTEM5
+	if ((t = f_->ltxt) != 0) {
 		*bfr++ = ' ';
 		*bfr++ = '-';
 		*bfr++ = '>';
 		*bfr++ = ' ';
 		len -= (bfr-base);
 		bfr += name2s(bfr, t, len, FALSE);
+	} else
+#endif	SYSTEM5
+		if (isDIR(mj)) {
+		*bfr++ = '/';
 	} else if (executable(s))	*bfr++ = '*';
 	*bfr = '\0';
 }

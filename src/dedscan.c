@@ -1,5 +1,5 @@
 #ifndef	NO_SCCS_ID
-static	char	sccs_id[] = "@(#)dedscan.c	1.15 88/06/01 10:26:17";
+static	char	sccs_id[] = "@(#)dedscan.c	1.16 88/06/16 09:09:31";
 #endif	NO_SCCS_ID
 
 /*
@@ -168,6 +168,10 @@ char	*name = f_->name;
  * directories from ordinary files.  Save link-text for display, but don't
  * worry about whether a symbolic link really points anywhere real.
  * (We will worry about that when we have to do something with it.)
+ *
+ * If the flag AT_opt is set, we obtain the stat for the target, and will use
+ * the presence of the 'ltxt' to do basic testing on whether the file was a
+ * symbolic link.
  */
 static
 dedstat (name, f_)
@@ -192,6 +196,8 @@ char	bfr[BUFSIZ];
 			bfr[len] = EOS;
 			if (f_->ltxt)	txtfree(f_->ltxt);
 			f_->ltxt = txtalloc(bfr);
+			if (AT_opt)
+				(void)stat(name, &f_->s);
 		}
 	}
 #endif	SYSTEM5
@@ -218,7 +224,7 @@ FLIST	fb;
 		if (!list && linkstat(name, &fb))
 			return(2);			/* link to directory */
 #endif	SYSTEM5
-		if (!isDIR(fb.s.st_mode) || list)
+		if (!(fb.ltxt || isDIR(fb.s.st_mode)) || list)
 			append(name, &fb);
 		return(isDIR(fb.s.st_mode) ? 1 : 0);	/* directory ? */
 	}
@@ -235,7 +241,7 @@ char	*name;
 FLIST	*f;
 {
 struct	stat	sb;
-	if (isLINK(f->s.st_mode)) {
+	if (f->ltxt) {	/* we already decided this is a link */
 		if (stat(name, &sb) >= 0) {
 			if (isDIR(sb.st_mode))
 				return(TRUE);	/* link to directory */
