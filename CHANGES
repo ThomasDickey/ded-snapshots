@@ -1,3 +1,7 @@
+1994-08-02  Thomas E. Dickey  <dickey@clark.net>
+
+	* src/dedscan.c: added logic to perform DED_CM_LOOKUP
+
 1994-07-29  Thomas E. Dickey  <dickey@clark.net>
 
 	* src/ftree.c, src/dedview.c:
