@@ -3,6 +3,7 @@
  * Author:	T.E.Dickey
  * Created:	16 Nov 1987
  * Modified:
+ *		15 Dec 1995, allow for missing newline in file-ending.
  *		01 Nov 1995, mods to use last column on display, and to
  *			     provide single column/row scrolling.
  *		04 Jul 1994, prevent nonascii characters from echoing.
@@ -52,7 +53,7 @@
 #define		DIR_PTYPES	/* includes directory-stuff */
 #include	"ded.h"
 
-MODULE_ID("$Id: dedtype.c,v 12.18 1995/11/02 01:12:57 tom Exp $")
+MODULE_ID("$Id: dedtype.c,v 12.19 1995/12/16 00:30:07 tom Exp $")
 
 typedef	struct	{
 	OFF_T	offset;
@@ -422,9 +423,10 @@ private	int	StartPage(
 	for (;;) {
 		if ((c = GetC()) == EOF) {
 			*eoff = TRUE;
-			break;
+			if (Tlen == 0)
+				break;
 		}
-		if (typeconv(c)) {
+		if (*eoff || typeconv(c)) {
 			if (Tlen == 0) {
 				LineAt[(*infile)].blank = *infile > 0
 					? LineAt[(*infile)-1].blank + 1
@@ -439,7 +441,7 @@ private	int	StartPage(
 			}
 			blank = (Tlen == 0);
 			y = typeline(y,skip);
-			if (y >= LINES-1)
+			if (*eoff || (y >= LINES-1))
 				break;
 		}
 	}

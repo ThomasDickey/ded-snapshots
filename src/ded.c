@@ -3,6 +3,7 @@
  * Author:	T.E.Dickey
  * Created:	09 Nov 1987
  * Modified:
+ *		16 Dec 1995, added '-i' option.
  *		05 Nov 1995, mods to prevent tilde-expansion in cNAME
  *		30 Aug 1995, added "-e" option.
  *		16 Jul 1994, allow DED_TREE to be file or directory.
@@ -147,7 +148,7 @@
 #define	MAIN
 #include	"ded.h"
 
-MODULE_ID("$Header: /users/source/archives/ded.vcs/src/RCS/ded.c,v 12.43 1995/11/05 23:20:36 tom Exp $")
+MODULE_ID("$Header: /users/source/archives/ded.vcs/src/RCS/ded.c,v 12.44 1995/12/16 14:42:14 tom Exp $")
 
 #define	EDITOR	DEFAULT_EDITOR
 #define	BROWSE	DEFAULT_BROWSE
@@ -791,6 +792,9 @@ void	usage(_AR0)
 			"  -c FILE  read DED commands from FILE",
 			"  -e       edit 'e' in new process",
 			"  -d       (debug)",
+#if HAVE_HAS_COLORS
+			"  -i       invert default colors",
+#endif
 			"  -l FILE  write DED commands to log-FILE",
 			"  -n       disable \"are you sure\" on quit",
 			"  -t DIR   read \".ftree\"-file from directory DIR",
@@ -883,13 +887,16 @@ _MAIN
 	/* show when entering process */
 	(void)fflush(stdout);
 
-	while ((c = getopt(argc, argv, "abeGIOPSTUZc:l:r:s:zdt:n")) != EOF)
+	while ((c = getopt(argc, argv, "abeGIiOPSTUZc:l:r:s:zdt:n")) != EOF)
 	switch (c) {
+	case 'a':	COMPLEMENT(gbl->A_opt);	break;
 	case 'b':	optBox = TRUE;		break;
 	case 'e':	optInprocess = FALSE;	break;
-	case 'a':	COMPLEMENT(gbl->A_opt);	break;
 	case 'G':	COMPLEMENT(gbl->G_opt);	break;
 	case 'I':	COMPLEMENT(gbl->I_opt);	break;
+#if HAVE_HAS_COLORS
+	case 'i':	invert_colors = TRUE;	break;
+#endif
 #ifdef	apollo_sr10
 	case 'O':	COMPLEMENT(gbl->O_opt);	break;
 #endif

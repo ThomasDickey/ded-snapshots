@@ -1,3 +1,18 @@
+1995-12-16  Thomas E. Dickey  <dickey@clark.net>
+
+	* src/boxchars.c:
+	renamed hline/vline since they're the names of curses-functions
+
+	* src/dedcolor.c: added 'invert_colors' logic
+
+	* src/ded.c: added '-i' option
+
+	* src/ded.h: added 'invert_colors' to dedcolor.c
+
+1995-12-15  Thomas E. Dickey  <dickey@clark.net>
+
+	* src/dedtype.c: flush out current line on EOF when newline is missing.
+
 1995-11-27  Thomas E. Dickey  <dickey@clark.net>
 
 	* src/ccodes.rc: RCS_BASE

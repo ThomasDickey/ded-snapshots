@@ -3,6 +3,7 @@
  * Author:	T.E.Dickey
  * Created:	10 Jul 1994
  * Modified:
+ *		16 Dec 1995, mods to override curses's sense of default color.
  *
  * Function:	If we've got SYS5-curses and appropriate display hardware,
  *		we can show colors in a curses application. This application
@@ -13,12 +14,9 @@
  */
 #include "ded.h"
 
-MODULE_ID("$Id: dedcolor.c,v 12.8 1995/11/05 21:47:48 tom Exp $")
+MODULE_ID("$Id: dedcolor.c,v 12.9 1995/12/16 15:51:49 tom Exp $")
 
 #if HAVE_HAS_COLORS
-
-#define	FORG_DEFAULT	COLOR_WHITE
-#define	BAKG_DEFAULT	COLOR_BLACK
 
 enum	ColorBy { ByType, ByMode, BySuffix };
 
@@ -35,9 +33,13 @@ typedef	struct	{
 	int	attr;		/* the attributes and color-pair value */
 	};
 
+	int	invert_colors;
+
 static	KEYATTR	*keypairs;
 static	char *	color_file;
 static	int	initialized;
+static	int	default_foreground = COLOR_WHITE;
+static	int	default_background = COLOR_BLACK;
 
 /*
  * Initialize a color pair, if there's room in curses' table. Return the
@@ -53,8 +55,8 @@ private	int	CreatePair(
 	static	int	used_pairs;	/* # of entries we've used so far */
 	int	n;
 
-	if (foreground == FORG_DEFAULT
-	 && background == BAKG_DEFAULT)
+	if (foreground == default_foreground
+	 && background == default_background)
 	 	return 0;
 
 	for (n = 1; n <= used_pairs; n++) {
@@ -107,8 +109,8 @@ private	void	SaveColor(
 	};
 	int	code;
 	int	attr	= A_NORMAL,
-		forg	= FORG_DEFAULT,
-		bakg	= BAKG_DEFAULT;
+		forg	= default_foreground,
+		bakg	= default_background;
 	int	n, found = FALSE;
 	char	*temp;
 
@@ -276,6 +278,12 @@ private	int	FindColorFile(
 private	void	InitializeColors (_AR0)
 {
 	initialized = TRUE;
+
+	if (invert_colors) {
+		default_background = COLOR_WHITE | A_BOLD;
+		default_foreground = COLOR_BLACK;
+		init_pair(0, default_foreground, default_background);
+	}
 
 	/* find the color-definition file */
 	if (FindColorFile(gethome(), ".ded_colors")
