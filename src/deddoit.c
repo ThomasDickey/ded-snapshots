@@ -1,5 +1,5 @@
 #ifndef	NO_SCCS_ID
-static	char	sccs_id[] = "@(#)deddoit.c	1.6 88/03/25 13:18:35";
+static	char	sccs_id[] = "@(#)deddoit.c	1.7 88/04/27 10:23:03";
 #endif	NO_SCCS_ID
 
 /*
@@ -7,6 +7,7 @@ static	char	sccs_id[] = "@(#)deddoit.c	1.6 88/03/25 13:18:35";
  * Author:	T.E.Dickey
  * Created:	17 Nov 1987
  * Modified:
+ *		27 Apr 1988, modified 'rawgets()' to echo the non-tag string.
  *		25 Mar 1988, use 'rawgets()' for input, helps to implement ':'.
  *			     Recognize '\' as escape character for '#', '%'
  *			     insertion.  Added buffer-overflow check.
@@ -60,13 +61,10 @@ int	c, j, k;
 		clr_sh = TRUE;
 
 	if ((key != '.') || (bfr_sh[0] == EOS)) {
-		if (key == ':') {
-			printw("%s", bfr_sh);
-			clrtoeol();
-		} else
+		if (key != ':')
 			*bfr_sh = EOS;
 		refresh();
-		rawgets(bfr_sh,sizeof(bfr_sh),FALSE);
+		rawgets(bfr_sh,sizeof(bfr_sh),TRUE);
 	} else
 		printw("(ditto)\n");
 

@@ -1,7 +1,8 @@
-# @(#)Makefile	1.7 88/03/25 06:41:58
+# @(#)Makefile	1.9 88/04/27 15:39:48
 # MAKE-file for directory editor
 B	= ~/bin
-DED_H   = ded.h
+DED_H   = ded.h ../lib/cmdch.h
+INCLUDES= -I. -I../lib
 CFLAGS  = $(DEFINES) $(INCLUDES) -O
 LIBS	=\
 	../lib/lib.a
@@ -19,26 +20,26 @@ ftree:	ftree.c $(LIBS)
 ded.a:	\
         dedfind.o\
         deddoit.o\
+        dedring.o\
         dedscan.o\
 	dedshow.o\
 	dedsort.o\
 	dedtype.o\
 	dedwait.o\
 	ded2s.o\
-	fring.o\
 	ftree.o
 	ar rv $@ $?
 #
 ded.o:	        $(DED_H) ded.c version.h
 deddoit.o:      $(DED_H) deddoit.c
 dedfind.o:      $(DED_H) dedfind.c
+dedring.o:      $(DED_H) dedring.c
 dedscan.o:      $(DED_H) dedscan.c
 dedshow.o:      $(DED_H) dedshow.c
 dedsort.o:      $(DED_H) dedsort.c
 dedtype.o:      $(DED_H) dedtype.c
 dedwait.o:      $(DED_H) dedwait.c
 ded2s.o:        $(DED_H) ded2s.c
-fring.o:	$(DED_H) fring.c
 ftree.o:	$(DED_H) ftree.c
 #
 clean:

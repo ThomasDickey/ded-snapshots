@@ -1,5 +1,5 @@
 #ifndef	NO_SCCS_ID
-static	char	sccs_id[] = "@(#)ftree.c	1.23 88/04/26 10:43:23";
+static	char	sccs_id[] = "@(#)ftree.c	1.24 88/04/27 09:55:39";
 #endif
 
 /*
@@ -837,7 +837,7 @@ register int j;
 		case '@':
 			if (!isalpha(c)) {
 				move(0,0);
-				printw("find: %s", cwdpath);
+				printw("find: ");
 				clrtoeol();
 				refresh();
 				rawgets(cwdpath,sizeof(cwdpath),FALSE);
