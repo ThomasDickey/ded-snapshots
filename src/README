@@ -1,4 +1,4 @@
-$Id: README,v 10.2 1992/02/18 13:52:09 dickey Exp $
+$Id: README,v 10.3 1992/02/21 14:21:32 dickey Exp $
 
 --(TO-DO)----------------------------------------------------------------------
 
@@ -52,3 +52,7 @@ $Id: README,v 10.2 1992/02/18 13:52:09 dickey Exp $
 	if user renames a directory in 'ftree', should check to see if the
 	name appeared in any of the filelists and update the corresponding
 	entry.
+
+92/02/21:
+	make 'rawgets()' handle the functions needed for 'edittext()', revise
+	calls on these to consolidate/simplify (cf: '=' command in 'ftree').
