@@ -1,3 +1,11 @@
+1991-06-11  dickey@software.org
+
+	* src/dedsigs.c: lint (apollo sr10.2)
+
+1991-06-11  ste_cm@software.org
+
+	* src/dedsigs.c: BASELINE Tue Jun 11 08:46:03 1991 -- apollo sr10.3
+
 1991-06-05  dickey@software.org
 
 	* Makefile: cleanup install-rule

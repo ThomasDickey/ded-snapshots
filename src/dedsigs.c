@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	Id[] = "$Id: dedsigs.c,v 8.1 1991/05/16 07:58:48 dickey Exp $";
+static	char	Id[] = "$Id: dedsigs.c,v 9.0 1991/06/11 08:45:12 ste_cm Rel $";
 #endif
 
 /*
@@ -7,9 +7,15 @@ static	char	Id[] = "$Id: dedsigs.c,v 8.1 1991/05/16 07:58:48 dickey Exp $";
  * Author:	T.E.Dickey
  * Created:	03 Aug 1988
  * $Log: dedsigs.c,v $
- * Revision 8.1  1991/05/16 07:58:48  dickey
- * mods to accommodate apollo sr10.3
+ * Revision 9.0  1991/06/11 08:45:12  ste_cm
+ * BASELINE Tue Jun 11 08:46:03 1991 -- apollo sr10.3
  *
+ *		Revision 8.2  91/06/11  08:45:12  dickey
+ *		lint (apollo sr10.2)
+ *		
+ *		Revision 8.1  91/05/16  07:58:48  dickey
+ *		mods to accommodate apollo sr10.3
+ *		
  *		Revision 8.0  89/10/31  09:00:55  ste_cm
  *		BASELINE Mon Aug 13 15:06:41 1990 -- LINCNT, ADA_TRANS
  *		
@@ -55,7 +61,7 @@ static	int	init	= -1;	/* last-flag, to prevent redundant 'signal()' */
  * Catch "intr" signals.
  */
 static
-void	catch(sig)
+SIG_T	catch(sig)
 {
 	(void)signal (sig,  catch);
 	beep();
@@ -63,7 +69,7 @@ void	catch(sig)
 }
 
 static
-void	dedquit()
+SIG_T	dedquit()
 {
 	static	char	msg[] = "** quit **\n";
 	to_exit(1);
