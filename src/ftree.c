@@ -2,6 +2,7 @@
  * Author:	T.E.Dickey
  * Created:	02 Sep 1987
  * Modified:
+ *		18 Mar 2004, update old_wd if we rename the directory it was.
  *		07 Mar 2004, remove K&R support, indent'd
  *		07 Dec 2001, add special case /cygdrive for Cygwin.
  *		01 Nov 2000, fix uninitialized caller_top when SIGWINCH is not
@@ -138,7 +139,7 @@
 
 #include	<fcntl.h>
 
-MODULE_ID("$Id: ftree.c,v 12.61 2004/03/07 23:25:18 tom Exp $")
+MODULE_ID("$Id: ftree.c,v 12.62 2004/03/19 01:51:39 tom Exp $")
 
 #define	Null	(char *)0	/* some NULL's are simply 0 */
 
@@ -240,8 +241,11 @@ ok_rename(char *oldname, char *newname)
 {
     if (strcmp(oldname, newname)) {
 	dlog_comment("rename \"%s\" (name=%s)\n", newname, oldname);
-	if (rename(oldname, newname) >= 0)
+	if (rename(oldname, newname) >= 0) {
+	    if (!strcmp(oldname, old_wd))
+		strcpy(old_wd, newname);
 	    return TRUE;
+	}
 	wait_warn(newname);
     }
     return FALSE;

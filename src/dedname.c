@@ -3,6 +3,7 @@
  * Author:	T.E.Dickey
  * Created:	11 May 1988
  * Modified:
+ *		18 Mar 2004, update old_wd if we rename the directory it was.
  *		07 Mar 2004, remove K&R support, indent'd
  *		01 Nov 1993, Sys5.4 can rename directories.
  *		29 Oct 1993, ifdef-ident
@@ -19,7 +20,7 @@
 
 #include	"ded.h"
 
-MODULE_ID("$Id: dedname.c,v 12.9 2004/03/07 23:25:18 tom Exp $")
+MODULE_ID("$Id: dedname.c,v 12.10 2004/03/19 01:51:45 tom Exp $")
 
 int
 dedname(RING * gbl, int x, char *newname)
@@ -34,6 +35,8 @@ dedname(RING * gbl, int x, char *newname)
 	    warn(gbl, newname);
 	    return (-1);
 	}
+	if (!strcmp(oldname, old_wd))
+	    strcpy(old_wd, newname);
 	ok = TRUE;
 #else
 	if (isFILE(gSTAT(x).st_mode)) {
