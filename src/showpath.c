@@ -1,5 +1,5 @@
-#if	!defined(NO_IDENT)
-static	char	Id[] = "$Id: showpath.c,v 12.3 1993/10/29 20:26:56 dickey Exp $";
+#ifndef	NO_IDENT
+static	char	Id[] = "$Id: showpath.c,v 12.4 1994/07/19 00:34:23 tom Exp $";
 #endif
 
 /*
@@ -7,6 +7,7 @@ static	char	Id[] = "$Id: showpath.c,v 12.3 1993/10/29 20:26:56 dickey Exp $";
  * Author:	T.E.Dickey
  * Created:	01 Feb 1990
  * Modified:
+ *		17 Jul 1994, if base is -1, highlight the level-marker.
  *		29 Oct 1993, ifdef-ident
  *		28 Sep 1993, gcc warnings
  *		18 Oct 1991, converted to ANSI
@@ -18,11 +19,9 @@ static	char	Id[] = "$Id: showpath.c,v 12.3 1993/10/29 20:26:56 dickey Exp $";
  *		current line (up to the right margin).
  */
 
-#define	STR_PTYPES
 #include	"ded.h"
 
-#define	LEFT	4
-#define	RIGHT	3
+#define	DOTLEN	(sizeof(ellipsis)-1)
 
 public	void	showpath(
 	_ARX(char *,	path)		/* pathname to display */
@@ -35,7 +34,9 @@ public	void	showpath(
 	_DCL(int,	base)
 	_DCL(int,	margin)
 {
+	static	char	ellipsis[] = "...";
 	register char	*s	= path;
+	auto	int	marker	= (base == -1);
 	auto	int	cols	= COLS - ((stdscr->_curx) + 2 + margin);
 	auto	int	len	= strlen(s);
 	auto	int	left	= 0;
@@ -46,6 +47,9 @@ public	void	showpath(
 	if (cols <= 0)
 		return;		/* give up (cannot print anything) */
 
+	if (marker)		/* highlight the slash before the level */
+		base = level;
+
 	if (base == 0) {
 		hilite = TRUE;
 		standout();
@@ -54,41 +58,43 @@ public	void	showpath(
 	while (len > (cols - left)) {
 		if (--level < 0)
 			break;	/* force this to show desired level */
-		while (*s == '/')
+		while (isSlash(*s))
 			s++;
-		if ((t = strchr(s, '/')) != NULL) {
+		if ((t = strchr(s, PATH_SLASH)) != NULL) {
 			if (base-- == 0) {
 				hilite = TRUE;
 				standout();
 			}
-			s = t + 1;
+			s = t;
 			len = d - s;
 		} else
 			break;	/* will have to truncate on right */
 		if (left == 0)
-			left = LEFT;
+			left = DOTLEN;
 	}
 
 	if (s != path) {
-		PRINTW("%.*s", cols, ".../");
-		cols -= LEFT;
+		PRINTW("%.*s", cols, ellipsis);
+		cols -= DOTLEN;
 		if (cols <= 0)
 			return;
 	}
 
 	len = d - s;
-	if ((len > cols) && (cols > RIGHT)) {
-		d -= ((len - cols) + RIGHT);
-		while ((d > s) && (d[-1] != '/'))
+	if ((len > cols) && (cols > DOTLEN)) {
+		d -= ((len - cols) + DOTLEN);
+		while ((d > s) && !isSlash(d[-1]))
 			d--;
 	}
 
 	/* if we didn't start highlighting, try now */
 	len = d - s;
-	if (base > 0) {
+	if ((base >= 0) && !hilite) {
 		register int	j;
 		for (j = 0; j < len; j++) {
-			if (s[j] == '/')
+			if (s[j] == EOS)	/* patch */
+				break;
+			if (isSlash(s[j])) {
 				if (base-- == 0) {
 					hilite = TRUE;
 					if (j != 0) {
@@ -99,12 +105,15 @@ public	void	showpath(
 					standout();
 					break;
 				}
+			}
 		}
 	}
 
 	if (len > 0)
 		PRINTW("%.*s", len, s);
 	if (*d != EOS)
-		PRINTW("...");
-	if (hilite) standend();
+		PRINTW(ellipsis);
+	if (hilite) {
+		standend();
+	}
 }

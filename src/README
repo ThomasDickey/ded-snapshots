@@ -1,4 +1,4 @@
-$Id: README,v 12.9 1994/07/17 01:07:50 tom Exp $
+$Id: README,v 12.10 1994/07/19 00:37:51 tom Exp $
 
 --(TO-DO)----------------------------------------------------------------------
 
@@ -73,8 +73,6 @@ DED:
 	make "x" command split window horizontally, combine with commands
 	for setting displayable fields as in FLIST.
 
-	in ftree, highlight the current "/" when moving the cursor left/right.
-
 	make ftree's rename-command have command history.
 
 	fix pathname-parsing for things like (in ftree) "~foo/bar"
@@ -94,3 +92,13 @@ DED:
 	'system()', maybe get rid of problems with signals.
 
 	make a message-table instead of the beeping.
+
+	make this work with very long pathnames in the directory tree.
+
+	use nicer characters than "*" and "=>" in ftree
+
+	ftree-rename displays a blank if the cursor is right on the end of the
+	line when toggling insert-mode.
+
+	don't count the purge-flag in the database when deciding to set
+	the write-needed flag.
