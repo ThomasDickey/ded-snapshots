@@ -3,7 +3,7 @@
 
 #ifdef	MAIN
 #ifndef	lint
-static	char	*ded_h = "$Id: ded.h,v 11.2 1992/08/06 14:05:46 dickey Exp $";
+static	char	*ded_h = "$Id: ded.h,v 11.3 1992/08/07 08:29:00 dickey Exp $";
 #endif
 #endif	/* MAIN */
 
@@ -68,8 +68,7 @@ extern	int	re_exec();	/* (return > 0): match */
 /*
  * Miscellaneous definitions
  */
-typedef	char *	  (*HistoryFuncPt)(/*_arx(int *,nnn) _ar1(int,d)*/);
-#define	NO_HISTORY (HistoryFuncPt)0
+#define	NO_HISTORY (HIST **)0
 
 #ifdef	__STDCPP__
 #define	ENV(n)	dftenv(n,#n)
@@ -193,6 +192,14 @@ typedef	RING {
 	off_t	tag_bytes;	/* ...corresponding total of bytes */
 	long	tag_blocks;	/* ...corresponding total of blocks */
 	};
+
+/*
+ * Each type of command that we can type text into has a history table
+ */
+typedef	struct	_hist	{
+	struct	_hist	*next;
+	char		*text;
+	} HIST;
 
 /*
  * Global data (cf: dedring.c)
@@ -570,8 +577,8 @@ extern	int	dlog_char(
 
 extern	char *	dlog_string(
 		_arx(DYN **,	result)
-		_arx(DYN **,	history)
-		_fnx(char *,	scroller)
+		_arx(DYN **,	inline)	/* patch */
+		_arx(HIST **,	history)
 		_ar1(int,	wrap_len));
 
 extern	void	dlog_elapsed(_ar0);
@@ -622,6 +629,15 @@ extern	int	ft_stat(
 		_ar1(char *,	leaf));
 
 extern	void	ft_write(_ar0);
+
+/* *** "history.c" *** */
+extern	void	put_history(
+		_arx(HIST **,	table)
+		_ar1(char *,	text));
+
+extern	char *	get_history(
+		_arx(HIST *,	table)
+		_ar1(int,	age));
 
 /* *** "restat.c" *** */
 extern	void	restat(

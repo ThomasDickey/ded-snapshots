@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	Id[] = "$Id: deddoit.c,v 11.2 1992/08/06 13:55:04 dickey Exp $";
+static	char	Id[] = "$Id: deddoit.c,v 11.3 1992/08/07 08:37:31 dickey Exp $";
 #endif
 
 /*
@@ -160,6 +160,7 @@ public	void	deddoit(
 	_DCL(int,	sense)
 {
 	static	DYN	*Subs;
+	static	HIST	*History;
 	register int	c, j, k;
 	register char	*s;
 
@@ -185,7 +186,7 @@ public	void	deddoit(
 		c = FALSE;
 		for (s = dlog_string(&Subs,
 				(DYN **)0,
-				NO_HISTORY,
+				&History,
 				0);
 				*s; s++) {
 			/* skip leading blanks */

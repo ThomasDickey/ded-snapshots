@@ -1,4 +1,4 @@
-# $Id: Makefile,v 11.2 1992/08/05 14:31:00 dickey Exp $
+# $Id: Makefile,v 11.3 1992/08/07 07:41:52 dickey Exp $
 # MAKE-file for directory editor
 
 ####### (Environment) ##########################################################
@@ -34,6 +34,7 @@ CSRC	=\
 	dedwait.c \
 	dlog.c \
 	ftree.c \
+	history.c \
 	restat.c \
 	showpath.c \
 	sortset.c
@@ -65,6 +66,7 @@ OBJS	= \
 	$Z(dedwait.o) \
 	$Z(dlog.o) \
 	$Z(ftree.o) \
+	$Z(history.o) \
 	$Z(restat.o) \
 	$Z(showpath.o) \
 	$Z(sortset.o)

@@ -1,3 +1,39 @@
+1992-08-07  dickey@software.org
+
+	* Makefile: use:common.mk
+
+	* Makefile: use defs in common.mk
+
+	* src/version.h: added command-history to the non-inline text commands
+	(e.g., filelist ':', '/', '?', pager '/', '?', and directory
+	tree '/', '?', '@', '~').
+
+	* src/dlog.c, src/ftree.c, src/dedfind.c, src/dedtype.c, src/dedread.c:
+	line-history
+
+	* src/dlog.c:
+	got the normal (line) scrolling working ok for 'dlog_string()'
+
+	* src/history.c: allow longer history
+	do better testing in 'get_history()'
+
+	* src/dlog.c: modified so that we reset history-index if user edits the
+	buffer
+
+	* src/deddoit.c: plug in history
+
+	* src/dlog.c:
+	revised history-code in 'dlog_string()' so this should work
+	for non-inline commands.
+
+	* src/ded.h: added 'history.c'
+
+	* src/history.c: RCS_BASE
+
+	* src/Makefile: added 'history.c'
+
+	* test/test2.cmd, test/test1.cmd: added history.c
+
 1992-08-06  dickey@software.org
 
 	* src/dedread.c: dlog_string-interface

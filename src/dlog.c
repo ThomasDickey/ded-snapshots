@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	what[] = "$Id: dlog.c,v 11.7 1992/08/06 14:06:33 dickey Exp $";
+static	char	what[] = "$Id: dlog.c,v 11.11 1992/08/07 13:39:52 dickey Exp $";
 #endif
 
 /*
@@ -153,16 +153,12 @@ private	int	record_char(
 	return c;
 }
 
-private	char *	record_string _ONE(char *,s)
+private	void	record_string _ONE(char *,s)
 {
 	register int	c;
-	char	*base	= s;
 
-	if (log_fp) {
-		while (c = *s++)
-			(void)record_char(c & 0xff, (int *)0, FALSE);
-	}
-	return base;
+	while (c = *s++)
+		(void)record_char(c & 0xff, (int *)0, FALSE);
 }
 
 /************************************************************************
@@ -265,32 +261,41 @@ public	int	dlog_char(
  */
 public	char *	dlog_string(
 	_ARX(DYN **,	result)
-	_ARX(DYN **,	history)
-	_FNX(char *,	scroller)
+	_ARX(DYN **,	inline)	/* patch */
+	_ARX(HIST **,	history)
 	_AR1(int,	wrap_len)
 		)
 	_DCL(DYN **,	result)
-	_DCL(DYN **,	history)
-	_DCL(char *,	(*scroller()))
+	_DCL(DYN **,	inline)
+	_DCL(HIST **,	history)
 	_DCL(int,	wrap_len)
 {
 	int	done	= FALSE;
 	int	wrap	= wrap_len <= 0;
 	int	len	= wrap ? -wrap_len : wrap_len;
-	int	nnn	= 0;	/* scroller-index */
+	int	nnn	= 0;	/* history-index */
+	int	y,x;
+	char	*buffer;
+	static	DYN	*before, *after, *edited;
 	register int	c;
+	register char	*s;
 
 	/* make sure we have enough space to write result; don't delete it! */
 	if (!len)
 		len = CMD_LIMIT;
 	*result = dyn_alloc(*result, (size_t)len+1);
+	buffer  = dyn_string(*result);
 
-	if (history)
-		dyn_init(history,1);
+	if (inline)
+		dyn_init(inline,1);
+	dyn_init(&after,1);
 
+	getyx(stdscr,y,x);
 	do {
-		char	*buffer = dyn_string(*result);
-
+		before = dyn_copy(before, buffer);
+		after  = dyn_copy(after,  buffer);
+		/*move(y,x-3);PRINTW("%d=",nnn); patch */
+		move(y,x);
 		c = wrawgets(stdscr,
 			buffer,
 			len,
@@ -299,25 +304,67 @@ public	char *	dlog_string(
 			cmd_fp ? &cmd_ptr : (char **)0,
 			history || log_fp);
 
+		/* If any change was made, reset history-index */
+		if (strcmp(dyn_string(before), dyn_string(after))) {
+			nnn = 0;
+			after  = dyn_copy(after,  buffer);
+			edited = dyn_copy(edited, buffer);
+		}
+
 		if (log_fp)
 			record_string(rawgets_log());
 
-		if (history)
-			*history = dyn_append(*history, rawgets_log());
+		if (history && inline)
+			*inline = dyn_append(*inline, rawgets_log());
 
-		if (scroller == 0)
+		if (c == ARO_UP) {
+			if (!history) {
+				beep();
+				continue;
+			}
+			if (!nnn)
+				edited = dyn_copy(edited, buffer);
+			if (s = get_history(*history, nnn)) {
+				if (strcmp(s, buffer))
+					;	/* cannot skip */
+				else if (s = get_history(*history, nnn+1))
+					nnn++;
+				else {
+					beep();	/* last and only item */
+					continue;
+				}
+				nnn++;
+				(void)strcpy(buffer, s);
+			} else
+				beep();
+		} else if (c == ARO_DOWN) {
+			if (!history) {
+				beep();
+				continue;
+			}
+			if (s = get_history(*history, nnn-2)) {
+				nnn--;
+				if (nnn == 1 && !strcmp(s, dyn_string(edited)))
+					nnn = 0;
+				(void)strcpy(buffer, s);
+			} else if (nnn == 1) {
+				nnn = 0;
+				(void)strcpy(buffer, dyn_string(edited));
+			} else
+				beep();
+		} else if (c == '\r' || c == '\n') {
 			done = TRUE;
-		else if (c == ARO_UP)
-			(void)strcpy(buffer, (*scroller)(&nnn, -1));
-		else if (c == ARO_DOWN)
-			(void)strcpy(buffer, (*scroller)(&nnn,  1));
-		else	/* assume quit */
-			done = TRUE;
+		} else	/* assume quit */
+			done = -TRUE;
 
 	} while (!done);
 
 	PENDING(string,TRUE);
-	return dyn_string(*result);
+
+	if (done == TRUE)
+		put_history(history, inline ? dyn_string(*inline) : buffer);
+
+	return buffer;
 }
 
 /*

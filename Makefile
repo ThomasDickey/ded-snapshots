@@ -1,49 +1,47 @@
-# $Id: Makefile,v 11.0 1992/02/27 09:56:50 ste_cm Rel $
+# $Id: Makefile,v 11.2 1992/08/07 14:36:45 dickey Exp $
 # Top-level makefile for unix directory-editor
 
 ####### (Development) ##########################################################
-B	= ../../bin
-L	= ../common/lib
+include ../common.mk
 
-GET	= checkout
-COPY	= cp -p
-PUT	= rm -f $@; $(COPY) $? $@
-MAKE	= make $(MFLAGS) -k$(MAKEFLAGS)	CFLAGS="$(CFLAGS)" COPY="$(COPY)"
+B	= $(TOP)/bin
+L	= ../$(THAT)/lib
 
 ####### (Standard Lists) #######################################################
-PROG	= ded
+THIS	= ded
 ALL	=\
-	$B/$(PROG)\
-	$B/$(PROG).hlp
+	$B/$(THIS)\
+	$B/$(THIS).hlp
 MFILES	=\
 	src/Makefile\
 	test/Makefile
 
 ####### (Standard Productions) #################################################
-all::		bin $L/lib.a
+all\
+run_tests::	$L/$(THAT).a bin
 
 all\
 clean\
 clobber\
 destroy\
-run_tests\
 sources\
+run_tests\
 lincnt.out\
 lint.out::	$(MFILES)
 	cd src;		$(MAKE) $@
 	cd test;	$(MAKE) $@
 
+clean\
+clobber::			; rm -f $(CLEAN)
 clobber\
-destroy::
-	rm -rf bin
-destroy::
-	sh -c 'for i in *;do case $$i in RCS);; *) rm -f $$i;;esac;done;exit 0'
+destroy::			; rm -rf bin
+destroy::			; $(DESTROY)
 
 install:	all $(ALL)
-deinstall:		; rm -f $(ALL)
+deinstall:			; rm -f $(ALL)
 
 ####### (Details of Productions) ###############################################
 bin:				; mkdir $@
 $(MFILES):			; $(GET) $@
-$B/$(PROG):	bin/$(PROG)	; $(PUT)
-$B/$(PROG).hlp:	bin/$(PROG).hlp	; $(PUT)
+$B/$(THIS):	bin/$(THIS)	; $(PUT)
+$B/$(THIS).hlp:	bin/$(THIS).hlp	; $(PUT)

@@ -87,6 +87,7 @@ u
 	# "dedwait.c"
 	# "dlog.c"
 	# "ftree.c"
+	# "history.c"
 	# "restat.c"
 	# "showpath.c"
 	# "sortset.c"
