@@ -1,3 +1,7 @@
+1987-11-19  dickey@software.org
+
+	* src/dedtype.c, src/dedfind.c, src/deddoit.c: New file.
+
 1987-11-18  dickey@software.org
 
 	* src/dedscan.c: New file.

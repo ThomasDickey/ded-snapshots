@@ -1,6 +1,9 @@
-MANIFEST for ded, version t19871118
+MANIFEST for ded, version t19871119
 --------------------------------------------------------------------------------
 MANIFEST                        this file
 src                             subdirectory
+src/deddoit.c                   execute shell commands
+src/dedfind.c                   search within file-list
 src/dedscan.c                   read file-list
+src/dedtype.c                   type/page a file
 src/ftree.c                     directory-tree for DED
