@@ -1,3 +1,11 @@
+1992-02-27  dickey@software.org
+
+	* Makefile: -x option of checkout is obsolete
+
+1992-02-27  ste_cm@software.org
+
+	* Makefile: BASELINE Thu Jul 16 09:39:01 1992 -- EBPM4 support
+
 1992-02-21  dickey@software.org
 
 	* src/README: new thot.
