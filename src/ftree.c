@@ -128,7 +128,7 @@
 
 #include	<fcntl.h>
 
-MODULE_ID("$Id: ftree.c,v 12.48 1996/01/13 14:50:07 tom Exp $")
+MODULE_ID("$Id: ftree.c,v 12.49 1996/01/25 23:40:35 tom Exp $")
 
 #define	Null	(char *)0	/* some NULL's are simply 0 */
 
@@ -185,6 +185,13 @@ typedef	struct	{
 #define	def_doalloc	FTREE_alloc
 	/*ARGSUSED*/
 	def_DOALLOC(FTREE)
+
+#ifdef DEBUG
+private	void	ft_dump _one(char *,msg);
+private	void	ft_dump2(
+			_arx(char *,	fmt)
+			_ar1(char *,	msg));
+#endif
 
 private	int	is_sccs _one(int,node);
 private	int	fd_show _one(int,node);
@@ -566,12 +573,22 @@ private	int	fd_show (
 	int	code = FALSE;
 
 	if (!zSCCS(node) && ALL_SHOW(node)) {
+		int old = node;
 		code = TRUE;
 		while ((node = ftree[node].f_root) != 0) {
+			if (node <= 0 || node > FDlast) {
+				dlog_comment("parent(%d) = %d)\n", old, node);
+				dlog_comment("oops\n");
+				ftree[old].f_root = 0;	/* ".ftree" trashed! */
+				code = FALSE;
+				FDdiff++;
+				break;
+			}
 			if (zHIDE(node) || !ALL_SHOW(node)) {
 				code = FALSE;
 				break;
 			}
+			old = node;
 		}
 	}
 	return(code);
@@ -1254,7 +1271,7 @@ private	void	scroll_to (
 
 	if (zSCCS(j))
 		toggle_sccs();
-	while ((j = ftree[j].f_root) != 0) {	/* ensure this is visible! */
+	while ((j = ftree[j].f_root) > 0) {	/* ensure this is visible! */
 		if (zHIDE(j))
 			markit(j,NOVIEW,FALSE);
 		if (zSCCS(j))
@@ -1904,7 +1921,7 @@ private	FILE *	ft_DUMP(_AR0)
 /*
  * Dump a message to a log-file
  */
-private	ft_dump2(
+private	void	ft_dump2(
 	_ARX(char *,	fmt)
 	_AR1(char *,	msg)
 		)
@@ -1923,7 +1940,7 @@ private	ft_dump2(
 /*
  * Dump the current tree to a log-file
  */
-private	ft_dump (
+private	void	ft_dump (
 	_AR1(char *,	msg))
 	_DCL(char *,	msg)
 {
@@ -1932,7 +1949,7 @@ private	ft_dump (
 	register FTREE *f;
 	register int j, k;
 
-	if (fp = ft_DUMP()) {
+	if ((fp = ft_DUMP()) != 0) {
 		PRINTF("writing log file \"%s\"\r\n", msg);
 		FPRINTF(fp, "FTREE LOG: \"%s\" %s", msg, ctime(&now));
 		FPRINTF(fp, "Total diffs: %d\n", FDdiff);
@@ -1962,7 +1979,7 @@ private	ft_dump (
 			FPRINTF(fp, "%s/", f->f_name);
 			if (!fd_show(j))
 				FPRINTF(fp," ?");
-			if (k = f->f_mark) {
+			if ((k = f->f_mark) != 0) {
 				FPRINTF(fp," ");
 				if (k & MARKED)	FPRINTF(fp,"M");
 				if (k & NOSCCS)	FPRINTF(fp,"S");

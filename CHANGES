@@ -1,3 +1,9 @@
+1996-01-25  Thomas E. Dickey  <dickey@clark.net>
+
+	* src/ftree.c:
+	in fd_show, check for special case of trashed f_root index (I encountered
+	this immediately after upgrading to Slackware 3.0).
+
 1996-01-13  Thomas E. Dickey  <dickey@clark.net>
 
 	* src/version.h:
