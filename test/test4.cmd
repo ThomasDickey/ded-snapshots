@@ -62,7 +62,7 @@
 1B	# path: CM_TOOLS/test
 1B	# path: CM_TOOLS/test/junk/second
 1B	# path: CM_TOOLS/test/junk/first
-1=\Bthe_\n
+1=\t\Bthe_\n
 	# rename "CM_TOOLS/test/junk/the_first" (name=CM_TOOLS/test/junk/first)
 	# RING-chdir CM_TOOLS/test/junk/the_first =>0
 	# path: CM_TOOLS/test/junk/the_first
