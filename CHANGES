@@ -1,3 +1,15 @@
+1994-11-13  Thomas E. Dickey  <dickey@clark.net>
+
+	* src/ded.c: corrected logic that supports -sz, -sZ options
+
+	* src/ftree.c:
+	fixes for the special case when I create a leaf directory _before_ the RCS
+	leaf (wasn't initializing the NOSCCS flags, etc.)
+
+	* src/ded2s.c: use MODULE_ID
+
+	* src/ded2s.c: use function 'in_group()'
+
 1994-10-19  Thomas E. Dickey  <dickey@clark.net>
 
 	* src/dedview.c:

@@ -1,7 +1,3 @@
-#ifndef NO_IDENT
-static	char	Id[] = "$Id: ded2s.c,v 12.17 1994/10/06 00:37:24 tom Exp $";
-#endif
-
 /*
  * Title:	ded2s.c (ded-stat to string)
  * Author:	T.E.Dickey
@@ -62,15 +58,7 @@ static	char	Id[] = "$Id: ded2s.c,v 12.17 1994/10/06 00:37:24 tom Exp $";
 #include	<time.h>
 #include	<ctype.h>
 
-#if HAVE_GETGROUPS
-#  if HAVE_SYS_PARAM_H
-#    include <sys/param.h>
-#  else
-#    ifndef NGROUPS
-#      define NGROUPS 10
-#    endif
-#  endif
-#endif
+MODULE_ID("$Id: ded2s.c,v 12.19 1994/11/13 20:37:33 tom Exp $")
 
 #ifdef	apollo_sr10
 #include	<acl.h>
@@ -403,24 +391,12 @@ public	int	ded_access (
 	int	uid = geteuid();
 	int	gid = getegid();
 
-#if HAVE_GETGROUPS
-	static	gid_t	groups[NGROUPS];
-	static	int	initialized, total;
-	register int	j;
-
-	if (!initialized) {
-		total = getgroups(NGROUPS, groups);
-		initialized = TRUE;
-	}
-	for (j = 0; j < total; j++) {
-		if (s->st_gid == groups[j]) {
-			gid = groups[j];
-			break;
-		}
-	}
-#endif
+	if (in_group(s->st_gid))
+		gid = s->st_gid;
 
 	if (!uid) {		/* root can do anything */
+		if (mask != S_IEXEC)
+			return TRUE;
 		return (s->st_mode & (mask | (mask >> 3) | (mask >> 6)));
 	} else if (uid == s->st_uid) {
 		return (s->st_mode & mask);

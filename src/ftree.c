@@ -1,5 +1,5 @@
 #ifndef	NO_IDENT
-static	char	Id[] = "$Id: ftree.c,v 12.32 1994/08/12 21:15:18 tom Exp $";
+static	char	Id[] = "$Id: ftree.c,v 12.33 1994/11/13 21:18:53 tom Exp $";
 #endif
 
 /*
@@ -368,6 +368,7 @@ private	void	fd_add_path(
 			ftree[this].f_root = last;
 			ftree[this].f_mark &= ~(MARKED | LINKED | NOVIEW);
 			ftree[this].f_name = txtalloc(name);
+			ftree[this].f_mark = 0;
 			if (!showsccs && is_sccs(this))
 				ftree[this].f_mark |= NOSCCS;
 		}
@@ -554,17 +555,18 @@ private	int	fd_show (
 	_AR1(int,	node))
 	_DCL(int,	node)
 {
-	if (zSCCS(node))
-		return(FALSE);
-	if (!ALL_SHOW(node))
-		return(FALSE);
-	while ((node = ftree[node].f_root) != 0) {
-		if (zHIDE(node))
-			return(FALSE);
-		if (!ALL_SHOW(node))
-			return(FALSE);
+	int	code = FALSE;
+
+	if (!zSCCS(node) && ALL_SHOW(node)) {
+		code = TRUE;
+		while ((node = ftree[node].f_root) != 0) {
+			if (zHIDE(node) || !ALL_SHOW(node)) {
+				code = FALSE;
+				break;
+			}
+		}
 	}
-	return(TRUE);
+	return(code);
 }
 
 /************************************************************************
@@ -1189,7 +1191,7 @@ private	void	toggle_sccs(_AR0)
 
 	showsccs = !showsccs;
 	for (j = 1; j <= FDlast; j++) {
-	register FTREE *f = &ftree[j];
+		register FTREE *f = &ftree[j];
 		if (is_sccs(j)) {
 			if (f->f_mark & NOSCCS) {
 				if (showsccs) {
@@ -1200,6 +1202,9 @@ private	void	toggle_sccs(_AR0)
 				f->f_mark ^= NOSCCS;
 				showdiff = -1;
 			}
+		} else if (f->f_mark & NOSCCS) { /* shouldn't happen */
+			f->f_mark ^= NOSCCS;
+			showdiff = -1;
 		}
 	}
 }
@@ -1351,13 +1356,14 @@ private	int	is_sccs (
 	_DCL(int,	node)
 {
 	register FTREE *f = &ftree[node];
+	int	code = FALSE;
 
-	if (!strcmp(f->f_name, sccs_dir(Null,Null)))	return (TRUE);
-	if (!strcmp(f->f_name, rcs_dir()))		return (TRUE);
+	if (!strcmp(f->f_name, sccs_dir(Null,Null)))	code = TRUE;
+	else if (!strcmp(f->f_name, rcs_dir()))		code = TRUE;
 #ifdef CVS_PATH
-	if (!strcmp(f->f_name, "CVS"))			return (TRUE);
+	else if (!strcmp(f->f_name, "CVS"))		code = TRUE;
 #endif
-	return (FALSE);
+	return (code);
 }
 
 /*
