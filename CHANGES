@@ -1,3 +1,18 @@
+2004-09-16  Thomas E. Dickey  <dickey@invisible-island.net>
+
+	* configure: RCS_BASE
+
+	* aclocal.m4: update CF_CHECK_CACHE
+
+	* COPYING: change to diffstat's style of copyright
+
+	* user/ded.man: add copyright notice
+
+	* user/ded.man:
+	documented the -D option and the way it affects the T command
+
+	* user/ded.man: workarounds for groff-breakage.
+
 2004-09-07  Thomas E. Dickey  <dickey@invisible-island.net>
 
 	* src/dedline.c: implement -D option, for editing dates

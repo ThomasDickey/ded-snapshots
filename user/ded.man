@@ -1,4 +1,23 @@
-.\" $Id: ded.man,v 12.14 2003/04/26 11:28:21 tom Exp $
+.\"*****************************************************************************
+.\" Copyright 2004 by Thomas E. Dickey.  All Rights Reserved.                  *
+.\"                                                                            *
+.\" Permission to use, copy, modify, and distribute this software and its      *
+.\" documentation for any purpose and without fee is hereby granted, provided  *
+.\" that the above copyright notice appear in all copies and that both that    *
+.\" copyright notice and this permission notice appear in supporting           *
+.\" documentation, and that the name of the above listed copyright holder(s)   *
+.\" not be used in advertising or publicity pertaining to distribution of the  *
+.\" software without specific, written prior permission.                       *
+.\"                                                                            *
+.\" THE ABOVE LISTED COPYRIGHT HOLDER(S) DISCLAIM ALL WARRANTIES WITH REGARD   *
+.\" TO THIS SOFTWARE, INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND  *
+.\" FITNESS, IN NO EVENT SHALL THE ABOVE LISTED COPYRIGHT HOLDER(S) BE LIABLE  *
+.\" FOR ANY SPECIAL, INDIRECT OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES          *
+.\" WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN      *
+.\" ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR *
+.\" IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.                *
+.\"*****************************************************************************
+.\" $Id: ded.man,v 12.17 2004/09/17 00:08:17 tom Exp $
 .if t .ds T \(tm
 .if n .ds T (tm)
 .
@@ -87,73 +106,77 @@ Most command-line options are the same as display-manipulation commands.
 They
 include:
 .TP
-.B \-a
+.B -a
 show "." and ".." entries in each file
 list (see "\fB&\fR" toggle).
 .TP
-.B \-b
+.B -b
 use the box-character set for displaying the directory-tree and workspace
 ruler.
 .TP
-.B \-e
+.B -D
+force date-display to long format.
+Allows editing of modification times using the "T" command.
+.TP
+.B -e
 modify the interpretation of the "e" command to spawn a new process of
 \fBded\fR when editing a directory.
 .TP
-.B \-G
+.B -G
 toggle user/group display field (initially
 displays user-identifiers).
 .TP
-.B \-I
+.B -I
 toggle inode/links display field (initially displays
 number of links for each file).
 .TP
-.B \-P
+.B -P
 toggle file-protection display field (initially displays
 file protection in \fBls\fR-style).
 .TP
-.B \-p
+.B -p
 print full pathnames of tagged files on exit.
 .TP
-.B \-S
+.B -S
 toggle file size (in blocks) display field (normally
 displays only the size in bytes).
 .TP
-.B \-T
+.B -T
 toggle date-display to long format.
 .TP
-.BI \-c filename
+.BI -c filename
 read user commands from the
 specified file.
 The commands are assumed to be in the same format
-as the log-file generated with the "\-\fBl\fR" option.
+as the log-file generated with the "-\fBl\fR" option.
 Subprocesses
 do not (currently) inherit this option.
 .TP
-.BI \-l filename
+.BI -l filename
 log user commands (and \fBded\fR
 messages) to the specified file.
 \fBDed\fR subprocesses invoked
 with the "e" command inherit this option.
 .TP
-.B \-n
+.B -n
 disable prompt on \fBded\fR quit command.
 .TP
-.BI \-t path
+.BI -t path
 read the directory tree file ".ftree"
 from the specified directory \fIpath\fR.
 This option is inherited
 in subsequent processes of \fBded\fR.
 .TP
-.B \-Z
+.B -Z
 toggle rcs/sccs data display (normally inactive).
 .TP
-.B \-z
+.B -z
 toggle rcs/sccs data display
 .TP
-.BI \-r key
+.BI -r key
 provide initial reverse-sort by \fIkey\fR
 .TP
-.BI \-s key
+.BI -s key
 provide initial sort by \fIkey\fR
 .
 .\"****************************************************************************
@@ -171,7 +194,7 @@ When you invoke \fBded\fR, it scans its argument list.
 Options
 must precede file specifications.
 Arguments which do not begin with
-"\-" are treated as file specifications.
+"-" are treated as file specifications.
 File specification arguments
 may begin with "~" (tilde) to denote C-shell style home-directory
 specifications.
@@ -223,7 +246,7 @@ To exit from \fBded'\fRs file list display, type "\fBq\fR" (for \fBquit\fR).
 If you have entered any other file lists (or
 a subprocess of \fBded\fR), you will be prompted to ensure that
 you really intend to quit the current process.
-(If you specified the "\-\fBn\fR" option on invoking \fBded\fR, this prompt
+(If you specified the "-\fBn\fR" option on invoking \fBded\fR, this prompt
 is bypassed).
 .
 .\"****************************************************************************
@@ -435,13 +458,20 @@ toggle the display of file size between bytes and blocks.
 Type "2S" to show both fields at one time.
 .TP
 .B T
-toggles the display of file-dates.
+toggles the display of file-dates,
+or allows you to edit the modification
+time if the "-D" option was given.
+.IP
 Normally \fBded\fR displays
 the file-dates in a compact form based on the relative dates.
 The long form shows all information returned by \fIctime (2)\fR.
 Type "2T" to show a number which represents the age of the files
 in days (and fractions thereof).
 Type "3T" to show the file timestamp in seconds, e.g., since 1 Janaury 1970.
+.IP
+See the section
+.I Built-in Operations on Groups of Files
+for details of editing the modification time.
 .TP
 .B X
 toggles the screen between one and two viewports.
@@ -729,7 +759,7 @@ move cursor to end of field
 .\"****************************************************************************
 .SS Built-in Operations on Groups of Files
 .PP
-Inline, file-oriented commands operate on the current entry.
+Inline file-oriented commands operate on the current entry.
 Where appropriate,
 commands operate on a tagged \fIgroup\fR of entries as well.
 (If any files are grouped, the file list heading is highlighted).
@@ -787,6 +817,12 @@ Edit group-identifier field.
 The current entry's \fIgid\fR is edited inline,
 and the result used for all selected entries.
 .TP
+.B T
+If the "-D" option was given, you can edit the selected
+file or directory's modification time by moving the cursor
+left/right and using "+" or "-" to increment or decrement the
+part of the modification time on which the cursor lies.
+.TP
 .B =
 Edit name of current file.
 Files which are grouped
@@ -817,7 +853,7 @@ current
 directory paths in the ring of file lists, and
 "\fB#\fR" is translated into the current entry's name.
 .TP
-\fB"\fR
+\fB\&"\fR
 Repeats the last "\fBp\fR", "\fBu\fR", "\fBg\fR", "\fB=\fR"
 or "\fBc\fR" command.
 This uses the actual set of characters typed for the command,
@@ -825,13 +861,13 @@ so an editing template may be made.
 (\fBDed\fR buffers the last set of editing keystrokes
 for inline editors).
 .TP
-\fB\'\fIxx\fR
+\fB\&'\fIxx\fR
 Repeat the last \fIxx\fR command, where \fIxx\fR is one of the
 inline-editing commands (e.g., "p", "u", "g", "=", etc).
 For example, type
 .RS
 .EX
-\'cf
+\&'cf
 .EE
 .PP
 to replay the last create-file command.
@@ -1422,7 +1458,7 @@ Other text (which is buffered) contains no non-printing characters.
 .\"****************************************************************************
 .SS X Windows Enhancements
 .PP
-\fBDed\fR assumes that you are running under X\ Windows\*R.
+\fBDed\fR assumes that you are running under the X\ Window System\*R.
 In this case, if the program \fBxterm\fR is found in your execution
 path, \fBded\fR will permit the following commands:
 .TP
