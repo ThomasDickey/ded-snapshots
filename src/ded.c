@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	sccs_id[] = "@(#)ded.c	1.52 88/08/17 16:03:24";
+static	char	sccs_id[] = "@(#)ded.c	1.53 88/08/18 14:39:54";
 #endif	lint
 
 /*
@@ -727,7 +727,7 @@ char *
 fixname(j)
 {
 static	char	nbfr[BUFSIZ];
-	(void)name2s(nbfr, xNAME(j), sizeof(nbfr), TRUE);
+	(void)ded2string(nbfr, sizeof(nbfr), xNAME(j), TRUE);
 	return (nbfr);
 }
 

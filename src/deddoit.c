@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	sccs_id[] = "@(#)deddoit.c	1.11 88/08/03 08:25:22";
+static	char	sccs_id[] = "@(#)deddoit.c	1.12 88/08/18 14:40:13";
 #endif	lint
 
 /*
@@ -126,7 +126,7 @@ expand(code)
 	}
 
 	if (from) {
-		(void)name2s(temp, from, sizeof(temp), TRUE);
+		(void)ded2string(temp, sizeof(temp), from, TRUE);
 		if (strlen(subs) + strlen(temp) < sizeof(subs)-1)
 			(void)strcat(subs, temp);
 		else

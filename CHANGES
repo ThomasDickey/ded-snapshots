@@ -1,3 +1,25 @@
+1988-08-18  dickey@software.org
+
+	* src/ded2s.c: renamed 'name2s()' to 'ded2string()'.
+	broke out 'name2s()' for reuse in 'copy' program.
+
+	* src/ded2s.c: sccs2rcs keywords
+
+1988-08-18  ste_cm@software.org
+
+	* src/ded2s.c: BASELINE Mon Jun 19 14:21:57 EDT 1989
+
+	* src/ded2s.c: BASELINE Thu Apr  6 13:14:13 EDT 1989
+
+	* src/ded2s.c:
+	BASELINE Thu Aug 24 10:20:06 EDT 1989 -- support:navi_011(rel2)
+
+1988-08-18  dickey@software.org
+
+	* src/ftree.c: renamed 'name2s()' to 'ded2string()'
+
+	* src/deddoit.c, src/ded.c: renamed 'name2s()' to 'ded2string()'.
+
 1988-08-17  dickey@software.org
 
 	* src/ded.c: tuning beep's in 'waitmsg()' so we have only one...
