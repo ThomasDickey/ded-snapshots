@@ -149,7 +149,7 @@
 #define	MAIN
 #include	"ded.h"
 
-MODULE_ID("$Header: /users/source/archives/ded.vcs/src/RCS/ded.c,v 12.46 1996/01/13 14:48:06 tom Exp $")
+MODULE_ID("$Header: /users/source/archives/ded.vcs/src/RCS/ded.c,v 12.47 1996/02/02 00:24:41 tom Exp $")
 
 #define	EDITOR	DEFAULT_EDITOR
 #define	BROWSE	DEFAULT_BROWSE
@@ -857,7 +857,7 @@ private	void	inline_command(
 
 	default:	{
 		char	temp[80];
-		FORMAT(temp, "no inline command (%c)", c ? c : '?');
+		FORMAT(temp, "no inline command (%c)", isprint(c) ? c : '?');
 		dedmsg(gbl, temp);
 		}
 	}
