@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	Id[] = "$Id: dedtype.c,v 11.15 1992/08/24 08:13:48 dickey Exp $";
+static	char	Id[] = "$Id: dedtype.c,v 11.16 1992/10/08 14:36:13 dickey Exp $";
 #endif
 
 /*
@@ -7,6 +7,7 @@ static	char	Id[] = "$Id: dedtype.c,v 11.15 1992/08/24 08:13:48 dickey Exp $";
  * Author:	T.E.Dickey
  * Created:	16 Nov 1987
  * Modified:
+ *		08 Oct 1992, make search/scrolling interruptible.
  *		05 Aug 1992, added search commands, and '<', '>'.
  *		04 Aug 1992, use dynamic-buffers to allow wide files
  *		01 Apr 1992, convert most global variables to RING-struct.
@@ -70,7 +71,8 @@ static	int	OptBinary,
 		Shift,			/* left/right shift-column */
 		Tlen,			/* strlen(Text) */
 		Tcol,			/* current column in Text[] */
-		tabstop;
+		tabstop,
+		was_interrupted;
 
 /******************************************************************************/
 private	void	typeinit(_AR0)
@@ -85,14 +87,18 @@ private	int	typeline(
 	_DCL(int,	y)
 	_DCL(int,	skip)
 {
+	int	found;
+
+	if (found = (UsePattern && GOT_REGEX(ToFind, Text)))
+		HadPattern = TRUE;
+
 	if (!skip) {
 		move(y,0);
 		Tlen	-= Shift;
 		if (Tlen > COLS-1)
 			Tlen = COLS-1;
 
-		if (UsePattern && GOT_REGEX(ToFind, Text)) {
-			HadPattern = TRUE;
+		if (found) {
 			standout();
 			if (Tlen > 0)
 				PRINTW("%.*s", Tlen, Text + Shift);
@@ -186,10 +192,18 @@ private	int	typeconv(
 	return (FALSE);
 }
 
+private	void	reset_catcher(_AR0)
+{
+	was_interrupted = FALSE;
+	(void)dedsigs(TRUE);
+}
+
 private	int	GetC (_AR0)
 {
 	register int c = fgetc(InFile);
-	if (feof(InFile) || ferror(InFile) || dedsigs(TRUE))
+	if (dedsigs(TRUE))
+		was_interrupted = TRUE;
+	if (feof(InFile) || ferror(InFile) || was_interrupted)
 		c = EOF;
 	else if (c < 0)
 		c &= 0xff;
@@ -370,6 +384,22 @@ private	int	SamePattern(
 	return FALSE;
 }
 
+private	int	FoundPattern(
+	_AR1(int *,	page))
+	_DCL(int *,	page)
+{
+	(void)StartPage(page, TRUE);
+	if (HadPattern || was_interrupted) {
+		reset_catcher();
+		if (JumpBackwards(page, 1) >= 0) {
+			(void)StartPage(page, FALSE);
+			return TRUE;
+		}
+	}
+	IgnorePage(*page);
+	return FALSE;
+}
+
 private	void	FindPattern(
 	_ARX(RING *,	gbl)
 	_ARX(int *,	page)
@@ -426,14 +456,12 @@ private	void	FindPattern(
 
 		if (next < 0) {
 			while (JumpBackwards(page, 2) >= 0) {
-				(void)StartPage(page, FALSE);
-				if (HadPattern)
+				if (FoundPattern(page))
 					return;
 			}
 		} else {
 			while (!feof(InFile)) {
-				(void)StartPage(page, FALSE);
-				if (HadPattern)
+				if (FoundPattern(page))
 					return;
 			}
 		}
@@ -550,7 +578,7 @@ public	void	dedtype(
 
 			markC(gbl, TRUE);
 			y = StartPage(&page, skip);
-			if (skip) {
+			if (skip && !was_interrupted) {
 				if (feof(InFile)) {
 					skip = 0;
 					jump = 1;
@@ -563,6 +591,7 @@ public	void	dedtype(
 			shown |= FinishPage(gbl, inlist, page, y);
 			jump  = 1;
 
+			reset_catcher();
 			switch (c = dlog_char(&count,1)) {
 			case CTL('K'):
 				deddump(gbl);
