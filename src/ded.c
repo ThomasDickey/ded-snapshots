@@ -1,5 +1,5 @@
 #ifndef	NO_SCCS_ID
-static	char	sccs_id[] = "@(#)ded.c	1.8 88/03/25 13:25:35";
+static	char	sccs_id[] = "@(#)ded.c	1.9 88/03/28 09:02:59";
 #endif	NO_SCCS_ID
 
 /*
@@ -1003,7 +1003,9 @@ char	tpath[BUFSIZ];
 				clrtobot();
 				move(y, 0);
 				refresh();
+				ft_write();
 				forkfile(whoami, tpath);
+				ft_read(new_wd);
 			}
 			retouch(0);
 			break;
