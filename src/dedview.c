@@ -1,5 +1,5 @@
 #if	!defined(NO_IDENT)
-static	char	Id[] = "$Id: dedview.c,v 12.7 1993/11/19 19:42:09 dickey Exp $";
+static	char	Id[] = "$Id: dedview.c,v 12.8 1993/11/23 17:50:23 dickey Exp $";
 #endif
 
 /*
@@ -144,7 +144,7 @@ private	RING *	quit_view _ONE(RING *,gbl)
 		curview--;
 		next_view();	/* load current-viewport */
 		if (ring_view())
-			showFILES(vue->gbl,FALSE,TRUE);
+			showFILES(vue->gbl,FALSE);
 	} else
 		dedmsg(gbl, "no more viewports to quit");
 	return vue->gbl;
@@ -363,7 +363,7 @@ public	void	scroll_to_file(
 	if (gbl->curfile != inx) {
 		gbl->curfile = inx;
 		if (to_file(gbl))
-			showFILES(gbl,FALSE,TRUE);
+			showFILES(gbl,FALSE);
 		else
 			showC(gbl);
 	}
@@ -375,12 +375,10 @@ public	void	scroll_to_file(
  */
 public	void	markset(
 	_ARX(RING *,	gbl)
-	_ARX(int,	num)
-	_AR1(int,	reset_work)
+	_AR1(int,	num)
 		)
 	_DCL(RING *,	gbl)
 	_DCL(int,	num)
-	_DCL(int,	reset_work)
 {
 	int	lo = (vue->base_row + MINLIST * (maxview - curview)),
 		hi = (LINES - MINWORK);
@@ -410,7 +408,7 @@ public	void	markset(
 	}
 
 	(void)to_file(gbl);
-	showFILES(gbl, FALSE, reset_work);
+	showFILES(gbl, FALSE);
 }
 
 /*
@@ -434,7 +432,7 @@ public	void	upLINE(
 			vue->base_file -= 1;
 			setup_view(gbl);
 		}
-		showFILES(gbl,FALSE,FALSE);
+		showFILES(gbl,FALSE);
 	} else
 		showC(gbl);
 }
@@ -457,7 +455,7 @@ public	void	downLINE(
 			vue->base_file += 1;
 			setup_view(gbl);
 		}
-		showFILES(gbl,FALSE,FALSE);
+		showFILES(gbl,FALSE);
 	} else
 		showC(gbl);
 }
@@ -544,17 +542,15 @@ public	void	showMARK _ONE(int,col)
  */
 public	void	showFILES(
 	_ARX(RING *,	gbl)
-	_ARX(int,	reset_cols)
-	_AR1(int,	reset_work)
+	_AR1(int,	reset_cols)
 		)
 	_DCL(RING *,	gbl)
 	_DCL(int,	reset_cols)
-	_DCL(int,	reset_work)
 {
 	auto	int	current = curview;
 	register int j;
 
-	TRACE(("showFILES(%s,%d,%d)\n", gbl->new_wd, reset_cols, reset_work))
+	TRACE(("showFILES(%s,%d)\n", gbl->new_wd, reset_cols))
 	if (reset_cols)
 		for (j = 0; j < CCOL_MAX; j++)
 			gbl->cmdcol[j] = 0;
@@ -569,10 +565,6 @@ public	void	showFILES(
 		}
 	}
 	showMARK(gbl->Xbase);
-	if (reset_work) {
-		move(mark_W+1,0);
-		clrtobot();
-	}
 	showC(gbl);
 	TRACE(("...done showFILES\n"))
 }
@@ -605,7 +597,7 @@ public	void	openVIEW _ONE(RING *,gbl)
 		vue->base_row = r_head;
 
 		save_view(gbl);		/* current viewport */
-		markset(gbl, mark_W,TRUE);	/* adjust marker, re-display */
+		markset(gbl, mark_W);	/* adjust marker, re-display */
 	} else
 		dedmsg(gbl, "too many viewports");
 }
@@ -644,7 +636,7 @@ public	void	scrollVIEW(
 		gbl->curfile = vue->base_file;
 	}
 
-	showFILES(gbl,FALSE,FALSE);
+	showFILES(gbl,FALSE);
 }
 
 /*
@@ -672,7 +664,7 @@ public	void	top2VIEW _ONE(RING *,gbl)
 	}
 	if (inx != vue->base_file) {
 		vue->base_file = inx;
-		showFILES(gbl,FALSE,FALSE);
+		showFILES(gbl,FALSE);
 	}
 }
 

@@ -1,5 +1,5 @@
 #if	!defined(NO_IDENT)
-static	char	Id[] = "$Id: ftree.c,v 12.6 1993/11/19 21:11:55 dickey Exp $";
+static	char	Id[] = "$Id: ftree.c,v 12.7 1993/11/23 14:32:45 dickey Exp $";
 #endif
 
 /*
@@ -469,12 +469,25 @@ private	int	node2row _ONE(int,node)
 #ifndef	NO_XTERM_MOUSE
 private	int	row2node _ONE(int, row)
 {
-	register int node;
+	register int node = showbase;
+	register int j;
 
-	row -= LOSHOW;
-	for (node = showbase; (row > 0) && (node < showlast); node++) {
-		if (fd_show(node))
-			row--;
+	if (node < showlast) {
+		for (j = LOSHOW; j < row; j++) {
+			node++;
+			while (!fd_show(node)) {
+				if (node+1 >= showlast) {
+					/* back off! */
+					while (node > showbase) {
+						if (fd_show(node))
+							break;
+						node--;
+					}
+					break;
+				}
+				node++;
+			}
+		}
 	}
 	return node;
 }

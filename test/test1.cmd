@@ -42,6 +42,7 @@
 	# "README"
 	# "ded.c"
 	# "ded2s.c"
+	# "dedblip.c"
 	# "deddoit.c"
 	# "deddump.c"
 	# "dedfind.c"

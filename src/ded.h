@@ -3,7 +3,7 @@
 
 #ifdef	MAIN
 #if	!defined(NO_IDENT)
-static	char	*ded_h = "$Id: ded.h,v 12.5 1993/11/19 19:12:41 dickey Exp $";
+static	char	*ded_h = "$Id: ded.h,v 12.7 1993/11/23 17:49:36 dickey Exp $";
 #endif
 #endif	/* MAIN */
 
@@ -290,6 +290,13 @@ extern	void	fixtime(
 
 extern	void	usage(_ar0);
 
+/* *** "dedblip.c" *** */
+extern	void	set_dedblip (
+		_ar1(RING *,	gbl));
+
+extern	void	put_dedblip (
+		_ar1(int,	code));
+
 /* *** "deddoit.c" *** */
 extern	void	deddoit(
 		_arx(RING *,	gbl)
@@ -499,8 +506,7 @@ extern	void	scroll_to_file(
 
 extern	void	markset(
 		_arx(RING *,	gbl)
-		_arx(int,	num)
-		_ar1(int,	reset_work));
+		_ar1(int,	num));
 
 extern	void	upLINE(
 		_arx(RING *,	gbl)
@@ -525,8 +531,7 @@ extern	void	showMARK(
 
 extern	void	showFILES(
 		_arx(RING *,	gbl)
-		_arx(int,	reset_cols)
-		_ar1(int,	reset_work));
+		_ar1(int,	reset_cols));
 
 extern	void	openVIEW(
 		_ar1(RING *,	gbl));
