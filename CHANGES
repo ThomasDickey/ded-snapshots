@@ -1,3 +1,13 @@
+1994-05-29  Thomas E. Dickey  <dickey@clark.net>
+
+	* src/ded.h: split out <td_regex.h>
+
+1994-05-28  Thomas E. Dickey  <dickey@clark.net>
+
+	* src/ded.h: use HAVE_REGEX_H_FUNCS
+
+	* src/ded.h: use HAVE_NEW_TOKEN_QUOTE
+
 1994-05-27  Thomas E. Dickey  <dickey@clark.net>
 
 	* src/dlog.c: use HAVE_STDARG_H
