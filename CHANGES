@@ -1,3 +1,11 @@
+1991-06-05  dickey@software.org
+
+	* Makefile: cleanup install-rule
+
+1991-06-05  ste_cm@software.org
+
+	* Makefile: BASELINE Mon Jun 10 10:09:56 1991 -- apollo sr10.3
+
 1991-06-04  dickey@software.org
 
 	* src/dedtype.c:
