@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	sccs_id[] = "@(#)dedtype.c	1.11 88/08/12 08:07:48";
+static	char	sccs_id[] = "@(#)dedtype.c	1.12 88/08/17 07:38:32";
 #endif	lint
 
 /*
@@ -7,6 +7,7 @@ static	char	sccs_id[] = "@(#)dedtype.c	1.11 88/08/12 08:07:48";
  * Author:	T.E.Dickey
  * Created:	16 Nov 1987
  * Modified:
+ *		17 Aug 1988, test for error return from 'fseek()'.
  *		07 Jun 1988, added CTL(K) command.
  *		02 May 1988, fixed repeat-count for forward-command.
  *			     Dynamically allocate 'infile[].'
@@ -55,7 +56,7 @@ typeline(y)
 				if (over[j] != over[now])	break;
 			}
 			if (over[now])	standout();
-			printw("%.*s", (j - now), &text[now]);
+			PRINTW("%.*s", (j - now), &text[now]);
 			if (over[now])	standend();
 			Tlen -= (j - now);
 			now = j;
@@ -168,15 +169,15 @@ int	c,			/* current character */
 
 			move(LINES-1,0);
 			standout();
-			printw("---page");
+			PRINTW("---page");
 			if ((stat(name, &sb) >= 0) && sb.st_size > 0) {
-				printw(" %d: %ld%%",
+				PRINTW(" %d: %ld%%",
 					page,
 					(ftell(fp) * 100) / sb.st_size);
 			}
-			printw("---");
+			PRINTW("---");
 			standend();
-			printw(" ");
+			PRINTW(" ");
 			clrtoeol();
 
 			if (feof(fp))
@@ -198,7 +199,7 @@ int	c,			/* current character */
 				replay = 1;
 				break;
 			case 'q':
-				done = TRUE;
+				done = 1;
 				break;
 			case ARO_UP:
 			case '\b':
@@ -212,7 +213,8 @@ int	c,			/* current character */
 			case 'f':
 				skip = count - 1;
 				if (feof(fp))
-					fseek(fp, infile[--page], 0);
+					if (fseek(fp, infile[--page], 0) < 0)
+						done = -1;
 				break;
 			case ARO_LEFT:
 				if (binary)
@@ -244,13 +246,18 @@ int	c,			/* current character */
 			if (replay) {
 				page -= replay;
 				if (page < 0) page = 0;
-				fseek(fp, infile[page], 0);
+				if (fseek(fp, infile[page], 0) < 0)
+					done = -1;
 			}
 		}
 		(void)fclose(fp);
-		move(LINES+1,0);
-		clrtobot();
-		showC();
+		if (done < 0)
+			warn("fseek");
+		else {
+			move(LINES+1,0);
+			clrtobot();
+			showC();
+		}
 	} else
 		warn(name);
 }

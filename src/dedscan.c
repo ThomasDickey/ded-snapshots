@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	sccs_id[] = "@(#)dedscan.c	1.21 88/08/12 09:28:17";
+static	char	sccs_id[] = "@(#)dedscan.c	1.22 88/08/17 15:11:24";
 #endif	lint
 
 /*
@@ -7,6 +7,7 @@ static	char	sccs_id[] = "@(#)dedscan.c	1.21 88/08/12 09:28:17";
  * Author:	T.E.Dickey
  * Created:	09 Nov 1987
  * Modified:
+ *		17 Aug 1988, don't use 'dedmsg()', which assumes cursor position
  *		12 Aug 1988, added 'dir_order' to support sort into the order
  *			     in which we obtained names from the directory.
  *			     This is useful for tracking programs such as
@@ -100,7 +101,7 @@ char	*argv[];
 				}
 				closedir(dp);
 				if (!numfiles)
-					dedmsg("no files found");
+					waitmsg("no files found");
 			}
 			ft_purge();	/* remove items not reinserted */
 		}

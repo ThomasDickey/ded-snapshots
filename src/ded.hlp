@@ -65,9 +65,9 @@ Display-Adjustment:
   a		move workspace marker down {count} lines
 
   R		re-scan argument list (refresh)
-  W		re-stat entries in the current screen
+  W		re-stat entries in the current screen {count} times.
   w		refresh window
-  l		re-stat the current entry
+  l		re-stat the current entry {count} times.
   {space}	clear workspace window
 
   CTL/K		Dumps the screen to the file ~/ded.log

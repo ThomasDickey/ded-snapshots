@@ -1,4 +1,4 @@
-# @(#)Makefile	1.20 88/08/12 09:31:42
+# @(#)Makefile	1.21 88/08/17 08:39:29
 # MAKE-file for directory editor
 #
 ####### (Environment) ##########################################################
@@ -83,8 +83,8 @@ archive: $(OBJS)
 ded.o:		$(DED_H) ded.c version.h
 $(OBJS):	$(DED_H)
 #
-$B/ded:		ded		; rm -f $@;cp $? $@
-$B/ded.hlp:	ded.hlp		; rm -f $@;cp $? $@
+$B/ded:		ded		; copy -d $@
+$B/ded.hlp:	ded.hlp		; copy -d $@
 #
 ####### (Development) ##########################################################
 $(SRCS):			; $(GET) -s sccs/s.$@
