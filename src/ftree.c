@@ -1,11 +1,13 @@
 #ifndef	NO_SCCS_ID
-static	char	sccs_id[] = "@(#)ftree.c	1.26 88/04/28 15:18:24";
+static	char	sccs_id[] = "@(#)ftree.c	1.29 88/05/02 13:51:54";
 #endif
 
 /*
  * Author:	T.E.Dickey
  * Created:	02 Sep 1987
  * Modified:
+ *		02 May 1988, added '^' command to 'ft_view()'.  Adjusted 'q'
+ *			     so that it quits lists via 'dedring()'.
  *		28 Apr 1988, integrated with 'ded' via 'dedring()' module.
  *		26 Apr 1988, adjusted 'p' command so we position before changes.
  *		24 Mar 1988, moved under 'ded' directory to begin changes for
@@ -799,6 +801,12 @@ register int j;
 		case ARO_RIGHT:
 		case 'l':	lvl += num;			break;
 
+		case '^':	if (showbase != row) {
+					showbase = row;
+					showdiff = -1;
+				}
+				break;
+
 		case 'H':	row = showbase;			break;
 		case 'L':	row = showlast;			break;
 
@@ -861,14 +869,18 @@ register int j;
 			break;
 
 #ifndef	TEST
+		/* quit lists in directory-ring */
+		case 'q':
 		/* scroll through the directory-ring */
 		case 'F':
 		case 'B':
-			(void)dedring(fd_path(cwdpath, row), c, num);
+			num = dedring(fd_path(cwdpath, row), c, num);
 			row = do_find(strcpy(cwdpath,new_wd));
 			lvl = fd_level(row);
 			scroll_to(row);
 			(void)strcpy(path, cwdpath);
+			if (!num && c == 'q')
+				return(c);
 			break;
 
 		/* Exit from this program (back to 'fl') */
@@ -882,7 +894,6 @@ register int j;
 			/* fall-thru to return */
 #endif	TEST
 		case 'D':
-		case 'q':
 			return(c);
 
 		/* Scan/delete nodes */
@@ -926,7 +937,14 @@ register int j;
 				break;
 
 		/* Screen refresh */
-		case 'w':	showdiff = -1;
+		case 'w':
+#ifdef	apollo
+				if (resizewin()) {
+					showdiff = -1;
+					row = showbase;
+					break;
+				}
+#endif	apollo
 				savewin();
 				unsavewin(TRUE,0);
 				break;

@@ -1,5 +1,5 @@
 #ifndef	NO_SCCS_ID
-static	char	sccs_id[] = "@(#)dedscan.c	1.4 88/04/22 09:07:56";
+static	char	sccs_id[] = "@(#)dedscan.c	1.5 88/05/02 13:15:37";
 #endif	NO_SCCS_ID
 
 /*
@@ -14,6 +14,7 @@ static	char	sccs_id[] = "@(#)dedscan.c	1.4 88/04/22 09:07:56";
  *		leading options parsed off.
  */
 #include	"ded.h"
+extern	FLIST	*dedfree();
 extern	char	*stralloc();
 
 /************************************************************************
@@ -31,14 +32,7 @@ struct	direct	*de;
 register int	j;
 char	name[BUFSIZ];
 
-	if (flist != 0) {	/* we are rescanning display-list */
-		for (j = 0; j < numfiles; j++) {
-			if (flist[j].name)	free(flist[j].name);
-			if (flist[j].ltxt)	free(flist[j].ltxt);
-		}
-		free(flist);
-		flist = 0;
-	}
+	flist = dedfree(flist, numfiles);
 
 	if (argc == 0) {
 	static	char	dot[]	= ".",
