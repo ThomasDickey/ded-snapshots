@@ -1,3 +1,22 @@
+1989-07-25  dickey@software.org
+
+	* src/dedname.c:
+	renamed 'fullname()' to 'expand_name()' to avoid conflict with curses-function
+	when recompiling this under apollo SR10.1
+
+1989-07-25  ste_cm@software.org
+
+	* src/dedname.c:
+	BASELINE Fri Oct 27 12:27:25 1989 -- apollo SR10.1 mods + ADA_PITS 4.0
+
+	* src/dedname.c: BASELINE Mon Apr 30 09:54:01 1990 -- (CPROTO)
+
+	* src/dedname.c:
+	BASELINE Thu Aug 24 10:20:06 EDT 1989 -- support:navi_011(rel2)
+
+	* src/dedname.c:
+	BASELINE Thu Mar 29 07:37:55 1990 -- maintenance release (SYNTHESIS)
+
 1989-06-16  dickey@software.org
 
 	* test/test2.cmd: added files src/README, src/dedread.[co]
