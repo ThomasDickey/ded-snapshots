@@ -1,3 +1,12 @@
+1989-06-13  dickey@software.org
+
+	* src/version.h:
+	corrected pointer-bug which made CTL/R command fail on sun
+
+1989-06-13  ste_cm@software.org
+
+	* src/version.h: BASELINE Mon Jun 19 14:21:57 EDT 1989
+
 1989-06-12  dickey@software.org
 
 	* src/dedline.c:
