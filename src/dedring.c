@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	Id[] = "$Id: dedring.c,v 8.0 1990/05/23 11:16:30 ste_cm Rel $";
+static	char	Id[] = "$Id: dedring.c,v 8.1 1991/04/04 09:08:41 dickey Exp $";
 #endif	lint
 
 /*
@@ -7,9 +7,12 @@ static	char	Id[] = "$Id: dedring.c,v 8.0 1990/05/23 11:16:30 ste_cm Rel $";
  * Author:	T.E.Dickey
  * Created:	27 Apr 1988
  * $Log: dedring.c,v $
- * Revision 8.0  1990/05/23 11:16:30  ste_cm
- * BASELINE Mon Aug 13 15:06:41 1990 -- LINCNT, ADA_TRANS
+ * Revision 8.1  1991/04/04 09:08:41  dickey
+ * guard against 'getwd()' failure.
  *
+ *		Revision 8.0  90/05/23  11:16:30  ste_cm
+ *		BASELINE Mon Aug 13 15:06:41 1990 -- LINCNT, ADA_TRANS
+ *		
  *		Revision 7.2  90/05/23  11:16:30  dickey
  *		added a missing case to handle 'set_pattern' arg of 'dedring'
  *		(when we are using CTL(E) command like CTL(R)).
@@ -520,11 +523,10 @@ char	tmp[BUFSIZ];
 
 			/*
 			 * Coerce translation of pathnames in case part of the
-			 * path was a symbolic link.  We assume that 'getwd()'
-			 * does the work:
+			 * path was a symbolic link.
 			 */
-			if (chdir(new_wd) >= 0) {
-				if (strcmp(getwd(new_wd), path)) {
+			if (path_RESOLVE(new_wd)) {
+				if (strcmp(new_wd, path)) {
 					remove (path);
 					if (!(newp = ring_get(new_wd)))
 						newp = insert(new_wd, TRUE, pattern);
