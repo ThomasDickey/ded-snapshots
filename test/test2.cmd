@@ -47,8 +47,9 @@ u
 1D	# path: CM_TOOLS/bin
 1\L	# path: CM_TOOLS/bin
 1\L	# path: CM_TOOLS/bin
-1\D	# path: //dickey/local/dickey/src/cm_tools/src/permit
-1K	# path: CM_TOOLS/test
+1J	# path: CM_TOOLS/src
+1J	# path: CM_TOOLS/test
+1\R	# path: CM_TOOLS/test
 1K	# path: CM_TOOLS/src
 1l	# path: CM_TOOLS/src
 1E	# chdir CM_TOOLS/src
@@ -56,7 +57,6 @@ u
 1\s
 1#	# "Makefile"
 	# "RCS"
-	# "README"
 	# "ded.c"
 	# "ded2s.c"
 	# "deddoit.c"
@@ -101,9 +101,8 @@ u
 	# "ded.a"
 1s+t
 1_
-99+	# "ded.a"
+2+	# "ded.a"
 	# "ded.hlp"
-	# "lint.out"
 1!\# selected the files of which only one suffix exists
 	# execute # selected the files of which only one suffix exists
 	# ELAPSED TIME
@@ -145,7 +144,6 @@ u
 99b
 1+	# "Makefile"
 1+	# "RCS"
-1+	# "README"
 1+	# "ded.a"
 1_
 1/\.h$
@@ -169,7 +167,6 @@ u
 99b
 1+	# "Makefile"
 1+	# "RCS"
-1+	# "README"
 1+	# "ded.a"
 1+	# "ded.c"
 1\t
@@ -177,7 +174,6 @@ u
 1w
 1+	# "Makefile"
 1+	# "RCS"
-1+	# "README"
 1X
 1_
 1n	# "ded.h"

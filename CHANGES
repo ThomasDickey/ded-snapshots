@@ -1,3 +1,27 @@
+1989-03-28  dickey@software.org
+
+	* src/Makefile: corrected 'destroy' rule
+
+	* Makefile: added 'all' dependency to 'install'
+
+1989-03-28  ste_cm@software.org
+
+	* Makefile: BASELINE Mon Jun 19 14:20:36 EDT 1989
+
+	* Makefile: BASELINE Thu Apr  6 13:12:06 EDT 1989
+
+1989-03-28  dickey@software.org
+
+	* test/test1.cmd, test/test2.cmd: refined to make this more testable
+
+	* src/Makefile: added 'run_tests' rule
+
+	* test/run_test.sh:
+	pipe ded-stdout to /dev/tty to avoid problems if the stdout of this script
+	is piped somewhere.
+
+	* Makefile: use MAKE-variable to encapsulate recursive-build info.
+
 1989-03-27  dickey@software.org
 
 	* Makefile: integration/cleanup for recursive make
