@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	Id[] = "$Header: /users/source/archives/ded.vcs/src/RCS/ded.c,v 9.3 1991/07/02 17:23:09 dickey Exp $";
+static	char	Id[] = "$Header: /users/source/archives/ded.vcs/src/RCS/ded.c,v 9.6 1991/07/11 12:42:44 dickey Exp $";
 #endif
 
 /*
@@ -7,9 +7,20 @@ static	char	Id[] = "$Header: /users/source/archives/ded.vcs/src/RCS/ded.c,v 9.3 
  * Author:	T.E.Dickey
  * Created:	09 Nov 1987
  * $Log: ded.c,v $
- * Revision 9.3  1991/07/02 17:23:09  dickey
- * made S_opt, P_opt 3-way toggles.
+ * Revision 9.6  1991/07/11 12:42:44  dickey
+ * modified interface to to_work()
  *
+ *		Revision 9.5  91/07/11  11:12:28  dickey
+ *		broke-out 'showMARK()' for use in 'dedtype()'
+ *		
+ *		Revision 9.4  91/07/11  10:52:49  dickey
+ *		modified interface to 'showFILES()' so that scrolling (in a
+ *		given file-list) and inline/toggle operations do not cause
+ *		the workspace to be cleared.
+ *		
+ *		Revision 9.3  91/07/02  17:46:01  dickey
+ *		made S_opt, P_opt 3-way toggles.
+ *		
  *		Revision 9.2  91/06/28  08:29:15  dickey
  *		lint (apollo sr10.3)
  *		
@@ -412,10 +423,11 @@ clear_work()
 /*
  * Clear the work area, move the cursor there after setting marker
  */
-to_work()
+to_work(clear_it)
 {
 	markC(TRUE);
-	clear_work();
+	if (clear_it)
+		clear_work();
 }
 
 /*
@@ -437,7 +449,7 @@ scroll_to_file(inx)
 	if (curfile != inx) {
 		curfile = inx;
 		if (to_file())
-			showFILES(FALSE);
+			showFILES(FALSE,TRUE);
 		else
 			showC();
 	}
@@ -475,7 +487,7 @@ markset(num)
 	}
 
 	(void)to_file();
-	showFILES(FALSE);
+	showFILES(FALSE,FALSE);
 }
 
 /*
@@ -600,7 +612,7 @@ user_says(ok)
 	char	reply[8];
 
 	if (!ok) {
-		to_work();
+		to_work(TRUE);
 		PRINTW("Are you sure (y/n)? ");
 		getyx(stdscr,y,x);
 		clrtobot();
@@ -639,7 +651,7 @@ upLINE(n)
 	if (curfile < 0)		curfile = 0;
 	if (curfile < Ybase) {
 		while (curfile < Ybase)	backward(1);
-		showFILES(FALSE);
+		showFILES(FALSE,FALSE);
 	} else
 		showC();
 }
@@ -650,7 +662,7 @@ downLINE(n)
 	if (curfile >= numfiles)	curfile = numfiles-1;
 	if (curfile > Ylast) {
 		while (curfile > Ylast)	forward(1);
-		showFILES(FALSE);
+		showFILES(FALSE,FALSE);
 	} else
 		showC();
 }
@@ -757,14 +769,29 @@ showVIEW()
 }
 
 /*
+ * Display the marker which precedes the workspace
+ */
+showMARK(col)
+{
+	register int j, k;
+	char	scale[20];
+
+	move(mark_W,0);
+	for (j = 0; j < COLS - 1; j += 10) {
+		k = ((col + j) / 10) + 1;
+		FORMAT(scale, "----+---%d", k > 9 ? k : -k);
+		PRINTW("%.*s", COLS - j - 1, scale);
+	}
+}
+
+/*
  * Display all files in the current screen (all viewports), and then show the
  * remaining stuff on the screen (position in each viewport and workspace
  * marker).
  */
-showFILES(reset_cols)
+showFILES(reset_cols,reset_work)
 {
-	register int j, k;
-	char	scale[20];
+	register int j;
 
 	if (reset_cols)
 		for (j = 0; j < CCOL_MAX; j++)
@@ -777,14 +804,11 @@ showFILES(reset_cols)
 			nextVIEW(TRUE);
 		}
 	}
-	move(mark_W,0);
-	for (j = 0; j < COLS - 1; j += 10) {
-		k = ((Xbase + j) / 10) + 1;
-		FORMAT(scale, "----+---%d", k > 9 ? k : -k);
-		PRINTW("%.*s", COLS - j - 1, scale);
+	showMARK(Xbase);
+	if (reset_work) {
+		move(mark_W+1,0);
+		clrtobot();
 	}
-	move(mark_W+1,0);
-	clrtobot();
 	showC();
 }
 
@@ -842,7 +866,7 @@ quitVIEW()
 		viewlist[0].Yhead = 0;
 		curview--;
 		nextVIEW(FALSE);	/* load current-viewport */
-		showFILES(FALSE);
+		showFILES(FALSE,TRUE);
 	} else
 		dedmsg("no more viewports to quit");
 }
@@ -871,7 +895,7 @@ showSCCS()
 {
 register int j;
 	if (!Z_opt) {		/* catch up */
-		to_work();
+		to_work(TRUE);
 		Z_opt = -1;
 		for (j = 0; j < numfiles; j++)
 			if (!flist[j].z_time) {
@@ -922,7 +946,7 @@ int	y,x;
 	if (resizewin()) {
 		dlog_comment("resizewin(%d,%d)\n", LINES, COLS);
 		markset(mark_W);
-		showFILES(FALSE);
+		showFILES(FALSE,TRUE);
 		return;
 	}
 #endif	/* apollo */
@@ -938,7 +962,7 @@ char	*backto;		/* name to reset to, if possible */
 {
 	register int	j;
 
-	to_work();
+	to_work(TRUE);
 	tag_count = 0;
 	if (dedscan(top_argc, top_argv)) {
 		curfile = 0;	/* numfiles may be less now */
@@ -950,7 +974,7 @@ char	*backto;		/* name to reset to, if possible */
 				break;
 			}
 		(void)to_file();
-		showFILES(TRUE);
+		showFILES(TRUE,TRUE);
 		return (TRUE);
 	} else if (fwd)
 		return (old_args('F',1));
@@ -1044,7 +1068,7 @@ int	ok;
 	if (ok = dedring(path, cmd, count, set_pattern, pattern)) {
 		(void)to_file();
 		count_tags();
-		showFILES(TRUE);
+		showFILES(TRUE,TRUE);
 	}
 	(void)chdir(new_wd);
 	dlog_comment("chdir %s\n", new_wd);
@@ -1151,7 +1175,7 @@ editfile(readonly, extended)
 	dlog_name(cNAME);
 	switch (realstat(curfile, &sb)) {
 	case 0:	/* edit-file */
-		to_work();
+		to_work(TRUE);
 		if (extended) {
 			if (padedit(cNAME, readonly, editor) < 0)
 				beep();
@@ -1163,7 +1187,7 @@ editfile(readonly, extended)
 		if (extended) {
 			(void)pattern_args(pathcat(tpath, new_wd, cNAME));
 		} else {
-			to_work();
+			to_work(TRUE);
 			ft_write();
 			dlog_close();
 			forkfile(whoami, cNAME, TRUE);
@@ -1390,25 +1414,25 @@ char	*argv[];
 
 	case 'f':	forward(count);
 			curfile = Ybase;
-			showFILES(FALSE);
+			showFILES(FALSE,FALSE);
 			break;
 
 	case 'b':	backward(count);
 			curfile = Ybase;
-			showFILES(FALSE);
+			showFILES(FALSE,FALSE);
 			break;
 
 	case ARO_LEFT:	if (Xbase > 0) {
 				if ((Xbase -= Xscroll * count) < 0)
 					Xbase = 0;
-				showFILES(FALSE);
+				showFILES(FALSE,FALSE);
 			} else
 				dedmsg("already at left margin");
 			break;
 
 	case ARO_RIGHT:	if (Xbase + (Xscroll * count) < 990) {
 				Xbase += Xscroll * count;
-				showFILES(FALSE);
+				showFILES(FALSE,FALSE);
 			} else
 				beep();
 			break;
@@ -1419,7 +1443,7 @@ char	*argv[];
 	case 'L':	curfile = Ylast;		showC(); break;
 	case '^':	if (Ybase != curfile) {
 				Ybase = curfile;
-				showFILES(FALSE);
+				showFILES(FALSE,FALSE);
 			}
 			break;
 
@@ -1427,7 +1451,7 @@ char	*argv[];
 #ifdef	S_IFLNK
 	case '@':	AT_opt= !AT_opt;
 			count = 0;
-			to_work();
+			to_work(TRUE);
 			for (j = 0; j < numfiles; j++) {
 				if (xLTXT(j)) {
 					blip('@');
@@ -1437,7 +1461,7 @@ char	*argv[];
 					blip('.');
 			}
 			if (count)
-				showFILES(TRUE);
+				showFILES(TRUE,TRUE);
 			else
 				showC();
 			break;
@@ -1448,48 +1472,51 @@ char	*argv[];
 			quit = !rescan(TRUE, strcpy(tpath, cNAME));
 			break;
 	case 'G':	G_opt = one_or_both(j = G_opt,count);
-			showFILES((G_opt != 2) != (j != 2));
+			showFILES((G_opt != 2) != (j != 2), FALSE);
 			break;
 	case 'I':	I_opt = one_or_both(j = I_opt,count);
-			showFILES(I_opt != j);
+			showFILES(I_opt != j, FALSE);
 			break;
 #ifdef	apollo_sr10
-	case 'O':	O_opt = !O_opt; showFILES(TRUE); break;
+	case 'O':	O_opt = !O_opt; showFILES(TRUE, FALSE); break;
 #endif
 	case 'P':	P_opt = one_or_both(j = P_opt,count);
-			showFILES(P_opt != j);
+			showFILES(P_opt != j, FALSE);
 			break;
 	case 'S':	S_opt = one_or_both(j = S_opt,count);
-			showFILES(S_opt != j);
+			showFILES(S_opt != j, FALSE);
 			break;
-	case 'T':	T_opt = !T_opt; showFILES(TRUE); break;
+	case 'T':	T_opt = !T_opt; showFILES(TRUE, FALSE); break;
 #ifdef	apollo
-	case 'U':	U_opt = !U_opt; showFILES(FALSE);break;
+	case 'U':	U_opt = !U_opt; showFILES(FALSE,FALSE);	break;
 #endif
 
 #ifdef	Z_RCS_SCCS
 	case 'V':	/* toggle sccs-version display */
+			j = !Z_opt;
 			showSCCS();
 			V_opt = !V_opt;
-			showFILES(TRUE);
+			showFILES(TRUE,j);
 			break;
 
 	case 'Y':	/* show owner of file lock */
+			j = !Z_opt;
 			showSCCS();
 			Y_opt = !Y_opt;
-			showFILES(TRUE);
+			showFILES(TRUE,j);
 			break;
 
 	case 'Z':	/* toggle sccs-date display */
+			j = !Z_opt;
 			showSCCS();
 			Z_opt = -Z_opt;
-			showFILES(TRUE);
+			showFILES(TRUE,j);
 			break;
 
 	case 'z':	/* cancel sccs-display */
 			if (Z_opt) {
 				Z_opt = 0;
-				showFILES(TRUE);
+				showFILES(TRUE,FALSE);
 			}
 			break;
 #endif	/* Z_RCS_SCCS */
@@ -1547,19 +1574,19 @@ char	*argv[];
 #endif	/* Z_RCS_SCCS */
 				dedsort();
 				(void)to_file();
-				showFILES(FALSE);
+				showFILES(FALSE,FALSE);
 			} else
 				dedmsg("unknown sort-key");
 			break;
 
 	case 'C':	if (++dateopt > 2)	dateopt = 0;
-			showFILES(FALSE);
+			showFILES(FALSE,FALSE);
 			break;
 
 	case '#':	/* tag files with duplicated fields */
 			deduniq(count);
 			count_tags();
-			showFILES(FALSE);
+			showFILES(FALSE,TRUE);
 			break;
 
 			/* tag/untag specific files */
@@ -1586,7 +1613,7 @@ char	*argv[];
 	case '_':	for (j = 0; j < numfiles; j++)
 				xFLAG(j) = FALSE;
 			tag_count = 0;
-			showFILES(FALSE);
+			showFILES(FALSE,FALSE);
 			break;
 
 			/* edit specific fields */
@@ -1624,7 +1651,7 @@ char	*argv[];
 			editfile((c & 037) != CTL('e'), iscntrl(c));
 			break;
 
-	case 'm':	to_work();
+	case 'm':	to_work(TRUE);
 			forkfile(ENV(PAGER), cNAME, TRUE);
 #ifndef	apollo
 			dedwait(TRUE);

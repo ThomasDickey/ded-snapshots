@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	Id[] = "$Id: deddoit.c,v 9.1 1991/06/28 08:17:45 dickey Exp $";
+static	char	Id[] = "$Id: deddoit.c,v 9.2 1991/07/11 12:43:26 dickey Exp $";
 #endif
 
 /*
@@ -151,7 +151,7 @@ deddoit(key,sense)
 	else if (sense > 1)
 		clr_sh = TRUE;
 
-	to_work();
+	to_work(TRUE);
 	PRINTW("%c Command: ", clr_sh ? '%' : '!');
 	getyx(stdscr,j,k);
 	clrtobot();

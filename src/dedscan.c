@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	Id[] = "$Id: dedscan.c,v 9.0 1991/05/15 13:58:28 ste_cm Rel $";
+static	char	Id[] = "$Id: dedscan.c,v 9.1 1991/07/11 10:44:51 dickey Exp $";
 #endif
 
 /*
@@ -7,9 +7,12 @@ static	char	Id[] = "$Id: dedscan.c,v 9.0 1991/05/15 13:58:28 ste_cm Rel $";
  * Author:	T.E.Dickey
  * Created:	09 Nov 1987
  * $Log: dedscan.c,v $
- * Revision 9.0  1991/05/15 13:58:28  ste_cm
- * BASELINE Mon Jun 10 10:09:56 1991 -- apollo sr10.3
+ * Revision 9.1  1991/07/11 10:44:51  dickey
+ * modified interface to 'showFILES()'
  *
+ *		Revision 9.0  91/05/15  13:58:28  ste_cm
+ *		BASELINE Mon Jun 10 10:09:56 1991 -- apollo sr10.3
+ *		
  *		Revision 8.3  91/05/15  13:58:28  dickey
  *		apollo sr10.3 cpp complains about tag on #endif
  *		
@@ -519,7 +522,7 @@ statMAKE(mode)
 			numfiles--;
 		}
 	}
-	showFILES(FALSE);
+	showFILES(FALSE,TRUE);
 }
 
 /*

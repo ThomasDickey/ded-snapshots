@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	what[] = "$Id: sortset.c,v 9.2 1991/06/28 08:14:44 dickey Exp $";
+static	char	what[] = "$Id: sortset.c,v 9.3 1991/07/11 12:44:39 dickey Exp $";
 #endif
 
 /*
@@ -97,7 +97,7 @@ sortget(c)
 				done = FALSE,
 				find, found;
 
-		to_work();
+		to_work(TRUE);
 		PRINTW("Sort:> ");
 		getyx(stdscr,y,x);
 		find = sortopt;
@@ -129,7 +129,7 @@ sortget(c)
 					find = *sort_msg[j];	break;
 			case 'q':
 					c = 0;
-					to_work();
+					to_work(TRUE);
 					showC();
 					/* fall-thru */
 			case '\r':
