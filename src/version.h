@@ -1,8 +1,26 @@
 /*
- * $Id: version.h,v 12.14 1998/02/16 02:18:59 tom Exp $
+ * $Id: version.h,v 12.15 2000/10/19 09:52:50 tom Exp $
  * Version-identifier for DED
  *
  *		$Log: version.h,v $
+ *		Revision 12.15  2000/10/19 09:52:50  tom
+ *		19 Oct 2000, add '-p' option to print selected pathnames.
+ *		08 Apr 2000, remove unneeded call for ncurses' trace().
+ *		24 Jan 2000, revised directory-macros.
+ *		24 Jan 2000, open .ftree in binary-mode for OS/2 EMX and Cygwin.
+ *		16 Aug 1999, add cast to work with BeOS's long long ino_t.
+ *		16 Aug 1999, use ttyname() for BeOS port.
+ *		10 Aug 1999, change -b to a toggle, allow curses to decide if box characters are available.
+ *		09 Aug 1999, allow color names to be mixed case, in any order.
+ *		21 Jul 1998, show hostname prefix for pathname
+ *		21 Jul 1998, change filelist header layout to allow for hostname prefix to to pathname.
+ *		29 May 1998, compile with g++
+ *		04 Mar 1998, rename 'y' sort to 'o'.
+ *		15 Feb 1998, add home/end/ppage/npage keys.
+ *		15 Feb 1998, remove special code for apollo sr10.  Correct a missing 'else' in time2s that caused future dates to be formatted as in the past.
+ *		15 Feb 1998, remove special code for apollo sr10.  add home/end/ppage/npage cases.  change tag/untag to repaint faster.
+ *		15 Feb 1998, corrected ifdef'ing of realpath vs chdir.
+ *
  *		Revision 12.14  1998/02/16 02:18:59  tom
  *		generate all makefiles, making this portable to systems having 'make'
  *		programs w/o archive rules.
@@ -351,4 +369,4 @@ static
 #ifndef __hpux	/* scanf is broken on HP/UX 9 */
 const
 #endif
-char	version[] = "$Date: 1998/02/16 02:18:59 $";
+char	version[] = "$Date: 2000/10/19 09:52:50 $";

@@ -56,7 +56,7 @@
 
 #include	"ded.h"
 
-MODULE_ID("$Id: dedline.c,v 12.24 1998/07/21 23:08:33 tom Exp $")
+MODULE_ID("$Id: dedline.c,v 12.25 2000/10/19 01:41:02 tom Exp $")
 
 #define	CHMOD(n)	(gSTAT(n).st_mode & 07777)
 #define	OWNER(n)	((geteuid() == 0) || (gSTAT(x).st_uid == geteuid()))
@@ -341,7 +341,7 @@ private	int	change_protection (
 			}
 			statLINE(gbl, x);
 			changed++;
-			if (c != CHMOD(x)) {
+			if (c != (int) CHMOD(x)) {
 				dlog_comment("chmod %o %s\n",
 					c, gNAME(x));
 				if (chmod(gNAME(x), (mode_t)c) < 0) {
@@ -568,7 +568,8 @@ public	void	edit_uid (
 	&&  (uid = s2uid(bfr)) >= 0) {
 		(void)dedsigs(TRUE);	/* reset interrupt-count */
 		for_each_file(gbl,j) {
-			if (gSTAT(j).st_uid == uid)	continue;
+			if ((int) gSTAT(j).st_uid == uid)
+				continue;
 			if (dedsigs(TRUE)) {
 				waitmsg(gNAME(j));
 				break;
@@ -614,7 +615,7 @@ public	void	edit_gid (
 
 		(void)dedsigs(TRUE);	/* reset interrupt-count */
 		for_each_file(gbl,j) {
-			if (gSTAT(j).st_gid == gid)
+			if ((int) gSTAT(j).st_gid == gid)
 				continue;
 			if (dedsigs(TRUE)) {
 				waitmsg(gNAME(j));

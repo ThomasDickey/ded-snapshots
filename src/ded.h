@@ -19,7 +19,7 @@
 
 #ifdef	MAIN
 #if	!defined(NO_IDENT)
-static const char ded_h[] = "$Id: ded.h,v 12.58 1999/08/17 01:24:42 tom Exp $";
+static const char ded_h[] = "$Id: ded.h,v 12.59 2000/10/19 09:33:00 tom Exp $";
 #endif
 #endif	/* MAIN */
 
@@ -406,6 +406,8 @@ extern	void	ring_rename(
 		_arx(RING *,	gbl)
 		_arx(char *,	oldname)
 		_ar1(char *,	newname));
+
+extern	void	ring_tags(_ar0);
 
 /* *** "dedscan.c" *** */
 extern	int	dedscan(
