@@ -1,5 +1,5 @@
 #if	!defined(NO_IDENT)
-static	char	Id[] = "$Header: /users/source/archives/ded.vcs/src/RCS/ded.c,v 12.20 1994/06/30 23:26:33 tom Exp $";
+static	char	Id[] = "$Header: /users/source/archives/ded.vcs/src/RCS/ded.c,v 12.23 1994/07/02 21:18:58 tom Exp $";
 #endif
 
 /*
@@ -199,7 +199,7 @@ private	int	edithead(
 	_DCL(char *,	dst)
 	_DCL(char *,	leaf)
 {
-	auto	STAT	sb;
+	auto	Stat_t	sb;
 	auto	char	*s;
 
 	if (cLTXT != 0) {
@@ -235,7 +235,9 @@ private	int	edithead(
 /*
  * Exit from window mode
  */
-public	void	to_exit _ONE(int,last)
+public	void	to_exit (
+	_AR1(int,	last))
+	_DCL(int,	last)
 {
 	if (in_screen) {
 		if (last) {
@@ -255,11 +257,11 @@ public	void	to_exit _ONE(int,last)
 public	int	realstat(
 	_ARX(RING *,	gbl)
 	_ARX(int,	inx)
-	_AR1(STAT *,	sb)
+	_AR1(Stat_t *,	sb)
 		)
 	_DCL(RING *,	gbl)
 	_DCL(int,	inx)
-	_DCL(STAT *,	sb)
+	_DCL(Stat_t *,	sb)
 {
 	register j = gSTAT(inx).st_mode;
 
@@ -277,7 +279,9 @@ public	int	realstat(
 /*
  * Fatal-error exit from this process
  */
-public	void	failed _ONE(char *,msg)
+public	void	failed (
+	_AR1(char *,	msg))
+	_DCL(char *,	msg)
 {
 	if (debug) {
 		FPRINTF(stderr, "failed?");
@@ -347,7 +351,9 @@ private	int	needSCCS(
 	return (!gbl->Z_opt && (strchr("vyZz",c) != 0));
 }
 
-public	void	showSCCS _ONE(RING *,gbl)
+public	void	showSCCS (
+	_AR1(RING *,	gbl))
+	_DCL(RING *,	gbl)
 {
 	register int j;
 
@@ -579,6 +585,7 @@ private	void	forkfile(
 	cookterm();
 	dlog_comment("execute %s %s\n", arg0, arg1);
 	dedsigs(FALSE);
+	(void)signal(SIGINT, SIG_IGN);	/* Linux need this */
 	if (execute(arg0, quoted) < 0)
 		warn(gbl, arg0);
 	dedsigs(TRUE);
@@ -608,7 +615,7 @@ private	RING *	editfile(
 	_DCL(int,	readonly)
 	_DCL(int,	extended)
 {
-	STAT	sb;
+	Stat_t	sb;
 	char	*editor = (readonly ? ENV(BROWSE) : ENV(EDITOR));
 	char	tpath[BUFSIZ];
 
@@ -648,12 +655,14 @@ private	RING *	editfile(
 /*
  * Edit a (new) directory w/o spawning a process.
  */
-private	RING *	edit_directory _ONE(RING *,gbl)
+private	RING *	edit_directory (
+	_AR1(RING *,	gbl))
+	_DCL(RING *,	gbl)
 {
 	RING	*new = gbl;
 	char	tpath[MAXPATHLEN];
 	char	dpath[MAXPATHLEN];
-	STAT	sb;
+	Stat_t	sb;
 
 	if (realstat(gbl, gbl->curfile, &sb) == 1) {
 		if (!(new = new_args(gbl,
@@ -724,7 +733,9 @@ private	void	new_process(
 	ft_read(gbl->new_wd, tree_opt);
 }
 
-private	void	trace_pipe _ONE(char *,arg)
+private	void	trace_pipe (
+	_AR1(char *,	arg))
+	_DCL(char *,	arg)
 {
 	if (debug) {
 		if (debug > 1) {
@@ -850,7 +861,7 @@ _MAIN
 #include	"version.h"
 
 	register int	j;
-	auto	STAT	sb;
+	auto	Stat_t	sb;
 	auto	int	c,
 			count,
 			lastc	= '?';

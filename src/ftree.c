@@ -1,5 +1,5 @@
 #if	!defined(NO_IDENT)
-static	char	Id[] = "$Id: ftree.c,v 12.16 1994/06/30 23:34:14 tom Exp $";
+static	char	Id[] = "$Id: ftree.c,v 12.18 1994/07/02 20:29:51 tom Exp $";
 #endif
 
 /*
@@ -287,7 +287,7 @@ private	void	fd_add_path(
 			this,
 			check;
 	auto	char	bfr[MAXPATHLEN];
-	auto	STAT	sb;
+	auto	Stat_t	sb;
 	register int	j;
 	register FTREE	*f;
 
@@ -437,7 +437,9 @@ private	int	fd_find (
 /*
  * Returns the hierarchical level of a given node
  */
-private	int	fd_level _ONE(int,this)
+private	int	fd_level (
+	_AR1(int,	this))
+	_DCL(int,	this)
 {
 	register int level = this ? 1 : 0;
 
@@ -459,7 +461,9 @@ private	int	node2col(
 	return ((k * 4) + 7);
 }
 
-private	int	node2row _ONE(int,node)
+private	int	node2row (
+	_AR1(int,	node))
+	_DCL(int,	node)
 {
 	register int j, row;
 
@@ -471,7 +475,9 @@ private	int	node2row _ONE(int,node)
 }
 
 #ifndef	NO_XTERM_MOUSE
-private	int	row2node _ONE(int, row)
+private	int	row2node (
+	_AR1(int,	row))
+	_DCL(int,	row)
 {
 	register int node = showbase;
 	register int j;
@@ -500,7 +506,9 @@ private	int	row2node _ONE(int, row)
 /*
  * Returns a code appropriate for displaying the directory-tree's lines
  */
-private	char *	fd_line _ONE(int,height)
+private	char *	fd_line (
+	_AR1(int,	height))
+	_DCL(int,	height)
 {
 	if (height != 1) {
 		return("|   ");
@@ -538,7 +546,9 @@ private	char *	fd_path(
 /*
  * Returns true iff the node should be displayed
  */
-private	int	fd_show _ONE(int,node)
+private	int	fd_show (
+	_AR1(int,	node))
+	_DCL(int,	node)
 {
 	if (ftree[node].f_mark & NOSCCS)
 		return(FALSE);
@@ -561,9 +571,11 @@ private	int	fd_show _ONE(int,node)
  * Add a path to the database.  As we add them, we insert in alphabetical
  * order to make it simple to display the tree.
  */
-public	void	ft_insert _ONE(char *,path)
+public	void	ft_insert (
+	_AR1(char *,	path))
+	_DCL(char *,	path)
 {
-	auto	char		bfr[MAXPATHLEN];
+	auto	char	bfr[MAXPATHLEN];
 
 	abspath(path = strcpy(bfr,path));
 	fd_add_path(bfr, zero);
@@ -572,7 +584,9 @@ public	void	ft_insert _ONE(char *,path)
 /*
  * Locate the node corresponding to a particular path.
  */
-private	int	do_find _ONE(char *,path)
+private	int	do_find (
+	_AR1(char *,	path))
+	_DCL(char *,	path)
 {
 	char	bfr[MAXPATHLEN];
 	register int j, this, last = 0;
@@ -648,7 +662,9 @@ public	void	ft_remove(
  * is found, it, and all of its dependents are purged from the database (i.e.,
  * the database is packed, leaving no trace of the removed entry).
  */
-public	void	ft_purge _ONE(RING *,gbl)
+public	void	ft_purge (
+	_AR1(RING *,	gbl))
+	_DCL(RING *,	gbl)
 {
 	register int j, k, adj;
 	int	changed	= 0;
@@ -766,7 +782,9 @@ public	void	ft_rename(
 
 
 /* recover from corrupt .ftree file by initializing to empty-state */
-private	int	ft_init _ONE(char *,msg)
+private	int	ft_init (
+	_AR1(char *,	msg))
+	_DCL(char *,	msg)
 {
 	waitmsg(msg);
 	FDtime = time((time_t *)0);
@@ -797,9 +815,11 @@ private	int	ok_read(
 	return (TRUE);
 }
 
-private	void	read_ftree _ONE(char *,the_file)
+private	void	read_ftree (
+	_AR1(char *,	the_file))
+	_DCL(char *,	the_file)
 {
-	STAT		sb;
+	Stat_t		sb;
 	register int	j;
 	LEN_READ	vecsize;
 	int		fid,
@@ -1015,7 +1035,9 @@ private	int	limits(
 	return(row);
 }
 
-private	int	fd_fwd _ONE(int,num)
+private	int	fd_fwd (
+	_AR1(int,	num))
+	_DCL(int,	num)
 {
 	while (num-- > 0) {
 		if (showlast < FDlast) {
@@ -1028,7 +1050,9 @@ private	int	fd_fwd _ONE(int,num)
 	return(showlast);
 }
 
-private	int	fd_bak _ONE(int,num)
+private	int	fd_bak (
+	_AR1(int,	num))
+	_DCL(int,	num)
 {
 	while (num-- > 0) {
 	register int j, len = 0, base = -1;
@@ -1092,7 +1116,9 @@ private	void	markit(
 /*
  * Set up for display of the given node.  If it is not visible, make it so.
  */
-private	void	scroll_to _ONE(int,node)
+private	void	scroll_to (
+	_AR1(int,	node))
+	_DCL(int,	node)
 {
 	register int j;
 	if (node < 0)
@@ -1211,7 +1237,9 @@ private	int	downrow(
  * Returns TRUE iff the name of the node corresponds to a source-control
  * directory.
  */
-private	int	is_sccs _ONE(int,node)
+private	int	is_sccs (
+	_AR1(int,	node))
+	_DCL(int,	node)
 {
 	register FTREE *f = &ftree[node];
 
@@ -1730,7 +1758,9 @@ private	ft_dump2(
 /*
  * Dump the current tree to a log-file
  */
-private	ft_dump _ONE(char *,	msg)
+private	ft_dump (
+	_AR1(char *,	msg))
+	_DCL(char *,	msg)
 {
 	auto	 time_t	now	= time((time_t *)0);
 	auto	 FILE	*fp;
@@ -1862,7 +1892,7 @@ public	int	ft_stat(
 	_DCL(char *,	name)
 	_DCL(char *,	leaf)
 {
-	auto	STAT	sb;
+	auto	Stat_t	sb;
 
 	if (stat_dir(leaf, &sb) >= 0) {
 		ft_insert(name);

@@ -1,5 +1,5 @@
 #if	!defined(NO_IDENT)
-static	char	Id[] = "$Id: dedshow.c,v 12.4 1993/12/01 16:26:06 dickey Exp $";
+static	char	Id[] = "$Id: dedshow.c,v 12.5 1994/07/02 20:07:31 tom Exp $";
 #endif
 
 /*
@@ -24,9 +24,9 @@ static	char	Id[] = "$Id: dedshow.c,v 12.4 1993/12/01 16:26:06 dickey Exp $";
 
 #include	"ded.h"
 
-static
-void
-Show _ONE(char *,arg)
+private	void	Show (
+	_AR1(char *,	arg))
+	_DCL(char *,	arg)
 {
 	register int	y, x, ch;
 	auto	int	max_Y	= LINES - 1,

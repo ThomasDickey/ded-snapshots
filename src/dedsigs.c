@@ -1,5 +1,5 @@
 #if	!defined(NO_IDENT)
-static	char	Id[] = "$Id: dedsigs.c,v 12.7 1994/06/26 22:51:58 tom Exp $";
+static	char	Id[] = "$Id: dedsigs.c,v 12.9 1994/07/02 20:35:00 tom Exp $";
 #endif
 
 /*
@@ -30,16 +30,14 @@ static	int	init	= -1;	/* last-flag, to prevent redundant 'signal()' */
 /*
  * Catch "intr" signals.
  */
-static
-SIGNAL_FUNC(catch)
+private	SIGNAL_FUNC(catch)
 {
 	(void)signal (sig,  catch);
 	beep();
 	caught++;
 }
 
-static
-SIGNAL_FUNC(dedquit)
+private	SIGNAL_FUNC(dedquit)
 {
 	static	char	msg[] = "** quit **";
 	auto	char	temp[BUFSIZ];
@@ -60,7 +58,9 @@ SIGNAL_FUNC(dedquit)
  * Process signals: we may catch interrupts, but try to clean up and exit if
  * we get a quit-signal.
  */
-int	dedsigs _ONE(int,flag)
+public	int	dedsigs (
+	_AR1(int,	flag))
+	_DCL(int,	flag)
 {
 	int	code	= caught;
 
@@ -75,7 +75,7 @@ int	dedsigs _ONE(int,flag)
 			(void)signal(SIGINT,  catch);
 			(void)signal(SIGQUIT, dedquit);
 		} else {
-			(void)signal(SIGINT,  SIG_IGN);
+			(void)signal(SIGINT,  SIG_DFL);
 			(void)signal(SIGQUIT, SIG_IGN);
 		}
 	}

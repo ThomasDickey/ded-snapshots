@@ -1,3 +1,42 @@
+1994-07-02  Thomas E. Dickey  <dickey@clark.net>
+
+	* src/ded2s.c: removed redundant '_toupper'
+
+	* src/ded.c: patched signals for Linux. Hope it's portable.
+
+	* src/dedsigs.c:
+	use default signal handling when I'm running a subprocess
+
+	* src/dedtype.c, src/ftree.c, src/dedmake.c, src/dedline.c, src/deddoit.c, src/ded2s.c, src/ded.c:
+	obsolete-name:STAT
+
+	* src/restat.c: _ONE:broke-tags
+
+	* src/restat.c: use MODULE_ID
+
+	* src/inline.c: _ONE:broke-tags
+
+	* src/inline.c: use MODULE_ID
+
+	* src/ftree.c: _ONE:broke-tags
+
+	* src/README: neat new ideas
+
+	* src/dlog.c, src/dedview.c, src/dedtype.c, src/dedtags.c, src/dedsort.c, src/dedsigs.c, src/dedshow.c, src/dedscan.c, src/dedring.c, src/dedread.c:
+	_ONE:broke-tags
+
+	* src/dedread.c: use MODULE_ID
+
+	* src/dedmsgs.c: _ONE:broke-tags
+
+	* src/dedmsgs.c: use MODULE_ID
+
+	* src/dedline.c, src/deddump.c: _ONE:broke-tags
+
+	* src/deddump.c: use MODULE_ID
+
+	* src/ded2s.c, src/ded.c, src/deddoit.c: _ONE:broke-tags
+
 1994-07-01  Thomas E. Dickey  <dickey@clark.net>
 
 	* src/dedmsgs.c: use 'strerror()'

@@ -1,5 +1,5 @@
 #if	!defined(NO_IDENT)
-static	char	Id[] = "$Id: dedring.c,v 12.4 1993/12/16 16:16:44 dickey Exp $";
+static	char	Id[] = "$Id: dedring.c,v 12.5 1994/07/02 20:05:42 tom Exp $";
 #endif
 
 /*
@@ -228,7 +228,9 @@ private	RING *	Insert(
  * De-link directory-list data from the ring, retaining a pointer to the
  * delinked-structure.
  */
-private	RING *	DeLink _ONE(char *,path)
+private	RING *	DeLink (
+	_AR1(char *,	path))
+	_DCL(char *,	path)
 {
 	RING	*p	= ring_get(path),
 		*q	= ring;
@@ -250,7 +252,9 @@ private	RING *	DeLink _ONE(char *,path)
 /*
  * Release storage for a given entry in the directory-list
  */
-private	void	Remove _ONE(char *,path)
+private	void	Remove (
+	_AR1(char *,	path))
+	_DCL(char *,	path)
 {
 	RING	*p;
 
@@ -270,7 +274,9 @@ private	void	Remove _ONE(char *,path)
 /*
  * Scroll forward through the directory-list past the given pathname
  */
-private	RING *	ring_fwd _ONE(char *,path)
+private	RING *	ring_fwd (
+	_AR1(char *,	path))
+	_DCL(char *,	path)
 {
 	register RING *p;
 
@@ -290,7 +296,9 @@ private	RING *	ring_fwd _ONE(char *,path)
 /*
  * Scroll backward through the directory list, immediately before the given path
  */
-private	RING *	ring_bak _ONE(char *,path)
+private	RING *	ring_bak (
+	_AR1(char *,	path))
+	_DCL(char *,	path)
 {
 	register RING *p, *q;
 
@@ -312,7 +320,9 @@ private	RING *	ring_bak _ONE(char *,path)
 	return (p);		/* should not ever get here */
 }
 
-private	int	do_a_scan _ONE(RING *,newp)
+private	int	do_a_scan (
+	_AR1(RING *,	newp))
+	_DCL(RING *,	newp)
 {
 	if (dedscan(newp)) {
 		if (no_worry < 0)	/* start worrying! */
@@ -384,7 +394,9 @@ public	void	ring_args(
 /*
  * Find a directory-list item for a given pathname
  */
-public	RING *	ring_get _ONE(char *,path)
+public	RING *	ring_get (
+	_AR1(char *,	path))
+	_DCL(char *,	path)
 {
 	RING	*p;
 

@@ -1,7 +1,3 @@
-#if	!defined(NO_IDENT)
-static	char	Id[] = "$Id: dedmsgs.c,v 12.7 1994/07/01 23:59:29 tom Exp $";
-#endif
-
 /*
  * Title:	dedmsgs.c (directory-editor messages)
  * Author:	T.E.Dickey
@@ -14,6 +10,8 @@ static	char	Id[] = "$Id: dedmsgs.c,v 12.7 1994/07/01 23:59:29 tom Exp $";
  */
 
 #include	"ded.h"
+
+MODULE_ID("$Id: dedmsgs.c,v 12.9 1994/07/02 20:04:09 tom Exp $")
 
 /*
  * Clear the message-line
@@ -55,7 +53,9 @@ private	void	show_message(
 	dlog_comment("(%s) %s\n", tag, msg);
 }
 
-private	char *	err_msg _ONE(char *,msg)
+private	char *	err_msg (
+	_AR1(char *,	msg))
+	_DCL(char *,	msg)
 {
 	static	char	bfr[BUFSIZ];
 	char	*text	= strerror(errno);
@@ -90,5 +90,16 @@ public	void	warn(
  * used when we have put a message up and may be going back to the
  * directory tree display.
  */
-void	waitmsg		_ONE(char *,msg) { show_message((RING *)0, "waitmsg", msg); }
-void	wait_warn	_ONE(char *,msg) { waitmsg(err_msg(msg)); }
+void	waitmsg (
+	_AR1(char *,	msg))
+	_DCL(char *,	msg)
+{
+	show_message((RING *)0, "waitmsg", msg);
+}
+
+void	wait_warn (
+	_AR1(char *,	msg))
+	_DCL(char *,	msg)
+{
+	waitmsg(err_msg(msg));
+}

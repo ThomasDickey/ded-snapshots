@@ -1,5 +1,5 @@
 #if	!defined(NO_IDENT)
-static	char	Id[] = "$Id: ded2s.c,v 12.7 1994/05/31 00:25:38 tom Exp $";
+static	char	Id[] = "$Id: ded2s.c,v 12.10 1994/07/02 21:21:08 tom Exp $";
 #endif
 
 /*
@@ -64,7 +64,7 @@ static	char	Id[] = "$Id: ded2s.c,v 12.7 1994/05/31 00:25:38 tom Exp $";
 #ifdef	apollo_sr10
 #include	<acl.h>
 #include	<apollo/base.h>
-char	*type_uid2s _ar1(STAT *,s);
+char	*type_uid2s _ar1(Stat_t *,s);
 #endif
 
 #if MAJOR_IN_MKDEV
@@ -73,10 +73,6 @@ char	*type_uid2s _ar1(STAT *,s);
 #  if MAJOR_IN_SYSMACROS
 #    include	<sys/sysmacros.h>
 #  endif
-#endif
-
-#ifndef	_toupper
-#define	_toupper	toupper
 #endif
 
 #define ONE_WEEK	(7 * 24 * HOUR)
@@ -89,7 +85,9 @@ char	*type_uid2s _ar1(STAT *,s);
 /************************************************************************
  *	local procedures						*
  ***********************************************************************/
-private	int	executable _ONE(STAT *,s)
+private	int	executable (
+	_AR1(Stat_t *,	s))
+	_DCL(Stat_t *,	s)
 {
 	int	uid = geteuid();
 	int	gid = getegid();
@@ -203,7 +201,7 @@ public	void	ded2s(
 	_DCL(int,	len)
 {
 	FLIST	*f_	= &gENTRY(inx);
-	STAT	*s	= &(f_->s);
+	Stat_t	*s	= &(f_->s);
 	time_t  fdate;
 	register unsigned mj;
 	register int	c;
@@ -415,7 +413,9 @@ typedef	struct	_lty {
 /*
  * return the string corresponding to apollo type-uid stored in the stat-block.
  */
-public	char *	type_uid2s _ONE(STAT *,s)
+public	char *	type_uid2s (
+	_AR1(Stat_t *,	s))
+	_DCL(Stat_t *,	s)
 {
 	static	LTY	*list;
 	register LTY	*p;

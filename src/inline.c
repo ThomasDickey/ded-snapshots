@@ -1,7 +1,3 @@
-#if	!defined(NO_IDENT)
-static	char	Id[] = "$Id: inline.c,v 12.5 1994/06/28 00:22:13 tom Exp $";
-#endif
-
 /*
  * Title:	inline.c (directory-editor inline editor-strings)
  * Author:	T.E.Dickey
@@ -15,6 +11,8 @@ static	char	Id[] = "$Id: inline.c,v 12.5 1994/06/28 00:22:13 tom Exp $";
  */
 
 #include	"ded.h"
+
+MODULE_ID("$Id: inline.c,v 12.7 1994/07/02 20:18:35 tom Exp $")
 
 #define	ITEM	struct	_item
 	ITEM	{
@@ -180,7 +178,9 @@ public	void	hide_inline(
 /*
  * Initiate/conclude repetition of inline editing.
  */
-public	int	edit_inline _ONE(int,flag)
+public	int	edit_inline (
+	_AR1(int,	flag))
+	_DCL(int,	flag)
 {
 	return ((re_edit = flag) ? my_endc : 0);
 }

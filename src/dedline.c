@@ -1,5 +1,5 @@
 #if	!defined(NO_IDENT)
-static	char	Id[] = "$Id: dedline.c,v 12.7 1994/06/30 23:31:56 tom Exp $";
+static	char	Id[] = "$Id: dedline.c,v 12.9 1994/07/02 20:29:33 tom Exp $";
 #endif
 
 /*
@@ -98,7 +98,9 @@ private	int	at_last(
  * Save AT_opt mode when we are editing inline, and show mapped-thru stat for
  * symbolic links.
  */
-private	int	at_save _ONE(RING *,gbl)
+private	int	at_save (
+	_AR1(RING *,	gbl))
+	_DCL(RING *,	gbl)
 {
 	if (!gbl->AT_opt) {
 		/* chmod applies only to target of symbolic link */
@@ -318,7 +320,9 @@ private	int	save_Xbase (
 	return (col - gbl->Xbase);
 }
 
-private	int	change_protection _ONE(RING *,gbl)
+private	int	change_protection (
+	_AR1(RING *,	gbl))
+	_DCL(RING *,	gbl)
 {
 	int	changed = FALSE;
 	register int	c, x;
@@ -362,10 +366,12 @@ private	int	change_protection _ONE(RING *,gbl)
 /*
  * edit protection-code for current & tagged files
  */
-public	void	editprot _ONE(RING *,gbl)
+public	void	editprot (
+	_AR1(RING *,	gbl))
+	_DCL(RING *,	gbl)
 {
 	register
-	STAT	*sb	= &cSTAT;
+	Stat_t	*sb	= &cSTAT;
 	int	y	= file2row(gbl->curfile),
 		x	= 0,
 		c;
@@ -543,7 +549,9 @@ public	int	edittext(
 /*
  * Change file's owner.
  */
-public	void	edit_uid _ONE(RING *,gbl)
+public	void	edit_uid (
+	_AR1(RING *,	gbl))
+	_DCL(RING *,	gbl)
 {
 	register int j;
 	int	uid	= cSTAT.st_uid,
@@ -582,7 +590,9 @@ public	void	edit_uid _ONE(RING *,gbl)
 /*
  * Change file's group.
  */
-public	void	edit_gid _ONE(RING *,gbl)
+public	void	edit_gid (
+	_AR1(RING *,	gbl))
+	_DCL(RING *,	gbl)
 {
 	register int j;
 	int	gid	= cSTAT.st_gid,
@@ -642,7 +652,9 @@ public	void	edit_gid _ONE(RING *,gbl)
 /*
  * Change file's name
  */
-public	void	editname _ONE(RING *,gbl)
+public	void	editname (
+	_AR1(RING *,	gbl))
+	_DCL(RING *,	gbl)
 {
 	auto	 int	changed	= 0;
 	register int	j;

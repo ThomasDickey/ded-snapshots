@@ -1,5 +1,5 @@
 #if	!defined(NO_IDENT)
-static	char	Id[] = "$Id: dedtags.c,v 12.1 1993/10/29 20:26:58 dickey Exp $";
+static	char	Id[] = "$Id: dedtags.c,v 12.2 1994/07/02 20:09:53 tom Exp $";
 #endif
 
 /*
@@ -17,7 +17,9 @@ static	char	Id[] = "$Id: dedtags.c,v 12.1 1993/10/29 20:26:58 dickey Exp $";
 /*
  * Initialize counters associated with tags
  */
-public	void	init_tags _ONE(RING *,gbl)
+public	void	init_tags (
+	_AR1(RING *,	gbl))
+	_DCL(RING *,	gbl)
 {
 	gbl->tag_count = 0;
 	gbl->tag_bytes = 0;
@@ -57,7 +59,9 @@ public	void	untag_entry(
 /*
  * Re-count the files which are tagged
  */
-public	void	count_tags _ONE(RING *,gbl)
+public	void	count_tags (
+	_AR1(RING *,	gbl))
+	_DCL(RING *,	gbl)
 {
 	register int j;
 	init_tags(gbl);

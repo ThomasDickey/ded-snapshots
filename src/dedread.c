@@ -1,7 +1,3 @@
-#if	!defined(NO_IDENT)
-static	char	Id[] = "$Id: dedread.c,v 12.5 1994/06/30 23:41:45 tom Exp $";
-#endif
-
 /*
  * Title:	dedread.c (modify read-list expression)
  * Author:	T.E.Dickey
@@ -24,6 +20,8 @@ static	char	Id[] = "$Id: dedread.c,v 12.5 1994/06/30 23:41:45 tom Exp $";
  * patch:	should accept a blank-separated list for multiple expressions
  */
 #include	"ded.h"
+
+MODULE_ID("$Id: dedread.c,v 12.7 1994/07/02 20:04:41 tom Exp $")
 
 public	int	dedread(
 	_ARX(RING *,	gbl)
@@ -78,7 +76,9 @@ public	int	dedread(
  * Initialize the match for regular-expression selection of files.  We need this
  * entrypoint because the BSD-style code does not save the compiled-expr.
  */
-public	void	init_scan _ONE(RING *,gbl)
+public	void	init_scan (
+	_AR1(RING *,	gbl))
+	_DCL(RING *,	gbl)
 {
 	if (gbl->toscan != 0) {
 		dlog_comment("scan for \"%s\"\n", gbl->toscan);

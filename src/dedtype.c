@@ -1,5 +1,5 @@
 #if	!defined(NO_IDENT)
-static	char	Id[] = "$Id: dedtype.c,v 12.12 1994/06/30 23:53:56 tom Exp $";
+static	char	Id[] = "$Id: dedtype.c,v 12.14 1994/07/02 20:29:51 tom Exp $";
 #endif
 
 /*
@@ -129,7 +129,9 @@ private	int	typeline(
 	return (++y);
 }
 
-private	void	typeover _ONE(register int,c)
+private	void	typeover (
+	_AR1(int,	c))
+	_DCL(int,	c)
 {
 	if (Tcol+1 >= END_COL) {
 		size_t need = (Tcol * 5)/4;
@@ -318,7 +320,7 @@ private	int	FinishPage(
 {
 	int	shown	= FALSE;
 	off_t	length	= 0;
-	STAT	sb;
+	Stat_t	sb;
 
 	while (y < LINES-1)
 		y = typeline(y,FALSE);
