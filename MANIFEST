@@ -1,16 +1,15 @@
-MANIFEST for ded, version t19970907
+MANIFEST for ded, version t19970911
 --------------------------------------------------------------------------------
 MANIFEST                        this file
 COPYING                         copyright notice for DED
-Makefile                        top-level makefile for unix directory editor
 README                          brief description of DED
+install-sh                      install script
+mkdirs.sh                       script to make directory-hierarchy
 certify                         subdirectory
-certify/Makefile                makefile for certify directory
 certify/README                  brief description of DED
 certify/config.txt              configuration requirements for DED
 certify/release.txt             release history for DED
 src                             subdirectory
-src/Makefile                    makefile for src-directory
 src/README                      to-do list for DED
 src/boxchars.c                  encapsulate knowledge of box-characters
 src/ccodes.rc                   sample $HOME/.dir_colors using ANSI numeric coding
@@ -52,7 +51,6 @@ src/showpath.c                  encapsulates display of long pathnames for 'ded'
 src/sortset.c                   controls setting of sort-options & display/modification of preset option
 src/version.h                   version/release history for DED
 test                            subdirectory
-test/Makefile                   make-file for regression tests of unix directory editor
 test/README                     read-me file for the ded/test directory
 test/edittest.sed               sed-script for 'edittest.sh'
 test/edittest.sh                edits test-log to simplify comparison
@@ -64,5 +62,4 @@ test/test4.cmd                  regression case for renaming directories
 test/test5.cmd                  test-case for inline/history stuff
 test/walkback.sh                uses debugger to get a walkback, if core'd
 user                            subdirectory
-user/Makefile                   makefile for user-directory
 user/ded.man                    user manual for DED
