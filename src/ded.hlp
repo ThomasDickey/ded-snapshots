@@ -109,6 +109,9 @@ Operations on Files:
 		[0-7]	set chmod-field
 		{space}	move cursor right 3 columns
 		{backspace} move cursor left 3 columns
+		P	toggles format of display (octal/normal)
+		s	toggle uid/gid inheritance bit
+		t	toggle text-bit
 
   u		Edit user-id field.  The current entry's uid
 		is edited inline and the result used for all

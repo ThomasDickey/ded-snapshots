@@ -1,14 +1,7 @@
-88/04/29:
---------
-	If I issue 'E' to a symbolic link in the directory tree, the dedring
-	state shows a marker at the link.  Then, 'F' commands force the
-	program to rescan rather than jumping directly to the linked position.
-
 88/05/02:
 --------
-	ftree should use fixname to show names.
-
-	ftree "@" command should permit new name (not in directory)
+	ftree should use fixname to show names in case they contain nongraphic
+	characters.
 
 To do:
 -----
@@ -33,3 +26,15 @@ To do:
   go thru 'system()' call (which always goes thru /bin/sh).
 
   Integrate 'padedit()' error messages with 'ded'.
+
+	Add a logfile/script facility to try to flush out bugs in ftree.
+
+88/05/03:
+	Replace stralloc with txtalloc, don't use strfree.
+
+	ft_insert does not check for apollo links such as /usr/lib mapping
+	to /bsd4.2/usr/lib, since only the /usr part is a link.  This causes
+	confusion also in the F,B,E commands.  If I make 'abspath()' translate
+	all pathnames via the name_$get_path, this solves that problem at
+	the expense of two others: links are resolved, and the code runs
+	slower.

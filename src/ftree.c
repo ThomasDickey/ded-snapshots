@@ -1,11 +1,13 @@
 #ifndef	NO_SCCS_ID
-static	char	sccs_id[] = "@(#)ftree.c	1.29 88/05/02 13:51:54";
+static	char	sccs_id[] = "@(#)ftree.c	1.32 88/05/03 14:29:40";
 #endif
 
 /*
  * Author:	T.E.Dickey
  * Created:	02 Sep 1987
  * Modified:
+ *		03 May 1988, broke out 'ft_stat()'. to use in '@' command.
+ *			     Added 'J', 'K' level-independent up/down.
  *		02 May 1988, added '^' command to 'ft_view()'.  Adjusted 'q'
  *			     so that it quits lists via 'dedring()'.
  *		28 Apr 1988, integrated with 'ded' via 'dedring()' module.
@@ -27,6 +29,7 @@ static	char	sccs_id[] = "@(#)ftree.c	1.29 88/05/02 13:51:54";
  *		ft_remove
  *		ft_purge
  *		ft_scan
+ *		ft_stat
  *		ft_view
  *
  * Configure:	DEBUG	- dump a logfile in readable form at the end
@@ -184,7 +187,7 @@ register int	step,
 
 	if (step && expr) {
 		do {
-			if (looped++ && (new == old))		return(old);
+			if (looped++ && (new == old))		return(-1);
 			else if ((new += step) < 0)		new = FDlast;
 			else if (new > FDlast)			new = 0;
 		}
@@ -763,7 +766,6 @@ int	row,
 	num,
 	c;
 char	cwdpath[MAXPATHLEN];
-char	*newpath;
 register int j;
 
 	/* set initial position */
@@ -800,6 +802,9 @@ register int j;
 		case 'k':	row = uprow(row,num,lvl);	break;
 		case ARO_RIGHT:
 		case 'l':	lvl += num;			break;
+
+		case 'J':	row = downrow(row,num,999);	break;
+		case 'K':	row = uprow(row,num,999);	break;
 
 		case '^':	if (showbase != row) {
 					showbase = row;
@@ -859,8 +864,12 @@ register int j;
 				refresh();
 				rawgets(cwdpath,sizeof(cwdpath),FALSE);
 			}
-			if (c == '@')	c = do_find(cwdpath);
-			else		c = fd_find(cwdpath,c,row);
+			if (c != '@')
+				c = fd_find(cwdpath,c,row);
+			else if ((c = do_find(cwdpath)) < 0) {
+				ft_stat(cwdpath,cwdpath);
+				c = do_find(cwdpath);
+			}
 			if (c >= 0) {
 				row = c;
 				lvl = fd_level(row);
@@ -875,30 +884,47 @@ register int j;
 		case 'F':
 		case 'B':
 			num = dedring(fd_path(cwdpath, row), c, num);
-			row = do_find(strcpy(cwdpath,new_wd));
+			if ((row = do_find(strcpy(cwdpath,new_wd))) < 0) {
+				/* path was deleted, put it back */
+				/* patch: should do ft_stat, recover if err */
+				ft_insert(cwdpath);
+				row = do_find(cwdpath);
+			}
 			lvl = fd_level(row);
 			scroll_to(row);
 			(void)strcpy(path, cwdpath);
 			if (!num && c == 'q')
-				return(c);
+				return('E');
 			break;
 
 		/* Exit from this program (back to 'fl') */
 		case 'E':
 		case 'e':
-			if (access(newpath = fd_path(cwdpath,row), R_OK | X_OK) < 0) {
+			(void)fd_path(cwdpath, row);
+#ifndef	SYSTEM5
+			if (ftree[row].f_mark & LINKED) {
+			char	bfr[BUFSIZ];
+			int	len = readlink(cwdpath, bfr, sizeof(bfr));
+				if (len <= 0) {
+					beep();
+					break;
+				}
+				bfr[len] = EOS;
+				(void)strcpy(cwdpath, bfr);
+			}
+#endif	SYSTEM5
+			if (access(cwdpath, R_OK | X_OK) < 0) {
 				beep();
 				break;
 			}
-			(void)strcpy(path, newpath);
+			abspath(strcpy(path, cwdpath));
 			/* fall-thru to return */
 #endif	TEST
 		case 'D':
-			return(c);
+			return(c);	/* 'e' or 'E' or 'D' -- only! */
 
 		/* Scan/delete nodes */
-		case 'R':
-		case 'i':	if (ftree[row].f_mark & LINKED)
+		case 'R':	if (ftree[row].f_mark & LINKED)
 					beep();
 				else
 					ft_scan(row);
@@ -1017,7 +1043,6 @@ ft_scan(node)
 {
 DIR	*dp;
 struct	direct	*d;
-struct	stat	sb;
 int	count	= 0;
 char	old[MAXPATHLEN],
 	bfr[MAXPATHLEN], *s_ = bfr;
@@ -1028,26 +1053,41 @@ char	old[MAXPATHLEN],
 	if (chdir(bfr) < 0)
 		perror(bfr);
 	else if ((dp = opendir(bfr)) != 0) {
+		ft_remove(bfr);
 		if (strcmp(bfr,zero))	*s_++ = '/';
 		while (d = readdir(dp)) {
 			fd_slow(count++);
 			FORMAT(s_, "%s", d->d_name);
 			if (dotname(s_))		continue;
-			if (lstat(s_, &sb) < 0)		continue;
-			if ((int)sb.st_ino <= 0)	continue;
-#ifndef	SYSTEM5
-			if (isLINK(sb.st_mode)) {
-				if (stat(bfr, &sb) >= 0)
-					if (isDIR(sb.st_mode))
-						ft_linkto(bfr);
-			} else
-#endif	SYSTEM5
-			if (isDIR(sb.st_mode))
-				ft_insert(bfr);
+			ft_stat(bfr, s_);
 		}
+		ft_purge();
 		(void)closedir(dp);
 	}
 	(void)chdir(old);
+}
+
+/*
+ * Test a given name to see if it is either a directory name, or a symbolic
+ * link.  In either (successful) case, add the name to the database.
+ */
+ft_stat(name, leaf)
+char	*name, *leaf;
+{
+struct	stat	sb;
+	if (lstat(leaf, &sb) >= 0) {
+		if ((int)sb.st_ino > 0) {
+#ifndef	SYSTEM5
+			if (isLINK(sb.st_mode)) {
+				if (stat(name, &sb) >= 0)
+					if (isDIR(sb.st_mode))
+						ft_linkto(name);
+			} else
+#endif	SYSTEM5
+			if (isDIR(sb.st_mode))
+				ft_insert(name);
+		}
+	}
 }
 
 /*
