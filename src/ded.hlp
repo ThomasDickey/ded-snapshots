@@ -88,6 +88,7 @@ Display-Adjustment:
 		v	sccs versions
 		w	last-modification date
 		z	sccs checkin-dates
+                Z       sccs checkin-dates over modification dates
 
 Operations on Files:
 -------------------
@@ -134,16 +135,26 @@ Operations on Files:
 		a new DED process with that as argument.
 		If it is a file, invoke the BROWSER (view).
 
+  CTL/E		(apollo) edit the file with the pad-editor.
+  CTL/V		(apollo) vieq the file with the pad-editor.
+
   m		run the PAGER (more) on the current file.
   h		type this help-file in the workspace.
   t		type the current file, in the workspace
   T		type the current binary file, in the workspace
+
+Shell commands:
+--------------
+  Shell commands are executed in the work-area.  You may specify a
+  command, substituting '#' for the current file, plus those which
+  are tagged.
 
   !		Prompt for, and execute a shell command.
   %		Prompt for, and execute a shell command, refreshing
 		screen afterwards.
   *		Display text of last !/% command.
   .		Re-execute last !/% command.
+
 
 To do:
 -----
@@ -172,10 +183,12 @@ To do:
   Provide 'w' commands in work-area
   pager, as well as repeat-count on 'f'.
 
-  Add '*' command to show last-command, ':' to edit.
+  Add ':' to edit last-command.
 
   Correct apollo message about trying to open nil-files
   (they are not directories!)
 
   Use SHELL environment variable & bldargs() so we needn't
   go thru 'system()' call (which always goes thru /bin/sh).
+
+  Integrate 'padedit()' error messages with 'ded'.

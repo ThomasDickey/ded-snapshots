@@ -1,11 +1,13 @@
 #ifndef	NO_SCCS_ID
-static	char	sccs_id[] = "@(#)ftree.c	1.14 87/12/02 13:40:12";
+static	char	sccs_id[] = "@(#)ftree.c	1.15 87/12/14 08:42:15";
 #endif
 
 /*
  * Author:	T.E.Dickey
  * Created:	02 Sep 1987
  * Modified:
+ *		09 Dec 1987, began recoding to provide for long (BSD-style) names
+ *			     (still does not omit duplication of strings)
  *		02 Dec 1987, port to Apollo (leading "//" on pathnames)
  *
  * Function:	This module performs functions supporting a file-tree display.
@@ -21,6 +23,7 @@ static	char	sccs_id[] = "@(#)ftree.c	1.14 87/12/02 13:40:12";
  *		ft_view
  *
  * Configure:	DEBUG	- dump a logfile in readable form at the end
+ *			  (i.e., when calling 'ft_read()' or 'ft_write()').
  *		TEST	- make a standalone program (otherwise, part of 'fl')
  */
 
@@ -37,6 +40,7 @@ extern	int	errno;
 extern	char	*getenv(),
 		*regcmp(),
 		*regex(),
+		*stralloc(),
 		*strcat(),
 		*strchr(),
 		*strcpy();
@@ -81,7 +85,7 @@ extern	long	*doalloc();
 typedef	struct	{
 	int	f_root;			/* array-index of entry's parent */
 	int	f_mark;			/* removal/visited flags	*/
-	char	f_name[DIRSIZ];		/* name of directory		*/
+	char	*f_name;		/* name of directory		*/
 	} FTREE;
 
 static	char	FDname[MAXPATHLEN];	/* name of user's database	*/
@@ -134,9 +138,9 @@ fd_alloc()
 		FDsize += FDlast + 2;
 		ftree = (FTREE *)doalloc((char *)ftree, FDsize * sizeof(FTREE));
 		while (size < FDsize) {
-		char	*s = (char *)&ftree[size];
-		int	len = sizeof(FTREE);
-			while (len--) *s++ = '\0';
+			ftree[size].f_root =
+			ftree[size].f_mark = 0;
+			ftree[size].f_name = stralloc("");
 			size++;
 		}
 	}
@@ -335,7 +339,7 @@ register FTREE *f;
 			ftree[this].f_mark = NORMAL;
 			if (!showsccs && !strcmp(name, "sccs"))
 				ftree[this].f_mark |= NOSCCS;
-			(void)strcpy (ftree[this].f_name, name);
+			ftree[this].f_name = stralloc(name);
 		}
 
 		last = this;
@@ -441,13 +445,19 @@ register int j, k;
 /*
  * Initialize this module, by reading the file-tree database from the user's
  * home directory.
+ *
+ * The database file is stored:
+ *	1) the number of entries in the vector
+ *	2) the vector (with name-pointers adjusted to integer indices)
+ *	3) the string-heap
  */
 ft_read(first)
 char	*first;		/* => string defining the initial directory */
 {
 struct	stat sb;
 register int j;
-int	fid;
+int	fid,
+	vecsize;
 unsigned size;
 
 	/* read the current database */
@@ -462,17 +472,38 @@ unsigned size;
 			showdiff = -1;
 		}
 		FDtime = sb.st_mtime;
-		size = sb.st_size;
-		if (size % sizeof(FTREE))
+		size   = sb.st_size  - sizeof(FDlast);
+
+		/* (1) vector-size */
+		if (read(fid, &vecsize, sizeof(vecsize)) != sizeof(FDlast))
+			failed("size \".ftree\"");
+		if ((size / sizeof(FTREE)) < vecsize)
 			failed("? size error");
-		else {
-			if ((j = (size / sizeof(FTREE)) - 1) > FDlast)
-				FDlast = j;
-			fd_alloc();
-			if (read(fid, (char *)ftree, size) != size)
-				failed("read \".ftree\"");
+
+		/* (2) vector-contents */
+		if (vecsize > FDlast)
+			FDlast = vecsize;
+		fd_alloc();
+		vecsize++;		/* account for 0'th node */
+		vecsize *= sizeof(FTREE);
+		if (read(fid, (char *)ftree, vecsize) != vecsize)
+			failed("read \".ftree\"");
+
+		/* (3) string-heap */
+		if ((size -= vecsize) > 0) {
+		char	*heap = (char *)doalloc((char *)0, size);
+		register char *s = heap;
+			if (read(fid, heap, size) != size)
+				failed("heap \".ftree\"");
+			for (j = 0; j <= FDlast; j++) {
+				ftree[j].f_name = s;
+				s += strlen(s) + 1;
+			}
 		}
 		(void)close(fid);
+#ifdef	DEBUG
+		ft_dump("read");
+#endif	DEBUG
 	}
 	FDdiff = 0;
 
@@ -512,8 +543,8 @@ int	row = 0;
 			printw("%4d. ", j);
 			for (k = fd_level(j); k > 0; k--)
 				printw(fd_line(k));
-			printw("%.*s%s",
-				DIRSIZ, ftree[j].f_name,
+			printw("%s%s",
+				ftree[j].f_name,
 				gap);
 #ifdef	apollo
 			if (j == 0)
@@ -659,7 +690,7 @@ toggle_sccs()
 {
 register int j;
 	showsccs = !showsccs;
-	for (j = 0; j <= FDlast; j++) {
+	for (j = 1; j <= FDlast; j++) {
 	register FTREE *f = &ftree[j];
 		if (!strcmp(f->f_name,"sccs")) {
 			f->f_mark ^= NOSCCS;
@@ -875,13 +906,15 @@ register int j, k;
 	if (fp) {
 		PRINTF("writing log file: %s\n", msg);
 		FPRINTF(fp, "FTREE LOG: %s\n", msg);
+		FPRINTF(fp, "Total diffs: %d\n", FDdiff);
+		FPRINTF(fp, "Total size:  %d\n", FDsize);
 		FPRINTF(fp, "Total nodes: %d\n", FDlast);
 		for (j = 0; j <= FDlast; j++) {
 			f = &ftree[j];
 			FPRINTF(fp, "%3d ^%03d", j, f->f_root);
 			for (k = fd_level(j); k > 0; k--)
 				FPRINTF(fp, "|---");
-			FPRINTF(fp, "%.*s/", DIRSIZ, f->f_name);
+			FPRINTF(fp, "%s/", f->f_name);
 			if (!fd_show(j))
 				FPRINTF(fp," ?");
 			if (k = f->f_mark) {
@@ -920,7 +953,7 @@ char	old[MAXPATHLEN],
 		if (strcmp(bfr,zero))	*s_++ = '/';
 		while (read(fid, &d, sizeof(d)) == sizeof(d)) {
 			fd_slow(count++);
-			FORMAT(s_, "%.*s", DIRSIZ, d.d_name);
+			FORMAT(s_, "%s", d.d_name);
 			if (dotname(s_))		continue;
 			if (stat(s_, &sb) < 0)		continue;
 			if ((int)sb.st_ino <= 0)	continue;
@@ -942,6 +975,7 @@ ft_write()
 {
 	if (FDdiff || (savesccs != showsccs)) {
 	int	fid;
+	register int j;
 #ifdef	DEBUG
 		ft_dump("write");
 #endif	DEBUG
@@ -949,7 +983,10 @@ ft_write()
 #ifdef	DEBUG
 			PRINTF("writing file \"%s\" (%d)\n", FDname, FDlast);
 #endif	DEBUG
+			(void)write(fid, &FDlast, sizeof(FDlast));
 			(void)write(fid, ftree, (FDlast+1) * sizeof(FTREE));
+			for (j = 0; j <= FDlast; j++)
+				(void)write(fid, ftree[j].f_name, strlen(ftree[j].f_name)+1);
 			(void)close(fid);
 		} else if (errno != EPERM && errno != EACCES)
 			failed(FDname);
