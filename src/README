@@ -89,3 +89,9 @@ To do:
 
 88/09/07:
 	dedring's q/Q loop doesn't need repeat-count anymore.
+
+88/09/08:
+	should add sort-by-leafname (for when using long argument format).
+
+	should consider processing '~'-style stuff in '@'-toggle, even tho
+	the 'stat()' command would need 'abspath()' processing.
