@@ -3,7 +3,7 @@
 
 #ifdef	MAIN
 #ifndef	lint
-static	char	*ded_h = "$Id: ded.h,v 10.0 1991/11/21 07:26:19 ste_cm Rel $";
+static	char	*ded_h = "$Id: ded.h,v 10.1 1992/02/17 12:20:03 dickey Exp $";
 #endif
 #endif	/* MAIN */
 
@@ -74,11 +74,8 @@ extern	int	re_exec();	/* (return > 0): match */
 
 #define	HOUR		(60*60)	/* unix time for one hour */
 
-#define	isDIR(mode)	((mode & S_IFMT) == S_IFDIR)
 #define	isDEV(mode)	(	(mode & S_IFMT) == S_IFBLK\
 			||	(mode & S_IFMT) == S_IFCHR)
-#define	isFILE(mode)	((mode & S_IFMT) == S_IFREG)
-#define	isLINK(mode)	((mode & S_IFMT) == S_IFLNK)
 
 #ifndef	MAIN
 #define	MAIN	extern
@@ -92,7 +89,7 @@ typedef	struct	_flist	{
 	struct	_flist	*next;
 	char		*name;	/* name (within working-directory)	*/
 	char		*ltxt;	/* what link resolves to		*/
-	struct	stat	s;	/* stat()-block				*/
+	STAT		s;	/* stat()-block				*/
 	short		dord;	/* directory-order, for "d" sort	*/
 	char		flag;	/* tag-flag				*/
 #ifdef	Z_RCS_SCCS
@@ -365,6 +362,10 @@ extern	int	dedrang(
 
 extern	char	*dedrung(
 		_ar1(int,	count));
+
+extern	void	dedrering(
+		_arx(char *,	oldname)
+		_ar1(char *,	newname));
 
 /* *** "dedscan.c" *** */
 extern	int	dedscan(

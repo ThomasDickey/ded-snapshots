@@ -1,14 +1,18 @@
 /*
- * $Id: version.h,v 10.2 1992/02/06 10:43:06 dickey Exp $
+ * $Id: version.h,v 10.3 1992/02/17 15:05:55 dickey Exp $
  * Version-identifier for DED
  * $Log: version.h,v $
- * Revision 10.2  1992/02/06 10:43:06  dickey
- * modified z/Z sort to make it easier to use. Now, 'Z' sorts
- * by difference between checkin/modification times.  Also,
- * rather than showing only '<' or '>', I show '-' and '+' if
- * only one second difference applies -- makes it simpler to
- * read when looking at apollo restores.
+ * Revision 10.3  1992/02/17 15:05:55  dickey
+ * make directory-renaming work properly by renaming file-lists
+ * as well.
  *
+ *		Revision 10.2  92/02/06  10:43:06  dickey
+ *		modified z/Z sort to make it easier to use. Now, 'Z' sorts
+ *		by difference between checkin/modification times.  Also,
+ *		rather than showing only '<' or '>', I show '-' and '+' if
+ *		only one second difference applies -- makes it simpler to
+ *		read when looking at apollo restores.
+ *		
  *		Revision 10.1  92/01/16  15:51:37  dickey
  *		corrected an error in 'dedmake()' which broke replay-logic.
  *		make 'ded' able to treat argument which is a single file.
@@ -229,4 +233,4 @@
  * 01 Dec 1987, added '*', '^' commands, made '%' refresh screen
  * 25 Nov 1987, added sccs-support (V,z,Z toggles, V,z,Z sorts)
  */
-static	char	version[] = "$Date: 1992/02/06 10:43:06 $";
+static	char	version[] = "$Date: 1992/02/17 15:05:55 $";

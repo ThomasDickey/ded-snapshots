@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	Id[] = "$Id: dedring.c,v 10.0 1991/11/21 07:27:15 ste_cm Rel $";
+static	char	Id[] = "$Id: dedring.c,v 10.1 1992/02/17 14:51:31 dickey Exp $";
 #endif
 
 /*
@@ -7,6 +7,7 @@ static	char	Id[] = "$Id: dedring.c,v 10.0 1991/11/21 07:27:15 ste_cm Rel $";
  * Author:	T.E.Dickey
  * Created:	27 Apr 1988
  * Modified:
+ *		17 Feb 1992, added 'dedrering()' to make renaming work ok.
  *		21 Nov 1991, added 'tag_opt'
  *		18 Oct 1991, converted to ANSI
  *		15 May 1991, apollo sr10.3 cpp complains about tag on #endif
@@ -137,6 +138,28 @@ register int c;
 	} while (*dst++ = c);
 }
 
+#ifdef	TEST
+/*
+ * Dump the list of ring-paths
+ */
+static
+void
+dump_ring _ONE(char *,tag)
+{
+	auto	RING	*p;
+	auto	char	tmp[MAXPATHLEN];
+
+	dlog_comment("RING-%s:\n", tag);
+	for (p = ring; p; p = p->_link) {
+		untrans(tmp, p->new_wd);
+		dlog_comment("%c%#8x \"%s\"\n",
+			!strcmp(tmp,new_wd) ? '>' : ' ', p, tmp);
+	}
+}
+#else
+#define	dump_ring(s)
+#endif
+
 /*
  * Save the global state into our local storage
  */
@@ -236,7 +259,7 @@ unsave _ONE(RING *,p)
  */
 static
 RING *
-insert(
+Insert(
 _ARX(char *,	path)
 _ARX(int,	first)
 _AR1(char *,	pattern)
@@ -298,8 +321,9 @@ static
 RING *
 ring_get _ONE(char *,path)
 {
-RING	*p;
-char	tmp[BUFSIZ];
+	RING	*p;
+	char	tmp[BUFSIZ];
+
 	trans(tmp, path);
 
 	for (p = ring; p; p = p->_link)
@@ -309,15 +333,17 @@ char	tmp[BUFSIZ];
 }
 
 /*
- * Release storage for a given entry in the directory-list
+ * De-link directory-list data from the ring, retaining a pointer to the
+ * delinked-structure.
  */
 static
-remove _ONE(char *,path)
+RING *
+DeLink _ONE(char *,path)
 {
-RING	*p	= ring_get(path),
-	*q	= ring;
+	RING	*p	= ring_get(path),
+		*q	= ring;
 
-	if (p) {
+	if (p != 0) {
 		if (q == p)
 			ring = p->_link;
 		else {
@@ -327,6 +353,20 @@ RING	*p	= ring_get(path),
 				q = q->_link;
 			}
 		}
+	}
+	return p;
+}
+
+/*
+ * Release storage for a given entry in the directory-list
+ */
+static
+void
+Remove _ONE(char *,path)
+{
+	RING	*p;
+
+	if (p = DeLink(path)) {
 		p->flist = dedfree(p->flist, p->numfiles);
 		if (p != rang) {
 			if (p->top_argv) {
@@ -427,15 +467,15 @@ _DCL(int,	count)
 _DCL(int,	set_pattern)
 _DCL(char *,	pattern)
 {
-RING	*oldp,
-	*newp	= 0;
-int	success	= TRUE;
-char	tmp[BUFSIZ];
+	RING	*oldp,
+		*newp	= 0;
+	int	success	= TRUE;
+	char	tmp[BUFSIZ];
 
 	/*
 	 * Save the current state
 	 */
-	oldp = insert(new_wd, FALSE, (char *)0);
+	oldp = Insert(new_wd, FALSE, (char *)0);
 
 	/*
 	 * Get the appropriate state:
@@ -443,7 +483,7 @@ char	tmp[BUFSIZ];
 	switch (cmd) {
 	case 'E':
 		if ((newp = ring_get(path)) == 0)
-			newp = insert(path, TRUE, pattern);
+			newp = Insert(path, TRUE, pattern);
 		break;
 	case 'F':
 		while (count-- > 0) {
@@ -463,14 +503,14 @@ char	tmp[BUFSIZ];
 		path = new_wd;
 		if ((newp = ring_fwd(path)) == oldp)
 			return(FALSE);
-		remove(path);
+		Remove(path);
 		path = strcpy (tmp, newp->new_wd);
 		break;
 	case 'Q':		/* release & move backward */
 		path = new_wd;
 		if ((newp = ring_bak(path)) == oldp)
 			return(FALSE);
-		remove(path);
+		Remove(path);
 		path = strcpy (tmp, newp->new_wd);
 	}
 
@@ -501,9 +541,9 @@ char	tmp[BUFSIZ];
 			 */
 			if (path_RESOLVE(new_wd)) {
 				if (strcmp(new_wd, path)) {
-					remove (path);
+					Remove (path);
 					if (!(newp = ring_get(new_wd)))
-						newp = insert(new_wd, TRUE, pattern);
+						newp = Insert(new_wd, TRUE, pattern);
 					unsave(newp);
 				}
 			} else {
@@ -514,7 +554,7 @@ char	tmp[BUFSIZ];
 				success = do_a_scan(newp);
 
 			if (!success)
-				remove (path);
+				Remove (path);
 
 		} else if (set_pattern && (toscan != pattern)) {
 			toscan	= pattern;
@@ -531,6 +571,7 @@ char	tmp[BUFSIZ];
 			(void)chdir(new_wd);
 		}
 	}
+	dump_ring("debug");
 	return (success);
 }
 
@@ -548,12 +589,12 @@ dedrang _ONE(char *,path)
 char *
 dedrung _ONE(int,count)
 {
-RING	*oldp	= insert(new_wd, FALSE, (char *)0),
-	*newp;
-static
-char	show[BUFSIZ];
-char	temp[BUFSIZ],
-	*path	= new_wd;
+	static	char	show[BUFSIZ];
+
+	auto	RING	*oldp	= Insert(new_wd, FALSE, (char *)0),
+			*newp;
+	auto	char	temp[BUFSIZ],
+			*path	= new_wd;
 
 	while (count != 0) {
 		if (count > 0) {
@@ -571,4 +612,75 @@ char	temp[BUFSIZ],
 			break;
 	}
 	return (strcpy(show, path));
+}
+
+/*
+ * Tells this module that a directory has been renamed.  Adjusts our list to
+ * match, as well as the current-list pointer.
+ *
+ * For each ring-entry, if 'oldname[]' is a proper prefix of the path, we
+ * remove/insert the entry to move it.
+ */
+void
+dedrering(
+_ARX(char *,	oldname)
+_AR1(char *,	newname)
+	)
+_DCL(char *,	oldname)
+_DCL(char *,	newname)
+{
+	register RING	*p, *q, *r, save;
+	register RING	*mark	= 0;
+	register RING	*curr	= ring_get(new_wd);
+	auto	 int	len, n;
+	auto	 char	oldtemp[MAXPATHLEN],
+			newtemp[MAXPATHLEN],
+			tmp[MAXPATHLEN];
+
+	abspath(oldname = pathcat(oldtemp, new_wd, oldname));
+	abspath(newname = pathcat(newtemp, new_wd, newname));
+
+#ifdef	TEST
+	dlog_comment("dedrering\n");
+	dlog_comment("...old:%s\n", oldname);
+	dlog_comment("...new:%s\n", newname);
+	dump_ring("before");
+#endif
+
+	for (p = ring; (p != 0) && (p != mark); p = q) {
+		q = p->_link;
+		untrans(tmp, p->new_wd);
+		if ((len = is_subpath(oldname, tmp)) >= 0) {
+			save = *p;
+			DeLink(tmp);
+
+			(void)pathcat(tmp, newname, tmp + len);
+			r = Insert(tmp, FALSE, (char *)0);
+
+			(void)strcpy(save.new_wd, r->new_wd);
+			save._link = r->_link;
+			*r = save;
+
+			for (n = 0; n < r->top_argc; n++) {
+				register char	*s = r->top_argv[n];
+				auto	char	tmp2[MAXPATHLEN];
+
+				if ((len = is_subpath(oldname, s)) < 0)
+					continue;
+				r->top_argv[n] = txtalloc(
+					pathcat(tmp2, newname, s + len));
+			}
+
+#ifdef	TEST
+			dlog_comment(".moved:%s\n", tmp);
+#endif
+			if (p == curr) {
+				int	ok = chdir(strcpy(new_wd, tmp));
+				dlog_comment("RING-chdir %s =>%d\n", tmp,ok);
+			}
+			if (!mark)
+				mark = p;
+		}
+	}
+	dump_ring("after");
 }
