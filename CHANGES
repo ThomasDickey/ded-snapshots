@@ -1,3 +1,25 @@
+1992-05-12  dickey@software.org
+
+	* src/dedring.c:
+	realized that I was not using 'sort_key' when I had a pair
+	of directories (ebpm4/src, ebpm4+/src) which did not sort
+	properly.  Redid the logic using 'pathcmp()' which to compare
+	the path-strings directly.
+
+	* src/ded.h: 'sort_key' is obsolete
+
+1992-05-12  ste_cm@software.org
+
+	* src/ded.h: BASELINE Thu Jul 16 09:39:01 1992 -- EBPM4 support
+
+1992-05-12  dickey@software.org
+
+	* src/Makefile: added .c.lint rule
+
+1992-05-12  ste_cm@software.org
+
+	* src/Makefile: BASELINE Thu Jul 16 09:39:01 1992 -- EBPM4 support
+
 1992-04-10  dickey@software.org
 
 	* src/dedsort.c: don't sort empty lists!

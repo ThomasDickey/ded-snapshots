@@ -1,4 +1,4 @@
-# $Id: Makefile,v 10.8 1992/04/07 07:48:38 dickey Exp $
+# $Id: Makefile,v 11.0 1992/05/12 14:46:58 ste_cm Rel $
 # MAKE-file for directory editor
 #
 ####### (Environment) ##########################################################
@@ -120,7 +120,7 @@ CPROTO	= cproto -e -i -fo'\\n\\t\\t' -fp'\\n\\t\\t'
 proto.h:	$(CSRC)		; $(CPROTO) $(CPP_OPTS) $? >$@
 
 .SUFFIXES:
-.SUFFIXES: .c .i .o .a .proto
+.SUFFIXES: .c .i .o .a .proto .lint
 .c.o:		; $(CC) $(CPP_OPTS) $(CFLAGS) -c $<
 .c.a:
 	@echo compile $<
@@ -129,3 +129,4 @@ proto.h:	$(CSRC)		; $(CPROTO) $(CPP_OPTS) $? >$@
 	@rm -f $*.o
 .c.i:		; $(CC) $(CPP_OPTS) -E -C $< >$@
 .c.proto:	; $(CPROTO) $(CPP_OPTS) $< >$@
+.c.lint:	; tdlint $(LINTOPT) $< >$@

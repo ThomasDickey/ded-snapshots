@@ -3,7 +3,7 @@
 
 #ifdef	MAIN
 #ifndef	lint
-static	char	*ded_h = "$Id: ded.h,v 10.51 1992/04/09 08:44:21 dickey Exp $";
+static	char	*ded_h = "$Id: ded.h,v 11.0 1992/05/12 14:50:42 ste_cm Rel $";
 #endif
 #endif	/* MAIN */
 
@@ -148,7 +148,6 @@ typedef	FLIST	{
 #define	RING	struct	_ring
 typedef	RING {
 	RING	*_link;
-	DYN	*sort_key;	/* 'new_wd', translated for sorting */
 	char	new_wd[MAXPATHLEN];
 	char	*toscan,	/* directory-scan expression	*/
 		*scan_expr;	/* compiled version of 'toscan'	*/

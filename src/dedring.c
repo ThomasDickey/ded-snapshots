@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	Id[] = "$Id: dedring.c,v 10.21 1992/04/09 12:02:34 dickey Exp $";
+static	char	Id[] = "$Id: dedring.c,v 10.22 1992/05/12 15:04:13 dickey Exp $";
 #endif
 
 /*
@@ -7,6 +7,7 @@ static	char	Id[] = "$Id: dedring.c,v 10.21 1992/04/09 12:02:34 dickey Exp $";
  * Author:	T.E.Dickey
  * Created:	27 Apr 1988
  * Modified:
+ *		12 May 1992, somehow omitted use of sort-key.
  *		01 Apr 1992, convert most global variables to RING-struct.
  *		28 Feb 1992, changed type of 'cmd_sh'.
  *		20 Feb 1992, correction to 'ring_bak()'
@@ -48,6 +49,8 @@ static	char	Id[] = "$Id: dedring.c,v 10.21 1992/04/09 12:02:34 dickey Exp $";
 
 #include	"ded.h"
 
+#define	CMP_PATH(a,b)	pathcmp(a, b->new_wd)
+
 #define	def_alloc	RING_alloc
 	/*ARGSUSED*/
 	def_ALLOC(RING)
@@ -57,23 +60,6 @@ static	RING	*ring;		/* directory-list */
 /************************************************************************
  *	local procedures						*
  ************************************************************************/
-
-/*
- * Translate slashes to newlines, forcing strcmp to yield a nice sort-compare.
- * Just in case we had a newline there, make it a slash (unlikely).
- */
-private	MakeSortKey _ONE(RING *,gbl)
-{
-	auto	char	*dst;
-	register int	c;
-	dst = dyn_string(gbl->sort_key = dyn_copy(gbl->sort_key, gbl->new_wd));
-	do {
-		switch (c = *dst) {
-		case '\n':	c = '/';	break;
-		case '/':	c = '\n';	break;
-		}
-	} while (*dst++ = c);
-}
 
 #ifdef	TEST
 /*
@@ -91,7 +77,7 @@ private	void	dump_ring(
 	dlog_comment("RING-%s:\n", tag);
 	for (p = ring; p; p = p->_link) {
 		dlog_comment("%c%#8x \"%s\"\n",
-			!strcmp(p->new_wd, gbl->new_wd) ? '>' : ' ',
+			!CMP_PATH(p->new_wd, gbl) ? '>' : ' ',
 			p, p->new_wd);
 	}
 }
@@ -117,7 +103,6 @@ private	void	ring_copy(
 
 	dst->cmd_sh = dyn_copy(dst->cmd_sh, dyn_string(src->cmd_sh));
 	(void) strcpy(dst->new_wd, src->new_wd);
-	MakeSortKey(dst);
 	SAVE(toscan);
 	SAVE(scan_expr);
 	SAVE(flist);
@@ -178,7 +163,7 @@ private	RING *	Insert(
 		return 0;
 
 	while (p) {
-	int	cmp = strcmp(path, p->new_wd);
+	int	cmp = CMP_PATH(path, p);
 		if (cmp == 0)
 			return (p);
 		else if (cmp < 0)
@@ -193,7 +178,6 @@ private	RING *	Insert(
 	 */
 	ring_copy(p = ring_alloc(), gbl);
 	(void)strcpy(p->new_wd, path);
-	MakeSortKey(p);
 	p->toscan      = pattern;
 	p->scan_expr   = 0;
 	p->flist       = 0;
@@ -264,7 +248,7 @@ private	RING *	ring_fwd _ONE(char *,path)
 	register RING *p;
 
 	for (p = ring; p; p = p->_link) {
-		int	cmp = strcmp(path, p->new_wd);
+		int	cmp = CMP_PATH(path, p);
 		if (cmp == 0) {
 			if (p = p->_link)
 				return (p);
@@ -284,13 +268,13 @@ private	RING *	ring_bak _ONE(char *,path)
 	register RING *p, *q;
 
 	if (p = ring) {
-		if (strcmp(path, p->new_wd) <= 0) {
+		if (CMP_PATH(path, p) <= 0) {
 			while (q = p->_link)
 				p = q;
 		} else {
 			while (p) {
 				if (q = p->_link) {
-					if (strcmp(path, q->new_wd) <= 0)
+					if (CMP_PATH(path, q) <= 0)
 						break;
 					p = q;
 				} else
@@ -367,7 +351,6 @@ public	void	ring_args(
 
 	if (!do_a_scan(gbl))
 		failed((char *)0);
-	MakeSortKey(gbl);	/* ...in case original path was via link */
 	no_worry = save_worry;
 }
 
@@ -379,7 +362,7 @@ public	RING *	ring_get _ONE(char *,path)
 	RING	*p;
 
 	for (p = ring; p; p = p->_link)
-		if (!strcmp(path, p->new_wd))
+		if (!CMP_PATH(path, p))
 			return (p);
 	return (0);
 }
