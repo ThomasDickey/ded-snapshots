@@ -3,7 +3,7 @@
 
 #ifdef	MAIN
 #if	!defined(NO_IDENT)
-static	char	*ded_h = "$Id: ded.h,v 12.11 1994/05/24 01:04:24 tom Exp $";
+static	char	*ded_h = "$Id: ded.h,v 12.12 1994/05/27 21:55:35 tom Exp $";
 #endif
 #endif	/* MAIN */
 
@@ -52,31 +52,39 @@ extern	char	*sys_errlist[];
 /*
  * SYSTEM5/BSD4.x differences between regular-expression handling:
  */
-#if	defined(SYSTEM5) || defined(__hpux)
-#if	defined(__hpux) || defined(linux)
-#include <regex.h>
-#define REGEX_T regex_t
-#define	OLD_REGEX(expr)		regfree(&expr)
-#define	NEW_REGEX(expr,pattern)	(regcomp(&expr, pattern,0) == 0)
-#define	GOT_REGEX(expr,string)	(regexec(&expr, string, 0, (regmatch_t*)0, 0) == 0)
-#else
-#define REGEX_T char *
-extern	char	*regcmp(_ar1(char *,s) _CDOTS),
-		*regex(_ar1(char *,re));
-#define	OLD_REGEX(expr)		if (expr) free(expr)
-#define	NEW_REGEX(expr,pattern)	((expr = regcmp(pattern,0)) != 0)
-#define	GOT_REGEX(expr,string)	(regex(expr, string, 0) != 0)
-#endif
-#define	BAD_REGEX(expr)		dedmsg(gbl, "illegal expression")
-#else	/* SYSTEM5 */
-#define REGEX_T char *
+#if defined(SYSTEM5)
+#  if HAVE_REGEX_H && HAVE_REGCOMP && HAVE_REGEXEC && HAVE_REGFREE /* HP/UX, Linux */
+#    include <regex.h>
+#    define REGEX_T regex_t
+#    define OLD_REGEX(expr)		regfree(&expr)
+#    define NEW_REGEX(expr,pattern)	(regcomp(&expr, pattern,0) == 0)
+#    define GOT_REGEX(expr,string)	(regexec(&expr, string, 0, (regmatch_t*)0, 0) == 0)
+#  else
+#    if HAVE_REGEXPR_H && HAVE_COMPILE && HAVE_STEP	/* Solaris */
+#      include <regexpr.h>
+#      define REGEX_T char *
+#      define OLD_REGEX(expr)		free(&expr)
+#      define NEW_REGEX(expr,pattern)	(step(pattern, expr) != 0)
+#      define GOT_REGEX(expr,string)	((expr = compile(string, NULL, NULL)) == 0)
+#    else	/* assume old SYSTEM5 */
+extern	char	*regcmp(_ar1(char *,s) _CDOTS);
+extern	char	*regex(_ar1(char *,re));
+#      define REGEX_T char *
+#      define OLD_REGEX(expr)		if (expr) free(expr)
+#      define NEW_REGEX(expr,pattern)	((expr = regcmp(pattern,0)) != 0)
+#      define GOT_REGEX(expr,string)	(regex(expr, string, 0) != 0)
+#    endif
+#  endif
+#  define BAD_REGEX(expr)		dedmsg(gbl, "illegal expression")
+#else		/* probably BSD4.x */
 extern	char	*re_comp(_ar1(char *,s)); /* returns 0 or error message */
 extern	int	re_exec(_ar1(char *,s));  /* (return > 0): match */
-#define	OLD_REGEX(expr)
-#define	NEW_REGEX(expr,pattern)	((expr = re_comp(pattern)) == 0)
-#define	GOT_REGEX(expr,string)	(re_exec(string) != 0)
-#define	BAD_REGEX(expr)		dedmsg(gbl, expr)
-#endif	/* SYSTEM5 */
+#  define REGEX_T char *
+#  define OLD_REGEX(expr)
+#  define NEW_REGEX(expr,pattern)	((expr = re_comp(pattern)) == 0)
+#  define GOT_REGEX(expr,string)	(re_exec(string) != 0)
+#  define BAD_REGEX(expr)		dedmsg(gbl, expr)
+#endif		/* regular expression functions */
 
 #define	OFF_T	long		/* lint libraries should have 'off_t' */
 
@@ -125,7 +133,7 @@ extern	int	re_exec(_ar1(char *,s));  /* (return > 0): match */
 	FLIST	*next;
 	char	*name;		/* name (within working-directory)	*/
 	char	*ltxt;		/* what link resolves to		*/
-	STAT	s;		/* stat()-block				*/
+	Stat_t	s;		/* stat()-block				*/
 	short	dord;		/* directory-order, for "d" sort	*/
 	char	flag;		/* tag-flag				*/
 #ifdef	Z_RCS_SCCS
@@ -184,7 +192,7 @@ extern	int	re_exec(_ar1(char *,s));  /* (return > 0): match */
 	REGEX_T	scan_expr;	/* compiled version of 'toscan'	*/
 	int	used_expr;	/* true iff we've compiled 'toscan' */
 	DYN	*cmd_sh;	/* command-string, for %/! operations */
-	FLIST	*flist;		/* list of filenames & STAT-blocks */
+	FLIST	*flist;		/* list of filenames & Stat_t-blocks */
 
 	char	**top_argv;
 	int	top_argc;
@@ -261,7 +269,7 @@ extern	void	to_exit(
 extern	int	realstat(
 		_arx(RING *,	gbl)
 		_arx(int,	inx)
-		_ar1(STAT *,	sb));
+		_ar1(Stat_t *,	sb));
 
 extern	void	failed(
 		_ar1(char *,	msg));
@@ -595,7 +603,7 @@ extern	int	ded2string(
 		_ar1(int,	flag));
 
 extern	char	*type_uid2s(
-		_ar1(STAT *,	s));
+		_ar1(Stat_t *,	s));
 
 extern	int	has_extended_acl(
 		_arx(RING *,	gbl)
