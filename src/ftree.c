@@ -1,5 +1,5 @@
 #if	!defined(NO_IDENT)
-static	char	Id[] = "$Id: ftree.c,v 12.12 1994/06/02 23:56:05 tom Exp $";
+static	char	Id[] = "$Id: ftree.c,v 12.13 1994/06/26 22:18:23 tom Exp $";
 #endif
 
 /*
@@ -790,7 +790,7 @@ private	int	ok_read(
 	if (got != ask) {
 		char	bfr[BUFSIZ];
 		dlog_comment("%s (got %d, asked %d)", msg, got, ask);
-		FORMAT(bfr, "%s \"%s\", msg, FDname);
+		FORMAT(bfr, "%s \"%s\"", msg, FDname);
 		return (ft_init(msg));
 	}
 	return (TRUE);
@@ -1748,7 +1748,7 @@ public	int	ft_scan(
 {
 	auto	int	found = FALSE;
 	auto	DIR	*dp;
-	auto	Dirent_t *d;
+	auto	DirentT *d;
 	auto	int	count	= 0;
 	char	bfr[MAXPATHLEN], *s_ = bfr;
 

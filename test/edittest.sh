@@ -1,5 +1,5 @@
 #!/bin/sh
-# $Id: edit_test.sh,v 12.0 1992/07/23 10:53:46 ste_cm Rel $
+# $Id: edittest.sh,v 12.1 1994/06/26 23:00:11 tom Exp $
 #
 # Edit a test-log so that it will be simple to do regression tests on it.
 # We make all references to the current pathname (of the 'ded' directory)
@@ -23,5 +23,5 @@ do
 		-e s~\"$USER\"~\"LOGNAME\"~\
 		-e s~\"$OWNER\"~\"LOGNAME\"~\
 		-e s~\"$GROUP\"~\"GROUP\"~\
-		-f edit_test.sed $i >$F.tmp
+		-f edittest.sed $i >$F.tmp
 done

@@ -1,5 +1,5 @@
 #!/bin/sh
-# $Id: run_test.sh,v 12.0 1992/08/28 15:17:08 ste_cm Rel $
+# $Id: run_test.sh,v 12.1 1994/06/26 22:59:49 tom Exp $
 #
 # Perform regression tests for unix directory editor.  If we find any problems,
 # show it in the log.
@@ -46,7 +46,7 @@ do
 	then	echo '** normal completion'
 	else	eval $TB
 	fi
-	edit_test.sh $F.out
+	./edittest.sh $F.out
 	if test -f $F.cmd
 	then
 		if ( cmp -s $F.cmd $F.tmp )

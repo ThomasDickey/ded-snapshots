@@ -1,4 +1,4 @@
-# $Id: Makefile,v 12.3 1993/11/23 14:45:24 dickey Exp $
+# $Id: Makefile,v 12.4 1994/06/26 23:25:41 tom Exp $
 # MAKE-file for directory editor
 
 THIS	= ded
@@ -29,6 +29,7 @@ CSRC	=\
 	dedscan.c \
 	dedshow.c \
 	dedsigs.c \
+	dedsize.c \
 	dedsort.c \
 	dedtags.c \
 	dedtype.c \
@@ -63,6 +64,7 @@ OBJS	= \
 	$Z(dedscan.o) \
 	$Z(dedshow.o) \
 	$Z(dedsigs.o) \
+	$Z(dedsize.o) \
 	$Z(dedsort.o) \
 	$Z(dedtags.o) \
 	$Z(dedtype.o) \

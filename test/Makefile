@@ -1,4 +1,4 @@
-# $Id: Makefile,v 12.1 1994/05/30 22:23:10 tom Exp $
+# $Id: Makefile,v 12.2 1994/06/26 23:00:30 tom Exp $
 # make-file for testing unix directory editor
 #
 ####### (Development) ##########################################################
@@ -7,8 +7,8 @@ include $(TOP)/td_lib/support/td_lib.mk
 
 ####### (Standard Lists) #######################################################
 SCRIPTS	=\
-	edit_test.sed\
-	edit_test.sh\
+	edittest.sed\
+	edittest.sh\
 	run_test.sh\
 	walkback.sh
 CMD_FILES=\

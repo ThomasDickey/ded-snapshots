@@ -1,5 +1,5 @@
 #if	!defined(NO_IDENT)
-static	char	Id[] = "$Header: /users/source/archives/ded.vcs/src/RCS/ded.c,v 12.13 1994/05/30 20:35:41 tom Exp $";
+static	char	Id[] = "$Header: /users/source/archives/ded.vcs/src/RCS/ded.c,v 12.14 1994/06/26 22:44:07 tom Exp $";
 #endif
 
 /*
@@ -583,8 +583,10 @@ private	void	forkfile(
 
 	cookterm();
 	dlog_comment("execute %s %s\n", arg0, arg1);
+	dedsigs(FALSE);
 	if (execute(arg0, quoted) < 0)
 		warn(gbl, arg0);
+	dedsigs(TRUE);
 	dlog_elapsed();
 	rawterm();
 

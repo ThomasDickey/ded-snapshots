@@ -1,5 +1,5 @@
 #if	!defined(NO_IDENT)
-static	char	Id[] = "$Id: dedsigs.c,v 12.4 1994/05/30 20:35:48 tom Exp $";
+static	char	Id[] = "$Id: dedsigs.c,v 12.7 1994/06/26 22:51:58 tom Exp $";
 #endif
 
 /*
@@ -7,6 +7,7 @@ static	char	Id[] = "$Id: dedsigs.c,v 12.4 1994/05/30 20:35:48 tom Exp $";
  * Author:	T.E.Dickey
  * Created:	03 Aug 1988
  * Modified:
+ *		26 Jun 1994, catch INTR only when flag argument is TRUE.
  *		29 Oct 1993, ifdef-ident
  *		28 Sep 1993, gcc warnings
  *		18 Oct 1991, converted to ANSI.  Show signal-number in 'dedquit'
@@ -70,11 +71,13 @@ int	dedsigs _ONE(int,flag)
 			(void)signal (SIGTERM, dedquit);
 		}
 		init = flag;
-		(void)signal (SIGINT,  catch);
-		if (flag)
+		if (flag) {
+			(void)signal(SIGINT,  catch);
 			(void)signal(SIGQUIT, dedquit);
-		else
+		} else {
+			(void)signal(SIGINT,  SIG_IGN);
 			(void)signal(SIGQUIT, SIG_IGN);
+		}
 	}
 	return (code);		/* return number of interrupts we had */
 }
