@@ -1,3 +1,7 @@
+1987-09-29  Thomas E. Dickey
+
+	* src/ftree.c: added '@' (position-at-directory) command.
+
 1987-09-28  Thomas E. Dickey
 
 	* src/ftree.c: mods to reduce calls on 'getcwd()'.

@@ -1,5 +1,5 @@
 #ifndef	NO_SCCS_ID
-static	char	sccs_id[] = "@(#)ftree.c	1.10 87/09/28 15:01:26";
+static	char	sccs_id[] = "@(#)ftree.c	1.11 87/09/29 12:48:21";
 #endif
 
 /*
@@ -667,6 +667,18 @@ register int j;
 				row = backward(num);
 			} else
 				beep();
+			break;
+
+		case '@':
+			move(0,0);
+			printw("find: %s", cwdpath);
+			refresh();
+			rawgets(cwdpath,sizeof(cwdpath),FALSE);
+			if ((c = do_find(cwdpath)) >= 0) {
+				row = c;
+				lvl = fd_level(row);
+				scroll_to(row);
+			} else	beep();
 			break;
 
 #ifndef	TEST
