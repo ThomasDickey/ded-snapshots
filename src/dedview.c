@@ -21,7 +21,7 @@
 
 #include	"ded.h"
 
-MODULE_ID("$Id: dedview.c,v 12.30 1996/01/09 23:38:52 tom Exp $")
+MODULE_ID("$Id: dedview.c,v 12.31 1996/01/10 00:31:30 tom Exp $")
 
 #define	MINLIST	2		/* minimum length of file-list + header */
 #define	MINWORK	3		/* minimum size of work-area */
@@ -398,8 +398,10 @@ public	int	move2row(
  */
 public	void	clear_work(_AR0)
 {
-	move(mark_W + 1, 0);
-	clrtobot();
+	if (!in_dedtype) {
+		move(mark_W + 1, 0);
+		clrtobot();
+	}
 	move(mark_W + 1, 0);
 }
 
@@ -524,7 +526,7 @@ public	void	upLINE(
 		}
 #if HAVE_WSCRL && HAVE_WSETSCRREG
 		if (vue->base_file < savebase) {
-			setscrreg(vue->base_row, vue->last_row - 1);
+			setscrreg(vue->base_row+1, vue->last_row - 1);
 			scrl(vue->base_file - savebase);
 			setscrreg(0, LINES - 1);
 		}
@@ -556,7 +558,7 @@ public	void	downLINE(
 		}
 #if HAVE_WSCRL && HAVE_WSETSCRREG
 		if (vue->base_file > savebase) {
-			setscrreg(vue->base_row, vue->last_row - 1);
+			setscrreg(vue->base_row+1, vue->last_row - 1);
 			scrl(vue->base_file - savebase);
 			setscrreg(0, LINES - 1);
 		}
