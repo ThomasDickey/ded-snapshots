@@ -26,8 +26,8 @@
 1+	# "test1234"
 1+	# "test123"
 1+	# "test12"
-1!rm\s#\n
-	# execute rm test1234 test123 test12 test1
+1!rm\s-f\s#\n
+	# execute rm -f test1234 test123 test12 test1
 	# ELAPSED TIME
 1_
 1W
@@ -51,7 +51,7 @@
 	# "test12"
 	# "test123"
 	# "test1234"
-1.	# execute rm test1 test12 test123 test1234
+1.	# execute rm -f test1 test12 test123 test1234
 	# ELAPSED TIME
 1R
 1'f	# before ""
@@ -149,10 +149,10 @@
 	# chmod 744 test12.bak
 	# chmod 744 test123.bak
 	# chmod 744 test1234.bak
-1.	# execute rm test1.bak test12.bak test123.bak test1234.bak
+1.	# execute rm -f test1.bak test12.bak test123.bak test1234.bak
 	# ELAPSED TIME
 1qn\n
-1.	# execute rm test1.bak test12.bak test123.bak test1234.bak
+1.	# execute rm -f test1.bak test12.bak test123.bak test1234.bak
 	# ELAPSED TIME
 1B	# chdir CM_TOOLS/test
 1!rmdir\s#\n

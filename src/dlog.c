@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	what[] = "$Id: dlog.c,v 11.30 1992/08/28 15:05:19 dickey Exp $";
+static	char	what[] = "$Id: dlog.c,v 11.31 1992/09/02 12:16:30 dickey Exp $";
 #endif
 
 /*
@@ -489,9 +489,6 @@ public	char *	dlog_string(
 				nnn--;
 				if (nnn == 1 && !strcmp(s, dyn_string(edited)))
 					nnn = 0;
-			} else if (nnn == 1) {
-				nnn = 0;
-				s = dyn_string(edited);
 			} else IGNORE
 
 		} else if (c == '\n') {
