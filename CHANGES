@@ -1,3 +1,11 @@
+1989-02-28  dickey@software.org
+
+	* src/version.h: *** empty log message ***
+
+	* src/dedscan.c: insert links-to-directory as a result of '@' toggle
+
+	* src/dedmake.c: insert new directories into tree
+
 1989-01-25  dickey@software.org
 
 	* src/dedline.c: corrected decoding of "B" for ">" command.
