@@ -3,6 +3,10 @@
  * Author:	T.E.Dickey
  * Created:	09 Nov 1987
  * Modified:
+ *		12 Jan 1997, filename-only case still wasn't right, since it
+ *			     didn't properly update the new_wd & argv[].
+ *		08 Jan 1997, correct missing allocation for special case where
+ *			     only a filename is specified.
  *		05 Nov 1995, prevent tilde-expansion on names read via readdir.
  *		03 Sep 1995, modify path_RESOLVE to ensure that parent isn't
  *			     already in ring (if so, return failure).
@@ -83,14 +87,14 @@
 #include	"rcsdefs.h"
 #include	"sccsdefs.h"
 
-MODULE_ID("$Id: dedscan.c,v 12.24 1995/11/05 22:49:45 tom Exp $")
+MODULE_ID("$Id: dedscan.c,v 12.26 1997/01/12 12:43:41 tom Exp $")
 
 #define	def_doalloc	FLIST_alloc
 	/*ARGSUSED*/
 	def_DOALLOC(FLIST)
 
 #define	N_UNKNOWN	-1	/* name does not exist */
-#define	N_FILE		0	/* a file */
+#define	N_FILE		0	/* a file (synonym for 'common==0') */
 #define	N_DIR		1	/* a directory */
 #define	N_LDIR		2	/* symbolic link to a directory */
 
@@ -341,8 +345,15 @@ public	int	dedscan (
 			}
 			if (gbl->toscan == 0)
 				ft_purge(gbl); /* remove items not reinserted */
-		} else if (common == N_FILE)
-			gbl->numfiles = 1;
+		} else if (common == N_FILE) {
+			s = fleaf(gbl->new_wd);
+			if (s != gbl->new_wd) {
+				s[-1] = EOS;
+			}
+			argv[0] = txtalloc(gbl->new_wd);
+			common = strlen(gbl->new_wd);
+			(void)argstat(gbl, s, TRUE, FALSE);
+		}
 	}
 
 	/*
