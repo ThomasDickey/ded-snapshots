@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	sccs_id[] = "@(#)ftree.c	1.54 88/08/12 08:13:18";
+static	char	sccs_id[] = "@(#)ftree.c	1.55 88/08/15 13:32:05";
 #endif	lint
 
 /*
@@ -601,14 +601,15 @@ char	*old, *new;
  *	2) the vector (with name-pointers adjusted to integer indices)
  *	3) the string-heap
  */
+#define	RDT(s,n)	(read(fid,(char *)s,(LEN_READ)(n)) == n)
 ft_read(first)
 char	*first;		/* => string defining the initial directory */
 {
-struct	stat sb;
-register int j;
-int	fid,
-	vecsize,
-	size;
+	struct		stat sb;
+	register int	j;
+	LEN_READ	vecsize;
+	int		fid,
+			size;
 
 	/* read the current database */
 	(void)strcat(strcpy(FDname, gethome()), "/.ftree");
@@ -625,7 +626,7 @@ int	fid,
 		size   = sb.st_size  - sizeof(FDlast);
 
 		/* (1) vector-size */
-		if (read(fid, (char *)&vecsize, sizeof(vecsize)) != sizeof(FDlast))
+		if (!RDT(&vecsize, sizeof(vecsize)))
 			failed("size \".ftree\"");
 		if ((size / sizeof(FTREE)) < vecsize)
 			failed("? size error");
@@ -636,14 +637,14 @@ int	fid,
 		fd_alloc();
 		vecsize++;		/* account for 0'th node */
 		vecsize *= sizeof(FTREE);
-		if (read(fid, (char *)ftree, vecsize) != vecsize)
+		if (!RDT(ftree, vecsize))
 			failed("read \".ftree\"");
 
 		/* (3) string-heap */
 		if ((size -= vecsize) > 0) {
 		char	*heap = doalloc((char *)0, (unsigned)size);
 		register char *s = heap;
-			if (read(fid, heap, (int)size) != size)
+			if (!RDT(heap, size))
 				failed("heap \".ftree\"");
 			for (j = 0; j <= FDlast; j++) {
 				ftree[j].f_name = txtalloc(s);
@@ -1376,10 +1377,11 @@ ft_write()
 #ifdef	DEBUG
 			PRINTF("writing file \"%s\" (%d)\n", FDname, FDlast);
 #endif	DEBUG
-			(void)write(fid, (char *)&FDlast, sizeof(FDlast));
-			(void)write(fid, (char *)ftree, (int)((FDlast+1) * sizeof(FTREE)));
+#define	WRT(s,n)	(void)write(fid,(char *)s,(LEN_READ)(n))
+			WRT(&FDlast, sizeof(FDlast));
+			WRT(ftree, ((FDlast+1) * sizeof(FTREE)));
 			for (j = 0; j <= FDlast; j++)
-				(void)write(fid, ftree[j].f_name, strlen(ftree[j].f_name)+1);
+				WRT(ftree[j].f_name, strlen(ftree[j].f_name)+1);
 			(void)close(fid);
 			cant_W   = FALSE;
 			showdiff = FDdiff = 0;

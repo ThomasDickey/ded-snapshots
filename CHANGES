@@ -1,3 +1,7 @@
+1988-08-15  dickey@software.org
+
+	* src/ftree.c, src/dedline.c, src/dedsort.c: lint
+
 1988-08-12  dickey@software.org
 
 	* src/README: more possibilities of commands!

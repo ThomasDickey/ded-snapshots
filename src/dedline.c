@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	sccs_id[] = "@(#)dedline.c	1.6 88/08/12 10:15:22";
+static	char	sccs_id[] = "@(#)dedline.c	1.7 88/08/15 09:42:25";
 #endif	lint
 
 /*
@@ -338,7 +338,7 @@ char	bfr[BUFSIZ];
 			}
 			if (GROUPED(j)) {
 				if (chown(xNAME(j),
-					uid, xSTAT(j).st_gid) < 0) {
+					uid, (int)xSTAT(j).st_gid) < 0) {
 					warn(xNAME(j));
 					break;
 				}
@@ -382,7 +382,7 @@ char	bfr[BUFSIZ];
 			if (GROUPED(j)) {
 				if (root) {
 					if (chown(xNAME(j),
-						xSTAT(j).st_uid, gid) < 0) {
+						(int)xSTAT(j).st_uid, gid) < 0){
 						warn(xNAME(j));
 						break;
 					}
