@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	sccs_id[] = "@(#)dedsort.c	1.8 88/08/02 12:12:25";
+static	char	sccs_id[] = "@(#)dedsort.c	1.9 88/08/09 06:50:45";
 #endif	lint
 
 /*
@@ -154,6 +154,6 @@ char	bfr[BUFSIZ];
 dedsort()
 {
 	char	*name = cNAME;
-	qsort(flist, (int)numfiles, sizeof(FLIST), compare);
+	qsort((char *)flist, (int)numfiles, sizeof(FLIST), compare);
 	curfile = findFILE(name);
 }

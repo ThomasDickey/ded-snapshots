@@ -1,3 +1,9 @@
+1988-08-09  dickey@software.org
+
+	* src/README: note about beep/blip
+
+	* src/ded.h, src/dedtype.c, src/dedsort.c: lint
+
 1988-08-04  dickey@software.org
 
 	* src/dedscan.c:

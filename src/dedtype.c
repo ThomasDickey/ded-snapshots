@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	sccs_id[] = "@(#)dedtype.c	1.9 88/06/07 07:21:15";
+static	char	sccs_id[] = "@(#)dedtype.c	1.10 88/08/09 06:52:44";
 #endif	lint
 
 /*
@@ -240,7 +240,7 @@ int	c,			/* current character */
 			if (replay) {
 				page -= replay;
 				if (page < 0) page = 0;
-				fseek(fp, infile[page], 0L);
+				fseek(fp, infile[page], 0);
 			}
 		}
 		(void)fclose(fp);
