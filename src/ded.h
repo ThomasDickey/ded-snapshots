@@ -3,7 +3,7 @@
 
 #ifdef	MAIN
 #ifndef	lint
-static	char	*ded_h = "$Id: ded.h,v 11.13 1992/08/20 07:49:20 dickey Exp $";
+static	char	*ded_h = "$Id: ded.h,v 11.14 1992/08/28 09:47:50 dickey Exp $";
 #endif
 #endif	/* MAIN */
 
@@ -683,6 +683,7 @@ extern	int	get_inline(
 
 extern	DYN **	inline_text(_ar0);
 extern	HIST **	inline_hist(_ar0);
+extern	int	inline_hidden(_ar0);
 
 /* *** "showpath.c" *** */
 extern	int	showpath(

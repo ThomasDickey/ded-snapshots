@@ -1,4 +1,4 @@
-$Id: ded.hlp,v 11.0 1991/10/16 13:03:41 ste_cm Rel $
+$Id: ded.hlp,v 12.0 1992/08/28 14:39:47 ste_cm Rel $
 
 DED (Directory EDitor)
 ======================
@@ -197,6 +197,15 @@ Operations on Files:
 		The command completes by editing the name of the new
 		entry a la '='.
 
+  '		Begin the last specific command.  The second (and third)
+		characters are:
+
+			p, u, g, =, or
+			cd, cf, cl or cL
+
+		All but the final character of the given command is replayed;
+		you must complete it.
+
   e		If the current entry is a directory, spawn
 		a new DED process with that as argument.
 		If it is a file, invoke the EDITOR (vi) on it.
@@ -212,6 +221,11 @@ Operations on Files:
   h		type this help-file in the workspace.
   t		type the current file, in the workspace.
 		Use "2t" to type a binary file.
+
+Command history:
+---------------
+  Scroll back and forth in the history list for each command using the
+  up and down arrow keys.
 
 Shell commands:
 --------------

@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	what[] = "$Id: dlog.c,v 11.24 1992/08/26 11:58:30 dickey Exp $";
+static	char	what[] = "$Id: dlog.c,v 11.30 1992/08/28 15:05:19 dickey Exp $";
 #endif
 
 /*
@@ -7,7 +7,7 @@ static	char	what[] = "$Id: dlog.c,v 11.24 1992/08/26 11:58:30 dickey Exp $";
  * Author:	T.E.Dickey
  * Created:	14 Mar 1989
  * Modified:
- *		06 Aug 1992, added \F, \B, \W, \? escape decoding.
+ *		28 Aug 1992, implemented inline history in 'dlog_string()'. 
  *		18 Oct 1991, converted to ANSI
  *		09 Sep 1991, lint
  *		06 Mar 1990, 'cmdch()' can now return explicit zero-count
@@ -53,35 +53,56 @@ private	void	show_time _ONE(char *,msg)
 	dlog_comment("process %d %s at %s", getpid(), msg, ctime(&now));
 }
 
-#ifdef	DEBUG
-private	void	show_text _ONE(char *,text)
+/*
+ * Find the last character (or escaped-character) in the given string.  Assumes
+ * this is formatted by 'encode_logch()'.
+ */
+private	char *	find_ending _ONE(char *,s)
 {
-	if (log_fp) {
-		char	temp_t[BUFSIZ],
-			*text2s	= temp_t;
-
-		while (*text) {
-			encode_logch(text2s, (int *)0, *text++);
-			text2s += strlen(text2s);
-		}
-		*text2s = EOS;
-		FPRINTF(log_fp, "%s\n", temp_t);
+	register char *mark = 0;
+	while (s != 0 && *s != EOS) {
+		mark = s;
+		(void)decode_logch(&s, (int *)0);
 	}
+	return mark;
 }
-#endif	/* DEBUG */
 
 /*
- * Force a newline on the end of the given string, used to finish an edit-
+ * Trims the last "character" in the given edit-string, assumed to be one of
+ * "\n", "\U", "\D", quit or the end-character.
+ */
+private	void	trim_ending _ONE(DYN *,p)
+{
+	register char	*s = find_ending(dyn_string(p));
+	register int	len;
+	if (s != 0) {
+		len = strlen(s);
+		while (len-- > 0)
+			(void)dyn_trim1(p);
+	}
+}
+
+/*
+ * Convert the newline-char on the end of the edit-string to an escape-sequence
+ */
+private	void	convert_newline _ONE(DYN **,p)
+{
+	register char	*s = find_ending(dyn_string(*p));
+	if (s != 0 && *s == '\n') {
+		trim_ending(*p);
+		*p = dyn_append(*p, "\\n");
+	}
+}
+
+/*
+ * Force a newline-char on the end of the given string, used to finish an edit-
  * command in 'wrawgets()'.
  */
 private	void	supply_newline _ONE(DYN **,p)
 {
-	register int	len;
-
-	if (len = dyn_length(*p))
-		if (dyn_string(*p)[len-1] == '\n')
-			return;
-	*p = dyn_append_c(*p, '\n');
+	register char	*s = find_ending(dyn_string(*p));
+	if (s != 0 && strcmp(s, "\\n"))
+		*p = dyn_append_c(*p, '\n');
 }
 
 /*
@@ -111,35 +132,35 @@ private	void	flush_pending _ONE(int,newline)
  */
 private	int	read_script(_AR0)
 {
-	if (cmd_fp != 0) {
-		register char	*s;
-		int	join	= FALSE;
-		char	temp[BUFSIZ];
+	register char	*s;
+	int	join	= FALSE;
+	char	temp[BUFSIZ];
 
-		if (cmd_ptr == 0 || !*cmd_ptr) {
-			dyn_init(&cmd_bfr, BUFSIZ);
-			cmd_ptr = dyn_string(cmd_bfr);
-		}
-		while (	!*cmd_ptr || join) {
-			if (fgets(temp, sizeof(temp), cmd_fp)) {
-				for (s = temp, join = FALSE; *s; s++)
-					if (!isprint(*s)) {
-						join = (*s == '\t');
-						*s = EOS;
-						break;
-					}
-
-				cmd_bfr = dyn_append(cmd_bfr, temp);
-				cmd_ptr = dyn_string(cmd_bfr);
-			} else {
-				FCLOSE(cmd_fp);
-				cmd_fp = 0;	/* forced-close */
-				break;
-			}
-		}
-		return *cmd_ptr;	/* have text to process */
+	if (cmd_ptr == 0 || !*cmd_ptr) {
+		dyn_init(&cmd_bfr, BUFSIZ);
+		cmd_ptr = dyn_string(cmd_bfr);
 	}
-	return (FALSE);			/* no command-script to read */
+	while (	!*cmd_ptr || join) {
+		if (cmd_fp == 0)
+			break;
+		else if (fgets(temp, sizeof(temp), cmd_fp)) {
+			join = TRUE;	/* ...unless we find newline */
+			for (s = temp; *s; s++)
+				if (!isprint(*s)) {	/* tab or newline */
+					join = (*s == '\t');
+					*s = EOS;
+					break;
+				}
+
+			cmd_bfr = dyn_append(cmd_bfr, temp);
+			cmd_ptr = dyn_string(cmd_bfr);
+		} else {
+			FCLOSE(cmd_fp);
+			cmd_fp = 0;	/* forced-close */
+			break;
+		}
+	}
+	return *cmd_ptr;	/* have text to process */
 }
 
 /*
@@ -152,7 +173,7 @@ private	int	read_char _ONE(int *,count_)
 	register int	j;
 
 	if (read_script())
-		return decode_logch(&cmd_ptr, count_);
+		num = decode_logch(&cmd_ptr, count_);
 
 #define	MAXTRIES	5
 	/*
@@ -160,14 +181,18 @@ private	int	read_char _ONE(int *,count_)
 	 * least, sometimes the terminal emulator dies and simply gives me
 	 * nulls.
 	 */
-	for (j = 0; j < MAXTRIES; j++) {
-		if ((num = cmdch(count_)) > 0)
-			return (num);
-		if (j == 0)	beep();
-		sleep(2);
+	else {
+		for (j = 0; j < MAXTRIES; j++) {
+			if ((num = cmdch(count_)) > 0)
+				break;
+			if (j == 0)	beep();
+			sleep(2);
+		}
+		if (num <= 0)
+			failed("read_char");
+		/*NOTREACHED*/
 	}
-	failed("read_char");
-	/*NOTREACHED*/
+	return num;
 }
 
 private	int	record_char(
@@ -191,14 +216,6 @@ private	int	record_char(
 		pending->cur_length += strlen(s);
 	}
 	return c;
-}
-
-private	void	record_string _ONE(char *,s)
-{
-	register int	c;
-
-	while (c = *s++)
-		(void)record_char(c & 0xff, (int *)0, FALSE);
 }
 
 /************************************************************************
@@ -291,7 +308,7 @@ public	int	dlog_char(
 	return record_char(read_char(count_), count_, begin);
 }
 
-#define	IGNORE	{ beep(); if (inline) goto ResetResult; else continue; }
+#define	IGNORE	{ beep(); s = to_hist; }
 
 /*
  * Obtain a string from the user and log it if logging is active.
@@ -299,9 +316,6 @@ public	int	dlog_char(
  * Note: all line-buffer text in DED is written after one or more single-
  * character commands, so we can test easily for the case of a null-buffer (it
  * simply has no more characters in the current buffer).
- *
- * Note: we don't log the up/down arrows used for history retrieval for
- * simplification.  Ultimately, this could be done.
  */
 public	char *	dlog_string(
 	_ARX(DYN **,	result)
@@ -316,7 +330,7 @@ public	char *	dlog_string(
 	_DCL(int,	fast_q)
 	_DCL(int,	wrap_len)
 {
-	static	DYN	*original, *before, *after, *trace, *edited;
+	static	DYN	*original, *before, *after, *script_bfr, *edited;
 	static	char	*i_pref[] = { "^",  " "  },
 			*n_pref[] = { "^ ", ": " };
 
@@ -324,9 +338,12 @@ public	char *	dlog_string(
 	int	wrap	= wrap_len <= 0;
 	int	len	= wrap ? -wrap_len : wrap_len;
 	int	nnn	= 0;	/* history-index */
+	int	script_inx,
+		use_script;
 	int	y,x;
-	char	*buffer, *to_hist, *prior;
+	char	*buffer, *to_hist;
 	char	**prefix= inline ? i_pref : n_pref;
+	char	*script_ptr;
 
 	register int	c;
 	register char	*s;
@@ -339,60 +356,53 @@ public	char *	dlog_string(
 
 
 	/* Inline-editing records the editing actions in history, not the
-	 * resulting buffer.
+	 * resulting buffer.  If we are also reading from a command-file,
+	 * the inline-edit is interleaved with the newline/arrow codes that
+	 * end a buffer-edit.
 	 */
+	dyn_init(&script_bfr,1);
 	if (inline) {
 		original = dyn_copy(original, buffer);
-		if (s = dyn_string(*inline))
-			trace = dyn_copy(trace, s);
-		else
-			dyn_init(&trace,1);
-#ifdef	DEBUG
-		dlog_comment("INLINE:");
-		show_text(dyn_string(trace));
-#endif
+
+		if (s = dyn_string(*inline)) {
+			script_bfr = dyn_copy(script_bfr, s);
+			convert_newline(&script_bfr);
+		}
 	}
 
 	getyx(stdscr,y,x);
 
 	for (;;) {
-		int	first_col,	/* column at which to begin edit */
-			first_ins;	/* set true to initially insert */
 
 		/*
-		 * Replay the portion of the inline editing from history.
+		 * Interleave inline-editing replay and command-file:
 		 */
 		if (inline) {
-			if ((s = dyn_string(trace))
-			 && (*s != EOS)) {
-				*inline = dyn_copy(*inline, s);
-				supply_newline(&trace);
-				prior = dyn_string(trace);
-				(void)wrawgets(stdscr,
-					buffer,
-					prefix,
-					len,
-					len,
-					0,
-					(fast_q == EOS),
-					wrap,
-					fast_q,
-					&prior,
-					TRUE);
 #ifdef	DEBUG
-				dlog_comment("PLAY  :");
-				show_text(rawgets_log());
+			dlog_comment("hidden:%d, length:%d\n",
+				inline_hidden(), dyn_length(script_bfr));
+			dlog_comment("INLINE:%s\n", dyn_string(script_bfr));
 #endif
-				first_col = strlen(buffer);
-				first_ins = TRUE;
-			} else {
-				dyn_init(inline,1);
-				first_col = 0;
-				first_ins = FALSE;
-			}
+			script_inx = dyn_length(script_bfr);
+			if (cmd_ptr)
+				script_bfr = dyn_append(script_bfr, cmd_ptr);
+		} else if (cmd_ptr) {
+			script_bfr = dyn_copy(script_bfr, cmd_ptr);
+			script_inx = 0;
 		} else {
-			first_col = strlen(buffer);
-			first_ins = (fast_q == EOS);
+			dyn_init(&script_bfr,1);
+			script_inx = 0;
+		}
+
+		/*
+		 * Now, 'script_bfr' is empty only if we are neither replaying
+		 * inline text, nor reading from a command-file:
+		 */
+		if (use_script = (dyn_length(script_bfr) != 0)) {
+			script_ptr = dyn_string(script_bfr);
+#ifdef	DEBUG
+			dlog_comment("SCRIPT:%s\n", dyn_string(script_bfr));
+#endif
 		}
 
 		/*
@@ -407,33 +417,46 @@ public	char *	dlog_string(
 			prefix,
 			len,
 			len + 1,
-			first_col,
-			first_ins,
+			(inline != 0) ? 0 : (int)strlen(buffer),
+			(fast_q == EOS),
 			wrap,
 			fast_q,
-			cmd_fp ? &cmd_ptr : (char **)0,
+			use_script ? &script_ptr : (char **)0,
 			history || inline || log_fp);
 
-		/*
-		 * Record the inline-editing keystrokes
-		 */
-		if (inline) {
+		/* account for chars we read from command-file */
+		if (*cmd_ptr) {
+			cmd_ptr += (script_ptr - dyn_string(script_bfr))
+				- script_inx;
 #ifdef	DEBUG
-			dlog_comment("BEFORE:");
-			show_text(dyn_string(trace));
-			dlog_comment("EDITED:");
-			show_text(rawgets_log());
-#endif
-			(void)dyn_trim1(trace);
-			trace = dyn_append(trace, rawgets_log());
-			(void)dyn_trim1(trace);
-#ifdef	DEBUG
-			dlog_comment("AFTER :");
-			show_text(dyn_string(trace));
+			dlog_comment("s::CMD:%d:%d:%s\n",
+				cmd_ptr - dyn_string(cmd_bfr),
+				dyn_length(cmd_bfr),
+				cmd_ptr);
 #endif
 		}
 
-		to_hist = inline ? dyn_string(trace) : buffer;
+		/*
+		 * Record the inline-editing keystrokes (new response only,
+		 * ignoring the characters from the script).
+		 */
+		if (log_fp)
+			pending = dyn_append(pending, script_inx+rawgets_log());
+
+		/*
+		 * Copy the inline-editing keystrokes (except the terminating
+		 * newline/arrow) to 'script_bfr' so we can manipulate it in
+		 * the history-record.
+		 */
+		if (inline) {
+			script_bfr = dyn_copy(script_bfr, rawgets_log());
+			trim_ending(script_bfr);
+#ifdef	DEBUG
+			dlog_comment("EDITED:%s\n", dyn_string(script_bfr));
+#endif
+			to_hist = dyn_string(script_bfr);
+		} else
+			to_hist = buffer;
 
 		/* If any change was made, reset history-index */
 		if (strcmp(dyn_string(before), dyn_string(after))) {
@@ -442,16 +465,14 @@ public	char *	dlog_string(
 			edited = dyn_copy(edited, to_hist);
 		}
 
-		if (log_fp)
-			record_string(rawgets_log());
-
 		if (c == ARO_UP) {
-			if (!history) IGNORE
-
 			if (!nnn)
 				edited = dyn_copy(edited, to_hist);
 
-			if (s = get_history(*history, nnn)) {
+			if (!history)
+				IGNORE
+
+			else if (s = get_history(*history, nnn)) {
 				if (strcmp(s, to_hist))
 					;	/* cannot skip */
 				else if (s = get_history(*history, nnn+1))
@@ -461,9 +482,10 @@ public	char *	dlog_string(
 			} else IGNORE
 
 		} else if (c == ARO_DOWN) {
-			if (!history) IGNORE
+			if (!history)
+				IGNORE
 
-			if (s = get_history(*history, nnn-2)) {
+			else if (s = get_history(*history, nnn-2)) {
 				nnn--;
 				if (nnn == 1 && !strcmp(s, dyn_string(edited)))
 					nnn = 0;
@@ -480,23 +502,31 @@ public	char *	dlog_string(
 			break;
 		}
 
-		if (inline)
-			trace = dyn_copy(trace, s);
-ResetResult:
-		*result = dyn_copy(*result, inline ? dyn_string(original) : s);
+		/*
+		 * Reset the script+result for the next editing pass.
+		 */
+		if (inline) {
+			if (s != to_hist)
+				script_bfr = dyn_copy(script_bfr, s);
+			*result = dyn_copy(*result, dyn_string(original));
+		} else {
+			*result = dyn_copy(*result, s);
+		}
 		buffer = dyn_string(*result);
 	}
 
 	if (inline) {
-		supply_newline(&trace);
-		*inline = dyn_copy(*inline, to_hist);
+		supply_newline(&script_bfr);
+		*inline = dyn_copy(*inline, to_hist = dyn_string(script_bfr));
 	}
 
 	PENDING(string,TRUE);
 
 #ifdef	DEBUG
-	dlog_comment("done:%d:", done);
-	show_text(to_hist);
+	dlog_comment("%s:%s%c",
+		(done == TRUE) ? "done" : "quit",
+		to_hist,
+		inline ? EOS : '\n');
 #endif
 	if (done == TRUE) {
 		if (!inline)

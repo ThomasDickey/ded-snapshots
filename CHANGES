@@ -1,3 +1,86 @@
+1992-08-28  dickey@software.org
+
+	* user/ded.man: documented the other changes
+
+1992-08-28  ste_cm@software.org
+
+	* user/ded.man:
+	BASELINE Thu May  6 14:26:47 1993 -- split from CM_TOOLS #11
+
+1992-08-28  dickey@software.org
+
+	* user/ded.man: documented changes to inline-editing
+
+	* test/Makefile: added test-case 5
+
+	* test/run_test.sh: make this easier to hack for testing
+
+1992-08-28  ste_cm@software.org
+
+	* test/run_test.sh:
+	BASELINE Thu May  6 14:26:47 1993 -- split from CM_TOOLS #11
+
+1992-08-28  dickey@software.org
+
+	* test/test5.cmd: RCS_BASE
+
+	* src/dlog.c:
+	oops: made wrong test for updating 'cmd_ptr' in 'dlog_string()'
+
+	* src/dlog.c: lint
+
+	* src/ded.hlp: documented recent commands (briefly!)
+
+1992-08-28  ste_cm@software.org
+
+	* src/ded.hlp:
+	BASELINE Thu May  6 14:26:47 1993 -- split from CM_TOOLS #11
+
+1992-08-28  dickey@software.org
+
+	* src/dlog.c: make 'read_char()' have a single return-point
+	corrected 'read_script()', which was not allowing the last
+	few lines of a script to be used (because the file-pointer
+	was tested before testing if 'cmd_ptr' was to the end of
+	'cmd_bfr')
+
+	* src/dlog.c: modifying to make the value returned by 'rawgets_log()'
+	consistently an interpreted string; allows me to split this
+	string into scripted and non-scripted portions (to log
+	the latter).
+
+	* src/dlog.c: oops: forgot that 'rawgets_log()' returns the interpreted
+	byte stream, which messed up my update for 'cmd_ptr'.
+	also (same cause) must redo logic which offsets the
+	logging of 'rawgets_log()'
+
+	* src/version.h: added '-command (repeat last of given inline command)
+
+1992-08-28  ste_cm@software.org
+
+	* src/version.h:
+	BASELINE Thu May  6 14:26:47 1993 -- split from CM_TOOLS #11
+
+1992-08-28  dickey@software.org
+
+	* src/ded.h: added 'inline_hidden()'
+
+	* src/history.c:
+	modified so that if we put history item that duplicates
+	any in the list, we simply relink it to the front of the
+	list -- much easier to use than simply suppressing
+	consecutive duplicates.
+
+1992-08-28  ste_cm@software.org
+
+	* src/history.c:
+	BASELINE Thu May  6 14:26:47 1993 -- split from CM_TOOLS #11
+
+1992-08-28  dickey@software.org
+
+	* src/dlog.c:
+	re-rewrote 'dlog_string()'; seems to work ok, but must test!
+
 1992-08-27  dickey@software.org
 
 	* src/inline.c: added entrypoint 'inline_hidden()'
