@@ -1,24 +1,21 @@
-# $Id: Makefile,v 5.2 1990/02/01 12:53:32 dickey Exp $
+# $Id: Makefile,v 5.3 1990/03/02 11:53:24 dickey Exp $
 # MAKE-file for directory editor
 #
 # $Log: Makefile,v $
-# Revision 5.2  1990/02/01 12:53:32  dickey
-# added module 'showpath.c'
+# Revision 5.3  1990/03/02 11:53:24  dickey
+# separated CFLAGS, INCLUDES, DEFINES defs
 #
+#        Revision 5.2  90/02/01  12:53:32  dickey
+#        added module 'showpath.c'
+#        
 #        Revision 5.1  89/12/01  13:39:32  dickey
 #        broke 'sortset.c' out of 'ded.c'
 #        
 #        Revision 5.0  89/10/04  11:16:19  ste_cm
 #        BASELINE Fri Oct 27 12:27:25 1989 -- apollo SR10.1 mods + ADA_PITS 4.0
 #        
-#        Revision 4.1  89/10/04  11:16:19  dickey
-#        added dependency on "acl.h" and "common.h"
-#        
 #        Revision 4.0  89/08/22  09:19:34  ste_cm
 #        BASELINE Thu Aug 24 10:20:06 EDT 1989 -- support:navi_011(rel2)
-#        
-#        Revision 3.1  89/08/22  09:19:34  dickey
-#        corrected 'destroy' rule
 #        
 #        Revision 3.0  89/05/26  13:00:44  ste_cm
 #        BASELINE Mon Jun 19 14:21:57 EDT 1989
@@ -33,7 +30,7 @@ GET	= checkout
 ####### (Command-line Options) #################################################
 DED_H	= ded.h $I/ptypes.h $I/common.h $I/cmdch.h
 INCLUDES= -I. -I$I
-CFLAGS	= $(DEFINES) $(INCLUDES) -O
+CFLAGS	=
 LIBS	= $L/lib.a
 DATE	= echo '****'`date` >> $@
 LINTOPT	= $(DEFINES) $(INCLUDES) -ltd -lcurses
@@ -124,3 +121,6 @@ ded2s.o:	$I/acl.h
 $(SOURCES):			; $(GET) $@
 lint.out:	$(CSRC)		; $(DATE); tdlint $(LINTOPT) $(CSRC) >>$@
 lincnt.out:	$(CSRC)		; $(DATE); lincnt $(CSRC) >>$@
+
+.c.o:
+	$(CC) $(CFLAGS) $(INCLUDES) $(DEFINES) -c $<

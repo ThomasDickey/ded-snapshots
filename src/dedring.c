@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	Id[] = "$Id: dedring.c,v 5.1 1990/01/30 07:53:10 dickey Exp $";
+static	char	Id[] = "$Id: dedring.c,v 7.0 1990/03/02 12:09:20 ste_cm Rel $";
 #endif	lint
 
 /*
@@ -7,9 +7,18 @@ static	char	Id[] = "$Id: dedring.c,v 5.1 1990/01/30 07:53:10 dickey Exp $";
  * Author:	T.E.Dickey
  * Created:	27 Apr 1988
  * $Log: dedring.c,v $
- * Revision 5.1  1990/01/30 07:53:10  dickey
- * save/restore T_opt
+ * Revision 7.0  1990/03/02 12:09:20  ste_cm
+ * BASELINE Mon Apr 30 09:54:01 1990 -- (CPROTO)
  *
+ *		Revision 6.0  90/03/02  12:09:20  ste_cm
+ *		BASELINE Thu Mar 29 07:37:55 1990 -- maintenance release (SYNTHESIS)
+ *		
+ *		Revision 5.2  90/03/02  12:09:20  dickey
+ *		set 'no_worry' flag after successfully reading new-directory
+ *		
+ *		Revision 5.1  90/01/30  08:42:26  dickey
+ *		save/restore T_opt
+ *		
  *		Revision 5.0  89/10/05  16:58:38  ste_cm
  *		BASELINE Fri Oct 27 12:27:25 1989 -- apollo SR10.1 mods + ADA_PITS 4.0
  *		
@@ -62,6 +71,7 @@ static	char	Id[] = "$Id: dedring.c,v 5.1 1990/01/30 07:53:10 dickey Exp $";
 extern	FLIST	*dedfree();
 extern	char	**vecalloc();
 extern	char	*txtalloc();
+extern	int	no_worry;
 
 /*
  * The RING structure saves global data which lets us restore the state
@@ -498,6 +508,8 @@ char	tmp[BUFSIZ];
 				curfile = 0;
 				dedsort();
 				curfile = 0;	/* ensure consistent initial */
+				if (no_worry < 0)	/* start worrying! */
+					no_worry = FALSE;
 			} else {
 				success	= FALSE;
 			}

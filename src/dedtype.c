@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	Id[] = "$Id: dedtype.c,v 5.0 1989/10/13 13:43:28 ste_cm Rel $";
+static	char	Id[] = "$Id: dedtype.c,v 5.1 1990/03/02 08:16:06 dickey Exp $";
 #endif	lint
 
 /*
@@ -7,9 +7,14 @@ static	char	Id[] = "$Id: dedtype.c,v 5.0 1989/10/13 13:43:28 ste_cm Rel $";
  * Author:	T.E.Dickey
  * Created:	16 Nov 1987
  * $Log: dedtype.c,v $
- * Revision 5.0  1989/10/13 13:43:28  ste_cm
- * BASELINE Fri Oct 27 12:27:25 1989 -- apollo SR10.1 mods + ADA_PITS 4.0
+ * Revision 5.1  1990/03/02 08:16:06  dickey
+ * for the special case of a directory-file, create a temporary
+ * file with the inode-values and names of the files.  Display
+ * this instead of the raw contents of the directory.
  *
+ *		Revision 5.0  89/10/13  13:43:28  ste_cm
+ *		BASELINE Fri Oct 27 12:27:25 1989 -- apollo SR10.1 mods + ADA_PITS 4.0
+ *		
  *		Revision 4.1  89/10/13  13:43:28  dickey
  *		trim lines containing blanks so we don't display extra gaps
  *		
@@ -43,7 +48,10 @@ static	char	Id[] = "$Id: dedtype.c,v 5.0 1989/10/13 13:43:28 ste_cm Rel $";
  *
  * patch: should not reread page from file if we don't move.
  */
+
+#define		DIR_PTYPES	/* includes directory-stuff */
 #include	"ded.h"
+extern	FILE	*tmpfile();
 
 #define	def_doalloc	OFF_T_alloc
 	/*ARGSUSED*/
@@ -157,11 +165,11 @@ FILE	*fp;
 	return (c);
 }
 
-dedtype(name,binary)
+dedtype(name,binary,isdir)
 char	*name;
 {
 struct	stat	sb;
-FILE	*fp	= fopen(name, "r");
+FILE	*fp;
 int	c,			/* current character */
 	count,			/* ...and repeat-count */
 	y,			/* current line-in-screen */
@@ -173,14 +181,39 @@ int	c,			/* current character */
 
 	Shift	= 0;
 
+	if (isdir && !binary) {
+		DIR		*dp;
+		struct	direct	*de;
+		char		bfr[BUFSIZ];
+#ifdef	apollo
+		char		*fmt = "%08x %s\n";
+#else
+		char		*fmt = "%5d %s\n";
+#endif
+		if ((fp = tmpfile())     != 0
+		&&  (dp = opendir(name)) != 0) {
+			while (de = readdir(dp)) {
+				(void)ded2string(bfr,
+					(int)de->d_namlen,
+					de->d_name,
+					FALSE);
+				fprintf(fp, fmt, de->d_ino, bfr);
+			}
+			closedir(dp);
+			rewind(fp);
+		}
+	} else
+		fp = fopen(name, "r");
+
 	if (fp) {
 		static	OFF_T	*infile;
 		static	unsigned maxpage = 0;
 		auto	int	replay	= 0;
 
-		dlog_comment("type \"%s\" (%s)\n",
+		dlog_comment("type \"%s\" (%s %s)\n",
 			name,
-			binary ? "binary" : "text");
+			binary ? "binary" : "text",
+			isdir  ? "directory" : "file");
 		to_work();
 		while (!done) {
 
@@ -226,7 +259,8 @@ int	c,			/* current character */
 				move(LINES-1,0);
 				standout();
 				PRINTW("---page");
-				if ((stat(name, &sb) >= 0) && sb.st_size > 0) {
+				if ((fstat(fileno(fp), &sb) >= 0)
+				&&  sb.st_size > 0) {
 					PRINTW(" %d: %.1f%%",
 						page,
 						(ftell(fp) * 100.)/ sb.st_size);
