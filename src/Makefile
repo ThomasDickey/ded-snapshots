@@ -1,13 +1,13 @@
-# $Id: Makefile,v 11.6 1992/10/09 13:04:30 dickey Exp $
+# $Id: Makefile,v 11.7 1992/10/16 09:25:33 dickey Exp $
 # MAKE-file for directory editor
 
-####### (Environment) ##########################################################
+THIS	= ded
 TOP	= ../../../..
 include $(TOP)/cm_library/support/cm_library.mk
 
-THIS	= ded
-
 ####### (Standard Lists) #######################################################
+LINTLIBS= -ltd -lcurses -lapollo
+
 DED_H	= $(THIS).h $(PTYPES_H) $I/cmdch.h $I/dyn_string.h
 
 ALL	= $B/$(THIS) $B/$(THIS).hlp
@@ -103,7 +103,7 @@ $Z(ftree.o):	$(RCSDEFS_H) $(SCCSDEFS_H)
 
 ####### (Development) ##########################################################
 $(SOURCES):			; $(GET) $@
-lint.out:	$(CSRC)		; $(DATE); tdlint $(LINTOPT) $(CSRC) >>$@
+lint.out:	$(CSRC)		; $(DATE); tdlint $(LINTOPTS) $(CSRC) >>$@
 lincnt.out:	$(CSRC)		; $(DATE); lincnt $(CSRC) >>$@
 
 .PRECIOUS:	proto.h

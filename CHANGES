@@ -1,3 +1,18 @@
+1992-10-16  dickey@software.org
+
+	* src/dedline.c:
+	moved an assignment in 'editprot()' which caused the current
+	entry to be incorrectly handled if it was a link.
+
+1992-10-16  ste_cm@software.org
+
+	* src/dedline.c:
+	BASELINE Thu May  6 14:26:47 1993 -- split from CM_TOOLS #11
+
+1992-10-16  dickey@software.org
+
+	* src/Makefile: clutter, lint-def
+
 1992-10-09  dickey@software.org
 
 	* test/Makefile, src/Makefile, Makefile: split off CM_LIBRARY
