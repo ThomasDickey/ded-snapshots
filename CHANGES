@@ -1,3 +1,9 @@
+1996-03-16  Thomas E. Dickey  <dickey@clark.net>
+
+	* src/version.h: memory leaks, mod to redoVIEW interface.
+
+	* src/dedring.c: oops: must test 'used_expr' before freeing 'scan_expr'
+
 1996-02-26  Thomas E. Dickey  <dickey@clark.net>
 
 	* src/dedring.c: free memory-leak for cmd_sh, scan_expr

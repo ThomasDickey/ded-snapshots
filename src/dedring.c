@@ -3,6 +3,7 @@
  * Author:	T.E.Dickey
  * Created:	27 Apr 1988
  * Modified:
+ *		16 Mar 1996, memory-leak of 'scan_expr'.
  *		26 Feb 1996, memory-leak of 'cmd_sh'.
  *		03 Sep 1995, polished debug-logging
  *		22 Nov 1994, quitVIEW fix.
@@ -52,7 +53,7 @@
 
 #include	"ded.h"
 
-MODULE_ID("$Id: dedring.c,v 12.14 1996/02/26 11:37:20 tom Exp $")
+MODULE_ID("$Id: dedring.c,v 12.15 1996/03/16 19:31:42 tom Exp $")
 
 #define	CMP_PATH(a,b)	pathcmp(a, b->new_wd)
 
@@ -274,7 +275,8 @@ private	void	Remove (
 
 	if ((p = DeLink(path)) != NULL) {
 		dyn_free(p->cmd_sh);
-		OLD_REGEX(p->scan_expr);
+		if (p->used_expr)
+			OLD_REGEX(p->scan_expr);
 		p->flist = dedfree(p->flist, p->numfiles);
 		if (p->top_argv) {
 			if (p->top_argv[0]) {
