@@ -1,3 +1,8 @@
+2000-12-02  Thomas E. Dickey  <dickey@clark.net>
+
+	* src/dedcolor.c:
+	renamed strlcpy() to strlwrcpy() to accommodate bogus function on FreeBSD 4.x
+
 2000-11-01  Thomas E. Dickey  <dickey@clark.net>
 
 	* src/ccodes.rc: resync with sl36
