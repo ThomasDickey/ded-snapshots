@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	sccs_id[] = "@(#)ded.c	1.40 88/08/01 13:46:28";
+static	char	sccs_id[] = "@(#)ded.c	1.44 88/08/02 15:42:15";
 #endif	lint
 
 /*
@@ -7,7 +7,11 @@ static	char	sccs_id[] = "@(#)ded.c	1.40 88/08/01 13:46:28";
  * Author:	T.E.Dickey
  * Created:	09 Nov 1987
  * Modified:
- *		01 Aug 1988, moved Xbase,Ybase to ring-structure.
+ *		02 Aug 1988, show column-scale on workspace marker, permit a
+ *			     repeat-count for left/right scroll.
+ *		01 Aug 1988, moved Xbase,Ybase to ring-structure.  Broke out
+ *			     'dedline.c' module to work on 'X' command here.
+ *			     Implemented a crude split-window command 'X'.
  *		27 Jul 1988, use 'execute()' to parse args, etc., in forkfile.
  *			     modified 'padedit()' to support X-windows.
  *		11 Jul 1988, added '+' mode to sort.
@@ -41,6 +45,7 @@ static	char	sccs_id[] = "@(#)ded.c	1.40 88/08/01 13:46:28";
 #include	"ded.h"
 #include	<sys/signal.h>
 extern	char	*strchr();
+extern	char	*txtalloc();
 
 #ifndef	EDITOR
 #define	EDITOR	"/usr/ucb/vi"
@@ -61,13 +66,27 @@ extern	char	*strchr();
 #endif	SYSTEM5
 #endif	lint
 
+#define	MAXVIEW	2		/* number of viewports */
+
 /*
  * Per-viewport main-module state:
  */
-static	int	Yhead = 0;		/* first line of viewport */
-static	int	is_split;		/* true if screen is split */
+typedef	struct	{
+		int	Yhead;		/* beginning of viewport (row)	*/
+		int	Ybase;		/* beginning of viewport (file)	*/
+		char	*cname;		/* arg for 'findFILE()		*/
+		char	*path;		/* ...so dedring can identify	*/
+	} VIEW;
+
+static	VIEW	viewlist[MAXVIEW];
+
+static	int	Yhead = 0,		/* first line of viewport	*/
+		Ylast,			/* last visible file on screen	*/
+		Ynext;			/* marks end of viewport	*/
+static	int	curview,		/* 0..MAXVIEW			*/
+		maxview;		/* current number of viewports	*/
+
 static	int	Xscroll;		/* amount by which to left/right */
-static	int	Ylast;			/* last visible file on screen */
 static	int	tag_count;		/* number of tagged files */
 
 /*
@@ -99,38 +118,33 @@ sortset(ord,opt)
 	return(FALSE);
 }
 
+/*
+ * Set 'Ylast' as a function of the current viewport and our position in it.
+ * Also, set 'Ynext' to the row number of the first line after the viewport.
+ */
 static
 viewset()
 {
-	Ylast = mark_W + Ybase - (Yhead + 2);
+	register int	j	= curview + 1;
+
+	Ynext	= (j >= maxview) ? mark_W : viewlist[j].Yhead;
+	Ylast	= Ynext + Ybase - (Yhead + 2);
 	if (Ylast >= numfiles)	Ylast = numfiles-1;
 }
 
-static
-portset()
-{
-	if (is_split) {
-		/* Yhead = curfile */
-		/* recompute mark_W */
-	} else {
-		/* set us to use current port's working directory */
-		/* Yhead = 0 */
-		/* recompute mark_W */
-	}
-	/* redisplay screen (to get boundary of current viewport) */
-}
-
-/************************************************************************
- *	public procedures						*
- ************************************************************************/
-
 /*
- * Translate an index into the file-list to a row-number in the screen.
+ * Translate an index into the file-list to a row-number in the screen for the
+ * current viewport.
  */
 int
 file2row(n)
 {
-	return ((n) - Ybase + Yhead + 1);
+	n = ((n - Ybase) + Yhead + 1);
+	if (n < 0 || n >= LINES) {
+		n = 0;		/* patch */
+		beep();
+	}
+	return (n);
 }
 
 /*
@@ -174,7 +188,9 @@ to_work()
  */
 to_file()
 {
-int	code	= ((curfile < Ybase)
+	register int	code;
+	viewset();		/* ensure that Ylast is up to date */
+	code	= ((curfile < Ybase)
 		|| (curfile > Ylast));
 	while (curfile > Ylast)	forward(1);
 	while (curfile < Ybase)	backward(1);
@@ -182,14 +198,21 @@ int	code	= ((curfile < Ybase)
 }
 
 /*
- * Move the workspace marker
+ * Move the workspace marker.  If we are in split-screen mode, also adjust the
+ * length of the current viewport.  Finally, re-display the screen.
  */
 markset(num)
 {
-	mark_W = num;
-	if (mark_W < 2)		mark_W = 2;
-	if (mark_W > LINES-2)	mark_W = LINES-2;
-	viewset();			/* update things dependent */
+	int	adj,
+		lo = (maxview * 2),
+		hi = (LINES-2);
+
+	if (num < lo)	num = lo;
+	if (num > hi)	num = hi;
+	adj = mark_W - num;
+	if (curview < (maxview-1))
+		viewlist[curview+1].Yhead -= adj;
+	mark_W -= adj;
 	(void)to_file();
 	showFILES();
 }
@@ -199,12 +222,12 @@ markset(num)
  */
 realstat(inx)
 {
-register j = flist[inx].s.st_mode;
+register j = xSTAT(inx).st_mode;
 
 #ifndef	SYSTEM5
 	if (isLINK(j)) {
 	struct	stat	sb;
-		j = (stat(flist[inx].name, &sb) >= 0) ? sb.st_mode : 0;
+		j = (stat(xNAME(inx), &sb) >= 0) ? sb.st_mode : 0;
 	}
 #endif	SYSTEM5
 	if (isFILE(j))	return(0);
@@ -282,6 +305,21 @@ char	*msg;
 }
 
 /*
+ * Given the name of a file in the current list, find its index in 'flist[]'.
+ * This is used to reposition after sorting, etc, and uses the feature that
+ * strings in 'txtalloc()' are uniquely determined by their address.
+ */
+findFILE(name)
+char	*name;
+{
+	register int j;
+	for (j = 0; j < numfiles; j++)
+		if (name == xNAME(j))
+			return (j);
+	return (0);			/* give up, set to beginning of list */
+}
+
+/*
  * Move the cursor up/down the specified number of lines, scrolling
  * to a new screen if necessary.
  */
@@ -337,12 +375,29 @@ backward(n)
 {
 	while (n-- > 0) {
 		if (Ybase > 0) {
-			Ybase -= (mark_W - Yhead - 1);
+			Ybase -= (Ynext - Yhead - 1);
 			if (Ybase < 0)	Ybase = 0;
 			viewset();
 		} else
 			break;
 	}
+}
+
+/*
+ * Show, in the viewport-header, where the cursor points (which file, which
+ * path) as well as the current setting of the 'C' command.  If any files are
+ * tagged, show the heading highlighted.
+ */
+showWHAT()
+{
+	static	char	datechr[] = "acm";
+
+	move(Yhead,0);
+	if (tag_count)	standout();
+	printw("%2d of %2d [%ctime] %", curfile+1, numfiles, datechr[dateopt]);
+	printw("%.*s", COLS-((stdscr->_curx)+2), new_wd);
+	if (tag_count)	standend();
+	clrtoeol();
 }
 
 /*
@@ -359,7 +414,7 @@ char	bfr[BUFSIZ];
 		ded2s(j, bfr, sizeof(bfr));
 		if (Xbase < strlen(bfr)) {
 			printw("%.*s", COLS-1, &bfr[Xbase]);
-			if (flist[j].flag) {
+			if (xFLAG(j)) {
 				col = cmdcol[3] - Xbase;
 				len = (COLS-1) - col;
 				if (len > 0) {
@@ -377,24 +432,114 @@ char	bfr[BUFSIZ];
 /*
  * Display all files in the current viewport
  */
-showFILES()
+showVIEW()
 {
-register int j;
+	register int j;
 
 	viewset();		/* set 'Ylast' as function of mark_W */
 
 	for (j = Ybase; j <= Ylast; j++)
 		showLINE(j);
-	for (j = file2row(Ylast+1); j < mark_W; j++) {
+	for (j = file2row(Ylast+1); j < Ynext; j++) {
 		move(j,0);
 		clrtoeol();
 	}
+}
+
+/*
+ * Display all files in the current screen (all viewports), and then show the
+ * remaining stuff on the screen (position in each viewport and workspace
+ * marker).
+ */
+showFILES()
+{
+	register int j, k;
+	char	scale[20];
+
+	for (j = 0; j < maxview; j++) {
+		showVIEW();
+		if (maxview > 1) {
+			if (j) showWHAT();
+			nextVIEW(TRUE);
+		}
+	}
 	move(mark_W,0);
-	for (j = 0; j < COLS - 1; j += 10)
-		printw("%.*s", COLS - j - 1, "----:----+");
+	for (j = 0; j < COLS - 1; j += 10) {
+		k = ((Xbase + j) / 10) + 1;
+		FORMAT(scale, "----+---%d", k > 9 ? k : -k);
+		printw("%.*s", COLS - j - 1, scale);
+	}
 	move(mark_W+1,0);
 	clrtobot();
 	showC();
+}
+
+/*
+ * Open a new viewport by splitting the current one after the current file.
+ */
+static
+openVIEW()
+{
+	if (maxview < MAXVIEW) {
+		saveVIEW();
+		Yhead = maxview ? (file2row(curfile) + 1) : 0;
+		curview = maxview++;	/* patch: no insertion? */
+		saveVIEW();		/* current viewport */
+		markset(mark_W);	/* adjust marker, re-display */
+	} else
+		dedmsg("too many viewports");
+}
+
+/*
+ * Store parameters corresponding to the current viewport
+ */
+static
+saveVIEW()
+{
+	register VIEW *p = &viewlist[curview];
+	p->Yhead = Yhead;
+	p->Ybase = Ybase;
+	p->cname = cNAME;
+}
+
+/*
+ * Close the current viewport, advance to the next one, if available, and show
+ * the new screen contents.
+ */
+static
+quitVIEW()
+{
+	register int j;
+
+	if (maxview > 1) {
+		maxview--;
+		for (j = curview; j < maxview; j++)
+			viewlist[j] = viewlist[j+1];
+		viewlist[0].Yhead = 0;
+		curview--;
+		nextVIEW(FALSE);	/* load current-viewport */
+		showFILES();
+	} else
+		dedmsg("no more viewports to quit");
+}
+
+/*
+ * Switch to the next viewport (do not re-display, this is handled elsewhere)
+ */
+static
+nextVIEW(save)
+{
+	register VIEW *p;
+
+	if (save)
+		saveVIEW();
+	if (++curview >= maxview)
+		curview = 0;
+	p = &viewlist[curview];
+	Yhead	= p->Yhead;
+	Ybase	= p->Ybase;
+	curfile	= findFILE(p->cname);
+	(void)to_file();
 }
 
 #ifdef	Z_RCS_SCCS
@@ -406,7 +551,7 @@ register int j;
 		Z_opt = -1;
 		for (j = 0; j < numfiles; j++)
 			if (!flist[j].z_time) {
-				statSCCS(flist[j].name, &flist[j]);
+				statSCCS(xNAME(j), &flist[j]);
 				blip('*');
 			}
 	}
@@ -418,17 +563,12 @@ register int j;
  */
 showC()
 {
-int	x = cmdcol[2] - Xbase;
-static	char	datechr[] = "acm";
+	register int	x = cmdcol[2] - Xbase;
 
 	if (x < 0)		x = 0;
 	if (x > COLS-1)		x = COLS-1;
-	move(Yhead,0);
-	if (tag_count)	standout();
-	printw("%2d of %2d [%ctime] %", curfile+1, numfiles, datechr[dateopt]);
-	printw("%.*s", COLS-((stdscr->_curx)+2), new_wd);
-	if (tag_count)	standend();
-	clrtoeol();
+
+	showWHAT();
 	markC(FALSE);
 	move(file2row(curfile), x);
 	refresh();
@@ -475,7 +615,7 @@ restat(group)		/* re-'stat()' the current line, and optionally group */
 	register int j;
 		for (j = 0; j < numfiles; j++) {
 			if (j != curfile) {
-				if (flist[j].flag) {
+				if (xFLAG(j)) {
 					statLINE(j);
 					showLINE(j);
 				}
@@ -501,7 +641,7 @@ int	ok;
 	if (ok = dedring(path, cmd, count)) {
 		(void)to_file();
 		for (j = tag_count = 0; j < numfiles; j++)
-			if (flist[j].flag)
+			if (xFLAG(j))
 				tag_count++;
 		showFILES();
 	} else
@@ -534,7 +674,7 @@ char *
 fixname(j)
 {
 static	char	nbfr[BUFSIZ];
-	(void)name2s(nbfr, flist[j].name, sizeof(nbfr), TRUE);
+	(void)name2s(nbfr, xNAME(j), sizeof(nbfr), TRUE);
 	return (nbfr);
 }
 
@@ -544,7 +684,7 @@ static	char	nbfr[BUFSIZ];
  */
 fixtime(j)
 {
-	if (setmtime(flist[j].name, flist[j].s.st_mtime) < 0)	warn("utime");
+	if (setmtime(xNAME(j), xSTAT(j).st_mtime) < 0)	warn("utime");
 }
 
 /*
@@ -661,10 +801,10 @@ char	tpath[BUFSIZ],
 
 	mark_W = (LINES/2);
 	Xbase = Ybase = 0;
-	Xscroll = (COLS/3);
+	Xscroll = (1 + (COLS/4)/10) * 10;
 	dedsort();
 	curfile = 0;
-	showFILES();
+	openVIEW();
 
 	while (!quit) { switch (c = cmdch(&count)) {
 			/* scrolling */
@@ -690,14 +830,15 @@ char	tpath[BUFSIZ],
 			break;
 
 	case ARO_LEFT:	if (Xbase > 0) {
-				Xbase -= Xscroll;
+				if ((Xbase -= Xscroll * count) < 0)
+					Xbase = 0;
 				showFILES();
 			} else
-				beep();
+				dedmsg("already at left margin");
 			break;
 
-	case ARO_RIGHT:	if (Xbase + Xscroll < cmdcol[2]) {
-				Xbase += Xscroll;
+	case ARO_RIGHT:	if (Xbase + (Xscroll * count) < 990) {
+				Xbase += Xscroll * count;
 				showFILES();
 			} else
 				beep();
@@ -718,7 +859,7 @@ char	tpath[BUFSIZ],
 	case '@':	AT_opt= !AT_opt;
 			count = 0;
 			for (j = 0; j < numfiles; j++) {
-				if (flist[j].ltxt)
+				if (xLTXT(j))
 					statLINE(j);
 					count++;
 			}
@@ -781,12 +922,11 @@ char	tpath[BUFSIZ],
 				dedsort();
 				curfile = 0;
 				for (j = 0; j < numfiles; j++)
-					if (!strcmp(flist[j].name, tpath)) {
+					if (!strcmp(xNAME(j), tpath)) {
 						curfile = j;
 						break;
 					}
-				viewset();	/* scroll to current screen */
-				to_file();
+				(void)to_file();
 				showFILES();
 			} else
 				quit = !new_args(strcpy(tpath, new_wd), 'F', 1);
@@ -819,7 +959,7 @@ char	tpath[BUFSIZ],
 				(void)to_file();
 				showFILES();
 			} else
-				beep();
+				dedmsg("unknown sort-key");
 			break;
 
 	case 'C':	if (++dateopt > 2)	dateopt = 0;
@@ -848,7 +988,7 @@ char	tpath[BUFSIZ],
 			break;
 
 	case '_':	for (j = 0; j < numfiles; j++)
-				flist[j].flag = FALSE;
+				xFLAG(j) = FALSE;
 			tag_count = 0;
 			showFILES();
 			break;
@@ -864,7 +1004,7 @@ char	tpath[BUFSIZ],
 			case 'u':	edit_uid();	break;
 			case 'g':	edit_gid();	break;
 			case '=':	editname();	break;
-			default:	beep();
+			default:	dedmsg("no inline command saved");
 			}
 			(void)dedline(FALSE);
 			break;
@@ -944,7 +1084,7 @@ char	tpath[BUFSIZ],
 					showC();
 				}
 			} else
-				beep();
+				dedmsg("not a directory");
 			break;
 
 	case 'F':	/* move forward in directory-ring */
@@ -959,8 +1099,16 @@ char	tpath[BUFSIZ],
 
 			/* patch: not implemented */
 	case 'X':	/* split/join screen (1 or 2 viewports) */
-			is_split = !is_split;
-			portset();
+			if (maxview > 1)	quitVIEW();
+			else			openVIEW();
+			break;
+
+	case '\t':	/* tab to next viewport */
+			if (maxview > 1) {
+				nextVIEW(TRUE);
+				showC();
+			} else
+				dedmsg("no other viewport");
 			break;
 
 	default:	beep();

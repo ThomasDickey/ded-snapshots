@@ -1,6 +1,6 @@
-#ifndef	NO_SCCS_ID
-static	char	sccs_id[] = "@(#)dedscan.c	1.16 88/06/16 09:09:31";
-#endif	NO_SCCS_ID
+#ifndef	lint
+static	char	sccs_id[] = "@(#)dedscan.c	1.18 88/08/02 12:43:05";
+#endif	lint
 
 /*
  * Title:	dedscan.c (stat & scan argument lists)
@@ -47,7 +47,8 @@ char	name[BUFSIZ];
 	}
 
 	numfiles = 0;
-	chdir(strcpy(new_wd,old_wd));
+	if (chdir(strcpy(new_wd,old_wd)) < 0)
+		failed(old_wd);
 	if (argc > 1) {
 		for (j = 0; j < argc; j++)
 			(void)argstat(argv[j], TRUE);
@@ -103,7 +104,7 @@ char	*name;
 register int j;
 
 	for (j = 0; j < numfiles; j++) {
-		if (!strcmp(flist[j].name, name))
+		if (!strcmp(xNAME(j), name))
 			return (j);
 	}
 	return (-1);
@@ -121,9 +122,9 @@ register int j = lookup(name);
 
 	blip('.');
 	if (j >= 0) {
-		name          = flist[j].name;
-		flist[j]      = *f_;
-		flist[j].name = name;
+		name     = xNAME(j);
+		flist[j] = *f_;
+		xNAME(j) = name;
 		return;
 	}
 
@@ -132,8 +133,8 @@ register int j = lookup(name);
 	flist = DOALLOC(FLIST,flist,j);
 
 	Zero(&flist[numfiles]);
-	flist[numfiles]      = *f_;
-	flist[numfiles].name = txtalloc(name);
+	flist[numfiles] = *f_;
+	xNAME(numfiles) = txtalloc(name);
 	numfiles++;
 }
 
@@ -292,7 +293,7 @@ FLIST	*f_;
  */
 statLINE(j)
 {
-int	flag = flist[j].flag;
-	(void)dedstat(flist[j].name, &flist[j]);
-	flist[j].flag = flag;
+	int	flag = xFLAG(j);
+	(void)dedstat(xNAME(j), &flist[j]);
+	xFLAG(j) = flag;
 }

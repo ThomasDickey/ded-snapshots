@@ -1,3 +1,37 @@
+1988-08-02  dickey@software.org
+
+	* src/deddoit.c:
+	mods to avoid clobbering old-command if no new one is given.
+	also, use 'execute()' so we can fix signals there.
+
+	* src/ded.c: ensure that 'to_file()' does its tests after 'viewset()'!
+
+	* src/ded.hlp: adjusted left/right scrolling amount.
+
+	* src/ded.c:
+	column-scale on workspace-marker, use count for left/right scroll.
+
+	* src/dedscan.c: use new def's in "ded.h".
+
+	* src/dedname.c: use new def's in "ded.h"
+
+	* src/dedline.c: use new def's in "ded.h".
+
+	* src/dedfind.c, src/ded.c: use new def's in "ded.h"
+
+	* src/ded.h: added some def's so we needn't use subscripted 'flist[]'.
+
+	* src/deddoit.c: use new def's in "ded.h"
+
+	* src/dedsort.c: use new procedure 'findFILE()'.
+
+	* src/ded.c:
+	implemented a crude split-window toggle (does not always update tags,
+	and inline-commands).  want to modify dedring so that the split-portion is a
+	separate set of data entirely, so this problem will go away -- sort of.
+
+	* src/dedscan.c: lint
+
 1988-08-01  dickey@software.org
 
 	* src/dedline.c: New file.

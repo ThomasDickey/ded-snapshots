@@ -1,6 +1,6 @@
-#ifndef	NO_SCCS_ID
-static	char	sccs_id[] = "@(#)dedsort.c	1.7 88/07/27 11:27:19";
-#endif	NO_SCCS_ID
+#ifndef	lint
+static	char	sccs_id[] = "@(#)dedsort.c	1.8 88/08/02 12:12:25";
+#endif	lint
 
 /*
  * Title:	dedsort.c (ded-sort)
@@ -153,10 +153,7 @@ char	bfr[BUFSIZ];
  */
 dedsort()
 {
-char	*name = flist[curfile].name;
+	char	*name = cNAME;
 	qsort(flist, (int)numfiles, sizeof(FLIST), compare);
-	for (curfile = 0; curfile < numfiles; curfile++)
-		if (!strcmp(flist[curfile].name, name))
-			return;
-	curfile = 0;
+	curfile = findFILE(name);
 }
