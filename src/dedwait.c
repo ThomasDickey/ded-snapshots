@@ -1,5 +1,5 @@
 #if	!defined(NO_IDENT)
-static	char	Id[] = "$Id: dedwait.c,v 12.2 1993/12/01 16:25:44 dickey Exp $";
+static	char	Id[] = "$Id: dedwait.c,v 12.3 1994/06/28 00:18:34 tom Exp $";
 #endif
 
 /*
@@ -44,7 +44,7 @@ public	void	dedwait(
 
 	dlog_flush();
 	do {
-		c = dlog_char((int *)0,0);
+		c = dlog_char(gbl, (int *)0,0);
 	} while	(c != '\n');
 	dlog_comment("%s\n", msg);
 	retouch(gbl,0);

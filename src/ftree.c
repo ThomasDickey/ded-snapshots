@@ -1,5 +1,5 @@
 #if	!defined(NO_IDENT)
-static	char	Id[] = "$Id: ftree.c,v 12.13 1994/06/26 22:18:23 tom Exp $";
+static	char	Id[] = "$Id: ftree.c,v 12.14 1994/06/28 01:04:55 tom Exp $";
 #endif
 
 /*
@@ -187,6 +187,7 @@ static	int	FDdiff,			/* number of changes made	*/
 		savesccs,		/* original state of 'showsccs'	*/
 		showsccs = TRUE;	/* control display of 'sccs'	*/
 static	char	zero[] = ROOT,
+		*caller_top,		/* caller's current directory	*/
 		*gap = zero + (TOP-1);
 static	FTREE	*ftree;			/* array of database entries	*/
 
@@ -1220,6 +1221,47 @@ private	int	is_sccs _ONE(int,node)
 }
 
 /*
+ * Update the cursor position within the tree, given the latest row/column
+ * inputs, and repaint the display as needed.
+ */
+private	int	ft_update (
+		_ARX(RING *,	gbl)
+		_ARX(int,	row)
+		_AR1(int *,	level)
+			)
+		_DCL(RING *,	gbl)
+		_DCL(int,	row)
+		_DCL(int *,	level)
+{
+	auto	 char	cwdpath[MAXPATHLEN];
+	auto	int	c = fd_level(row);
+
+	if (c < *level)
+		*level = c;	/* loosely drag down level */
+	return ft_show(gbl, fd_path(cwdpath,row), caller_top, row, *level);
+}
+
+/*
+ * The window-resizing code is a little crude, since it must have access
+ * to the row/lvl variables of 'ft_view()'.
+ */
+#ifdef	SIGWINCH
+static	RING	*resize_gbl;
+static	int	*resize_row;
+static	int	*resize_lvl;
+
+public	int	ft_resize(_AR0)
+{
+	if (tree_visible) {
+		showdiff = -1;
+		*resize_row = ft_update(resize_gbl, showbase, resize_lvl);
+		return TRUE;
+	}
+	return FALSE;
+}
+#endif
+
+/*
  * Interactively display the directory tree and modify it:
  *	* The return value is used by the coroutine as the next command.
  *	* The argument is overwritten with the name of the new directory
@@ -1246,6 +1288,12 @@ public	RING *	ft_view(
 	register int	j;
 	register char	*s;
 
+#ifdef	SIGWINCH	/* make the row/column visible to signal handler */
+	caller_top = path;
+	resize_gbl = gbl;
+	resize_row = &row;
+	resize_lvl = &lvl;
+#endif
 	*cmdp = 'E';	/* the most common return-value */
 
 	/* Set initial position. This has to be done by assuming the 'path'
@@ -1263,11 +1311,8 @@ public	RING *	ft_view(
 	/* process commands */
 	for (;;) {
 
-		c = fd_level(row);
-		if (c < lvl) lvl = c;	/* loosely drag down level */
-		row = ft_show(gbl, fd_path(cwdpath,row), path, row, lvl);
-
-		switch(c = dlog_char(&num,1)) {
+		row = ft_update(gbl, row, &lvl);
+		switch(c = dlog_char(gbl, &num, 1)) {
 		/* Ordinary cursor movement */
 		case ARO_LEFT:
 		case '\b':

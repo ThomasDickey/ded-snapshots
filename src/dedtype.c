@@ -1,5 +1,5 @@
 #if	!defined(NO_IDENT)
-static	char	Id[] = "$Id: dedtype.c,v 12.9 1994/06/26 22:14:40 tom Exp $";
+static	char	Id[] = "$Id: dedtype.c,v 12.10 1994/06/28 00:17:25 tom Exp $";
 #endif
 
 /*
@@ -608,7 +608,7 @@ public	void	dedtype(
 			jump  = 1;
 
 			reset_catcher();
-			switch (c = dlog_char(&count,1)) {
+			switch (c = dlog_char(gbl, &count,1)) {
 			case CTL('K'):
 				deddump(gbl);
 				break;
