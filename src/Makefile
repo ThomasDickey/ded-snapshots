@@ -1,24 +1,12 @@
-# $Id: Makefile,v 6.0 1990/03/05 11:13:33 ste_cm Rel $
+# $Id: Makefile,v 6.1 1990/04/17 08:33:04 dickey Exp $
 # MAKE-file for directory editor
 #
 # $Log: Makefile,v $
-# Revision 6.0  1990/03/05 11:13:33  ste_cm
-# BASELINE Thu Mar 29 07:37:55 1990 -- maintenance release (SYNTHESIS)
+# Revision 6.1  1990/04/17 08:33:04  dickey
+# suppress .c.a rule to cover up apollo sr10.2 make-bug (ded.c -> ded.a)
 #
-#        Revision 5.4  90/03/05  11:13:33  dickey
-#        cleanup
-#        
-#        Revision 5.3  90/03/02  11:55:00  dickey
-#        separated CFLAGS, INCLUDES, DEFINES defs
-#        
-#        Revision 5.2  90/02/01  12:53:32  dickey
-#        added module 'showpath.c'
-#        
-#        Revision 5.1  89/12/01  13:39:32  dickey
-#        broke 'sortset.c' out of 'ded.c'
-#        
-#        Revision 5.0  89/10/04  11:16:19  ste_cm
-#        BASELINE Fri Oct 27 12:27:25 1989 -- apollo SR10.1 mods + ADA_PITS 4.0
+#        Revision 6.0  90/03/05  11:13:33  ste_cm
+#        BASELINE Thu Mar 29 07:37:55 1990 -- maintenance release (SYNTHESIS)
 #        
 ####### (Environment) ##########################################################
 B	= ../bin
@@ -121,5 +109,7 @@ $(SOURCES):			; $(GET) $@
 lint.out:	$(CSRC)		; $(DATE); tdlint $(LINTOPT) $(CSRC) >>$@
 lincnt.out:	$(CSRC)		; $(DATE); lincnt $(CSRC) >>$@
 
+.SUFFIXES:
+.SUFFIXES: .c .o
 .c.o:
 	$(CC) $(CFLAGS) $(INCLUDES) $(DEFINES) -c $<

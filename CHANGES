@@ -1,3 +1,16 @@
+1990-04-17  dickey@software.org
+
+	* src/ded.c: simplified/corrected code for 'edithead()'
+
+1990-04-17  ste_cm@software.org
+
+	* src/ded.c: BASELINE Mon Apr 30 09:54:01 1990 -- (CPROTO)
+
+1990-04-17  dickey@software.org
+
+	* src/Makefile:
+	suppress .c.a rule to cover up apollo sr10.2 make-bug (ded.c -> ded.a)
+
 1990-03-06  dickey@software.org
 
 	* src/ded.c: lint
