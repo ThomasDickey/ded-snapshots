@@ -1,4 +1,4 @@
-/* @(#)ded.h	1.6 88/04/27 14:18:40 */
+/* @(#)ded.h	1.8 88/05/06 12:57:44 */
 
 /*
  * Created:	09 Nov 1987
@@ -19,10 +19,22 @@ extern	char	*doalloc(),	/* (re)allocate memory		*/
 		*gid2s(),	/* translate gid to string	*/
 		*uid2s();	/* translate uid to string	*/
 
+#ifdef	lint
+#define	DOALLOC(t,p,n)	(t *)0
+#else	lint
+#define	DOALLOC(t,p,n)	(t *)doalloc((char *)p,(n) * sizeof(t))
+#endif	lint
+
+/*
+ * Main difference between SYSTEM5/BSD4.x is the use of sockets & symbolic links
+ */
 #ifndef	S_IFSOCK
 #define	SYSTEM5
 #endif	S_IFSOCK
 
+/*
+ * SYSTEM5/BSD4.x differences for opening/scanning directories:
+ */
 #ifdef	SYSTEM5
 #define	DIR	FILE
 #define	opendir(n)	fopen(n,"r")
@@ -32,7 +44,7 @@ static	struct	direct	dbfr;
 #endif	SYSTEM5
 
 /*
- * Map differences between BSD4.2 and SYSTEM5
+ * Map differences between BSD4.2 and SYSTEM5 runtime libraries:
  */
 #ifdef	SYSTEM5
 extern	void	free(), qsort();
@@ -44,6 +56,25 @@ extern		free(), qsort();
 typedef char	chtype;		/* sys5-curses data-type */
 #define	strchr	index
 #define	strrchr	rindex
+#endif	SYSTEM5
+
+/*
+ * SYSTEM5/BSD4.x differences between regular-expression handling:
+ */
+#ifdef	SYSTEM5
+extern	char	*regcmp(),
+		*regex();
+#define	OLD_REGEX(expr)		if (expr) free(expr)
+#define	NEW_REGEX(expr,pattern)	((expr = regcmp(pattern,0)) != 0)
+#define	GOT_REGEX(expr,string)	(regex(expr, string, 0) != 0)
+#define	BAD_REGEX(expr)		dedmsg("illegal expression")
+#else	SYSTEM5
+extern	char	*re_comp();	/* returns 0 or error message */
+extern	int	re_exec();	/* (return > 0): match */
+#define	OLD_REGEX(expr)
+#define	NEW_REGEX(expr,pattern)	((expr = re_comp(pattern)) == 0)
+#define	GOT_REGEX(expr,string)	(re_exec(string) != 0)
+#define	BAD_REGEX(expr)		dedmsg(expr)
 #endif	SYSTEM5
 
 /*

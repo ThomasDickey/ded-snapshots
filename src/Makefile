@@ -1,4 +1,4 @@
-# @(#)Makefile	1.10 88/05/02 13:24:36
+# @(#)Makefile	1.11 88/05/06 16:15:38
 # MAKE-file for directory editor
 B	= ~/bin
 DED_H   = ded.h ../lib/cmdch.h
@@ -30,6 +30,7 @@ ded.a:	\
 	ded2s.o\
 	ftree.o
 	ar rv $@ $?
+	ranlib $@
 #
 ded.o:	        $(DED_H) ded.c version.h
 deddoit.o:      $(DED_H) deddoit.c

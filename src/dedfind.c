@@ -1,5 +1,5 @@
 #ifndef	NO_SCCS_ID
-static	char	sccs_id[] = "@(#)dedfind.c	1.3 88/03/25 07:05:46";
+static	char	sccs_id[] = "@(#)dedfind.c	1.4 88/05/06 13:25:09";
 #endif	NO_SCCS_ID
 
 /*
@@ -7,6 +7,7 @@ static	char	sccs_id[] = "@(#)dedfind.c	1.3 88/03/25 07:05:46";
  * Author:	T.E.Dickey
  * Created:	18 Nov 1987
  * Modified:
+ *		06 May 1988, portable regex.
  *		25 Mar 1988, use 'rawgets()' for input.
  *
  * Function:	Search ded's display list (files only) for a specified target
@@ -14,15 +15,13 @@ static	char	sccs_id[] = "@(#)dedfind.c	1.3 88/03/25 07:05:46";
  *
  */
 #include	"ded.h"
-extern	char	*re_comp();
-extern	int	re_exec();
 
 dedfind(key)
 {
 int	j,k,
 	found	= FALSE,
 	next	= 0;
-char	text[BUFSIZ], *s;
+static	char	text[BUFSIZ], *expr;
 static	int	order;		/* saves last legal search order */
 
 	if (key == '/' || key == '?') {
@@ -36,30 +35,26 @@ static	int	order;		/* saves last legal search order */
 
 		*text = EOS;
 		rawgets(text,sizeof(text),FALSE);
-		if ((s = re_comp(text)) == 0) {
-			if (key == '/')	order = 1;
-			if (key == '?') order = -1;
-		} else {
-			dedmsg(s);
-			return;
-		}
+		if (key == '/')	order = 1;
+		if (key == '?') order = -1;
 		next = order;
 	} else if (order) {
 		if (key == 'n')	next = order;
 		if (key == 'N')	next = -order;
 	}
 
-	if (next) {	/* we can do a search */
+	OLD_REGEX(expr);
+	if (NEW_REGEX(expr,text)) {
 		for (j = curfile + next; ; j += next) {
 			if (j < 0) {
 				j = numfiles;
 			} else if (j >= numfiles) {
 				j = -1;
-			} else {
-				found = re_exec(flist[j].name);
-				if (flist[j].ltxt != 0)
-					found = re_exec(flist[j].ltxt);
-				if (found)	break;
+			} else if (found = GOT_REGEX(expr,flist[j].name)) {
+				break;
+			} else if (flist[j].ltxt != 0) {
+				if (found = GOT_REGEX(expr,flist[j].ltxt))
+					break;
 			}
 			if (j == curfile)	break;
 		}
@@ -71,11 +66,14 @@ static	int	order;		/* saves last legal search order */
 			else
 				showC();
 		} else {
-			dedmsg("not found");
+		char	msg[BUFSIZ];
+			sprintf(msg, "\"%s\" not found", text);
+			dedmsg(msg);
 			return;
 		}
 	} else {
-		beep();
+		order = 0;
+		BAD_REGEX(expr);
 		showC();
 	}
 }

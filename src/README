@@ -38,3 +38,12 @@ To do:
 	all pathnames via the name_$get_path, this solves that problem at
 	the expense of two others: links are resolved, and the code runs
 	slower.
+
+88/05/06:
+	Repeat count on search (e.g., "/") commands?
+
+	Extra mode in ftree which prevents us from finding inVisible items?
+
+	Gould: have extra "/" in ftree if I do "ded /".
+	Gould: cursor keys do not map correctly from Apollo.
+	Gould: does not use newer convention for daylight-savings time.

@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	sccs_id[] = "@(#)dedring.c	1.5 88/05/05 12:55:37";
+static	char	sccs_id[] = "@(#)dedring.c	1.6 88/05/06 11:04:11";
 #endif	lint
 
 /*
@@ -7,6 +7,8 @@ static	char	sccs_id[] = "@(#)dedring.c	1.5 88/05/05 12:55:37";
  * Author:	T.E.Dickey
  * Created:	27 Apr 1988
  * Modified:
+ *		06 May 1988, added coercion for paths which may contain a
+ *			     symbolic link.
  *		05 May 1988, added 'Q' command.
  *		02 May 1988, fixed repeat count on 'F', 'B' commands.
  *			     Added 'q' command.
@@ -174,7 +176,7 @@ char	bfr[BUFSIZ];
 	 * Make a new entry, using all of the current state except for
 	 * the actual file-list
 	 */
-	p = (RING *)doalloc((char *)0, sizeof(RING));
+	p = DOALLOC(RING,0,1);
 	if (!rang)	rang = p;
 
 	save(p);
@@ -182,7 +184,7 @@ char	bfr[BUFSIZ];
 	if (first) {
 		p->flist    = 0;
 		p->top_argc = 1;
-		p->top_argv = (char **)doalloc((char *)0, 2 * sizeof(char **));
+		p->top_argv = DOALLOC(char *,0, 2);
 		p->top_argv[0] = stralloc(path);
 		p->clr_sh   = FALSE;
 		p->curfile  = 0;
@@ -317,6 +319,8 @@ char	*path;
 {
 RING	*oldp,
 	*newp	= 0;
+int	success	= TRUE;
+char	tmp[BUFSIZ];
 
 	/*
 	 * Save the current state
@@ -348,7 +352,6 @@ RING	*oldp,
 	case 'q':		/* release & move forward */
 		path = new_wd;
 		while (count-- > 0) {
-		char	tmp[BUFSIZ];
 			if ((newp = forward(path)) == oldp)
 				return(FALSE);
 			remove(path);
@@ -358,7 +361,6 @@ RING	*oldp,
 	case 'Q':		/* release & move backward */
 		path = new_wd;
 		while (count-- > 0) {
-		char	tmp[BUFSIZ];
 			if ((newp = backward(path)) == oldp)
 				return(FALSE);
 			remove(path);
@@ -379,20 +381,42 @@ RING	*oldp,
 	if (newp != oldp) {
 		unsave(newp);
 		if (numfiles == 0) {
+#ifndef	SYSTEM5
+			/*
+			 * Coerce translation of pathnames in case part of the
+			 * path was a symbolic link.  We assume that 'getcwd()'
+			 * does the work:
+			 */
+			if (chdir(new_wd) >= 0) {
+				if (strcmp(getcwd(new_wd, sizeof(new_wd)-2),
+						path)) {
+					remove (path);
+					if (!(newp = lookup(new_wd)))
+						newp = insert(new_wd, TRUE);
+					unsave(newp);
+				}
+			} else {
+				success = FALSE;
+			}
+			if (success && numfiles == 0)
+#endif	SYSTEM5
 			if (dedscan(newp->top_argc, newp->top_argv)) {
 				curfile = 0;
 				dedsort();
 				curfile = 0;	/* ensure consistent initial */
 			} else {
+				success	= FALSE;
+			}
+
+			if (!success) {
 				remove (path);
 				unsave(oldp);
 				errno = ENOENT;
 				warn(path);
-				return (FALSE);
 			}
 		}
 	}
-	return (TRUE);
+	return (success);
 }
 
 /*

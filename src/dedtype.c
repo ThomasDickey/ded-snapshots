@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	sccs_id[] = "@(#)dedtype.c	1.6 88/05/02 14:40:25";
+static	char	sccs_id[] = "@(#)dedtype.c	1.7 88/05/06 10:30:12";
 #endif	lint
 
 /*
@@ -144,8 +144,7 @@ int	c,			/* current character */
 
 			if (page > maxpage-2) {
 				maxpage = page + 100;
-				infile = (off_t *)doalloc((char *)infile,
-							maxpage * sizeof(off_t));
+				infile = DOALLOC(off_t,infile, maxpage);
 			}
 			infile[page++] = ftell(fp);
 			while (c = fgetc(fp), !feof(fp)) {
