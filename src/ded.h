@@ -19,7 +19,7 @@
 
 #ifdef	MAIN
 #if	!defined(NO_IDENT)
-static const char ded_h[] = "$Id: ded.h,v 12.65 2004/03/07 22:42:22 tom Exp $";
+static const char ded_h[] = "$Id: ded.h,v 12.66 2004/09/08 00:49:45 tom Exp $";
 #endif
 #endif	/* MAIN */
 
@@ -217,6 +217,7 @@ MAIN	int	tree_visible;	/* denotes filelist vs directory-tree */
 MAIN	int	gets_active;	/* true while in 'dlog_string()' */
 MAIN	HIST	*cmd_history;	/* command-history shared by all filelists */
 MAIN	int	first_scan;	/* true while processing command-line scan */
+MAIN	int	edit_dates;	/* true if we may edit dates */
 
 
 /* *** "boxchars.c" *** */
@@ -325,6 +326,11 @@ extern	void	edit_uid(
 
 extern	void	edit_gid(
 		RING *	gbl);
+
+extern	void	editdate(
+		RING *	gbl,
+		int	current,
+		int	recur);
 
 extern	void	editname(
 		RING *	gbl);
