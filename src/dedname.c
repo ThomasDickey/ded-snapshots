@@ -1,5 +1,5 @@
 #if	!defined(NO_IDENT)
-static	char	Id[] = "$Id: dedname.c,v 12.3 1993/10/29 20:27:00 dickey Exp $";
+static	char	Id[] = "$Id: dedname.c,v 12.4 1993/11/01 18:14:32 dickey Exp $";
 #endif
 
 /*
@@ -7,6 +7,7 @@ static	char	Id[] = "$Id: dedname.c,v 12.3 1993/10/29 20:27:00 dickey Exp $";
  * Author:	T.E.Dickey
  * Created:	11 May 1988
  * Modified:
+ *		01 Nov 1993, Sys5.4 can rename directories.
  *		29 Oct 1993, ifdef-ident
  *		28 Sep 1993, gcc warnings
  *		17 Feb 1992, use 'ring_rename()' to simplify list-renaming.
@@ -35,7 +36,7 @@ int	dedname(
 
 	if (strcmp(strcpy(oldname, gNAME(x)), newname)) {
 		dlog_comment("rename \"%s\" (name=%s)\n", newname, gNAME(x));
-#ifdef	SYSTEM5
+#ifdef	OLD_SYSTEM5
 		if (isFILE(gSTAT(x).st_mode)) {
 			if (link(oldname, newname) < 0) {
 				warn(gbl, newname);

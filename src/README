@@ -1,4 +1,4 @@
-$Id: README,v 12.0 1992/10/09 08:11:55 ste_cm Rel $
+$Id: README,v 12.1 1993/11/01 20:26:16 dickey Exp $
 
 --(TO-DO)----------------------------------------------------------------------
 
@@ -48,3 +48,11 @@ $Id: README,v 12.0 1992/10/09 08:11:55 ste_cm Rel $
 
 	allow environment-variables to be interpreted in the pathnames in
 	ftree jump-commands.
+
+93/11/01:
+	modify 'V'-tree command to accept repeat-count; use this to set
+	visibility to the given level.
+
+	modify to support Sys5-curses (including keypad stuff).
+
+	modify to use mouse in xterm-mode.
