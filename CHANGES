@@ -1,3 +1,9 @@
+1989-11-13  dickey@software.org
+
+	* src/ftree.c:
+	added some error recovery in 'ft_read()' against corrupted
+	".ftree" file (i.e., missing string-heap).
+
 1989-10-31  dickey@software.org
 
 	* src/dedsigs.c: fixed types for 'sun3'

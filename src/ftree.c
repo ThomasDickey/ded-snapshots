@@ -1,14 +1,18 @@
 #ifndef	lint
-static	char	Id[] = "$Id: ftree.c,v 5.0 1989/10/16 09:19:21 ste_cm Rel $";
+static	char	Id[] = "$Id: ftree.c,v 5.1 1989/11/13 14:18:07 dickey Exp $";
 #endif	lint
 
 /*
  * Author:	T.E.Dickey
  * Created:	02 Sep 1987
  * $Log: ftree.c,v $
- * Revision 5.0  1989/10/16 09:19:21  ste_cm
- * BASELINE Fri Oct 27 12:27:25 1989 -- apollo SR10.1 mods + ADA_PITS 4.0
+ * Revision 5.1  1989/11/13 14:18:07  dickey
+ * added some error recovery in 'ft_read()' against corrupted
+ * ".ftree" file (i.e., missing string-heap).
  *
+ *		Revision 5.0  89/10/16  09:19:21  ste_cm
+ *		BASELINE Fri Oct 27 12:27:25 1989 -- apollo SR10.1 mods + ADA_PITS 4.0
+ *		
  *		Revision 4.4  89/10/16  09:19:21  dickey
  *		re-simplified 'ft_stat()' (don't need lstat)
  *		
@@ -700,15 +704,21 @@ char	*home_dir;
 
 		/* (3) string-heap */
 		if ((size -= vecsize) > 0) {
-		char	*heap = doalloc((char *)0, (unsigned)size);
+		char	*heap = doalloc((char *)0, (unsigned)(size+1));
 		register char *s = heap;
 			if (!RDT(heap, size))
 				failed("heap \".ftree\"");
+			s[size] = EOS;
 			for (j = 0; j <= FDlast; j++) {
+				if (*s != EOS && !isprint(*s))
+					failed("? corrupted heap");
 				ftree[j].f_name = txtalloc(s);
 				s += strlen(s) + 1;
 			}
 			dofree(heap);
+		} else {
+			FDlast = 0;	/* try to recover */
+			ftree[0].f_name = txtalloc("");
 		}
 		(void)close(fid);
 #ifdef	DEBUG
