@@ -1,3 +1,79 @@
+1990-05-23  dickey@software.org
+
+	* src/ded.c: corrected bug in 'new_tree()' introduced in last change
+
+1990-05-23  ste_cm@software.org
+
+	* src/ded.c: BASELINE Mon Aug 13 15:06:41 1990 -- LINCNT, ADA_TRANS
+
+1990-05-23  dickey@software.org
+
+	* src/ded.hlp: added CTL/E command for directory
+	corrected omitted 'rcs' where 'sccs' is mentioned
+
+1990-05-23  ste_cm@software.org
+
+	* src/ded.hlp: BASELINE Mon Aug 13 15:06:41 1990 -- LINCNT, ADA_TRANS
+
+1990-05-23  dickey@software.org
+
+	* src/version.h: corrections to edit-link 'E' command (for DSEE)
+	corrections to path-prefix stripping in 'dedscan()'
+	make "-t" option inherit into subprocesses of 'ded'.
+	make CTL(E) command on directories set scan-pattern.
+
+1990-05-23  ste_cm@software.org
+
+	* src/version.h: BASELINE Mon Aug 13 15:06:41 1990 -- LINCNT, ADA_TRANS
+
+1990-05-23  dickey@software.org
+
+	* src/dedring.c:
+	added a missing case to handle 'set_pattern' arg of 'dedring'
+	(when we are using CTL(E) command like CTL(R)).
+
+1990-05-23  ste_cm@software.org
+
+	* src/dedring.c: BASELINE Mon Aug 13 15:06:41 1990 -- LINCNT, ADA_TRANS
+
+1990-05-23  dickey@software.org
+
+	* src/ded.c: allow CTL(E) command from directory-tree as well
+
+	* src/ftree.c:
+	set initial "=>" marker in 'ft_view()' so that caller can
+	give an arbitrary 'path' value (e.g., when error-recovering
+	from 'E' command).  Also, pass CTL(E) command out of 'ft_view()'
+	like 'E' command.
+
+1990-05-23  ste_cm@software.org
+
+	* src/ftree.c: BASELINE Mon Aug 13 15:06:41 1990 -- LINCNT, ADA_TRANS
+
+1990-05-23  dickey@software.org
+
+	* src/dedring.c:
+	modified 'dedring()' so that an initial scan-pattern can be
+	specified, to support the CTL(E) command.
+
+	* src/ftree.c, src/dedname.c: modified interface to 'dedring()'
+
+1990-05-23  ste_cm@software.org
+
+	* src/dedname.c: BASELINE Mon Aug 13 15:06:41 1990 -- LINCNT, ADA_TRANS
+
+1990-05-23  dickey@software.org
+
+	* src/ded.c:
+	modified so that CTL(E) and CTL(V) on a directory will cause
+	a prompt for read-pattern a la CTL(R).
+
+	* src/dedread.c: make the pattern to be set an argument
+
+1990-05-23  ste_cm@software.org
+
+	* src/dedread.c: BASELINE Mon Aug 13 15:06:41 1990 -- LINCNT, ADA_TRANS
+
 1990-05-18  dickey@software.org
 
 	* src/ded.c:
