@@ -1,3 +1,7 @@
+#if	!defined(NO_IDENT)
+static	char	Id[] = "$Id: inline.c,v 12.6 1994/07/02 20:18:35 tom Exp $";
+#endif
+
 /*
  * Title:	inline.c (directory-editor inline editor-strings)
  * Author:	T.E.Dickey
@@ -11,8 +15,6 @@
  */
 
 #include	"ded.h"
-
-MODULE_ID("$Id: inline.c,v 12.7 1994/07/02 20:18:35 tom Exp $")
 
 #define	ITEM	struct	_item
 	ITEM	{

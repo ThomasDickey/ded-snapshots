@@ -1,3 +1,7 @@
+#if	!defined(NO_IDENT)
+static	char	Id[] = "$Id: dedtype.c,v 12.16 1995/07/30 18:01:16 tom Exp $";
+#endif
+
 /*
  * Title:	dedtype.c (type files for ded)
  * Author:	T.E.Dickey
@@ -49,8 +53,6 @@
 
 #define		DIR_PTYPES	/* includes directory-stuff */
 #include	"ded.h"
-
-MODULE_ID("$Id: dedtype.c,v 12.17 1995/07/30 18:01:16 tom Exp $")
 
 #define	def_doalloc	OFF_T_alloc
 	/*ARGSUSED*/

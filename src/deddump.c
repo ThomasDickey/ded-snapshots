@@ -1,3 +1,7 @@
+#if	!defined(NO_IDENT)
+static	char	Id[] = "$Id: deddump.c,v 12.2 1994/07/02 20:01:12 tom Exp $";
+#endif
+
 /*
  * Title:	deddump.c (dump ded's screen)
  * Author:	T.E.Dickey
@@ -12,8 +16,6 @@
  */
 
 #include	"ded.h"
-
-MODULE_ID("$Id: deddump.c,v 12.3 1994/07/02 20:01:12 tom Exp $")
 
 public	void	deddump (
 	_AR1(RING *,	gbl))

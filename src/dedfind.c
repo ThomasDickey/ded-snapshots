@@ -1,3 +1,7 @@
+#if	!defined(NO_IDENT)
+static	char	Id[] = "$Id: dedfind.c,v 12.7 1994/06/30 23:41:36 tom Exp $";
+#endif
+
 /*
  * Title:	dedfind.c (find item in ded's file list)
  * Author:	T.E.Dickey
@@ -21,8 +25,6 @@
  *
  */
 #include	"ded.h"
-
-MODULE_ID("$Id: dedfind.c,v 12.8 1994/06/30 23:41:36 tom Exp $")
 
 public	void	dedfind(
 	_ARX(RING *,	gbl)

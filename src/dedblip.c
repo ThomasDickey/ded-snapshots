@@ -1,3 +1,7 @@
+#if	!defined(NO_IDENT)
+static	char	Id[] = "$Id: dedblip.c,v 12.4 1993/11/23 18:40:30 dickey Exp $";
+#endif
+ 
 /*
  * Title:	dedblip.c
  * Author:	T.E.Dickey
@@ -12,8 +16,6 @@
  */
 #include "ded.h"
 
-MODULE_ID("$Id: dedblip.c,v 12.5 1993/11/23 18:40:30 tom Exp $")
- 
 #define	L_PAREN '('
 #define	R_PAREN ')'
 

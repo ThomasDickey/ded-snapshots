@@ -1,3 +1,7 @@
+#if	!defined(NO_IDENT)
+static	char	Id[] = "$Id: sortset.c,v 12.8 1995/07/30 18:02:42 tom Exp $";
+#endif
+
 /*
  * Title:	sortset.c (set sort-parms)
  * Author:	T.E.Dickey
@@ -19,8 +23,6 @@
  */
 
 #include	"ded.h"
-
-MODULE_ID("$Id: sortset.c,v 12.9 1995/07/30 18:02:42 tom Exp $")
 
 public	char	sortc[128];
 

@@ -1,3 +1,7 @@
+#if	!defined(NO_IDENT)
+static	char	Id[] = "$Id: dedscan.c,v 12.21 1995/09/03 20:14:00 tom Exp $";
+#endif
+
 /*
  * Title:	dedscan.c (stat & scan argument lists)
  * Author:	T.E.Dickey
@@ -81,8 +85,6 @@
 #include	"cmv_defs.h"
 #include	"rcsdefs.h"
 #include	"sccsdefs.h"
-
-MODULE_ID("$Id: dedscan.c,v 12.22 1995/09/03 20:14:00 tom Exp $")
 
 #define	def_doalloc	FLIST_alloc
 	/*ARGSUSED*/

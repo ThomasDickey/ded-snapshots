@@ -1,3 +1,7 @@
+#if	!defined(NO_IDENT)
+static	char	Id[] = "$Id: restat.c,v 12.2 1994/07/02 20:19:06 tom Exp $";
+#endif
+
 /*
  * Title:	restat.c ('stat()' and display procedures)
  * Author:	T.E.Dickey
@@ -9,8 +13,6 @@
  */
 
 #include	"ded.h"
-
-MODULE_ID("$Id: restat.c,v 12.3 1994/07/02 20:19:06 tom Exp $")
 
 /*
  * re-'stat()' the current line, and optionally group

@@ -1,3 +1,7 @@
+#if	!defined(NO_IDENT)
+static	char	Id[] = "$Id: dedfree.c,v 12.1 1993/10/29 20:27:01 dickey Exp $";
+#endif
+
 /*
  * Title:	dedfree.c (free ded's main structure)
  * Author:	T.E.Dickey
@@ -12,8 +16,6 @@
  */
 
 #include	"ded.h"
-
-MODULE_ID("$Id: dedfree.c,v 12.2 1993/10/29 20:27:01 tom Exp $")
 
 FLIST *
 dedfree(

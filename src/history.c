@@ -1,3 +1,7 @@
+#if	!defined(NO_IDENT)
+static	char	Id[] = "$Id: history.c,v 12.5 1994/10/05 23:44:53 tom Exp $";
+#endif
+
 /*
  * Title:	history.c
  * Author:	T.E.Dickey
@@ -15,8 +19,6 @@
  */
 
 #include "ded.h"
-
-MODULE_ID("$Id: history.c,v 12.6 1994/10/05 23:44:53 tom Exp $")
 
 #define	def_alloc	HIST_alloc
 	/*ARGSUSED*/

@@ -1,3 +1,7 @@
+#if	!defined(NO_IDENT)
+static	char	Id[] = "$Id: dedline.c,v 12.14 1995/09/03 19:39:36 tom Exp $";
+#endif
+
 /*
  * Title:	dedline.c (directory-editor inline editing)
  * Author:	T.E.Dickey
@@ -51,8 +55,6 @@
  */
 
 #include	"ded.h"
-
-MODULE_ID("$Id: dedline.c,v 12.15 1995/09/03 19:39:36 tom Exp $")
 
 #define	CHMOD(n)	(gSTAT(n).st_mode & 07777)
 #define	OWNER(n)	((geteuid() == 0) || (gSTAT(x).st_uid == geteuid()))
