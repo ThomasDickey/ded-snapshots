@@ -1,5 +1,5 @@
 #if	!defined(NO_IDENT)
-static	char	Id[] = "$Header: /users/source/archives/ded.vcs/src/RCS/ded.c,v 12.10 1993/12/02 17:16:28 dickey Exp $";
+static	char	Id[] = "$Header: /users/source/archives/ded.vcs/src/RCS/ded.c,v 12.11 1994/04/27 22:42:48 tom Exp $";
 #endif
 
 /*
@@ -7,6 +7,7 @@ static	char	Id[] = "$Header: /users/source/archives/ded.vcs/src/RCS/ded.c,v 12.1
  * Author:	T.E.Dickey
  * Created:	09 Nov 1987
  * Modified:
+ *		26 Apr 1994, provided sys5-like defaults for EDITOR, etc.
  *		23 Nov 1993, new blip-code.
  *		19 Nov 1993, added xterm-mouse support.
  *		01 Nov 1993, port to HP/UX.
@@ -148,16 +149,34 @@ static	char	Id[] = "$Header: /users/source/archives/ded.vcs/src/RCS/ded.c,v 12.1
 #include	<signal.h>
 #include	<errno.h>
 
-#ifndef	EDITOR
-#define	EDITOR	"/usr/ucb/vi"
-#endif
+#ifdef	SYSTEM5	/* e.g., linux */
 
-#ifndef	BROWSE
-#define	BROWSE	"/usr/ucb/view"
-#endif
+# ifndef	EDITOR
+# define	EDITOR	"/usr/bin/vi"
+# endif
 
-#ifndef	PAGER
-#define	PAGER	"/usr/ucb/more"
+# ifndef	BROWSE
+# define	BROWSE	"/usr/bin/view"
+# endif
+
+# ifndef	PAGER
+# define	PAGER	"/bin/more"
+# endif
+
+#else
+
+# ifndef	EDITOR
+# define	EDITOR	"/usr/ucb/vi"
+# endif
+
+# ifndef	BROWSE
+# define	BROWSE	"/usr/ucb/view"
+# endif
+
+# ifndef	PAGER
+# define	PAGER	"/usr/ucb/more"
+# endif
+
 #endif
 
 #define	COMPLEMENT(opt) (opt) = !(opt)

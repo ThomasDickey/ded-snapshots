@@ -1,3 +1,9 @@
+1994-04-27  Thomas E. Dickey  <dickey@clark.net>
+
+	* src/ded.c:
+	provided sys5-like defaults for EDITOR, other environment variables
+	(really do need a configure-script)
+
 1994-04-26  Thomas E. Dickey  <dickey@clark.net>
 
 	* src/ded.h:
