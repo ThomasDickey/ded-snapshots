@@ -3,7 +3,7 @@
 
 #ifdef	MAIN
 #ifndef	lint
-static	char	*ded_h = "$Id: ded.h,v 10.48 1992/04/07 15:49:04 dickey Exp $";
+static	char	*ded_h = "$Id: ded.h,v 10.50 1992/04/08 11:55:29 dickey Exp $";
 #endif
 #endif	/* MAIN */
 
@@ -489,11 +489,14 @@ extern	void	showFILES(
 extern	void	openVIEW(
 		_ar1(RING *,	gbl));
 
+extern	void	redoVIEW(
+		_ar1(RING *,	gbl));
+
 extern	void	scrollVIEW(
 		_arx(RING *,	gbl)
 		_ar1(int,	count));
 
-extern	void	splitVIEW(
+extern	RING *	splitVIEW(
 		_ar1(RING *,	gbl));
 
 extern	void	top2VIEW(
@@ -502,7 +505,7 @@ extern	void	top2VIEW(
 extern	void	showC(
 		_ar1(RING *,	gbl));
 
-extern	void	tab2VIEW(
+extern	RING *	tab2VIEW(
 		_ar1(RING *,	gbl));
 
 extern	void	markC(

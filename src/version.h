@@ -1,13 +1,22 @@
 /*
- * $Id: version.h,v 10.4 1992/02/28 10:49:34 dickey Exp $
+ * $Id: version.h,v 11.0 1992/04/08 13:17:04 ste_cm Rel $
  * Version-identifier for DED
  * $Log: version.h,v $
- * Revision 10.4  1992/02/28 10:49:34  dickey
- * (except for 'dlog.c') modified so that shell commands &
- * substitution are done on dynamic-strings, allowing them to
- * be very long. show ellipsis if "#" substitution is longer
- * than 256-chars.
+ * Revision 11.0  1992/04/08 13:17:04  ste_cm
+ * BASELINE Thu Jul 16 09:39:01 1992 -- EBPM4 support
  *
+ *		Revision 10.5  92/04/08  13:17:04  dickey
+ *		restructured so that there is not nearly as much global data.
+ *		This allowed me to complete the split-screen operations,
+ *		even making the two viewports have independent (nearly)
+ *		filelists.
+ *		
+ *		Revision 10.4  92/02/28  10:49:34  dickey
+ *		(except for 'dlog.c') modified so that shell commands &
+ *		substitution are done on dynamic-strings, allowing them to
+ *		be very long. show ellipsis if "#" substitution is longer
+ *		than 256-chars.
+ *		
  *		Revision 10.3  92/02/17  15:05:55  dickey
  *		make directory-renaming work properly by renaming file-lists
  *		as well.
@@ -239,4 +248,4 @@
  * 01 Dec 1987, added '*', '^' commands, made '%' refresh screen
  * 25 Nov 1987, added sccs-support (V,z,Z toggles, V,z,Z sorts)
  */
-static	char	version[] = "$Date: 1992/02/28 10:49:34 $";
+static	char	version[] = "$Date: 1992/04/08 13:17:04 $";

@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	Id[] = "$Id: dedview.c,v 10.11 1992/04/07 16:46:43 dickey Exp $";
+static	char	Id[] = "$Id: dedview.c,v 11.0 1992/04/08 12:57:18 ste_cm Rel $";
 #endif
 
 /*
@@ -17,12 +17,23 @@ static	char	Id[] = "$Id: dedview.c,v 10.11 1992/04/07 16:46:43 dickey Exp $";
 #define	MINLIST	2		/* minimum length of file-list + header */
 #define	MINWORK	3		/* minimum size of work-area */
 
+#define	FILE2ROW(v,n)		(((n) - (v)->base_file) + (v)->base_row + 1)
+#define	FILE_VISIBLE(v,n)	((n) >= (v)->base_file && (n) <= (v)->last_file)
+
+#ifdef	TEST
+#define	TRACE(s)	dlog_comment s;
+#else
+#define	TRACE(s)
+#endif
+
 /*
  * Per-viewport main-module state:
  */
 typedef	struct	{
-		int	Yhead;		/* beginning of viewport (row)	*/
-		int	Ybase;		/* beginning of viewport (file)	*/
+		int	base_row;	/* beginning of viewport (row)	*/
+		int	base_file;	/* beginning of viewport (file)	*/
+		int	last_row;	/* next-viewport (row)		*/
+		int	last_file;	/* end of viewport (file)	*/
 		int	curfile;	/* ...save for 'tab2VIEW()'	*/
 		RING	*gbl;		/* ...so dedring can identify	*/
 	} VIEW;
@@ -30,10 +41,6 @@ typedef	struct	{
 static	VIEW	viewlist[MAXVIEW],
 		*vue = viewlist;
 
-static	int	Yhead = 0,		/* first line of viewport	*/
-		Ybase,			/* first visible file on screen	*/
-		Ylast,			/* last visible file on screen	*/
-		Ynext;			/* marks end of viewport	*/
 static	int	curview,		/* 0..MAXVIEW			*/
 		maxview;		/* current number of viewports	*/
 
@@ -46,52 +53,71 @@ static	int	curview,		/* 0..MAXVIEW			*/
  */
 private	void	save_view _ONE(RING *,gbl)
 {
-	vue = &viewlist[curview];
-	vue->Yhead = Yhead;
-	vue->Ybase = Ybase;
-	vue->curfile = gbl->curfile;
-	vue->gbl   = gbl;
+	register VIEW *p = &viewlist[curview];
+	p->curfile = gbl->curfile;
+	p->gbl   = gbl;
 }
 
 /*
- * Set 'Ylast' as a function of the current viewport and our position in it.
- * Also, set 'Ynext' to the row number of the first line after the viewport.
+ * Set 'last_file' as a function of the current viewport and our position in it.
+ * Also, set 'last_row' to the row number of the first line after the viewport.
  */
 private	void	setup_view _ONE(RING *,gbl)
 {
 	register int	j	= curview + 1;
 
-	Ynext	= (j >= maxview) ? mark_W : viewlist[j].Yhead;
-	Ylast	= Ynext + Ybase - (Yhead + MINLIST);
-	if (Ylast >= gbl->numfiles)	Ylast = gbl->numfiles - 1;
+	vue->last_row = (j >= maxview)
+		? mark_W
+		: viewlist[j].base_row;
+
+	vue->last_file = vue->last_row
+		+ vue->base_file
+		- (vue->base_row + MINLIST);
+
+	if (vue->last_file >= gbl->numfiles)
+		vue->last_file = gbl->numfiles - 1;
+
+	TRACE(("setup_view for port %d cur %d base(%d:%d) last(%d:%d)\n",
+		vue-viewlist,
+		gbl->curfile,
+		vue->base_row, vue->base_file,
+		vue->last_row, vue->last_file))
 }
 
 /*
  * Switch to the next viewport (do not re-display, this is handled elsewhere)
  */
-private	void	next_view(
-	_ARX(RING *,	gbl)
-	_AR1(int,	save)
-		)
-	_DCL(RING *,	gbl)
-	_DCL(int,	save)
+private	void	next_view (_AR0)
 {
-	if (save)
-		save_view(gbl);
 	if (++curview >= maxview)
 		curview = 0;
 	vue = &viewlist[curview];
-	Yhead	= vue->Yhead;
-	Ybase	= vue->Ybase;
-	gbl->curfile = vue->curfile;
-	(void)to_file(gbl);
+	vue->gbl->curfile = vue->curfile;
+	(void)to_file(vue->gbl);
+}
+
+/*
+ * Validates (sort of) RING-struct for the current viewport.  If I cannot
+ * change directories to that, try to go forward.
+ */
+private	RING *	ring_view (_AR0)
+{
+	RING	*gbl = vue->gbl;
+
+	while (chdir(gbl->new_wd) < 0)
+		if (gbl = dedring(gbl, gbl->new_wd, 'F', 1, FALSE, (char *)0))
+			save_view(gbl);
+		else
+			break;
+
+	return gbl;
 }
 
 /*
  * Close the current viewport, advance to the next one, if available, and show
  * the new screen contents.
  */
-private	void	quit_view _ONE(RING *,gbl)
+private	RING *	quit_view _ONE(RING *,gbl)
 {
 	register int j;
 
@@ -99,12 +125,57 @@ private	void	quit_view _ONE(RING *,gbl)
 		maxview--;
 		for (j = curview; j < maxview; j++)
 			viewlist[j] = viewlist[j+1];
-		viewlist[0].Yhead = 0;
-		vue = viewlist + --curview;
-		next_view(gbl,FALSE);	/* load current-viewport */
-		showFILES(gbl,FALSE,TRUE);
+		viewlist[0].base_row = 0;
+		curview--;
+		next_view();	/* load current-viewport */
+		if (ring_view())
+			showFILES(vue->gbl,FALSE,TRUE);
 	} else
 		dedmsg(gbl, "no more viewports to quit");
+	return vue->gbl;
+}
+
+/*
+ * Display the given line.  If it is tagged, highlight the name.
+ */
+private	void	show_line(
+	_ARX(VIEW *,	vp)
+	_AR1(int,	j)
+		)
+	_DCL(VIEW *,	vp)
+	_DCL(int,	j)
+{
+	RING *	gbl = vp->gbl;
+	int	col,
+		line,
+		len;
+	char	bfr[BUFSIZ];
+
+	if (FILE_VISIBLE(vp,j)) {
+		line = FILE2ROW(vp,j),
+		move(line,0);
+		ded2s(gbl, j, bfr, sizeof(bfr));
+		if (gbl->Xbase < strlen(bfr)) {
+			PRINTW("%.*s", COLS-1, &bfr[gbl->Xbase]);
+			if (gFLAG(j)) {
+				col = gbl->cmdcol[CCOL_NAME] - gbl->Xbase;
+				len = (COLS-1) - col;
+				if (len > 0) {
+					int	adj = gbl->cmdcol[CCOL_NAME];
+					if (col < 0) {
+						adj -= col;
+						col  = 0;
+						len  = COLS-1;
+					}
+					move(line, col);
+					standout();
+					PRINTW("%.*s", len, &bfr[adj]);
+					standend();
+				}
+			}
+		}
+		clrtoeol();
+	}
 }
 
 /*
@@ -114,14 +185,38 @@ private	void	show_view _ONE(RING *,gbl)
 {
 	register int j;
 
-	setup_view(gbl);	/* set 'Ylast' as function of mark_W */
+	setup_view(gbl);
 
-	for (j = Ybase; j <= Ylast; j++)
-		showLINE(gbl, j);
-	for (j = file2row(Ylast+1); j < Ynext; j++) {
+	for (j = vue->base_file; j <= vue->last_file; j++)
+		show_line(vue, j);
+	for (j = file2row(vue->last_file+1); j < vue->last_row; j++) {
 		move(j,0);
 		clrtoeol();
 	}
+}
+
+/*
+ * Update the number-of-files-tagged display in the given viewport header
+ */
+private	void	show_what _ONE(VIEW *,vp)
+{
+	auto	RING *	gbl = vp->gbl;
+	static	char	datechr[] = "acm";
+
+	move(vp->base_row,0);
+	if (gbl->tag_count)	standout();
+	PRINTW("%2d of %2d [%ctime] ",
+		gbl->curfile + 1,
+		gbl->numfiles,
+		datechr[gbl->dateopt]);
+	if (gbl->tag_opt)
+		PRINTW("(%d files, %d %s) ",
+			gbl->tag_count,
+			(gbl->tag_opt > 1) ? gbl->tag_bytes : gbl->tag_blocks,
+			(gbl->tag_opt > 1) ? "bytes"   : "blocks");
+	showpath(gbl->new_wd, 999, -1, 0);
+	if (gbl->tag_count)	standend();
+	clrtoeol();
 }
 
 /*
@@ -134,9 +229,10 @@ private	void	forward(
 	_DCL(RING *,	gbl)
 	_DCL(int,	n)
 {
+	setup_view(gbl);
 	while (n-- > 0) {
-		if (Ylast < (gbl->numfiles - 1)) {
-			Ybase = Ylast + 1;
+		if (vue->last_file < (gbl->numfiles - 1)) {
+			vue->base_file = vue->last_file + 1;
 			setup_view(gbl);
 		} else
 			break;
@@ -150,10 +246,12 @@ private	void	backward(
 	_DCL(RING *,	gbl)
 	_DCL(int,	n)
 {
+	setup_view(gbl);
 	while (n-- > 0) {
-		if (Ybase > 0) {
-			Ybase -= (Ynext - Yhead - 1);
-			if (Ybase < 0)	Ybase = 0;
+		if (vue->base_file > 0) {
+			vue->base_file -= (vue->last_row - vue->base_row - 1);
+			if (vue->base_file < 0)
+				vue->base_file = 0;
 			setup_view(gbl);
 		} else
 			break;
@@ -171,7 +269,7 @@ private	void	backward(
  */
 public	int	file2row _ONE(int,n)
 {
-	return ((n - Ybase) + Yhead + 1);
+	return FILE2ROW(vue,n);
 }
 
 /*
@@ -185,7 +283,7 @@ public	int	move2row(
 	_DCL(int,	n)
 	_DCL(int,	col)
 {
-	if (n >= Ybase && n <= Ylast) {
+	if (FILE_VISIBLE(vue,n)) {
 		move(file2row(n), col);
 		return (TRUE);
 	}
@@ -224,11 +322,19 @@ public	void	to_work(
 public	int	to_file _ONE(RING *,gbl)
 {
 	register int	code;
-	setup_view(gbl);		/* ensure that Ylast is up to date */
-	code	= ((gbl->curfile < Ybase)
-		|| (gbl->curfile > Ylast));
-	while (gbl->curfile > Ylast)	forward(gbl, 1);
-	while (gbl->curfile < Ybase)	backward(gbl, 1);
+
+	TRACE(("to_file\n"))
+	setup_view(gbl);
+
+	code = !FILE_VISIBLE(vue, gbl->curfile);
+
+	while (gbl->curfile > vue->last_file)
+		forward(gbl, 1);
+
+	while (gbl->curfile < vue->base_file)
+		backward(gbl, 1);
+
+	TRACE(("...done to_file:%d\n", code))
 	return(code);
 }
 
@@ -261,33 +367,35 @@ public	void	markset(
 	_DCL(int,	num)
 	_DCL(int,	reset_work)
 {
-	int	lo = (Yhead + MINLIST * (maxview - curview)),
+	int	lo = (vue->base_row + MINLIST * (maxview - curview)),
 		hi = (LINES - MINWORK);
 
-	if (num < lo)	num = lo;
+	if (num < lo)
+		num = lo;
 
 	if (curview < (maxview-1)) {	/* not the last viewport */
-		int	next_W = viewlist[curview+1].Yhead;
+		int	next_W = viewlist[curview+1].base_row;
 		if (num > hi) {		/* multiple-adjust */
 			mark_W = hi;
 			next_W += (num - hi);
 			if (curview < (maxview-2))
-				hi = viewlist[curview+2].Yhead;
+				hi = viewlist[curview+2].base_row;
 			hi -= MINLIST;
 			if (next_W > hi)
 				next_W = hi;
-		} else if (Yhead + MINLIST <= (hi = next_W + (num - mark_W))) {
+		} else if (vue->base_row + MINLIST
+			<= (hi = next_W + (num - mark_W))) {
 			next_W = hi;
 			mark_W = num;
 		}
-		viewlist[curview+1].Yhead = next_W;
+		viewlist[curview+1].base_row = next_W;
 	} else {			/* in the last viewport */
 		if (num > hi)	num = hi;
 		mark_W = num;
 	}
 
 	(void)to_file(gbl);
-	showFILES(gbl,FALSE,reset_work);
+	showFILES(gbl, FALSE, reset_work);
 }
 
 /*
@@ -302,9 +410,12 @@ public	void	upLINE(
 	_DCL(int,	n)
 {
 	gbl->curfile -= n;
-	if (gbl->curfile < 0)		gbl->curfile = 0;
-	if (gbl->curfile < Ybase) {
-		while (gbl->curfile < Ybase)	backward(gbl, 1);
+	if (gbl->curfile < 0)
+		gbl->curfile = 0;
+
+	if (gbl->curfile < vue->base_file) {
+		while (gbl->curfile < vue->base_file)
+			backward(gbl, 1);
 		showFILES(gbl,FALSE,FALSE);
 	} else
 		showC(gbl);
@@ -318,9 +429,13 @@ public	void	downLINE(
 	_DCL(int,	n)
 {
 	gbl->curfile += n;
-	if (gbl->curfile >= gbl->numfiles)	gbl->curfile = gbl->numfiles-1;
-	if (gbl->curfile > Ylast) {
-		while (gbl->curfile > Ylast)	forward(gbl, 1);
+
+	if (gbl->curfile >= gbl->numfiles)
+		gbl->curfile = gbl->numfiles-1;
+
+	if (gbl->curfile > vue->last_file) {
+		while (gbl->curfile > vue->last_file)
+			forward(gbl, 1);
 		showFILES(gbl,FALSE,FALSE);
 	} else
 		showC(gbl);
@@ -346,22 +461,15 @@ public	int	showDOWN _ONE(RING *,gbl)
  */
 public	void	showWHAT _ONE(RING *,gbl)
 {
-	static	char	datechr[] = "acm";
+	auto	int	save = vue->curfile = gbl->curfile;
+	register int	j;
 
-	move(Yhead,0);
-	if (gbl->tag_count)	standout();
-	PRINTW("%2d of %2d [%ctime] ",
-		gbl->curfile + 1,
-		gbl->numfiles,
-		datechr[gbl->dateopt]);
-	if (gbl->tag_opt)
-		PRINTW("(%d files, %d %s) ",
-			gbl->tag_count,
-			(gbl->tag_opt > 1) ? gbl->tag_bytes : gbl->tag_blocks,
-			(gbl->tag_opt > 1) ? "bytes"   : "blocks");
-	showpath(gbl->new_wd, 999, -1, 0);
-	if (gbl->tag_count)	standend();
-	clrtoeol();
+	for (j = 0; j < maxview; j++)
+		if (viewlist[j].gbl == gbl) {
+			gbl->curfile = viewlist[j].curfile;
+			show_what(&viewlist[j]);
+		}
+	gbl->curfile = save;
 }
 
 /*
@@ -369,37 +477,20 @@ public	void	showWHAT _ONE(RING *,gbl)
  */
 public	void	showLINE(
 	_ARX(RING *,	gbl)
-	_AR1(int,	j)
+	_AR1(int,	inx)
 		)
 	_DCL(RING *,	gbl)
-	_DCL(int,	j)
+	_DCL(int,	inx)
 {
-	int	col, len;
-	char	bfr[BUFSIZ];
+	auto	int	save = vue->curfile = gbl->curfile;
+	register int	j;
 
-	if (move2row(j,0)) {
-		ded2s(gbl, j, bfr, sizeof(bfr));
-		if (gbl->Xbase < strlen(bfr)) {
-			PRINTW("%.*s", COLS-1, &bfr[gbl->Xbase]);
-			if (gFLAG(j)) {
-				col = gbl->cmdcol[CCOL_NAME] - gbl->Xbase;
-				len = (COLS-1) - col;
-				if (len > 0) {
-					int	adj = gbl->cmdcol[CCOL_NAME];
-					if (col < 0) {
-						adj -= col;
-						col  = 0;
-						len  = COLS-1;
-					}
-					(void)move2row(j, col);
-					standout();
-					PRINTW("%.*s", len, &bfr[adj]);
-					standend();
-				}
-			}
+	for (j = 0; j < maxview; j++)
+		if (viewlist[j].gbl == gbl) {
+			gbl->curfile = viewlist[j].curfile;
+			show_line(&viewlist[j], inx);
 		}
-		clrtoeol();
-	}
+	gbl->curfile = save;
 }
 
 /*
@@ -432,17 +523,21 @@ public	void	showFILES(
 	_DCL(int,	reset_cols)
 	_DCL(int,	reset_work)
 {
+	auto	int	current = curview;
 	register int j;
 
+	TRACE(("showFILES(%s,%d,%d)\n", gbl->new_wd, reset_cols, reset_work))
 	if (reset_cols)
 		for (j = 0; j < CCOL_MAX; j++)
 			gbl->cmdcol[j] = 0;
 
+	save_view(gbl);
 	for (j = 0; j < maxview; j++) {
-		show_view(gbl);
+		show_view(vue->gbl);
 		if (maxview > 1) {
-			if (j) showWHAT(gbl);
-			next_view(gbl,TRUE);
+			if (vue->gbl != viewlist[current].gbl)
+				show_what(vue);
+			next_view();
 		}
 	}
 	showMARK(gbl->Xbase);
@@ -451,6 +546,7 @@ public	void	showFILES(
 		clrtobot();
 	}
 	showC(gbl);
+	TRACE(("...done showFILES\n"))
 }
 
 /*
@@ -459,23 +555,41 @@ public	void	showFILES(
 public	void	openVIEW _ONE(RING *,gbl)
 {
 	if (maxview < MAXVIEW) {
+		int	adj,
+			r_head;
+
 		save_view(gbl);
 		if (maxview) {
-			int	adj	= (Yhead = file2row(gbl->curfile) + 1)
-					- (mark_W - MINLIST);
+			adj	= (r_head = file2row(gbl->curfile) + 1)
+				- (mark_W - MINLIST);
+
 			if (adj > 0) {
 				if (mark_W + adj < (LINES - MINWORK))
 					mark_W += adj;
 				else
-					Yhead -= adj;
+					r_head -= adj;
 			}
 		} else
-			Yhead = 0;
+			r_head = 0;
+
 		curview = maxview++;	/* patch: no insertion? */
+		vue = &viewlist[curview];
+		vue->base_row = r_head;
+
 		save_view(gbl);		/* current viewport */
 		markset(gbl, mark_W,TRUE);	/* adjust marker, re-display */
 	} else
 		dedmsg(gbl, "too many viewports");
+}
+
+/*
+ * Record instance in which main program switches to a new RING-struct for the
+ * current viewport.
+ */
+public	void	redoVIEW _ONE(RING *,gbl)
+{
+	TRACE(("redoVIEW %s => %s\n", vue->gbl->new_wd, gbl->new_wd))
+	save_view(gbl);
 }
 
 /*
@@ -489,17 +603,17 @@ public	void	scrollVIEW(
 	_DCL(int,	count)
 {
 	if (count >= 0) {
-		if (Ylast == (gbl->numfiles-1))
-			gbl->curfile = Ylast;
+		if (vue->last_file == (gbl->numfiles-1))
+			gbl->curfile = vue->last_file;
 		else {
 			forward(gbl, count);
-			gbl->curfile = Ybase;
+			gbl->curfile = vue->base_file;
 		}
 	} else {
-		if (gbl->curfile > Ybase)
+		if (gbl->curfile > vue->base_file)
 			count++;
 		backward(gbl, -count);
-		gbl->curfile = Ybase;
+		gbl->curfile = vue->base_file;
 	}
 
 	showFILES(gbl,FALSE,FALSE);
@@ -508,10 +622,11 @@ public	void	scrollVIEW(
 /*
  * Toggle between split- and full-view
  */
-public	void	splitVIEW _ONE(RING *,gbl)
+public	RING *	splitVIEW _ONE(RING *,gbl)
 {
-	if (maxview > 1)	quit_view(gbl);
+	if (maxview > 1)	gbl = quit_view(gbl);
 	else			openVIEW(gbl);
+	return gbl;
 }
 
 /*
@@ -520,7 +635,7 @@ public	void	splitVIEW _ONE(RING *,gbl)
 public	void	top2VIEW _ONE(RING *,gbl)
 {
 	if (baseVIEW(gbl) != gbl->curfile) {
-		Ybase = gbl->curfile;
+		vue->base_file = gbl->curfile;
 		showFILES(gbl,FALSE,FALSE);
 	}
 }
@@ -544,13 +659,16 @@ public	void	showC _ONE(RING *,gbl)
 /*
  * Move cursor to the "other" view.
  */
-public	void	tab2VIEW _ONE(RING *,gbl)
+public	RING *	tab2VIEW _ONE(RING *,gbl)
 {
+	save_view(gbl);
 	if (maxview > 1) {
-		next_view(gbl,TRUE);
-		showC(gbl);
+		next_view();
+		if (ring_view())
+			showC(vue->gbl);
 	} else
 		dedmsg(gbl, "no other viewport");
+	return vue->gbl;
 }
 
 /*
@@ -577,7 +695,7 @@ public	void	markC(
  */
 public	int	baseVIEW _ONE(RING *,gbl)
 {
-	return Ybase;
+	return vue->base_file;
 }
 
 /*
@@ -585,5 +703,5 @@ public	int	baseVIEW _ONE(RING *,gbl)
  */
 public	int	lastVIEW _ONE(RING *,gbl)
 {
-	return Ylast;
+	return vue->last_file;
 }
