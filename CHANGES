@@ -1,3 +1,22 @@
+2000-11-01  Thomas E. Dickey  <dickey@clark.net>
+
+	* src/ccodes.rc: resync with sl36
+
+	* aclocal.m4: fix path-lookup with CF_PROG_EXT
+
+	* aclocal.m4: added CF_LIB_PREFIX dependency
+
+	* aclocal.m4: add CF_LIB_PREFIX and CF_PATHSEP
+	got this to build on OS/2 EMX
+
+	* src/ftree.c:
+	oops - I had left caller_top not initialized if SIGWINCH was not defined.
+	it's not defined on OS/2 EMX
+
+	* src/ccodes.rc: add 'ansi' to list of color terminals
+
+	* configure.in: use CF_LIB_PREFIX
+
 2000-10-19  Thomas E. Dickey  <dickey@clark.net>
 
 	* user/ded.man: typo
