@@ -1,3 +1,7 @@
+2000-12-23  Thomas E. Dickey  <dickey@clark.net>
+
+	* src/ccodes.rc: add qansi-m
+
 2000-12-02  Thomas E. Dickey  <dickey@clark.net>
 
 	* src/dedcolor.c:
