@@ -1,3 +1,10 @@
+1991-10-21  ste_cm@software.org
+
+	* src/ded.h:
+	added an unused member at the beginning of FLIST (next) that
+	is there to fool the optimizer of Apollo CC 6.7 into working
+	properly.
+
 1991-10-18  ste_cm@software.org
 
 	* src/dedscan.c:

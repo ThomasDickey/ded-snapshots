@@ -3,7 +3,7 @@
 
 #ifdef	MAIN
 #ifndef	lint
-static	char	*ded_h = "$Id: ded.h,v 9.8 1991/10/18 10:19:48 dickey Exp $";
+static	char	*ded_h = "$Id: ded.h,v 9.9 1991/10/21 15:31:52 ste_cm Exp $";
 #endif
 #endif	/* MAIN */
 
@@ -88,7 +88,8 @@ extern	int	re_exec();	/* (return > 0): match */
  * We store an array of FLIST structures to describe all files which can
  * be displayed in a given viewport.  This is denoted the 'display list'.
  */
-typedef	struct	{
+typedef	struct	_flist	{
+	struct	_flist	*next;
 	char		*name;	/* name (within working-directory)	*/
 	char		*ltxt;	/* what link resolves to		*/
 	struct	stat	s;	/* stat()-block				*/
