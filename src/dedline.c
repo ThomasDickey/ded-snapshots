@@ -1,5 +1,5 @@
 #if	!defined(NO_IDENT)
-static	char	Id[] = "$Id: dedline.c,v 12.11 1994/07/23 23:15:47 tom Exp $";
+static	char	Id[] = "$Id: dedline.c,v 12.12 1995/01/07 01:40:33 tom Exp $";
 #endif
 
 /*
@@ -443,7 +443,7 @@ public	void	editprot (
 			break;
 		default:
 			if (c >= '0' && c <= '7') {
-			int	shift = 6 - (x * rwx);
+			int	shift = 6 - (x * 3);
 				sb->st_mode &= ~(7      << shift);
 				sb->st_mode |= ((c-'0') << shift);
 				if (x < 2)

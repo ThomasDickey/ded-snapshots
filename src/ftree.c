@@ -1,5 +1,5 @@
 #ifndef	NO_IDENT
-static	char	Id[] = "$Id: ftree.c,v 12.34 1994/12/16 13:35:56 tom Exp $";
+static	char	Id[] = "$Id: ftree.c,v 12.36 1995/01/28 19:19:51 tom Exp $";
 #endif
 
 /*
@@ -978,6 +978,7 @@ private	int	ft_show(
 	node = limits(showbase, node);
 	k = FDdiff || (savesccs != showsccs);
 	PRINTW("path: ");
+	dlog_comment("path: %s\n", path);
 	showpath(path, level, -1, k ? 5 : 0);
 	clrtoeol();
 	if (k) {	/* show W-command if we have pending diffs */
@@ -1062,11 +1063,7 @@ private	int	ft_show(
 					chtype	*fill = (k != 1)
 							? bar_space
 							: bar_hline;
-#if HAVE_ADDCHNSTR
 					addchnstr(fill, len);
-#else
-					PRINTW(fmt, len, fill);
-#endif
 					move(row-1, LEN_MARK + (count+1-k) * BAR_WIDTH);
 					limit -= len;
 				}

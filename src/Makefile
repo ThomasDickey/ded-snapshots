@@ -1,4 +1,4 @@
-# $Id: Makefile,v 12.10 1994/07/16 22:36:06 tom Exp $
+# $Id: Makefile,v 12.11 1995/01/28 23:28:06 tom Exp $
 # MAKE-file for directory editor
 
 THIS	= ded
@@ -90,8 +90,8 @@ MAIN_O	= $(THIS).o $Z
 all\
 install:	$B $(SOURCES) $(ALL)
 
-clean:				; rm -f $(CLEAN) $Z
-clobber:	clean		; rm -f $(ALL)
+clean:				; - $(RM) $(CLEAN) $Z
+clobber:	clean		; - $(RM) $(ALL)
 destroy:			; $(DESTROY)
 run_test:
 sources:	$(SOURCES)
@@ -113,6 +113,5 @@ $Z(ftree.o):	$(RCSDEFS_H) $(SCCSDEFS_H)
 
 ####### (Development) ##########################################################
 $(SOURCES):			; $(GET) $@
-lint.out:	$(CSRC)		; $(DATE); tdlint $(LINTOPTS) $(CSRC) >>$@
-lincnt.out:	$(CSRC)		; $(DATE); lincnt $(CSRC) >>$@
-tags:		$(CSRC)		; dotags $(CSRC)
+lint.out:	$(CSRC)		; $(DATE); $(LINT) $(LINTOPTS) $(CSRC) >>$@
+tags:		$(CSRC)		; $(CTAGS) $(CSRC)
