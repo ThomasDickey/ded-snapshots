@@ -1,3 +1,24 @@
+1988-08-17  dickey@software.org
+
+	* src/ded.c: tuning beep's in 'waitmsg()' so we have only one...
+
+	* src/dedscan.c: use 'waitmsg()' when we don't know how we are called!
+
+	* src/dedline.c:
+	moved extern-def for erasechar(), killchar() to "ptypes.h".
+
+	* src/ded.hlp: added repeat-count to 'W' and 'l' file-list commands.
+
+	* src/Makefile: use 'copy' to install, not 'cp'.
+
+	* src/version.h: new version.
+
+	* src/dedtype.c: test error return from 'fseek()'; lint.
+
+	* src/ded.c: added repeat-count to 'W' and 'l' commands.
+
+	* src/README: obsoleted more notes.
+
 1988-08-16  dickey@software.org
 
 	* src/README: *** empty log message ***

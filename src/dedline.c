@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	sccs_id[] = "@(#)dedline.c	1.7 88/08/15 09:42:25";
+static	char	sccs_id[] = "@(#)dedline.c	1.8 88/08/17 09:45:34";
 #endif	lint
 
 /*
@@ -18,7 +18,6 @@ static	char	sccs_id[] = "@(#)dedline.c	1.7 88/08/15 09:42:25";
 
 #include	"ded.h"
 extern	char	*fixname();
-extern	char	erasechar(), killchar();
 
 static	int	re_edit;		/* flag for 'edittext()' */
 static	char	lastedit[BUFSIZ];	/* command-stream for 'edittext()' */

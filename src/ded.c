@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	sccs_id[] = "@(#)ded.c	1.50 88/08/12 09:30:07";
+static	char	sccs_id[] = "@(#)ded.c	1.52 88/08/17 16:03:24";
 #endif	lint
 
 /*
@@ -7,6 +7,7 @@ static	char	sccs_id[] = "@(#)ded.c	1.50 88/08/12 09:30:07";
  * Author:	T.E.Dickey
  * Created:	09 Nov 1987
  * Modified:
+ *		17 Aug 1988, added repeat (sleep) count to 'W', 'l'.
  *		12 Aug 1988, apollo sys5 environment permits symbolic links.
  *			     Added 'd' (directory-order) sort.
  *		04 Aug 1988, added debug-option.
@@ -255,7 +256,7 @@ dedmsg(msg)
 char	*msg;
 {
 	move(LINES-1,0);
-	printw("** %s", msg);
+	PRINTW("** %s", msg);
 	clrtoeol();
 	showC();
 }
@@ -266,7 +267,7 @@ char	*msg;
 extern	int	errno;
 extern	char	*sys_errlist[];
 	move(LINES-1,0);
-	printw("** %s: %s", msg, sys_errlist[errno]);
+	PRINTW("** %s: %s", msg, sys_errlist[errno]);
 	clrtoeol();
 	showC();
 }
@@ -281,13 +282,14 @@ char	*msg;
 {
 	if (msg) {
 		move(LINES-1,0);
-		printw("** %s", msg);
+		PRINTW("** %s", msg);
 		clrtoeol();
 	}
 	move(LINES-1,0);
 	refresh();
 	beep();
 	(void)cmdch((int *)0);	/* pause beside error message */
+	clrtoeol();		/* ...and clear it after pause */
 }
 
 /*
@@ -398,8 +400,8 @@ showWHAT()
 
 	move(Yhead,0);
 	if (tag_count)	standout();
-	printw("%2d of %2d [%ctime] %", curfile+1, numfiles, datechr[dateopt]);
-	printw("%.*s", COLS-((stdscr->_curx)+2), new_wd);
+	PRINTW("%2d of %2d [%ctime] %", curfile+1, numfiles, datechr[dateopt]);
+	PRINTW("%.*s", COLS-((stdscr->_curx)+2), new_wd);
 	if (tag_count)	standend();
 	clrtoeol();
 }
@@ -417,14 +419,14 @@ char	bfr[BUFSIZ];
 		move(k,0);
 		ded2s(j, bfr, sizeof(bfr));
 		if (Xbase < strlen(bfr)) {
-			printw("%.*s", COLS-1, &bfr[Xbase]);
+			PRINTW("%.*s", COLS-1, &bfr[Xbase]);
 			if (xFLAG(j)) {
 				col = cmdcol[3] - Xbase;
 				len = (COLS-1) - col;
 				if (len > 0) {
 					move(k, col);
 					standout();
-					printw("%.*s", len, &bfr[cmdcol[3]]);
+					PRINTW("%.*s", len, &bfr[cmdcol[3]]);
 					standend();
 				}
 			}
@@ -471,7 +473,7 @@ showFILES()
 	for (j = 0; j < COLS - 1; j += 10) {
 		k = ((Xbase + j) / 10) + 1;
 		FORMAT(scale, "----+---%d", k > 9 ? k : -k);
-		printw("%.*s", COLS - j - 1, scale);
+		PRINTW("%.*s", COLS - j - 1, scale);
 	}
 	move(mark_W+1,0);
 	clrtobot();
@@ -641,6 +643,45 @@ restat(group)		/* re-'stat()' the current line, and optionally group */
 	showC();
 }
 
+restat_l()
+{
+	restat(TRUE);
+}
+
+restat_W()
+{
+	register int j;
+	for (j = Ybase; j <= Ylast; j++)
+		statLINE(j);
+	showFILES();
+}
+
+/*
+ * Process the given function in a repeat-loop which is interruptable.
+ */
+resleep(count,func)
+int	(*func)();
+{
+	register int	interrupted = 1,
+			last	= count;
+
+	while (count-- > 1) {
+		move(LINES-1,0);
+		PRINTW("...waiting (%d of %d) ...", last-count, last);
+		clrtoeol();
+		(*func)();
+		sleep(3);
+		if (interrupted = dedsigs(TRUE))
+			break;
+	}
+	move(LINES-1,0);
+	clrtoeol();		/* clear off the waiting-message */
+	if (interrupted)
+		(*func)();
+	else
+		showC();
+}
+
 /*
  * Use the 'dedring()' module to switch to a different file-list
  */
@@ -658,8 +699,7 @@ int	ok;
 			if (xFLAG(j))
 				tag_count++;
 		showFILES();
-	} else
-		beep();
+	}
 	(void)chdir(new_wd);
 	return (ok);
 }
@@ -675,7 +715,6 @@ char	*path;
 	if (new_args(path, cmd, count))
 		return (TRUE);
 	(void)strcpy(path, new_wd);
-	waitmsg((char *)0);
 	return (FALSE);
 }
 
@@ -949,9 +988,7 @@ char	tpath[BUFSIZ],
 			break;
 
 	case 'W':	/* re-stat window */
-			for (j = Ybase; j <= Ylast; j++)
-				statLINE(j);
-			showFILES();
+			resleep(count,restat_W);
 			break;
 
 	case 'w':	/* refresh window */
@@ -959,7 +996,7 @@ char	tpath[BUFSIZ],
 			break;
 
 	case 'l':	/* re-stat line */
-			restat(TRUE);
+			resleep(count,restat_l);
 			break;
 
 	case ' ':	/* clear workspace */
@@ -1091,6 +1128,7 @@ char	tpath[BUFSIZ],
 
 	case 'E':	/* enter new directory on ring */
 			if (realstat(curfile) == 1) {
+				markC(TRUE);
 				if (!new_args(strcat(
 						strcat(
 							strcpy(tpath, new_wd),

@@ -2,14 +2,10 @@ To do:
 -----
   Provide help from within workarea pager.
 
-  Do better error diagnostics.
-
   Make spawned processes inherit options from current one
 
   Use SHELL environment variable & bldargs() so we needn't
   go thru 'system()' call (which always goes thru /bin/sh).
-
-  Integrate 'padedit()' error messages with 'ded'.
 
 88/05/03:
 	ft_insert does not check for apollo links such as /usr/lib mapping
@@ -21,8 +17,6 @@ To do:
 
 88/05/06:
 	Repeat count on search (e.g., "/") commands?
-
-	Gould: does not use newer convention for daylight-savings time.
 
 88/05/10:
 	There is a hole: if I resize in ftree, the unsavewin() may
@@ -62,10 +56,6 @@ To do:
 	Should add an 'o'/'O' command to create new files in the list so we
 	don't have to do a rescan to get them.
 
-88/06/02:
-	np1-port, found that 'putchar()' usage in blip, beep causes warning
-	about comparison with an unsigned.
-
 88/06/10:
 	should escape '[' in system-commands.
 
@@ -80,11 +70,6 @@ To do:
 	'beep()' and 'blip()' write to stderr, which is not necessarily good.
 	should try to use 'curses' internal routine to send characters, or
 	write to stderr.  I saw beep clobber an escape sequence on the gould.
-
-88/08/12:
-	should add a repeat-count (interruptable) to 'l' and 'W' commands,
-	which would cause a periodic refresh of the selected items (time
-	interval?).
 
 88/08/16:
 	In ftree, if I do a repeated 'q' or 'Q' command which exceeds the
