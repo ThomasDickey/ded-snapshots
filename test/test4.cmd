@@ -35,7 +35,7 @@
 \R\R\R\R\R\R\R\R\R\R\R\R\R\L\L\t\b\b\b\b\b\bfirst\n
 	# after  "junk/first/file2"
 1cL	# before "junk/first/file2"
-\F\b\b\b\b\b\F\t\b\b\b\b\b\b\b\b\b\b\bfile3\n
+\F\L\L\L\L\L\F\t\b\b\b\b\b\b\b\b\b\b\bfile3\n
 	# after  "junk/file3"
 1p444p	# chmod 444 junk/file3
 1si

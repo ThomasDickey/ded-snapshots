@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	what[] = "$Id: dlog.c,v 11.31 1992/09/02 12:16:30 dickey Exp $";
+static	char	what[] = "$Id: dlog.c,v 12.0 1992/09/04 15:05:50 ste_cm Rel $";
 #endif
 
 /*
@@ -579,28 +579,83 @@ public	void	dlog_name _ONE(char *,name)
 public	void	dlog_comment(va_alist)
 	va_dcl
 {
+	static	DYN	*msg, *tmp;
 	auto	va_list	args;
 	auto	char	*fmt;
+	auto	char	buffer[BUFSIZ],
+			Fmt[BUFSIZ];
 
-	if (log_fp) {
-		PENDING(comment,FALSE);
-		FPRINTF(log_fp, "\t# ");
-		va_start(args);
-		fmt = va_arg(args, char *);
-#if	defined(gould) || defined(GOULD_PN)
-		{
-#define	MAXARG	10
-			register int	n = nargs(),
-					j = 1;
-			auto	 long	v[MAXARG];
+	if (!log_fp)
+		return;
 
-			while (j < n)
-				v[j++] = va_arg(args, long);
-			FPRINTF(log_fp, fmt, v[1], v[2], v[3], v[4]);
-		}
-#else	/* VFPRINTF */
-		(void)vfprintf(log_fp, fmt, args);
-#endif	/* !VFPRINTF/VFPRINTF */
-		va_end(args);
+	PENDING(comment,FALSE);
+	FPRINTF(log_fp, "\t# ");
+	va_start(args);
+	fmt = va_arg(args, char *);
+
+	dyn_init(&msg,1);
+
+	while (*fmt) {
+		register int c = *fmt++;
+		if (c == '%' && *fmt == '%') {
+			msg = dyn_append_c(msg, *fmt++);
+		} else if (c == '%') {
+			register char	*dst	= Fmt;
+			int	is_long	= FALSE;
+
+			*dst++ = c;
+			do {
+				if ((c = *fmt++) == '*') {
+					FORMAT(dst, "%d", va_arg(args, int));
+					dst += strlen(dst);
+				} else {
+					*dst++ = c;
+					if (c == 'l') {
+						is_long = TRUE;
+						continue;
+					}
+				}
+			} while ((c == 'l') || !isalpha(c));
+			*dst = EOS;
+
+			switch (c) {
+			case 'f':
+			case 'e': case 'E':
+			case 'g': case 'G':
+				FORMAT(buffer, Fmt, va_arg(args, double));
+				break;
+			case 's':
+				dst = va_arg(args, char *);
+				dyn_init(&tmp,1);
+
+				if (!dst)
+					dst = "<null>";
+				while (c = *dst++) {
+					c = toascii(c);
+					if (c == '\n' && *fmt == EOS)
+						;	/* fix for ctime */
+					else if (!isprint(c)) {
+						tmp = dyn_append_c(tmp,'^');
+						if (c == '\177')
+							c = '?';
+						else
+							c |= '@';
+					}
+					tmp = dyn_append_c(tmp, c);
+				}
+				FORMAT(buffer, Fmt, dyn_string(tmp));
+				break;
+			default:	/* c, d, i, o, p, u, x, X */
+				if (is_long)
+					FORMAT(buffer, Fmt, va_arg(args, long));
+				else
+					FORMAT(buffer, Fmt, va_arg(args, int));
+				break;
+			}
+			msg = dyn_append(msg, buffer);
+		} else
+			msg = dyn_append_c(msg, c);
 	}
+	va_end(args);
+	FPRINTF(log_fp, "%s", dyn_string(msg));
 }
