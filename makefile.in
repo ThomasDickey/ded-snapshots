@@ -1,0 +1,79 @@
+# $Id: makefile.in,v 12.3 1997/09/12 23:36:25 tom Exp $
+# Top-level make-file for DED
+
+SHELL		= /bin/sh
+@SET_MAKE@
+
+THIS	= ded
+
+@make_include_left@@TD_LIB_rules@/td_lib.mk@make_include_right@
+
+####### (Standard Lists) #######################################################
+
+prefix		= @prefix@
+exec_prefix	= @exec_prefix@
+bindir		= @bindir@
+srcdir		= @srcdir@
+
+SOURCES	= \
+	makefile.in \
+	COPYING\
+	README
+
+MFILES	= \
+	certify/makefile.in \
+	src/makefile.in \
+	test/makefile.in \
+	user/makefile.in 
+
+DIRS	= \
+		bin
+
+RM		= -rm -f
+CLEAN		= *.bak *.log *.out *.tst .nfs* core
+PURE		= stamp-* config_h *.cache *.status
+
+####### (Standard Productions) #################################################
+
+all::		$(DIRS) $(SOURCES)
+sources::	$(SOURCES)
+
+all\
+clean\
+distclean\
+run_test\
+sources::	$(MFILES)
+	cd certify &&	$(MAKE) $(MAKE_OPTS) $@
+	cd src &&	$(MAKE) $(MAKE_OPTS) $@
+	cd test &&	$(MAKE) $(MAKE_OPTS) $@
+	cd user &&	$(MAKE) $(MAKE_OPTS) $@
+
+lint.out\
+lincnt.out:	$(MFILES)
+	cd src &&	$(MAKE) $(MAKE_OPTS) $@
+
+clean\
+distclean::
+	$(RM) $(CLEAN)
+distclean::
+	$(RM) $(PURE)
+	$(RM) -r $(DIRS)
+	$(RM) */makefile
+	$(RM) makefile
+
+install::	bin/$(THIS)
+	$(INSTALL_PROGRAM) -m 755 bin/$(THIS) $(bindir)
+	$(INSTALL_DATA) bin/$(THIS).hlp $(bindir)
+
+deinstall::
+	$(RM) $(bindir)/$(THIS)
+	$(RM) $(bindir)/$(THIS).hlp
+
+install\
+deinstall::
+	cd user &&	$(MAKE) $(MAKE_OPTS) $@ INSTALL_MAN=`cd ..;cd $(INSTALL_MAN);pwd`
+
+####### (Details of Productions) ###############################################
+
+$(DIRS):			; $(srcdir)/mkdirs.sh $@
+bin/$(THIS):	all

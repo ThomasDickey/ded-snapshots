@@ -1,13 +1,17 @@
-MANIFEST for ded, version t19970911
+MANIFEST for ded, version t19970912
 --------------------------------------------------------------------------------
 MANIFEST                        this file
 COPYING                         copyright notice for DED
 README                          brief description of DED
+aclocal.m4                      macros for DED configure script
+configure.in                    template for DED configure script
 install-sh                      install script
+makefile.in                     template for ./makefile
 mkdirs.sh                       script to make directory-hierarchy
 certify                         subdirectory
 certify/README                  brief description of DED
 certify/config.txt              configuration requirements for DED
+certify/makefile.in             template for certify/makefile
 certify/release.txt             release history for DED
 src                             subdirectory
 src/README                      to-do list for DED
@@ -45,6 +49,8 @@ src/dlog.c                      logging functions
 src/ftree.c                     directory-tree for DED
 src/history.c                   save/restore history records
 src/inline.c                    split out from 'dedline.c' so I can rewrite the memory-management of the
+src/makefile.in                 template for src/makefile
+src/modules                     modules for ded.a
 src/rcfile.c                    DED ".dedrc" file processing
 src/restat.c                    split off restat-stuff from 'ded.c'
 src/showpath.c                  encapsulates display of long pathnames for 'ded' and 'ftree', using
@@ -54,6 +60,7 @@ test                            subdirectory
 test/README                     read-me file for the ded/test directory
 test/edittest.sed               sed-script for 'edittest.sh'
 test/edittest.sh                edits test-log to simplify comparison
+test/makefile.in                template for test/makefile
 test/run_test.sh                regression-test script for unix directory-editor
 test/test1.cmd                  test-script for unix directory-editor
 test/test2.cmd                  test-script for unix directory-editor
@@ -63,3 +70,4 @@ test/test5.cmd                  test-case for inline/history stuff
 test/walkback.sh                uses debugger to get a walkback, if core'd
 user                            subdirectory
 user/ded.man                    user manual for DED
+user/makefile.in                template for user/makefile

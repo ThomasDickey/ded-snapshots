@@ -1,3 +1,18 @@
+1997-09-12  Thomas E. Dickey  <dickey@clark.net>
+
+	* aclocal.m4: initial cut of CF_SRC_MAKEFILES
+
+	* configure.in: add hooks to generate src/makefile
+
+	* makefile.in: first cut of restructuring
+
+1997-09-11  Thomas E. Dickey  <dickey@clark.net>
+
+	* makefile.in: add distclean rule
+
+	* aclocal.m4, user/makefile.in, src/makefile.in, certify/makefile.in, makefile.in, configure.in, test/makefile.in, src/modules:
+	RCS_BASE
+
 1997-09-07  Thomas E. Dickey  <dickey@clark.net>
 
 	* mkdirs.sh, install-sh: RCS_BASE
