@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	Id[] = "$Header: /users/source/archives/ded.vcs/src/RCS/ded.c,v 10.3 1992/03/30 11:15:59 dickey Exp $";
+static	char	Id[] = "$Header: /users/source/archives/ded.vcs/src/RCS/ded.c,v 10.6 1992/04/01 16:27:48 dickey Exp $";
 #endif
 
 /*
@@ -7,6 +7,7 @@ static	char	Id[] = "$Header: /users/source/archives/ded.vcs/src/RCS/ded.c,v 10.3
  * Author:	T.E.Dickey
  * Created:	09 Nov 1987
  * Modified:
+ *		01 Apr 1992, convert most global variables to RING-struct.
  *		30 Mar 1992, corrected highlighting of long, shifted lines.
  *		28 Feb 1992, convert shell-command to dynamic-string.
  *		21 Nov 1991, make 'tag_opt' public to use in dedring.
@@ -153,11 +154,13 @@ static	char	Id[] = "$Header: /users/source/archives/ded.vcs/src/RCS/ded.c,v 10.3
 #define	PAGER	"/usr/ucb/more"
 #endif
 
-#define	needSCCS(c)	(!Z_opt && (strchr("vyZz",c) != 0))
+#define	needSCCS(c)	(!FOO->Z_opt && (strchr("vyZz",c) != 0))
 
 #define	MAXVIEW	2		/* number of viewports */
 #define	MINLIST	2		/* minimum length of file-list + header */
 #define	MINWORK	3		/* minimum size of work-area */
+
+#define	COMPLEMENT(opt) (opt) = !(opt)
 
 int	debug	= FALSE;	/* generic debug-flag */
 int	no_worry = -1;		/* don't prompt on quit */
@@ -229,7 +232,7 @@ viewset(_AR0)
 
 	Ynext	= (j >= maxview) ? mark_W : viewlist[j].Yhead;
 	Ylast	= Ynext + Ybase - (Yhead + MINLIST);
-	if (Ylast >= numfiles)	Ylast = numfiles-1;
+	if (Ylast >= FOO->numfiles)	Ylast = FOO->numfiles - 1;
 }
 
 #ifdef	S_IFLNK
@@ -347,17 +350,17 @@ to_file(_AR0)
 {
 	register int	code;
 	viewset();		/* ensure that Ylast is up to date */
-	code	= ((curfile < Ybase)
-		|| (curfile > Ylast));
-	while (curfile > Ylast)	forward(1);
-	while (curfile < Ybase)	backward(1);
+	code	= ((FOO->curfile < Ybase)
+		|| (FOO->curfile > Ylast));
+	while (FOO->curfile > Ylast)	forward(1);
+	while (FOO->curfile < Ybase)	backward(1);
 	return(code);
 }
 
 scroll_to_file _ONE(int,inx)
 {
-	if (curfile != inx) {
-		curfile = inx;
+	if (FOO->curfile != inx) {
+		FOO->curfile = inx;
 		if (to_file())
 			showFILES(FALSE,TRUE);
 		else
@@ -545,7 +548,7 @@ _DCL(int,	ok)
 findFILE _ONE(char *,name)
 {
 	register int j;
-	for (j = 0; j < numfiles; j++)
+	for (j = 0; j < FOO->numfiles; j++)
 		if (name == xNAME(j))
 			return (j);
 	return (0);			/* give up, set to beginning of list */
@@ -557,10 +560,10 @@ findFILE _ONE(char *,name)
  */
 upLINE _ONE(int,n)
 {
-	curfile -= n;
-	if (curfile < 0)		curfile = 0;
-	if (curfile < Ybase) {
-		while (curfile < Ybase)	backward(1);
+	FOO->curfile -= n;
+	if (FOO->curfile < 0)		FOO->curfile = 0;
+	if (FOO->curfile < Ybase) {
+		while (FOO->curfile < Ybase)	backward(1);
 		showFILES(FALSE,FALSE);
 	} else
 		showC();
@@ -568,10 +571,10 @@ upLINE _ONE(int,n)
 
 downLINE _ONE(int,n)
 {
-	curfile += n;
-	if (curfile >= numfiles)	curfile = numfiles-1;
-	if (curfile > Ylast) {
-		while (curfile > Ylast)	forward(1);
+	FOO->curfile += n;
+	if (FOO->curfile >= FOO->numfiles)	FOO->curfile = FOO->numfiles-1;
+	if (FOO->curfile > Ylast) {
+		while (FOO->curfile > Ylast)	forward(1);
 		showFILES(FALSE,FALSE);
 	} else
 		showC();
@@ -579,9 +582,9 @@ downLINE _ONE(int,n)
 
 showDOWN(_AR0)
 {
-	showLINE(curfile);
+	showLINE(FOO, FOO->curfile);
 	dlog_name(cNAME);
-	if (curfile < numfiles-1)
+	if (FOO->curfile < FOO->numfiles - 1)
 		downLINE(1);
 	else {
 		showC();
@@ -596,7 +599,7 @@ showDOWN(_AR0)
 forward _ONE(int,n)
 {
 	while (n-- > 0) {
-		if (Ylast < (numfiles-1)) {
+		if (Ylast < (FOO->numfiles - 1)) {
 			Ybase = Ylast + 1;
 			viewset();
 		} else
@@ -627,13 +630,16 @@ showWHAT(_AR0)
 
 	move(Yhead,0);
 	if (tag_count)	standout();
-	PRINTW("%2d of %2d [%ctime] ", curfile+1, numfiles, datechr[dateopt]);
-	if (tag_opt)
+	PRINTW("%2d of %2d [%ctime] ",
+		FOO->curfile + 1,
+		FOO->numfiles,
+		datechr[FOO->dateopt]);
+	if (FOO->tag_opt)
 		PRINTW("(%d files, %d %s) ",
 			tag_count,
-			(tag_opt > 1) ? tag_bytes : tag_blocks,
-			(tag_opt > 1) ? "bytes"   : "blocks");
-	showpath(new_wd, 999, -1, 0);
+			(FOO->tag_opt > 1) ? tag_bytes : tag_blocks,
+			(FOO->tag_opt > 1) ? "bytes"   : "blocks");
+	showpath(FOO->new_wd, 999, -1, 0);
 	if (tag_count)	standend();
 	clrtoeol();
 }
@@ -641,20 +647,25 @@ showWHAT(_AR0)
 /*
  * Display the given line.  If it is tagged, highlight the name.
  */
-showLINE _ONE(int,j)
+public	void	showLINE(
+	_ARX(RING *,	gbl)
+	_AR1(int,	j)
+		)
+	_DCL(RING *,	gbl)
+	_DCL(int,	j)
 {
-int	col, len;
-char	bfr[BUFSIZ];
+	int	col, len;
+	char	bfr[BUFSIZ];
 
 	if (move2row(j,0)) {
 		ded2s(j, bfr, sizeof(bfr));
 		if (Xbase < strlen(bfr)) {
 			PRINTW("%.*s", COLS-1, &bfr[Xbase]);
 			if (xFLAG(j)) {
-				col = cmdcol[CCOL_NAME] - Xbase;
+				col = FOO->cmdcol[CCOL_NAME] - Xbase;
 				len = (COLS-1) - col;
 				if (len > 0) {
-					int	adj = cmdcol[CCOL_NAME];
+					int	adj = FOO->cmdcol[CCOL_NAME];
 					if (col < 0) {
 						adj -= col;
 						col  = 0;
@@ -681,7 +692,7 @@ showVIEW(_AR0)
 	viewset();		/* set 'Ylast' as function of mark_W */
 
 	for (j = Ybase; j <= Ylast; j++)
-		showLINE(j);
+		showLINE(FOO, j);
 	for (j = file2row(Ylast+1); j < Ynext; j++) {
 		move(j,0);
 		clrtoeol();
@@ -720,7 +731,7 @@ _DCL(int,	reset_work)
 
 	if (reset_cols)
 		for (j = 0; j < CCOL_MAX; j++)
-			cmdcol[j] = 0;
+			FOO->cmdcol[j] = 0;
 
 	for (j = 0; j < maxview; j++) {
 		showVIEW();
@@ -746,7 +757,7 @@ openVIEW(_AR0)
 	if (maxview < MAXVIEW) {
 		saveVIEW();
 		if (maxview) {
-			int	adj	= (Yhead = file2row(curfile) + 1)
+			int	adj	= (Yhead = file2row(FOO->curfile) + 1)
 					- (mark_W - MINLIST);
 			if (adj > 0) {
 				if (mark_W + adj < (LINES - MINWORK))
@@ -811,7 +822,7 @@ nextVIEW _ONE(int,save)
 	p = &viewlist[curview];
 	Yhead	= p->Yhead;
 	Ybase	= p->Ybase;
-	curfile	= findFILE(p->cname);
+	FOO->curfile = findFILE(p->cname);
 	(void)to_file();
 }
 
@@ -819,14 +830,16 @@ nextVIEW _ONE(int,save)
 showSCCS(_AR0)
 {
 register int j;
-	if (!Z_opt) {		/* catch up */
+	if (!FOO->Z_opt) {		/* catch up */
 		to_work(TRUE);
-		Z_opt = -1;
-		for (j = 0; j < numfiles; j++)
-			if (!flist[j].z_time) {
-				statSCCS(xNAME(j), &flist[j]);
-				blip((flist[j].z_time != 0) ? '*' : '.');
+		FOO->Z_opt = -1;
+		for (j = 0; j < FOO->numfiles; j++) {
+			register FLIST *f = &(FOO->flist[j]);
+			if (!f->z_time) {
+				statSCCS(FOO, xNAME(j), f);
+				blip((f->z_time != 0) ? '*' : '.');
 			}
+		}
 	}
 }
 #endif	/* Z_RCS_SCCS */
@@ -836,14 +849,14 @@ register int j;
  */
 showC(_AR0)
 {
-	register int	x = cmdcol[CCOL_CMD] - Xbase;
+	register int	x = FOO->cmdcol[CCOL_CMD] - Xbase;
 
 	if (x < 0)		x = 0;
 	if (x > COLS-1)		x = COLS-1;
 
 	showWHAT();
 	markC(FALSE);
-	(void)move2row(curfile, x);
+	(void)move2row(FOO->curfile, x);
 	refresh();
 }
 
@@ -853,10 +866,10 @@ showC(_AR0)
  */
 markC _ONE(int,on)
 {
-int	col = cmdcol[CCOL_CMD] - Xbase;
+int	col = FOO->cmdcol[CCOL_CMD] - Xbase;
 
 	if (col >= 0) {
-		(void)move2row(curfile, col);
+		(void)move2row(FOO->curfile, col);
 		addch(on ? '*' : ' ');
 	}
 }
@@ -894,13 +907,13 @@ _DCL(char *,	backto)
 
 	to_work(TRUE);
 	init_tags();
-	if (dedscan(top_argc, top_argv)) {
-		curfile = 0;	/* numfiles may be less now */
+	if (dedscan(FOO, FOO->top_argc, FOO->top_argv)) {
+		FOO->curfile = 0;	/* numfiles may be less now */
 		dedsort();
-		curfile = 0;
-		for (j = 0; j < numfiles; j++)
+		FOO->curfile = 0;
+		for (j = 0; j < FOO->numfiles; j++)
 			if (!strcmp(xNAME(j), backto)) {
-				curfile = j;
+				FOO->curfile = j;
 				break;
 			}
 		(void)to_file();
@@ -916,17 +929,17 @@ restat _ONE(int,group)
 {
 	if (group) {
 	register int j;
-		for (j = 0; j < numfiles; j++) {
-			if (j != curfile) {
+		for (j = 0; j < FOO->numfiles; j++) {
+			if (j != FOO->curfile) {
 				if (xFLAG(j)) {
-					statLINE(j);
-					showLINE(j);
+					statLINE(FOO, j);
+					showLINE(FOO, j);
 				}
 			}
 		}
 	}
-	statLINE(curfile);
-	showLINE(curfile);
+	statLINE(FOO, FOO->curfile);
+	showLINE(FOO, FOO->curfile);
 	showC();
 }
 
@@ -939,8 +952,8 @@ restat_W(_AR0)
 {
 	register int j;
 	for (j = Ybase; j <= Ylast; j++) {
-		statLINE(j);
-		showLINE(j);
+		statLINE(FOO, j);
+		showLINE(FOO, j);
 	}
 	showC();
 }
@@ -1015,7 +1028,7 @@ count_tags(_AR0)
 {
 	register int j;
 	init_tags();
-	for (j = 0; j < numfiles; j++) {
+	for (j = 0; j < FOO->numfiles; j++) {
 		if (xFLAG(j)) {
 			xFLAG(j) = FALSE;
 			tag_entry(j);
@@ -1052,8 +1065,8 @@ int	ok;
 		count_tags();
 		showFILES(TRUE,TRUE);
 	}
-	(void)chdir(new_wd);
-	dlog_comment("chdir %s\n", new_wd);
+	(void)chdir(FOO->new_wd);
+	dlog_comment("chdir %s\n", FOO->new_wd);
 	if (!ok && (flags & 2))
 		showC();
 	return (ok);
@@ -1072,7 +1085,7 @@ _DCL(int,	count)
 {
 	auto	 char	tpath[MAXPATHLEN];
 	return (new_args(
-		strcpy(tpath, new_wd),
+		strcpy(tpath, FOO->new_wd),
 		cmd, count, 0, FALSE, (char *)0));
 }
 
@@ -1156,7 +1169,7 @@ _DCL(int,	normal)
 		warn(arg0);
 	dlog_elapsed();
 	rawterm();
-	(void)chdir(new_wd);
+	(void)chdir(FOO->new_wd);
 	if (normal) {
 		retouch(0);
 		restat(FALSE);
@@ -1179,7 +1192,7 @@ _DCL(int,	extended)
 	char	tpath[BUFSIZ];
 
 	dlog_name(cNAME);
-	switch (realstat(curfile, &sb)) {
+	switch (realstat(FOO->curfile, &sb)) {
 	case 0:	/* edit-file */
 		to_work(TRUE);
 		if (extended) {
@@ -1191,14 +1204,14 @@ _DCL(int,	extended)
 		break;
 	case 1:	/* edit-directory */
 		if (extended) {
-			(void)pattern_args(pathcat(tpath, new_wd, cNAME));
+			(void)pattern_args(pathcat(tpath, FOO->new_wd, cNAME));
 		} else {
 			to_work(TRUE);
 			ft_write();
 			dlog_close();
 			forkfile(whoami, cNAME, TRUE);
 			dlog_reopen();
-			ft_read(new_wd, tree_opt);
+			ft_read(FOO->new_wd, tree_opt);
 			if (no_worry < 0)	/* start worrying! */
 				no_worry = FALSE;
 		}
@@ -1287,6 +1300,8 @@ _MAIN
 				tpath[BUFSIZ],
 				dpath[BUFSIZ];
 
+	FOO = ring_alloc();
+
 	(void)sortset('s', 'n');
 	(void)sscanf(version, "%*s %s %s", tpath, dpath);
 	FPRINTF(stderr, "DED Directory Editor (%s %s)\r\n", tpath, dpath);
@@ -1295,21 +1310,21 @@ _MAIN
 
 	while ((c = getopt(argc, argv, "aGIOPSTUZc:l:r:s:zdt:n")) != EOF)
 	switch (c) {
-	case 'a':	A_opt = !A_opt;	break;
-	case 'G':	G_opt = !G_opt;	break;
-	case 'I':	I_opt = !I_opt;	break;
+	case 'a':	COMPLEMENT(FOO->A_opt);	break;
+	case 'G':	COMPLEMENT(FOO->G_opt);	break;
+	case 'I':	COMPLEMENT(FOO->I_opt);	break;
 #ifdef	apollo_sr10
-	case 'O':	O_opt = !O_opt;	break;
+	case 'O':	COMPLEMENT(FOO->O_opt);	break;
 #endif
-	case 'P':	P_opt = !P_opt;	break;
-	case 'S':	S_opt = !S_opt;	break;
-	case 'T':	T_opt = !T_opt;	break;
+	case 'P':	COMPLEMENT(FOO->P_opt);	break;
+	case 'S':	COMPLEMENT(FOO->S_opt);	break;
+	case 'T':	COMPLEMENT(FOO->T_opt);	break;
 #ifdef	apollo
-	case 'U':	U_opt = !U_opt;	break;
+	case 'U':	COMPLEMENT(FOO->U_opt);	break;
 #endif
 #ifdef	Z_RCS_SCCS
-	case 'Z':	Z_opt = 1;	break;
-	case 'z':	Z_opt = -1;	break;
+	case 'Z':	FOO->Z_opt = 1;	break;
+	case 'z':	FOO->Z_opt = -1;	break;
 #endif
 	case 'c':	dlog_read(optarg);			break;
 	case 'l':	log_opt = dlog_open(optarg,argc,argv);	break;
@@ -1317,7 +1332,7 @@ _MAIN
 	case 'r':	if (!sortset(c,*optarg))	usage();
 #ifdef	Z_RCS_SCCS
 			if (needSCCS(c))
-				Z_opt = -1;
+				FOO->Z_opt = -1;
 #endif	/* Z_RCS_SCCS */
 			break;
 	case 'd':	debug++;		break;
@@ -1374,8 +1389,8 @@ _MAIN
 	rawterm();
 
 	/* Copy 'argv[]' so we can reallocate it; also trim repeated items */
-	top_argv = vecalloc((unsigned)(argc - optind + 2));
-	top_argc = 0;
+	FOO->top_argv = vecalloc((unsigned)(argc - optind + 2));
+	FOO->top_argc = 0;
 	if (optind < argc) {
 		for (j = 0; j < argc - optind; j++) {
 			char *s = txtalloc(argv[j+optind]);
@@ -1383,21 +1398,22 @@ _MAIN
 				continue;
 			for (k = 0; k < j; k++)
 				/* look for repeats (same pointer) */
-				if (top_argv[k] == s)
+				if (FOO->top_argv[k] == s)
 					break;
 			if (k == j)	/* ... then we never found a repeat */
-				top_argv[top_argc++] = s;
+				FOO->top_argv[FOO->top_argc++] = s;
 		}
 	} else
-		top_argv[top_argc++] = ".";
-	top_argv[top_argc] = 0;		/* always keep a null pointer on end */
-	if (!dedscan(top_argc, top_argv))	failed((char *)0);
+		FOO->top_argv[FOO->top_argc++] = ".";
+	FOO->top_argv[FOO->top_argc] = 0; /* always keep a null pointer on end */
+	if (!dedscan(FOO, FOO->top_argc, FOO->top_argv))
+		failed((char *)0);
 
 	mark_W = (LINES/2);
 	Xbase = Ybase = 0;
 	Xscroll = (1 + (COLS/4)/10) * 10;
 	dedsort();
-	curfile = 0;
+	FOO->curfile = 0;
 	openVIEW();
 
 	while (!quit) { switch (c = dlog_char(&count,1)) {
@@ -1414,12 +1430,12 @@ _MAIN
 			break;
 
 	case 'f':	forward(count);
-			curfile = Ybase;
+			FOO->curfile = Ybase;
 			showFILES(FALSE,FALSE);
 			break;
 
 	case 'b':	backward(count);
-			curfile = Ybase;
+			FOO->curfile = Ybase;
 			showFILES(FALSE,FALSE);
 			break;
 
@@ -1439,24 +1455,24 @@ _MAIN
 			break;
 
 			/* cursor-movement in-screen */
-	case 'H':	curfile = Ybase;		showC(); break;
-	case 'M':	curfile = (Ybase+Ylast)/2;	showC(); break;
-	case 'L':	curfile = Ylast;		showC(); break;
-	case '^':	if (Ybase != curfile) {
-				Ybase = curfile;
+	case 'H':	FOO->curfile = Ybase;		showC(); break;
+	case 'M':	FOO->curfile = (Ybase+Ylast)/2;	showC(); break;
+	case 'L':	FOO->curfile = Ylast;		showC(); break;
+	case '^':	if (Ybase != FOO->curfile) {
+				Ybase = FOO->curfile;
 				showFILES(FALSE,FALSE);
 			}
 			break;
 
 			/* display-toggles */
 #ifdef	S_IFLNK
-	case '@':	AT_opt= !AT_opt;
+	case '@':	COMPLEMENT(FOO->AT_opt);
 			count = 0;
 			to_work(TRUE);
-			for (j = 0; j < numfiles; j++) {
+			for (j = 0; j < FOO->numfiles; j++) {
 				if (xLTXT(j)) {
 					blip('@');
-					statLINE(j);
+					statLINE(FOO, j);
 					count++;
 				} else
 					blip('.');
@@ -1469,56 +1485,56 @@ _MAIN
 #endif	/* S_IFLNK */
 
 			/* note that '.' and '..' may be the only files! */
-	case '&':	A_opt = !A_opt;	/* sorry about inconsistency */
+	case '&':	COMPLEMENT(FOO->A_opt); /* sorry about inconsistency */
 			quit = !rescan(TRUE, strcpy(tpath, cNAME));
 			break;
-	case 'G':	G_opt = one_or_both(j = G_opt,count);
-			showFILES((G_opt != 2) != (j != 2), FALSE);
+	case 'G':	FOO->G_opt = one_or_both(j = FOO->G_opt,count);
+			showFILES((FOO->G_opt != 2) != (j != 2), FALSE);
 			break;
-	case 'I':	I_opt = one_or_both(j = I_opt,count);
-			showFILES(I_opt != j, FALSE);
+	case 'I':	FOO->I_opt = one_or_both(j = FOO->I_opt,count);
+			showFILES(FOO->I_opt != j, FALSE);
 			break;
 #ifdef	apollo_sr10
-	case 'O':	O_opt = !O_opt; showFILES(TRUE, FALSE); break;
+	case 'O':	COMPLEMENT(FOO->O_opt); showFILES(TRUE, FALSE); break;
 #endif
-	case 'P':	P_opt = one_or_both(j = P_opt,count);
-			showFILES(P_opt != j, FALSE);
+	case 'P':	FOO->P_opt = one_or_both(j = FOO->P_opt,count);
+			showFILES(FOO->P_opt != j, FALSE);
 			break;
-	case 'S':	S_opt = one_or_both(j = S_opt,count);
-			showFILES(S_opt != j, FALSE);
+	case 'S':	FOO->S_opt = one_or_both(j = FOO->S_opt,count);
+			showFILES(FOO->S_opt != j, FALSE);
 			break;
-	case 'T':	T_opt = one_or_both(j = T_opt,count);
-			showFILES(T_opt != j, FALSE);
+	case 'T':	FOO->T_opt = one_or_both(j = FOO->T_opt,count);
+			showFILES(FOO->T_opt != j, FALSE);
 			break;
 #ifdef	apollo
-	case 'U':	U_opt = !U_opt; showFILES(FALSE,FALSE);	break;
+	case 'U':	COMPLEMENT(FOO->U_opt); showFILES(FALSE,FALSE);	break;
 #endif
 
 #ifdef	Z_RCS_SCCS
 	case 'V':	/* toggle sccs-version display */
-			j = !Z_opt;
+			j = !FOO->Z_opt;
 			showSCCS();
-			V_opt = !V_opt;
+			FOO->V_opt = !FOO->V_opt;
 			showFILES(TRUE,j);
 			break;
 
 	case 'Y':	/* show owner of file lock */
-			j = !Z_opt;
+			j = !FOO->Z_opt;
 			showSCCS();
-			Y_opt = !Y_opt;
+			FOO->Y_opt = !FOO->Y_opt;
 			showFILES(TRUE,j);
 			break;
 
 	case 'Z':	/* toggle sccs-date display */
-			j = !Z_opt;
+			j = !FOO->Z_opt;
 			showSCCS();
-			Z_opt = -Z_opt;
+			FOO->Z_opt = -FOO->Z_opt;
 			showFILES(TRUE,j);
 			break;
 
 	case 'z':	/* cancel sccs-display */
-			if (Z_opt) {
-				Z_opt = 0;
+			if (FOO->Z_opt) {
+				FOO->Z_opt = 0;
 				showFILES(TRUE,FALSE);
 			}
 			break;
@@ -1539,7 +1555,7 @@ _MAIN
 
 	case CTL('R'):	/* modify read-expression */
 			(void)strcpy(tpath, cNAME);
-			while (dedread(&toscan, numfiles == 0))
+			while (dedread(&FOO->toscan, FOO->numfiles == 0))
 				if (rescan(FALSE, tpath))
 					break;
 			break;
@@ -1566,7 +1582,7 @@ _MAIN
 
 	case 'r':
 	case 's':	j = dlog_char((int *)0,0);
-			if (tagsort = (j == '+'))
+			if (FOO->tagsort = (j == '+'))
 				j = dlog_char((int *)0,0);
 			if (!(j = sortget(j)))
 				;
@@ -1582,7 +1598,8 @@ _MAIN
 				dedmsg("unknown sort-key");
 			break;
 
-	case 'C':	if (++dateopt > 2)	dateopt = 0;
+	case 'C':	FOO->dateopt += 1;
+			if (FOO->dateopt > 2)	FOO->dateopt = 0;
 			showFILES(FALSE,FALSE);
 			break;
 
@@ -1594,29 +1611,29 @@ _MAIN
 
 			/* tag/untag specific files */
 	case '+':	while (count-- > 0) {
-				tag_entry(curfile);
-				if (tag_opt) showWHAT();
+				tag_entry(FOO->curfile);
+				if (FOO->tag_opt) showWHAT();
 				if (!showDOWN())
 					break;
 			}
 			break;
 
 	case '-':	while (count-- > 0) {
-				untag_entry(curfile);
-				if (tag_opt) showWHAT();
+				untag_entry(FOO->curfile);
+				if (FOO->tag_opt) showWHAT();
 				if (!showDOWN())
 					break;
 			}
 			break;
 
-	case '_':	for (j = 0; j < numfiles; j++)
+	case '_':	for (j = 0; j < FOO->numfiles; j++)
 				untag_entry(j);
 			init_tags();
 			showFILES(FALSE,FALSE);
 			break;
 
-	case CTL('G'):	tag_opt = one_or_both(j = tag_opt,count);
-			if (tag_opt != j) {
+	case CTL('G'):	FOO->tag_opt = one_or_both(j = FOO->tag_opt,count);
+			if (FOO->tag_opt != j) {
 				showWHAT();
 				showC();
 			}
@@ -1676,11 +1693,11 @@ _MAIN
 			break;
 
 			/* page thru files in work area */
-	case 'h':	dedtype(howami,-1,FALSE,FALSE,FALSE);
+	case 'h':	dedtype(FOO, howami,-1,FALSE,FALSE,FALSE);
 			c = 't';	/* force work-clear if 'q' */
 			break;
-	case 't':	if ((j = realstat(curfile, &sb)) >= 0)
-				dedtype(cNAME,curfile,(count != 1),(count>2),j);
+	case 't':	if ((j = realstat(FOO->curfile, &sb)) >= 0)
+				dedtype(FOO, cNAME,FOO->curfile,(count != 1),(count>2),j);
 			break;
 
 	case '%':	/* execute shell command with screen refresh */
@@ -1692,7 +1709,7 @@ _MAIN
 			break;
 
 	case '*':	/* display last shell command */
-			dedshow("Command=", dyn_string(cmd_sh));
+			dedshow("Command=", dyn_string(FOO->cmd_sh));
 			showC();
 			break;
 
@@ -1704,7 +1721,7 @@ _MAIN
 			break;
 
 	case 'D':	/* toggle directory/filelist mode */
-			(void)strcpy(dpath, strcpy(tpath,new_wd) );
+			(void)strcpy(dpath, strcpy(tpath,FOO->new_wd) );
 			do {
 			    while ((c = ft_view(tpath)) == 'e') {
 			    int	y,x;
@@ -1720,19 +1737,19 @@ _MAIN
 				forkfile(whoami, tpath, FALSE);
 				dlog_reopen();
 				wrepaint(stdscr,0);
-				ft_read(new_wd, tree_opt);
+				ft_read(FOO->new_wd, tree_opt);
 			    }
 			} while (!new_tree(tpath, c));
 			break;
 
 	case 'E':	/* enter new directory on ring */
-			if (realstat(curfile, &sb) == 1) {
+			if (realstat(FOO->curfile, &sb) == 1) {
 				(void)new_args(
-					pathcat(tpath, new_wd, cNAME),
+					pathcat(tpath, FOO->new_wd, cNAME),
 					c, 1, 3, FALSE, (char *)0);
 #ifdef	S_IFLNK		/* try to edit head-directory of symbolic-link */
 			} else if (edithead(tpath, dpath)) {
-				if (strcmp(tpath, new_wd)
+				if (strcmp(tpath, FOO->new_wd)
 				&&  !new_args(tpath, c, 1, 3, FALSE, (char *)0))
 					break;
 				scroll_to_file(findFILE(txtalloc(dpath)));

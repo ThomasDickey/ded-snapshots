@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	what[] = "$Id: sortset.c,v 10.0 1991/10/18 09:53:44 ste_cm Rel $";
+static	char	what[] = "$Id: sortset.c,v 10.1 1992/04/01 14:29:35 dickey Exp $";
 #endif
 
 /*
@@ -7,6 +7,7 @@ static	char	what[] = "$Id: sortset.c,v 10.0 1991/10/18 09:53:44 ste_cm Rel $";
  * Author:	T.E.Dickey
  * Created:	01 Dec 1989 (from ded.c)
  * Modified:
+ *		01 Apr 1992, convert most global variables to RING-struct.
  *		18 Oct 1991, converted to ANSI
  *		17 Jul 1991, added '@', 'D' sorts
  *		28 Jun 1991, added 'P' (apollo sr10)
@@ -75,9 +76,9 @@ _DCL(int,	opt)
 		sortc[k] = EOS;
 	}
 	if (strchr(sortc, opt) != 0) {
-		dateopt = opt == 'c'  ? 1 : (opt == 'r' ? 0 : 2);
-		sortopt = opt;
-		sortord = (ord == 'r');
+		FOO->dateopt = (opt == 'c') ? 1 : (opt == 'r' ? 0 : 2);
+		FOO->sortopt = opt;
+		FOO->sortord = (ord == 'r');
 		return(TRUE);
 	}
 	return(FALSE);
@@ -95,14 +96,14 @@ sortget _ONE(int,c)
 
 	if (c == '?') {
 		LOOP(j)
-			if (*sort_msg[j] == sortopt) {
+			if (*sort_msg[j] == FOO->sortopt) {
 				FORMAT(bfr, "sort option: %s", sort_msg[j]);
 				dedmsg(bfr);
 				break;
 			}
 		c = 0;
 	} else if (c == '\r' || c == '\n') {
-		c = sortopt;
+		c = FOO->sortopt;
 	} else if (c == ':') {
 		auto	int	y,x,
 				done = FALSE,
@@ -111,7 +112,7 @@ sortget _ONE(int,c)
 		to_work(TRUE);
 		PRINTW("Sort:> ");
 		getyx(stdscr,y,x);
-		find = sortopt;
+		find = FOO->sortopt;
 		while (!done) {
 			found = FALSE;
 			LOOP(k) {

@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	Id[] = "$Id: dedline.c,v 10.0 1991/11/12 12:11:06 ste_cm Rel $";
+static	char	Id[] = "$Id: dedline.c,v 10.2 1992/04/01 14:56:11 dickey Exp $";
 #endif
 
 /*
@@ -7,6 +7,7 @@ static	char	Id[] = "$Id: dedline.c,v 10.0 1991/11/12 12:11:06 ste_cm Rel $";
  * Author:	T.E.Dickey
  * Created:	01 Aug 1988 (from 'ded.c')
  * Modified:
+ *		01 Apr 1992, convert most global variables to RING-struct.
  *		12 Nov 1991, killchar in 'edittext()' was not properly erasing
  *			     the buffer.
  *		16 Oct 1991, mods to support replay of 'c'-commands.
@@ -125,7 +126,7 @@ _DCL(char *,	src)
 static
 at_save(_AR0)
 {
-	if (!AT_opt) {	/* chmod applies only to target of symbolic link */
+	if (!FOO->AT_opt) {	/* chmod applies only to target of symbolic link */
 		return (at_last(TRUE));
 	}
 	return (FALSE);
@@ -141,12 +142,12 @@ at_last _ONE(int,flag)
 	register int x;
 	register int changed = 0;
 
-	for (x = 0; x < numfiles; x++)
+	for (x = 0; x < FOO->numfiles; x++)
 		if (GROUPED(x)
 		&& xLTXT(x)) {
-			AT_opt = flag;
-			statLINE(x);
-			showLINE(x);
+			FOO->AT_opt = flag;
+			statLINE(FOO, x);
+			showLINE(FOO, x);
 			changed++;
 		}
 	return (changed);
@@ -298,14 +299,14 @@ change_protection(_AR0)
 	register int	c, x;
 
 	(void)dedsigs(TRUE);	/* reset interrupt counter */
-	c = CHMOD(curfile);
-	for (x = 0; x < numfiles; x++) {
+	c = CHMOD(FOO->curfile);
+	for (x = 0; x < FOO->numfiles; x++) {
 		if (GROUPED(x)) {
 			if (dedsigs(TRUE)) {
 				waitmsg(xNAME(x));
 				break;
 			}
-			statLINE(x);
+			statLINE(FOO, x);
 			changed++;
 			if (c != CHMOD(x)) {
 				dlog_comment("chmod %o %s\n",
@@ -339,18 +340,18 @@ change_protection(_AR0)
 editprot(_AR0)
 {
 register
-int	y	= file2row(curfile),
+int	y	= file2row(FOO->curfile),
 	x	= 0,
 	c;
 auto	int
-	opt	= P_opt,
+	opt	= FOO->P_opt,
 	changed	= FALSE,
 	done	= FALSE;
 #ifdef	S_IFLNK
 int	at_flag	= at_save();
 #endif
 
-	(void)save_Xbase(cmdcol[CCOL_PROT]);
+	(void)save_Xbase(FOO->cmdcol[CCOL_PROT]);
 
 	(void)replay('p');
 
@@ -358,10 +359,10 @@ int	at_flag	= at_save();
 	int	rwx,
 		cols[3];
 
-		showLINE(curfile);
+		showLINE(FOO, FOO->curfile);
 
-		rwx	= (P_opt ? 1 : 3),
-		cols[0] = cmdcol[CCOL_PROT];
+		rwx	= (FOO->P_opt ? 1 : 3),
+		cols[0] = FOO->cmdcol[CCOL_PROT];
 		cols[1] = cols[0] + rwx;
 		cols[2] = cols[1] + rwx;
 
@@ -402,7 +403,7 @@ int	at_flag	= at_save();
 				if (x < 2)
 					x++;
 			} else if (c == 'P') {
-				P_opt = !P_opt;
+				FOO->P_opt = !FOO->P_opt;
 			} else if (c == 's') {
 				if (x == 0)
 					cSTAT.st_mode ^= S_ISUID;
@@ -424,9 +425,9 @@ int	at_flag	= at_save();
 		(void)at_last(FALSE); /* force stat on the files, cleanup */
 	}
 #endif
-	if (opt != P_opt) {
-		P_opt = opt;
-		showLINE(curfile);
+	if (opt != FOO->P_opt) {
+		FOO->P_opt = opt;
+		showLINE(FOO, FOO->curfile);
 	}
 	restat(changed);
 }
@@ -447,7 +448,7 @@ _DCL(int,	col)
 _DCL(int,	len)
 _DCL(char *,	bfr)
 {
-int	y	= file2row(curfile),
+int	y	= file2row(FOO->curfile),
 	x	= 0,
 	c,
 	shift	= 0,			/* kludge to permit long edits */
@@ -469,7 +470,7 @@ int	at_flag	= ((endc == 'u') || (endc == 'g')) ? at_save() : FALSE;
 	col = save_Xbase(col);
 #ifdef	S_IFLNK
 	if (at_flag)
-		showLINE(curfile);
+		showLINE(FOO, FOO->curfile);
 #endif
 	(void)replay(endc);
 
@@ -567,14 +568,14 @@ int	uid	= cSTAT.st_uid,
 	changed	= FALSE;
 char	bfr[BUFSIZ];
 
-	if (G_opt == 1) {
-		G_opt = 0;
+	if (FOO->G_opt == 1) {
+		FOO->G_opt = 0;
 		showFILES(FALSE,FALSE);
 	}
-	if (edittext('u', cmdcol[CCOL_UID], UIDLEN, strcpy(bfr, uid2s(uid)))
+	if (edittext('u', FOO->cmdcol[CCOL_UID], UIDLEN, strcpy(bfr, uid2s(uid)))
 	&&  (uid = s2uid(bfr)) >= 0) {
 		(void)dedsigs(TRUE);	/* reset interrupt-count */
-		for (j = 0; j < numfiles; j++) {
+		for (j = 0; j < FOO->numfiles; j++) {
 			if (xSTAT(j).st_uid == uid)	continue;
 			if (dedsigs(TRUE)) {
 				waitmsg(xNAME(j));
@@ -606,18 +607,18 @@ int	gid	= cSTAT.st_gid,
 	root	= (geteuid() == 0);
 char	bfr[BUFSIZ];
 
-	if (!G_opt) {
-		G_opt = 1;
+	if (!FOO->G_opt) {
+		FOO->G_opt = 1;
 		showFILES(FALSE,FALSE);
 	}
-	if (edittext('g', cmdcol[CCOL_GID], UIDLEN, strcpy(bfr, gid2s(gid)))
+	if (edittext('g', FOO->cmdcol[CCOL_GID], UIDLEN, strcpy(bfr, gid2s(gid)))
 	&&  (gid = s2gid(bfr)) >= 0) {
 	char	newgrp[BUFSIZ];
 	static	char	*fmt = "chgrp -f %s %s";
 
 		(void)dedsigs(TRUE);	/* reset interrupt-count */
 		(void)strcpy(newgrp, gid2s(gid));
-		for (j = 0; j < numfiles; j++) {
+		for (j = 0; j < FOO->numfiles; j++) {
 			if (xSTAT(j).st_gid == gid)	continue;
 			if (dedsigs(TRUE)) {
 				waitmsg(xNAME(j));
@@ -637,8 +638,8 @@ char	bfr[BUFSIZ];
 				}
 				fixtime(j);
 				if (!root) {
-					statLINE(j);
-					showLINE(j);
+					statLINE(FOO, j);
+					showLINE(FOO, j);
 					showC();
 				} else
 					changed++;
@@ -663,13 +664,13 @@ editname(_AR0)
 	register int	j;
 	auto	 char	bfr[BUFSIZ];
 
-#define	EDITNAME(n)	edittext('=', cmdcol[CCOL_NAME], sizeof(bfr), name2bfr(bfr, n))
+#define	EDITNAME(n)	edittext('=', FOO->cmdcol[CCOL_NAME], sizeof(bfr), name2bfr(bfr, n))
 	if (EDITNAME(cNAME) && strcmp(cNAME, bfr)) {
-		if (dedname(curfile, bfr) >= 0) {
+		if (dedname(FOO->curfile, bfr) >= 0) {
 			(void)dedsigs(TRUE);	/* reset interrupt count */
 			re_edit = TRUE;
-			for (j = 0; j < numfiles; j++) {
-				if (j == curfile)
+			for (j = 0; j < FOO->numfiles; j++) {
+				if (j == FOO->curfile)
 					continue;
 				if (dedsigs(TRUE)) {
 					waitmsg(xNAME(j));
@@ -707,12 +708,12 @@ editlink _ONE(int,cmd)
 		beep();
 	else {
 		auto	int	restore = FALSE;
-		col = save_Xbase(cmdcol[CCOL_NAME]);
+		col = save_Xbase(FOO->cmdcol[CCOL_NAME]);
 
 		/* test if we must show substitution */
 		if (cmd_link) {
-			for (j = 0; j < numfiles; j++) {
-				if (j == curfile)
+			for (j = 0; j < FOO->numfiles; j++) {
+				if (j == FOO->curfile)
 					continue;
 				if (xFLAG(j) && xLTXT(j)) {
 					if (move2row(j, col)) {
@@ -729,17 +730,17 @@ editlink _ONE(int,cmd)
 			}
 		}
 
-		(void)move2row(curfile, col);
+		(void)move2row(FOO->curfile, col);
 		PRINTW("=> ");
 		col += 3;
-		if (EDITLINK(curfile)
-		&&  strcmp(cLTXT, subslink(bfr,curfile))) {
-			if (relink(curfile, bfr)) {
+		if (EDITLINK(FOO->curfile)
+		&&  strcmp(cLTXT, subslink(bfr,FOO->curfile))) {
+			if (relink(FOO->curfile, bfr)) {
 				(void)dedsigs(TRUE);
 					/* reset interrupt count */
 				re_edit = TRUE;
-				for (j = 0; j < numfiles; j++) {
-					if (j == curfile)
+				for (j = 0; j < FOO->numfiles; j++) {
+					if (j == FOO->curfile)
 						continue;
 					if (dedsigs(TRUE)) {
 						waitmsg(xNAME(j));

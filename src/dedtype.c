@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	Id[] = "$Id: dedtype.c,v 10.3 1992/03/30 11:49:44 dickey Exp $";
+static	char	Id[] = "$Id: dedtype.c,v 10.6 1992/04/01 16:27:12 dickey Exp $";
 #endif
 
 /*
@@ -7,6 +7,7 @@ static	char	Id[] = "$Id: dedtype.c,v 10.3 1992/03/30 11:49:44 dickey Exp $";
  * Author:	T.E.Dickey
  * Created:	16 Nov 1987
  * Modified:
+ *		01 Apr 1992, convert most global variables to RING-struct.
  *		12 Mar 1992, if typing a file from the filelist, update the
  *			     stat in that place.
  *		18 Oct 1991, converted to ANSI
@@ -185,18 +186,20 @@ static
 int
 reshow _ONE(int, inlist)
 {
-	statLINE(inlist);
-	showLINE(inlist);
+	statLINE(FOO, inlist);
+	showLINE(FOO, inlist);
 	return TRUE;
 }
 
 dedtype(
+_ARX(RING *,	gbl)
 _ARX(char *,	name)
 _ARX(int,	inlist)
 _ARX(int,	binary)
 _ARX(int,	stripped)
 _AR1(int,	isdir)
 	)
+_DCL(RING *,	gbl)
 _DCL(char *,	name)
 _DCL(int,	inlist)
 _DCL(int,	binary)
@@ -313,13 +316,13 @@ _DCL(int,	isdir)
 				PRINTW("---page %d", page);
 				if (inlist >= 0) {
 					int	oldy, oldx;
-					int	save = AT_opt;
+					int	save = FOO->AT_opt;
 
 					getyx(stdscr,oldy,oldx);
 					standend();
-					AT_opt = TRUE;
+					FOO->AT_opt = TRUE;
 					shown  = reshow(inlist);
-					AT_opt = save;
+					FOO->AT_opt = save;
 					length = cSTAT.st_size;
 					markC(TRUE);
 					standout();

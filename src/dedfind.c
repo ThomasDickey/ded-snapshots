@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	Id[] = "$Id: dedfind.c,v 10.0 1991/10/18 08:41:21 ste_cm Rel $";
+static	char	Id[] = "$Id: dedfind.c,v 10.1 1992/04/01 14:29:32 dickey Exp $";
 #endif
 
 /*
@@ -7,6 +7,7 @@ static	char	Id[] = "$Id: dedfind.c,v 10.0 1991/10/18 08:41:21 ste_cm Rel $";
  * Author:	T.E.Dickey
  * Created:	18 Nov 1987
  * Modified:
+ *		01 Apr 1992, convert most global variables to RING-struct.
  *		18 Oct 1991, converted to ANSI
  *		11 Jul 1991, interface to 'to_work()'
  *		25 Aug 1989, use 'scroll_to_file()'
@@ -49,10 +50,10 @@ static	int	order;		/* saves last legal search order */
 
 	OLD_REGEX(expr);
 	if (NEW_REGEX(expr,text)) {
-		for (j = curfile + next; ; j += next) {
+		for (j = FOO->curfile + next; ; j += next) {
 			if (j < 0) {
-				j = numfiles;
-			} else if (j >= numfiles) {
+				j = FOO->numfiles;
+			} else if (j >= FOO->numfiles) {
 				j = -1;
 			} else if (found = GOT_REGEX(expr,xNAME(j))) {
 				break;
@@ -60,7 +61,7 @@ static	int	order;		/* saves last legal search order */
 				if (found = GOT_REGEX(expr,xLTXT(j)))
 					break;
 			}
-			if (j == curfile)	break;
+			if (j == FOO->curfile)	break;
 		}
 		if (found) {
 			markC(FALSE);

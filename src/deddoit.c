@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	Id[] = "$Id: deddoit.c,v 10.2 1992/02/28 13:24:30 dickey Exp $";
+static	char	Id[] = "$Id: deddoit.c,v 10.3 1992/04/01 14:29:52 dickey Exp $";
 #endif
 
 /*
@@ -7,6 +7,7 @@ static	char	Id[] = "$Id: deddoit.c,v 10.2 1992/02/28 13:24:30 dickey Exp $";
  * Author:	T.E.Dickey
  * Created:	17 Nov 1987
  * Modified:
+ *		01 Apr 1992, convert most global variables to RING-struct.
  *		28 Feb 1992, use dynamic-strings to remove buffer-length limits
  *		18 Oct 1991, converted to ANSI
  *		24 Jul 1991, added codes u,g,v,y
@@ -82,7 +83,7 @@ _DCL(DYN *,	subs)
 		*from;
 
 	if (strchr("NHRET", code))
-		abspath(pathcat(name, new_wd, cNAME));
+		abspath(pathcat(name, FOO->new_wd, cNAME));
 	else
 		(void)strcpy(name, cNAME);
 
@@ -96,7 +97,7 @@ _DCL(DYN *,	subs)
 	case 'D':	from = old_wd;	/* original working directory */
 			break;
 
-	case 'd':	from = new_wd;	/* current working directory */
+	case 'd':	from = FOO->new_wd;	/* current working directory */
 			break;
 
 	case 'N':
@@ -130,9 +131,9 @@ _DCL(DYN *,	subs)
 	case 'u':	from = uid2s((int)(cSTAT.st_uid));	break;
 	case 'g':	from = gid2s((int)(cSTAT.st_gid));	break;
 #ifdef	Z_RCS_SCCS
-	case 'v':	if (!(from = flist[curfile].z_vers)) from = "?";
+	case 'v':	if (!(from = cENTRY.z_vers)) from = "?";
 			break;
-	case 'y':	if (!(from = flist[curfile].z_lock)) from = "?";
+	case 'y':	if (!(from = cENTRY.z_lock)) from = "?";
 			break;
 #endif
 	default:
@@ -160,19 +161,19 @@ _DCL(int,	sense)
 	dyn_init(&Subs, BUFSIZ);
 
 	if (sense == 0)
-		clr_sh = FALSE;
+		FOO->clr_sh = FALSE;
 	else if (sense > 1)
-		clr_sh = TRUE;
+		FOO->clr_sh = TRUE;
 
 	to_work(TRUE);
-	PRINTW("%c Command: ", clr_sh ? '%' : '!');
+	PRINTW("%c Command: ", FOO->clr_sh ? '%' : '!');
 	getyx(stdscr,j,k);
 	clrtobot();
 	move(j,k);
 
-	if ((key != '.') || (*dyn_string(cmd_sh) == EOS)) {
+	if ((key != '.') || (*dyn_string(FOO->cmd_sh) == EOS)) {
 		if (key == ':')
-			APPEND(Subs, dyn_string(cmd_sh));
+			APPEND(Subs, dyn_string(FOO->cmd_sh));
 
 		refresh();
 		dlog_string(dyn_string(Subs), Subs->max_length, TRUE); /* patch */
@@ -180,14 +181,14 @@ _DCL(int,	sense)
 		c = FALSE;
 		for (s = dyn_string(Subs); *s; s++) { /* skip leading blanks */
 			if (!isspace(*s)) {
-				dyn_init(&cmd_sh, BUFSIZ);
-				APPEND(cmd_sh, s);
+				dyn_init(&FOO->cmd_sh, BUFSIZ);
+				APPEND(FOO->cmd_sh, s);
 				c = TRUE;
 				break;
 			}
 		}
 		if (c) {	/* trim trailing blanks */
-			(void)strtrim(dyn_string(cmd_sh));
+			(void)strtrim(dyn_string(FOO->cmd_sh));
 		} else {
 			PRINTW("(no command)");
 			showC();
@@ -197,7 +198,7 @@ _DCL(int,	sense)
 		PRINTW("(ditto)\n");
 
 	dyn_init(&Subs, BUFSIZ);
-	for (j = 0; *(s = dyn_string(cmd_sh) + j); j++) {
+	for (j = 0; *(s = dyn_string(FOO->cmd_sh) + j); j++) {
 		static	char	This[] = "?",
 				Next[] = "?";
 
@@ -214,7 +215,7 @@ _DCL(int,	sense)
 				len,
 				x;
 
-			for (x = 0; x < numfiles; x++) {
+			for (x = 0; x < FOO->numfiles; x++) {
 				if (GROUPED(x)) {
 					len = strlen(s = fixname(x));
 					if (others++)
@@ -254,7 +255,7 @@ _DCL(int,	sense)
 			warn("system");
 		(void)dedsigs(TRUE);
 		rawterm();
-		if (clr_sh) dedwait(TRUE);
+		if (FOO->clr_sh) dedwait(TRUE);
 		dlog_elapsed();
 	}
 	showC();

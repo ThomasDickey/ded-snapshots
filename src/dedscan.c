@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	Id[] = "$Id: dedscan.c,v 10.2 1992/01/02 09:10:03 dickey Exp $";
+static	char	Id[] = "$Id: dedscan.c,v 10.6 1992/04/01 16:24:29 dickey Exp $";
 #endif
 
 /*
@@ -7,6 +7,7 @@ static	char	Id[] = "$Id: dedscan.c,v 10.2 1992/01/02 09:10:03 dickey Exp $";
  * Author:	T.E.Dickey
  * Created:	09 Nov 1987
  * Modified:
+ *		01 Apr 1992, convert most global variables to RING-struct.
  *		02 Jan 1992, make this work properly if only a filename is
  *			     specified.
  *		18 Oct 1991, converted to ANSI.
@@ -88,18 +89,185 @@ static	char	Id[] = "$Id: dedscan.c,v 10.2 1992/01/02 09:10:03 dickey Exp $";
 static	int	dir_order;
 
 /************************************************************************
+ *	local procedures						*
+ ************************************************************************/
+
+/*
+ * Find a given name in the display list, returning -1 if not found, or index.
+ */
+private	int	lookup (
+	_ARX(RING *,	gbl)
+	_AR1(char *,	name)
+		)
+	_DCL(RING *,	gbl)
+	_DCL(char *,	name)
+{
+	register int j;
+
+	for (j = 0; j < gbl->numfiles; j++) {
+		if (!strcmp(gNAME(j), name))
+			return (j);
+	}
+	return (-1);
+}
+
+/*
+ * Clear an FLIST data block.
+ */
+private	void	Zero _ONE(FLIST *,	f_)
+{
+	register char *s = (char *)f_;
+	register int  len = sizeof(FLIST);
+	while (len-- > 0) *s++ = 0;
+}
+
+/*
+ * Reset an FLIST data block.  Release storage used by symbolic link, but
+ * retain the name-string.
+ */
+private	void	ReZero _ONE(FLIST *,	f_)
+{
+	char	*name = f_->name;
+	if (f_->ltxt)	txtfree(f_->ltxt);
+	Zero(f_);
+	f_->name = name;
+}
+
+/*
+ * For a given name, update/append to the display-list the new FLIST data.
+ */
+private	void	append(
+	_ARX(RING *,	gbl)
+	_ARX(char *,	name)
+	_AR1(FLIST *,	f_)
+		)
+	_DCL(RING *,	gbl)
+	_DCL(char *,	name)
+	_DCL(FLIST *,	f_)
+{
+	register int j = lookup(gbl, name);
+
+	if (j >= 0) {
+		name     = gNAME(j);
+		gENTRY(j) = *f_;
+		gNAME(j) = name;
+		return;
+	}
+
+	/* append a new entry on the end of the list */
+	j = (gbl->numfiles | 31) + 1;
+	gbl->flist = DOALLOC(gbl->flist,FLIST,(unsigned)j);
+
+	Zero(&gENTRY(gbl->numfiles));
+	gENTRY(gbl->numfiles) = *f_;
+	gNAME(gbl->numfiles) = txtalloc(name);
+	gDORD(gbl->numfiles) = dir_order++;
+	gbl->numfiles++;
+}
+
+/*
+ * Find the given file's stat-block.  Use the return-code to distinguish the
+ * directories from ordinary files.  Save link-text for display, but don't
+ * worry about whether a symbolic link really points anywhere real.
+ * (We will worry about that when we have to do something with it.)
+ *
+ * If the flag AT_opt is set, we obtain the stat for the target, and will use
+ * the presence of the 'ltxt' to do basic testing on whether the file was a
+ * symbolic link.
+ */
+private	int	dedstat (
+	_ARX(RING *,	gbl)
+	_ARX(char *,	name)
+	_AR1(FLIST *,	f_)
+		)
+	_DCL(RING *,	gbl)
+	_DCL(char *,	name)
+	_DCL(FLIST *,	f_)
+{
+#ifdef	S_IFLNK
+	int	len;
+	char	bfr[BUFSIZ];
+#endif
+	int	code;
+
+	ReZero(f_);
+
+	if (lstat(name, &f_->s) < 0) {
+		ReZero(f_);	/* zero all but name-pointer */
+		return(N_UNKNOWN);
+	}
+	code = isDIR(f_->s.st_mode) ? N_DIR : N_FILE;
+#ifdef	S_IFLNK
+	if (isLINK(f_->s.st_mode)) {
+		len = readlink(name, bfr, sizeof(bfr));
+		if (len > 0) {
+			bfr[len] = EOS;
+			if (f_->ltxt)	txtfree(f_->ltxt);
+			f_->ltxt = txtalloc(bfr);
+			if (gbl->AT_opt
+			&&  (stat(name, &f_->s) >= 0)
+			&&  isDIR(f_->s.st_mode)) {
+				ft_insert(name);
+				code = N_LDIR;
+			}
+		}
+	}
+#endif
+#ifdef	Z_RCS_SCCS
+	statSCCS(gbl, name, f_);
+#endif
+	return (code);
+}
+
+/*
+ * Get statistics for a name which is in the original argument list.
+ * We handle a special case: if a single argument is given (!list),
+ * links are tested to see if they resolve to a directory.
+ */
+private	int	argstat(
+	_ARX(RING *,	gbl)
+	_ARX(char *,	name)
+	_AR1(int,	list)
+		)
+	_DCL(RING *,	gbl)
+	_DCL(char *,	name)
+	_DCL(int,	list)
+{
+	FLIST	fb;
+	char	full[BUFSIZ];
+	int	code;
+
+	if (debug)
+		PRINTF(" stat \"%s\" %slist\r\n", name, list ? "" : "no");
+
+	if (*name == '~')	/* permit "~" from Bourne-shell */
+		abshome(name = strcpy(full, name));
+
+	Zero(&fb);
+	if ((code = dedstat(gbl, name, &fb)) != N_UNKNOWN) {
+		blip(code == N_LDIR ? '@' : '.');
+		if (list)
+			append(gbl, name, &fb);
+	} else
+		blip('?');
+	return (code);
+}
+
+/************************************************************************
  *	dedscan(@)							*
  *----------------------------------------------------------------------*
  * Function:	Scan a list of arguments, to make up a display list.	*
  * Arguments:   argc, argv passed down from the original invocation,	*
  *		with leading options parsed off.			*
  ************************************************************************/
-dedscan(
-_ARX(int,	argc)
-_AR1(char **,	argv)
-	)
-_DCL(int,	argc)
-_DCL(char **,	argv)
+public	int	dedscan(
+	_ARX(RING *,	gbl)
+	_ARX(int,	argc)
+	_AR1(char **,	argv)
+		)
+	_DCL(RING *,	gbl)
+	_DCL(int,	argc)
+	_DCL(char **,	argv)
 {
 	DIR		*dp;
 	struct	direct	*de;
@@ -108,59 +276,59 @@ _DCL(char **,	argv)
 	char	name[BUFSIZ];
 	char	*s;
 
-	flist = dedfree(flist, numfiles);
+	gbl->flist = dedfree(gbl->flist, gbl->numfiles);
 	dir_order = 0;
-	numfiles = 0;
+	gbl->numfiles = 0;
 
 	if (argc > 1) {
-		(void)chdir(strcpy(new_wd,old_wd));
+		(void)chdir(strcpy(gbl->new_wd,old_wd));
 		for (j = 0; j < argc; j++)
 			if (ok_scan(argv[j])
-			&&  argstat(argv[j], TRUE) >= 0)
+			&&  argstat(gbl, argv[j], TRUE) >= 0)
 				common = 0;
 	} else {
-		abshome(pathcat(new_wd, old_wd, argv[0]));
-		if (!path_RESOLVE(new_wd)) {
-			warn(new_wd);
+		abshome(pathcat(gbl->new_wd, old_wd, argv[0]));
+		if (!path_RESOLVE(gbl, gbl->new_wd)) {
+			warn(gbl->new_wd);
 			return(0);
 		}
-		if ((common = argstat(new_wd, FALSE)) > 0) {
+		if ((common = argstat(gbl, gbl->new_wd, FALSE)) > 0) {
 				/* mark dep's for purge */
-			if (toscan == 0)
-				ft_remove(new_wd,AT_opt);
+			if (gbl->toscan == 0)
+				ft_remove(gbl->new_wd, gbl->AT_opt);
 			else
 				init_scan();
 
 			if (dp = opendir(".")) {
-			int	len = strlen(strcpy(name, new_wd));
+			int	len = strlen(strcpy(name, gbl->new_wd));
 				if (name[len-1] != '/') {
 					name[len++] = '/';
 					name[len]   = EOS;
 				}
 				while (de = readdir(dp)) {
 					if (dotname(s = de->d_name))
-						if (!A_opt)
+						if (!gbl->A_opt)
 							continue;
 					if (!ok_scan(s))
 						continue;
-					j = argstat(strcpy(name+len, s), TRUE);
+					j = argstat(gbl, strcpy(name+len, s), TRUE);
 					if (!dotname(s)
 					&&  j > 0
-					&&  (k = lookup(s)) >= 0) {
+					&&  (k = lookup(gbl, s)) >= 0) {
 						ft_insert(name);
 					}
 				}
 				(void)closedir(dp);
-				if (!numfiles)
+				if (!gbl->numfiles)
 					waitmsg("no files found");
 			} else {
 				waitmsg("cannot open directory");
 				return(0);
 			}
-			if (toscan == 0)
+			if (gbl->toscan == 0)
 				ft_purge(); /* remove items not reinserted */
 		} else if (common == N_FILE)
-			numfiles = 1;
+			gbl->numfiles = 1;
 	}
 
 	/*
@@ -170,8 +338,8 @@ _DCL(char **,	argv)
 	 * everything if it is nonnull.
 	 */
 	if (debug)
-		PRINTF("common=%d, numfiles=%d\r\n", common, numfiles);
-	if (common == 0 && numfiles != 0) {
+		PRINTF("common=%d, numfiles=%d\r\n", common, gbl->numfiles);
+	if (common == 0 && gbl->numfiles != 0) {
 		common = strlen(strcpy(name,argv[0]));
 		for (j = 0; (j < argc) && (common > 0); j++) {
 			register char	*d = argv[j];
@@ -201,186 +369,26 @@ _DCL(char **,	argv)
 		if (common > 0) {
 			dlog_comment("common path = \"%s\" (len=%d)\n",
 				name, common);
-			if (chdir(strcpy(new_wd,old_wd)) < 0)
+			if (chdir(strcpy(gbl->new_wd,old_wd)) < 0)
 				failed(old_wd);
-			abshome(strcpy(new_wd, name));
-			if (!path_RESOLVE(new_wd))
-				failed(new_wd);
-			for (j = 0; j < numfiles; j++)
-				xNAME(j) = txtalloc(xNAME(j) + common);
+			abshome(strcpy(gbl->new_wd, name));
+			if (!path_RESOLVE(gbl, gbl->new_wd))
+				failed(gbl->new_wd);
+			for (j = 0; j < gbl->numfiles; j++)
+				gNAME(j) = txtalloc(gNAME(j) + common);
 		} else {
-			size_t	len = strlen(new_wd);
+			size_t	len = strlen(gbl->new_wd);
 			for (j = 0; j < argc; j++) {
 				if (strlen(s = argv[j]) > len
 				&&  s[len] == '/'
-				&&  !strncmp(new_wd,s,len))
-					xNAME(j) = txtalloc(xNAME(j) + len + 1);
+				&&  !strncmp(gbl->new_wd,s,len))
+					gNAME(j) = txtalloc(gNAME(j) + len + 1);
 			}
 		}
 	}
 	if (debug)
 		dedwait(FALSE);
-	return(numfiles);
-}
-
-/************************************************************************
- *	local procedures						*
- ************************************************************************/
-
-/*
- * Find a given name in the display list, returning -1 if not found, or index.
- */
-static
-lookup _ONE(char *, name)
-{
-register int j;
-
-	for (j = 0; j < numfiles; j++) {
-		if (!strcmp(xNAME(j), name))
-			return (j);
-	}
-	return (-1);
-}
-
-/*
- * For a given name, update/append to the display-list the new FLIST data.
- */
-static
-append(
-_ARX(char *,	name)
-_AR1(FLIST *,	f_)
-	)
-_DCL(char *,	name)
-_DCL(FLIST *,	f_)
-{
-register int j = lookup(name);
-
-	if (j >= 0) {
-		name     = xNAME(j);
-		flist[j] = *f_;
-		xNAME(j) = name;
-		return;
-	}
-
-	/* append a new entry on the end of the list */
-	j = (numfiles | 31) + 1;
-	flist = DOALLOC(flist,FLIST,(unsigned)j);
-
-	Zero(&flist[numfiles]);
-	flist[numfiles] = *f_;
-	xNAME(numfiles) = txtalloc(name);
-	xDORD(numfiles) = dir_order++;
-	numfiles++;
-}
-
-/*
- * Clear an FLIST data block.
- */
-static
-Zero _ONE(FLIST *,	f_)
-{
-register char *s = (char *)f_;
-register int  len = sizeof(FLIST);
-	while (len-- > 0) *s++ = 0;
-}
-
-/*
- * Reset an FLIST data block.  Release storage used by symbolic link, but
- * retain the name-string.
- */
-static
-ReZero _ONE(FLIST *,	f_)
-{
-char	*name = f_->name;
-	if (f_->ltxt)	txtfree(f_->ltxt);
-	Zero(f_);
-	f_->name = name;
-}
-
-/*
- * Find the given file's stat-block.  Use the return-code to distinguish the
- * directories from ordinary files.  Save link-text for display, but don't
- * worry about whether a symbolic link really points anywhere real.
- * (We will worry about that when we have to do something with it.)
- *
- * If the flag AT_opt is set, we obtain the stat for the target, and will use
- * the presence of the 'ltxt' to do basic testing on whether the file was a
- * symbolic link.
- */
-static
-dedstat (
-_ARX(char *,	name)
-_AR1(FLIST *,	f_)
-	)
-_DCL(char *,	name)
-_DCL(FLIST *,	f_)
-{
-#ifdef	S_IFLNK
-	int	len;
-	char	bfr[BUFSIZ];
-#endif
-	int	code;
-
-	ReZero(f_);
-
-	if (lstat(name, &f_->s) < 0) {
-		ReZero(f_);	/* zero all but name-pointer */
-		return(N_UNKNOWN);
-	}
-	code = isDIR(f_->s.st_mode) ? N_DIR : N_FILE;
-#ifdef	S_IFLNK
-	if (isLINK(f_->s.st_mode)) {
-		len = readlink(name, bfr, sizeof(bfr));
-		if (len > 0) {
-			bfr[len] = EOS;
-			if (f_->ltxt)	txtfree(f_->ltxt);
-			f_->ltxt = txtalloc(bfr);
-			if (AT_opt
-			&&  (stat(name, &f_->s) >= 0)
-			&&  isDIR(f_->s.st_mode)) {
-				ft_insert(name);
-				code = N_LDIR;
-			}
-		}
-	}
-#endif
-#ifdef	Z_RCS_SCCS
-	statSCCS(name, f_);
-#endif
-	return (code);
-}
-
-/*
- * Get statistics for a name which is in the original argument list.
- * We handle a special case: if a single argument is given (!list),
- * links are tested to see if they resolve to a directory.
- */
-static
-argstat(
-_ARX(char *,	name)
-_AR1(int,	list)
-	)
-_DCL(char *,	name)
-_DCL(int,	list)
-{
-	FLIST	fb;
-	char	full[BUFSIZ];
-	int	code;
-
-	if (debug)
-		PRINTF(" stat \"%s\" %slist\r\n", name, list ? "" : "no");
-
-	if (*name == '~')	/* permit "~" from Bourne-shell */
-		abshome(name = strcpy(full, name));
-
-	Zero(&fb);
-	if ((code = dedstat(name, &fb)) != N_UNKNOWN) {
-		blip(code == N_LDIR ? '@' : '.');
-		if (list)
-			append(name, &fb);
-	} else
-		blip('?');
-	return (code);
+	return(gbl->numfiles);
 }
 
 /************************************************************************
@@ -393,16 +401,18 @@ _DCL(int,	list)
  * the main command-decoder when we set the Z_opt flag.
  */
 #ifdef	Z_RCS_SCCS
-#define	LAST(p)	p(new_wd, name, &(f_->z_vers), &(f_->z_time), &(f_->z_lock))
+#define	LAST(p)	p(gbl->new_wd, name, &(f_->z_vers), &(f_->z_time), &(f_->z_lock))
 
-statSCCS(
-_ARX(char *,	name)
-_AR1(FLIST *,	f_)
-	)
-_DCL(char *,	name)
-_DCL(FLIST *,	f_)
+public	void	statSCCS(
+	_ARX(RING *,	gbl)
+	_ARX(char *,	name)
+	_AR1(FLIST *,	f_)
+		)
+	_DCL(RING *,	gbl)
+	_DCL(char *,	name)
+	_DCL(FLIST *,	f_)
 {
-	if (Z_opt) {
+	if (gbl->Z_opt) {
 		if (isFILE(f_->s.st_mode)) {
 #ifdef	Z_RCS
 			LAST(rcslast);
@@ -433,23 +443,33 @@ _DCL(FLIST *,	f_)
  * This entrypoint is called to re-stat entries which already have been put
  * into the display-list.
  */
-statLINE _ONE(int,j)
+public	void	statLINE (
+	_ARX(RING *,	gbl)
+	_AR1(int,	j)
+		)
+	_DCL(RING *,	gbl)
+	_DCL(int,	j)
 {
-	char *	path = xNAME(j);
-	FLIST * blok = &flist[j];
-	int	flag = xFLAG(j);
-	int	dord = xDORD(j);
+	char *	path = gNAME(j);
+	FLIST * blok = &gENTRY(j);
+	int	flag = gFLAG(j);
+	int	dord = gDORD(j);
 
-	(void)dedstat(path, blok);
-	xFLAG(j) = flag;
-	xDORD(j) = dord;
+	(void)dedstat(gbl, path, blok);
+	gFLAG(j) = flag;
+	gDORD(j) = dord;
 }
 
 /*
  * For 'dedmake()', this adds a temporary entry, moving the former current
  * entry down, so the user can edit the name in-place.
  */
-statMAKE _ONE(int,mode)
+public	void	statMAKE (
+	_ARX(RING *,	gbl)
+	_AR1(int,	mode)
+		)
+	_DCL(RING *,	gbl)
+	_DCL(int,	mode)
 {
 	static	char	*null = "";
 	static	FLIST	dummy;
@@ -459,24 +479,24 @@ statMAKE _ONE(int,mode)
 		dummy.s.st_mode = mode;
 		dummy.s.st_uid  = getuid();
 		dummy.s.st_gid  = getgid();
-		append(null, &dummy);
-		if ((x = lookup(null)) != curfile) {
+		append(gbl, null, &dummy);
+		if ((x = lookup(gbl, null)) != gbl->curfile) {
 			FLIST	save;
-			save = flist[x];
-			if (x < curfile) {
-				while (x++ < curfile)
-					flist[x-1] = flist[x];
+			save = gENTRY(x);
+			if (x < gbl->curfile) {
+				while (x++ < gbl->curfile)
+					gENTRY(x-1) = gENTRY(x);
 			} else {
-				while (x-- > curfile)
-					flist[x+1] = flist[x];
+				while (x-- > gbl->curfile)
+					gENTRY(x+1) = gENTRY(x);
 			}
-			flist[curfile] = save;
+			gENTRY(gbl->curfile) = save;
 		}
 	} else {	/* remove entry */
-		if ((x = lookup(null)) >= 0) {
-			while (x++ < numfiles)
-				flist[x-1] = flist[x];
-			numfiles--;
+		if ((x = lookup(gbl, null)) >= 0) {
+			while (x++ < gbl->numfiles)
+				gENTRY(x-1) = gENTRY(x);
+			gbl->numfiles--;
 		}
 	}
 	showFILES(FALSE,TRUE);
@@ -486,8 +506,7 @@ statMAKE _ONE(int,mode)
  * Form a regular expression to match the wildcard pattern which the user
  * gave for a filename.
  */
-static
-make_EXPR _ONE(char *,path)
+private	char *	make_EXPR _ONE(char *,path)
 {
 	char	temp[BUFSIZ],
 		*s = path,
@@ -512,7 +531,7 @@ make_EXPR _ONE(char *,path)
 	*d++ = '$';
 	*d   = EOS;
 	dlog_comment("force scan \"%s\"\n", path);
-	toscan = txtalloc(temp);
+	return txtalloc(temp);
 }
 
 /*
@@ -521,7 +540,12 @@ make_EXPR _ONE(char *,path)
  * a symbolic link into a directory in which we have execute, but no read-
  * access. In this case we try to live with the link-text.
  */
-path_RESOLVE _ONE(char *,path)
+public	int	path_RESOLVE (
+	_ARX(RING *,	gbl)
+	_AR1(char *,	path)
+		)
+	_DCL(RING *,	gbl)
+	_DCL(char *,	path)
 {
 	char	temp[BUFSIZ];
 	static	int	tried;
@@ -540,7 +564,7 @@ path_RESOLVE _ONE(char *,path)
 				if (chdir(temp) < 0)
 					return (FALSE);
 				if (!tried++)
-					make_EXPR(path + (s - temp) + 1);
+					gbl->toscan = make_EXPR(path + (s - temp) + 1);
 			}
 		} else
 			return(FALSE);
@@ -550,11 +574,11 @@ path_RESOLVE _ONE(char *,path)
 		(void) strcpy(path, temp);
 	else {	/* for SunOS? */
 		FLIST	fb;
-		int	save = AT_opt;
+		int	save = gbl->AT_opt;
 		int	code;
-		AT_opt	= TRUE;
-		code	= dedstat(path, &fb);
-		AT_opt	= save;
+		gbl->AT_opt = TRUE;
+		code	= dedstat(gbl, path, &fb);
+		gbl->AT_opt = save;
 		if (code == N_LDIR)
 			(void)strcpy (path, fb.ltxt);
 	}

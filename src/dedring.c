@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	Id[] = "$Id: dedring.c,v 10.7 1992/02/28 15:19:55 dickey Exp $";
+static	char	Id[] = "$Id: dedring.c,v 10.9 1992/04/01 14:58:55 dickey Exp $";
 #endif
 
 /*
@@ -7,6 +7,7 @@ static	char	Id[] = "$Id: dedring.c,v 10.7 1992/02/28 15:19:55 dickey Exp $";
  * Author:	T.E.Dickey
  * Created:	27 Apr 1988
  * Modified:
+ *		01 Apr 1992, convert most global variables to RING-struct.
  *		28 Feb 1992, changed type of 'cmd_sh'.
  *		20 Feb 1992, correction to 'ring_bak()'
  *		17 Feb 1992, added 'dedrering()' to make renaming work ok.
@@ -48,50 +49,6 @@ static	char	Id[] = "$Id: dedring.c,v 10.7 1992/02/28 15:19:55 dickey Exp $";
  */
 
 #include	"ded.h"
-
-/*
- * The RING structure saves global data which lets us restore the state
- * of a file-list (see "ded.h"):
- */
-typedef	struct	_ring	{
-	struct	_ring	*_link;
-	char		new_wd[BUFSIZ],
-			*toscan,	/* directory-scan expression	*/
-			*scan_expr;	/* compiled version of 'toscan'	*/
-	DYN		*cmd_sh;
-	FLIST		*flist;
-	char		**top_argv;
-	int		top_argc,
-			cmdcol[CCOL_MAX],
-			clr_sh,
-			Xbase,
-			Ybase,
-			curfile,
-			dateopt,
-			sortord,
-			sortopt,
-			tagsort,
-			tag_opt,
-#ifdef	S_IFLNK
-			AT_opt,
-#endif
-			A_opt,
-			G_opt,
-			I_opt,
-#ifdef	apollo_sr10
-			O_opt,
-#endif
-			P_opt,
-			S_opt,
-			T_opt,
-			U_opt,
-#ifdef	Z_RCS_SCCS
-			V_opt,
-			Y_opt,
-			Z_opt;
-#endif
-	unsigned	numfiles;
-	} RING;
 
 #define	def_alloc	RING_alloc
 	/*ARGSUSED*/
@@ -143,7 +100,7 @@ dump_ring _ONE(char *,tag)
 	for (p = ring; p; p = p->_link) {
 		(void) Toggle(tmp, p->new_wd);
 		dlog_comment("%c%#8x \"%s\"\n",
-			!strcmp(tmp,new_wd) ? '>' : ' ', p, tmp);
+			!strcmp(tmp,FOO->new_wd) ? '>' : ' ', p, tmp);
 	}
 }
 #else
@@ -153,15 +110,15 @@ dump_ring _ONE(char *,tag)
 /*
  * Save the global state into our local storage
  */
-#define	SAVE(n)		p->n = n
+#define	SAVE(n)		p->n = FOO->n
 static
 save _ONE(RING *,p)
 {
 	register int	j;
-	(void) Toggle(p->new_wd, new_wd);
+	(void) Toggle(p->new_wd, FOO->new_wd);
 	SAVE(toscan);
 	SAVE(scan_expr);
-	dyn_init(&(p->cmd_sh), BUFSIZ); APPEND(p->cmd_sh, dyn_string(cmd_sh));
+	dyn_init(&(p->cmd_sh), BUFSIZ); APPEND(p->cmd_sh, dyn_string(FOO->cmd_sh));
 	SAVE(flist);
 	SAVE(top_argc);
 	for (j = 0; j < CCOL_MAX; j++) SAVE(cmdcol[j]);
@@ -199,15 +156,15 @@ save _ONE(RING *,p)
 /*
  * Reload global state from a previously-saved state
  */
-#define	UNSAVE(n)	n = p->n
+#define	UNSAVE(n)	FOO->n = p->n
 static
 unsave _ONE(RING *,p)
 {
 	register int	j;
-	(void) Toggle(new_wd, p->new_wd);
+	(void) Toggle(FOO->new_wd, p->new_wd);
 	UNSAVE(toscan);
 	UNSAVE(scan_expr);
-	dyn_init(&cmd_sh, BUFSIZ); APPEND(cmd_sh, dyn_string(p->cmd_sh));
+	dyn_init(&FOO->cmd_sh, BUFSIZ); APPEND(FOO->cmd_sh, dyn_string(p->cmd_sh));
 	UNSAVE(flist);
 	UNSAVE(top_argc);
 	for (j = 0; j < CCOL_MAX; j++) UNSAVE(cmdcol[j]);
@@ -240,6 +197,15 @@ unsave _ONE(RING *,p)
 	UNSAVE(Z_opt);
 #endif
 	UNSAVE(numfiles);
+}
+
+/*
+ * Allocates a new RING structure
+ */
+RING *
+ring_alloc()
+{
+	return (RING *)calloc(1,sizeof(RING));
 }
 
 /*
@@ -278,7 +244,7 @@ _DCL(char *,	pattern)
 	 * Make a new entry, using all of the current state except for
 	 * the actual file-list
 	 */
-	p = ALLOC(RING,1);
+	p = ring_alloc();
 	p->cmd_sh = 0;
 	if (!rang)	rang = p;
 
@@ -428,10 +394,10 @@ ring_bak _ONE(char *,path)
 static
 do_a_scan _ONE(RING *,newp)
 {
-	if (dedscan(newp->top_argc, newp->top_argv)) {
-		curfile = 0;
+	if (dedscan(FOO, newp->top_argc, newp->top_argv)) {
+		FOO->curfile = 0;
 		dedsort();
-		curfile = 0;	/* ensure consistent initial */
+		FOO->curfile = 0;	/* ensure consistent initial */
 		if (no_worry < 0)	/* start worrying! */
 			no_worry = FALSE;
 		return (TRUE);
@@ -463,7 +429,7 @@ _DCL(char *,	pattern)
 	/*
 	 * Save the current state
 	 */
-	oldp = Insert(new_wd, FALSE, (char *)0);
+	oldp = Insert(FOO->new_wd, FALSE, (char *)0);
 
 	/*
 	 * Get the appropriate state:
@@ -488,14 +454,14 @@ _DCL(char *,	pattern)
 		}
 		break;
 	case 'q':		/* release & move forward */
-		path = new_wd;
+		path = FOO->new_wd;
 		if ((newp = ring_fwd(path)) == oldp)
 			return(FALSE);
 		Remove(path);
 		path = strcpy (tmp, newp->new_wd);
 		break;
 	case 'Q':		/* release & move backward */
-		path = new_wd;
+		path = FOO->new_wd;
 		if ((newp = ring_bak(path)) == oldp)
 			return(FALSE);
 		Remove(path);
@@ -514,49 +480,49 @@ _DCL(char *,	pattern)
 	 */
 	if (newp != oldp) {
 		unsave(newp);
-		if (numfiles == 0) {
+		if (FOO->numfiles == 0) {
 #ifdef	Z_RCS_SCCS
-			V_opt = 0;
-			Y_opt = 0;
-			Z_opt = 0;
+			FOO->V_opt = 0;
+			FOO->Y_opt = 0;
+			FOO->Z_opt = 0;
 #endif
 #ifdef	S_IFLNK
-			AT_opt = 0;
+			FOO->AT_opt = 0;
 
 			/*
 			 * Coerce translation of pathnames in case part of the
 			 * path was a symbolic link.
 			 */
-			if (path_RESOLVE(new_wd)) {
-				if (strcmp(new_wd, path)) {
+			if (path_RESOLVE(FOO, FOO->new_wd)) {
+				if (strcmp(FOO->new_wd, path)) {
 					Remove (path);
-					if (!(newp = ring_get(new_wd)))
-						newp = Insert(new_wd, TRUE, pattern);
+					if (!(newp = ring_get(FOO->new_wd)))
+						newp = Insert(FOO->new_wd, TRUE, pattern);
 					unsave(newp);
 				}
 			} else {
 				success = FALSE;
 			}
-			if (success && numfiles == 0)
+			if (success && FOO->numfiles == 0)
 #endif
 				success = do_a_scan(newp);
 
 			if (!success)
 				Remove (path);
 
-		} else if (set_pattern && (toscan != pattern)) {
-			toscan	= pattern;
+		} else if (set_pattern && (FOO->toscan != pattern)) {
+			FOO->toscan	= pattern;
 			success	= do_a_scan(newp); /* rescan with pattern */
 		}
 		if (!success) {		/* pop back to last "good" directory */
 			unsave(oldp);
-			(void)chdir(new_wd);
+			(void)chdir(FOO->new_wd);
 		}
-	} else if (set_pattern && (toscan != pattern)) {
-		toscan	= pattern;
+	} else if (set_pattern && (FOO->toscan != pattern)) {
+		FOO->toscan	= pattern;
 		if (!(success = do_a_scan(newp))) {
 			unsave(oldp);
-			(void)chdir(new_wd);
+			(void)chdir(FOO->new_wd);
 		}
 	}
 	dump_ring("debug");
@@ -579,10 +545,10 @@ dedrung _ONE(int,count)
 {
 	static	char	show[BUFSIZ];
 
-	auto	RING	*oldp	= Insert(new_wd, FALSE, (char *)0),
+	auto	RING	*oldp	= Insert(FOO->new_wd, FALSE, (char *)0),
 			*newp;
 	auto	char	temp[BUFSIZ],
-			*path	= new_wd;
+			*path	= FOO->new_wd;
 
 	while (count != 0) {
 		if (count > 0) {
@@ -619,15 +585,15 @@ _DCL(char *,	newname)
 {
 	register RING	*p, *q, *r;
 	register RING	*mark	= 0;
-	register RING	*curr	= ring_get(new_wd);
+	register RING	*curr	= ring_get(FOO->new_wd);
 	auto	 RING	old;
 	auto	 int	len, n;
 	auto	 char	oldtemp[MAXPATHLEN],
 			newtemp[MAXPATHLEN],
 			tmp[MAXPATHLEN];
 
-	abspath(oldname = pathcat(oldtemp, new_wd, oldname));
-	abspath(newname = pathcat(newtemp, new_wd, newname));
+	abspath(oldname = pathcat(oldtemp, FOO->new_wd, oldname));
+	abspath(newname = pathcat(newtemp, FOO->new_wd, newname));
 
 #ifdef	TEST
 	dlog_comment("dedrering\n");
@@ -664,7 +630,7 @@ _DCL(char *,	newname)
 			dlog_comment(".moved:%s\n", tmp);
 #endif
 			if (p == curr) {
-				int	ok = chdir(strcpy(new_wd, tmp));
+				int	ok = chdir(strcpy(FOO->new_wd, tmp));
 				dlog_comment("RING-chdir %s =>%d\n", tmp,ok);
 			}
 			if (!mark)
