@@ -1,10 +1,19 @@
-# $Id: Makefile,v 6.1 1990/04/17 08:33:04 dickey Exp $
+# $Id: Makefile,v 8.0 1990/04/18 07:42:02 ste_cm Rel $
 # MAKE-file for directory editor
 #
 # $Log: Makefile,v $
-# Revision 6.1  1990/04/17 08:33:04  dickey
-# suppress .c.a rule to cover up apollo sr10.2 make-bug (ded.c -> ded.a)
+# Revision 8.0  1990/04/18 07:42:02  ste_cm
+# BASELINE Mon Aug 13 15:06:41 1990 -- LINCNT, ADA_TRANS
 #
+#        Revision 7.0  90/04/18  07:42:02  ste_cm
+#        BASELINE Mon Apr 30 09:54:01 1990 -- (CPROTO)
+#        
+#        Revision 6.2  90/04/18  07:42:02  dickey
+#        updated include-dependency for 'dedscan.c'
+#        
+#        Revision 6.1  90/04/17  09:12:31  dickey
+#        suppress .c.a rule to cover up apollo sr10.2 make-bug (ded.c -> ded.a)
+#        
 #        Revision 6.0  90/03/05  11:13:33  ste_cm
 #        BASELINE Thu Mar 29 07:37:55 1990 -- maintenance release (SYNTHESIS)
 #        
@@ -103,6 +112,7 @@ archive: $(OBJS)
 ded.o:		$(DED_H) ded.c version.h
 $(OBJS):	$(DED_H)
 ded2s.o:	$I/acl.h
+dedscan:	$I/rcsdefs.h
 #
 ####### (Development) ##########################################################
 $(SOURCES):			; $(GET) $@

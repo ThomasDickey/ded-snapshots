@@ -1,10 +1,14 @@
 /*
- * $Id: version.h,v 6.0 1990/03/02 08:59:28 ste_cm Rel $
+ * $Id: version.h,v 6.1 1990/04/18 07:43:41 dickey Exp $
  * Version-identifier for DED
  * $Log: version.h,v $
- * Revision 6.0  1990/03/02 08:59:28  ste_cm
- * BASELINE Thu Mar 29 07:37:55 1990 -- maintenance release (SYNTHESIS)
+ * Revision 6.1  1990/04/18 07:43:41  dickey
+ * correction to 'E' command (following symbolic link to file).
+ * invoke 'rcslast()' to show "RCS,v" (permit-file) version.
  *
+ *		Revision 6.0  90/03/02  08:59:28  ste_cm
+ *		BASELINE Thu Mar 29 07:37:55 1990 -- maintenance release (SYNTHESIS)
+ *		
  *		Revision 5.5  90/03/02  08:59:28  dickey
  *		modified 't' command so that directories are shown in a
  *		reasonable form.  modified 'q' behavior to prompt user if
@@ -133,4 +137,4 @@
  * 01 Dec 1987, added '*', '^' commands, made '%' refresh screen
  * 25 Nov 1987, added sccs-support (V,z,Z toggles, V,z,Z sorts)
  */
-static	char	version[] = "$Date: 1990/03/02 08:59:28 $";
+static	char	version[] = "$Date: 1990/04/18 07:43:41 $";
