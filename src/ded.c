@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	what[] = "$Id: ded.c,v 7.2 1990/05/18 16:47:29 dickey Exp $";
+static	char	what[] = "$Id: ded.c,v 8.0 1990/05/23 12:00:28 ste_cm Rel $";
 #endif	lint
 
 /*
@@ -7,10 +7,23 @@ static	char	what[] = "$Id: ded.c,v 7.2 1990/05/18 16:47:29 dickey Exp $";
  * Author:	T.E.Dickey
  * Created:	09 Nov 1987
  * $Log: ded.c,v $
- * Revision 7.2  1990/05/18 16:47:29  dickey
- * modified 'edithead()' so it does the "right" thing when going
- * to an Apollo DSEE revision
+ * Revision 8.0  1990/05/23 12:00:28  ste_cm
+ * BASELINE Mon Aug 13 15:06:41 1990 -- LINCNT, ADA_TRANS
  *
+ *		Revision 7.5  90/05/23  12:00:28  dickey
+ *		corrected bug in 'new_tree()' introduced in last change
+ *		
+ *		Revision 7.4  90/05/23  11:28:25  dickey
+ *		allow CTL(E) command from directory-tree as well
+ *		
+ *		Revision 7.3  90/05/23  09:26:49  dickey
+ *		modified so that CTL(E) and CTL(V) on a directory will cause
+ *		a prompt for read-pattern a la CTL(R).
+ *		
+ *		Revision 7.2  90/05/18  16:51:53  dickey
+ *		modified 'edithead()' so it does the "right" thing when going
+ *		to an Apollo DSEE revision
+ *		
  *		Revision 7.1  90/05/07  07:42:45  dickey
  *		make "-t" option inherit into subprocesses
  *		
@@ -852,7 +865,6 @@ int	y,x;
 rescan(fwd, backto)		/* re-scan argument list */
 char	*backto;		/* name to reset to, if possible */
 {
-	auto	 char	tpath[MAXPATHLEN];
 	register int	j;
 
 	to_work();
@@ -870,7 +882,7 @@ char	*backto;		/* name to reset to, if possible */
 		showFILES(TRUE);
 		return (TRUE);
 	} else if (fwd)
-		return (new_args(strcpy(tpath, new_wd), 'F', 1));
+		return (old_args('F',1));
 	return (FALSE);
 }
 
@@ -949,20 +961,52 @@ count_tags()
  * Use the 'dedring()' module to switch to a different file-list
  */
 static
-new_args(path, cmd, count)
+new_args(path, cmd, count, flags, set_pattern, pattern)
 char	*path;
+char	*pattern;
 {
 int	ok;
 
+	if (flags & 1)
+		markC(TRUE);
 	clear_work();
-	if (ok = dedring(path, cmd, count)) {
+	if (ok = dedring(path, cmd, count, set_pattern, pattern)) {
 		(void)to_file();
 		count_tags();
 		showFILES(TRUE);
 	}
 	(void)chdir(new_wd);
 	dlog_comment("chdir %s\n", new_wd);
+	if (!ok && (flags & 2))
+		showC();
 	return (ok);
+}
+
+/*
+ * Set list to an old set of arguments
+ */
+static
+old_args(cmd, count)
+{
+	auto	 char	tpath[MAXPATHLEN];
+	return (new_args(
+		strcpy(tpath, new_wd),
+		cmd, count, 0, FALSE, (char *)0));
+}
+
+/*
+ * Open a (new) argument-list, setting the scan-pattern
+ */
+static
+pattern_args(path)
+char	*path;
+{
+	char	*pattern = 0;
+	while (dedread(&pattern)) {
+		if (new_args(path, 'E', 1, 3, TRUE, pattern))
+			return (TRUE);
+	}
+	return (FALSE);
 }
 
 /*
@@ -970,12 +1014,14 @@ int	ok;
  * it fails.
  */
 static
-new_tree(path, cmd, count)
+new_tree(path, cmd)
 char	*path;
 {
-	if (new_args(path, cmd, count))
+	if (iscntrl(cmd)) {
+		if (pattern_args(path))
+			return (TRUE);
+	} else if (new_args(path, 'E', 1, 0, FALSE, (char *)0))
 		return (TRUE);
-	(void)strcpy(path, new_wd);
 	return (FALSE);
 }
 
@@ -1025,31 +1071,36 @@ char	*arg0, *arg1;
  * Enter an editor (separate process) for the current-file/directory.
  */
 static
-editfile(readonly, pad)
+editfile(readonly, extended)
 {
 	struct	stat	sb;
 	char	*editor = (readonly ? ENV(BROWSE) : ENV(EDITOR));
+	char	tpath[BUFSIZ];
 
 	dlog_name(cNAME);
 	switch (realstat(curfile, &sb)) {
-	case 0:
+	case 0:	/* edit-file */
 		to_work();
-		if (pad) {
+		if (extended) {
 			if (padedit(cNAME, readonly, editor) < 0)
 				beep();
 			restat(FALSE);
 		} else
 			forkfile(editor, cNAME, TRUE);
 		break;
-	case 1:
-		to_work();
-		ft_write();
-		dlog_close();
-		forkfile(whoami, cNAME, TRUE);
-		dlog_reopen();
-		ft_read(new_wd, tree_opt);
-		if (no_worry < 0)	/* start worrying! */
-			no_worry = FALSE;
+	case 1:	/* edit-directory */
+		if (extended) {
+			(void)pattern_args(pathcat(tpath, new_wd, cNAME));
+		} else {
+			to_work();
+			ft_write();
+			dlog_close();
+			forkfile(whoami, cNAME, TRUE);
+			dlog_reopen();
+			ft_read(new_wd, tree_opt);
+			if (no_worry < 0)	/* start worrying! */
+				no_worry = FALSE;
+		}
 		break;
 	default:
 		dedmsg("cannot edit this item");
@@ -1347,7 +1398,7 @@ char	*argv[];
 
 	case CTL(R):	/* modify read-expression */
 			(void)strcpy(tpath, cNAME);
-			while (dedread())
+			while (dedread(&toscan))
 				if (rescan(FALSE, tpath))
 					break;
 			break;
@@ -1516,26 +1567,19 @@ char	*argv[];
 				wrepaint(stdscr,0);
 				ft_read(new_wd, tree_opt);
 			    }
-			} while (!new_tree(tpath, 'E', 1));
+			} while (!new_tree(tpath, c));
 			break;
 
 	case 'E':	/* enter new directory on ring */
 			if (realstat(curfile, &sb) == 1) {
-				markC(TRUE);
-				if (!new_args(
+				(void)new_args(
 					pathcat(tpath, new_wd, cNAME),
-					c, 1)) {
-					showC();
-				}
+					c, 1, 3, FALSE, (char *)0);
 #ifdef	S_IFLNK		/* try to edit head-directory of symbolic-link */
 			} else if (edithead(tpath, dpath, cLTXT)) {
-				if (strcmp(tpath, new_wd)) {
-					markC(TRUE);
-					if (!new_args(tpath, c, 1)) {
-						showC();
-						break;
-					}
-				}
+				if (strcmp(tpath, new_wd)
+				&&  !new_args(tpath, c, 1, 3, FALSE, (char *)0))
+					break;
 				scroll_to_file(findFILE(txtalloc(dpath)));
 #endif	S_IFLNK
 			} else
@@ -1544,8 +1588,8 @@ char	*argv[];
 
 	case 'F':	/* move forward in directory-ring */
 	case 'B':	/* move backward in directory-ring */
-			(void)new_args(strcpy(tpath, new_wd), c, count);
-			showC();
+			if (!old_args(c, count))
+				showC();
 			break;
 
 	case CTL(K):	/* dump the current screen */

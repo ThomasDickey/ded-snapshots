@@ -1,4 +1,4 @@
-$Id: ded.hlp,v 7.0 1990/02/07 08:15:53 ste_cm Rel $
+$Id: ded.hlp,v 8.0 1990/05/23 11:35:14 ste_cm Rel $
 
 DED (Directory EDitor)
 ======================
@@ -20,7 +20,7 @@ Options:
   S		toggle filesize (in blocks) field
   T		toggle date+time length
   U		(apollo) show aegis-style names
-  Z (or z)	toggle sccs-data display
+  Z (or z)	toggle rcs/sccs-data display
   r{key}
   s{key}	provide initial sort (or reverse) by {key}.
 
@@ -64,10 +64,10 @@ Display-Adjustment:
   S		toggle filesize (in blocks) field
   T		toggle date+time length
   U		toggle filename display (unix vs apollo)
-  V		toggle sccs version display
-  Y		toggle sccs lock-owner display
-  Z		toggle sccs filedate display
-  z		clear sccs display (reduces overhead)
+  V		toggle rcs/sccs version display
+  Y		toggle rcs/sccs lock-owner display
+  Z		toggle rcs/sccs filedate display
+  z		clear rcs/sccs display (reduces overhead)
   @		toggle symbolic-link display (uppercase=target)
 
   A		move workspace marker up {count} lines
@@ -108,11 +108,11 @@ Display-Adjustment:
 		T	filetype (after last '.')
 		u	user-id (lexically)
 		U	user-id (numerically)
-		v	sccs versions
+		v	rcs/sccs versions
 		w	last-modification date
-		y	sccs lock-owners
-		z	sccs checkin-dates
-                Z       sccs checkin-dates over modification dates
+		y	rcs/sccs lock-owners
+		z	rcs/sccs checkin-dates
+                Z       rcs/sccs checkin-dates over modification dates
 		.	sort with dotted components in increasing length.
 
 Operations on Files:
@@ -246,6 +246,7 @@ Directory Tree:
   B		Move backward (with wraparound) in the list of directories.
   D		Toggle between directory-tree and file-list display.
   E		Enter a new file-list at the indicated directory-name.
+  CTL/E		Enter a new file-list, prompting for scan-pattern (cf: CTL/R)
   e		Enter a new ded-process at the indicated directory-name.
   F		Move forward (with wraparound) in the list of directories.
   I		Toggle searchability (with '/', etc) of inVisible directories.

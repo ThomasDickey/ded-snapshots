@@ -1,10 +1,19 @@
 /*
- * $Id: version.h,v 7.0 1990/04/27 16:38:43 ste_cm Rel $
+ * $Id: version.h,v 8.0 1990/05/23 11:30:26 ste_cm Rel $
  * Version-identifier for DED
  * $Log: version.h,v $
- * Revision 7.0  1990/04/27 16:38:43  ste_cm
- * BASELINE Mon Apr 30 09:54:01 1990 -- (CPROTO)
+ * Revision 8.0  1990/05/23 11:30:26  ste_cm
+ * BASELINE Mon Aug 13 15:06:41 1990 -- LINCNT, ADA_TRANS
  *
+ *		Revision 7.1  90/05/23  11:30:26  dickey
+ *		corrections to edit-link 'E' command (for DSEE)
+ *		corrections to path-prefix stripping in 'dedscan()'
+ *		make "-t" option inherit into subprocesses of 'ded'.
+ *		make CTL(E) command on directories set scan-pattern.
+ *		
+ *		Revision 7.0  90/04/27  16:38:43  ste_cm
+ *		BASELINE Mon Apr 30 09:54:01 1990 -- (CPROTO)
+ *		
  *		Revision 6.2  90/04/27  16:38:43  dickey
  *		corrections/modifications to pathname resolution to try to
  *		avoid confusion in ".." sequences with symbolic links vs bugs
@@ -146,4 +155,4 @@
  * 01 Dec 1987, added '*', '^' commands, made '%' refresh screen
  * 25 Nov 1987, added sccs-support (V,z,Z toggles, V,z,Z sorts)
  */
-static	char	version[] = "$Date: 1990/04/27 16:38:43 $";
+static	char	version[] = "$Date: 1990/05/23 11:30:26 $";

@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	sccs_id[] = "$Header: /users/source/archives/ded.vcs/src/RCS/dedname.c,v 7.0 1989/07/25 10:50:39 ste_cm Rel $";
+static	char	Id[] = "$Id: dedname.c,v 8.0 1990/05/23 09:08:25 ste_cm Rel $";
 #endif	lint
 
 /*
@@ -7,9 +7,15 @@ static	char	sccs_id[] = "$Header: /users/source/archives/ded.vcs/src/RCS/dedname
  * Author:	T.E.Dickey
  * Created:	11 May 1988
  * $Log: dedname.c,v $
- * Revision 7.0  1989/07/25 10:50:39  ste_cm
- * BASELINE Mon Apr 30 09:54:01 1990 -- (CPROTO)
+ * Revision 8.0  1990/05/23 09:08:25  ste_cm
+ * BASELINE Mon Aug 13 15:06:41 1990 -- LINCNT, ADA_TRANS
  *
+ *		Revision 7.1  90/05/23  09:08:25  dickey
+ *		modified interface to 'dedring()'
+ *		
+ *		Revision 7.0  89/07/25  10:50:39  ste_cm
+ *		BASELINE Mon Apr 30 09:54:01 1990 -- (CPROTO)
+ *		
  *		Revision 6.0  89/07/25  10:50:39  ste_cm
  *		BASELINE Thu Mar 29 07:37:55 1990 -- maintenance release (SYNTHESIS)
  *		
@@ -62,7 +68,7 @@ char	*path;
 {
 char	tmp[BUFSIZ];
 	do {
-		(void)dedring(strcpy(tmp, new_wd), 'F', 1);
+		(void)dedring(strcpy(tmp, new_wd), 'F', 1, FALSE, (char *)0);
 	} while (strcmp(new_wd, path));
 }
 
@@ -113,7 +119,7 @@ char	oldname[BUFSIZ],
 			char	tmp[BUFSIZ];
 				(void)strcpy(bfr, new_wd);
 				findname(oldname);
-				(void)dedring(tmp, 'Q', 1);
+				(void)dedring(tmp, 'Q', 1, FALSE, (char *)0);
 				findname(bfr);
 			}
 		}

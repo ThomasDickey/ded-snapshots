@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	Id[] = "$Id: dedring.c,v 7.0 1990/03/02 12:09:20 ste_cm Rel $";
+static	char	Id[] = "$Id: dedring.c,v 8.0 1990/05/23 11:16:30 ste_cm Rel $";
 #endif	lint
 
 /*
@@ -7,9 +7,20 @@ static	char	Id[] = "$Id: dedring.c,v 7.0 1990/03/02 12:09:20 ste_cm Rel $";
  * Author:	T.E.Dickey
  * Created:	27 Apr 1988
  * $Log: dedring.c,v $
- * Revision 7.0  1990/03/02 12:09:20  ste_cm
- * BASELINE Mon Apr 30 09:54:01 1990 -- (CPROTO)
+ * Revision 8.0  1990/05/23 11:16:30  ste_cm
+ * BASELINE Mon Aug 13 15:06:41 1990 -- LINCNT, ADA_TRANS
  *
+ *		Revision 7.2  90/05/23  11:16:30  dickey
+ *		added a missing case to handle 'set_pattern' arg of 'dedring'
+ *		(when we are using CTL(E) command like CTL(R)).
+ *		
+ *		Revision 7.1  90/05/23  09:30:35  dickey
+ *		modified 'dedring()' so that an initial scan-pattern can be
+ *		specified, to support the CTL(E) command.
+ *		
+ *		Revision 7.0  90/03/02  12:09:20  ste_cm
+ *		BASELINE Mon Apr 30 09:54:01 1990 -- (CPROTO)
+ *		
  *		Revision 6.0  90/03/02  12:09:20  ste_cm
  *		BASELINE Thu Mar 29 07:37:55 1990 -- maintenance release (SYNTHESIS)
  *		
@@ -254,8 +265,9 @@ RING	*p;
  */
 static
 RING *
-insert(path, first)
+insert(path, first, pattern)
 char	*path;
+char	*pattern;
 {
 RING	*p	= ring,
 	*q	= 0;
@@ -283,7 +295,7 @@ char	bfr[BUFSIZ];
 	save(p);
 	(void)strcpy(p->new_wd, bfr);
 	if (first) {
-		p->toscan   = 0;	/* don't inherit read-expression */
+		p->toscan   = pattern;
 		p->scan_expr= 0;
 		p->flist    = 0;
 		p->top_argc = 1;
@@ -413,11 +425,30 @@ char	tmp[BUFSIZ];
 	return (p);		/* should not ever get here */
 }
 
+static
+do_a_scan(newp)
+RING	*newp;
+{
+	if (dedscan(newp->top_argc, newp->top_argv)) {
+		curfile = 0;
+		dedsort();
+		curfile = 0;	/* ensure consistent initial */
+		if (no_worry < 0)	/* start worrying! */
+			no_worry = FALSE;
+		return (TRUE);
+	}
+	return (FALSE);
+}
+
 /************************************************************************
  *	public entrypoints						*
  ************************************************************************/
-dedring(path, cmd, count)
+dedring(path, cmd, count, set_pattern, pattern)
 char	*path;
+int	cmd;
+int	count;
+int	set_pattern;
+char	*pattern;
 {
 RING	*oldp,
 	*newp	= 0;
@@ -427,7 +458,7 @@ char	tmp[BUFSIZ];
 	/*
 	 * Save the current state
 	 */
-	oldp = insert(new_wd, FALSE);
+	oldp = insert(new_wd, FALSE, (char *)0);
 
 	/*
 	 * Get the appropriate state:
@@ -435,7 +466,7 @@ char	tmp[BUFSIZ];
 	switch (cmd) {
 	case 'E':
 		if ((newp = ring_get(path)) == 0)
-			newp = insert(path, TRUE);
+			newp = insert(path, TRUE, pattern);
 		break;
 	case 'F':
 		while (count-- > 0) {
@@ -496,7 +527,7 @@ char	tmp[BUFSIZ];
 				if (strcmp(getwd(new_wd), path)) {
 					remove (path);
 					if (!(newp = ring_get(new_wd)))
-						newp = insert(new_wd, TRUE);
+						newp = insert(new_wd, TRUE, pattern);
 					unsave(newp);
 				}
 			} else {
@@ -504,21 +535,24 @@ char	tmp[BUFSIZ];
 			}
 			if (success && numfiles == 0)
 #endif	S_IFLNK
-			if (dedscan(newp->top_argc, newp->top_argv)) {
-				curfile = 0;
-				dedsort();
-				curfile = 0;	/* ensure consistent initial */
-				if (no_worry < 0)	/* start worrying! */
-					no_worry = FALSE;
-			} else {
-				success	= FALSE;
-			}
+				success = do_a_scan(newp);
 
-			if (!success) {
+			if (!success)
 				remove (path);
-				unsave(oldp);
-				(void)chdir(new_wd);
-			}
+
+		} else if (set_pattern && (toscan != pattern)) {
+			toscan	= pattern;
+			success	= do_a_scan(newp); /* rescan with pattern */
+		}
+		if (!success) {		/* pop back to last "good" directory */
+			unsave(oldp);
+			(void)chdir(new_wd);
+		}
+	} else if (set_pattern && (toscan != pattern)) {
+		toscan	= pattern;
+		if (!(success = do_a_scan(newp))) {
+			unsave(oldp);
+			(void)chdir(new_wd);
 		}
 	}
 	return (success);
@@ -539,7 +573,7 @@ char	*path;
 char *
 dedrung(count)
 {
-RING	*oldp	= insert(new_wd, FALSE),
+RING	*oldp	= insert(new_wd, FALSE, (char *)0),
 	*newp;
 static
 char	show[BUFSIZ];

@@ -1,14 +1,26 @@
 #ifndef	lint
-static	char	Id[] = "$Id: ftree.c,v 7.0 1990/03/06 08:25:57 ste_cm Rel $";
+static	char	Id[] = "$Id: ftree.c,v 8.0 1990/05/23 10:51:18 ste_cm Rel $";
 #endif	lint
 
 /*
  * Author:	T.E.Dickey
  * Created:	02 Sep 1987
  * $Log: ftree.c,v $
- * Revision 7.0  1990/03/06 08:25:57  ste_cm
- * BASELINE Mon Apr 30 09:54:01 1990 -- (CPROTO)
+ * Revision 8.0  1990/05/23 10:51:18  ste_cm
+ * BASELINE Mon Aug 13 15:06:41 1990 -- LINCNT, ADA_TRANS
  *
+ *		Revision 7.2  90/05/23  10:51:18  dickey
+ *		set initial "=>" marker in 'ft_view()' so that caller can
+ *		give an arbitrary 'path' value (e.g., when error-recovering
+ *		from 'E' command).  Also, pass CTL(E) command out of 'ft_view()'
+ *		like 'E' command.
+ *		
+ *		Revision 7.1  90/05/23  09:29:30  dickey
+ *		modified interface to 'dedring()'
+ *		
+ *		Revision 7.0  90/03/06  08:25:57  ste_cm
+ *		BASELINE Mon Apr 30 09:54:01 1990 -- (CPROTO)
+ *		
  *		Revision 6.0  90/03/06  08:25:57  ste_cm
  *		BASELINE Thu Mar 29 07:37:55 1990 -- maintenance release (SYNTHESIS)
  *		
@@ -1042,6 +1054,9 @@ char	*path;
 	lvl = fd_level(row);
 	scroll_to(row);
 	showdiff = -1;
+#ifndef	TEST
+	(void)strcpy(path, dedrung(0));	/* init for "=>" marker */
+#endif
 
 	/* process commands */
 	for (;;) {
@@ -1177,11 +1192,13 @@ char	*path;
 			deddump();
 			break;
 
+#define	SKIP_THIS(num)	dedring(fd_path(cwdpath, row), c, num, FALSE, (char *)0)
+
 		/* quit lists in directory-ring */
 		case 'Q':
 		case 'q':
 			while (num-- > 0) {
-				j = dedring(fd_path(cwdpath, row), c, 1);
+				j = SKIP_THIS(1);
 				if (!j)
 					break;
 				if (is_sccs(row) && (savesccs != showsccs))
@@ -1194,11 +1211,12 @@ char	*path;
 		/* scroll through the directory-ring */
 		case 'F':
 		case 'B':
-			num = dedring(fd_path(cwdpath, row), c, num);
+			num = SKIP_THIS(num);
 			fd_ring(path, &row, &lvl);
 			break;
 
 		/* Exit from this program (back to 'ded') */
+		case CTL(E):
 		case 'E':
 		case 'e':
 			(void)fd_path(cwdpath, row);
@@ -1225,7 +1243,7 @@ char	*path;
 			/* fall-thru to return */
 #endif	TEST
 		case 'D':
-			return(c);	/* 'e' or 'E' or 'D' -- only! */
+			return(c);	/* 'e', 'E' CTL(E) or 'D' -- only! */
 
 		/* Scan/delete nodes */
 		case 'R':	if (ftree[row].f_mark & LINKED)
