@@ -1,4 +1,4 @@
-.\" $Id: ded.man,v 11.0 1992/05/27 17:02:10 ste_cm Rel $
+.\" $Id: ded.man,v 11.1 1992/08/04 08:30:43 dickey Exp $
 .de DS
 .RS
 .nf
@@ -900,10 +900,12 @@ scroll forward \fIcount\fR subscreens
 scroll backward \fIcount\fR subscreens (also, the \fIbackspace\fR key).
 .TP
 .I left-arrow
-scroll left \fIcount\fR/4 screens.
+scroll left \fIcount\fR/4 screens
+(also, the CTL/L key).
 .TP
 .I right-arrow
-scroll right \fIcount\fR/4 screens.
+scroll right \fIcount\fR/4 screens
+(also, the CTL/R key).
 .PP
 The following commands use the workspace pager:
 .TP

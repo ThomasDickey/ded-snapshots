@@ -3,7 +3,7 @@
 
 #ifdef	MAIN
 #ifndef	lint
-static	char	*ded_h = "$Id: ded.h,v 11.0 1992/05/12 14:50:42 ste_cm Rel $";
+static	char	*ded_h = "$Id: ded.h,v 11.1 1992/08/04 13:16:37 dickey Exp $";
 #endif
 #endif	/* MAIN */
 
@@ -546,7 +546,7 @@ extern	int	has_extended_acl(
 		_ar1(int,	x));
 
 /* *** "dlog.c" *** */
-extern	int	dlog_read(
+extern	void	dlog_read(
 		_ar1(char *,	name));
 
 extern	char	*dlog_open(
@@ -554,30 +554,29 @@ extern	char	*dlog_open(
 		_arx(int,	argc)
 		_ar1(char **,	argv));
 
-extern	int	dlog_reopen(_ar0);
+extern	void	dlog_reopen(_ar0);
 
-extern	int	dlog_close(_ar0);
+extern	void	dlog_close(_ar0);
 
-extern	int	dlog_exit(
+extern	void	dlog_exit(
 		_ar1(int,	code));
 
 extern	int	dlog_char(
 		_arx(int,	*count_)
 		_ar1(int,	begin));
 
-extern	int	dlog_string(
-		_arx(char *,	s)
-		_arx(int,	len)
-		_ar1(int,	wrap));
+extern	char *	dlog_string(
+		_arx(DYN **,	buffer)
+		_ar1(int,	wrap_len));
 
-extern	int	dlog_elapsed(_ar0);
+extern	void	dlog_elapsed(_ar0);
 
-extern	int	dlog_flush(_ar0);
+extern	void	dlog_flush(_ar0);
 
-extern	int	dlog_name(
+extern	void	dlog_name(
 		_ar1(char *,	name));
 
-extern	int	dlog_comment(
+extern	void	dlog_comment(
 #ifdef	__STDC__
 		...
 #endif

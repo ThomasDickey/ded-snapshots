@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	Id[] = "$Id: dedfind.c,v 11.0 1992/04/06 11:56:51 ste_cm Rel $";
+static	char	Id[] = "$Id: dedfind.c,v 11.1 1992/08/04 14:00:42 dickey Exp $";
 #endif
 
 /*
@@ -28,10 +28,12 @@ public	void	dedfind(
 	_DCL(RING *,	gbl)
 	_DCL(int,	key)
 {
+	register char	*s;
 	int	j,k,
 		found	= FALSE,
 		next	= 0;
-	static	char	text[BUFSIZ], *expr;
+	static	DYN	*text;
+	static	char	*expr;
 	static	int	order;		/* saves last legal search order */
 
 	if (key == '/' || key == '?') {
@@ -43,18 +45,23 @@ public	void	dedfind(
 		move(j,k);
 		refresh();
 
-		*text = EOS;
-		dlog_string(text,sizeof(text),FALSE);
+		dyn_init(&text, BUFSIZ);
+		s = dlog_string(&text,0);
 		if (key == '/')	order = 1;
 		if (key == '?') order = -1;
 		next = order;
-	} else if (order) {
-		if (key == 'n')	next = order;
-		if (key == 'N')	next = -order;
+	} else if (s = dyn_string(text)) {
+		if (order) {
+			if (key == 'n')	next = order;
+			if (key == 'N')	next = -order;
+		}
+	} else {
+		dedmsg(gbl, "No previous regular expression");
+		return;
 	}
 
 	OLD_REGEX(expr);
-	if (NEW_REGEX(expr,text)) {
+	if (NEW_REGEX(expr,s)) {
 		for (j = gbl->curfile + next; ; j += next) {
 			if (j < 0) {
 				j = gbl->numfiles;
@@ -74,7 +81,7 @@ public	void	dedfind(
 			dlog_name(gNAME(j));
 		} else {
 		char	msg[BUFSIZ];
-			FORMAT(msg, "\"%s\" not found", text);
+			FORMAT(msg, "\"%s\" not found", s);
 			dedmsg(gbl, msg);
 			return;
 		}

@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	Id[] = "$Id: ftree.c,v 11.0 1992/07/23 14:19:12 ste_cm Rel $";
+static	char	Id[] = "$Id: ftree.c,v 11.1 1992/08/04 13:47:34 dickey Exp $";
 #endif
 
 /*
@@ -1175,6 +1175,7 @@ public	RING *	ft_view(
 	_DCL(char *,	path)
 	_DCL(int *,	cmdp)
 {
+	static	 DYN *	my_text;
 	auto	 RING *	tmp;
 	auto	 int	row,
 			lvl,
@@ -1182,6 +1183,7 @@ public	RING *	ft_view(
 			c;
 	auto	 char	cwdpath[MAXPATHLEN];
 	register int	j;
+	register char	*s;
 
 	*cmdp = 'E';	/* the most common return-value */
 
@@ -1277,12 +1279,15 @@ public	RING *	ft_view(
 			move(PATH_ROW,0);
 			PRINTW("line: ");
 			clrtoeol();
-			*cwdpath = EOS;
-			dlog_string(cwdpath,sizeof(cwdpath),FALSE);
-			if (!strcmp(cwdpath, "$"))
+
+			dyn_init(&my_text, MAXPATHLEN);
+			s = dlog_string(&my_text,0);
+
+			if (!strcmp(s, "$"))
 				c = FDlast;
-			else if (sscanf(cwdpath, "%d%c", &c, &num) != 1)
+			else if (sscanf(s, "%d%c", &c, &num) != 1)
 				c = -1;
+
 			if (c >= 0 && c <= FDlast) {
 				row = c;
 				lvl = fd_level(row);
@@ -1302,20 +1307,22 @@ public	RING *	ft_view(
 				move(PATH_ROW,0);
 				PRINTW((c != '@') ? "find: " : "jump: ");
 				clrtoeol();
-				if (c == '~')
-					(void)strcpy(cwdpath, "~");
-				dlog_string(cwdpath,sizeof(cwdpath),FALSE);
-				if (!*cwdpath && c != '@') {
+
+				my_text = dyn_copy(my_text,
+					(c == '~') ? "~" : cwdpath);
+				s = dlog_string(&my_text,0);
+
+				if (!*s && c != '@') {
 					c = -1;
 					beep();
 				}
 			}
 			if (c != '@' && c != '~')
-				c = fd_find(cwdpath,c,row);
-			else if (!*cwdpath)
+				c = fd_find(s,c,row);
+			else if (!*s)
 				c = 0;
 			else {
-				abspath(cwdpath);
+				abspath(strcpy(cwdpath, s));
 				if (chdir(cwdpath) < 0)
 					c = -1;
 				else if ((c = do_find(getwd(cwdpath))) < 0) {
@@ -1338,9 +1345,11 @@ public	RING *	ft_view(
 
 				abspath(fd_path(cwdpath,row));
 				move(node2row(row),node2col(row,MAXLVL));
-				(void)strcpy(bfr, ftree[row].f_name);
-				dlog_string(bfr,sizeof(bfr),FALSE);
-				abspath(bfr);
+
+				my_text = dyn_copy(my_text, ftree[row].f_name);
+				s = dlog_string(&my_text,0);
+
+				abspath(strcpy(bfr,s));
 
 				if (ok_rename(cwdpath, bfr) ) {
 					ring_rename(gbl, cwdpath, bfr);

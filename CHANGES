@@ -1,3 +1,34 @@
+1992-08-04  dickey@software.org
+
+	* src/dedtype.c: added 'IgnorePage()' so I can see it happening!
+
+	* src/dedtype.c: split out 'StartPage()' to simplify main loop
+
+	* src/dedtype.c: got rid of redundant assignments to 'jump'.
+	sound warnings on upper/left shifts.
+
+	* src/dlog.c: change interface to 'dlog_string()' to use dynamic string
+	for return-value.
+
+	* src/ded.c, src/dedfind.c, src/deddoit.c, src/dedread.c, src/ftree.c:
+	modified interface to 'dlog_string()'
+
+	* src/ded.h:
+	change interface to 'dlog_string()' to use dynamic-strings.
+	also, make some functions 'void' that should have been
+
+	* src/dedtype.c: lint
+
+	* src/dedtype.c: split out 'FinishPage()' so I can simplify main loop
+	use 'tmpfile()' for the directory-name file to simplify
+	deletion after use.
+
+	* user/ded.man: added ctl/r and ctl/l to workspace pager
+
+	* src/dedtype.c:
+	use dynamic strings (actually buffers) so we can display
+	files wider than BUFSIZ.
+
 1992-07-23  dickey@software.org
 
 	* src/ftree.c:

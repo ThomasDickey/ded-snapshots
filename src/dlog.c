@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	what[] = "$Id: dlog.c,v 11.0 1991/10/18 09:49:34 ste_cm Rel $";
+static	char	what[] = "$Id: dlog.c,v 11.1 1992/08/04 14:51:20 dickey Exp $";
 #endif
 
 /*
@@ -46,8 +46,7 @@ static	char	log_name[BUFSIZ];
 static	time_t	mark_time;
 static	char	pending[BUFSIZ];	/* buffers parts of raw-commands */
 
-static
-show_time _ONE(char *,msg)
+private	void	show_time _ONE(char *,msg)
 {
 	auto	time_t	now = NOW;
 
@@ -63,8 +62,7 @@ show_time _ONE(char *,msg)
  */
 #define	PENDING(s,flag)	flush_pending(flag)
 
-static
-flush_pending _ONE(int,newline)
+private	void	flush_pending _ONE(int,newline)
 {
 	if (*pending) {
 		FPRINTF(log_fp, "%s%s", pending, newline ? "\n" : "");
@@ -77,8 +75,7 @@ flush_pending _ONE(int,newline)
  * the current buffer.  If so, read the next buffer from the command-file.
  * return TRUE if we have command-file text available.
  */
-static
-read_script(_AR0)
+private	int	read_script(_AR0)
 {
 	register char	*s;
 
@@ -106,8 +103,7 @@ read_script(_AR0)
  * Read a single-letter command from either the command-file (if open), or
  * from the keyboard.
  */
-static
-read_char _ONE(int *,count_)
+private	int	read_char _ONE(int *,count_)
 {
 	auto	int	num;
 	register int	j;
@@ -177,26 +173,30 @@ read_char _ONE(int *,count_)
  * more single-character commands, so we can test easily for the case of
  * a null-buffer (it simply has no more characters in the current buffer).
  */
-static
-read_line(
-_ARX(char *,	s)
-_ARX(int,	len)
-_AR1(int,	wrap)
-	)
-_DCL(char *,	s)
-_DCL(int,	len)
-_DCL(int,	wrap)
+private	char *	read_line(
+	_ARX(DYN **,	s)
+	_AR1(int,	wrap_len)
+		)
+	_DCL(DYN **,	s)
+	_DCL(int,	wrap_len)
 {
+	int	wrap	= wrap_len > 0;
+	int	len	= wrap ? wrap_len : -wrap_len;
+	register int	c;
+
 	if (cmd_fp != 0) {
-		while (*cmd_ptr) {
-			*s = *cmd_ptr++;
-			if (len-- > 0)
-				s++;
+		dyn_init(s, 1);
+		while (c = *cmd_ptr++) {
+			if ((wrap_len == 0) || (len-- > 0))
+				*s = dyn_append_c(*s, c);
 		}
-		*s = EOS;
-		return;
+	} else {
+		if (!len)
+			len = BUFSIZ;
+		*s = dyn_alloc(*s, (size_t)len+1);
+		rawgets(dyn_string(*s), len, wrap);
 	}
-	rawgets(s, len, wrap);
+	return dyn_string(*s);
 }
 
 /************************************************************************
@@ -208,7 +208,7 @@ _DCL(int,	wrap)
  * work only within a single process, though logging is performed on multiple
  * processes.
  */
-dlog_read _ONE(char *,name)
+public	void	dlog_read _ONE(char *,name)
 {
 	if (!(cmd_fp = fopen(name, "r")))
 		failed(name);
@@ -218,15 +218,14 @@ dlog_read _ONE(char *,name)
 /*
  * Open/append to log-file
  */
-char *
-dlog_open(
-_ARX(char *,	name)
-_ARX(int,	argc)
-_AR1(char **,	argv)
-	)
-_DCL(char *,	name)
-_DCL(int,	argc)
-_DCL(char **,	argv)
+public	char *	dlog_open(
+	_ARX(char *,	name)
+	_ARX(int,	argc)
+	_AR1(char **,	argv)
+		)
+	_DCL(char *,	name)
+	_DCL(int,	argc)
+	_DCL(char **,	argv)
 {
 	register int	j;
 
@@ -243,7 +242,7 @@ _DCL(char **,	argv)
 	return ((char *)0);
 }
 
-dlog_reopen(_AR0)
+public	void	dlog_reopen(_AR0)
 {
 	if (*log_name) {
 		if (log_fp = fopen(log_name, "a+"))
@@ -255,7 +254,7 @@ dlog_reopen(_AR0)
  * Close the log-file (i.e., while spawning a subprocess which will append
  * to the log).
  */
-dlog_close(_AR0)
+public	void	dlog_close(_AR0)
 {
 	if (log_fp) {
 		dlog_flush();
@@ -267,7 +266,7 @@ dlog_close(_AR0)
 /*
  * Exit from the current process, marking the final time on the log-file
  */
-dlog_exit _ONE(int,code)
+public	void	dlog_exit _ONE(int,code)
 {
 	if (log_fp) {
 		show_time("ended");
@@ -279,12 +278,12 @@ dlog_exit _ONE(int,code)
 /*
  * Read a single-character command, logging it appropriately.
  */
-dlog_char(
-_ARX(int *,	count_)
-_AR1(int,	begin)
-	)
-_DCL(int *,	count_)
-_DCL(int,	begin)
+public	int	dlog_char(
+	_ARX(int *,	count_)
+	_AR1(int,	begin)
+		)
+	_DCL(int *,	count_)
+	_DCL(int,	begin)
 {
 	register int	c;
 	register char	*s;
@@ -326,26 +325,25 @@ _DCL(int,	begin)
 /*
  * Obtain a string from the user and log it if logging is active.
  */
-dlog_string(
-_ARX(char *,	s)
-_ARX(int,	len)
-_AR1(int,	wrap)
-	)
-_DCL(char *,	s)
-_DCL(int,	len)
-_DCL(int,	wrap)
+public	char *	dlog_string(
+	_ARX(DYN **,	bfr)
+	_AR1(int,	wrap_len)
+		)
+	_DCL(DYN **,	bfr)
+	_DCL(int,	wrap_len)
 {
-	read_line(s, len, wrap);
+	char	*s = read_line(bfr, wrap_len);
 	if (log_fp) {
 		PENDING(string,FALSE);
 		FPRINTF(log_fp, "%s\n", s);
 	}
+	return s;
 }
 
 /*
  * Log elapsed time since the beginning of a command
  */
-dlog_elapsed(_AR0)
+public	void	dlog_elapsed(_AR0)
 {
 	if (log_fp) {
 		dlog_comment("elapsed time = %ld seconds\n", NOW - mark_time);
@@ -356,7 +354,7 @@ dlog_elapsed(_AR0)
  * Flush the pending command.  We buffer commands so that multi-character
  * stuff (such as sort) is written on one line.
  */
-dlog_flush(_AR0)
+public	void	dlog_flush(_AR0)
 {
 	if (log_fp) {
 		PENDING(flush,TRUE);
@@ -367,7 +365,7 @@ dlog_flush(_AR0)
 /*
  * Annotate the given command with the name of the current entry
  */
-dlog_name _ONE(char *,name)
+public	void	dlog_name _ONE(char *,name)
 {
 	dlog_comment("\"%s\"\n", name);
 }
@@ -385,8 +383,8 @@ dlog_name _ONE(char *,name)
 #endif
 
 /*VARARGS*/
-dlog_comment(va_alist)
-va_dcl
+public	void	dlog_comment(va_alist)
+	va_dcl
 {
 	auto	va_list	args;
 	auto	char	*fmt;

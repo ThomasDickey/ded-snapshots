@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	Id[] = "$Id: dedread.c,v 11.0 1992/04/06 08:44:28 ste_cm Rel $";
+static	char	Id[] = "$Id: dedread.c,v 11.1 1992/08/04 13:50:22 dickey Exp $";
 #endif
 
 /*
@@ -33,7 +33,9 @@ public	int	dedread(
 	_DCL(int,	change_needed)
 {
 	register int	j,k;
-	auto	char	text[BUFSIZ], *expr;
+	register char	*s;
+	static	DYN	*text;
+	auto	char	*expr;
 
 	to_work(gbl,TRUE);
 	PRINTW("Pattern: ");
@@ -43,22 +45,22 @@ public	int	dedread(
 	refresh();
 
 	if (*pattern_)
-		(void)strcpy(text, *pattern_);
+		text = dyn_copy(text, *pattern_);
 	else
-		*text = EOS;
+		dyn_init(&text, BUFSIZ);
 
-	dlog_string(text,sizeof(text),FALSE);
-	if ((*pattern_ != 0) && !strcmp(text, *pattern_)) {
+	s = dlog_string(&text,0);
+	if ((*pattern_ != 0) && !strcmp(s, *pattern_)) {
 		showC(gbl);
 		return (change_needed);
-	} else if (!*text) {
+	} else if (!*s) {
 		*pattern_ = 0;
 		showC(gbl);
 		OLD_REGEX(gbl->scan_expr);
 		return (TRUE);
-	} else if (NEW_REGEX(expr,text)) {
+	} else if (NEW_REGEX(expr,s)) {
 		showC(gbl);
-		*pattern_ = txtalloc(text);
+		*pattern_ = txtalloc(s);
 		OLD_REGEX(gbl->scan_expr);
 		gbl->scan_expr = expr;
 		return (TRUE);
