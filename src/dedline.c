@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	Id[] = "$Id: dedline.c,v 9.6 1991/10/18 10:29:05 dickey Exp $";
+static	char	Id[] = "$Id: dedline.c,v 10.0 1991/11/12 12:11:06 ste_cm Rel $";
 #endif
 
 /*
@@ -7,6 +7,8 @@ static	char	Id[] = "$Id: dedline.c,v 9.6 1991/10/18 10:29:05 dickey Exp $";
  * Author:	T.E.Dickey
  * Created:	01 Aug 1988 (from 'ded.c')
  * Modified:
+ *		12 Nov 1991, killchar in 'edittext()' was not properly erasing
+ *			     the buffer.
  *		16 Oct 1991, mods to support replay of 'c'-commands.
  *			     Allow newline to end 'p'-command, CTL/F and CTL/B
  *			     recognized as in edit-text.
@@ -510,7 +512,7 @@ int	at_flag	= ((endc == 'u') || (endc == 'g')) ? at_save() : FALSE;
 			} else if (c == ec) {
 				delete = x-1;
 			} else if (c == kc) {
-				delete = x;
+				bfr[x = 0] = EOS;
 			} else if (c == ARO_LEFT) {
 				if (x > 0)	x--;
 			} else if (c == ARO_RIGHT) {
