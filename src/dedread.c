@@ -1,5 +1,5 @@
 #if	!defined(NO_IDENT)
-static	char	Id[] = "$Id: dedread.c,v 12.2 1993/11/23 16:42:55 dickey Exp $";
+static	char	Id[] = "$Id: dedread.c,v 12.3 1993/12/01 16:26:13 dickey Exp $";
 #endif
 
 /*
@@ -45,7 +45,6 @@ public	int	dedread(
 	getyx(stdscr,j,k);
 	clrtobot();
 	move(j,k);
-	refresh();
 
 	if (*pattern_)
 		text = dyn_copy(text, *pattern_);

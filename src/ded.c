@@ -1,5 +1,5 @@
 #if	!defined(NO_IDENT)
-static	char	Id[] = "$Header: /users/source/archives/ded.vcs/src/RCS/ded.c,v 12.8 1993/11/23 17:50:07 dickey Exp $";
+static	char	Id[] = "$Header: /users/source/archives/ded.vcs/src/RCS/ded.c,v 12.9 1993/12/01 16:31:02 dickey Exp $";
 #endif
 
 /*
@@ -322,7 +322,6 @@ public	int	user_says(
 		getyx(stdscr,y,x);
 		clrtobot();
 		move(y,x);
-		refresh();
 		dyn_init(&reply, 8);
 		if ((s = dlog_string(&reply,(DYN **)0,NO_HISTORY,EOS,-8)) != NULL)
 			ok = (*s == 'y' || *s == 'Y');
@@ -727,7 +726,6 @@ private	void	new_process(
 	move(y, x-x);
 	clrtobot();
 	move(y, 0);
-	refresh();
 	ft_write();
 	dlog_close();
 	forkfile(gbl, whoami, path, FALSE);
@@ -1030,8 +1028,6 @@ _MAIN
 	case '@':	COMPLEMENT(gbl->AT_opt);
 			count = 0;
 			set_dedblip(gbl);
-			PRINTW(" ");	/* cheat the optimizer */
-			refresh();
 			for (j = 0; j < gbl->numfiles; j++) {
 				if (gLTXT(j)) {
 					put_dedblip('@');

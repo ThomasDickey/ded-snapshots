@@ -1,5 +1,5 @@
 #if	!defined(NO_IDENT)
-static	char	Id[] = "$Id: dedtype.c,v 12.4 1993/11/23 17:50:06 dickey Exp $";
+static	char	Id[] = "$Id: dedtype.c,v 12.5 1993/12/01 16:48:15 dickey Exp $";
 #endif
 
 /*
@@ -427,7 +427,6 @@ private	void	FindPattern(
 		getyx(stdscr,y,x);
 		clrtobot();
 		move(y,x);
-		refresh();
 
 		dyn_init(&text, BUFSIZ);
 		if (!(s = dlog_string(&text,(DYN **)0, &History, EOS, 0)))

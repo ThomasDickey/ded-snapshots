@@ -1,5 +1,5 @@
 #if	!defined(NO_IDENT)
-static	char	Id[] = "$Id: dedmsgs.c,v 12.4 1993/11/24 15:30:50 dickey Exp $";
+static	char	Id[] = "$Id: dedmsgs.c,v 12.5 1993/12/01 16:26:23 dickey Exp $";
 #endif
 
 /*
@@ -44,7 +44,6 @@ private	void	show_message(
 			/* pause beside error message */
 			/* ...and clear it after pause */
 			move(LINES-1,0);
-			refresh();
 			beep();
 			(void)dlog_char((int *)0,-1);
 			clrtoeol();

@@ -1,5 +1,5 @@
 #if	!defined(NO_IDENT)
-static	char	Id[] = "$Id: sortset.c,v 12.4 1993/10/29 20:26:56 dickey Exp $";
+static	char	Id[] = "$Id: sortset.c,v 12.5 1993/12/01 16:30:56 dickey Exp $";
 #endif
 
 /*
@@ -142,7 +142,6 @@ public	int	sortget(
 				beep();
 			}
 			move(y,x-2);
-			refresh();
 			k = strlen(sortc) - 1;
 			switch (found = dlog_char((int *)0, 0)) {
 			case ARO_UP: 	if (--j < 0)	j = k;
