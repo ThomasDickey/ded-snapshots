@@ -154,7 +154,7 @@
 #define	MAIN
 #include	"ded.h"
 
-MODULE_ID("$Header: /users/source/archives/ded.vcs/src/RCS/ded.c,v 12.60 1998/05/30 02:08:02 tom Exp $")
+MODULE_ID("$Header: /users/source/archives/ded.vcs/src/RCS/ded.c,v 12.61 1998/09/17 16:27:21 tom Exp $")
 
 #define	EDITOR	DEFAULT_EDITOR
 #define	BROWSE	DEFAULT_BROWSE
@@ -903,6 +903,8 @@ _MAIN
 	case 'I':	COMPLEMENT(gbl->I_opt);	break;
 #if HAVE_HAS_COLORS
 	case 'i':	invert_colors = TRUE;	break;
+#else
+	case 'i':	break;			/* ignored */
 #endif
 	case 'P':	COMPLEMENT(gbl->P_opt);	break;
 	case 'S':	COMPLEMENT(gbl->S_opt);	break;
@@ -917,7 +919,8 @@ _MAIN
 	case 'c':	dlog_read(optarg);			break;
 	case 'l':	log_opt = dlog_open(optarg,argc,argv);	break;
 	case 's':
-	case 'r':	if (!sortset(gbl, c,*optarg))
+	case 'r':	if (!sortset(gbl, c,*optarg)
+			 || strlen(optarg) > 1)
 				usage();
 			break;
 	case 'd':	debug++;		break;
