@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	sccs_id[] = "$Header: /users/source/archives/ded.vcs/src/RCS/ded.c,v 3.0 1989/06/06 08:38:13 ste_cm Rel $";
+static	char	what[] = "$Id: ded.c,v 3.1 1989/08/11 14:22:57 dickey Exp $";
 #endif	lint
 
 /*
@@ -7,9 +7,12 @@ static	char	sccs_id[] = "$Header: /users/source/archives/ded.vcs/src/RCS/ded.c,v
  * Author:	T.E.Dickey
  * Created:	09 Nov 1987
  * $Log: ded.c,v $
- * Revision 3.0  1989/06/06 08:38:13  ste_cm
- * BASELINE Mon Jun 19 14:21:57 EDT 1989
+ * Revision 3.1  1989/08/11 14:22:57  dickey
+ * added/used procedure 'move2row()'
  *
+ *		Revision 3.0  89/06/06  08:38:13  ste_cm
+ *		BASELINE Mon Jun 19 14:21:57 EDT 1989
+ *		
  *		Revision 2.4  89/06/06  08:38:13  dickey
  *		made blip-call for 'Z' toggle show results like '#'.
  *		
@@ -185,6 +188,19 @@ int
 file2row(n)
 {
 	return ((n - Ybase) + Yhead + 1);
+}
+
+/*
+ * Move to the indicated row; return FALSE if it does not correspond to a
+ * currently-displayed line.
+ */
+move2row(n,col)
+{
+	if (n >= Ybase && n <= Ylast) {
+		move(file2row(n), col);
+		return (TRUE);
+	}
+	return (FALSE);
 }
 
 /*
@@ -458,12 +474,10 @@ showWHAT()
  */
 showLINE(j)
 {
-int	k = file2row(j),
-	col, len;
+int	col, len;
 char	bfr[BUFSIZ];
 
-	if (j >= Ybase && j <= Ylast) {
-		move(k,0);
+	if (move2row(j,0)) {
 		ded2s(j, bfr, sizeof(bfr));
 		if (Xbase < strlen(bfr)) {
 			PRINTW("%.*s", COLS-1, &bfr[Xbase]);
@@ -471,7 +485,7 @@ char	bfr[BUFSIZ];
 				col = cmdcol[3] - Xbase;
 				len = (COLS-1) - col;
 				if (len > 0) {
-					move(k, col);
+					(void)move2row(j, col);
 					standout();
 					PRINTW("%.*s", len, &bfr[cmdcol[3]]);
 					standend();
@@ -633,7 +647,7 @@ showC()
 
 	showWHAT();
 	markC(FALSE);
-	move(file2row(curfile), x);
+	(void)move2row(curfile, x);
 	refresh();
 }
 
@@ -646,7 +660,7 @@ markC(on)
 int	col = cmdcol[2] - Xbase;
 
 	if (col >= 0) {
-		move(file2row(curfile), col);
+		(void)move2row(curfile, col);
 		addch(on ? '*' : ' ');
 	}
 }

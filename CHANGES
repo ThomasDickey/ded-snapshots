@@ -1,3 +1,36 @@
+1989-08-11  dickey@software.org
+
+	* src/version.h: added a bit of error-recovery to 'read_char()'.
+	enhanced '<' command by showing substitution for group.
+
+	* src/dedline.c: modified "<" command so that we show all intermediate
+	substitutions (i.e., "%F", "%B" and "#") which would be
+	applied to a tagged-group -- before we begin editing.
+
+1989-08-11  ste_cm@software.org
+
+	* src/dedline.c:
+	BASELINE Thu Aug 24 10:20:06 EDT 1989 -- support:navi_011(rel2)
+
+1989-08-11  dickey@software.org
+
+	* src/ded.c: added/used procedure 'move2row()'
+
+	* src/dlog.c: lint
+
+1989-08-11  ste_cm@software.org
+
+	* src/dlog.c:
+	BASELINE Fri Oct 27 12:27:25 1989 -- apollo SR10.1 mods + ADA_PITS 4.0
+
+	* src/dlog.c:
+	BASELINE Thu Aug 24 10:20:06 EDT 1989 -- support:navi_011(rel2)
+
+1989-08-11  dickey@software.org
+
+	* src/dlog.c: wrapped some code around the call on 'cmdch()' to try to
+	recover from I/O errors.
+
 1989-08-08  dickey@software.org
 
 	* src/ded.h:

@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	sccs_id[] = "$Header: /users/source/archives/ded.vcs/src/RCS/dlog.c,v 3.0 1989/03/24 10:43:36 ste_cm Rel $";
+static	char	what[] = "$Id: dlog.c,v 5.0 1989/08/11 14:22:26 ste_cm Rel $";
 #endif	lint
 
 /*
@@ -7,9 +7,22 @@ static	char	sccs_id[] = "$Header: /users/source/archives/ded.vcs/src/RCS/dlog.c,
  * Author:	T.E.Dickey
  * Created:	14 Mar 1989
  * $Log: dlog.c,v $
- * Revision 3.0  1989/03/24 10:43:36  ste_cm
- * BASELINE Mon Jun 19 14:21:57 EDT 1989
+ * Revision 5.0  1989/08/11 14:22:26  ste_cm
+ * BASELINE Fri Oct 27 12:27:25 1989 -- apollo SR10.1 mods + ADA_PITS 4.0
  *
+ *		Revision 4.0  89/08/11  14:22:26  ste_cm
+ *		BASELINE Thu Aug 24 10:20:06 EDT 1989 -- support:navi_011(rel2)
+ *		
+ *		Revision 3.2  89/08/11  14:22:26  dickey
+ *		lint
+ *		
+ *		Revision 3.1  89/08/11  10:42:32  dickey
+ *		wrapped some code around the call on 'cmdch()' to try to
+ *		recover from I/O errors.
+ *		
+ *		Revision 3.0  89/03/24  10:43:36  ste_cm
+ *		BASELINE Mon Jun 19 14:21:57 EDT 1989
+ *		
  *		Revision 2.0  89/03/24  10:43:36  ste_cm
  *		BASELINE Thu Apr  6 13:14:13 EDT 1989
  *		
@@ -165,7 +178,21 @@ int	*count_;
 		} else
 			return (*cmd_ptr++);
 	}
-	return (cmdch(count_));
+
+#define	MAXTRIES	5
+	/*
+	 * If we get an EOF (or NULL) on input, wait and retry.  On apollo, at
+	 * least, sometimes the terminal emulator dies and simply gives me
+	 * nulls.
+	 */
+	for (j = 0; j < MAXTRIES; j++) {
+		if ((num = cmdch(count_)) > 0)
+			return (num);
+		if (j == 0)	beep();
+		sleep(2);
+	}
+	failed("read_char");
+	/*NOTREACHED*/
 }
 
 /*
