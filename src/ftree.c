@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	Id[] = "$Id: ftree.c,v 10.4 1992/02/17 15:03:31 dickey Exp $";
+static	char	Id[] = "$Id: ftree.c,v 10.5 1992/02/18 08:09:44 dickey Exp $";
 #endif
 
 /*
@@ -295,7 +295,7 @@ _DCL(char *,	validated)
 			*next = EOS;
 
 		/* double-check link/directory here */
-		if (check = !is_subpath(validated, bfr)) {
+		if (check = (is_subpath(validated, bfr) < 0) ) {
 			if (lstat(bfr, &sb) < 0)
 				/* patch: remove this & all children */
 				break;
@@ -347,7 +347,6 @@ _DCL(char *,	validated)
 		if (check) {
 			if (isLINK(sb.st_mode)) {
 				ftree[last].f_mark |= LINKED;
-				/* patch: store pointer to show 'readlink()' */
 				/* patch: remove all children */
 				break;
 			} else if (!isDIR(sb.st_mode)) {
@@ -1355,7 +1354,7 @@ ft_view _ONE(char *,	path)	/* caller's current directory */
 			}
 			break;
 
-		case '=':	/* patch: test rename-function */
+		case '=':	/* rename-function */
 			if (chdir(fd_path(cwdpath,zROOT(row))) >= 0) {
 				char	bfr[BUFSIZ];
 

@@ -1,4 +1,4 @@
-$Id: README,v 10.1 1992/02/17 14:54:15 dickey Exp $
+$Id: README,v 10.2 1992/02/18 13:52:09 dickey Exp $
 
 --(TO-DO)----------------------------------------------------------------------
 
@@ -28,10 +28,6 @@ $Id: README,v 10.1 1992/02/17 14:54:15 dickey Exp $
 	Should try to use 'curses' internal routine to send characters.
 	I saw beep clobber an escape sequence on the gould.
 
-88/08/16:
-	Also, sometimes the 'R' does not properly quit from the existing
-	ring entry when no files are found.
-
 88/09/1:
 	For SYSTEM5, should use 'wrefresh(curscr)' to forcibly refresh the
 	screen.
@@ -51,3 +47,8 @@ $Id: README,v 10.1 1992/02/17 14:54:15 dickey Exp $
 90/01/11:
 	should reduce the number of 'getwd()' and 'abspath()' calls needed
 	in the interfaces to 'dedring' and 'ftree'.  this would aid performance.
+
+92/02/18:
+	if user renames a directory in 'ftree', should check to see if the
+	name appeared in any of the filelists and update the corresponding
+	entry.

@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	Id[] = "$Id: dedname.c,v 10.1 1992/02/17 13:56:54 dickey Exp $";
+static	char	Id[] = "$Id: dedname.c,v 10.2 1992/02/18 07:58:06 dickey Exp $";
 #endif
 
 /*
@@ -26,9 +26,8 @@ _AR1(char *,	newname)
 _DCL(int,	x)
 _DCL(char *,	newname)
 {
-int	ok	= FALSE;
-char	oldname[BUFSIZ],
-	bfr[BUFSIZ];
+	int	ok	= FALSE;
+	char	oldname[BUFSIZ];
 
 	if (strcmp(strcpy(oldname, xNAME(x)), newname)) {
 		dlog_comment("rename \"%s\" (name=%s)\n", newname, xNAME(x));
@@ -44,6 +43,7 @@ char	oldname[BUFSIZ],
 			}
 			ok = TRUE;
 		} else {
+			char	bfr[BUFSIZ];
 			FORMAT(bfr, "cannot rename \"%s\"", xNAME(x));
 			dedmsg(bfr);
 			return (-1);

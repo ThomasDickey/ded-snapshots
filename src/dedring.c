@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	Id[] = "$Id: dedring.c,v 10.1 1992/02/17 14:51:31 dickey Exp $";
+static	char	Id[] = "$Id: dedring.c,v 10.3 1992/02/18 09:37:13 dickey Exp $";
 #endif
 
 /*
@@ -629,9 +629,10 @@ _AR1(char *,	newname)
 _DCL(char *,	oldname)
 _DCL(char *,	newname)
 {
-	register RING	*p, *q, *r, save;
+	register RING	*p, *q, *r;
 	register RING	*mark	= 0;
 	register RING	*curr	= ring_get(new_wd);
+	auto	 RING	old;
 	auto	 int	len, n;
 	auto	 char	oldtemp[MAXPATHLEN],
 			newtemp[MAXPATHLEN],
@@ -651,15 +652,15 @@ _DCL(char *,	newname)
 		q = p->_link;
 		untrans(tmp, p->new_wd);
 		if ((len = is_subpath(oldname, tmp)) >= 0) {
-			save = *p;
-			DeLink(tmp);
+			old = *p;
+			(void) DeLink(tmp);
 
 			(void)pathcat(tmp, newname, tmp + len);
 			r = Insert(tmp, FALSE, (char *)0);
 
-			(void)strcpy(save.new_wd, r->new_wd);
-			save._link = r->_link;
-			*r = save;
+			(void)strcpy(old.new_wd, r->new_wd);
+			old._link = r->_link;
+			*r = old;
 
 			for (n = 0; n < r->top_argc; n++) {
 				register char	*s = r->top_argv[n];
