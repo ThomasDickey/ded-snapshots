@@ -1,4 +1,4 @@
-# @(#)Makefile	1.1 87/11/20 08:33:50
+# @(#)Makefile	1.2 87/11/24 13:04:48
 # MAKE-file for directory editor
 DED_H   = ded.h
 CFLAGS  = $(DEFINES) $(INCLUDES) -O
@@ -33,8 +33,6 @@ install:
 	rm -f ~/bin/ded ~/bin/ded.hlp
 	cp ded ded.hlp ~/bin
 #
-# use sys5 lint-libraries
 lint.out:
-	lint -n ../LLIB/llib-lc.ln\
-		../LLIB/llib-lcurses.ln\
-		$(DEFINES) $(INCLUDES) *.c >lint.out
+	tdlint -lcurses -ltd\
+		-DNO_SCCS_ID $(DEFINES) $(INCLUDES) *.c >lint.out

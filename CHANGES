@@ -1,3 +1,11 @@
+1987-11-24  dickey@software.org
+
+	* src/deddoit.c, src/dedtype.c: lint, sccs-id.
+
+	* src/Makefile: made lint workable on apollo with 'tdlint' hack.
+
+	* src/dedfind.c: lint, sccs-id.
+
 1987-11-23  dickey@software.org
 
 	* src/ded.hlp: New file.

@@ -1,3 +1,17 @@
+#ifndef	NO_SCCS_ID
+static	char	sccs_id[] = "@(#)dedfind.c	1.2 87/11/24 08:57:23";
+#endif	NO_SCCS_ID
+
+/*
+ * Title:	dedfind.c (find item in ded's file list)
+ * Author:	T.E.Dickey
+ * Created:	18 Nov 1987
+ * Modified:
+ *
+ * Function:	Search ded's display list (files only) for a specified target
+ *		a la 'vi'.
+ *
+ */
 #include	"ded.h"
 extern	char	*re_comp();
 extern	int	re_exec();
@@ -26,7 +40,7 @@ static	int	order;		/* saves last legal search order */
 			if (key == '/')	order = 1;
 			if (key == '?') order = -1;
 		} else {
-			tell(s);
+			dedmsg(s);
 			return;
 		}
 		next = order;
@@ -57,7 +71,7 @@ static	int	order;		/* saves last legal search order */
 			else
 				showC();
 		} else {
-			tell("not found");
+			dedmsg("not found");
 			return;
 		}
 	} else {

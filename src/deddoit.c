@@ -1,3 +1,16 @@
+#ifndef	NO_SCCS_ID
+static	char	sccs_id[] = "@(#)deddoit.c	1.2 87/11/24 13:40:59";
+#endif	NO_SCCS_ID
+
+/*
+ * Title:	deddoit.c (do it for ded!)
+ * Author:	T.E.Dickey
+ * Created:	17 Nov 1987
+ * Modified:
+ *
+ * Function:	Execute a shell command
+ *
+ */
 #include	"ded.h"
 extern	char	*fixname();
 
@@ -18,8 +31,8 @@ char	buffer[BUFSIZ];
 			default:	return(strlen(subs));
 			}
 			if (!first)
-				strcat(subs, " ");
-			strcat(subs, buffer);
+				(void)strcat(subs, " ");
+			(void)strcat(subs, buffer);
 			/* patch: check for buffer overflow */
 			first = FALSE;
 		}
