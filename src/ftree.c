@@ -1,11 +1,12 @@
 #ifndef	NO_SCCS_ID
-static	char	sccs_id[] = "@(#)ftree.c	1.13 87/10/01 13:15:18";
+static	char	sccs_id[] = "@(#)ftree.c	1.14 87/12/02 13:40:12";
 #endif
 
 /*
  * Author:	T.E.Dickey
  * Created:	02 Sep 1987
  * Modified:
+ *		02 Dec 1987, port to Apollo (leading "//" on pathnames)
  *
  * Function:	This module performs functions supporting a file-tree display.
  *		We show the names of directories in tree-form.
@@ -47,6 +48,14 @@ extern	void	free();
 #endif	lint
 extern	long	*doalloc();
 
+#ifdef	apollo
+#define	TOP	2
+#define	ROOT	"//"
+#else
+#define	TOP	1
+#define	ROOT	"/"
+#endif
+
 #define	MAXPATHLEN	BUFSIZ
 
 #define	TOSHOW	(LINES-1)	/* lines to show on a screen */
@@ -85,11 +94,34 @@ static	int	FDdiff,			/* number of changes made	*/
 		showdiff = -1,		/* controls re-display		*/
 		savesccs,		/* original state of 'showsccs'	*/
 		showsccs = TRUE;	/* control display of 'sccs'	*/
+static	char	zero[] = ROOT,
+		*gap = zero + (TOP-1);
 static	FTREE	*ftree;			/* array of database entries	*/
 
 /************************************************************************
  *	Database Manipulation						*
  ************************************************************************/
+
+/*
+ * Show count while doing things which may be time-consuming.
+ */
+static
+fd_slow(count)
+{
+static
+time_t	last;
+time_t	this	= time((long *)0);
+int	y,x;
+
+	if ((count != 0) && (last != this)) {
+		getyx(stdscr,y,x);
+		move(0,0);
+		printw("%4d", count);	/* overwrite "path" */
+		move(y,x);
+		refresh();
+	} else
+		last = this;
+}
 
 /*
  * Ensure that the database has allocated enough space for the current entry.
@@ -125,7 +157,7 @@ register int	step,
 	looped = 0;
 
 	if (cmd == '?' || cmd == '/') {
-		if (strchr(buffer, '/'))
+		if (strchr(buffer, *gap))
 			return(-1);	/* we don't search full-paths */
 		if (*buffer) {
 			if (next) {	/* retain old pattern til new one */
@@ -188,9 +220,14 @@ char	tmp[MAXPATHLEN];
 	*bfr = '\0';
 	do {
 		(void)strcpy(tmp, bfr);
-		(void)strcat(strcat(strcpy(bfr, "/"), ftree[node].f_name), tmp);
+		(void)strcat(strcat(strcpy(bfr, gap), ftree[node].f_name), tmp);
 	}
 	while (node = ftree[node].f_root);
+#if	(TOP > 1)
+	(void)strcpy(tmp, bfr);
+	(void)strcpy(bfr, zero+1);
+	(void)strcat(bfr, tmp);
+#endif
 	return(bfr);
 }
 
@@ -245,7 +282,7 @@ register int j;
 register FTREE *f;
 
 	abspath(path = strcpy(bfr,path));
-	if (!strcmp(path, "/")) {
+	if (!strcmp(path, zero)) {
 		if (FDlast == 0) {	/* cwd is probably "/" */
 			FDdiff++;
 			FDlast++;
@@ -255,9 +292,10 @@ register FTREE *f;
 	}
 
 	/* put this into the database, if it is not already */
-	while (*path == '/') {
+	path += (TOP-1);
+	while (*path == *gap) {
 	char	*name = ++path,
-		*next = strchr(name, '/');
+		*next = strchr(name, *gap);
 		if (next != 0)
 			*next = '\0';
 
@@ -304,7 +342,7 @@ register FTREE *f;
 		ftree[last].f_mark &= ~MARKED;
 
 		if (next != 0) {
-			*next = '/'; /* restore the one we knocked out */
+			*next = *gap; /* restore the one we knocked out */
 			path  = next;
 		} else
 			break;
@@ -322,12 +360,13 @@ char	bfr[MAXPATHLEN];
 register int j, this, last = 0;
 
 	abspath(path = strcpy(bfr,path));
-	if (!strcmp(path,"/"))
+	if (!strcmp(path,zero))
 		return(0);
 
-	while (*path == '/') {
+	path += (TOP-1);
+	while (*path == *gap) {
 	char	*name = ++path,
-		*next = strchr(path, '/');
+		*next = strchr(path, *gap);
 		if (next) *next = '\0';
 		this = 0;
 		for (j = last+1; j <= FDlast; j++) {
@@ -339,7 +378,7 @@ register int j, this, last = 0;
 			}
 		}
 		if (next) {
-			*next = '/';
+			*next = *gap;
 			path = next;
 		}
 		if (this) {
@@ -473,8 +512,14 @@ int	row = 0;
 			printw("%4d. ", j);
 			for (k = fd_level(j); k > 0; k--)
 				printw(fd_line(k));
-			printw("%.*s/%c",
+			printw("%.*s%s",
 				DIRSIZ, ftree[j].f_name,
+				gap);
+#ifdef	apollo
+			if (j == 0)
+				printw("%s", zero+1);
+#endif	apollo
+			printw("%c",
 				ftree[j].f_mark ? '*' : ' ');
 			clrtoeol();
 		}
@@ -861,20 +906,23 @@ ft_scan(node)
 {
 struct	direct	d;
 struct	stat	sb;
-int	fid;
+int	fid,
+	count	= 0;
 char	old[MAXPATHLEN],
-	bfr[MAXPATHLEN], *s = bfr;
+	bfr[MAXPATHLEN], *s_ = bfr;
 
 	abspath(strcpy(old,"."));
-	s += strlen(fd_path(bfr,node));
+	s_ += strlen(fd_path(bfr,node));
 
 	if (chdir(bfr) < 0)
 		perror(bfr);
 	else if ((fid = open(bfr, O_RDONLY)) >= 0) {
+		if (strcmp(bfr,zero))	*s_++ = '/';
 		while (read(fid, &d, sizeof(d)) == sizeof(d)) {
-			FORMAT(s, "/%.*s", DIRSIZ, d.d_name);
-			if (dotname(s+1))		continue;
-			if (stat(s+1, &sb) < 0)		continue;
+			fd_slow(count++);
+			FORMAT(s_, "%.*s", DIRSIZ, d.d_name);
+			if (dotname(s_))		continue;
+			if (stat(s_, &sb) < 0)		continue;
 			if ((int)sb.st_ino <= 0)	continue;
 #define	isDIR(m)	((S_IFMT & m) == S_IFDIR)
 			if (!isDIR(sb.st_mode))		continue;
