@@ -1,21 +1,27 @@
-# $Header: /users/source/archives/ded.vcs/src/RCS/Makefile,v 1.25 1989/03/14 08:26:05 dickey Exp $
+# $Header: /users/source/archives/ded.vcs/src/RCS/Makefile,v 1.26 1989/03/23 14:36:35 dickey Exp $
 # MAKE-file for directory editor
 #
+# $Log: Makefile,v $
+# Revision 1.26  1989/03/23 14:36:35  dickey
+# revised to CM-standard format
+#
+
 ####### (Environment) ##########################################################
-B	= ../../bin
-I	= ../lib
-GET	= getdelta
+B	= ../bin
+I	= ../../common/interface
+L	= ../../common/lib
+GET	= checkout
 #
 ####### (Command-line Options) #################################################
 DED_H	= ded.h $I/ptypes.h $I/cmdch.h
 INCLUDES= -I. -I$I
 CFLAGS	= $(DEFINES) $(INCLUDES) -O
-LIBS	= ../lib/lib.a
+LIBS	= $L/lib.a
 DATE	= echo '****'`date` >> $@
 LINTOPT	= $(DEFINES) $(INCLUDES) -ltd -lcurses
 #
 ####### (Standard Lists) #######################################################
-ALL	= ded ded.hlp
+ALL	= $B/ded $B/ded.hlp
 A	= ded.a
 CSRC	=\
 	ded.c \
@@ -72,11 +78,9 @@ clobber:	clean		; rm -f ded
 destroy:			; rm -f *
 sources:	$(SRCS)
 
-install:	$B/ded\
-		$B/ded.hlp
-#
 ####### (Details of Productions) ###############################################
-ded:	$(MAIN_O)		; $(CC) -o $@ $(MAIN_O) -lcurses -ltermcap
+$B/ded:	$(MAIN_O)		; $(CC) -o $@ $(MAIN_O) -lcurses -ltermcap
+$B/ded.hlp:	ded.hlp		; copy -d $@
 #
 $A:	$(OBJS)
 	ar rv $@ $?
@@ -89,10 +93,7 @@ archive: $(OBJS)
 ded.o:		$(DED_H) ded.c version.h
 $(OBJS):	$(DED_H)
 #
-$B/ded:		ded		; copy -d $@
-$B/ded.hlp:	ded.hlp		; copy -d $@
-#
 ####### (Development) ##########################################################
-$(SRCS):			; $(GET) -s sccs/s.$@
+$(SRCS):			; $(GET) $@
 lint.out:	$(CSRC)		; $(DATE); tdlint $(LINTOPT) $(CSRC) >>$@
 lincnt.out:	$(CSRC)		; $(DATE); lincnt $(CSRC) >>$@

@@ -1,3 +1,11 @@
+1989-03-23  dickey@software.org
+
+	* src/version.h: store RCS date in 'version[]' rather than SCCS date
+
+	* src/Makefile: revised to CM-standard format
+
+	* Makefile: New file.
+
 1989-03-15  dickey@software.org
 
 	* src/dlog.c: hacked varargs stuff to work properly on gould
