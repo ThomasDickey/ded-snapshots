@@ -59,6 +59,7 @@ Display-Adjustment:
   Y		toggle sccs lock-owner display
   Z		toggle sccs filedate display
   z		clear sccs display (reduces overhead)
+  @		toggle symbolic-link display (uppercase=target)
 
   A		move workspace marker up {count} lines
   a		move workspace marker down {count} lines

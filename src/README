@@ -42,9 +42,6 @@ To do:
 	Running under 'xterm' on Apollo, the first use of '+' puts the
 	highlighting in the wrong place.
 
-	Eric has a copy of curses under ~marshall/src/wm/libcurses
-	on the Gould.
-
 	Should provide a rename-leaf command in ftree using '='
 
 	The 'E' command from directory-tree spits out a nasty message if the
@@ -69,7 +66,7 @@ To do:
 	'resizewin()' to get strange values after toggling +/- commands
 	several times, then invoking 'w'.
 
-	Should show file-locking state from rcslast/sccslast.
+	Should show file-locking state from sccslast.
 
 88/05/26:
 	Should add an 'o'/'O' command to create new files in the list so we
@@ -86,13 +83,10 @@ To do:
 88/06/10:
 	should escape '[' in system-commands.
 
-	for chmod, chown, chgrp, should ensure that item is not a symbolic
-	link.
-
-	should have a toggle showing ownership of targets of symbolic link.
-	show link actual in uppercase; note that this requires making restat
-	to do the switch.
-
 88/06/13:
 	sometimes the '@' state in ftree is not cleared when we re-read and
 	it should now be a directory instead of a link.
+
+88/06/16:
+	The '@' toggle should be tested & set in the u,g commands since these
+	map through to the target rather than the link.
