@@ -1,3 +1,9 @@
+1988-09-15  dickey@software.org
+
+	* src/README: more about blip
+
+	* src/README: blip-bug.
+
 1988-09-13  dickey@software.org
 
 	* src/dedmake.c: oops: forgot to close file after 'creat()'.

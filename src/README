@@ -40,8 +40,8 @@ To do:
 
 88/08/09:
 	'beep()' and 'blip()' write to stderr, which is not necessarily good.
-	should try to use 'curses' internal routine to send characters, or
-	write to stderr.  I saw beep clobber an escape sequence on the gould.
+	Should try to use 'curses' internal routine to send characters.
+	I saw beep clobber an escape sequence on the gould.
 
 88/08/16:
 	Also, sometimes the 'R' does not properly quit from the existing
@@ -67,3 +67,13 @@ To do:
 88/09/09:
 	in editlink, should permit '%' expressions such as that used in
 	'deddoit()'.
+
+88/09/15:
+	Using '@' toggle with symbolic links on the last two lines of the
+	window, I get a screen-update glitch: apollo vt100 optimizes to
+	permit up to 3 lines upward; curses has lost its notion of the
+	column.  Should make 'blip()' able to reset curses' position.
+	Observed this in ~hofkin, who has links
+		spc-gould -> /network/software/u1/hofkin
+		src -> /network/mips/src/src1/npsources/src
+	which slow the stat down.  '_puts()' is not a simple solution...
