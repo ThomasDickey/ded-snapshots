@@ -1,3 +1,72 @@
+1990-03-05  dickey@software.org
+
+	* test/test1.cmd: adjusted for command-changes
+
+1990-03-05  ste_cm@software.org
+
+	* test/test1.cmd: BASELINE Mon Apr 30 09:54:01 1990 -- (CPROTO)
+
+	* test/test1.cmd:
+	BASELINE Mon Aug 13 15:06:41 1990 -- LINCNT, ADA_TRANS
+
+	* test/test1.cmd: BASELINE Mon Jun 10 10:09:56 1991 -- apollo sr10.3
+
+	* test/test1.cmd:
+	BASELINE Thu Mar 29 07:37:55 1990 -- maintenance release (SYNTHESIS)
+
+1990-03-05  dickey@software.org
+
+	* src/deduniq.c: corrected logging of selected-names
+
+1990-03-05  ste_cm@software.org
+
+	* src/deduniq.c: BASELINE Mon Apr 30 09:54:01 1990 -- (CPROTO)
+
+	* src/deduniq.c: BASELINE Mon Aug 13 15:06:41 1990 -- LINCNT, ADA_TRANS
+
+	* src/deduniq.c:
+	BASELINE Thu Mar 29 07:37:55 1990 -- maintenance release (SYNTHESIS)
+
+1990-03-05  dickey@software.org
+
+	* test/test2.cmd: adjusted for command-changes
+
+1990-03-05  ste_cm@software.org
+
+	* test/test2.cmd: BASELINE Mon Apr 30 09:54:01 1990 -- (CPROTO)
+
+	* test/test2.cmd:
+	BASELINE Mon Aug 13 15:06:41 1990 -- LINCNT, ADA_TRANS
+
+	* test/test2.cmd: BASELINE Mon Jun 10 10:09:56 1991 -- apollo sr10.3
+
+	* test/test2.cmd:
+	BASELINE Thu Mar 29 07:37:55 1990 -- maintenance release (SYNTHESIS)
+
+1990-03-05  dickey@software.org
+
+	* src/Makefile: cleanup
+
+1990-03-05  ste_cm@software.org
+
+	* src/Makefile:
+	BASELINE Thu Mar 29 07:37:55 1990 -- maintenance release (SYNTHESIS)
+
+1990-03-05  dickey@software.org
+
+	* src/dedtype.c: port to sun3 (os3.4)
+
+1990-03-05  ste_cm@software.org
+
+	* src/dedtype.c: BASELINE Mon Apr 30 09:54:01 1990 -- (CPROTO)
+
+	* src/dedtype.c:
+	BASELINE Thu Mar 29 07:37:55 1990 -- maintenance release (SYNTHESIS)
+
+1990-03-05  dickey@software.org
+
+	* src/ded.c: forgot to init reply-buffer in 'user_says()'
+
 1990-03-02  dickey@software.org
 
 	* src/dedring.c:

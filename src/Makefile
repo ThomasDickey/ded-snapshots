@@ -1,10 +1,16 @@
-# $Id: Makefile,v 5.3 1990/03/02 11:53:24 dickey Exp $
+# $Id: Makefile,v 6.0 1990/03/05 11:13:33 ste_cm Rel $
 # MAKE-file for directory editor
 #
 # $Log: Makefile,v $
-# Revision 5.3  1990/03/02 11:53:24  dickey
-# separated CFLAGS, INCLUDES, DEFINES defs
+# Revision 6.0  1990/03/05 11:13:33  ste_cm
+# BASELINE Thu Mar 29 07:37:55 1990 -- maintenance release (SYNTHESIS)
 #
+#        Revision 5.4  90/03/05  11:13:33  dickey
+#        cleanup
+#        
+#        Revision 5.3  90/03/02  11:55:00  dickey
+#        separated CFLAGS, INCLUDES, DEFINES defs
+#        
 #        Revision 5.2  90/02/01  12:53:32  dickey
 #        added module 'showpath.c'
 #        
@@ -14,13 +20,6 @@
 #        Revision 5.0  89/10/04  11:16:19  ste_cm
 #        BASELINE Fri Oct 27 12:27:25 1989 -- apollo SR10.1 mods + ADA_PITS 4.0
 #        
-#        Revision 4.0  89/08/22  09:19:34  ste_cm
-#        BASELINE Thu Aug 24 10:20:06 EDT 1989 -- support:navi_011(rel2)
-#        
-#        Revision 3.0  89/05/26  13:00:44  ste_cm
-#        BASELINE Mon Jun 19 14:21:57 EDT 1989
-#        
-
 ####### (Environment) ##########################################################
 B	= ../bin
 I	= ../../common/interface

@@ -19,9 +19,9 @@
 1p44p	# chmod 445 ded
 1p75p	# chmod 755 ded
 1j
-1t	# type "ded.hlp" (text)
+1t	# type "ded.hlp" (text file)
 1q
-1h	# type "CM_TOOLS/test/../bin/ded.hlp" (text)
+1h	# type "CM_TOOLS/test/../bin/ded.hlp" (text file)
 1q
 1D	# path: CM_TOOLS/bin
 1j	# path: CM_TOOLS/src
@@ -35,7 +35,7 @@
 	# ELAPSED TIME
 3l
 1\s
-1#	# "Makefile"
+2#	# "Makefile"
 	# "RCS"
 	# "README"
 	# "ded.c"
@@ -58,6 +58,7 @@
 	# "dedwait.c"
 	# "dlog.c"
 	# "ftree.c"
+	# "showpath.c"
 	# "sortset.c"
 	# "ded.h"
 	# "version.h"
@@ -81,13 +82,14 @@
 	# "dedwait.o"
 	# "dlog.o"
 	# "ftree.o"
+	# "showpath.o"
 	# "sortset.o"
 1\s
 1.	# execute # dummy comment, during wait
 	# ELAPSED TIME
 3l
 1sN
-1#
+2#
 1V
 1\s
 1_
@@ -114,4 +116,5 @@
 1.	# execute # dummy comment, during wait
 	# ELAPSED TIME
 3l
-1q	# PROCESS ENDED
+1qyes
+	# PROCESS ENDED
