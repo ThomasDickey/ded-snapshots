@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	sccs_id[] = "@(#)ded.c	1.47 88/08/10 15:39:34";
+static	char	sccs_id[] = "@(#)ded.c	1.48 88/08/11 09:38:44";
 #endif	lint
 
 /*
@@ -251,15 +251,6 @@ register j = xSTAT(inx).st_mode;
 	if (isFILE(j))	return(0);
 	if (isDIR(j))	return(1);
 	return (-1);
-}
-
-/*
- * Show a "blip" while (re)stating files, etc.
- */
-blip(c)
-{
-	if (putchar(c) != EOF)
-		(void)fflush(stdout);
 }
 
 /*
