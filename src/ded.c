@@ -1,5 +1,5 @@
 #if	!defined(NO_IDENT)
-static	char	Id[] = "$Header: /users/source/archives/ded.vcs/src/RCS/ded.c,v 12.31 1994/08/12 21:15:13 tom Exp $";
+static	char	Id[] = "$Header: /users/source/archives/ded.vcs/src/RCS/ded.c,v 12.32 1994/09/27 23:30:36 tom Exp $";
 #endif
 
 /*
@@ -606,7 +606,7 @@ private	void	forkfile(
 /*
  * Enter an editor (separate process) for the current-file/directory.
  */
-private	RING *	editfile(
+private	RING *	run_editor(
 	_ARX(RING *,	gbl)
 	_ARX(int,	readonly)
 	_AR1(int,	extended)
@@ -1248,7 +1248,7 @@ _MAIN
 	case CTL('v'):	/* pad-view */
 	case 'e':
 	case 'v':	/* enter new process with current file */
-			gbl = editfile(gbl, (c & 037) != CTL('e'), (int)iscntrl(c));
+			gbl = run_editor(gbl, (c & 037) != CTL('e'), (int)iscntrl(c));
 			break;
 
 	case 'm':	to_work(gbl,TRUE);

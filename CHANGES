@@ -1,3 +1,11 @@
+1994-09-27  Thomas E. Dickey  <dickey@clark.net>
+
+	* src/dedscan.c: moved some code into td_lib's cm-functions
+
+	* src/ded.c:
+	renamed editfile to run_editor, to avoid conflict with file merged from
+	portunix library
+
 1994-08-15  Thomas E. Dickey  <dickey@clark.net>
 
 	* src/dedscan.c: split out 'lastrev()'
