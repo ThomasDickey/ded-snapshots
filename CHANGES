@@ -1,3 +1,7 @@
+1989-03-27  dickey@software.org
+
+	* Makefile: integration/cleanup for recursive make
+
 1989-03-24  dickey@software.org
 
 	* Makefile: added help-file to install-list
