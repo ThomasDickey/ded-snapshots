@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	Id[] = "$Id: dedfind.c,v 10.2 1992/04/02 08:03:04 dickey Exp $";
+static	char	Id[] = "$Id: dedfind.c,v 10.3 1992/04/03 12:06:55 dickey Exp $";
 #endif
 
 /*
@@ -70,7 +70,7 @@ public	void	dedfind(
 		}
 		if (found) {
 			markC(FALSE);
-			scroll_to_file(j);
+			scroll_to_file(gbl, j);
 			dlog_name(gNAME(j));
 		} else {
 		char	msg[BUFSIZ];

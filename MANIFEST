@@ -1,4 +1,4 @@
-MANIFEST for ded, version t19920402
+MANIFEST for ded, version t19920403
 --------------------------------------------------------------------------------
 MANIFEST                        this file
 Makefile                        top-level makefile for unix directory editor
@@ -24,6 +24,7 @@ src/dedsigs.c                   signal-handlers for DED
 src/dedsort.c                   sorting operation for DED
 src/dedtype.c                   type/page a file
 src/deduniq.c                   filter lists for uniqueness/key-matches
+src/dedview.c                   viewport functions for DED
 src/dedwait.c                   prompt/wait-for-return
 src/dlog.c                      logging functions
 src/ftree.c                     directory-tree for DED

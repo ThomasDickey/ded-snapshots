@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	Id[] = "$Id: dedline.c,v 10.7 1992/04/02 12:49:56 dickey Exp $";
+static	char	Id[] = "$Id: dedline.c,v 10.10 1992/04/03 13:57:10 dickey Exp $";
 #endif
 
 /*
@@ -196,7 +196,7 @@ private	int	subspath(
 	_DCL(char *,	short_form)
 	_DCL(int,	x)
 {
-	register char	*p = ring_path(count);
+	register char	*p = ring_path(gbl, count);
 	register size_t	len = strlen(p);
 	auto	 int	changed = FALSE;
 	auto	 char	tmp[BUFSIZ];
@@ -263,9 +263,9 @@ private	char *	subslink(
 	while (*d = *s) {
 		if (*s++ == '%') {
 			if (*s++ == 'F')
-				d += strlen(strcpy(d, ring_path(1)));
+				d += strlen(strcpy(d, ring_path(gbl, 1)));
 			else if (s[-1] == 'B')
-				d += strlen(strcpy(d, ring_path(-1)));
+				d += strlen(strcpy(d, ring_path(gbl, -1)));
 			else {
 				d++;
 				s--;	/* point back just after '%' */
@@ -283,7 +283,12 @@ private	char *	subslink(
 /*
  * Coerce Xbase (left/right scrolling) so we can display a given column
  */
-private	int	save_Xbase _ONE(int,col) /* leftmost column we need to show */
+private	int	save_Xbase (
+	_ARX(RING *,	gbl)
+	_AR1(int,	col) /* leftmost column we need to show */
+		)
+	_DCL(RING *,	gbl)
+	_DCL(int,	col)
 {
 	auto	int	old = Xbase;
 	if (col < Xbase)
@@ -291,7 +296,7 @@ private	int	save_Xbase _ONE(int,col) /* leftmost column we need to show */
 	if (col > (Xbase + COLS - 1))
 		Xbase = col;
 	if (old != Xbase)
-		showFILES(FALSE,FALSE);
+		showFILES(gbl,FALSE,FALSE);
 	return (col - Xbase);
 }
 
@@ -325,7 +330,7 @@ private	int	change_protection _ONE(RING *,gbl)
 					warn(gNAME(x));
 					break;
 				}
-				fixtime(x);
+				fixtime(gbl, x);
 			}
 		}
 	}
@@ -354,7 +359,7 @@ public	void	editprot _ONE(RING *,gbl)
 	int	at_flag	= at_save(gbl);
 #endif
 
-	(void)save_Xbase(gbl->cmdcol[CCOL_PROT]);
+	(void)save_Xbase(gbl, gbl->cmdcol[CCOL_PROT]);
 
 	(void)replay('p');
 
@@ -473,7 +478,7 @@ public	int	edittext(
 	dlog_comment("before \"%s\"\n", bfr);
 	if (len < strlen(bfr) + 2)
 		len = strlen(bfr) + 2;
-	col = save_Xbase(col);
+	col = save_Xbase(gbl, col);
 #ifdef	S_IFLNK
 	if (at_flag)
 		showLINE(gbl, gbl->curfile);
@@ -577,7 +582,7 @@ public	void	edit_uid _ONE(RING *,gbl)
 
 	if (gbl->G_opt == 1) {
 		gbl->G_opt = 0;
-		showFILES(FALSE,FALSE);
+		showFILES(gbl,FALSE,FALSE);
 	}
 	if (edittext(gbl, 'u', gbl->cmdcol[CCOL_UID], UIDLEN, strcpy(bfr, uid2s(uid)))
 	&&  (uid = s2uid(bfr)) >= 0) {
@@ -594,7 +599,7 @@ public	void	edit_uid _ONE(RING *,gbl)
 					warn(gNAME(j));
 					break;
 				}
-				fixtime(j);
+				fixtime(gbl, j);
 				gSTAT(j).st_uid = uid;
 				changed++;
 			}
@@ -616,7 +621,7 @@ public	void	edit_gid _ONE(RING *,gbl)
 
 	if (!gbl->G_opt) {
 		gbl->G_opt = 1;
-		showFILES(FALSE,FALSE);
+		showFILES(gbl,FALSE,FALSE);
 	}
 	if (edittext(gbl, 'g', gbl->cmdcol[CCOL_GID], UIDLEN, strcpy(bfr, gid2s(gid)))
 	&&  (gid = s2gid(bfr)) >= 0) {
@@ -640,10 +645,10 @@ public	void	edit_gid _ONE(RING *,gbl)
 					}
 					gSTAT(j).st_gid = gid;
 				} else {
-					FORMAT(bfr, fmt, newgrp, fixname(j));
+					FORMAT(bfr, fmt, newgrp, fixname(gbl,j));
 					(void)system(bfr);
 				}
-				fixtime(j);
+				fixtime(gbl, j);
 				if (!root) {
 					statLINE(gbl, j);
 					showLINE(gbl, j);
@@ -651,7 +656,7 @@ public	void	edit_gid _ONE(RING *,gbl)
 				} else
 					changed++;
 				if (gSTAT(j).st_gid != gid) {
-					FORMAT(bfr, fmt, newgrp, fixname(j));
+					FORMAT(bfr, fmt, newgrp, fixname(gbl,j));
 					dedmsg(bfr);
 					beep();
 					break;
@@ -720,7 +725,7 @@ public	void	editlink(
 		beep();
 	else {
 		auto	int	restore = FALSE;
-		col = save_Xbase(gbl->cmdcol[CCOL_NAME]);
+		col = save_Xbase(gbl, gbl->cmdcol[CCOL_NAME]);
 
 		/* test if we must show substitution */
 		if (cmd_link) {
@@ -771,7 +776,7 @@ public	void	editlink(
 			}
 		}
 		if (restore && !changed)
-			showFILES(FALSE,FALSE);
+			showFILES(gbl,FALSE,FALSE);
 	}
 	restat(changed);
 }

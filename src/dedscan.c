@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	Id[] = "$Id: dedscan.c,v 10.8 1992/04/02 11:12:23 dickey Exp $";
+static	char	Id[] = "$Id: dedscan.c,v 10.9 1992/04/03 13:58:27 dickey Exp $";
 #endif
 
 /*
@@ -499,7 +499,7 @@ public	void	statMAKE (
 			gbl->numfiles--;
 		}
 	}
-	showFILES(FALSE,TRUE);
+	showFILES(gbl,FALSE,TRUE);
 }
 
 /*

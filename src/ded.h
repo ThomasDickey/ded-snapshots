@@ -3,7 +3,7 @@
 
 #ifdef	MAIN
 #ifndef	lint
-static	char	*ded_h = "$Id: ded.h,v 10.23 1992/04/02 14:10:29 dickey Exp $";
+static	char	*ded_h = "$Id: ded.h,v 10.33 1992/04/03 16:47:12 dickey Exp $";
 #endif
 #endif	/* MAIN */
 
@@ -196,6 +196,9 @@ typedef	RING {
 		Z_opt;		/* show sccs-information */
 #endif
 	unsigned numfiles;	/* total files in display-list */
+	int	tag_count;	/* current # of tagged files */
+	off_t	tag_bytes;
+	long	tag_blocks;
 	};
 
 /*
@@ -211,29 +214,8 @@ MAIN	RING	*FOO;		/* current list (patch: 'X' command?) */
 extern	int	debug;
 extern	int	no_worry;
 
-extern	int	file2row(
-		_ar1(int,	n));
-
-extern	int	move2row(
-		_arx(int,	n)
-		_ar1(int,	col));
-
-extern	int	to_exit(
+extern	void	to_exit(
 		_ar1(int,	last));
-
-extern	int	clear_work(_ar0);
-
-extern	int	to_work(
-		_ar1(int,	clear_it));
-
-extern	int	to_file(_ar0);
-
-extern	int	scroll_to_file(
-		_ar1(int,	inx));
-
-extern	int	markset(
-		_arx(int,	num)
-		_ar1(int,	reset_work));
 
 extern	int	realstat(
 		_arx(int,	inx)
@@ -263,43 +245,10 @@ extern	int	user_says(
 		_ar1(int,	ok));
 
 extern	int	findFILE(
+		_arx(RING *,	gbl)
 		_ar1(char *,	name));
 
-extern	int	upLINE(
-		_ar1(int,	n));
-
-extern	int	downLINE(
-		_ar1(int,	n));
-
-extern	int	showDOWN(_ar0);
-
-extern	int	forward(
-		_ar1(int,	n));
-
-extern	int	backward(
-		_ar1(int,	n));
-
-extern	int	showWHAT(_ar0);
-
-extern	void	showLINE(
-		_arx(RING *,	gbl)
-		_ar1(int,	j));
-
-extern	int	showVIEW(_ar0);
-
-extern	int	showMARK(
-		_ar1(int,	col));
-
-extern	int	showFILES(
-		_arx(int,	reset_cols)
-		_ar1(int,	reset_work));
-
 extern	int	showSCCS(_ar0);
-
-extern	int	showC(_ar0);
-
-extern	int	markC(
-		_ar1(int,	on));
 
 extern	int	retouch(
 		_ar1(int,	row));
@@ -311,18 +260,16 @@ extern	int	rescan(
 extern	int	restat(
 		_ar1(int,	group));
 
-extern	int	restat_l(_ar0);
-
-extern	int	restat_W(_ar0);
-
 extern	int	resleep(
 		_arx(int,	count)
-		_fn1(int,	func));
+		_fn1(void,	func));
 
 extern	char	*fixname(
+		_arx(RING *,	gbl)
 		_ar1(int,	j));
 
-extern	int	fixtime(
+extern	void	fixtime(
+		_arx(RING *,	gbl)
 		_ar1(int,	j));
 
 extern	int	usage(_ar0);
@@ -411,7 +358,8 @@ extern	void	ring_args(
 extern	RING *	ring_get(
 		_ar1(char *,	path));
 
-extern	int	dedring(
+extern	RING *	dedring(
+		_arx(RING *,	gbl)
 		_arx(char *,	path)
 		_arx(int,	cmd)
 		_arx(int,	count)
@@ -419,9 +367,11 @@ extern	int	dedring(
 		_ar1(char *,	pattern));
 
 extern	RING *	ring_pointer(
+		_arx(RING *,	gbl)
 		_ar1(int,	count));
 
 extern	char *	ring_path(
+		_arx(RING *,	gbl)
 		_ar1(int,	count));
 
 extern	void	ring_rename(
@@ -483,6 +433,104 @@ extern	void	dedtype(
 extern	void	deduniq(
 		_arx(RING *,	gbl)
 		_ar1(int,	level));
+
+/* *** "dedview.c" *** */
+extern	void	viewset(
+		_ar1(RING *,	gbl));
+
+extern	int	file2row(
+		_ar1(int,	n));
+
+extern	int	move2row(
+		_arx(int,	n)
+		_ar1(int,	col));
+
+extern	void	clear_work(_ar0);
+
+extern	void	to_work(
+		_ar1(int,	clear_it));
+
+extern	int	to_file(
+		_ar1(RING *,	gbl));
+
+extern	void	scroll_to_file(
+		_arx(RING *,	gbl)
+		_ar1(int,	inx));
+
+extern	void	markset(
+		_arx(RING *,	gbl)
+		_arx(int,	num)
+		_ar1(int,	reset_work));
+
+extern	void	upLINE(
+		_arx(RING *,	gbl)
+		_ar1(int,	n));
+
+extern	void	downLINE(
+		_arx(RING *,	gbl)
+		_ar1(int,	n));
+
+extern	int	showDOWN(
+		_ar1(RING *,	gbl));
+
+extern	void	forward(
+		_arx(RING *,	gbl)
+		_ar1(int,	n));
+
+extern	void	backward(
+		_arx(RING *,	gbl)
+		_ar1(int,	n));
+
+extern	void	showWHAT(
+		_ar1(RING *,	gbl));
+
+extern	void	showLINE(
+		_arx(RING *,	gbl)
+		_ar1(int,	j));
+
+extern	void	showVIEW(
+		_ar1(RING *,	gbl));
+
+extern	void	showMARK(
+		_ar1(int,	col));
+
+extern	void	showFILES(
+		_arx(RING *,	gbl)
+		_arx(int,	reset_cols)
+		_ar1(int,	reset_work));
+
+extern	void	openVIEW(
+		_ar1(RING *,	gbl));
+
+extern	void	saveVIEW(_ar0);
+
+extern	void	quitVIEW(
+		_ar1(RING *,	gbl));
+
+extern	void	splitVIEW(
+		_ar1(RING *,	gbl));
+
+extern	void	nextVIEW(
+		_arx(RING *,	gbl)
+		_ar1(int,	save));
+
+extern	void	showC(_ar0);
+
+extern	void	tab2VIEW(
+		_ar1(RING *,	gbl));
+
+extern	void	markC(
+		_ar1(int,	on));
+
+extern	void	restat_l(_ar0);
+
+extern	void	restat_W(_ar0);
+
+extern	int	baseVIEW(
+		_ar1(RING *,	gbl));
+
+extern	int	lastVIEW(
+		_ar1(RING *,	gbl));
 
 /* *** "dedwait.c" *** */
 extern	int	dedwait(
@@ -566,9 +614,10 @@ extern	void	ft_read(
 		_arx(char *,	first)
 		_ar1(char *,	home_dir));
 
-extern	int	ft_view(
+extern	RING *	ft_view(
 		_arx(RING *,	gbl)
-		_ar1(char *,	path));
+		_arx(char *,	path)
+		_ar1(int *,	cmd));
 
 extern	int	ft_scan(
 		_arx(RING *,	gbl)
