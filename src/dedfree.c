@@ -1,12 +1,9 @@
-#ifndef	lint
-static	char	Id[] = "$Id: dedfree.c,v 12.0 1991/10/18 08:41:43 ste_cm Rel $";
-#endif
-
 /*
  * Title:	dedfree.c (free ded's main structure)
  * Author:	T.E.Dickey
  * Created:	02 May 1988
  * Modified:
+ *		29 Oct 1993, ifdef-ident
  *		18 Oct 1991, converted to ANSI
  *		15 May 1991, apollo sr10.3 cpp complains about tag on #endif
  *
@@ -15,6 +12,8 @@ static	char	Id[] = "$Id: dedfree.c,v 12.0 1991/10/18 08:41:43 ste_cm Rel $";
  */
 
 #include	"ded.h"
+
+MODULE_ID("$Id: dedfree.c,v 12.2 1993/10/29 20:27:01 tom Exp $")
 
 FLIST *
 dedfree(

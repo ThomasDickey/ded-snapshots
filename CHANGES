@@ -1,3 +1,21 @@
+1993-10-29  dickey@software.org
+
+	* src/dedfind.c, src/dedread.c, src/dedring.c, src/dedscan.c, src/dedshow.c, src/dedtype.c, src/dedview.c, src/ftree.c:
+	HP/UX-port
+
+	* src/ded2s.c, src/deddoit.c, src/deddump.c, src/dedfree.c: ifdef-ident
+
+1993-10-29  Thomas E. Dickey  <dickey@software.org>
+
+	* src/dedfree.c: use MODULE_ID
+
+1993-10-29  dickey@software.org
+
+	* src/dedline.c, src/dedmake.c, src/dedmsgs.c, src/dedname.c, src/dedsigs.c, src/dedsort.c, src/dedtags.c, src/deduniq.c, src/dedwait.c, src/dlog.c, src/history.c, src/inline.c, src/restat.c, src/showpath.c, src/sortset.c, src/ded.c:
+	ifdef-ident
+
+	* src/ded.h: HP/UX-port
+
 1993-09-28  dickey@software.org
 
 	* src/sortset.c: gcc warnings

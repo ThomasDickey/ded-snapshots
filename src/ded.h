@@ -2,8 +2,8 @@
 #define	_ded_h
 
 #ifdef	MAIN
-#ifndef	lint
-static	char	*ded_h = "$Id: ded.h,v 12.2 1993/09/28 13:15:55 dickey Exp $";
+#if	!defined(NO_IDENT)
+static	char	*ded_h = "$Id: ded.h,v 12.3 1993/10/29 20:26:14 dickey Exp $";
 #endif
 #endif	/* MAIN */
 
@@ -20,6 +20,10 @@ static	char	*ded_h = "$Id: ded.h,v 12.2 1993/09/28 13:15:55 dickey Exp $";
 #include	<ctype.h>
 #include	<errno.h>
 #include	<cmdch.h>
+
+#if	defined(SYSTEM5)
+#include	<sys/fcntl.h>
+#endif
 
 #ifndef ANSI_VARARGS
 # if defined(__STDC__) || VMS || NEWDOSCC
@@ -44,14 +48,24 @@ extern	char	*sys_errlist[];
 /*
  * SYSTEM5/BSD4.x differences between regular-expression handling:
  */
-#ifdef	SYSTEM5
-extern	char	*regcmp(),
-		*regex();
+#if	defined(SYSTEM5) || defined(__hpux)
+#ifdef __hpux
+#include <regex.h>
+#define REGEX_T regex_t
+#define	OLD_REGEX(expr)		regfree(&expr)
+#define	NEW_REGEX(expr,pattern)	(regcomp(&expr, pattern,0) == 0)
+#define	GOT_REGEX(expr,string)	(regexec(&expr, string, 0, (regmatch_t*)0, 0) == 0)
+#else
+#define REGEX_T char *
+extern	char	*regcmp(_ar1(char *,s) _CDOTS),
+		*regex(_ar1(char *,re));
 #define	OLD_REGEX(expr)		if (expr) free(expr)
 #define	NEW_REGEX(expr,pattern)	((expr = regcmp(pattern,0)) != 0)
 #define	GOT_REGEX(expr,string)	(regex(expr, string, 0) != 0)
+#endif
 #define	BAD_REGEX(expr)		dedmsg(gbl, "illegal expression")
 #else	/* SYSTEM5 */
+#define REGEX_T char *
 extern	char	*re_comp(_ar1(char *,s)); /* returns 0 or error message */
 extern	int	re_exec(_ar1(char *,s));  /* (return > 0): match */
 #define	OLD_REGEX(expr)
@@ -81,7 +95,7 @@ extern	int	re_exec(_ar1(char *,s));  /* (return > 0): match */
  */
 #define	NO_HISTORY (HIST **)0
 
-#ifdef	__STDCPP__
+#if	ANSI_CPP
 #define	ENV(n)	dftenv(n,#n)
 #else
 #define	ENV(n)	dftenv(n,"n")
@@ -162,8 +176,9 @@ extern	int	re_exec(_ar1(char *,s));  /* (return > 0): match */
 	RING {
 	RING	*_link;
 	char	new_wd[MAXPATHLEN];
-	char	*toscan,	/* directory-scan expression	*/
-		*scan_expr;	/* compiled version of 'toscan'	*/
+	char	*toscan;	/* directory-scan expression	*/
+	REGEX_T	scan_expr;	/* compiled version of 'toscan'	*/
+	int	used_expr;	/* true iff we've compiled 'toscan' */
 	DYN	*cmd_sh;	/* command-string, for %/! operations */
 	FLIST	*flist;		/* list of filenames & STAT-blocks */
 

@@ -1,5 +1,5 @@
-#ifndef	lint
-static	char	Id[] = "$Id: dedname.c,v 12.2 1993/09/28 12:21:21 dickey Exp $";
+#if	!defined(NO_IDENT)
+static	char	Id[] = "$Id: dedname.c,v 12.3 1993/10/29 20:27:00 dickey Exp $";
 #endif
 
 /*
@@ -7,6 +7,7 @@ static	char	Id[] = "$Id: dedname.c,v 12.2 1993/09/28 12:21:21 dickey Exp $";
  * Author:	T.E.Dickey
  * Created:	11 May 1988
  * Modified:
+ *		29 Oct 1993, ifdef-ident
  *		28 Sep 1993, gcc warnings
  *		17 Feb 1992, use 'ring_rename()' to simplify list-renaming.
  *		18 Oct 1991, converted to ANSI

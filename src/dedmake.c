@@ -1,5 +1,5 @@
-#ifndef	lint
-static	char	Id[] = "$Id: dedmake.c,v 12.0 1992/08/11 17:02:41 ste_cm Rel $";
+#if	!defined(NO_IDENT)
+static	char	Id[] = "$Id: dedmake.c,v 12.1 1993/10/29 20:27:00 dickey Exp $";
 #endif
 
 /*
@@ -7,6 +7,7 @@ static	char	Id[] = "$Id: dedmake.c,v 12.0 1992/08/11 17:02:41 ste_cm Rel $";
  * Author:	T.E.Dickey
  * Created:	12 Sep 1988
  * Modified:
+ *		29 Oct 1993, ifdef-ident
  *		01 Apr 1992, convert most global variables to RING-struct.
  *		16 Jan 1992, force 'dedline()' off on exit.
  *		16 Oct 1991, modified to allow command-replay

@@ -1,5 +1,5 @@
-#ifndef	lint
-static	char	Id[] = "$Id: dedring.c,v 12.2 1993/09/28 12:21:21 dickey Exp $";
+#if	!defined(NO_IDENT)
+static	char	Id[] = "$Id: dedring.c,v 12.3 1993/10/29 20:30:51 dickey Exp $";
 #endif
 
 /*
@@ -7,6 +7,7 @@ static	char	Id[] = "$Id: dedring.c,v 12.2 1993/09/28 12:21:21 dickey Exp $";
  * Author:	T.E.Dickey
  * Created:	27 Apr 1988
  * Modified:
+ *		29 Oct 1993, ifdef-ident, port to HP/UX.
  *		28 Sep 1993, gcc warnings
  *		23 Jul 1992, fixes to 'ring_rename()'
  *		12 May 1992, somehow omitted use of sort-key.
@@ -107,9 +108,11 @@ private	void	ring_copy(
 	(void) strcpy(dst->new_wd, src->new_wd);
 	SAVE(toscan);
 	SAVE(scan_expr);
+	SAVE(used_expr);
 	SAVE(flist);
 	SAVE(top_argc);
-	for (j = 0; j < CCOL_MAX; j++) SAVE(cmdcol[j]);
+	for (j = 0; j < CCOL_MAX; j++)
+		SAVE(cmdcol[j]);
 	SAVE(top_argv);
 	SAVE(clr_sh);
 	SAVE(Xbase);
@@ -207,7 +210,7 @@ private	RING *	Insert(
 	ring_copy(p = ring_alloc(), gbl);
 	(void)strcpy(p->new_wd, path);
 	p->toscan      = pattern;
-	p->scan_expr   = 0;
+	p->used_expr   = FALSE;
 	p->flist       = 0;
 	p->top_argc    = 1;
 	p->top_argv    = vecalloc(2);

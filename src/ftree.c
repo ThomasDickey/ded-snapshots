@@ -1,11 +1,12 @@
-#ifndef	lint
-static	char	Id[] = "$Id: ftree.c,v 12.3 1993/09/28 15:28:52 dickey Exp $";
+#if	!defined(NO_IDENT)
+static	char	Id[] = "$Id: ftree.c,v 12.4 1993/10/29 20:30:49 dickey Exp $";
 #endif
 
 /*
  * Author:	T.E.Dickey
  * Created:	02 Sep 1987
  * Modified:
+ *		29 Oct 1993, ifdef-ident, port to HP/UX
  *		28 Sep 1993, gcc warnings
  *		23 Jul 1992, in '~' command, do chdir to resolve symbolic links
  *		01 Apr 1992, convert most global variables to RING-struct.
@@ -385,8 +386,9 @@ private	int	fd_find (
 {
 	static	RING *	gbl;		/* dummy for REGEX stuff	*/
 	static	int	next = 0;	/* last-direction		*/
-	static	char	pattern[MAXPATHLEN],
-			*expr;		/* regex-state/output		*/
+	static	char	pattern[MAXPATHLEN];
+	static	REGEX_T	expr;		/* regex-state/output		*/
+	static	int	ok_expr;
 
 	register int	step,
 		new = old,
@@ -410,8 +412,9 @@ private	int	fd_find (
 		return(-1);
 	}
 
-	OLD_REGEX(expr);
-	if (NEW_REGEX(expr,pattern)) {
+	if (ok_expr)
+		OLD_REGEX(expr);
+	if ((ok_expr = NEW_REGEX(expr,pattern)) != 0) {
 		do {
 			if (looped++ && (new == old)) { beep();	return(-1); }
 			else if ((new += step) < 0)		new = FDlast;
@@ -742,12 +745,12 @@ private	int	ft_init _ONE(char *,msg)
 private	int	ok_read(
 	_ARX(int,	fid)
 	_ARX(char *,	s)
-	_ARX(int,	ask)
+	_ARX(LEN_READ,	ask)
 	_AR1(char *,	msg)
 		)
 	_DCL(int,	fid)
 	_DCL(char *,	s)
-	_DCL(int,	ask)
+	_DCL(LEN_READ,	ask)
 	_DCL(char *,	msg)
 {
 	LEN_READ	got = read(fid,s,ask);
@@ -797,7 +800,7 @@ private	void	read_ftree _ONE(char *,the_file)
 		vecsize++;		/* account for 0'th node */
 		vecsize *= sizeof(FTREE);
 		if (!ok_read(fid,
-				(char *)ftree, vecsize,
+				(char *)ftree, (LEN_READ)vecsize,
 				"read \".ftree\""))
 			return;
 
@@ -806,7 +809,7 @@ private	void	read_ftree _ONE(char *,the_file)
 		char	*heap = doalloc((char *)0, (unsigned)(size+1));
 		register char *s = heap;
 			if (!ok_read(fid,
-					heap, size,
+					heap, (LEN_READ)size,
 					"heap \".ftree\""))
 				return;
 			s[size] = EOS;

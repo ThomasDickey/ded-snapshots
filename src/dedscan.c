@@ -1,5 +1,5 @@
-#ifndef	lint
-static	char	Id[] = "$Id: dedscan.c,v 12.2 1993/09/28 12:21:21 dickey Exp $";
+#if	!defined(NO_IDENT)
+static	char	Id[] = "$Id: dedscan.c,v 12.3 1993/10/29 20:30:50 dickey Exp $";
 #endif
 
 /*
@@ -7,6 +7,7 @@ static	char	Id[] = "$Id: dedscan.c,v 12.2 1993/09/28 12:21:21 dickey Exp $";
  * Author:	T.E.Dickey
  * Created:	09 Nov 1987
  * Modified:
+ *		29 Oct 1993, ifdef-ident, port to HP/UX.
  *		28 Sep 1993, gcc warnings
  *		01 Apr 1992, convert most global variables to RING-struct.
  *		02 Jan 1992, make this work properly if only a filename is
@@ -238,8 +239,10 @@ private	int	argstat(
 	char	full[BUFSIZ];
 	int	code;
 
-	if (debug)
+	if (debug) {
 		PRINTF(" stat \"%s\" %slist\r\n", name, list ? "" : "no");
+		FFLUSH(stdout);
+	}
 
 	if (*name == '~')	/* permit "~" from Bourne-shell */
 		abshome(name = strcpy(full, name));

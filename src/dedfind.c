@@ -1,5 +1,5 @@
-#ifndef	lint
-static	char	Id[] = "$Id: dedfind.c,v 12.2 1993/09/28 12:21:20 dickey Exp $";
+#if	!defined(NO_IDENT)
+static	char	Id[] = "$Id: dedfind.c,v 12.3 1993/10/29 20:30:51 dickey Exp $";
 #endif
 
 /*
@@ -7,6 +7,7 @@ static	char	Id[] = "$Id: dedfind.c,v 12.2 1993/09/28 12:21:20 dickey Exp $";
  * Author:	T.E.Dickey
  * Created:	18 Nov 1987
  * Modified:
+ *		29 Oct 1993, ifdef-ident, port to HP/UX.
  *		28 Sep 1993, gcc warnings
  *		02 Dec 1992, show message "no other match".
  *		01 Apr 1992, convert most global variables to RING-struct.
@@ -36,7 +37,8 @@ public	void	dedfind(
 		next	= 0;
 	static	DYN	*text;
 	static	HIST	*History;
-	static	char	*expr;
+	static	REGEX_T	expr;
+	static	int	ok_expr;
 	static	int	order;		/* saves last legal search order */
 
 	if (key == '/' || key == '?') {
@@ -64,8 +66,9 @@ public	void	dedfind(
 		return;
 	}
 
-	OLD_REGEX(expr);
-	if (NEW_REGEX(expr,s)) {
+	if (ok_expr)
+		OLD_REGEX(expr);
+	if ((ok_expr = NEW_REGEX(expr,s)) != 0) {
 		for (j = gbl->curfile + next; ; j += next) {
 			if (j < 0) {
 				j = gbl->numfiles;

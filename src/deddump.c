@@ -1,5 +1,5 @@
-#ifndef	lint
-static	char	Id[] = "$Id: deddump.c,v 12.0 1992/04/06 11:59:48 ste_cm Rel $";
+#if	!defined(NO_IDENT)
+static	char	Id[] = "$Id: deddump.c,v 12.1 1993/10/29 20:27:01 dickey Exp $";
 #endif
 
 /*
@@ -7,6 +7,7 @@ static	char	Id[] = "$Id: deddump.c,v 12.0 1992/04/06 11:59:48 ste_cm Rel $";
  * Author:	T.E.Dickey
  * Created:	07 Jun 1988
  * Modified:
+ *		29 Oct 1993, ifdef-ident
  *		18 Oct 1991, converted to ANSI
  *		09 Sep 1991, flag if err on 'win2file()'
  *		12 Sep 1988, use 'pathcat()'

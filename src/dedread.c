@@ -1,5 +1,5 @@
-#ifndef	lint
-static	char	Id[] = "$Id: dedread.c,v 12.0 1992/08/24 08:31:47 ste_cm Rel $";
+#if	!defined(NO_IDENT)
+static	char	Id[] = "$Id: dedread.c,v 12.1 1993/10/29 20:30:51 dickey Exp $";
 #endif
 
 /*
@@ -7,6 +7,7 @@ static	char	Id[] = "$Id: dedread.c,v 12.0 1992/08/24 08:31:47 ste_cm Rel $";
  * Author:	T.E.Dickey
  * Created:	26 May 1989
  * Modified:
+ *		29 Oct 1993, ifdef-ident, port to HP/UX.
  *		01 Apr 1992, convert most global variables to RING-struct.
  *		18 Oct 1991, converted to ANSI
  *		11 Jul 1991, interface to 'to_work()'
@@ -36,7 +37,7 @@ public	int	dedread(
 	register char	*s;
 	static	DYN	*text;
 	static	HIST	*History;
-	auto	char	*expr;
+	auto	REGEX_T	expr;
 
 	to_work(gbl,TRUE);
 	PRINTW("Pattern: ");
@@ -58,13 +59,18 @@ public	int	dedread(
 	} else if (!*s) {
 		*pattern_ = 0;
 		showC(gbl);
-		OLD_REGEX(gbl->scan_expr);
+		if (gbl->used_expr) {
+			OLD_REGEX(gbl->scan_expr);
+			gbl->used_expr = FALSE;
+		}
 		return (TRUE);
 	} else if (NEW_REGEX(expr,s)) {
 		showC(gbl);
 		*pattern_ = txtalloc(s);
-		OLD_REGEX(gbl->scan_expr);
+		if (gbl->used_expr)
+			OLD_REGEX(gbl->scan_expr);
 		gbl->scan_expr = expr;
+		gbl->used_expr = TRUE;
 		return (TRUE);
 	} else {
 		BAD_REGEX(expr);
@@ -81,10 +87,10 @@ public	void	init_scan _ONE(RING *,gbl)
 {
 	if (gbl->toscan != 0) {
 		dlog_comment("scan for \"%s\"\n", gbl->toscan);
-		OLD_REGEX(gbl->scan_expr);
-		if (!NEW_REGEX(gbl->scan_expr,gbl->toscan)) {
+		if (gbl->used_expr)
+			OLD_REGEX(gbl->scan_expr);
+		if (!(gbl->used_expr = NEW_REGEX(gbl->scan_expr,gbl->toscan))) {
 			/* shouldn't happen */
-			BAD_REGEX(gbl->scan_expr);
 			gbl->toscan = 0;
 		}
 	}

@@ -1,5 +1,5 @@
-#ifndef	lint
-static	char	Id[] = "$Id: dedtype.c,v 12.2 1993/09/28 12:21:22 dickey Exp $";
+#if	!defined(NO_IDENT)
+static	char	Id[] = "$Id: dedtype.c,v 12.3 1993/10/29 20:30:50 dickey Exp $";
 #endif
 
 /*
@@ -7,6 +7,7 @@ static	char	Id[] = "$Id: dedtype.c,v 12.2 1993/09/28 12:21:22 dickey Exp $";
  * Author:	T.E.Dickey
  * Created:	16 Nov 1987
  * Modified:
+ *		29 Oct 1993, ifdef-ident, port to HP/UX.
  *		28 Sep 1993, gcc warnings
  *		08 Oct 1992, make search/scrolling interruptible.
  *		05 Aug 1992, added search commands, and '<', '>'.
@@ -64,7 +65,7 @@ static	FILE	*InFile;
 static	OFF_T	*PageAt;
 static	DYN	*my_text,		/* converted display-text */
 		*my_over;		/* overstrike/underline flags */
-static	char	*ToFind;		/* compiled search-expression */
+static	REGEX_T	ToFind;			/* compiled search-expression */
 static	int	OptBinary,
 		OptStripped,
 		UsePattern,		/* set true to cause matching */
@@ -417,6 +418,7 @@ private	void	FindPattern(
 	static	DYN	*text;
 	static	HIST	*History;
 	static	int	order;		/* saves last legal search order */
+	static	int	ok_expr;
 
 	if (key == '/' || key == '?') {
 
@@ -441,8 +443,9 @@ private	void	FindPattern(
 		return;
 	}
 
-	OLD_REGEX(ToFind);
-	if (NEW_REGEX(ToFind,s)) {
+	if (ok_expr)
+		OLD_REGEX(ToFind);
+	if ((ok_expr = NEW_REGEX(ToFind,s)) != 0) {
 
 		UsePattern = TRUE;
 		if (SamePattern(s)) {
