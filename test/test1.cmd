@@ -37,6 +37,7 @@
 1\s
 1#	# "Makefile"
 	# "RCS"
+	# "README"
 	# "ded.c"
 	# "ded2s.c"
 	# "deddoit.c"
@@ -46,6 +47,7 @@
 	# "dedline.c"
 	# "dedmake.c"
 	# "dedname.c"
+	# "dedread.c"
 	# "dedring.c"
 	# "dedscan.c"
 	# "dedshow.c"
@@ -67,6 +69,7 @@
 	# "dedline.o"
 	# "dedmake.o"
 	# "dedname.o"
+	# "dedread.o"
 	# "dedring.o"
 	# "dedscan.o"
 	# "dedshow.o"

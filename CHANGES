@@ -1,3 +1,31 @@
+1989-06-16  dickey@software.org
+
+	* test/test2.cmd: added files src/README, src/dedread.[co]
+
+1989-06-16  ste_cm@software.org
+
+	* test/test2.cmd:
+	BASELINE Fri Oct 27 12:27:25 1989 -- apollo SR10.1 mods + ADA_PITS 4.0
+
+	* test/test2.cmd: BASELINE Mon Jun 19 14:39:05 EDT 1989
+
+	* test/test2.cmd:
+	BASELINE Thu Aug 24 10:31:56 EDT 1989 -- support:navi_011(rel2)
+
+1989-06-16  dickey@software.org
+
+	* test/test1.cmd: added files src/README, src/dedread.[co]
+
+1989-06-16  ste_cm@software.org
+
+	* test/test1.cmd:
+	BASELINE Fri Oct 27 12:27:25 1989 -- apollo SR10.1 mods + ADA_PITS 4.0
+
+	* test/test1.cmd: BASELINE Mon Jun 19 14:39:05 EDT 1989
+
+	* test/test1.cmd:
+	BASELINE Thu Aug 24 10:31:56 EDT 1989 -- support:navi_011(rel2)
+
 1989-06-13  dickey@software.org
 
 	* src/version.h:
