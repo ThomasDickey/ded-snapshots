@@ -1,5 +1,5 @@
 #if	!defined(NO_IDENT)
-static	char	Id[] = "$Id: sortset.c,v 12.5 1993/12/01 16:30:56 dickey Exp $";
+static	char	Id[] = "$Id: sortset.c,v 12.6 1993/12/06 17:21:33 dickey Exp $";
 #endif
 
 /*
@@ -7,6 +7,7 @@ static	char	Id[] = "$Id: sortset.c,v 12.5 1993/12/01 16:30:56 dickey Exp $";
  * Author:	T.E.Dickey
  * Created:	01 Dec 1989 (from ded.c)
  * Modified:
+ *		06 Dec 1993, added 'S' sort.
  *		29 Oct 1993, ifdef-ident
  *		28 Sep 1993, gcc warnings
  *		01 Apr 1992, convert most global variables to RING-struct.
@@ -49,6 +50,7 @@ static	char	*sort_msg[] = {
 #endif
 	,"r - atime (access time)"
 	,"s - size (bytes)"
+	,"S - size (blocks)"
 	,"t - suffix/type (after first '.')"
 	,"T - suffix/type (after last '.')"
 	,"u - user"
