@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	Id[] = "$Id: dedread.c,v 8.0 1990/05/23 08:09:14 ste_cm Rel $";
+static	char	Id[] = "$Id: dedread.c,v 8.1 1991/04/18 07:56:15 dickey Exp $";
 #endif	lint
 
 /*
@@ -7,9 +7,14 @@ static	char	Id[] = "$Id: dedread.c,v 8.0 1990/05/23 08:09:14 ste_cm Rel $";
  * Author:	T.E.Dickey
  * Created:	26 May 1989
  * $Log: dedread.c,v $
- * Revision 8.0  1990/05/23 08:09:14  ste_cm
- * BASELINE Mon Aug 13 15:06:41 1990 -- LINCNT, ADA_TRANS
+ * Revision 8.1  1991/04/18 07:56:15  dickey
+ * added flag to control whether identical pattern returns
+ * true or false (so that if nothing is found, we can force
+ * re-invocation of this procedure).
  *
+ *		Revision 8.0  90/05/23  08:09:14  ste_cm
+ *		BASELINE Mon Aug 13 15:06:41 1990 -- LINCNT, ADA_TRANS
+ *		
  *		Revision 7.1  90/05/23  08:09:14  dickey
  *		make the pattern to be set an argument
  *		
@@ -22,7 +27,7 @@ static	char	Id[] = "$Id: dedread.c,v 8.0 1990/05/23 08:09:14 ste_cm Rel $";
 #include	"ded.h"
 extern	char	*txtalloc();
 
-dedread(pattern_)
+dedread(pattern_, change_needed)
 char	**pattern_;
 {
 	register int	j,k;
@@ -43,7 +48,7 @@ char	**pattern_;
 	dlog_string(text,sizeof(text),FALSE);
 	if ((*pattern_ != 0) && !strcmp(text, *pattern_)) {
 		showC();
-		return (FALSE);	/* no change */
+		return (change_needed);
 	} else if (!*text) {
 		*pattern_ = 0;
 		showC();

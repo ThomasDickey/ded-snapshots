@@ -1,11 +1,17 @@
 /*
- * $Id: version.h,v 8.5 1991/04/16 08:54:39 dickey Exp $
+ * $Id: version.h,v 8.7 1991/04/18 09:42:38 dickey Exp $
  * Version-identifier for DED
  * $Log: version.h,v $
- * Revision 8.5  1991/04/16 08:54:39  dickey
- * absorb backslash in shell command only when "#" or "%"
- * follows (briefer).
+ * Revision 8.7  1991/04/18 09:42:38  dickey
+ * added ':' command to directory-tree
  *
+ *		Revision 8.6  91/04/18  09:00:29  dickey
+ *		added "cL" command to create hard links.
+ *		
+ *		Revision 8.5  91/04/16  08:54:39  dickey
+ *		absorb backslash in shell command only when "#" or "%"
+ *		follows (briefer).
+ *		
  *		Revision 8.4  91/04/16  08:16:39  dickey
  *		modified so that "-" argument causes DED to read a list of
  *		arguments from stdin (no wildcard expansion!)
@@ -173,4 +179,4 @@
  * 01 Dec 1987, added '*', '^' commands, made '%' refresh screen
  * 25 Nov 1987, added sccs-support (V,z,Z toggles, V,z,Z sorts)
  */
-static	char	version[] = "$Date: 1991/04/16 08:54:39 $";
+static	char	version[] = "$Date: 1991/04/18 09:42:38 $";
