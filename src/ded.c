@@ -1,5 +1,5 @@
 #ifndef	NO_SCCS_ID
-static	char	sccs_id[] = "@(#)ded.c	1.36 88/07/25 07:05:03";
+static	char	sccs_id[] = "@(#)ded.c	1.38 88/07/27 15:42:14";
 #endif	NO_SCCS_ID
 
 /*
@@ -7,6 +7,8 @@ static	char	sccs_id[] = "@(#)ded.c	1.36 88/07/25 07:05:03";
  * Author:	T.E.Dickey
  * Created:	09 Nov 1987
  * Modified:
+ *		27 Jul 1988, use 'execute()' to parse args, etc., in forkfile.
+ *			     modified 'padedit()' to support X-windows.
  *		11 Jul 1988, added '+' mode to sort.
  *		16 Jun 1988, added '@' toggle.
  *		07 Jun 1988, added CTL(K) screen-dump
@@ -56,6 +58,9 @@ extern	char	*strchr();
 
 #ifdef	lint
 #undef	putchar
+#ifndef	SYSTEM5
+/*ARGSUSED*/	putchar(c) { return(0); }
+#endif	SYSTEM5
 #endif	lint
 
 /*
@@ -897,33 +902,19 @@ char	bfr[BUFSIZ];
 
 /*
  * Spawn a subprocess, wait for completion.
- * patch: should parse for options a la 'bldarg()'.
  */
 static
 forkfile(arg0, arg1, normal)
 char	*arg0, *arg1;
 {
-int	pid ,
-	status;
-
 	resetty();
-	if ((pid = fork()) > 0) {
-	int	c;
-		for (;;) {
-			c = wait(&status);
-			if (c < 0) break;
-		}
-		rawterm();
-		(void)chdir(new_wd);
-		if (normal) {
-			retouch(0);
-			restat(FALSE);
-		}
-	} else if (pid < 0) {
-		PRINTF("fork failed\n");
-	} else {
-		execl(arg0, arg0, arg1, 0L);
-		exit(0);		/* just in case exec-failed */
+	if (execute(arg0, arg1) < 0)
+		warn(arg0);
+	rawterm();
+	(void)chdir(new_wd);
+	if (normal) {
+		retouch(0);
+		restat(FALSE);
 	}
 }
 
@@ -934,19 +925,16 @@ int	pid ,
 static
 editfile(readonly, pad)
 {
+	char	*editor = (readonly ? ENV(BROWSE) : ENV(EDITOR));
 	switch (realstat(curfile)) {
 	case 0:
 		to_work();
-#ifdef	apollo
 		if (pad) {
-			if (padedit(cNAME, readonly))
+			if (padedit(cNAME, readonly, editor) < 0)
 				beep();
 			restat(FALSE);
 		} else
-#endif	apollo
-			forkfile(readonly ? ENV(BROWSE)
-					  : ENV(EDITOR),
-				 cNAME, TRUE);
+			forkfile(editor, cNAME, TRUE);
 		break;
 	case 1:
 		to_work();
@@ -1236,16 +1224,11 @@ char	tpath[BUFSIZ],
 			re_edit = FALSE;
 			break;
 
-#ifdef	apollo
 	case CTL(e):	/* pad-edit */
 	case CTL(v):	/* pad-view */
-			editfile(c != CTL(e), TRUE);
-			break;
-#endif	apollo
-
 	case 'e':
 	case 'v':	/* enter new process with current file */
-			editfile(c != 'e', FALSE);
+			editfile((c & 037) != CTL(e), iscntrl(c));
 			break;
 
 	case 'm':	to_work();
