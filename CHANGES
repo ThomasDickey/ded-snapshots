@@ -1,3 +1,39 @@
+1992-08-13  dickey@software.org
+
+	* src/ded.h: added ReplayFinish
+	reordered C_??? defs to make them simpler
+
+	* src/inline.c: tweaked to add C_INIT
+
+	* src/ded.h: added C_INIT, ReplayInit()
+
+	* src/ded.c: use ReplayInit()
+
+	* src/inline.c, src/ded.c: mods to use 'topc' value in 'get_inline()'
+
+	* src/ded.h, src/inline.c: lint
+
+	* src/inline.c:
+	store separate structure for each inline command so that
+	main program can re-invoke them with '-command.
+
+	* src/ded.c: make '-command work (ignoring topc for now)
+
+	* src/inline.c:
+	modified so that the 0th item in the text-string is no longer
+	the endc-value.
+
+	* src/ded.c: don't use 'ReplayStart()' until I have an endc-value.
+
+	* src/ded.h:
+	added an argument to 'get_inline()' so I can cleanup logging
+
+	* src/inline.c: restructured 'get_inline()' as a single case-statement,
+	and organized its data into the ITEM struct.
+
+	* src/ded.h: added def for ReplayFind
+	added C_???? defs for 'inline.c'
+
 1992-08-12  dickey@software.org
 
 	* src/ded.c: introduced '-command (though it does not work yet!)

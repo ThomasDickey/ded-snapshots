@@ -3,7 +3,7 @@
 
 #ifdef	MAIN
 #ifndef	lint
-static	char	*ded_h = "$Id: ded.h,v 11.5 1992/08/11 17:01:59 dickey Exp $";
+static	char	*ded_h = "$Id: ded.h,v 11.10 1992/08/13 15:52:32 dickey Exp $";
 #endif
 #endif	/* MAIN */
 
@@ -202,6 +202,18 @@ typedef	struct	_hist	{
 	} HIST;
 
 /*
+ * Definitions for inline edit/history:
+ */
+#define	C_NEXT	 0
+#define	C_INIT	-1
+#define	C_FIND	-2
+#define	C_TOPC	-3
+#define	C_ENDC	-4
+#define	C_TRIM	-5
+#define	C_QUIT	-6
+#define	C_DONE	-7
+
+/*
  * Global data (cf: dedring.c)
  */
 MAIN	char	old_wd[MAXPATHLEN]; /* original working-directory */
@@ -272,22 +284,6 @@ extern	void	dedfind(
 extern	FLIST	*dedfree(
 		_arx(FLIST *,	fp)
 		_ar1(unsigned,	num));
-
-/* *** "inline.c" *** */
-extern	void	hide_inline(
-		_ar1(int,	flag));
-
-extern	int	edit_inline(
-		_ar1(int,	flag));
-
-extern	int	get_inline(
-		_ar1(int,	cmd));
-
-#define	ReplayStart(endc)	(void)get_inline(endc)
-#define	ReplayEndC()		      get_inline(-3)
-#define	ReplayTrim()		(void)get_inline(-1)
-#define	ReplayQuit()		(void)get_inline(-2)
-#define	ReplayChar()		      get_inline(EOS)
 
 /* *** "dedline.c" *** */
 extern	void	editprot(
@@ -659,6 +655,27 @@ extern	void	restat_l(
 
 extern	void	restat_W(
 		_ar1(RING *,	gbl));
+
+/* *** "inline.c" *** */
+extern	void	hide_inline(
+		_ar1(int,	flag));
+
+extern	int	edit_inline(
+		_ar1(int,	flag));
+
+extern	int	get_inline(
+		_arx(int,	c)
+		_ar1(int,	cmd));
+
+#define	ReplayStart(chr)	(void)get_inline(chr,chr)
+#define	ReplayFinish()		(void)get_inline(EOS,C_DONE)
+#define	ReplayInit(chr)		      get_inline(chr,C_INIT)
+#define	ReplayTopC(chr)		(void)get_inline(chr,C_TOPC)
+#define	ReplayEndC()		      get_inline(EOS,C_ENDC)
+#define	ReplayFind(chr)		(void)get_inline(chr,C_FIND)
+#define	ReplayTrim()		(void)get_inline(EOS,C_TRIM)
+#define	ReplayQuit()		(void)get_inline(EOS,C_QUIT)
+#define	ReplayChar()		      get_inline(EOS,C_NEXT)
 
 /* *** "showpath.c" *** */
 extern	int	showpath(

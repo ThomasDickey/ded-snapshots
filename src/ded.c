@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	Id[] = "$Header: /users/source/archives/ded.vcs/src/RCS/ded.c,v 11.7 1992/08/12 16:31:25 dickey Exp $";
+static	char	Id[] = "$Header: /users/source/archives/ded.vcs/src/RCS/ded.c,v 11.11 1992/08/13 14:21:08 dickey Exp $";
 #endif
 
 /*
@@ -792,7 +792,17 @@ usage(_AR0)
 	dlog_exit(FAIL);
 }
 
-private	repeat_command(
+private	int	inline_nesting _ONE(int,c)
+{
+	if (c == 'c') {
+		ReplayTopC(c);
+		c = dlog_char((int *)0,FALSE);
+	} else
+		ReplayTopC(EOS);
+	return (c);
+}
+
+private	void	inline_command(
 	_ARX(RING *,	gbl)
 	_AR1(int,	c)
 		)
@@ -1161,21 +1171,18 @@ _MAIN
 			break;
 
 			/* edit specific fields */
-	case 'p':	editprot(gbl);		break;
-	case 'u':	edit_uid(gbl);		break;
-	case 'g':	edit_gid(gbl);		break;
-	case '=':	editname(gbl);		break;
-#ifdef	S_IFLNK
+	case '\'':	ReplayFind(inline_nesting(dlog_char((int *)0,FALSE)));
+			ReplayTrim();	/* chop off endc */
+	case '"':	inline_command(gbl, edit_inline(TRUE));
+			break;
+
+	case 'p':
+	case 'u':
+	case 'g':
+	case '=':
 	case '<':
-	case '>':	editlink(gbl, c);	break;
-#endif	/* S_IFLNK */
-
-	case '\'':	repeat_command(gbl, dlog_char((int *)0,FALSE));	break;
-	case '"':	repeat_command(gbl, edit_inline(TRUE));		break;
-
-	case 'c':	/* create an entry */
-			ReplayStart('c');
-			dedmake(gbl, ReplayChar());
+	case '>':
+	case 'c':	inline_command(gbl, ReplayInit(inline_nesting(c)));
 			break;
 
 	case CTL('e'):	/* pad-edit */
