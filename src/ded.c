@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	Id[] = "$Header: /users/source/archives/ded.vcs/src/RCS/ded.c,v 11.14 1992/08/25 13:18:50 dickey Exp $";
+static	char	Id[] = "$Header: /users/source/archives/ded.vcs/src/RCS/ded.c,v 11.15 1992/09/23 12:23:41 dickey Exp $";
 #endif
 
 /*
@@ -572,12 +572,12 @@ private	void	forkfile(
 	_ARX(RING *,	gbl)
 	_ARX(char *,	arg0)
 	_ARX(char *,	arg1)
-	_AR1(int,	normal)
+	_AR1(int,	option)
 		)
 	_DCL(RING *,	gbl)
 	_DCL(char *,	arg0)
 	_DCL(char *,	arg1)
-	_DCL(int,	normal)
+	_DCL(int,	option)
 {
 	char	quoted[MAXPATHLEN];
 
@@ -590,7 +590,12 @@ private	void	forkfile(
 		warn(gbl, arg0);
 	dlog_elapsed();
 	rawterm();
-	if (normal) {
+
+	switch (option) {
+	case TRUE+1:
+		dedwait(gbl, TRUE);
+		/* fall-thru */
+	case TRUE:
 		retouch(gbl, 0);
 		restat(gbl,FALSE);
 	}
@@ -1202,10 +1207,7 @@ _MAIN
 			break;
 
 	case 'm':	to_work(gbl,TRUE);
-			forkfile(gbl, ENV(PAGER), cNAME, TRUE);
-#ifndef	apollo
-			dedwait(gbl, TRUE);
-#endif
+			forkfile(gbl, ENV(PAGER), cNAME, TRUE+1);
 			break;
 
 			/* page thru files in work area */
