@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	Id[] = "$Id: deddoit.c,v 10.14 1992/05/13 09:52:22 dickey Exp $";
+static	char	Id[] = "$Id: deddoit.c,v 11.0 1992/06/18 13:33:54 ste_cm Rel $";
 #endif
 
 /*
@@ -164,6 +164,8 @@ public	void	deddoit(
 	register char	*s;
 
 	dyn_init(&Subs, BUFSIZ);
+	if (!dyn_string(gbl->cmd_sh))
+		dyn_init(&gbl->cmd_sh, BUFSIZ);
 
 	if (sense == 0)
 		gbl->clr_sh = FALSE;
