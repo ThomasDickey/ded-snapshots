@@ -1,5 +1,5 @@
 #ifndef	NO_SCCS_ID
-static	char	sccs_id[] = "@(#)ded.c	1.28 88/06/01 10:43:57";
+static	char	sccs_id[] = "@(#)ded.c	1.30 88/06/06 12:24:40";
 #endif	NO_SCCS_ID
 
 /*
@@ -7,6 +7,7 @@ static	char	sccs_id[] = "@(#)ded.c	1.28 88/06/01 10:43:57";
  * Author:	T.E.Dickey
  * Created:	09 Nov 1987
  * Modified:
+ *		06 Jun 1988, if 'R' finds nothing, do 'F' to recover before 'q'.
  *		01 Jun 1988, added 'Y' toggle, y-sort.
  *		25 May 1988, fix 'edittext()' for left/right scroll position.
  *			     also, +/- update via 'showDOWN()'.
@@ -33,8 +34,7 @@ static	char	sccs_id[] = "@(#)ded.c	1.28 88/06/01 10:43:57";
 #define	MAIN
 #include	"ded.h"
 #include	<sys/signal.h>
-extern	char	*getenv(),
-		*strchr();
+extern	char	*strchr();
 
 #ifndef	EDITOR
 #define	EDITOR	"/usr/ucb/vi"
@@ -1089,13 +1089,21 @@ char	tpath[BUFSIZ],
 	case 'R':	/* re-stat display-list */
 			to_work();
 			tag_count = 0;
-			if (!(quit = !dedscan(top_argc, top_argv))) {
+			(void)strcpy(tpath,cNAME);
+			if (dedscan(top_argc, top_argv)) {
 				curfile = 0;	/* numfiles may be less now */
 				dedsort();
-				Ybase = curfile = 0;
-				viewset();	/* scroll to first screen */
+				curfile = 0;
+				for (j = 0; j < numfiles; j++)
+					if (!strcmp(flist[j].name, tpath)) {
+						curfile = j;
+						break;
+					}
+				viewset();	/* scroll to current screen */
+				to_file();
 				showFILES();
-			}
+			} else
+				quit = !new_args(strcpy(tpath, new_wd), 'F', 1);
 			break;
 
 	case 'W':	/* re-stat window */
@@ -1187,6 +1195,9 @@ char	tpath[BUFSIZ],
 
 	case 'm':	to_work();
 			forkfile(ENV(PAGER), cNAME, TRUE);
+#ifndef	apollo
+			dedwait();
+#endif	apollo
 			break;
 
 			/* page thru files in work area */

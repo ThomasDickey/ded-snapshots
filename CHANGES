@@ -1,3 +1,20 @@
+1988-06-06  dickey@software.org
+
+	* src/version.h:
+	fix for 'R'-exit. Store ".ftree" in process's home, not login-home.
+
+	* src/ded.c:
+	corrected attempt to make 'R' leave cursor on the current file.
+
+	* src/README: fixed 'R'-exit hole.
+
+	* src/ded.c:
+	Recover in 'R' by trying to do a 'F' command if we find no files.
+
+	* src/ded.h: use 'gethome()' for ".ftree" file.
+
+	* src/ftree.c: use 'gethome()' for ".ftree".
+
 1988-06-01  dickey@software.org
 
 	* src/ded.c: correction to make 'y'-sort work ok.

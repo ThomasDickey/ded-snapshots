@@ -45,12 +45,7 @@ To do:
 	Eric has a copy of curses under ~marshall/src/wm/libcurses
 	on the Gould.
 
-	Should treat RCS directories the same as sccs (i.e., provide Z-toggle).
-
 	Should provide a rename-leaf command in ftree using '='
-
-	The 'R' command from file-list should do a dedring-quit if no files
-	are found in the current directory, rather than a full quit.
 
 	The 'E' command from directory-tree spits out a nasty message if the
 	tree is out of date...
@@ -79,3 +74,10 @@ To do:
 88/05/26:
 	Should add an 'o'/'O' command to create new files in the list so we
 	don't have to do a rescan to get them.
+
+88/06/02:
+	np1-port, found that 'putchar()' usage in blip, beep causes warning
+	about comparison with an unsigned.
+
+88/06/06:
+	add a screen-dump command.

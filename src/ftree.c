@@ -1,11 +1,12 @@
 #ifndef	NO_SCCS_ID
-static	char	sccs_id[] = "@(#)ftree.c	1.44 88/06/01 10:31:27";
+static	char	sccs_id[] = "@(#)ftree.c	1.45 88/06/06 09:30:37";
 #endif
 
 /*
  * Author:	T.E.Dickey
  * Created:	02 Sep 1987
  * Modified:
+ *		06 Jun 1988, use 'gethome()' for ".ftree" location.
  *		01 Jun 1988, added SCCS_DIR environment variable.
  *		16 May 1988, added 'U' command.
  *		13 May 1988, use 'txtalloc()' in 'ft_read()' -- should be
@@ -511,7 +512,7 @@ int	fid,
 	size;
 
 	/* read the current database */
-	(void)strcat(strcpy(FDname, getenv("HOME")), "/.ftree");
+	(void)strcat(strcpy(FDname, gethome()), "/.ftree");
 	if ((fid = open(FDname, O_RDONLY)) != 0) {
 		if (stat(FDname, &sb) < 0)
 			return;
