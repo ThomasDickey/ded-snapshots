@@ -1,10 +1,16 @@
-# $Header: /users/source/archives/ded.vcs/src/RCS/Makefile,v 1.26 1989/03/23 14:36:35 dickey Exp $
+# $Header: /users/source/archives/ded.vcs/src/RCS/Makefile,v 1.28 1989/03/28 16:23:30 dickey Exp $
 # MAKE-file for directory editor
 #
 # $Log: Makefile,v $
-# Revision 1.26  1989/03/23 14:36:35  dickey
-# revised to CM-standard format
+# Revision 1.28  1989/03/28 16:23:30  dickey
+# corrected 'destroy' rule
 #
+#        Revision 1.27  89/03/28  13:04:04  dickey
+#        added 'run_tests' rule
+#        
+#        Revision 1.26  89/03/23  14:36:35  dickey
+#        revised to CM-standard format
+#        
 
 ####### (Environment) ##########################################################
 B	= ../bin
@@ -74,8 +80,9 @@ MAIN_O	= ded.o $A $(LIBS)
 all:		$(ALL)
 #
 clean:				; rm -f *.[oa] *.out
-clobber:	clean		; rm -f ded
-destroy:			; rm -f *
+clobber:	clean		; rm -f $(ALL)
+destroy:	clobber		; rm -f *
+run_tests:
 sources:	$(SRCS)
 
 ####### (Details of Productions) ###############################################

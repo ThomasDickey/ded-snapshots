@@ -11,7 +11,8 @@
 \r	# Hit <RETURN> to continue
 	# ELAPSED TIME
 1st
-1p5p
+1p44p	# chmod 445 ded
+1p75p	# chmod 755 ded
 1j
 1t	# type "ded.hlp" (text)
 1q
@@ -31,7 +32,6 @@
 1\s
 1#	# "Makefile"
 	# "RCS"
-	# "README"
 	# "ded.c"
 	# "ded2s.c"
 	# "deddoit.c"
