@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	sccs_id[] = "@(#)dedscan.c	1.18 88/08/02 12:43:05";
+static	char	sccs_id[] = "@(#)dedscan.c	1.19 88/08/04 07:49:18";
 #endif	lint
 
 /*
@@ -7,6 +7,7 @@ static	char	sccs_id[] = "@(#)dedscan.c	1.18 88/08/02 12:43:05";
  * Author:	T.E.Dickey
  * Created:	09 Nov 1987
  * Modified:
+ *		04 Aug 1988, added debug-option
  *		01 Jun 1988, added 'z_lock'.
  *		26 May 1988, made 'flist[]' allocation in chunks.
  *		23 May 1988, changed interface to 'rcslast()', 'sccslast()'.
@@ -22,6 +23,8 @@ static	char	sccs_id[] = "@(#)dedscan.c	1.18 88/08/02 12:43:05";
 extern	FLIST	*dedfree();
 extern	char	*txtalloc();
 
+extern	int	debug;
+
 /************************************************************************
  *	dedscan(@)							*
  *----------------------------------------------------------------------*
@@ -32,10 +35,11 @@ extern	char	*txtalloc();
 dedscan(argc, argv)
 char	*argv[];
 {
-DIR		*dp;
-struct	direct	*de;
-register int	j;
-char	name[BUFSIZ];
+	DIR		*dp;
+	struct	direct	*de;
+	register int	j;
+	char	name[BUFSIZ];
+	char	*s;
 
 	flist = dedfree(flist, numfiles);
 
@@ -67,15 +71,16 @@ char	name[BUFSIZ];
 					name[len]   = '\0';
 				}
 				while (de = readdir(dp)) {
-					if (dotname(de->d_name))
+					if (dotname(s = de->d_name))
 						continue;
-					j = argstat(strcpy(name+len,
-							de->d_name), TRUE);
+					if (debug)
+						PRINTF(" file \"%s\"\r\n", s);
+					j = argstat(strcpy(name+len, s), TRUE);
 					if (j > 0)
 						ft_insert(name);
 #ifndef	SYSTEM5
 					if ((j == 0)
-					&&  ((j = lookup(de->d_name)) >= 0)
+					&&  ((j = lookup(s)) >= 0)
 					&&  (linkstat(name,flist+j)) )
 						ft_linkto(name);
 #endif	SYSTEM5
@@ -87,6 +92,8 @@ char	name[BUFSIZ];
 			ft_purge();	/* remove items not reinserted */
 		}
 	}
+	if (debug)
+		dedwait();
 	return(numfiles);
 }
 
