@@ -2,7 +2,7 @@
  * Author:	T.E.Dickey
  * Created:	02 Sep 1987
  * Modified:
- *		09 Jan 1996, mods to scrolling-regions
+ *		10 Jan 1996, mods to scrolling-regions
  *		29 Oct 1995, guard 'do_find()' against getwd failure
  *		03 Sep 1995, mods to make '&'-toggle correspond better with
  *			     the same command in the file-list.
@@ -128,7 +128,7 @@
 
 #include	<fcntl.h>
 
-MODULE_ID("$Id: ftree.c,v 12.46 1996/01/09 23:27:50 tom Exp $")
+MODULE_ID("$Id: ftree.c,v 12.48 1996/01/13 14:50:07 tom Exp $")
 
 #define	Null	(char *)0	/* some NULL's are simply 0 */
 
@@ -1309,7 +1309,9 @@ private	int	uprow(
 	_DCL(int,	level)
 {
 	register int j, k = node;
+#if HAVE_WSCRL && HAVE_WSETSCRREG
 	int savebase = showbase;
+#endif
 
 	level++;
 	for (j = node-1; j >= 0; j--) {
@@ -1329,8 +1331,12 @@ private	int	uprow(
 		beep();
 #if HAVE_WSCRL && HAVE_WSETSCRREG
 	if (showbase < savebase) {
+		int	skipped = 0;
+		for (j = savebase; j > showbase; j--)
+			if (!fd_show(j))
+				skipped++;
 		setscrreg(LOSHOW,LINES-1);
-		scrl(showbase - savebase);
+		scrl(showbase - (savebase - skipped));
 		setscrreg(0,LINES-1);
 	}
 #endif
@@ -1347,7 +1353,9 @@ private	int	downrow(
 	_DCL(int,	level)
 {
 	register int j, k = node;
+#if HAVE_WSCRL && HAVE_WSETSCRREG
 	int savebase = showbase;
+#endif
 
 	level++;
 	for (j = node+1; j <= FDlast; j++) {
@@ -1368,8 +1376,12 @@ private	int	downrow(
 		beep();
 #if HAVE_WSCRL && HAVE_WSETSCRREG
 	if (showbase > savebase) {
+		int	skipped = 0;
+		for (j = savebase; j < showbase; j++)
+			if (!fd_show(j))
+				skipped++;
 		setscrreg(LOSHOW,LINES-1);
-		scrl(showbase - savebase);
+		scrl(showbase - (skipped + savebase));
 		setscrreg(0,LINES-1);
 	}
 #endif
@@ -1595,6 +1607,7 @@ public	RING *	ft_view(
 			if (!(s = dlog_string(
 					gbl,
 					Null,
+					-1,
 					&my_text,
 					(DYN **)0,
 					NO_HISTORY,
@@ -1639,6 +1652,7 @@ public	RING *	ft_view(
 				if (!(s = dlog_string(
 						gbl,
 						Null,
+						-1,
 						&my_text,
 						(DYN **)0,
 						j ? &JumpHistory : &FindHistory,
@@ -1685,6 +1699,7 @@ public	RING *	ft_view(
 				if (!(s = dlog_string(
 						gbl,
 						Null,
+						-1,
 						&my_text,
 						(DYN **)0,
 						&NameHistory,

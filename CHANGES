@@ -1,3 +1,23 @@
+1996-01-13  Thomas E. Dickey  <dickey@clark.net>
+
+	* src/version.h:
+	mods for using the last (80th) column on display.  Use sysvr4 scrolling
+	support if available.  Added -i option (temporary) for inverting color.
+	Corrected ~ command in ftree.  Corrected infinite-loop in 'dedfind' when
+	current file was symlink.
+
+	* src/dedtype.c:
+	move search-prompt to bottom of work-area, and fixed bug that left highlighting
+	on if an empty reply was given
+
+	* src/dlog.c, src/ded.h, src/ftree.c, src/dedread.c, src/dedline.c, src/dedfind.c, src/deddoit.c, src/ded.c:
+	modify interface of dlog_string and dlog_prompt
+
+	* src/dedtype.c:
+	more fixes for scrolling: fix 'A' (which must adjust 'jump').  Do lookahead
+	to cache line pointers so that JumpBackwards can catch more scrolling cases.
+	redefine NumP as macro.
+
 1996-01-10  Thomas E. Dickey  <dickey@clark.net>
 
 	* src/dedview.c: corrected limit-checking for column in move2row

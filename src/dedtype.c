@@ -3,7 +3,8 @@
  * Author:	T.E.Dickey
  * Created:	16 Nov 1987
  * Modified:
- *		09 Jan 1996, mods for scrolling regions
+ *		13 Jan 1996, mods for scrolling regions.  Move search prompt
+ *			     to bottom of work area.
  *		15 Dec 1995, allow for missing newline in file-ending.
  *		01 Nov 1995, mods to use last column on display, and to
  *			     provide single column/row scrolling.
@@ -54,7 +55,7 @@
 #define		DIR_PTYPES	/* includes directory-stuff */
 #include	"ded.h"
 
-MODULE_ID("$Id: dedtype.c,v 12.21 1996/01/10 13:25:52 tom Exp $")
+MODULE_ID("$Id: dedtype.c,v 12.24 1996/01/13 15:02:15 tom Exp $")
 
 typedef	struct	{
 	OFF_T	offset;
@@ -64,6 +65,9 @@ typedef	struct	{
 #define	def_doalloc	OFF_T_alloc
 	/*ARGSUSED*/
 	def_DOALLOC(OFFSETS)
+
+#define WORK_HIGH   (LINES - mark_W - 2)
+#define NumP(count) (WORK_HIGH * count)
 
 #define	END_COL	(my_text->max_length)
 #define	Text	dyn_string(my_text)
@@ -249,17 +253,6 @@ private	int	reshow(
 }
 
 /*
- * Returns the height of a page, in lines
- */
-private	int	NumP(
-	_AR1(int,	count))
-	_DCL(int,	count)
-{
-	int	height = LINES - (mark_W + 2);
-	return height * count;
-}
-
-/*
  * Returns the filesize (implicitly the limit on the number of pages)
  */
 private	OFF_T	MaxP(_AR0)
@@ -397,8 +390,9 @@ private	int	JumpBackwards(
 	}
 #if HAVE_WSCRL && HAVE_WSETSCRREG
 	if (jump != savejump
-	 && (jump - savejump) <= (LINES-mark_W-3)
-	 && (savejump - jump) <= (LINES-mark_W-3)) {
+	 && (n + NumP(1) < max_lines)
+	 && (jump - savejump) < NumP(1)
+	 && (savejump - jump) < NumP(1)) {
 		int y, x;
 		getyx(stdscr, y, x);
 		move(LINES-2, 0);
@@ -605,9 +599,12 @@ private	void	FindPattern(
 	if (key == '/' || key == '?') {
 
 		dyn_init(&text, BUFSIZ);
-		if (!(s = dlog_string(gbl, "Target: ", &text, (DYN **)0,
-				&History, EOS, 0)))
+		if (!(s = dlog_string(gbl, "Target: ", LINES-1, &text, (DYN **)0,
+				&History, EOS, BUFSIZ))
+		 || !*s) {
+			UsePattern = FALSE;
 			return;
+		}
 		if (key == '/')	order = 1;
 		if (key == '?') order = -1;
 		next = order;
@@ -757,6 +754,20 @@ public	void	dedtype(
 		while (!done) {
 
 			if (jump) {
+#if HAVE_WSCRL && HAVE_WSETSCRREG
+				/*
+				 * If we're doing single-line scrolling past
+				 * the point we've read in the file, try to
+				 * cache pointers so that the scrolling logic
+				 * will go more smoothly.
+				 */
+				if (jump > 0
+				 && jump < NumP(1)
+				 && infile + NumP(1) >= max_lines) {
+					int line = infile;
+					(void)StartPage(&line, TRUE, &had_eof);
+				}
+#endif
 				(void)JumpBackwards(&infile, jump);
 				jump = 0;
 			}
@@ -862,7 +873,10 @@ public	void	dedtype(
 				break;
 
 				/* move work-area marker */
-			case 'A':	count = -count;
+			case 'A':
+				count = -count;
+				jump -= count;
+				/*FALLTHRU*/
 			case 'a':
 				markset(gbl, mark_W + count);
 				break;

@@ -21,7 +21,7 @@
  */
 #include	"ded.h"
 
-MODULE_ID("$Id: dedread.c,v 12.7 1994/07/02 20:04:41 tom Exp $")
+MODULE_ID("$Id: dedread.c,v 12.8 1996/01/13 14:48:56 tom Exp $")
 
 public	int	dedread(
 	_ARX(RING *,	gbl)
@@ -44,7 +44,7 @@ public	int	dedread(
 	else
 		dyn_init(&text, BUFSIZ);
 
-	if (!(s = dlog_string(gbl, "Pattern: ", &text,(DYN **)0, &History, EOS, 0)))
+	if (!(s = dlog_string(gbl, "Pattern: ", -1, &text,(DYN **)0, &History, EOS, 0)))
 		s = "";
 	if ((*pattern_ != 0) && !strcmp(s, *pattern_)) {
 		showC(gbl);

@@ -53,7 +53,7 @@
 
 #include	"ded.h"
 
-MODULE_ID("$Id: dedline.c,v 12.17 1995/11/06 00:00:44 tom Exp $")
+MODULE_ID("$Id: dedline.c,v 12.18 1996/01/13 14:48:50 tom Exp $")
 
 #define	CHMOD(n)	(gSTAT(n).st_mode & 07777)
 #define	OWNER(n)	((geteuid() == 0) || (gSTAT(x).st_uid == geteuid()))
@@ -523,6 +523,7 @@ public	int	edittext(
 	if ((s = dlog_string(
 			gbl,
 			(char *)0,
+			-1,
 			&result,
 			inline_text(),
 			inline_hist(),

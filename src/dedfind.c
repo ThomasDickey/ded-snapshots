@@ -22,7 +22,7 @@
  */
 #include	"ded.h"
 
-MODULE_ID("$Id: dedfind.c,v 12.8 1994/06/30 23:41:36 tom Exp $")
+MODULE_ID("$Id: dedfind.c,v 12.9 1996/01/13 14:48:34 tom Exp $")
 
 public	void	dedfind(
 	_ARX(RING *,	gbl)
@@ -44,7 +44,7 @@ public	void	dedfind(
 	if (key == '/' || key == '?') {
 
 		dyn_init(&text, BUFSIZ);
-		if (!(s = dlog_string(gbl, "Target: ", &text,(DYN **)0, &History, EOS, 0)))
+		if (!(s = dlog_string(gbl, "Target: ", -1, &text,(DYN **)0, &History, EOS, 0)))
 			return;
 		if (key == '/')	order = 1;
 		if (key == '?') order = -1;

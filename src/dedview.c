@@ -21,7 +21,7 @@
 
 #include	"ded.h"
 
-MODULE_ID("$Id: dedview.c,v 12.31 1996/01/10 00:31:30 tom Exp $")
+MODULE_ID("$Id: dedview.c,v 12.32 1996/01/11 01:25:31 tom Exp $")
 
 #define	MINLIST	2		/* minimum length of file-list + header */
 #define	MINWORK	3		/* minimum size of work-area */
@@ -387,6 +387,8 @@ public	int	move2row(
 	_DCL(int,	col)
 {
 	if (FILE_VISIBLE(vue,n)) {
+		if (col >= COLS)
+			col = COLS-1;
 		move(file2row(n), col);
 		return (TRUE);
 	}
@@ -836,7 +838,6 @@ public	void	showC (
 	register int	x = gbl->cmdcol[CCOL_CMD] - gbl->Xbase;
 
 	if (x < 0)		x = 0;
-	if (x > COLS)		x = COLS;
 
 	showWHAT(gbl);
 	markC(gbl,FALSE);
@@ -876,6 +877,7 @@ public	void	markC(
 
 	if (col >= 0) {
 		register int y,x;
+
 		(void)move2row(gbl->curfile, col);
 
 		if (!on || (gbl->mrkfile < 0)) {
