@@ -3,6 +3,7 @@
  * Author:	T.E.Dickey
  * Created:	01 Aug 1988 (from 'ded.c')
  * Modified:
+ *		07 Mar 2004, remove K&R support, indent'd
  *		01 Mar 1998, mods to build with OS/2 EMX 0.9b
  *		15 Feb 1998, remove special code for apollo sr10
  *			     fix compiler warnings.
@@ -56,7 +57,7 @@
 
 #include	"ded.h"
 
-MODULE_ID("$Id: dedline.c,v 12.26 2002/07/05 13:55:00 tom Exp $")
+MODULE_ID("$Id: dedline.c,v 12.27 2004/03/07 23:25:18 tom Exp $")
 
 #define	CHMOD(n)	(gSTAT(n).st_mode & 07777)
 #define	OWNER(n)	((geteuid() == 0) || (gSTAT(x).st_uid == geteuid()))
@@ -76,283 +77,257 @@ MODULE_ID("$Id: dedline.c,v 12.26 2002/07/05 13:55:00 tom Exp $")
  * If any tagged files are symbolic links, set the AT_opt to the specified flag
  * value and re-stat them.  Return a count of the number of links.
  */
-private	int	at_last(
-	_ARX(RING *,	gbl)
-	_AR1(int,	flag)
-		)
-	_DCL(RING *,	gbl)
-	_DCL(int,	flag)
+static int
+at_last(RING * gbl, int flag)
 {
-	register unsigned x;
-	register int changed = 0;
+    unsigned x;
+    int changed = 0;
 
-	for_each_file(gbl,x)
-		if (GROUPED(x)
-		&& gLTXT(x)) {
-			gbl->AT_opt = flag;
-			statLINE(gbl, x);
-			showLINE(gbl, x);
-			changed++;
-		}
-	return (changed);
+    for_each_file(gbl, x)
+	if (GROUPED(x)
+	    && gLTXT(x)) {
+	gbl->AT_opt = flag;
+	statLINE(gbl, x);
+	showLINE(gbl, x);
+	changed++;
+    }
+    return (changed);
 }
 
 /*
  * Save AT_opt mode when we are editing inline, and show mapped-thru stat for
  * symbolic links.
  */
-private	int	at_save (
-	_AR1(RING *,	gbl))
-	_DCL(RING *,	gbl)
+static int
+at_save(RING * gbl)
 {
-	if (!gbl->AT_opt) {
-		/* chmod applies only to target of symbolic link */
-		return (at_last(gbl, TRUE));
-	}
-	return (FALSE);
+    if (!gbl->AT_opt) {
+	/* chmod applies only to target of symbolic link */
+	return (at_last(gbl, TRUE));
+    }
+    return (FALSE);
 }
 
 /*
  * Assign a new target for a symbolic link.
  */
-private	int	relink(
-	_ARX(RING *,	gbl)
-	_ARX(unsigned,	x)
-	_AR1(char *,	name)
-		)
-	_DCL(RING *,	gbl)
-	_DCL(unsigned,	x)
-	_DCL(char *,	name)
+static int
+relink(RING * gbl, unsigned x, char *name)
 {
-	dlog_comment("relink \"%s\" (link=%s)\n", name, gNAME(x));
-	if (unlink(gNAME(x)) >= 0) {
-		if (symlink(name, gNAME(x)) >= 0)
-			return (TRUE);
-		(void)symlink(gLTXT(x), gNAME(x));	/* try to restore */
-	}
-	waitmsg(gNAME(x));
-	return (FALSE);
+    dlog_comment("relink \"%s\" (link=%s)\n", name, gNAME(x));
+    if (unlink(gNAME(x)) >= 0) {
+	if (symlink(name, gNAME(x)) >= 0)
+	    return (TRUE);
+	(void) symlink(gLTXT(x), gNAME(x));	/* try to restore */
+    }
+    waitmsg(gNAME(x));
+    return (FALSE);
 }
 
-private	int	cmd_link;	/* true if we use short-form */
+static int cmd_link;		/* true if we use short-form */
 
 /*
  * Substitute a symbolic link into short-form, so that the 'subslink()' code
  * can later expand it.
  */
-private	int	subs_path(
-	_ARX(char *,	path)
-	_ARX(char *,	result)
-	_AR1(char *,	short_form)
-		)
-	_DCL(char *,	path)
-	_DCL(char *,	result)
-	_DCL(char *,	short_form)
+static int
+subs_path(char *path, char *result, char *short_form)
 {
-	register size_t	len = strlen(path);
-	auto	 int	changed = FALSE;
-	auto	 char	tmp[MAXPATHLEN];
+    size_t len = strlen(path);
+    int changed = FALSE;
+    char tmp[MAXPATHLEN];
 
-	if (!result[len]) {		/* exact match ? */
-		if (!strcmp(result,path)) {
-			(void)strcpy(result, short_form);
-			changed = TRUE;
-		}
-	} else if (result[len] == '/') { /* prefix-match ? */
-		if (!strncmp(result,path,len)) {
-			(void)strcpy(tmp, result+len);
-			(void)strcat(strcpy(result, short_form), tmp);
-			changed = TRUE;
-		}
+    if (!result[len]) {		/* exact match ? */
+	if (!strcmp(result, path)) {
+	    (void) strcpy(result, short_form);
+	    changed = TRUE;
 	}
-	return (changed);
+    } else if (result[len] == '/') {	/* prefix-match ? */
+	if (!strncmp(result, path, len)) {
+	    (void) strcpy(tmp, result + len);
+	    (void) strcat(strcpy(result, short_form), tmp);
+	    changed = TRUE;
+	}
+    }
+    return (changed);
 }
 
-private	void	subs_leaf(
-	_ARX(char *,	leaf)
-	_AR1(char *,	result)
-		)
-	_DCL(char *,	leaf)
-	_DCL(char *,	result)
+static void
+subs_leaf(char *leaf, char *result)
 {
-	auto	 char	tmp[MAXPATHLEN];
-	auto	 size_t	len = strlen(leaf);
+    char tmp[MAXPATHLEN];
+    size_t len = strlen(leaf);
 
-	while (*result) {		/* substitute current-name */
-		if (!strncmp(result, leaf, len)) {
-			(void)strcpy(tmp, result+len);
-			(void)strcat(strcpy(result, "#"), tmp);
-		}
-		result++;
+    while (*result) {		/* substitute current-name */
+	if (!strncmp(result, leaf, len)) {
+	    (void) strcpy(tmp, result + len);
+	    (void) strcat(strcpy(result, "#"), tmp);
 	}
+	result++;
+    }
 }
 
-private	char *	link2bfr(
-	_ARX(RING *,	gbl)
-	_ARX(char *,	dst)
-	_AR1(unsigned,	x)
-		)
-	_DCL(RING *,	gbl)
-	_DCL(char *,	dst)
-	_DCL(unsigned,	x)
+static char *
+link2bfr(RING * gbl, char *dst, unsigned x)
 {
-	(void)strcpy(dst, gLTXT(x));
-	if (cmd_link) {
-		static	struct	{
-			char	*code;
-			char	*path;
-			} ppp[] = {
-				{"%F",	0},
-				{"%B",	0},
-				{"%d",	0},
-				{"%D",	old_wd}
-			};
-		register unsigned j;
-		size_t	maxlen	= 0;
+    (void) strcpy(dst, gLTXT(x));
+    if (cmd_link) {
+	static struct {
+	    char *code;
+	    char *path;
+	} ppp[] = {
+	    {
+		"%F", 0
+	    },
+	    {
+		"%B", 0
+	    },
+	    {
+		"%d", 0
+	    },
+	    {
+		"%D", old_wd
+	    }
+	};
+	unsigned j;
+	size_t maxlen = 0;
 
-		ppp[0].path = ring_path(gbl, 1);
-		ppp[1].path = ring_path(gbl, -1);
-		ppp[2].path = ring_path(gbl, 0);
-		ppp[3].path = old_wd;
+	ppp[0].path = ring_path(gbl, 1);
+	ppp[1].path = ring_path(gbl, -1);
+	ppp[2].path = ring_path(gbl, 0);
+	ppp[3].path = old_wd;
 
-		/* ignore duplicates */
-		if (!strcmp(ppp[0].path, ppp[2].path)) ppp[0].path = 0;
-		if (!strcmp(ppp[1].path, ppp[2].path)) ppp[1].path = 0;
-		if (!strcmp(ppp[3].path, ppp[2].path)) ppp[3].path = 0;
+	/* ignore duplicates */
+	if (!strcmp(ppp[0].path, ppp[2].path))
+	    ppp[0].path = 0;
+	if (!strcmp(ppp[1].path, ppp[2].path))
+	    ppp[1].path = 0;
+	if (!strcmp(ppp[3].path, ppp[2].path))
+	    ppp[3].path = 0;
 
-		/* find a starting length */
-		for (j = 0; j < SIZEOF(ppp); j++) {
-			if (ppp[j].path != 0) {
-				size_t	len = strlen(ppp[j].path);
-				if (len > maxlen)
-					maxlen = len;
-			}
-		}
-
-		/* match, looking for the longest strings first */
-		do {
-			size_t	next = 0;
-			for (j = 0; j < SIZEOF(ppp); j++) {
-				char	*path	= ppp[j].path;
-				if (path != 0) {
-					size_t	len = strlen(path);
-					if (len < maxlen) {
-						if (len > next)
-							next = len;
-					} else if (subs_path(path,
-						dst, ppp[j].code)) {
-						next = 0;
-						break;
-					} else
-						ppp[j].path = 0;
-				}
-			}
-			maxlen = next;
-
-		} while (maxlen > 0);
-
-		subs_leaf(gNAME(x), dst);
+	/* find a starting length */
+	for (j = 0; j < SIZEOF(ppp); j++) {
+	    if (ppp[j].path != 0) {
+		size_t len = strlen(ppp[j].path);
+		if (len > maxlen)
+		    maxlen = len;
+	    }
 	}
-	return (dst);
+
+	/* match, looking for the longest strings first */
+	do {
+	    size_t next = 0;
+	    for (j = 0; j < SIZEOF(ppp); j++) {
+		char *path = ppp[j].path;
+		if (path != 0) {
+		    size_t len = strlen(path);
+		    if (len < maxlen) {
+			if (len > next)
+			    next = len;
+		    } else if (subs_path(path,
+					 dst, ppp[j].code)) {
+			next = 0;
+			break;
+		    } else
+			ppp[j].path = 0;
+		}
+	    }
+	    maxlen = next;
+
+	} while (maxlen > 0);
+
+	subs_leaf(gNAME(x), dst);
+    }
+    return (dst);
 }
 
 /*
  * Substitute user's short-hand notation back to normal link-text.
  */
-private	char *	subslink(
-	_ARX(RING *,	gbl)
-	_ARX(char *,	bfr)
-	_AR1(unsigned,	x)
-		)
-	_DCL(RING *,	gbl)
-	_DCL(char *,	bfr)
-	_DCL(unsigned,	x)
+static char *
+subslink(RING * gbl, char *bfr, unsigned x)
 {
-	auto	char	tmp[MAXPATHLEN];
-	register char	*s = strcpy(tmp, bfr);
-	register char	*d = bfr;
-	register char	*t;
+    char tmp[MAXPATHLEN];
+    char *s = strcpy(tmp, bfr);
+    char *d = bfr;
+    char *t;
 
-	while ((*d = *s) != EOS) {
-		if (*s++ == '%') {
-			switch (*s++) {
-			case 'F':
-				d += strlen(strcpy(d, ring_path(gbl, 1)));
-				break;
-			case 'B':
-				d += strlen(strcpy(d, ring_path(gbl, -1)));
-				break;
-			case 'D':
-				d += strlen(strcpy(d, old_wd));
-				break;
-			case 'd':
-				d += strlen(strcpy(d, ring_path(gbl, 0)));
-				break;
-			default:
-				d++;
-				s--;	/* point back just after '%' */
-			}
-		} else if (*d == '#') {
-			t = gNAME(x);
-			while ((*d = *t++) != EOS)
-				d++;
-		} else
-			d++;
-	}
-	return (bfr);
+    while ((*d = *s) != EOS) {
+	if (*s++ == '%') {
+	    switch (*s++) {
+	    case 'F':
+		d += strlen(strcpy(d, ring_path(gbl, 1)));
+		break;
+	    case 'B':
+		d += strlen(strcpy(d, ring_path(gbl, -1)));
+		break;
+	    case 'D':
+		d += strlen(strcpy(d, old_wd));
+		break;
+	    case 'd':
+		d += strlen(strcpy(d, ring_path(gbl, 0)));
+		break;
+	    default:
+		d++;
+		s--;		/* point back just after '%' */
+	    }
+	} else if (*d == '#') {
+	    t = gNAME(x);
+	    while ((*d = *t++) != EOS)
+		d++;
+	} else
+	    d++;
+    }
+    return (bfr);
 }
-#endif	/* S_IFLNK */
+#endif /* S_IFLNK */
 
 /*
  * Coerce Xbase (left/right scrolling) so we can display a given column
  */
-private	int	save_Xbase (
-	_ARX(RING *,	gbl)
-	_AR1(int,	col) /* leftmost column we need to show */
-		)
-	_DCL(RING *,	gbl)
-	_DCL(int,	col)
+static int
+save_Xbase(RING * gbl,
+	   int col)		/* leftmost column we need to show */
 {
-	auto	int	old = gbl->Xbase;
-	if (col < gbl->Xbase)
-		gbl->Xbase = 0;
-	if (col > (gbl->Xbase + COLS))
-		gbl->Xbase = col;
-	if (old != gbl->Xbase)
-		showFILES(gbl,FALSE);
-	return (col - gbl->Xbase);
+    int old = gbl->Xbase;
+    if (col < gbl->Xbase)
+	gbl->Xbase = 0;
+    if (col > (gbl->Xbase + COLS))
+	gbl->Xbase = col;
+    if (old != gbl->Xbase)
+	showFILES(gbl, FALSE);
+    return (col - gbl->Xbase);
 }
 
-private	int	change_protection (
-	_AR1(RING *,	gbl))
-	_DCL(RING *,	gbl)
+static int
+change_protection(RING * gbl)
 {
-	int	changed = FALSE;
-	register int	c;
-	register unsigned x;
+    int changed = FALSE;
+    int c;
+    unsigned x;
 
-	(void)dedsigs(TRUE);	/* reset interrupt counter */
-	c = CHMOD(gbl->curfile);
-	for_each_file(gbl,x) {
-		if (GROUPED(x)) {
-			if (dedsigs(TRUE)) {
-				waitmsg(gNAME(x));
-				break;
-			}
-			statLINE(gbl, x);
-			changed++;
-			if (c != (int) CHMOD(x)) {
-				dlog_comment("chmod %o %s\n",
-					c, gNAME(x));
-				if (chmod(gNAME(x), (mode_t)c) < 0) {
-					warn(gbl, gNAME(x));
-					break;
-				}
-				fixtime(gbl, x);
-			}
+    (void) dedsigs(TRUE);	/* reset interrupt counter */
+    c = CHMOD(gbl->curfile);
+    for_each_file(gbl, x) {
+	if (GROUPED(x)) {
+	    if (dedsigs(TRUE)) {
+		waitmsg(gNAME(x));
+		break;
+	    }
+	    statLINE(gbl, x);
+	    changed++;
+	    if (c != (int) CHMOD(x)) {
+		dlog_comment("chmod %o %s\n",
+			     c, gNAME(x));
+		if (chmod(gNAME(x), (mode_t) c) < 0) {
+		    warn(gbl, gNAME(x));
+		    break;
 		}
+		fixtime(gbl, x);
+	    }
 	}
-	return changed;
+    }
+    return changed;
 }
 
 /************************************************************************
@@ -362,118 +337,115 @@ private	int	change_protection (
 /*
  * edit protection-code for current & tagged files
  */
-public	void	editprot (
-	_AR1(RING *,	gbl))
-	_DCL(RING *,	gbl)
+void
+editprot(RING * gbl)
 {
-	register
-	Stat_t	*sb	= &cSTAT;
-	int	y	= file2row(gbl->curfile),
-		x	= 0,
-		c;
+
+    Stat_t *sb = &cSTAT;
+    int y = file2row(gbl->curfile), x = 0, c;
 #ifdef	S_IFLNK
-	int	at_flag	= at_save(gbl);
+    int at_flag = at_save(gbl);
 #endif
-	auto	int
-		opt	= gbl->P_opt,
-		changed	= FALSE,
-		done	= FALSE,
-		init	= TRUE,
-		oldmode	= sb->st_mode;
+    int
+      opt = gbl->P_opt, changed = FALSE, done = FALSE, init = TRUE, oldmode
+    = sb->st_mode;
 
-	(void)save_Xbase(gbl, gbl->cmdcol[CCOL_PROT]);
+    (void) save_Xbase(gbl, gbl->cmdcol[CCOL_PROT]);
 
-	ReplayStart('p');
+    ReplayStart('p');
 
-	while (!done) {
-	int	rwx,
-		cols[3];
+    while (!done) {
+	int rwx, cols[3];
 
-		if (init) {
-			x = 0;
-			init = FALSE;
-			sb->st_mode = oldmode;
-		}
-		showLINE(gbl, gbl->curfile);
+	if (init) {
+	    x = 0;
+	    init = FALSE;
+	    sb->st_mode = oldmode;
+	}
+	showLINE(gbl, gbl->curfile);
 
-		rwx	= (gbl->P_opt ? 1 : 3),
-		cols[0] = gbl->cmdcol[CCOL_PROT];
-		cols[1] = cols[0] + rwx;
-		cols[2] = cols[1] + rwx;
+	rwx = (gbl->P_opt ? 1 : 3),
+	    cols[0] = gbl->cmdcol[CCOL_PROT];
+	cols[1] = cols[0] + rwx;
+	cols[2] = cols[1] + rwx;
 
-		move(y, cols[x]);
-		switch (c = ReplayChar()) {
-		case '\n':
-		case 'p':
-			ReplayFinish();
-			changed = change_protection(gbl);
-			done = TRUE;
-			break;
-		case 'q':
-			ReplayQuit();
-			done = TRUE;
-			break;
-		case TO_FIRST:
-			x = 0;
-			break;
-		case TO_LAST:
-			x = 2;
-			break;
-		case KEY_UP:
-			init = up_inline();
-			break;
-		case KEY_DOWN:
-			init = down_inline();
-			break;
-		case KEY_RIGHT:
-		case '\f':
-		case ' ':
-			if (x < 2)	x++;
-			else		beep();
-			break;
-		case KEY_LEFT:
-		case '\b':
-			if (x > 0)	x--;
-			else		beep();
-			break;
-		default:
-			if (c >= '0' && c <= '7') {
-			int	shift = 6 - (x * 3);
-				sb->st_mode &= ~(7      << shift);
-				sb->st_mode |= ((c-'0') << shift);
-				if (x < 2)
-					x++;
-			} else if (c == 'P') {
-				gbl->P_opt = !gbl->P_opt;
-			} else if (c == 's') {
-				if (x == 0)
-					sb->st_mode ^= S_ISUID;
-				else if (x == 1)
-					sb->st_mode ^= S_ISGID;
-				else
-					beep();
+	move(y, cols[x]);
+	switch (c = ReplayChar()) {
+	case '\n':
+	case 'p':
+	    ReplayFinish();
+	    changed = change_protection(gbl);
+	    done = TRUE;
+	    break;
+	case 'q':
+	    ReplayQuit();
+	    done = TRUE;
+	    break;
+	case TO_FIRST:
+	    x = 0;
+	    break;
+	case TO_LAST:
+	    x = 2;
+	    break;
+	case KEY_UP:
+	    init = up_inline();
+	    break;
+	case KEY_DOWN:
+	    init = down_inline();
+	    break;
+	case KEY_RIGHT:
+	case '\f':
+	case ' ':
+	    if (x < 2)
+		x++;
+	    else
+		beep();
+	    break;
+	case KEY_LEFT:
+	case '\b':
+	    if (x > 0)
+		x--;
+	    else
+		beep();
+	    break;
+	default:
+	    if (c >= '0' && c <= '7') {
+		int shift = 6 - (x * 3);
+		sb->st_mode &= ~(7 << shift);
+		sb->st_mode |= ((c - '0') << shift);
+		if (x < 2)
+		    x++;
+	    } else if (c == 'P') {
+		gbl->P_opt = !gbl->P_opt;
+	    } else if (c == 's') {
+		if (x == 0)
+		    sb->st_mode ^= S_ISUID;
+		else if (x == 1)
+		    sb->st_mode ^= S_ISGID;
+		else
+		    beep();
 #ifdef S_ISVTX
-			} else if (c == 't') {
-				if (x == 2)
-					sb->st_mode ^= S_ISVTX;
-				else
-					beep();
+	    } else if (c == 't') {
+		if (x == 2)
+		    sb->st_mode ^= S_ISVTX;
+		else
+		    beep();
 #endif
-			} else
-				beep();
-		}
+	    } else
+		beep();
 	}
+    }
 #ifdef	S_IFLNK
-	if (at_flag) {		/* we had to toggle because of sym-link	*/
-		(void)at_last(gbl, FALSE);
-		/* force stat on the files, cleanup */
-	}
+    if (at_flag) {		/* we had to toggle because of sym-link */
+	(void) at_last(gbl, FALSE);
+	/* force stat on the files, cleanup */
+    }
 #endif
-	if (opt != gbl->P_opt) {
-		gbl->P_opt = opt;
-		showLINE(gbl, gbl->curfile);
-	}
-	restat(gbl,changed);
+    if (opt != gbl->P_opt) {
+	gbl->P_opt = opt;
+	showLINE(gbl, gbl->curfile);
+    }
+    restat(gbl, changed);
 }
 
 /*
@@ -481,284 +453,262 @@ public	void	editprot (
  * moving within the line, and for setting/resetting insert mode.  Use
  * backspace to delete characters.
  */
-public	int	edittext(
-	_ARX(RING *,	gbl)
-	_ARX(int,	endc)
-	_ARX(int,	col)
-	_ARX(int,	len)
-	_AR1(char *,	bfr)
-		)
-	_DCL(RING *,	gbl)
-	_DCL(int,	endc)
-	_DCL(int,	col)
-	_DCL(int,	len)
-	_DCL(char *,	bfr)
+int
+edittext(RING * gbl, int endc, int col, int len, char *bfr)
 {
-	static	DYN	*result;
-	int	y	= file2row(gbl->curfile),
-		code	= TRUE,
-		limit	= strlen(bfr) + 2;
-	register char *s;
+    static DYN *result;
+    int y = file2row(gbl->curfile), code = TRUE, limit = strlen(bfr) + 2;
+    char *s;
 
 #ifdef	S_IFLNK
-	int	at_flag	= ((endc == 'u') || (endc == 'g'))
-			? at_save(gbl)
-			: FALSE;
+    int at_flag = ((endc == 'u') || (endc == 'g'))
+    ? at_save(gbl)
+    : FALSE;
 #endif
 
-	dlog_comment("before \"%s\"\n", bfr);
-	if (len < limit)
-		len = limit;
-	col = save_Xbase(gbl, col);
+    dlog_comment("before \"%s\"\n", bfr);
+    if (len < limit)
+	len = limit;
+    col = save_Xbase(gbl, col);
 #ifdef	S_IFLNK
-	if (at_flag)
-		showLINE(gbl, gbl->curfile);
+    if (at_flag)
+	showLINE(gbl, gbl->curfile);
 #endif
-	ReplayStart(endc);
+    ReplayStart(endc);
 
-	move(y,col);
-	result = dyn_alloc(result, (size_t)len+1);
-	result = dyn_copy (result, bfr);
-	if ((s = dlog_string(
-			gbl,
-			(char *)0,
-			-1,
-			&result,
-			inline_text(),
-			inline_hist(),
-			endc,
-			len)) != NULL) {
-		(void)strcpy(bfr, s);
-		ReplayFinish();
-	} else {
-		ReplayQuit();
-		code = FALSE;
-	}
+    move(y, col);
+    result = dyn_alloc(result, (size_t) len + 1);
+    result = dyn_copy(result, bfr);
+    if ((s = dlog_string(
+			    gbl,
+			    (char *) 0,
+			    -1,
+			    &result,
+			    inline_text(),
+			    inline_hist(),
+			    endc,
+			    len)) != NULL) {
+	(void) strcpy(bfr, s);
+	ReplayFinish();
+    } else {
+	ReplayQuit();
+	code = FALSE;
+    }
 
 #ifdef	S_IFLNK
-	if (at_flag) {		/* we had to toggle because of sym-link	*/
-		(void)at_last(gbl, FALSE);
-		/* force stat on the files to cleanup */
-	}
+    if (at_flag) {		/* we had to toggle because of sym-link */
+	(void) at_last(gbl, FALSE);
+	/* force stat on the files to cleanup */
+    }
 #endif
-	dlog_flush();
-	dlog_comment("after  \"%s\"\n", bfr);
-	return (code);
+    dlog_flush();
+    dlog_comment("after  \"%s\"\n", bfr);
+    return (code);
 }
 
 /*
  * Change file's owner.
  */
-public	void	edit_uid (
-	_AR1(RING *,	gbl))
-	_DCL(RING *,	gbl)
+void
+edit_uid(RING * gbl)
 {
 #if defined(HAVE_CHOWN)
-	register unsigned j;
-	int	uid	= cSTAT.st_uid,
-		changed	= FALSE;
-	char	bfr[BUFSIZ];
+    unsigned j;
+    int uid = cSTAT.st_uid, changed = FALSE;
+    char bfr[BUFSIZ];
 
-	if (gbl->G_opt == 1) {
-		gbl->G_opt = 0;
-		showFILES(gbl,FALSE);
-	}
+    if (gbl->G_opt == 1) {
+	gbl->G_opt = 0;
+	showFILES(gbl, FALSE);
+    }
 
-	if (EDITTEXT('u', CCOL_UID, UIDLEN, strcpy(bfr, uid2s(uid)))
-	&&  (uid = s2uid(bfr)) >= 0) {
-		(void)dedsigs(TRUE);	/* reset interrupt-count */
-		for_each_file(gbl,j) {
-			if ((int) gSTAT(j).st_uid == uid)
-				continue;
-			if (dedsigs(TRUE)) {
-				waitmsg(gNAME(j));
-				break;
-			}
-			if (GROUPED(j)) {
-				if (chown(gNAME(j),
-					uid, (int)gSTAT(j).st_gid) < 0) {
-					warn(gbl, gNAME(j));
-					break;
-				}
-				fixtime(gbl, j);
-				gSTAT(j).st_uid = uid;
-				changed++;
-			}
+    if (EDITTEXT('u', CCOL_UID, UIDLEN, strcpy(bfr, uid2s(uid)))
+	&& (uid = s2uid(bfr)) >= 0) {
+	(void) dedsigs(TRUE);	/* reset interrupt-count */
+	for_each_file(gbl, j) {
+	    if ((int) gSTAT(j).st_uid == uid)
+		continue;
+	    if (dedsigs(TRUE)) {
+		waitmsg(gNAME(j));
+		break;
+	    }
+	    if (GROUPED(j)) {
+		if (chown(gNAME(j),
+			  uid, (int) gSTAT(j).st_gid) < 0) {
+		    warn(gbl, gNAME(j));
+		    break;
 		}
+		fixtime(gbl, j);
+		gSTAT(j).st_uid = uid;
+		changed++;
+	    }
 	}
-	restat(gbl,changed);
+    }
+    restat(gbl, changed);
 #else
-	beep();
+    beep();
 #endif
 }
 
 /*
  * Change file's group.
  */
-public	void	edit_gid (
-	_AR1(RING *,	gbl))
-	_DCL(RING *,	gbl)
+void
+edit_gid(RING * gbl)
 {
 #if defined(HAVE_CHOWN)
-	register unsigned j;
-	int	gid	= cSTAT.st_gid,
-		changed	= FALSE;
-	char	bfr[BUFSIZ];
+    unsigned j;
+    int gid = cSTAT.st_gid, changed = FALSE;
+    char bfr[BUFSIZ];
 
-	if (!gbl->G_opt) {
-		gbl->G_opt = 1;
-		showFILES(gbl,FALSE);
-	}
+    if (!gbl->G_opt) {
+	gbl->G_opt = 1;
+	showFILES(gbl, FALSE);
+    }
 
-	if (EDITTEXT('g', CCOL_GID, UIDLEN, strcpy(bfr, gid2s(gid)))
-	&&  (gid = s2gid(bfr)) >= 0) {
+    if (EDITTEXT('g', CCOL_GID, UIDLEN, strcpy(bfr, gid2s(gid)))
+	&& (gid = s2gid(bfr)) >= 0) {
 
-		(void)dedsigs(TRUE);	/* reset interrupt-count */
-		for_each_file(gbl,j) {
-			if ((int) gSTAT(j).st_gid == gid)
-				continue;
-			if (dedsigs(TRUE)) {
-				waitmsg(gNAME(j));
-				break;
-			}
-			if (GROUPED(j)) {
-				if (chown(gNAME(j),
-					(int)gSTAT(j).st_uid, gid) < 0){
-					warn(gbl, gNAME(j));
-					break;
-				}
-				gSTAT(j).st_gid = gid;
-				fixtime(gbl, j); /* some systems touch too */
-				changed++;
-			}
+	(void) dedsigs(TRUE);	/* reset interrupt-count */
+	for_each_file(gbl, j) {
+	    if ((int) gSTAT(j).st_gid == gid)
+		continue;
+	    if (dedsigs(TRUE)) {
+		waitmsg(gNAME(j));
+		break;
+	    }
+	    if (GROUPED(j)) {
+		if (chown(gNAME(j),
+			  (int) gSTAT(j).st_uid, gid) < 0) {
+		    warn(gbl, gNAME(j));
+		    break;
 		}
+		gSTAT(j).st_gid = gid;
+		fixtime(gbl, j);	/* some systems touch too */
+		changed++;
+	    }
 	}
-	restat(gbl,changed);
+    }
+    restat(gbl, changed);
 #else
-	beep();
+    beep();
 #endif
 }
 
 /*
  * Change file's name
  */
-public	void	editname (
-	_AR1(RING *,	gbl))
-	_DCL(RING *,	gbl)
+void
+editname(RING * gbl)
 {
-	auto	 int	changed	= 0;
-	register unsigned j;
-	auto	 char	bfr[MAXPATHLEN];
+    int changed = 0;
+    unsigned j;
+    char bfr[MAXPATHLEN];
 
 #define	EDITNAME(n)	EDITTEXT('=', CCOL_NAME, sizeof(bfr), strcpy(bfr, n))
 
-	if (EDITNAME(cNAME) && strcmp(cNAME, bfr)) {
-		if (dedname(gbl, gbl->curfile, bfr) >= 0) {
-			(void)dedsigs(TRUE);	/* reset interrupt count */
-			hide_inline(TRUE);
-			for_each_file(gbl,j) {
-				if (j == gbl->curfile)
-					continue;
-				if (dedsigs(TRUE)) {
-					waitmsg(gNAME(j));
-					break;
-				}
-				if (gFLAG(j)) {
-					(void)EDITNAME(gNAME(j));
-					if (dedname(gbl, j, bfr) >= 0)
-						changed++;
-					else
-						break;
-				}
-			}
-			hide_inline(FALSE);
+    if (EDITNAME(cNAME) && strcmp(cNAME, bfr)) {
+	if (dedname(gbl, gbl->curfile, bfr) >= 0) {
+	    (void) dedsigs(TRUE);	/* reset interrupt count */
+	    hide_inline(TRUE);
+	    for_each_file(gbl, j) {
+		if (j == gbl->curfile)
+		    continue;
+		if (dedsigs(TRUE)) {
+		    waitmsg(gNAME(j));
+		    break;
 		}
+		if (gFLAG(j)) {
+		    (void) EDITNAME(gNAME(j));
+		    if (dedname(gbl, j, bfr) >= 0)
+			changed++;
+		    else
+			break;
+		}
+	    }
+	    hide_inline(FALSE);
 	}
-	restat(gbl,changed);
+    }
+    restat(gbl, changed);
 }
 
 #ifdef	S_IFLNK
 /*
  * Change file's link-text
  */
-public	void	editlink(
-	_ARX(RING *,	gbl)
-	_AR1(int,	cmd)
-		)
-	_DCL(RING *,	gbl)
-	_DCL(int,	cmd)
+void
+editlink(RING * gbl, int cmd)
 {
-	auto	 int	col,
-			changed	= 0;
-	register unsigned j;
-	auto	 char	bfr[MAXPATHLEN];
+    int col, changed = 0;
+    unsigned j;
+    char bfr[MAXPATHLEN];
 
-	cmd_link = (cmd == '<');
+    cmd_link = (cmd == '<');
 
 #define	EDITLINK(n) edittext(gbl, cmd, col, sizeof(bfr), link2bfr(gbl, bfr, n))
 
-	if (!cLTXT)
-		beep();
-	else {
-		auto	int	restore = FALSE;
-		col = save_Xbase(gbl, gbl->cmdcol[CCOL_NAME]);
+    if (!cLTXT)
+	beep();
+    else {
+	int restore = FALSE;
+	col = save_Xbase(gbl, gbl->cmdcol[CCOL_NAME]);
 
-		/* test if we must show substitution */
-		if (cmd_link) {
-			for_each_file(gbl,j) {
-				if (j == gbl->curfile)
-					continue;
-				if (gFLAG(j) && gLTXT(j)
-				 && move2row(j, col)) {
-					int	y0, y1, x;
-					getyx(stdscr, y0, x);
-					if (COLS - x > 3) {
-						standout();
-						PRINTW("-> ");
-						standend();
-						PRINTW("%.*s",
-							COLS - col - 3,
-							link2bfr(gbl, bfr, j));
-						getyx(stdscr, y1, x);
-						if (y1 == y0)
-							clrtoeol();
-						restore = TRUE;
-					}
-				}
-			}
+	/* test if we must show substitution */
+	if (cmd_link) {
+	    for_each_file(gbl, j) {
+		if (j == gbl->curfile)
+		    continue;
+		if (gFLAG(j) && gLTXT(j)
+		    && move2row(j, col)) {
+		    int y0, y1, x;
+		    getyx(stdscr, y0, x);
+		    if (COLS - x > 3) {
+			standout();
+			PRINTW("-> ");
+			standend();
+			PRINTW("%.*s",
+			       COLS - col - 3,
+			       link2bfr(gbl, bfr, j));
+			getyx(stdscr, y1, x);
+			if (y1 == y0)
+			    clrtoeol();
+			restore = TRUE;
+		    }
 		}
-
-		(void)move2row(gbl->curfile, col);
-		PRINTW("=> ");
-		col += 3;
-		if (EDITLINK(gbl->curfile)
-		&&  strcmp(cLTXT,
-			subslink(gbl, bfr, gbl->curfile))) {
-			if (relink(gbl, gbl->curfile, bfr)) {
-				(void)dedsigs(TRUE);
-					/* reset interrupt count */
-				hide_inline(TRUE);
-				for_each_file(gbl,j) {
-					if (j == gbl->curfile)
-						continue;
-					if (dedsigs(TRUE)) {
-						waitmsg(gNAME(j));
-						break;
-					}
-					if (gFLAG(j) && gLTXT(j)) {
-						(void)EDITLINK(j);
-						if (relink(gbl, j, subslink(gbl, bfr,j)))
-							changed++;
-						else
-							break;
-					}
-				}
-				hide_inline(FALSE);
-			}
-		}
-		if (restore && !changed)
-			showFILES(gbl,FALSE);
+	    }
 	}
-	restat(gbl,changed);
+
+	(void) move2row(gbl->curfile, col);
+	PRINTW("=> ");
+	col += 3;
+	if (EDITLINK(gbl->curfile)
+	    && strcmp(cLTXT,
+		      subslink(gbl, bfr, gbl->curfile))) {
+	    if (relink(gbl, gbl->curfile, bfr)) {
+		(void) dedsigs(TRUE);
+		/* reset interrupt count */
+		hide_inline(TRUE);
+		for_each_file(gbl, j) {
+		    if (j == gbl->curfile)
+			continue;
+		    if (dedsigs(TRUE)) {
+			waitmsg(gNAME(j));
+			break;
+		    }
+		    if (gFLAG(j) && gLTXT(j)) {
+			(void) EDITLINK(j);
+			if (relink(gbl, j, subslink(gbl, bfr, j)))
+			    changed++;
+			else
+			    break;
+		    }
+		}
+		hide_inline(FALSE);
+	    }
+	}
+	if (restore && !changed)
+	    showFILES(gbl, FALSE);
+    }
+    restat(gbl, changed);
 }
-#endif	/* S_IFLNK */
+#endif /* S_IFLNK */

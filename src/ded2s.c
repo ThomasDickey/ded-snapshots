@@ -3,6 +3,7 @@
  * Author:	T.E.Dickey
  * Created:	09 Nov 1987
  * Modified:
+ *		07 Mar 2004, remove K&R support, indent'd
  *		15 Feb 1998, remove special code for apollo sr10.
  *			     Correct a missing 'else' in time2s that caused
  *			     future dates to be formatted as in the past.
@@ -60,7 +61,7 @@
 #include	"ded.h"
 #include	<rcsdefs.h>
 
-MODULE_ID("$Id: ded2s.c,v 12.27 2002/07/05 13:36:12 tom Exp $")
+MODULE_ID("$Id: ded2s.c,v 12.28 2004/03/07 23:25:18 tom Exp $")
 
 #if defined(MAJOR_IN_MKDEV)
 #  include	<sys/mkdev.h>
@@ -88,320 +89,294 @@ MODULE_ID("$Id: ded2s.c,v 12.27 2002/07/05 13:36:12 tom Exp $")
 /*
  * Provide skip-over-field (blanking it if the file has been deleted).
  */
-private	int	field(
-	_ARX(char *,	bfr)
-	_AR1(unsigned,	mode)
-		)
-	_DCL(char *,	bfr)
-	_DCL(unsigned,	mode)
+static int
+field(char *bfr, unsigned mode)
 {
-	register char *s = bfr;
-	register int len = strlen(s);
+    char *s = bfr;
+    int len = strlen(s);
 
-	if (mode == 0)
-		while (*s)	*s++ = ' ';
-	return (len);
+    if (mode == 0)
+	while (*s)
+	    *s++ = ' ';
+    return (len);
 }
 
 /*
  * Convert a unix time to an appropriate printing-string
  */
-private	void	time2s(
-	_ARX(char *,	bfr)
-	_ARX(time_t,	fdate)
-	_AR1(int,	option)
-		)
-	_DCL(char *,	bfr)
-	_DCL(time_t,	fdate)
-	_DCL(int,	option)
+static void
+time2s(char *bfr, time_t fdate, int option)
 {
-	static	time_t	midnite;
-	auto	time_t  now	= time((time_t *)0);
-	auto	char	*t	= ctime(&fdate);
+    static time_t midnite;
+    time_t now = time((time_t *) 0);
+    char *t = ctime(&fdate);
 
-						/* 0123456789.123456789.123 */
-	t[24]	= ' ';				/* ddd mmm DD HH:MM:SS YYYY */
+    /* 0123456789.123456789.123 */
+    t[24] = ' ';		/* ddd mmm DD HH:MM:SS YYYY */
 
-	if (option == 3) {
-		FORMAT(bfr, "%12ld ", (long) fdate);
-	} else if (option == 2) {
-		FORMAT(bfr, "%12.6f ", (now - fdate) / (24.0 * HOUR));
-	} else if (option == 1) {
-		(void)strcpy(bfr, t);
-	} else {
-		if (midnite == 0) {
-			struct	tm	*p = localtime(&now);
-			midnite	= now	/* compute next 00:00:00 time */
-				+ (23 - p->tm_hour) * HOUR
-				+ (59 - p->tm_min) * 60
-				+ (60 - p->tm_sec);
-		}
-		if (now >= midnite)	/* bump if we ran past midnite */
-			midnite += (24 * HOUR);
-
-		if (midnite <= fdate) {			     /* future? */
-			FORMAT(bfr, "%.7s%.4s  ", t+4, t+20);
-		} else if ((midnite - ONE_WEEK) <= fdate) {  /* ddd HH:MM:SS */
-			FORMAT(bfr, "%.4s%.8s ", t, t+11);
-		} else if ((midnite - SIXMONTHS) < fdate) {  /* mmm DD HH:MM */
-			FORMAT(bfr, "%.12s ", t+4);
-		} else {				     /* mmm DD YYYY  */
-			FORMAT(bfr, "%.7s%.4s  ", t+4, t+20);
-		}
+    if (option == 3) {
+	FORMAT(bfr, "%12ld ", (long) fdate);
+    } else if (option == 2) {
+	FORMAT(bfr, "%12.6f ", (now - fdate) / (24.0 * HOUR));
+    } else if (option == 1) {
+	(void) strcpy(bfr, t);
+    } else {
+	if (midnite == 0) {
+	    struct tm *p = localtime(&now);
+	    midnite = now	/* compute next 00:00:00 time */
+		+ (23 - p->tm_hour) * HOUR
+		+ (59 - p->tm_min) * 60
+		+ (60 - p->tm_sec);
 	}
-	if (fdate == 0L)
-		(void)field(bfr,0);
+	if (now >= midnite)	/* bump if we ran past midnite */
+	    midnite += (24 * HOUR);
+
+	if (midnite <= fdate) {	/* future? */
+	    FORMAT(bfr, "%.7s%.4s  ", t + 4, t + 20);
+	} else if ((midnite - ONE_WEEK) <= fdate) {	/* ddd HH:MM:SS */
+	    FORMAT(bfr, "%.4s%.8s ", t, t + 11);
+	} else if ((midnite - SIXMONTHS) < fdate) {	/* mmm DD HH:MM */
+	    FORMAT(bfr, "%.12s ", t + 4);
+	} else {		/* mmm DD YYYY  */
+	    FORMAT(bfr, "%.7s%.4s  ", t + 4, t + 20);
+	}
+    }
+    if (fdate == 0L)
+	(void) field(bfr, 0);
 }
 
-private	char *	setcol(
-	_ARX(char *,	bfr)
-	_ARX(int *,	col)
-	_AR1(int,	val)
-		)
-	_DCL(char *,	bfr)
-	_DCL(int *,	col)
-	_DCL(int,	val)
+static char *
+setcol(char *bfr, int *col, int val)
 {
-	if (*col < val)	*col = val;
-	else {
-		while (val++ < *col)
-			*bfr++ = ' ';
-	}
-	return (bfr);
+    if (*col < val)
+	*col = val;
+    else {
+	while (val++ < *col)
+	    *bfr++ = ' ';
+    }
+    return (bfr);
 }
 
 /************************************************************************
  *	public procedures						*
  ***********************************************************************/
-public	void	ded2s(
-	_ARX(RING *,	gbl)
-	_ARX(int,	inx)
-	_ARX(char *,	bfr)
-	_AR1(int,	len)
-		)
-	_DCL(RING *,	gbl)
-	_DCL(int,	inx)
-	_DCL(char *,	bfr)
-	_DCL(int,	len)
+void
+ded2s(RING * gbl, int inx, char *bfr, int len)
 {
-	FLIST	*f_	= &gENTRY(inx);
-	Stat_t	*s	= &(f_->s);
-	time_t  fdate;
-	register unsigned mj;
-	register int	c;
-	char	*t,
-		*name = f_->z_name,
-		*base = bfr;
+    FLIST *f_ = &gENTRY(inx);
+    Stat_t *s = &(f_->s);
+    time_t fdate;
+    unsigned mj;
+    int c;
+    char *t, *name = f_->z_name, *base = bfr;
 
-	/* Translate the filemode (type+protection) */
-	mj = s->st_mode;
-	if (gbl->P_opt) {
-		FORMAT(bfr, "%6o ", mj);
-		gbl->cmdcol[CCOL_PROT] = 3;
-	} else {
-		*bfr++ = modechar(mj); /* translate the type of file */
-		gbl->cmdcol[CCOL_PROT] = bfr - base;
+    /* Translate the filemode (type+protection) */
+    mj = s->st_mode;
+    if (gbl->P_opt) {
+	FORMAT(bfr, "%6o ", mj);
+	gbl->cmdcol[CCOL_PROT] = 3;
+    } else {
+	*bfr++ = modechar(mj);	/* translate the type of file */
+	gbl->cmdcol[CCOL_PROT] = bfr - base;
 
-		(void)strcpy(bfr, "---------");
-		for (c = 0; c < 9; c += 3) {
-			if (mj & (S_IREAD  >> c))	bfr[c]   = 'r';
-			if (mj & (S_IWRITE >> c))	bfr[c+1] = 'w';
-			if (mj & (S_IEXEC  >> c))	bfr[c+2] = 'x';
-		}
-		if (mj & S_ISUID)			bfr[2]   = 's';
-		if (mj & S_ISGID)			bfr[5]   = 's';
+	(void) strcpy(bfr, "---------");
+	for (c = 0; c < 9; c += 3) {
+	    if (mj & (S_IREAD >> c))
+		bfr[c] = 'r';
+	    if (mj & (S_IWRITE >> c))
+		bfr[c + 1] = 'w';
+	    if (mj & (S_IEXEC >> c))
+		bfr[c + 2] = 'x';
+	}
+	if (mj & S_ISUID)
+	    bfr[2] = 's';
+	if (mj & S_ISGID)
+	    bfr[5] = 's';
 #ifdef S_ISVTX
-		if (mj & S_ISVTX)			bfr[8]   = 't';
+	if (mj & S_ISVTX)
+	    bfr[8] = 't';
 #endif
-	}
+    }
 
 #ifdef	S_IFLNK
-	/* show symbolic link target mode in uppercase */
-	if (gbl->AT_opt && f_->z_ltxt) {
-		for (t = base; *t; t++)
-			UpperCase(*t);
-	}
+    /* show symbolic link target mode in uppercase */
+    if (gbl->AT_opt && f_->z_ltxt) {
+	for (t = base; *t; t++)
+	    UpperCase(*t);
+    }
 #endif
-	bfr += strlen(bfr);
-	*bfr++ = ' ';
+    bfr += strlen(bfr);
+    *bfr++ = ' ';
 
-	/* translate the number of links, or the inode value */
+    /* translate the number of links, or the inode value */
 #ifdef	apollo
-	if (gbl->I_opt)	FORMAT(bfr, "%08lx ", (unsigned long)s->st_ino);
-#else	/* unix */
-	if (gbl->I_opt)	FORMAT(bfr, "%5lu ", (unsigned long)s->st_ino);
-#endif	/* apollo/unix */
-	else		FORMAT(bfr, "%3ld ", (long)s->st_nlink);
-	bfr += field(bfr,mj);
-	if (gbl->I_opt >= 2)	{
-		FORMAT(bfr, "%08lx ", (long)s->st_dev);
-		bfr += field(bfr,mj);
-	}
+    if (gbl->I_opt)
+	FORMAT(bfr, "%08lx ", (unsigned long) s->st_ino);
+#else /* unix */
+    if (gbl->I_opt)
+	FORMAT(bfr, "%5lu ", (unsigned long) s->st_ino);
+#endif /* apollo/unix */
+    else
+	FORMAT(bfr, "%3ld ", (long) s->st_nlink);
+    bfr += field(bfr, mj);
+    if (gbl->I_opt >= 2) {
+	FORMAT(bfr, "%08lx ", (long) s->st_dev);
+	bfr += field(bfr, mj);
+    }
 
-	SETCOL(bfr, CCOL_UID);
-	if (!(gbl->G_opt & 1)) {	/* show the user-id */
-		if (gbl->P_opt > 1)
-			FORMAT(bfr, "%-*d ", UIDLEN, (int)(s->st_uid));
-		else
-			FORMAT(bfr, "%-*.*s ",
-				UIDLEN, UIDLEN, uid2s((int)(s->st_uid)));
-		bfr += field(bfr,mj);
-	}
+    SETCOL(bfr, CCOL_UID);
+    if (!(gbl->G_opt & 1)) {	/* show the user-id */
+	if (gbl->P_opt > 1)
+	    FORMAT(bfr, "%-*d ", UIDLEN, (int) (s->st_uid));
+	else
+	    FORMAT(bfr, "%-*.*s ",
+		   UIDLEN, UIDLEN, uid2s((int) (s->st_uid)));
+	bfr += field(bfr, mj);
+    }
 
-	if (gbl->G_opt != 0) {	/* show the group-id */
-		SETCOL(bfr, CCOL_GID);
-		if (gbl->P_opt > 1)
-			FORMAT(bfr, "%-*d ", UIDLEN, (int)(s->st_gid));
-		else
-			FORMAT(bfr, "%-*.*s ",
-				UIDLEN, UIDLEN, gid2s((int)(s->st_gid)));
-		bfr += field(bfr,mj);
-	} else
-		gbl->cmdcol[CCOL_GID] = gbl->cmdcol[CCOL_UID];
+    if (gbl->G_opt != 0) {	/* show the group-id */
+	SETCOL(bfr, CCOL_GID);
+	if (gbl->P_opt > 1)
+	    FORMAT(bfr, "%-*d ", UIDLEN, (int) (s->st_gid));
+	else
+	    FORMAT(bfr, "%-*.*s ",
+		   UIDLEN, UIDLEN, gid2s((int) (s->st_gid)));
+	bfr += field(bfr, mj);
+    } else
+	gbl->cmdcol[CCOL_GID] = gbl->cmdcol[CCOL_UID];
 
-	/* show the file-size (or major/minor device codes, if device) */
-	switch (mj & S_IFMT) {
+    /* show the file-size (or major/minor device codes, if device) */
+    switch (mj & S_IFMT) {
 #ifdef S_IFBLK
-	case S_IFBLK:
+    case S_IFBLK:
 #endif
-	case S_IFCHR:
-		if (gbl->S_opt >= 1)
-			bfr += strlen(strcpy(bfr, "      "));
-		if (gbl->S_opt != 1) {
-			FORMAT(bfr, "%3ld,%3ld ",
-				(long)major(s->st_rdev),
-				(long)minor(s->st_rdev));
-			bfr += field(bfr,mj);
-		}
-		break;
-	default:
-		if (gbl->S_opt >= 1) {
-			FORMAT(bfr, "%5lu ", ded_blocks(s));
-			bfr += field(bfr,mj);
-		}
-		if (gbl->S_opt != 1) {
-			FORMAT(bfr, "%7ld ", (unsigned long)s->st_size);
-			bfr += field(bfr,mj);
-		}
+    case S_IFCHR:
+	if (gbl->S_opt >= 1)
+	    bfr += strlen(strcpy(bfr, "      "));
+	if (gbl->S_opt != 1) {
+	    FORMAT(bfr, "%3ld,%3ld ",
+		   (long) major(s->st_rdev),
+		   (long) minor(s->st_rdev));
+	    bfr += field(bfr, mj);
 	}
-	SETCOL(bfr, CCOL_DATE);
+	break;
+    default:
+	if (gbl->S_opt >= 1) {
+	    FORMAT(bfr, "%5lu ", ded_blocks(s));
+	    bfr += field(bfr, mj);
+	}
+	if (gbl->S_opt != 1) {
+	    FORMAT(bfr, "%7ld ", (unsigned long) s->st_size);
+	    bfr += field(bfr, mj);
+	}
+    }
+    SETCOL(bfr, CCOL_DATE);
 
-	/* show sccs-date, if any */
+    /* show sccs-date, if any */
 #ifdef	Z_RCS_SCCS
-	if (gbl->Z_opt > 0) {
-		time2s(bfr, f_->z_time, gbl->T_opt);
-		bfr += field(bfr,mj);
-	}
-	if (gbl->Z_opt != 0) {	/* show relationship between dates */
-		if (mj != 0 && f_->z_time) {
-			long	diff = s->st_mtime - f_->z_time;
-			int	mark = '=';
+    if (gbl->Z_opt > 0) {
+	time2s(bfr, f_->z_time, gbl->T_opt);
+	bfr += field(bfr, mj);
+    }
+    if (gbl->Z_opt != 0) {	/* show relationship between dates */
+	if (mj != 0 && f_->z_time) {
+	    long diff = s->st_mtime - f_->z_time;
+	    int mark = '=';
 
-			if (diff < 0)
-				mark = (diff == -1) ? '+' : '>';
-			else if (diff > 0)
-				mark = (diff ==  1) ? '-' : '<';
+	    if (diff < 0)
+		mark = (diff == -1) ? '+' : '>';
+	    else if (diff > 0)
+		mark = (diff == 1) ? '-' : '<';
 #if	RCS_VERSION >= 5
-			if (diff == -gmt_offset(s->st_mtime))
-				mark = '~';
-#else	/* RCS_VERSION <= 4 */
-			if (diff == gmt_offset(s->st_mtime))
-				mark = '~';
+	    if (diff == -gmt_offset(s->st_mtime))
+		mark = '~';
+#else /* RCS_VERSION <= 4 */
+	    if (diff == gmt_offset(s->st_mtime))
+		mark = '~';
 #endif
 
-			*bfr++ = mark;
-		} else
-			*bfr++ = ' ';
-		*bfr++ = ' ';
-	}
-#endif	/* Z_RCS_SCCS */
+	    *bfr++ = mark;
+	} else
+	    *bfr++ = ' ';
+	*bfr++ = ' ';
+    }
+#endif /* Z_RCS_SCCS */
 
-	/* show the appropriate-date */
-	fdate =	(gbl->dateopt == 1)  ? s->st_ctime
-				: (gbl->dateopt == 0 ? s->st_atime
-						: s->st_mtime);
-	time2s(bfr,fdate, gbl->T_opt);
-	bfr += field(bfr,mj);
+    /* show the appropriate-date */
+    fdate = (gbl->dateopt == 1) ? s->st_ctime
+	: (gbl->dateopt == 0 ? s->st_atime
+	   : s->st_mtime);
+    time2s(bfr, fdate, gbl->T_opt);
+    bfr += field(bfr, mj);
 
 #ifdef	Z_RCS_SCCS
-	if (gbl->Z_opt) {
-		if (gbl->V_opt) {	/* show highest version number */
-			if (!(t = f_->z_vers))	t = "";
-			FORMAT(bfr, "%-7s ", t);
-			bfr += field(bfr, (unsigned)(OK_S(t)));
-		}
-		if (gbl->O_opt) {	/* show current lock */
-			if (!(t = f_->z_lock))	t = "";
-			FORMAT(bfr, "%-*.*s ", UIDLEN, UIDLEN, t);
-			bfr += field(bfr, (unsigned)(OK_S(t)));
-		}
+    if (gbl->Z_opt) {
+	if (gbl->V_opt) {	/* show highest version number */
+	    if (!(t = f_->z_vers))
+		t = "";
+	    FORMAT(bfr, "%-7s ", t);
+	    bfr += field(bfr, (unsigned) (OK_S(t)));
 	}
-#endif	/* Z_RCS_SCCS */
+	if (gbl->O_opt) {	/* show current lock */
+	    if (!(t = f_->z_lock))
+		t = "";
+	    FORMAT(bfr, "%-*.*s ", UIDLEN, UIDLEN, t);
+	    bfr += field(bfr, (unsigned) (OK_S(t)));
+	}
+    }
+#endif /* Z_RCS_SCCS */
 
-	SETCOL(bfr, CCOL_CMD);
-	*bfr++ = ' ';
-	*bfr++ = ' ';
+    SETCOL(bfr, CCOL_CMD);
+    *bfr++ = ' ';
+    *bfr++ = ' ';
 
-	/* translate the filename */
-	SETCOL(bfr, CCOL_NAME);
-	len -= (bfr-base);
-	f_->z_namlen = ded2string(gbl, bfr, len, name, FALSE);
-	bfr += f_->z_namlen;
+    /* translate the filename */
+    SETCOL(bfr, CCOL_NAME);
+    len -= (bfr - base);
+    f_->z_namlen = ded2string(gbl, bfr, len, name, FALSE);
+    bfr += f_->z_namlen;
 
 #ifdef	S_IFLNK
-	if ((t = f_->z_ltxt) != 0) {
-		*bfr++ = ' ';
-		*bfr++ = '-';
-		*bfr++ = '>';
-		*bfr++ = ' ';
-		len -= (bfr-base);
-		bfr += ded2string(gbl, bfr, len, t, FALSE);
-	} else
-#endif	/* S_IFLNK */
-		if (isDIR(mj)) {
-		*bfr++ = '/';
-	} else if (ded_access(s, S_IEXEC))
-		*bfr++ = '*';
-	*bfr = '\0';
+    if ((t = f_->z_ltxt) != 0) {
+	*bfr++ = ' ';
+	*bfr++ = '-';
+	*bfr++ = '>';
+	*bfr++ = ' ';
+	len -= (bfr - base);
+	bfr += ded2string(gbl, bfr, len, t, FALSE);
+    } else
+#endif /* S_IFLNK */
+    if (isDIR(mj)) {
+	*bfr++ = '/';
+    } else if (ded_access(s, S_IEXEC))
+	*bfr++ = '*';
+    *bfr = '\0';
 }
 
-public	int	ded2string(
-	_ARX(RING *,	gbl)
-	_ARX(char *,	bfr)
-	_ARX(int,	len)
-	_ARX(char *,	name)
-	_AR1(int,	flag)
-		)
-	_DCL(RING *,	gbl)
-	_DCL(char *,	bfr)
-	_DCL(int,	len)
-	_DCL(char *,	name)
-	_DCL(int,	flag)
+int
+ded2string(RING * gbl, char *bfr, int len, char *name, int flag)
 {
-	return (name2s(bfr, len, name, flag | (gbl->U_opt ? 2 : 0)));
+    return (name2s(bfr, len, name, flag | (gbl->U_opt ? 2 : 0)));
 }
 
-public	int	ded_access (
-	_ARX(Stat_t *,	s)
-	_AR1(int,	mask)	/* one of S_IEXEC, S_IREAD, S_IWRITE */
-		)
-	_DCL(Stat_t *,	s)
-	_DCL(int,	mask)
+int
+ded_access(Stat_t * s,
+	   int mask)		/* one of S_IEXEC, S_IREAD, S_IWRITE */
 {
-	int	uid = geteuid();
-	int	gid = getegid();
+    int uid = geteuid();
+    int gid = getegid();
 
-	if (in_group(s->st_gid))
-		gid = s->st_gid;
+    if (in_group(s->st_gid))
+	gid = s->st_gid;
 
-	if (!uid) {		/* root can do anything */
-		if (mask != S_IEXEC)
-			return TRUE;
-		return (s->st_mode & (mask | (mask >> 3) | (mask >> 6)));
-	} else if (uid == (int) s->st_uid) {
-		return (s->st_mode & mask);
-	} else if (gid == (int) s->st_gid) {
-		return (s->st_mode & (mask >> 3));
-	}
-	return (s->st_mode & (mask >> 6));
+    if (!uid) {			/* root can do anything */
+	if (mask != S_IEXEC)
+	    return TRUE;
+	return (s->st_mode & (mask | (mask >> 3) | (mask >> 6)));
+    } else if (uid == (int) s->st_uid) {
+	return (s->st_mode & mask);
+    } else if (gid == (int) s->st_gid) {
+	return (s->st_mode & (mask >> 3));
+    }
+    return (s->st_mode & (mask >> 6));
 }

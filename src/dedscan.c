@@ -3,6 +3,7 @@
  * Author:	T.E.Dickey
  * Created:	09 Nov 1987
  * Modified:
+ *		07 Mar 2004, remove K&R support, indent'd
  *		15 Jul 2001, fix uninitialized FLIST struct in dedstat() call
  *			     in path_RESOLVE() - U/Win.
  *		29 Jan 2001, support caseless filenames.
@@ -93,18 +94,14 @@
 #include	<rcsdefs.h>
 #include	<sccsdefs.h>
 
-MODULE_ID("$Id: dedscan.c,v 12.40 2002/07/05 13:55:00 tom Exp $")
-
-#define	def_doalloc	FLIST_alloc
-	/*ARGSUSED*/
-	def_DOALLOC(FLIST)
+MODULE_ID("$Id: dedscan.c,v 12.41 2004/03/07 23:25:18 tom Exp $")
 
 #define	N_UNKNOWN	-1	/* name does not exist */
 #define	N_FILE		0	/* a file (synonym for 'common==0') */
 #define	N_DIR		1	/* a directory */
 #define	N_LDIR		2	/* symbolic link to a directory */
 
-static	int	dir_order;
+static int dir_order;
 
 /************************************************************************
  *	local procedures						*
@@ -113,20 +110,16 @@ static	int	dir_order;
 /*
  * Find a given name in the display list, returning -1 if not found, or index.
  */
-private	int	lookup (
-	_ARX(RING *,	gbl)
-	_AR1(char *,	name)
-		)
-	_DCL(RING *,	gbl)
-	_DCL(char *,	name)
+static int
+lookup(RING * gbl, char *name)
 {
-	register unsigned j;
+    unsigned j;
 
-	for_each_file(gbl,j) {
-		if (!strcmp(gENTRY(j).z_real_name, name))
-			return (j);
-	}
-	return (-1);
+    for_each_file(gbl, j) {
+	if (!strcmp(gENTRY(j).z_real_name, name))
+	    return (j);
+    }
+    return (-1);
 }
 
 /*
@@ -134,65 +127,54 @@ private	int	lookup (
  */
 #define	Zero(p)	(void)memset(p, 0, sizeof(FLIST))
 
-private	void	alloc_name(
-	_ARX(FLIST *,	f_)
-	_AR1(char *,	name)
-		)
-	_DCL(FLIST *,	f_)
-	_DCL(char *,	name)
+static void
+alloc_name(FLIST * f_, char *name)
 {
-	if (name != 0) {
+    if (name != 0) {
 #ifndef MIXEDCASE_FILENAMES
-		char bfr[MAXPATHLEN];
-		strlwrcpy(bfr, name);
-		f_->z_mono_name = txtalloc(bfr);
+	char bfr[MAXPATHLEN];
+	strlwrcpy(bfr, name);
+	f_->z_mono_name = txtalloc(bfr);
 #endif
-		f_->z_name = txtalloc(name);
-	}
+	f_->z_name = txtalloc(name);
+    }
 }
 
 /*
  * Reset an FLIST data block.  Release storage used by symbolic link, but
  * retain the name-string.
  */
-private	void	ReZero (
-	_AR1(FLIST *,	f_))
-	_DCL(FLIST *,	f_)
+static void
+ReZero(FLIST * f_)
 {
-	char	*name = f_->z_name;
-	Zero(f_);
-	alloc_name(f_, name);
+    char *name = f_->z_name;
+    Zero(f_);
+    alloc_name(f_, name);
 }
 
 /*
  * For a given name, update/append to the display-list the new FLIST data.
  */
-private	void	append(
-	_ARX(RING *,	gbl)
-	_ARX(char *,	name)
-	_AR1(FLIST *,	f_)
-		)
-	_DCL(RING *,	gbl)
-	_DCL(char *,	name)
-	_DCL(FLIST *,	f_)
+static void
+append(RING * gbl, char *name, FLIST * f_)
 {
-	register int j = lookup(gbl, name);
+    int j = lookup(gbl, name);
 
-	if (j >= 0) {
-		gENTRY(j) = *f_;
-		alloc_name(&gENTRY(j), name);
-		return;
-	}
+    if (j >= 0) {
+	gENTRY(j) = *f_;
+	alloc_name(&gENTRY(j), name);
+	return;
+    }
 
-	/* append a new entry on the end of the list */
-	j = (gbl->numfiles | 31) + 1;
-	gbl->flist = DOALLOC(gbl->flist,FLIST,(unsigned)j);
+    /* append a new entry on the end of the list */
+    j = (gbl->numfiles | 31) + 1;
+    gbl->flist = DOALLOC(gbl->flist, FLIST, (unsigned) j);
 
-	Zero(&gENTRY(gbl->numfiles));
-	gENTRY(gbl->numfiles) = *f_;
-	alloc_name(&gENTRY(gbl->numfiles), name);
-	gDORD(gbl->numfiles) = dir_order++;
-	gbl->numfiles++;
+    Zero(&gENTRY(gbl->numfiles));
+    gENTRY(gbl->numfiles) = *f_;
+    alloc_name(&gENTRY(gbl->numfiles), name);
+    gDORD(gbl->numfiles) = dir_order++;
+    gbl->numfiles++;
 }
 
 /*
@@ -205,48 +187,43 @@ private	void	append(
  * the presence of the 'z_ltxt' to do basic testing on whether the file was a
  * symbolic link.
  */
-private	int	dedstat (
-	_ARX(RING *,	gbl)
-	_ARX(char *,	name)
-	_AR1(FLIST *,	f_)
-		)
-	_DCL(RING *,	gbl)
-	_DCL(char *,	name)
-	_DCL(FLIST *,	f_)
+static int
+dedstat(RING * gbl, char *name, FLIST * f_)
 {
 #ifdef	S_IFLNK
-	int	len;
-	char	bfr[MAXPATHLEN];
+    int len;
+    char bfr[MAXPATHLEN];
 #endif
-	int	code;
+    int code;
 
-	ReZero(f_);
+    ReZero(f_);
 
-	if (lstat(name, &f_->s) < 0) {
-		ReZero(f_);	/* zero all but name-pointer */
-		return(N_UNKNOWN);
-	}
-	code = isDIR(f_->s.st_mode) ? N_DIR : N_FILE;
+    if (lstat(name, &f_->s) < 0) {
+	ReZero(f_);		/* zero all but name-pointer */
+	return (N_UNKNOWN);
+    }
+    code = isDIR(f_->s.st_mode) ? N_DIR : N_FILE;
 #ifdef	S_IFLNK
-	if (isLINK(f_->s.st_mode)) {
-		len = readlink(name, bfr, sizeof(bfr));
-		if (len > 0) {
-			bfr[len] = EOS;
-			if (f_->z_ltxt)	txtfree(f_->z_ltxt);
-			f_->z_ltxt = txtalloc(bfr);
-			if (gbl->AT_opt
-			&&  (stat(name, &f_->s) >= 0)
-			&&  isDIR(f_->s.st_mode)) {
-				ft_insert(name);
-				code = N_LDIR;
-			}
-		}
+    if (isLINK(f_->s.st_mode)) {
+	len = readlink(name, bfr, sizeof(bfr));
+	if (len > 0) {
+	    bfr[len] = EOS;
+	    if (f_->z_ltxt)
+		txtfree(f_->z_ltxt);
+	    f_->z_ltxt = txtalloc(bfr);
+	    if (gbl->AT_opt
+		&& (stat(name, &f_->s) >= 0)
+		&& isDIR(f_->s.st_mode)) {
+		ft_insert(name);
+		code = N_LDIR;
+	    }
 	}
+    }
 #endif
 #ifdef	Z_RCS_SCCS
-	statSCCS(gbl, name, f_);
+    statSCCS(gbl, name, f_);
 #endif
-	return (code);
+    return (code);
 }
 
 /*
@@ -254,37 +231,29 @@ private	int	dedstat (
  * a special case: if a single argument is given (!list), links are tested to
  * see if they resolve to a directory.
  */
-private	int	argstat(
-	_ARX(RING *,	gbl)
-	_ARX(char *,	name)
-	_ARX(int,	list)
-	_AR1(int,	tilde)
-		)
-	_DCL(RING *,	gbl)
-	_DCL(char *,	name)
-	_DCL(int,	list)
-	_DCL(int,	tilde)
+static int
+argstat(RING * gbl, char *name, int list, int tilde)
 {
-	FLIST	fb;
-	char	full[MAXPATHLEN];
-	int	code;
+    FLIST fb;
+    char full[MAXPATHLEN];
+    int code;
 
-	if (debug) {
-		PRINTF(" stat \"%s\" %slist\r\n", name, list ? "" : "no");
-		FFLUSH(stdout);
-	}
+    if (debug) {
+	PRINTF(" stat \"%s\" %slist\r\n", name, list ? "" : "no");
+	FFLUSH(stdout);
+    }
 
-	if (tilde && (*name == '~'))	/* permit "~" from Bourne-shell */
-		abshome(name = strcpy(full, name));
+    if (tilde && (*name == '~'))	/* permit "~" from Bourne-shell */
+	abshome(name = strcpy(full, name));
 
-	Zero(&fb);
-	if ((code = dedstat(gbl, name, &fb)) != N_UNKNOWN) {
-		put_dedblip(code == N_LDIR ? '@' : '.');
-		if (list)
-			append(gbl, name, &fb);
-	} else
-		put_dedblip('?');
-	return (code);
+    Zero(&fb);
+    if ((code = dedstat(gbl, name, &fb)) != N_UNKNOWN) {
+	put_dedblip(code == N_LDIR ? '@' : '.');
+	if (list)
+	    append(gbl, name, &fb);
+    } else
+	put_dedblip('?');
+    return (code);
 }
 
 /************************************************************************
@@ -294,161 +263,160 @@ private	int	argstat(
  * Arguments:   argc, argv passed down from the original invocation,	*
  *		with leading options parsed off.			*
  ************************************************************************/
-public	int	dedscan (
-	_AR1(RING *,	gbl))
-	_DCL(RING *,	gbl)
+int
+dedscan(RING * gbl)
 {
-	auto	int	argc	= gbl->top_argc;
-	auto	char **	argv	= gbl->top_argv;
-	auto	DIR	*dp;
-	auto	DirentT *de;
-	register int	j, k;
-	register unsigned n;
-	auto	 int	common = -1;
-	char	name[MAXPATHLEN];
-	char	*s;
+    int argc = gbl->top_argc;
+    char **argv = gbl->top_argv;
+    DIR *dp;
+    DirentT *de;
+    int j, k;
+    unsigned n;
+    int common = -1;
+    char name[MAXPATHLEN];
+    char *s;
 
-	set_dedblip(gbl);
-	gbl->flist = dedfree(gbl->flist, gbl->numfiles);
-	dir_order = 0;
-	gbl->numfiles = 0;
+    set_dedblip(gbl);
+    gbl->flist = dedfree(gbl->flist, gbl->numfiles);
+    dir_order = 0;
+    gbl->numfiles = 0;
 
-	if (argc > 1) {
-		(void)chdir(strcpy(gbl->new_wd,old_wd));
-		for (j = 0; j < argc; j++)
-			if (ok_scan(gbl, argv[j])
-			&&  argstat(gbl, argv[j], TRUE, TRUE) >= 0)
-				common = 0;
-	} else {
-		abshome(pathcat(gbl->new_wd, old_wd, argv[0]));
-		if (!path_RESOLVE(gbl, gbl->new_wd)) {
-			return(0);
-		}
-
-		if ((common = argstat(gbl, gbl->new_wd, FALSE, FALSE)) > 0) {
-				/* mark dep's for purge */
-			if (gbl->toscan == 0)
-				ft_remove(gbl->new_wd, gbl->AT_opt, gbl->A_opt);
-			else
-				init_scan(gbl);
-
-			set_dedblip(gbl);
-
-			if ((dp = opendir(".")) != NULL) {
-				unsigned len1;
-				unsigned len2;
-
-				len1 = strlen(strcpy(name, gbl->new_wd));
-
-				if (name[len1-1] != '/') {
-					name[len1++] = '/';
-					name[len1]   = EOS;
-				}
-				while ((de = readdir(dp)) != NULL) {
-					s = de->d_name;
-					len2 = strlen(s);
-					if (len1 + len2 + 1 >= sizeof(name))
-						continue;
-					if (*s == '.' && !gbl->A_opt)
-						continue;
-					if (!ok_scan(gbl, s))
-						continue;
-					j = argstat(gbl, strcpy(name+len1, s), TRUE, FALSE);
-					if (!dotname(s)
-					&&  j > 0
-					&&  (k = lookup(gbl, s)) >= 0) {
-						ft_insert(name);
-					}
-				}
-				(void)closedir(dp);
-				/*
-				 * If nothing else, force "." to appear in the
-				 * list.  This greatly simplifies the handling
-				 * of empty directory lists!
-				 */
-				if (!gbl->numfiles) {
-					(void)argstat(gbl, ".", TRUE, FALSE);
-				}
-			} else {
-				waitmsg("cannot open directory");
-				return(0);
-			}
-			if (gbl->toscan == 0)
-				ft_purge(gbl); /* remove items not reinserted */
-		} else if (common == N_FILE) {
-			s = fleaf(gbl->new_wd);
-			if (s != gbl->new_wd) {
-				s[-1] = EOS;
-			}
-			argv[0] = txtalloc(gbl->new_wd);
-			common = strlen(gbl->new_wd);
-			(void)argstat(gbl, s, TRUE, FALSE);
-		}
+    if (argc > 1) {
+	(void) chdir(strcpy(gbl->new_wd, old_wd));
+	for (j = 0; j < argc; j++)
+	    if (ok_scan(gbl, argv[j])
+		&& argstat(gbl, argv[j], TRUE, TRUE) >= 0)
+		common = 0;
+    } else {
+	abshome(pathcat(gbl->new_wd, old_wd, argv[0]));
+	if (!path_RESOLVE(gbl, gbl->new_wd)) {
+	    return (0);
 	}
 
-	/*
-	 * If the user specified in the command arguments a set of files from
-	 * multiple directories (or even a lot of files in the same directory)
-	 * find the longest common leading pathname component and readjust
-	 * everything if it is nonnull.
-	 */
-	if (debug)
-		PRINTF("common=%d, numfiles=%d\r\n", common, gbl->numfiles);
-	if (common == 0 && gbl->numfiles != 0) {
-		unsigned comlen = strlen(strcpy(name,argv[0]));
-		for (j = 0; (j < argc) && (comlen != 0); j++) {
-			register char	*d = argv[j];
-			register unsigned slash = 0;
+	if ((common = argstat(gbl, gbl->new_wd, FALSE, FALSE)) > 0) {
+	    /* mark dep's for purge */
+	    if (gbl->toscan == 0)
+		ft_remove(gbl->new_wd, gbl->AT_opt, gbl->A_opt);
+	    else
+		init_scan(gbl);
 
-			for (s = name, k = 0;
-				(d[k] == s[k]) && (d[k] != EOS);) {
-				if ((d[k++] == '/')
-				&&  (d[k]   != EOS))	/* need a leaf */
-					slash = k;	/* ...common-length */
-			}
-			if (slash < comlen) {
+	    set_dedblip(gbl);
+
+	    if ((dp = opendir(".")) != NULL) {
+		unsigned len1;
+		unsigned len2;
+
+		len1 = strlen(strcpy(name, gbl->new_wd));
+
+		if (name[len1 - 1] != '/') {
+		    name[len1++] = '/';
+		    name[len1] = EOS;
+		}
+		while ((de = readdir(dp)) != NULL) {
+		    s = de->d_name;
+		    len2 = strlen(s);
+		    if (len1 + len2 + 1 >= sizeof(name))
+			continue;
+		    if (*s == '.' && !gbl->A_opt)
+			continue;
+		    if (!ok_scan(gbl, s))
+			continue;
+		    j = argstat(gbl, strcpy(name + len1, s), TRUE, FALSE);
+		    if (!dotname(s)
+			&& j > 0
+			&& (k = lookup(gbl, s)) >= 0) {
+			ft_insert(name);
+		    }
+		}
+		(void) closedir(dp);
+		/*
+		 * If nothing else, force "." to appear in the
+		 * list.  This greatly simplifies the handling
+		 * of empty directory lists!
+		 */
+		if (!gbl->numfiles) {
+		    (void) argstat(gbl, ".", TRUE, FALSE);
+		}
+	    } else {
+		waitmsg("cannot open directory");
+		return (0);
+	    }
+	    if (gbl->toscan == 0)
+		ft_purge(gbl);	/* remove items not reinserted */
+	} else if (common == N_FILE) {
+	    s = fleaf(gbl->new_wd);
+	    if (s != gbl->new_wd) {
+		s[-1] = EOS;
+	    }
+	    argv[0] = txtalloc(gbl->new_wd);
+	    common = strlen(gbl->new_wd);
+	    (void) argstat(gbl, s, TRUE, FALSE);
+	}
+    }
+
+    /*
+     * If the user specified in the command arguments a set of files from
+     * multiple directories (or even a lot of files in the same directory)
+     * find the longest common leading pathname component and readjust
+     * everything if it is nonnull.
+     */
+    if (debug)
+	PRINTF("common=%d, numfiles=%d\r\n", common, gbl->numfiles);
+    if (common == 0 && gbl->numfiles != 0) {
+	unsigned comlen = strlen(strcpy(name, argv[0]));
+	for (j = 0; (j < argc) && (comlen != 0); j++) {
+	    char *d = argv[j];
+	    unsigned slash = 0;
+
+	    for (s = name, k = 0;
+		 (d[k] == s[k]) && (d[k] != EOS);) {
+		if ((d[k++] == '/')
+		    && (d[k] != EOS))	/* need a leaf */
+		    slash = k;	/* ...common-length */
+	    }
+	    if (slash < comlen) {
 #ifdef	apollo
-				if ((slash == 1)
-				&&  (name[0] == '/')) {
-					if ((s[1] == '/')
-					||  (d[1] == '/'))
-						slash = 0; /* fix truncation */
-				}
+		if ((slash == 1)
+		    && (name[0] == '/')) {
+		    if ((s[1] == '/')
+			|| (d[1] == '/'))
+			slash = 0;	/* fix truncation */
+		}
 #endif
-				comlen = slash;
-			}
-			dlog_comment("common '%.*s' (%d:%s)\n", comlen, name, slash, d);
-		}
-		name[comlen] = EOS;
-
-		if (comlen != 0) {
-			dlog_comment("common path = \"%s\" (len=%d)\n",
-				name, comlen);
-			if (chdir(strcpy(gbl->new_wd,old_wd)) < 0)
-				failed(old_wd);
-			abshome(strcpy(gbl->new_wd, name));
-			if (!path_RESOLVE(gbl, gbl->new_wd))
-				failed(gbl->new_wd);
-			for_each_file(gbl,n)
-				alloc_name(&gENTRY(n), gNAME(n) + comlen);
-		} else {
-			size_t	len = strlen(gbl->new_wd);
-			for (j = 0; j < argc; j++) {
-				if (strlen(s = argv[j]) > len
-				&&  s[len] == '/'
-				&&  !strncmp(gbl->new_wd,s,len))
-					alloc_name(&gENTRY(j), gNAME(j) + len + 1);
-			}
-		}
+		comlen = slash;
+	    }
+	    dlog_comment("common '%.*s' (%d:%s)\n", comlen, name, slash, d);
 	}
-	if (debug)
-		dedwait(gbl, FALSE);
+	name[comlen] = EOS;
 
-	gbl->curfile = 0;
-	dedsort(gbl);
-	gbl->curfile = 0;	/* ensure consistent initial */
+	if (comlen != 0) {
+	    dlog_comment("common path = \"%s\" (len=%d)\n",
+			 name, comlen);
+	    if (chdir(strcpy(gbl->new_wd, old_wd)) < 0)
+		failed(old_wd);
+	    abshome(strcpy(gbl->new_wd, name));
+	    if (!path_RESOLVE(gbl, gbl->new_wd))
+		failed(gbl->new_wd);
+	    for_each_file(gbl, n)
+		alloc_name(&gENTRY(n), gNAME(n) + comlen);
+	} else {
+	    size_t len = strlen(gbl->new_wd);
+	    for (j = 0; j < argc; j++) {
+		if (strlen(s = argv[j]) > len
+		    && s[len] == '/'
+		    && !strncmp(gbl->new_wd, s, len))
+		    alloc_name(&gENTRY(j), gNAME(j) + len + 1);
+	    }
+	}
+    }
+    if (debug)
+	dedwait(gbl, FALSE);
 
-	return(gbl->numfiles);
+    gbl->curfile = 0;
+    dedsort(gbl);
+    gbl->curfile = 0;		/* ensure consistent initial */
+
+    return (gbl->numfiles);
 }
 
 /************************************************************************
@@ -463,140 +431,123 @@ public	int	dedscan (
 #ifdef	Z_RCS_SCCS
 #define	LAST(p)	p(gbl->new_wd, name, &(f_->z_vers), &(f_->z_time), &(f_->z_lock))
 
-public	void	statSCCS(
-	_ARX(RING *,	gbl)
-	_ARX(char *,	name)
-	_AR1(FLIST *,	f_)
-		)
-	_DCL(RING *,	gbl)
-	_DCL(char *,	name)
-	_DCL(FLIST *,	f_)
+void
+statSCCS(RING * gbl, char *name, FLIST * f_)
 {
-	if (gbl->Z_opt) {
-		if (isFILE(f_->s.st_mode)) {
+    if (gbl->Z_opt) {
+	if (isFILE(f_->s.st_mode)) {
 #ifdef CMV_PATH
-			purge_cmv_dir(gbl->new_wd, name);
+	    purge_cmv_dir(gbl->new_wd, name);
 #endif
-			lastrev(gbl->new_wd,
-				name,
-				&(f_->z_vers),
-				&(f_->z_time),
-				&(f_->z_lock));
+	    lastrev(gbl->new_wd,
+		    name,
+		    &(f_->z_vers),
+		    &(f_->z_time),
+		    &(f_->z_lock));
 #ifdef	Z_RCS
-		} else if (isDIR(f_->s.st_mode)
-			&& sameleaf(name,rcs_dir(NULL,NULL))) {
-			LAST(rcslast);
-#endif	/* Z_RCS */
-		} else {
-			f_->z_lock =
-			f_->z_vers = "";
-			f_->z_time = 0;
-		}
+	} else if (isDIR(f_->s.st_mode)
+		   && sameleaf(name, rcs_dir(NULL, NULL))) {
+	    LAST(rcslast);
+#endif /* Z_RCS */
+	} else {
+	    f_->z_lock =
+		f_->z_vers = "";
+	    f_->z_time = 0;
 	}
+    }
 }
-#endif	/* Z_RCS_SCCS */
+#endif /* Z_RCS_SCCS */
 
 /*
  * This entrypoint is called to re-stat entries which already have been put
  * into the display-list.
  */
-public	void	statLINE (
-	_ARX(RING *,	gbl)
-	_AR1(unsigned,	j)
-		)
-	_DCL(RING *,	gbl)
-	_DCL(unsigned,	j)
+void
+statLINE(RING * gbl, unsigned j)
 {
-	char *	path = gNAME(j);
-	FLIST * blok = &gENTRY(j);
-	int	flag = gFLAG(j);
-	int	dord = gDORD(j);
+    char *path = gNAME(j);
+    FLIST *blok = &gENTRY(j);
+    int flag = gFLAG(j);
+    int dord = gDORD(j);
 
-	(void)dedstat(gbl, path, blok);
-	gFLAG(j) = flag;
-	gDORD(j) = dord;
+    (void) dedstat(gbl, path, blok);
+    gFLAG(j) = flag;
+    gDORD(j) = dord;
 }
 
 /*
  * For 'dedmake()', this adds a temporary entry, moving the former current
  * entry down, so the user can edit the name in-place.
  */
-public	void	statMAKE (
-	_ARX(RING *,	gbl)
-	_AR1(int,	mode)
-		)
-	_DCL(RING *,	gbl)
-	_DCL(int,	mode)
+void
+statMAKE(RING * gbl, int mode)
 {
-	static	char	*null = "";
-	register int	x;
+    static char *null = "";
+    int x;
 
-	if (mode) {
-		FLIST	dummy;
-		unsigned n;
+    if (mode) {
+	FLIST dummy;
+	unsigned n;
 
-		Zero(&dummy);
-		dummy.s.st_mode = mode;
-		dummy.s.st_uid  = getuid();
-		dummy.s.st_gid  = getgid();
-		append(gbl, null, &dummy);
+	Zero(&dummy);
+	dummy.s.st_mode = mode;
+	dummy.s.st_uid = getuid();
+	dummy.s.st_gid = getgid();
+	append(gbl, null, &dummy);
 
-		if ((x = lookup(gbl, null)) >= 0
-		 && ((n = x) != gbl->curfile)) {
-			FLIST	save;
-			save = gENTRY(x);
-			if (n < gbl->curfile) {
-				while (n++ < gbl->curfile)
-					gENTRY(n-1) = gENTRY(n);
-			} else {
-				while (n-- > gbl->curfile)
-					gENTRY(n+1) = gENTRY(n);
-			}
-			cENTRY = save;
-		}
-	} else {	/* remove entry */
-		if ((x = lookup(gbl, null)) >= 0) {
-			unsigned n = x;
-			while (n++ < gbl->numfiles)
-				gENTRY(n-1) = gENTRY(n);
-			gbl->numfiles--;
-		}
+	if ((x = lookup(gbl, null)) >= 0
+	    && ((n = x) != gbl->curfile)) {
+	    FLIST save;
+	    save = gENTRY(x);
+	    if (n < gbl->curfile) {
+		while (n++ < gbl->curfile)
+		    gENTRY(n - 1) = gENTRY(n);
+	    } else {
+		while (n-- > gbl->curfile)
+		    gENTRY(n + 1) = gENTRY(n);
+	    }
+	    cENTRY = save;
 	}
-	showFILES(gbl,FALSE);
+    } else {			/* remove entry */
+	if ((x = lookup(gbl, null)) >= 0) {
+	    unsigned n = x;
+	    while (n++ < gbl->numfiles)
+		gENTRY(n - 1) = gENTRY(n);
+	    gbl->numfiles--;
+	}
+    }
+    showFILES(gbl, FALSE);
 }
 
 /*
  * Form a regular expression to match the wildcard pattern which the user
  * gave for a filename.
  */
-private	char *	make_EXPR (
-	_AR1(char *,	path))
-	_DCL(char *,	path)
+static char *
+make_EXPR(char *path)
 {
-	char	temp[MAXPATHLEN],
-		*s = path,
-		*d = temp;
-	*d++ = '^';
-	while (*s) {
-		if (ispunct(UCH(*s))) {
-			if (*s == '?') {
-				*d++ = '.';
-				s++;
-				continue;
-			} else if (*s == '*') {
-				*d++ = '.';
-				*d++ = '*';
-				s++;
-				continue;
-			}
-			*d++ = '\\';
-		}
-		*d++ = *s++;
+    char temp[MAXPATHLEN], *s = path, *d = temp;
+    *d++ = '^';
+    while (*s) {
+	if (ispunct(UCH(*s))) {
+	    if (*s == '?') {
+		*d++ = '.';
+		s++;
+		continue;
+	    } else if (*s == '*') {
+		*d++ = '.';
+		*d++ = '*';
+		s++;
+		continue;
+	    }
+	    *d++ = '\\';
 	}
-	*d++ = '$';
-	*d   = EOS;
-	dlog_comment("force scan \"%s\"\n", path);
-	return txtalloc(temp);
+	*d++ = *s++;
+    }
+    *d++ = '$';
+    *d = EOS;
+    dlog_comment("force scan \"%s\"\n", path);
+    return txtalloc(temp);
 }
 
 /*
@@ -605,75 +556,70 @@ private	char *	make_EXPR (
  * symbolic link into a directory in which we have execute, but no read-
  * access.  In this case we try to live with the link-text.
  */
-public	int	path_RESOLVE (
-	_ARX(RING *,	gbl)
-	_AR1(char *,	path)
-		)
-	_DCL(RING *,	gbl)
-	_DCL(char *,	path)
+int
+path_RESOLVE(RING * gbl, char *path)
 {
-	char	temp[MAXPATHLEN];
-	char	*s;
-	static	int	tried;
+    char temp[MAXPATHLEN];
+    char *s;
+    static int tried;
 
-	if (chdir(strcpy(temp, path)) < 0) {
-		if (errno == ENOTDIR
-		 || errno == ENOENT) {
-			/*
-			 * Try to find the parent directory, then, and make a
-			 * pattern to match the leaf.  We'll do that only once,
-			 * to handle unresolved wildcards from the command
-			 * line.
-			 */
-			s = strrchr(temp, PATH_SLASH);
-			if (s != 0) {
-				s[1] = EOS;
+    if (chdir(strcpy(temp, path)) < 0) {
+	if (errno == ENOTDIR
+	    || errno == ENOENT) {
+	    /*
+	     * Try to find the parent directory, then, and make a
+	     * pattern to match the leaf.  We'll do that only once,
+	     * to handle unresolved wildcards from the command
+	     * line.
+	     */
+	    s = strrchr(temp, PATH_SLASH);
+	    if (s != 0) {
+		s[1] = EOS;
 #ifdef	apollo
-				if (strcmp(temp, "//"))
-#endif	/* apollo */
-				if (strcmp(temp, "/"))
-					s[0] = EOS;	/* trim trailing '/' */
-				/*
-				 * If we've already got the parent directory in
-				 * the ring, give up, removing this entry.
-				 */
-				if (ring_get(temp) != 0) {
-					warn(gbl, gbl->new_wd);
-					dedring(gbl, ".", 'Q', 1, FALSE, (char *)0);
-					return (FALSE);
-				}
-				if (chdir(temp) < 0)
-					return (FALSE);
-				if (first_scan && !tried++)
-					gbl->toscan = make_EXPR(path + (s - temp) + 1);
-			}
-		} else {
-			warn(gbl, gbl->new_wd);
-			return(FALSE);
+		if (strcmp(temp, "//"))
+#endif /* apollo */
+		    if (strcmp(temp, "/"))
+			s[0] = EOS;	/* trim trailing '/' */
+		/*
+		 * If we've already got the parent directory in
+		 * the ring, give up, removing this entry.
+		 */
+		if (ring_get(temp) != 0) {
+		    warn(gbl, gbl->new_wd);
+		    dedring(gbl, ".", 'Q', 1, FALSE, (char *) 0);
+		    return (FALSE);
 		}
+		if (chdir(temp) < 0)
+		    return (FALSE);
+		if (first_scan && !tried++)
+		    gbl->toscan = make_EXPR(path + (s - temp) + 1);
+	    }
+	} else {
+	    warn(gbl, gbl->new_wd);
+	    return (FALSE);
 	}
+    }
 #if defined(HAVE_REALPATH)
-	else
-	{
-		/* try to recover, just in case */
-		(void)chdir(old_wd);
-	}
-	s = realpath(path, temp);
+    else {
+	/* try to recover, just in case */
+	(void) chdir(old_wd);
+    }
+    s = realpath(path, temp);
 #else
-	s = getwd(temp);
+    s = getwd(temp);
 #endif
-	if (s != 0) {
-		(void)chdir(strcpy(path, temp));
-	} else {	/* for SunOS? */
-		FLIST	fb;
-		int	save = gbl->AT_opt;
-		int	code;
-		Zero(&fb);
-		gbl->AT_opt = TRUE;
-		code	= dedstat(gbl, path, &fb);
-		gbl->AT_opt = save;
-		if (code == N_LDIR)
-			(void)strcpy (path, fb.z_ltxt);
-	}
-	return (TRUE);
+    if (s != 0) {
+	(void) chdir(strcpy(path, temp));
+    } else {			/* for SunOS? */
+	FLIST fb;
+	int save = gbl->AT_opt;
+	int code;
+	Zero(&fb);
+	gbl->AT_opt = TRUE;
+	code = dedstat(gbl, path, &fb);
+	gbl->AT_opt = save;
+	if (code == N_LDIR)
+	    (void) strcpy(path, fb.z_ltxt);
+    }
+    return (TRUE);
 }

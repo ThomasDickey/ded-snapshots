@@ -3,6 +3,7 @@
  * Author:	T.E.Dickey
  * Created:	17 Nov 1987
  * Modified:
+ *		07 Mar 2004, remove K&R support, indent'd
  *		10 Aug 1999, ignore errno if system() doesn't return < 0.
  *		15 Feb 1998, compiler-warnings
  *		29 Oct 1993, ifdef-ident
@@ -36,245 +37,240 @@
  */
 #include	"ded.h"
 
-MODULE_ID("$Id: deddoit.c,v 12.19 2002/07/03 13:22:18 tom Exp $")
+MODULE_ID("$Id: deddoit.c,v 12.20 2004/03/07 23:25:18 tom Exp $")
 
 /*
  * Return a pointer to a leaf of a given name
  */
-private	char *	subleaf (
-	_AR1(char *,	name))
-	_DCL(char *,	name)
+static char *
+subleaf(char *name)
 {
-	char	*leaf	= name;
+    char *leaf = name;
 
 #ifdef	apollo
-	if (*leaf == '/')	leaf++;
+    if (*leaf == '/')
+	leaf++;
 #endif
-	if ((leaf = strrchr(leaf, '/')) != NULL)
-		leaf++;
-	else
-		leaf = name;
-	return (leaf);
+    if ((leaf = strrchr(leaf, '/')) != NULL)
+	leaf++;
+    else
+	leaf = name;
+    return (leaf);
 }
 
 /*
  * Return a pointer to the "." extension of a given name.
  */
-private	char *	subroot (
-	_AR1(char *,	name))
-	_DCL(char *,	name)
+static char *
+subroot(char *name)
 {
-	char	*root;
+    char *root;
 
-	if (!(root = strrchr(name, '.')))
-		root = name + strlen(name);
-	return (root);
+    if (!(root = strrchr(name, '.')))
+	root = name + strlen(name);
+    return (root);
 }
 
 /*
  * Perform '%' expansions for current-entry.  The substitutions are modified
  * from the ":" modifiers defined for "csh".
  */
-private	void	Expand(
-	_ARX(RING *,	gbl)
-	_ARX(int,	code)
-	_AR1(DYN *,	subs)
-		)
-	_DCL(RING *,	gbl)
-	_DCL(int,	code)
-	_DCL(DYN *,	subs)
+static void
+Expand(RING * gbl, int code, DYN * subs)
 {
-	char *	cur_name =  cNAME;
-	Stat_t *cur_stat = &cSTAT;
-	FLIST *	cur_item = &cENTRY;
-	char	temp[MAXPATHLEN],
-		name[MAXPATHLEN],
-		*from;
+    char *cur_name = cNAME;
+    Stat_t *cur_stat = &cSTAT;
+    FLIST *cur_item = &cENTRY;
+    char temp[MAXPATHLEN], name[MAXPATHLEN], *from;
 
-	if (strchr("NHRET", code))
-		abspath(pathcat2(name, gbl->new_wd, cur_name));
-	else
-		(void)strcpy(name, cur_name);
+    if (strchr("NHRET", code))
+	abspath(pathcat2(name, gbl->new_wd, cur_name));
+    else
+	(void) strcpy(name, cur_name);
 
-	switch(code) {
-	case 'F':	from = ring_path(gbl,1);
-			break;
+    switch (code) {
+    case 'F':
+	from = ring_path(gbl, 1);
+	break;
 
-	case 'B':	from = ring_path(gbl,-1);
-			break;
+    case 'B':
+	from = ring_path(gbl, -1);
+	break;
 
-	case 'D':	from = old_wd;	/* original working directory */
-			break;
+    case 'D':
+	from = old_wd;		/* original working directory */
+	break;
 
-	case 'd':	from = gbl->new_wd;	/* current working directory */
-			break;
+    case 'd':
+	from = gbl->new_wd;	/* current working directory */
+	break;
 
-	case 'N':
-	case 'n':	/* current entry-name */
-			from = name;
-			break;
+    case 'N':
+    case 'n':			/* current entry-name */
+	from = name;
+	break;
 
-	case 'H':
-	case 'h':	/* Remove a pathname component, leaving head */
-			*subleaf(from = name) = EOS;
-			if (*from == EOS)
-				(void)strcpy(from, "./");
-			break;
+    case 'H':
+    case 'h':			/* Remove a pathname component, leaving head */
+	*subleaf(from = name) = EOS;
+	if (*from == EOS)
+	    (void) strcpy(from, "./");
+	break;
 
-	case 'R':
-	case 'r':	/* Remove a trailing ".xxx" component, leaving root */
-			*subroot(subleaf(from = name)) = EOS;
-			break;
+    case 'R':
+    case 'r':			/* Remove a trailing ".xxx" component, leaving root */
+	*subroot(subleaf(from = name)) = EOS;
+	break;
 
-	case 'E':
-	case 'e':	/* Remove all but trailing ".xxx" component */
-			from = subroot(subleaf(name));
-			break;
+    case 'E':
+    case 'e':			/* Remove all but trailing ".xxx" component */
+	from = subroot(subleaf(name));
+	break;
 
-	case 'T':
-	case 't':	/* Remove all leading pathname components, leave tail */
-			from = subleaf(name);
-			break;
+    case 'T':
+    case 't':			/* Remove all leading pathname components, leave tail */
+	from = subleaf(name);
+	break;
 
-			/* non-pathname attributes */
-	case 'u':	from = uid2s((int)(cur_stat->st_uid));	break;
-	case 'g':	from = gid2s((int)(cur_stat->st_gid));	break;
+	/* non-pathname attributes */
+    case 'u':
+	from = uid2s((int) (cur_stat->st_uid));
+	break;
+    case 'g':
+	from = gid2s((int) (cur_stat->st_gid));
+	break;
 #ifdef	Z_RCS_SCCS
-	case 'v':	if (!(from = cur_item->z_vers)) from = "?";
-			break;
-	case 'o':	if (!(from = cur_item->z_lock)) from = "?";
-			break;
+    case 'v':
+	if (!(from = cur_item->z_vers))
+	    from = "?";
+	break;
+    case 'o':
+	if (!(from = cur_item->z_lock))
+	    from = "?";
+	break;
 #endif
-	default:
-			from = "?";
-	}
+    default:
+	from = "?";
+    }
 
-	(void)ded2string(gbl, temp, sizeof(temp), from, TRUE);
-	APPEND(subs, temp);
+    (void) ded2string(gbl, temp, sizeof(temp), from, TRUE);
+    APPEND(subs, temp);
 }
 
 /*
  * Prompt for, substitute and execute a shell command.
  */
-public	void	deddoit(
-	_ARX(RING *,	gbl)
-	_ARX(int,	key)
-	_AR1(int,	sense)
-		)
-	_DCL(RING *,	gbl)
-	_DCL(int,	key)
-	_DCL(int,	sense)
+void
+deddoit(RING * gbl, int key, int sense)
 {
-	char	prompt[80];
-	static	DYN	*Subs;
-	register int	c, j;
-	register char	*s;
+    char prompt[80];
+    static DYN *Subs;
+    int c, j;
+    char *s;
 
-	dyn_init(&Subs, BUFSIZ);
-	if (!dyn_string(gbl->cmd_sh))
+    dyn_init(&Subs, BUFSIZ);
+    if (!dyn_string(gbl->cmd_sh))
+	dyn_init(&gbl->cmd_sh, BUFSIZ);
+
+    if (sense == 0)
+	gbl->clr_sh = FALSE;
+    else if (sense > 1)
+	gbl->clr_sh = TRUE;
+
+    FORMAT(prompt, "%c Command: ", gbl->clr_sh ? '%' : '!');
+
+    if ((key != '.') || (*dyn_string(gbl->cmd_sh) == EOS)) {
+	if (key == ':')
+	    APPEND(Subs, dyn_string(gbl->cmd_sh));
+
+	c = FALSE;
+	if (!(s = dlog_string(gbl, prompt, -1, &Subs, (DYN **) 0,
+			      &cmd_history, EOS, 0))) {
+	    showC(gbl);
+	    return;
+	}
+	while (*s) {		/* skip leading blanks */
+	    if (!isspace(UCH(*s))) {
 		dyn_init(&gbl->cmd_sh, BUFSIZ);
-
-	if (sense == 0)
-		gbl->clr_sh = FALSE;
-	else if (sense > 1)
-		gbl->clr_sh = TRUE;
-
-	FORMAT(prompt, "%c Command: ", gbl->clr_sh ? '%' : '!');
-
-	if ((key != '.') || (*dyn_string(gbl->cmd_sh) == EOS)) {
-		if (key == ':')
-			APPEND(Subs, dyn_string(gbl->cmd_sh));
-
-		c = FALSE;
-		if (!(s = dlog_string(gbl, prompt, -1, &Subs, (DYN **)0,
-				&cmd_history, EOS, 0))) {
-			showC(gbl);
-			return;
-		}
-		while (*s) {	/* skip leading blanks */
-			if (!isspace(UCH(*s))) {
-				dyn_init(&gbl->cmd_sh, BUFSIZ);
-				APPEND(gbl->cmd_sh, s);
-				c = TRUE;
-				break;
-			}
-			s++;
-		}
-		if (c) {	/* trim trailing blanks */
-			(void)strtrim(dyn_string(gbl->cmd_sh));
-		} else {
-			PRINTW("(no command)");
-			showC(gbl);
-			return;
-		}
+		APPEND(gbl->cmd_sh, s);
+		c = TRUE;
+		break;
+	    }
+	    s++;
+	}
+	if (c) {		/* trim trailing blanks */
+	    (void) strtrim(dyn_string(gbl->cmd_sh));
 	} else {
-		dlog_prompt(gbl, prompt, -1);
-		PRINTW("(ditto)\n");
+	    PRINTW("(no command)");
+	    showC(gbl);
+	    return;
 	}
+    } else {
+	dlog_prompt(gbl, prompt, -1);
+	PRINTW("(ditto)\n");
+    }
 
-	dyn_init(&Subs, BUFSIZ);
-	for (j = 0; *(s = dyn_string(gbl->cmd_sh) + j); j++) {
-		static	char	This[] = "?",
-				Next[] = "?";
+    dyn_init(&Subs, BUFSIZ);
+    for (j = 0; *(s = dyn_string(gbl->cmd_sh) + j); j++) {
+	static char This[] = "?", Next[] = "?";
 
-		This[0] = s[0];
-		Next[0] = s[1];
+	This[0] = s[0];
+	Next[0] = s[1];
 
-		if (*This == '\\'
-		 && (*Next == '#' || *Next == '%') ) {
-			APPEND(Subs, Next);
-			j++;
-		} else if (*This == '#') {	/* substitute group */
-			int	ellipsis = 0,
-				others = FALSE,
-				len;
-			unsigned x;
+	if (*This == '\\'
+	    && (*Next == '#' || *Next == '%')) {
+	    APPEND(Subs, Next);
+	    j++;
+	} else if (*This == '#') {	/* substitute group */
+	    int ellipsis = 0, others = FALSE, len;
+	    unsigned x;
 
-			for_each_file(gbl,x) {
-				if (GROUPED(x)) {
-					len = strlen(s = fixname(gbl, x));
-					if (others++)
-						APPEND(Subs, " ");
+	    for_each_file(gbl, x) {
+		if (GROUPED(x)) {
+		    len = strlen(s = fixname(gbl, x));
+		    if (others++)
+			APPEND(Subs, " ");
 
-					if (!ellipsis
-					 && (dyn_length(Subs) + len) > 256)
-						ellipsis = dyn_length(Subs);
-					APPEND(Subs, s);
-				}
-			}
-			if (ellipsis) {
-				for (s = dyn_string(Subs) + ellipsis; *s; s++)
-					*s |= 0200;
-			}
-
-		} else if (*This == '%') {	/* substitute current file */
-			if (*Next != EOS)
-				j++;
-			Expand(gbl, *Next, Subs);
-		} else {
-			APPEND(Subs, This);
+		    if (!ellipsis
+			&& (dyn_length(Subs) + len) > 256)
+			ellipsis = dyn_length(Subs);
+		    APPEND(Subs, s);
 		}
-	}
-	dedshow(gbl, "> ", dyn_string(Subs));
+	    }
+	    if (ellipsis) {
+		for (s = dyn_string(Subs) + ellipsis; *s; s++)
+		    *s |= 0200;
+	    }
 
-	if (*dyn_string(Subs)) {
-		int	ok = TRUE;
-		for (s = dyn_string(Subs); *s; s++)
-			if (!isascii(*s))
-				*s = toascii(*s);
-
-		cookterm();
-		(void)dedsigs(FALSE);	/* prevent child from killing us */
-		dlog_comment("execute %s\n", dyn_string(Subs));
-		errno = 0;
-		if (system(dyn_string(Subs)) < 0) {
-			ok = FALSE;
-			warn(gbl, "system");
-		}
-		(void)dedsigs(TRUE);
-		rawterm();
-		if (ok && gbl->clr_sh) dedwait(gbl, TRUE);
-		dlog_elapsed();
+	} else if (*This == '%') {	/* substitute current file */
+	    if (*Next != EOS)
+		j++;
+	    Expand(gbl, *Next, Subs);
+	} else {
+	    APPEND(Subs, This);
 	}
-	showC(gbl);
+    }
+    dedshow(gbl, "> ", dyn_string(Subs));
+
+    if (*dyn_string(Subs)) {
+	int ok = TRUE;
+	for (s = dyn_string(Subs); *s; s++)
+	    if (!isascii(*s))
+		*s = toascii(*s);
+
+	cookterm();
+	(void) dedsigs(FALSE);	/* prevent child from killing us */
+	dlog_comment("execute %s\n", dyn_string(Subs));
+	errno = 0;
+	if (system(dyn_string(Subs)) < 0) {
+	    ok = FALSE;
+	    warn(gbl, "system");
+	}
+	(void) dedsigs(TRUE);
+	rawterm();
+	if (ok && gbl->clr_sh)
+	    dedwait(gbl, TRUE);
+	dlog_elapsed();
+    }
+    showC(gbl);
 }

@@ -3,6 +3,7 @@
  * Author:	T.E.Dickey
  * Created:	02 May 1988
  * Modified:
+ *		07 Mar 2004, remove K&R support, indent'd
  *		29 Jan 2001, support caseless filenames.
  *		29 Oct 1993, ifdef-ident
  *		18 Oct 1991, converted to ANSI
@@ -14,27 +15,25 @@
 
 #include	"ded.h"
 
-MODULE_ID("$Id: dedfree.c,v 12.5 2001/01/30 01:59:11 tom Exp $")
+MODULE_ID("$Id: dedfree.c,v 12.6 2004/03/07 23:25:18 tom Exp $")
 
 FLIST *
-dedfree(
-_ARX(FLIST *,	fp)
-_AR1(unsigned,	num)
-	)
-_DCL(FLIST *,	fp)
-_DCL(unsigned,	num)
+dedfree(FLIST * fp, unsigned num)
 {
-	register unsigned j;
+    unsigned j;
 
-	if (fp != 0) {	/* we are rescanning display-list */
-		for (j = 0; j < num; j++) {
-			if (fp[j].z_name)	txtfree(fp[j].z_name);
-			if (fp[j].z_ltxt)	txtfree(fp[j].z_ltxt);
+    if (fp != 0) {		/* we are rescanning display-list */
+	for (j = 0; j < num; j++) {
+	    if (fp[j].z_name)
+		txtfree(fp[j].z_name);
+	    if (fp[j].z_ltxt)
+		txtfree(fp[j].z_ltxt);
 #ifndef MIXEDCASE_FILENAMES
-			if (fp[j].z_mono_name)	txtfree(fp[j].z_mono_name);
+	    if (fp[j].z_mono_name)
+		txtfree(fp[j].z_mono_name);
 #endif
-		}
-		FREE((char *)fp);
 	}
-	return (0);
+	FREE((char *) fp);
+    }
+    return (0);
 }

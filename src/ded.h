@@ -19,7 +19,7 @@
 
 #ifdef	MAIN
 #if	!defined(NO_IDENT)
-static const char ded_h[] = "$Id: ded.h,v 12.64 2003/07/02 21:46:01 tom Exp $";
+static const char ded_h[] = "$Id: ded.h,v 12.65 2004/03/07 22:42:22 tom Exp $";
 #endif
 #endif	/* MAIN */
 
@@ -27,14 +27,7 @@ static const char ded_h[] = "$Id: ded.h,v 12.64 2003/07/02 21:46:01 tom Exp $";
 #define S_IEXEC 0100	/* BeOS lacks this */
 #endif
 
-#if defined(HAVE_STDARG_H) && defined(PROTOTYPES)
 #include	<stdarg.h>
-#else
-#include	<varargs.h>
-#endif
-
-#define	private	static
-#define	public
 
 #define	FREE(p)		dofree(p)
 
@@ -233,7 +226,7 @@ extern	chtype	bar_hline[];
 extern	chtype	bar_ruler[];
 
 extern	void	boxchars(
-		_ar1(int,	flag));
+		int	flag);
 
 /* *** "ded.c" *** */
 extern	int	debug;
@@ -241,522 +234,518 @@ extern	int	no_worry;
 extern	int	in_screen;
 
 extern	void	to_exit(
-		_ar1(int,	last));
+		int	last);
 
 extern	int	realstat(
-		_arx(RING *,	gbl)
-		_arx(int,	inx)
-		_ar1(Stat_t *,	sb));
+		RING *	gbl,
+		int	inx,
+		Stat_t *	sb);
 
 extern	void	failed(
-		_ar1(char *,	msg));
+		char *	msg);
 
 extern	int	user_says(
-		_arx(RING *,	gbl)
-		_ar1(int,	ok));
+		RING *	gbl,
+		int	ok);
 
 extern	int	findFILE(
-		_arx(RING *,	gbl)
-		_ar1(char *,	name));
+		RING *	gbl,
+		char *	name);
 
 extern	void	showSCCS(
-		_ar1(RING *,	gbl));
+		RING *	gbl);
 
 extern	void	retouch(
-		_arx(RING *,	gbl)
-		_ar1(int,	row));
+		RING *	gbl,
+		int	row);
 
 extern	void	resleep(
-		_arx(RING *,	gbl)
-		_arx(int,	count)
-		_fn1(void,	func,	(_AR1(RING*,g))));
+		RING *	gbl,
+		int	count,
+		void (*func)	(RING* g));
 
 extern	char	*fixname(
-		_arx(RING *,	gbl)
-		_ar1(unsigned,	j));
+		RING *	gbl,
+		unsigned	j);
 
 extern	void	fixtime(
-		_arx(RING *,	gbl)
-		_ar1(unsigned,	j));
+		RING *	gbl,
+		unsigned	j);
 
-extern	void	usage(_ar0);
+extern	void	usage(void);
 
 /* *** "dedblip.c" *** */
 extern	void	set_dedblip (
-		_ar1(RING *,	gbl));
+		RING *	gbl);
 
 extern	void	put_dedblip (
-		_ar1(int,	code));
+		int	code);
 
 /* *** "dedcolor.c" *** */
 #if defined(HAVE_HAS_COLORS)
 extern	int	invert_colors;
-extern	void	init_dedcolor(_ar0);
+extern	void	init_dedcolor(void);
 extern	void	dedcolor(
-		_ar1(FLIST *,	entry));
+		FLIST *	entry);
 #endif
 
 /* *** "deddoit.c" *** */
 extern	void	deddoit(
-		_arx(RING *,	gbl)
-		_arx(int,	key)
-		_ar1(int,	sense));
+		RING *	gbl,
+		int	key,
+		int	sense);
 
 /* *** "deddump.c" *** */
 extern	void	deddump(
-		_ar1(RING *,	gbl));
+		RING *	gbl);
 
 /* *** "dedfind.c" *** */
 extern	void	dedfind(
-		_arx(RING *,	gbl)
-		_ar1(int,	key));
+		RING *	gbl,
+		int	key);
 
 /* *** "dedfree.c" *** */
 extern	FLIST	*dedfree(
-		_arx(FLIST *,	fp)
-		_ar1(unsigned,	num));
+		FLIST *	fp,
+		unsigned	num);
 
 /* *** "dedline.c" *** */
 extern	void	editprot(
-		_ar1(RING *,	gbl));
+		RING *	gbl);
 
 extern	int	edittext(
-		_arx(RING *,	gbl)
-		_arx(int,	endc)
-		_arx(int,	col)
-		_arx(int,	len)
-		_ar1(char *,	bfr));
+		RING *	gbl,
+		int	endc,
+		int	col,
+		int	len,
+		char *	bfr);
 
 extern	void	edit_uid(
-		_ar1(RING *,	gbl));
+		RING *	gbl);
 
 extern	void	edit_gid(
-		_ar1(RING *,	gbl));
+		RING *	gbl);
 
 extern	void	editname(
-		_ar1(RING *,	gbl));
+		RING *	gbl);
 
 extern	void	editlink(
-		_arx(RING *,	gbl)
-		_ar1(int,	cmd));
+		RING *	gbl,
+		int	cmd);
 
 /* *** "dedmake.c" *** */
 extern	void	dedmake(
-		_arx(RING *,	gbl)
-		_ar1(int,	firstc));
+		RING *	gbl,
+		int	firstc);
 
 /* *** "dedmsgs.c" *** */
-extern	void	clearmsg(_ar0);
+extern	void	clearmsg(void);
 
 extern	void	dedmsg(
-		_arx(RING *,	gbl)
-		_ar1(char *,	msg));
+		RING *	gbl,
+		char *	msg);
 
 extern	void	warn(
-		_arx(RING *,	gbl)
-		_ar1(char *,	msg));
+		RING *	gbl,
+		char *	msg);
 
 extern	void	waitmsg(
-		_ar1(char *,	msg));
+		char *	msg);
 
 extern	void	wait_warn(
-		_ar1(char *,	msg));
+		char *	msg);
 
 /* *** "dedname.c" *** */
 extern	int	dedname(
-		_arx(RING *,	gbl)
-		_arx(int,	x)
-		_ar1(char *,	newname));
+		RING *	gbl,
+		int	x,
+		char *	newname);
 
 /* *** "dedread.c" *** */
 extern	int	dedread(
-		_arx(RING *,	gbl)
-		_arx(char **,	pattern_)
-		_ar1(int,	change_needed));
+		RING *	gbl,
+		char **	pattern_,
+		int	change_needed);
 
 extern	void	init_scan(
-		_ar1(RING *,	gbl));
+		RING *	gbl);
 
 extern	int	ok_scan(
-		_arx(RING *,	gbl)
-		_ar1(char *,	name));
+		RING *	gbl,
+		char *	name);
 
 /* *** "dedring.c" *** */
-extern	RING	*ring_alloc(_ar0);
+extern	RING	*ring_alloc(void);
 
 extern	void	ring_args(
-		_arx(RING *,	gbl)
-		_arx(int,	argc)
-		_ar1(char **,	argv));
+		RING *	gbl,
+		int	argc,
+		char **	argv);
 
 extern	RING *	ring_get(
-		_ar1(char *,	path));
+		char *	path);
 
 extern	RING *	dedring(
-		_arx(RING *,	gbl)
-		_arx(char *,	path)
-		_arx(int,	cmd)
-		_arx(int,	count)
-		_arx(int,	set_pattern)
-		_ar1(char *,	pattern));
+		RING *	gbl,
+		char *	path,
+		int	cmd,
+		int	count,
+		int	set_pattern,
+		char *	pattern);
 
 extern	RING *	ring_pointer(
-		_arx(RING *,	gbl)
-		_ar1(int,	count));
+		RING *	gbl,
+		int	count);
 
 extern	char *	ring_path(
-		_arx(RING *,	gbl)
-		_ar1(int,	count));
+		RING *	gbl,
+		int	count);
 
 extern	void	ring_rename(
-		_arx(RING *,	gbl)
-		_arx(char *,	oldname)
-		_ar1(char *,	newname));
+		RING *	gbl,
+		char *	oldname,
+		char *	newname);
 
-extern	void	ring_tags(_ar0);
+extern	void	ring_tags(void);
 
 /* *** "dedscan.c" *** */
 extern	int	dedscan(
-		_ar1(RING *,	gbl));
+		RING *	gbl);
 
 extern	void	statSCCS(
-		_arx(RING *,	gbl)
-		_arx(char *,	name)
-		_ar1(FLIST *,	f_));
+		RING *	gbl,
+		char *	name,
+		FLIST *	f_);
 
 extern	void	statLINE(
-		_arx(RING *,	gbl)
-		_ar1(unsigned,	j));
+		RING *	gbl,
+		unsigned	j);
 
 extern	void	statMAKE(
-		_arx(RING *,	gbl)
-		_ar1(int,	mode));
+		RING *	gbl,
+		int	mode);
 
 extern	int	path_RESOLVE(
-		_arx(RING *,	gbl)
-		_ar1(char *,	path));
+		RING *	gbl,
+		char *	path);
 
 /* *** "dedshow.c" *** */
 extern	void	dedshow2 (
-		_ar1(char *,	arg));
+		char *	arg);
 
 extern	void	dedshow(
-		_arx(RING *,	gbl)
-		_arx(char *,	tag)
-		_ar1(char *,	arg));
+		RING *	gbl,
+		char *	tag,
+		char *	arg);
 
 /* *** "dedsigs.c" *** */
 extern	int	dedsigs(
-		_ar1(int,	flag));
+		int	flag);
 
 /* *** "dedsize.c" *** */
 extern	void	dedsize(
-		_ar1(RING *,	gbl));
+		RING *	gbl);
 
 /* *** "dedsort.c" *** */
 extern	int	dedsort_cmp(
-		_arx(RING *,	gbl)
-		_arx(const FLIST *,	p1)
-		_ar1(const FLIST *,	p2));
+		RING *	gbl,
+		const FLIST *	p1,
+		const FLIST *	p2);
 
 extern	void	dedsort(
-		_ar1(RING *,	gbl));
+		RING *	gbl);
 
 /* *** "dedtags.c" *** */
 extern	void	init_tags(
-		_ar1(RING *,	gbl));
+		RING *	gbl);
 
 extern	void	tag_entry(
-		_arx(RING *,	gbl)
-		_arx(unsigned,	inx)
-		_ar1(unsigned,	count));
+		RING *	gbl,
+		unsigned	inx,
+		unsigned	count);
 
 extern	void	untag_entry(
-		_arx(RING *,	gbl)
-		_arx(unsigned,	inx)
-		_ar1(unsigned,	count));
+		RING *	gbl,
+		unsigned	inx,
+		unsigned	count);
 
 extern	void	count_tags(
-		_ar1(RING *,	gbl));
+		RING *	gbl);
 
 /* *** "dedtype.c" *** */
 extern	int	in_dedtype;
 extern	void	dedtype(
-		_arx(RING *,	gbl)
-		_arx(char *,	name)
-		_arx(int,	inlist)
-		_arx(int,	binary)
-		_arx(int,	stripped)
-		_ar1(int,	isdir));
+		RING *	gbl,
+		char *	name,
+		int	inlist,
+		int	binary,
+		int	stripped,
+		int	isdir);
 
 /* *** "deduniq.c" *** */
 extern	void	deduniq(
-		_arx(RING *,	gbl)
-		_ar1(int,	level));
+		RING *	gbl,
+		int	level);
 
 /* *** "dedview.c" *** */
 extern	int	file2row(
-		_ar1(unsigned,	n));
+		unsigned	n);
 
 extern	int	move2row(
-		_arx(unsigned,	n)
-		_ar1(int,	col));
+		unsigned	n,
+		int	col);
 
-extern	void	clear_work(_ar0);
+extern	void	clear_work(void);
 
 extern	void	to_work(
-		_arx(RING *,	gbl)
-		_ar1(int,	clear_it));
+		RING *	gbl,
+		int	clear_it);
 
 extern	int	to_file(
-		_ar1(RING *,	gbl));
+		RING *	gbl);
 
 extern	void	scroll_to_file(
-		_arx(RING *,	gbl)
-		_ar1(unsigned,	inx));
+		RING *	gbl,
+		unsigned	inx);
 
 extern	void	markset(
-		_arx(RING *,	gbl)
-		_ar1(unsigned,	num));
+		RING *	gbl,
+		unsigned	num);
 
 extern	void	upLINE(
-		_arx(RING *,	gbl)
-		_ar1(unsigned,	n));
+		RING *	gbl,
+		unsigned	n);
 
 extern	void	downLINE(
-		_arx(RING *,	gbl)
-		_ar1(unsigned,	n));
+		RING *	gbl,
+		unsigned	n);
 
 extern	int	showDOWN(
-		_ar1(RING *,	gbl));
+		RING *	gbl);
 
 extern	void	showWHAT(
-		_ar1(RING *,	gbl));
+		RING *	gbl);
 
 extern	void	showLINE(
-		_arx(RING *,	gbl)
-		_ar1(unsigned,	j));
+		RING *	gbl,
+		unsigned	j);
 
 extern	void	showMARK(
-		_ar1(int,	col));
+		int	col);
 
 extern	void	showFILES(
-		_arx(RING *,	gbl)
-		_ar1(int,	reset_cols));
+		RING *	gbl,
+		int	reset_cols);
 
 extern	void	openVIEW(
-		_ar1(RING *,	gbl));
+		RING *	gbl);
 
 extern	void	redoVIEW(
-		_arx(RING *,	gbl)
-		_ar1(int,	freed));
+		RING *	gbl,
+		int	freed);
 
 extern	void	scrollVIEW(
-		_arx(RING *,	gbl)
-		_ar1(int,	count));
+		RING *	gbl,
+		int	count);
 
 extern	RING *	splitVIEW(
-		_ar1(RING *,	gbl));
+		RING *	gbl);
 
 extern	void	quitVIEW(
-		_ar1(RING *,	gbl));
+		RING *	gbl);
 
 extern	void	top2VIEW(
-		_ar1(RING *,	gbl));
+		RING *	gbl);
 
 extern	void	showC(
-		_ar1(RING *,	gbl));
+		RING *	gbl);
 
 extern	RING *	tab2VIEW(
-		_ar1(RING *,	gbl));
+		RING *	gbl);
 
 extern	void	markC(
-		_arx(RING *,	gbl)
-		_ar1(int,	on));
+		RING *	gbl,
+		int	on);
 
-extern	unsigned baseVIEW(_ar0);
+extern	unsigned baseVIEW(void);
 
-extern	int	lastVIEW(_ar0);
+extern	int	lastVIEW(void);
 
 extern	RING *	row2VIEW(
-		_arx(RING *,	gbl)
-		_ar1(int,	row));
+		RING *	gbl,
+		int	row);
 
 /* *** "dedwait.c" *** */
 extern	void	dedwait(
-		_arx(RING *,	gbl)
-		_ar1(int,	cursed));
+		RING *	gbl,
+		int	cursed);
 
 /* *** "ded2s.c" *** */
 extern	void	ded2s(
-		_arx(RING *,	gbl)
-		_arx(int,	inx)
-		_arx(char *,	bfr)
-		_ar1(int,	len));
+		RING *	gbl,
+		int	inx,
+		char *	bfr,
+		int	len);
 
 extern	int	ded2string(
-		_arx(RING *,	gbl)
-		_arx(char *,	bfr)
-		_arx(int,	len)
-		_arx(char *,	name)
-		_ar1(int,	flag));
+		RING *	gbl,
+		char *	bfr,
+		int	len,
+		char *	name,
+		int	flag);
 
 extern	int	ded_access(
-		_arx(Stat_t *,	sb)
-		_ar1(int,	mask));
+		Stat_t *	sb,
+		int	mask);
 
 #define ded_blocks(sb) fileblocks(sb)
 
 extern	char	*type_uid2s(
-		_ar1(Stat_t *,	s));
+		Stat_t *	s);
 
 extern	int	has_extended_acl(
-		_arx(RING *,	gbl)
-		_ar1(int,	x));
+		RING *	gbl,
+		int	x);
 
 /* *** "dlog.c" *** */
 extern	void	dlog_read(
-		_ar1(char *,	name));
+		char *	name);
 
 extern	char	*dlog_open(
-		_arx(char *,	name)
-		_arx(int,	argc)
-		_ar1(char **,	argv));
+		char *	name,
+		int	argc,
+		char **	argv);
 
-extern	void	dlog_reopen(_ar0);
+extern	void	dlog_reopen(void);
 
-extern	void	dlog_close(_ar0);
+extern	void	dlog_close(void);
 
 extern	void	dlog_exit(
-		_ar1(int,	code));
+		int	code);
 
 extern	int	dlog_char(
-		_arx(RING *,	gbl)
-		_arx(int *,	count_)
-		_ar1(int,	begin));
+		RING *	gbl,
+		int *	count_,
+		int	begin);
 
 extern	void	dlog_prompt(
-		_arx(RING *,	gbl)
-		_arx(char *,	prompt)
-		_ar1(int,	row));
+		RING *	gbl,
+		char *	prompt,
+		int	row);
 
 #ifdef	SIGWINCH
-extern	void	dlog_resize(_ar0);
+extern	void	dlog_resize(void);
 #endif
 
 extern	char *	dlog_string(
-		_arx(RING *,	gbl)
-		_arx(char *,	prompt)
-		_arx(int,	row)
-		_arx(DYN **,	result)
-		_arx(DYN **,	inflag)
-		_arx(HIST **,	history)
-		_arx(int,	fast_q)
-		_ar1(int,	wrap_len));
+		RING *	gbl,
+		char *	prompt,
+		int	row,
+		DYN **	result,
+		DYN **	inflag,
+		HIST **	history,
+		int	fast_q,
+		int	wrap_len);
 
-extern	void	dlog_elapsed(_ar0);
+extern	void	dlog_elapsed(void);
 
-extern	void	dlog_flush(_ar0);
+extern	void	dlog_flush(void);
 
 extern	void	dlog_name(
-		_ar1(char *,	name));
+		char *	name);
 
 extern	void	dlog_comment(
-#if defined(PROTOTYPES)
-# if defined(HAVE_STDARG_H)
 			char * fmt,
 			...
-# endif
-#endif
 		);
 
 /* *** "ftree.c" *** */
 extern	void	ft_insert(
-		_ar1(char *,	path));
+		char *	path);
 
 extern	void	ft_remove(
-		_arx(char *,	path)
-		_arx(int,	links)
-		_ar1(int,	dots));
+		char *	path,
+		int	links,
+		int	dots);
 
 extern	void	ft_purge(
-		_ar1(RING *,	gbl));
+		RING *	gbl);
 
 extern	void	ft_rename(
-		_arx(char *,	oldname)
-		_ar1(char *,	newname));
+		char *	oldname,
+		char *	newname);
 
 extern	void	ft_read(
-		_arx(char *,	first)
-		_ar1(char *,	home_dir));
+		char *	first,
+		char *	home_dir);
 
 #ifdef	SIGWINCH
-extern	int	ft_resize(_ar0);
+extern	int	ft_resize(void);
 #endif
 extern	RING *	ft_view(
-		_arx(RING *,	gbl)
-		_arx(char *,	path)
-		_ar1(int *,	cmd));
+		RING *	gbl,
+		char *	path,
+		int *	cmd);
 
 extern	int	ft_scan(
-		_arx(RING *,	gbl)
-		_arx(int,	node)
-		_arx(int,	levels)
-		_ar1(int,	base));
+		RING *	gbl,
+		int	node,
+		int	levels,
+		int	base);
 
 extern	void	ft_set_levels (
-		_arx(int,	row)
-		_ar1(int,	levels));
+		int	row,
+		int	levels);
 
 extern	int	ft_stat(
-		_arx(char *,	name)
-		_ar1(char *,	leaf));
+		char *	name,
+		char *	leaf);
 
-extern	void	ft_write(_ar0);
+extern	void	ft_write(void);
 
 /* *** "history.c" *** */
 extern	HIST	*cmd_history;
 
 extern	void	put_history(
-		_arx(HIST **,	table)
-		_ar1(char *,	text));
+		HIST **	table,
+		char *	text);
 
 extern	char *	get_history(
-		_arx(HIST *,	table)
-		_ar1(int,	age));
+		HIST *	table,
+		int	age);
 
 extern	void	show_history(
-		_arx(RING *,	gbl)
-		_ar1(int,	depth));
+		RING *	gbl,
+		int	depth);
 
 /* *** "restat.c" *** */
 extern	void	restat(
-		_arx(RING *,	gbl)
-		_ar1(int,	group));
+		RING *	gbl,
+		int	group);
 
 extern	void	restat_l(
-		_ar1(RING *,	gbl));
+		RING *	gbl);
 
 extern	void	restat_W(
-		_ar1(RING *,	gbl));
+		RING *	gbl);
 
 /* *** "inline.c" *** */
 extern	int	dyn_trim1(
-		_ar1(DYN *,	p));
+		DYN *	p);
 
 extern	void	hide_inline(
-		_ar1(int,	flag));
+		int	flag);
 
 extern	int	edit_inline(
-		_ar1(int,	flag));
+		int	flag);
 
-extern	int	up_inline(_ar0);
-extern	int	down_inline(_ar0);
+extern	int	up_inline(void);
+extern	int	down_inline(void);
 
 extern	int	get_inline(
-		_arx(RING *,	gbl)
-		_arx(int,	c)
-		_ar1(int,	cmd));
+		RING *	gbl,
+		int	c,
+		int	cmd);
 
 #define	ReplayStart(chr)	(void)get_inline(gbl,chr,chr)
 #define	ReplayFinish()		(void)get_inline(gbl,EOS,C_DONE)
@@ -768,29 +757,29 @@ extern	int	get_inline(
 #define	ReplayQuit()		(void)get_inline(gbl,EOS,C_QUIT)
 #define	ReplayChar()		      get_inline(gbl,EOS,C_NEXT)
 
-extern	DYN **	inline_text(_ar0);
-extern	HIST **	inline_hist(_ar0);
+extern	DYN **	inline_text(void);
+extern	HIST **	inline_hist(void);
 #ifdef	DEBUG
-extern	int	inline_hidden(_ar0);
+extern	int	inline_hidden(void);
 #endif
 
 /* *** "showpath.c" *** */
 extern	void	showpath(
-		_arx(char *,	path)
-		_arx(int,	level)
-		_arx(int,	base)
-		_ar1(int,	margin));
+		char *	path,
+		int	level,
+		int	base,
+		int	margin);
 
 /* *** "sortset.c" *** */
 extern	char	sortc[];
 
 extern	int	sortset(
-		_arx(RING *,	gbl)
-		_arx(int,	ord)
-		_ar1(int,	opt));
+		RING *	gbl,
+		int	ord,
+		int	opt);
 
 extern	int	sortget(
-		_arx(RING *,	gbl)
-		_ar1(int,	c));
+		RING *	gbl,
+		int	c);
 
 #endif	/* DED_H */

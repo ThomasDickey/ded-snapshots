@@ -3,6 +3,7 @@
  * Author:	T.E.Dickey
  * Created:	07 Apr 1992, from 'ded.c'
  * Modified:
+ *		07 Mar 2004, remove K&R support, indent'd
  *		15 Feb 1998, compiler warnings
  *		29 Oct 1993, ifdef-ident
  *
@@ -11,52 +12,46 @@
 
 #include	"ded.h"
 
-MODULE_ID("$Id: restat.c,v 12.7 1998/02/16 18:22:50 tom Exp $")
+MODULE_ID("$Id: restat.c,v 12.8 2004/03/07 23:25:18 tom Exp $")
 
 /*
  * re-'stat()' the current line, and optionally group
  */
-public	void	restat(
-	_ARX(RING *,	gbl)
-	_AR1(int,	group)
-		)
-	_DCL(RING *,	gbl)
-	_DCL(int,	group)
+void
+restat(RING * gbl, int group)
 {
-	if (group) {
-		register unsigned j;
+    if (group) {
+	unsigned j;
 
-		for_each_file(gbl,j) {
-			if (j != gbl->curfile) {
-				if (gFLAG(j)) {
-					statLINE(gbl, j);
-					showLINE(gbl, j);
-				}
-			}
+	for_each_file(gbl, j) {
+	    if (j != gbl->curfile) {
+		if (gFLAG(j)) {
+		    statLINE(gbl, j);
+		    showLINE(gbl, j);
 		}
+	    }
 	}
-	statLINE(gbl, gbl->curfile);
-	showLINE(gbl, gbl->curfile);
-	showC(gbl);
+    }
+    statLINE(gbl, gbl->curfile);
+    showLINE(gbl, gbl->curfile);
+    showC(gbl);
 }
 
-public	void	restat_l (
-	_AR1(RING *,	gbl))
-	_DCL(RING *,	gbl)
+void
+restat_l(RING * gbl)
 {
-	restat(gbl,TRUE);
+    restat(gbl, TRUE);
 }
 
-public	void	restat_W (
-	_AR1(RING *,	gbl))
-	_DCL(RING *,	gbl)
+void
+restat_W(RING * gbl)
 {
-	register int j;
-	auto	int	Ylast = lastVIEW();
+    int j;
+    int Ylast = lastVIEW();
 
-	for (j = baseVIEW(); j <= Ylast; j++) {
-		statLINE(gbl, j);
-		showLINE(gbl, j);
-	}
-	showC(gbl);
+    for (j = baseVIEW(); j <= Ylast; j++) {
+	statLINE(gbl, j);
+	showLINE(gbl, j);
+    }
+    showC(gbl);
 }

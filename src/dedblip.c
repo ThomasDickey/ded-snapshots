@@ -3,6 +3,7 @@
  * Author:	T.E.Dickey
  * Created:	23 Nov 1993
  * Modified:
+ *		07 Mar 2004, remove K&R support, indent'd
  *		10 Apr 1996, made this work before curses is initialized
  *
  * Function:	Encapsulates logic that displays (in the work area) a message
@@ -13,106 +14,100 @@
  */
 #include "ded.h"
 
-MODULE_ID("$Id: dedblip.c,v 12.6 1996/04/10 23:24:52 tom Exp $")
- 
+MODULE_ID("$Id: dedblip.c,v 12.7 2004/03/07 23:25:18 tom Exp $")
+
 #define	L_PAREN '('
 #define	R_PAREN ')'
 
-typedef	struct	{
-	char	*label;
-	char	*plural;
-	int	total;
-	} BLIP;
+typedef struct {
+    char *label;
+    char *plural;
+    int total;
+} BLIP;
 
-static	BLIP	blips[] = {
-	{".item",	"s",		0},
-	{"@link",	"s",		0},
-	{"*current",	"",		0},
-	{"#match",	"es",		0},
-	{"?unknown",	"",		0},
-	{(char *)0,	(char *)0,	0}};
-
-
-void	set_dedblip (
-	_AR1(RING *,	gbl))
-	_DCL(RING *,	gbl)
+static BLIP blips[] =
 {
-	register BLIP *table;
+    {".item", "s", 0},
+    {"@link", "s", 0},
+    {"*current", "", 0},
+    {"#match", "es", 0},
+    {"?unknown", "", 0},
+    {(char *) 0, (char *) 0, 0}};
 
-	to_work(gbl, TRUE);
-	for (table = blips; table->label != 0; table++) {
-		table->total = 0;
-	}
+void
+set_dedblip(RING * gbl)
+{
+    BLIP *table;
+
+    to_work(gbl, TRUE);
+    for (table = blips; table->label != 0; table++) {
+	table->total = 0;
+    }
 }
 
-static
-void	PutChar(
-	_AR1(int,	c))
-	_DCL(int,	c)
+static void
+PutChar(int c)
 {
-	if (in_screen)
-		addch(c);
-	else
-		fputc(c, stderr);
+    if (in_screen)
+	addch(c);
+    else
+	fputc(c, stderr);
 }
 
-static
-void	PutText(
-	_AR1(char *,	s))
-	_DCL(char *,	s)
+static void
+PutText(char *s)
 {
-	while (*s != EOS)
-		PutChar(*s++);
+    while (*s != EOS)
+	PutChar(*s++);
 }
 
-void	put_dedblip (
-	_AR1(int,	code))
-	_DCL(int,	code)
+void
+put_dedblip(int code)
 {
-	register BLIP *	table;
-	register int	n;
-	register char *	s;
-	char	temp[20];
+    BLIP *table;
+    int n;
+    char *s;
+    char temp[20];
 
-	for (table = blips, n = 0; table->label != 0; table++, n++) {
-		if (code == *(table->label) || (n == 0)) {
-			table->total++;
-		}
+    for (table = blips, n = 0; table->label != 0; table++, n++) {
+	if (code == *(table->label) || (n == 0)) {
+	    table->total++;
 	}
+    }
 
-	if (in_screen)
-		move(mark_W+1,0);
-	for (table = blips, n = 0; table->label != 0; table++) {
-		if (table->total != 0) {
-			if (n != 0) {
-				if (n != 1)
-					PutChar(',');
-				PutChar(' ');
-			}
-			if (n == 1)
-				PutChar(L_PAREN);
+    if (in_screen)
+	move(mark_W + 1, 0);
+    for (table = blips, n = 0; table->label != 0; table++) {
+	if (table->total != 0) {
+	    if (n != 0) {
+		if (n != 1)
+		    PutChar(',');
+		PutChar(' ');
+	    }
+	    if (n == 1)
+		PutChar(L_PAREN);
 
-			FORMAT(temp, "%d", table->total);
-			PutText(temp);
-			s = table->label;
-			if (*(++s)) {
-				PutChar(' ');
-				PutText(s);
-				if (table->total > 1)
-					PutText(table->plural);
-			}
-			n++;
-		}
+	    FORMAT(temp, "%d", table->total);
+	    PutText(temp);
+	    s = table->label;
+	    if (*(++s)) {
+		PutChar(' ');
+		PutText(s);
+		if (table->total > 1)
+		    PutText(table->plural);
+	    }
+	    n++;
 	}
-	if (n > 1)
-		PutChar(R_PAREN);
+    }
+    if (n > 1)
+	PutChar(R_PAREN);
 
-	if (in_screen) {
-		clrtoeol();
-		move(mark_W+1,0);
-		refresh();
-	} else {
-		fputc('\r', stderr);
-		fflush(stderr);
-	}
+    if (in_screen) {
+	clrtoeol();
+	move(mark_W + 1, 0);
+	refresh();
+    } else {
+	fputc('\r', stderr);
+	fflush(stderr);
+    }
 }

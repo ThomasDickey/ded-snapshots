@@ -3,6 +3,7 @@
  * Author:	T.E.Dickey
  * Created:	09 Nov 1987
  * Modified:
+ *		07 Mar 2004, remove K&R support, indent'd
  *		03 Jul 2003, move dedsigs() after initscr() to avoid conflict
  *			     with ncurses' sigwinch() handler.
  *		21 Dec 2002, use setlocale(), needed with ncursesw
@@ -167,7 +168,7 @@
 
 #include <locale.h>
 
-MODULE_ID("$Header: /users/source/archives/ded.vcs/src/RCS/ded.c,v 12.74 2003/07/02 22:58:37 tom Exp $")
+MODULE_ID("$Header: /users/source/archives/ded.vcs/src/RCS/ded.c,v 12.75 2004/03/07 23:25:18 tom Exp $")
 
 #define	EDITOR	DEFAULT_EDITOR
 #define	BROWSE	DEFAULT_BROWSE
@@ -175,17 +176,17 @@ MODULE_ID("$Header: /users/source/archives/ded.vcs/src/RCS/ded.c,v 12.74 2003/07
 
 #define	COMPLEMENT(opt) (opt) = !(opt)
 
-public	int	debug	= FALSE;	/* generic debug-flag */
-public	int	no_worry = -1;		/* don't prompt on quit */
-public	int	in_screen;		/* TRUE if we have init'ed */
+int debug = FALSE;		/* generic debug-flag */
+int no_worry = -1;		/* don't prompt on quit */
+int in_screen;			/* TRUE if we have init'ed */
 
 /*
  * Other, private main-module state:
  */
-static	char	whoami[MAXPATHLEN],	/* my execution-path */
-		*log_opt,		/* log-file option */
-		*tree_opt,		/* my file-tree database */
-		howami[MAXPATHLEN];	/* my help-file */
+static char whoami[MAXPATHLEN],	/* my execution-path */
+ *log_opt,			/* log-file option */
+ *tree_opt,			/* my file-tree database */
+  howami[MAXPATHLEN];		/* my help-file */
 
 /************************************************************************
  *	local procedures						*
@@ -194,60 +195,53 @@ static	char	whoami[MAXPATHLEN],	/* my execution-path */
 /*
  * Returns 0, 1 or val for a multi-way toggle.  Normally 3 states.
  */
-private	int	one_or_both(
-	_ARX(int,	opt)
-	_AR1(int,	val)
-		)
-	_DCL(int,	opt)
-	_DCL(int,	val)
+static int
+one_or_both(int opt,
+	    int val)
 {
-	if (val == 0)
-		opt = 0;
-	else if (val == 1)
-		opt = !opt;
-	else
-		opt = val;
-	return (opt);
+    if (val == 0)
+	opt = 0;
+    else if (val == 1)
+	opt = !opt;
+    else
+	opt = val;
+    return (opt);
 }
 
 #ifdef	S_IFLNK
-private	int	edithead(
-	_ARX(RING *,	gbl)
-	_ARX(char *,	dst)	/* receives destination-directory */
-	_AR1(char *,	leaf)	/* receives destination-leaf */
-		)
-	_DCL(RING *,	gbl)
-	_DCL(char *,	dst)
-	_DCL(char *,	leaf)
+static int
+edithead(RING * gbl,
+	 char *dst,		/* receives destination-directory */
+	 char *leaf)		/* receives destination-leaf */
 {
-	auto	Stat_t	sb;
-	auto	char	*s;
+    Stat_t sb;
+    char *s;
 
-	if (cLTXT != 0) {
-		dlog_comment("try to edit link-head \"%s\"\n", cLTXT);
-		(void)pathcat2(dst, gbl->new_wd, cLTXT);
-		(void)strcpy(dst, pathhead(dst, &sb));
-		dlog_comment("... becomes pathname  \"%s\"\n", dst);
-		(void)strcpy(leaf, cLTXT);
-		if ((s = strrchr(cLTXT, '/')) != NULL) {
+    if (cLTXT != 0) {
+	dlog_comment("try to edit link-head \"%s\"\n", cLTXT);
+	(void) pathcat2(dst, gbl->new_wd, cLTXT);
+	(void) strcpy(dst, pathhead(dst, &sb));
+	dlog_comment("... becomes pathname  \"%s\"\n", dst);
+	(void) strcpy(leaf, cLTXT);
+	if ((s = strrchr(cLTXT, '/')) != NULL) {
 #ifdef	apollo
-			/* special hack for DSEE library */
-			if (s[1] == '[') {
-				leaf[s-cLTXT] = EOS;
-				if (s = strrchr(leaf, '/')) {
-					s++;
-					while (*leaf++ = *s++);
-				}
-			} else
-#endif	/* apollo */
-			if (s[1] != EOS)
-				(void)strcpy(leaf, ++s);
+	    /* special hack for DSEE library */
+	    if (s[1] == '[') {
+		leaf[s - cLTXT] = EOS;
+		if (s = strrchr(leaf, '/')) {
+		    s++;
+		    while (*leaf++ = *s++) ;
 		}
-		return (TRUE);
+	    } else
+#endif /* apollo */
+	    if (s[1] != EOS)
+		(void) strcpy(leaf, ++s);
 	}
-	return (FALSE);		/* head would duplicate current directory */
+	return (TRUE);
+    }
+    return (FALSE);		/* head would duplicate current directory */
 }
-#endif	/* S_IFLNK */
+#endif /* S_IFLNK */
 
 /************************************************************************
  *	public	utility procedures					*
@@ -256,90 +250,80 @@ private	int	edithead(
 /*
  * Exit from window mode
  */
-public	void	to_exit (
-	_AR1(int,	last))
-	_DCL(int,	last)
+void
+to_exit(int last)
 {
-	if (in_screen) {
-		if (last) {
-			clearmsg();
-			refresh();
-		}
-		cookterm();
-		endwin();
-		restore_terminal();	/* some curses are buggy */
+    if (in_screen) {
+	if (last) {
+	    clearmsg();
+	    refresh();
 	}
+	cookterm();
+	endwin();
+	restore_terminal();	/* some curses are buggy */
+    }
 }
 
 /*
  * Determine if the given entry is a file, directory or none of these.
  */
-public	int	realstat(
-	_ARX(RING *,	gbl)
-	_ARX(int,	inx)
-	_AR1(Stat_t *,	sb)
-		)
-	_DCL(RING *,	gbl)
-	_DCL(int,	inx)
-	_DCL(Stat_t *,	sb)
+int
+realstat(RING * gbl, int inx, Stat_t * sb)
 {
-	register int	j = gSTAT(inx).st_mode;
+    int j = gSTAT(inx).st_mode;
 
 #ifdef	S_IFLNK
-	if (isLINK(j)) {
-		j = (stat(gNAME(inx), sb) >= 0) ? sb->st_mode : 0;
-	} else
-		sb->st_mode = 0;
+    if (isLINK(j)) {
+	j = (stat(gNAME(inx), sb) >= 0) ? sb->st_mode : 0;
+    } else
+	sb->st_mode = 0;
 #endif
-	if (isFILE(j))	return(0);
-	if (isDIR(j))	return(1);
-	return (-1);
+    if (isFILE(j))
+	return (0);
+    if (isDIR(j))
+	return (1);
+    return (-1);
 }
 
 /*
  * Fatal-error exit from this process
  */
-public	void	failed (
-	_AR1(char *,	msg))
-	_DCL(char *,	msg)
+void
+failed(char *msg)
 {
-	if (debug) {
-		FPRINTF(stderr, "failed?");
-		(void) cmdch((int *)0);
-	}
-	to_exit(msg != 0);
-	if (msg)
-		FPRINTF(stderr, "-------- \n?? %-79s\n-------- \n", msg);
-	if (msg) {
-		(void)fflush(stderr);
-		if (getenv("DED_DEBUG") != 0 || debug)
-			abort();
-	}
+    if (debug) {
+	FPRINTF(stderr, "failed?");
+	(void) cmdch((int *) 0);
+    }
+    to_exit(msg != 0);
+    if (msg)
+	FPRINTF(stderr, "-------- \n?? %-79s\n-------- \n", msg);
+    if (msg) {
+	(void) fflush(stderr);
+	if (getenv("DED_DEBUG") != 0 || debug)
+	    abort();
+    }
 
-	dlog_exit(FAIL);
+    dlog_exit(FAIL);
 }
 
 /*
  * Prompt user for yes/no response
  */
-public	int	user_says(
-	_ARX(RING *,	gbl)
-	_AR1(int,	ok)
-		)
-	_DCL(RING *,	gbl)
-	_DCL(int,	ok)
+int
+user_says(RING * gbl, int ok)
 {
-	register char	*s;
-	static	DYN	*reply;
+    char *s;
+    static DYN *reply;
 
-	if (!ok) {
-		dyn_init(&reply, 8);
-		if ((s = dlog_string(gbl, "Are you sure (y/n)? ", -1, &reply,
-				(DYN **)0, NO_HISTORY, EOS, -8)) != NULL)
-			ok = (*s == 'y' || *s == 'Y');
-		showC(gbl);
-	}
-	return (ok);
+    if (!ok) {
+	dyn_init(&reply, 8);
+	if ((s = dlog_string(gbl, "Are you sure (y/n)? ", -1, &reply,
+			     (DYN **) 0, NO_HISTORY, EOS, -8)) != NULL)
+	    ok = (*s == 'y' || *s == 'Y');
+	showC(gbl);
+    }
+    return (ok);
 }
 
 /*
@@ -347,210 +331,172 @@ public	int	user_says(
  * This is used to reposition after sorting, etc, and uses the feature that
  * strings in 'txtalloc()' are uniquely determined by their address.
  */
-public	int	findFILE(
-	_ARX(RING *,	gbl)
-	_AR1(char *,	name)
-		)
-	_DCL(RING *,	gbl)
-	_DCL(char *,	name)
+int
+findFILE(RING * gbl, char *name)
 {
-	register unsigned j;
-	for_each_file(gbl,j)
-		if (name == gNAME(j))
-			return (j);
-	return (0);			/* give up, set to beginning of list */
+    unsigned j;
+    for_each_file(gbl, j)
+	if (name == gNAME(j))
+	return (j);
+    return (0);			/* give up, set to beginning of list */
 }
 
 #ifdef	Z_RCS_SCCS
-private	int	needSCCS(
-	_ARX(RING *,	gbl)
-	_AR1(int,	c)
-		)
-	_DCL(RING *,	gbl)
-	_DCL(int,	c)
+static int
+needSCCS(RING * gbl, int c)
 {
-	return (!gbl->Z_opt && (strchr("vyZz",c) != 0));
+    return (!gbl->Z_opt && (strchr("vyZz", c) != 0));
 }
 
-public	void	showSCCS (
-	_AR1(RING *,	gbl))
-	_DCL(RING *,	gbl)
+void
+showSCCS(RING * gbl)
 {
-	register unsigned j;
+    unsigned j;
 
-	if (!gbl->Z_opt) {		/* catch up */
-		set_dedblip(gbl);
-		gbl->Z_opt = -1;
-		for_each_file(gbl,j) {
-			register FLIST *f = &(gbl->flist[j]);
-			if (!f->z_time) {
-				statSCCS(gbl, gNAME(j), f);
-				put_dedblip((f->z_time != 0) ? '#' : '.');
-			}
-		}
+    if (!gbl->Z_opt) {		/* catch up */
+	set_dedblip(gbl);
+	gbl->Z_opt = -1;
+	for_each_file(gbl, j) {
+	    FLIST *f = &(gbl->flist[j]);
+	    if (!f->z_time) {
+		statSCCS(gbl, gNAME(j), f);
+		put_dedblip((f->z_time != 0) ? '#' : '.');
+	    }
 	}
+    }
 }
-#endif	/* Z_RCS_SCCS */
+#endif /* Z_RCS_SCCS */
 
 /*
  * Repaint the screen
  */
-public	void	retouch(
-	_ARX(RING *,	gbl)
-	_AR1(int,	row)
-		)
-	_DCL(RING *,	gbl)
-	_DCL(int,	row)
+void
+retouch(RING * gbl, int row)
 {
-int	y,x;
+    int y, x;
 #if	defined(apollo) || defined(SIGWINCH)
-	if (resizewin()) {
-		dlog_comment("resizewin(%d,%d)\n", LINES, COLS);
-		markset(gbl, mark_W);
-		showFILES(gbl,FALSE);
-		return;
-	}
-#endif	/* apollo */
-	getyx(stdscr,y,x);
-	move(mark_W+1,0);
-	clrtobot();
-	move(y,x);
-	wrepaint(stdscr,row);
+    if (resizewin()) {
+	dlog_comment("resizewin(%d,%d)\n", LINES, COLS);
+	markset(gbl, mark_W);
+	showFILES(gbl, FALSE);
+	return;
+    }
+#endif /* apollo */
+    getyx(stdscr, y, x);
+    move(mark_W + 1, 0);
+    clrtobot();
+    move(y, x);
+    wrepaint(stdscr, row);
 }
 
 /*
  * Process the given function in a repeat-loop which is interruptable.
  */
-public	void	resleep(
-	_ARX(RING *,	gbl)
-	_ARX(int,	count)
-	_FN1(void,	func,	(_AR1(RING*,g)))
-		)
-	_DCL(RING *,	gbl)
-	_DCL(int,	count)
-	_DCL(void,	(*func)())
+void
+resleep(RING * gbl,
+	int count,
+	void (*func) (RING * g))
 {
-	register int	interrupted = 1,
-			last	= count;
+    int interrupted = 1, last = count;
 
-	while (count-- > 1) {
-		move(LINES-1,0);
-		PRINTW("...waiting (%d of %d) ...", last-count, last);
-		clrtoeol();
-		(*func)(gbl);
-		refresh();
-		sleep(3);
-		if ((interrupted = dedsigs(TRUE)) != 0)
-			break;
-	}
-	clearmsg();
-	if (interrupted)
-		(*func)(gbl);
-	else
-		showC(gbl);
+    while (count-- > 1) {
+	move(LINES - 1, 0);
+	PRINTW("...waiting (%d of %d) ...", last - count, last);
+	clrtoeol();
+	(*func) (gbl);
+	refresh();
+	sleep(3);
+	if ((interrupted = dedsigs(TRUE)) != 0)
+	    break;
+    }
+    clearmsg();
+    if (interrupted)
+	(*func) (gbl);
+    else
+	showC(gbl);
 }
 
 /*
  * Use the 'dedring()' module to switch to a different file-list
  */
-private	RING *	new_args(
-	_ARX(RING *,	gbl)
-	_ARX(char *,	path)
-	_ARX(int,	cmd)
-	_ARX(int,	count)
-	_ARX(int,	flags)
-	_ARX(int,	set_pattern)
-	_AR1(char *,	pattern)
-		)
-	_DCL(RING *,	gbl)
-	_DCL(char *,	path)
-	_DCL(int,	cmd)
-	_DCL(int,	count)
-	_DCL(int,	flags)
-	_DCL(int,	set_pattern)
-	_DCL(char *,	pattern)
+static RING *
+new_args(RING * gbl,
+	 char *path,
+	 int cmd,
+	 int count,
+	 int flags,
+	 int set_pattern,
+	 char *pattern)
 {
-	RING *	ok;
+    RING *ok;
 
-	if (flags & 1)
-		markC(gbl,TRUE);
-	clear_work();
-	if ((ok = dedring(gbl, path, cmd, count, set_pattern, pattern)) != 0) {
-		redoVIEW(gbl = ok, FALSE);
-		(void)to_file(gbl);
-		count_tags(gbl);
-		showFILES(gbl,TRUE);
-	}
-	(void)chdir(gbl->new_wd);
-	dlog_comment("chdir %s\n", gbl->new_wd);
-	if (!ok && (flags & 2))
-		showC(gbl);
-	return ok;
+    if (flags & 1)
+	markC(gbl, TRUE);
+    clear_work();
+    if ((ok = dedring(gbl, path, cmd, count, set_pattern, pattern)) != 0) {
+	redoVIEW(gbl = ok, FALSE);
+	(void) to_file(gbl);
+	count_tags(gbl);
+	showFILES(gbl, TRUE);
+    }
+    (void) chdir(gbl->new_wd);
+    dlog_comment("chdir %s\n", gbl->new_wd);
+    if (!ok && (flags & 2))
+	showC(gbl);
+    return ok;
 }
 
 /*
  * Set list to an old set of arguments
  */
-private	RING *	old_args(
-	_ARX(RING *,	gbl)
-	_ARX(int,	cmd)	/* 'F' or 'B' */
-	_AR1(int,	count)
-		)
-	_DCL(RING *,	gbl)
-	_DCL(int,	cmd)
-	_DCL(int,	count)
+static RING *
+old_args(RING * gbl,
+	 int cmd,		/* 'F' or 'B' */
+	 int count)
 {
-	auto	RING *	tmp;
+    RING *tmp;
 
-	tmp = new_args(gbl, gbl->new_wd, cmd, count, 0, FALSE, (char *)0);
-	if (tmp != 0)
-		gbl = tmp;
-	else
-		showC (gbl);	/* try to recover */
-	return gbl;
+    tmp = new_args(gbl, gbl->new_wd, cmd, count, 0, FALSE, (char *) 0);
+    if (tmp != 0)
+	gbl = tmp;
+    else
+	showC(gbl);		/* try to recover */
+    return gbl;
 }
 
 /*
  * Open a (new) argument-list, setting the scan-pattern
  */
-private	RING *	pattern_args(
-	_ARX(RING *,	gbl)
-	_AR1(char *,	path)
-		)
-	_DCL(RING *,	gbl)
-	_DCL(char *,	path)
+static RING *
+pattern_args(RING * gbl, char *path)
 {
-	char	*pattern = 0;
-	RING	*tmp;
+    char *pattern = 0;
+    RING *tmp;
 
-	while (dedread(gbl, &pattern, FALSE)) {
-		if ((tmp = new_args(gbl, path, 'E', 1, 3, TRUE, pattern)) != NULL)
-			return (tmp);
-	}
-	return (0);
+    while (dedread(gbl, &pattern, FALSE)) {
+	if ((tmp = new_args(gbl, path, 'E', 1, 3, TRUE, pattern)) != NULL)
+	    return (tmp);
+    }
+    return (0);
 }
 
 	/* re-scan argument list */
-private	RING *	rescan(
-	_ARX(RING *,	gbl)
-	_AR1(int,	fwd)
-		)
-	_DCL(RING *,	gbl)
-	_DCL(int,	fwd)
+static RING *
+rescan(RING * gbl, int fwd)
 {
-	char	*cur_name = gbl->numfiles ? cNAME : 0;
+    char *cur_name = gbl->numfiles ? cNAME : 0;
 
-	set_dedblip(gbl);
-	init_tags(gbl);
-	if (dedscan(gbl)) {
-		gbl->curfile = cur_name ? findFILE(gbl, cur_name) : 0;
-		(void)to_file(gbl);
-		showFILES(gbl,TRUE);
-		return (gbl);
-	} else if (fwd) {
-		return old_args(gbl, 'F', 1);
-	}
-	return (0);
+    set_dedblip(gbl);
+    init_tags(gbl);
+    if (dedscan(gbl)) {
+	gbl->curfile = cur_name ? findFILE(gbl, cur_name) : 0;
+	(void) to_file(gbl);
+	showFILES(gbl, TRUE);
+	return (gbl);
+    } else if (fwd) {
+	return old_args(gbl, 'F', 1);
+    }
+    return (0);
 }
 
 /*
@@ -558,329 +504,307 @@ private	RING *	rescan(
  * names, this is simply a copy of the original name.  However, on
  * Apollo, we may have names with '$' and other special characters.
  */
-public	char *	fixname(
-	_ARX(RING *,	gbl)
-	_AR1(unsigned,	j)
-		)
-	_DCL(RING *,	gbl)
-	_DCL(unsigned,	j)
+char *
+fixname(RING * gbl, unsigned j)
 {
-	static	char	nbfr[MAXPATHLEN];
-	(void)ded2string(gbl, nbfr, sizeof(nbfr), gNAME(j), TRUE);
-	return (nbfr);
+    static char nbfr[MAXPATHLEN];
+    (void) ded2string(gbl, nbfr, sizeof(nbfr), gNAME(j), TRUE);
+    return (nbfr);
 }
 
 /*
  * Adjust mtime-field so that chmod, chown do not alter it.
  * This fixes Apollo/NFS kludges!
  */
-public	void	fixtime(
-	_ARX(RING *,	gbl)
-	_AR1(unsigned,	j)
-		)
-	_DCL(RING *,	gbl)
-	_DCL(unsigned,	j)
+void
+fixtime(RING * gbl, unsigned j)
 {
-	if (setmtime(gNAME(j), gSTAT(j).st_mtime, gSTAT(j).st_atime) < 0)
-		warn(gbl, "utime");
+    if (setmtime(gNAME(j), gSTAT(j).st_mtime, gSTAT(j).st_atime) < 0)
+	warn(gbl, "utime");
 }
 
 /*
  * Spawn a subprocess, wait for completion.
  */
-private	void	forkfile(
-	_ARX(RING *,	gbl)
-	_ARX(char *,	arg0)
-	_ARX(char *,	arg1)
-	_AR1(int,	option)
-		)
-	_DCL(RING *,	gbl)
-	_DCL(char *,	arg0)
-	_DCL(char *,	arg1)
-	_DCL(int,	option)
+static void
+forkfile(RING * gbl, char *arg0, char *arg1, int option)
 {
-	char	quoted[MAXPATHLEN];
+    char quoted[MAXPATHLEN];
 
-	*quoted = EOS;
-	catarg(quoted, arg1);
+    *quoted = EOS;
+    catarg(quoted, arg1);
 
-	cookterm();
-	dlog_comment("execute %s %s\n", arg0, arg1);
-	dedsigs(FALSE);
-	(void)signal(SIGINT, SIG_IGN);	/* Linux need this */
-	if (execute(arg0, quoted) < 0)
-		warn(gbl, arg0);
-	dedsigs(TRUE);
-	dlog_elapsed();
-	rawterm();
+    cookterm();
+    dlog_comment("execute %s %s\n", arg0, arg1);
+    dedsigs(FALSE);
+    (void) signal(SIGINT, SIG_IGN);	/* Linux need this */
+    if (execute(arg0, quoted) < 0)
+	warn(gbl, arg0);
+    dedsigs(TRUE);
+    dlog_elapsed();
+    rawterm();
 
-	switch (option) {
-	case TRUE+1:
-		dedwait(gbl, TRUE);
-		restat(gbl,FALSE);
-		break;
-	case TRUE:
-		retouch(gbl, 0);
-		restat(gbl,FALSE);
-	}
+    switch (option) {
+    case TRUE + 1:
+	dedwait(gbl, TRUE);
+	restat(gbl, FALSE);
+	break;
+    case TRUE:
+	retouch(gbl, 0);
+	restat(gbl, FALSE);
+    }
 }
 
 /*
  * Enter an editor (separate process) for the current-file/directory.
  */
-private	RING *	run_editor(
-	_ARX(RING *,	gbl)
-	_ARX(int,	readonly)
-	_AR1(int,	extended)
-		)
-	_DCL(RING *,	gbl)
-	_DCL(int,	readonly)
-	_DCL(int,	extended)
+static RING *
+run_editor(RING * gbl, int readonly, int extended)
 {
-	Stat_t	sb;
-	char	*editor = (readonly ? ENV(BROWSE) : ENV(EDITOR));
-	char	tpath[MAXPATHLEN];
+    Stat_t sb;
+    char *editor = (readonly ? ENV(BROWSE) : ENV(EDITOR));
+    char tpath[MAXPATHLEN];
 
-	dlog_name(cNAME);
-	(void)pathcat2(tpath, gbl->new_wd, cNAME);
-	switch (realstat(gbl, gbl->curfile, &sb)) {
-	case 0:	/* edit-file */
-		to_work(gbl,TRUE);
-		if (extended) {
-			if (padedit(tpath, readonly, editor) < 0)
-				beep();
-			restat(gbl,FALSE);
-		} else
-			forkfile(gbl, editor, tpath, TRUE);
-		break;
-	case 1:	/* edit-directory */
-		if (extended) {
-			RING *tmp;
-			if ((tmp = pattern_args(gbl, tpath)) != NULL)
-				gbl = tmp;
-		} else {
-			to_work(gbl,TRUE);
-			ft_write();
-			dlog_close();
-			forkfile(gbl, whoami, cNAME, TRUE);
-			dlog_reopen();
-			ft_read(gbl->new_wd, tree_opt);
-			if (no_worry < 0)	/* start worrying! */
-				no_worry = FALSE;
-		}
-		break;
-	default:
-		dedmsg(gbl, "cannot edit this item");
+    dlog_name(cNAME);
+    (void) pathcat2(tpath, gbl->new_wd, cNAME);
+    switch (realstat(gbl, gbl->curfile, &sb)) {
+    case 0:			/* edit-file */
+	to_work(gbl, TRUE);
+	if (extended) {
+	    if (padedit(tpath, readonly, editor) < 0)
+		beep();
+	    restat(gbl, FALSE);
+	} else
+	    forkfile(gbl, editor, tpath, TRUE);
+	break;
+    case 1:			/* edit-directory */
+	if (extended) {
+	    RING *tmp;
+	    if ((tmp = pattern_args(gbl, tpath)) != NULL)
+		gbl = tmp;
+	} else {
+	    to_work(gbl, TRUE);
+	    ft_write();
+	    dlog_close();
+	    forkfile(gbl, whoami, cNAME, TRUE);
+	    dlog_reopen();
+	    ft_read(gbl->new_wd, tree_opt);
+	    if (no_worry < 0)	/* start worrying! */
+		no_worry = FALSE;
 	}
-	return gbl;
+	break;
+    default:
+	dedmsg(gbl, "cannot edit this item");
+    }
+    return gbl;
 }
- 
+
 /*
  * Edit a (new) directory w/o spawning a process.
  */
-private	RING *	edit_directory (
-	_AR1(RING *,	gbl))
-	_DCL(RING *,	gbl)
+static RING *
+edit_directory(RING * gbl)
 {
-	RING	*tmp = gbl;
-	char	tpath[MAXPATHLEN];
-	char	dpath[MAXPATHLEN];
-	Stat_t	sb;
+    RING *tmp = gbl;
+    char tpath[MAXPATHLEN];
+    char dpath[MAXPATHLEN];
+    Stat_t sb;
 
-	if (realstat(gbl, gbl->curfile, &sb) == 1) {
-		if (!(tmp = new_args(gbl,
-			pathcat2(tpath, gbl->new_wd, cNAME),
-			'E', 1, 3, FALSE, (char *)0)))
-			return gbl;
+    if (realstat(gbl, gbl->curfile, &sb) == 1) {
+	if (!(tmp = new_args(gbl,
+			     pathcat2(tpath, gbl->new_wd, cNAME),
+			     'E', 1, 3, FALSE, (char *) 0)))
+	    return gbl;
 
-#ifdef	S_IFLNK		/* try to edit head-directory of symbolic-link */
-	} else if (edithead(gbl, tpath, dpath)) {
-		if (strcmp(tpath, gbl->new_wd)
-		&&  !(tmp = new_args(gbl, tpath, 'E', 1, 3, FALSE, (char *)0)))
-			return gbl;
+#ifdef	S_IFLNK			/* try to edit head-directory of symbolic-link */
+    } else if (edithead(gbl, tpath, dpath)) {
+	if (strcmp(tpath, gbl->new_wd)
+	    && !(tmp = new_args(gbl, tpath, 'E', 1, 3, FALSE, (char *) 0)))
+	    return gbl;
 
-		scroll_to_file(tmp, findFILE(tmp, txtalloc(dpath)));
-#endif	/* S_IFLNK */
+	scroll_to_file(tmp, findFILE(tmp, txtalloc(dpath)));
+#endif /* S_IFLNK */
 
-	} else
-		dedmsg(gbl, "not a directory");
+    } else
+	dedmsg(gbl, "not a directory");
 
-	return tmp;
+    return tmp;
 }
 
 /*
  * Invoke a new file-list from the directory-tree display, cleaning up if
  * it fails.
  */
-private	RING *	new_tree(
-	_ARX(RING *,	gbl)
-	_ARX(char *,	path)
-	_AR1(int,	cmd)
-		)
-	_DCL(RING *,	gbl)
-	_DCL(char *,	path)
-	_DCL(int,	cmd)
+static RING *
+new_tree(RING * gbl, char *path, int cmd)
 {
-	RING *	tmp;
+    RING *tmp;
 
-	if (iscntrl(cmd))
-		tmp = pattern_args(gbl, path);
-	else
-		tmp = new_args(gbl, path, 'E', 1, 0, FALSE, (char *)0);
+    if (iscntrl(cmd))
+	tmp = pattern_args(gbl, path);
+    else
+	tmp = new_args(gbl, path, 'E', 1, 0, FALSE, (char *) 0);
 
-	return tmp;
+    return tmp;
 }
 
 /*
  * Invoke a new copy of 'ded'
  */
-private	void	new_process(
-	_ARX(RING *,	gbl)
-	_AR1(char *,	path)
-		)
-	_DCL(RING *,	gbl)
-	_DCL(char *,	path)
+static void
+new_process(RING * gbl, char *path)
 {
-	int	y,x;
+    int y, x;
 
-	getyx(stdscr, y, x);
-	if (++y >= LINES)	y = LINES-1;
-	move(y, x-x);
-	clrtobot();
-	move(y, 0);
-	ft_write();
-	dlog_close();
-	forkfile(gbl, whoami, path, FALSE);
-	dlog_reopen();
-	/*wrepaint(stdscr,0);*/
-	ft_read(gbl->new_wd, tree_opt);
+    getyx(stdscr, y, x);
+    if (++y >= LINES)
+	y = LINES - 1;
+    move(y, x - x);
+    clrtobot();
+    move(y, 0);
+    ft_write();
+    dlog_close();
+    forkfile(gbl, whoami, path, FALSE);
+    dlog_reopen();
+    /*wrepaint(stdscr,0); */
+    ft_read(gbl->new_wd, tree_opt);
 }
 
-private	void	trace_pipe (
-	_AR1(char *,	arg))
-	_DCL(char *,	arg)
+static void
+trace_pipe(char *arg)
 {
-	if (debug) {
-		if (debug > 1) {
-			FPRINTF(stderr, "%s\n", arg);
-			(void)fflush(stderr);
-		} else
-			put_dedblip('#');
-	}
+    if (debug) {
+	if (debug > 1) {
+	    FPRINTF(stderr, "%s\n", arg);
+	    (void) fflush(stderr);
+	} else
+	    put_dedblip('#');
+    }
 }
 
-private	int	x_scroll (_AR0)
+static int
+x_scroll(void)
 {
-	return ((1 + (COLS/4)/10) * 10);
+    return ((1 + (COLS / 4) / 10) * 10);
 }
 
 /************************************************************************
  *	main program							*
  ************************************************************************/
 
-void	usage(_AR0)
+void
+usage(void)
 {
-	auto	char	tmp[BUFSIZ];
-	static	char	*tbl[] = {
-			"Usage: ded [options] [filespecs]",
-			"(filespecs may be read from pipe)",
-			"",
-			"Options which alter initial display fields:",
-			"  -A       show \".\" and \"..\" names",
-			"  -G       show group-name instead of user-name",
-			"  -I       show inode field",
-			"  -P       show protection in octal",
+    char tmp[BUFSIZ];
+    static char *tbl[] =
+    {
+	"Usage: ded [options] [filespecs]",
+	"(filespecs may be read from pipe)",
+	"",
+	"Options which alter initial display fields:",
+	"  -A       show \".\" and \"..\" names",
+	"  -G       show group-name instead of user-name",
+	"  -I       show inode field",
+	"  -P       show protection in octal",
 #if defined(HAVE_NEWTERM)
-			"  -p       print selected filenames",
+	"  -p       print selected filenames",
 #endif
-			"  -S       show file-size in blocks",
-			"  -T       show long date+time",
+	"  -S       show file-size in blocks",
+	"  -T       show long date+time",
 #ifdef	apollo
-			"  -U       show AEGIS-style names",
+	"  -U       show AEGIS-style names",
 #endif
 #ifdef	Z_RCS_SCCS
-			"  -Z       read RCS/SCCS data, show date",
-			"  -z       read RCS/SCCS data, don't show date",
+	"  -Z       read RCS/SCCS data, show date",
+	"  -z       read RCS/SCCS data, don't show date",
 #endif
-			"",
-			"Options controlling initial sort:",
-			"  -s KEY   set forward sort",
-			"  -r KEY   set reverse sort",
-			"",
-			"Options controlling environment:",
-			"  -b       use box characters",
-			"  -c FILE  read DED commands from FILE",
-			"  -e       edit 'e' in new process",
-			"  -d       (debug)",
+	"",
+	"Options controlling initial sort:",
+	"  -s KEY   set forward sort",
+	"  -r KEY   set reverse sort",
+	"",
+	"Options controlling environment:",
+	"  -b       use box characters",
+	"  -c FILE  read DED commands from FILE",
+	"  -e       edit 'e' in new process",
+	"  -d       (debug)",
 #if defined(HAVE_HAS_COLORS)
-			"  -i       invert default colors",
+	"  -i       invert default colors",
 #endif
-			"  -l FILE  write DED commands to log-FILE",
-			"  -n       disable \"are you sure\" on quit",
-			"  -t DIR   read \".ftree\"-file from directory DIR",
-			(char *)0
-			};
-	register char	**p;
+	"  -l FILE  write DED commands to log-FILE",
+	"  -n       disable \"are you sure\" on quit",
+	"  -t DIR   read \".ftree\"-file from directory DIR",
+	(char *) 0
+    };
+    char **p;
 
-	setbuf(stderr,tmp);
-	for (p = tbl; *p; p++)
-		FPRINTF(stderr, "%s\n", *p);
-	FPRINTF(stderr, "\nSort KEY-options are: \"%s\"\n", sortc);
+    setbuf(stderr, tmp);
+    for (p = tbl; *p; p++)
+	FPRINTF(stderr, "%s\n", *p);
+    FPRINTF(stderr, "\nSort KEY-options are: \"%s\"\n", sortc);
 
-	dlog_exit(FAIL);
+    dlog_exit(FAIL);
 }
 
-private	int	inline_nesting (
-		_ARX(RING *,	gbl)
-		_AR1(int,	c))
-		_DCL(RING *,	gbl)
-		_DCL(int,	c)
+static int
+inline_nesting(RING * gbl, int c)
 {
-	if (c == 'c') {
-		ReplayTopC(c);
-		c = dlog_char(gbl, (int *)0, FALSE);
-	} else {
-		switch (c) {
-#ifdef	S_IFLNK
-		case 'l':
-#endif	/* S_IFLNK */
-		case 'd':
-		case 'f':
-		case 'L':	ReplayTopC('c');	break;
-		default:	ReplayTopC(EOS);
-		}
-	}
-	return (c);
-}
-
-private	void	inline_command(
-	_ARX(RING *,	gbl)
-	_AR1(int,	c)
-		)
-	_DCL(RING *,	gbl)
-	_DCL(int,	c)
-{
+    if (c == 'c') {
+	ReplayTopC(c);
+	c = dlog_char(gbl, (int *) 0, FALSE);
+    } else {
 	switch (c) {
-	case 'p':	editprot(gbl);		break;
-	case 'u':	edit_uid(gbl);		break;
-	case 'g':	edit_gid(gbl);		break;
-	case '=':	editname(gbl);		break;
 #ifdef	S_IFLNK
-	case '<':
-	case '>':	editlink(gbl, c);	break;
 	case 'l':
-#endif	/* S_IFLNK */
+#endif /* S_IFLNK */
 	case 'd':
 	case 'f':
-	case 'L':	dedmake(gbl, c);	break;
-
-	default:	{
-		char	temp[80];
-		FORMAT(temp, "no inline command (%c)", isprint(c) ? c : '?');
-		dedmsg(gbl, temp);
-		}
+	case 'L':
+	    ReplayTopC('c');
+	    break;
+	default:
+	    ReplayTopC(EOS);
 	}
-	(void)edit_inline(FALSE);
+    }
+    return (c);
+}
+
+static void
+inline_command(RING * gbl, int c)
+{
+    switch (c) {
+    case 'p':
+	editprot(gbl);
+	break;
+    case 'u':
+	edit_uid(gbl);
+	break;
+    case 'g':
+	edit_gid(gbl);
+	break;
+    case '=':
+	editname(gbl);
+	break;
+#ifdef	S_IFLNK
+    case '<':
+    case '>':
+	editlink(gbl, c);
+	break;
+    case 'l':
+#endif /* S_IFLNK */
+    case 'd':
+    case 'f':
+    case 'L':
+	dedmake(gbl, c);
+	break;
+
+    default:{
+	    char temp[80];
+	    FORMAT(temp, "no inline command (%c)", isprint(c) ? c : '?');
+	    dedmsg(gbl, temp);
+	}
+    }
+    (void) edit_inline(FALSE);
 }
 
 /*ARGSUSED*/
@@ -888,430 +812,497 @@ _MAIN
 {
 #include	"version.h"
 
-	int	optBox = FALSE;
-	int	optInprocess = TRUE;
-	register int	j;
-	register unsigned k;
-	auto	Stat_t	sb;
-	auto	int	c,
-			count,
-			lastc	= '?';
-	auto	char	tree_bfr[MAXPATHLEN],
-			tpath[MAXPATHLEN],
-			dpath[MAXPATHLEN];
+    int optBox = FALSE;
+    int optInprocess = TRUE;
+    int j;
+    unsigned k;
+    Stat_t sb;
+    int c, count, lastc = '?';
+    char tree_bfr[MAXPATHLEN];
+    char tpath[MAXPATHLEN];
+    char dpath[MAXPATHLEN];
 
-	RING	*gbl = ring_alloc();
+    RING *gbl = ring_alloc();
 #if defined(HAVE_NEWTERM)
-	int	do_select = FALSE;
+    int do_select = FALSE;
 #endif
 
 #ifdef LOCALE
-	setlocale(LC_ALL, "");
+    setlocale(LC_ALL, "");
 #endif
-	(void)sortset(gbl, 's', 'n');
-	(void)sscanf(version, "%*s %s %s", tpath, dpath);
-	FPRINTF(stderr, "DED Directory Editor (%s %s)\r\n", tpath, dpath);
-	/* show when entering process */
-	(void)fflush(stdout);
+    (void) sortset(gbl, 's', 'n');
+    (void) sscanf(version, "%*s %s %s", tpath, dpath);
+    FPRINTF(stderr, "DED Directory Editor (%s %s)\r\n", tpath, dpath);
+    /* show when entering process */
+    (void) fflush(stdout);
 
-	/* if curses supports line-drawing characters, try to use them */
+    /* if curses supports line-drawing characters, try to use them */
 #ifdef ACS_PLUS
-	optBox = TRUE;
+    optBox = TRUE;
 #endif
-	while ((c = getopt(argc, argv, "abeGIiOPSTUZc:l:r:s:zdt:np")) != EOF)
+    while ((c = getopt(argc, argv, "abeGIiOPSTUZc:l:r:s:zdt:np")) != EOF)
 	switch (c) {
-	case 'a':	COMPLEMENT(gbl->A_opt);	break;
-	case 'b':	optBox = !optBox;	break;
-	case 'e':	optInprocess = FALSE;	break;
-	case 'G':	COMPLEMENT(gbl->G_opt);	break;
-	case 'I':	COMPLEMENT(gbl->I_opt);	break;
+	case 'a':
+	    COMPLEMENT(gbl->A_opt);
+	    break;
+	case 'b':
+	    optBox = !optBox;
+	    break;
+	case 'e':
+	    optInprocess = FALSE;
+	    break;
+	case 'G':
+	    COMPLEMENT(gbl->G_opt);
+	    break;
+	case 'I':
+	    COMPLEMENT(gbl->I_opt);
+	    break;
 #if defined(HAVE_HAS_COLORS)
-	case 'i':	invert_colors = TRUE;	break;
+	case 'i':
+	    invert_colors = TRUE;
+	    break;
 #else
-	case 'i':	break;			/* ignored */
+	case 'i':
+	    break;		/* ignored */
 #endif
-	case 'P':	COMPLEMENT(gbl->P_opt);	break;
-	case 'S':	COMPLEMENT(gbl->S_opt);	break;
-	case 'T':	COMPLEMENT(gbl->T_opt);	break;
+	case 'P':
+	    COMPLEMENT(gbl->P_opt);
+	    break;
+	case 'S':
+	    COMPLEMENT(gbl->S_opt);
+	    break;
+	case 'T':
+	    COMPLEMENT(gbl->T_opt);
+	    break;
 #ifdef	apollo
-	case 'U':	COMPLEMENT(gbl->U_opt);	break;
+	case 'U':
+	    COMPLEMENT(gbl->U_opt);
+	    break;
 #endif
 #ifdef	Z_RCS_SCCS
-	case 'Z':	gbl->Z_opt = 1;		break;
-	case 'z':	gbl->Z_opt = -1;	break;
+	case 'Z':
+	    gbl->Z_opt = 1;
+	    break;
+	case 'z':
+	    gbl->Z_opt = -1;
+	    break;
 #endif
-	case 'c':	dlog_read(optarg);			break;
-	case 'l':	log_opt = dlog_open(optarg,argc,argv);	break;
+	case 'c':
+	    dlog_read(optarg);
+	    break;
+	case 'l':
+	    log_opt = dlog_open(optarg, argc, argv);
+	    break;
 	case 's':
-	case 'r':	if (!sortset(gbl, c,*optarg)
-			 || strlen(optarg) > 1)
-				usage();
-			break;
-	case 'd':	debug++;		break;
-	case 't':	tree_opt = optarg;	break;
-	case 'n':	no_worry = TRUE;	break;
+	case 'r':
+	    if (!sortset(gbl, c, *optarg)
+		|| strlen(optarg) > 1)
+		usage();
+	    break;
+	case 'd':
+	    debug++;
+	    break;
+	case 't':
+	    tree_opt = optarg;
+	    break;
+	case 'n':
+	    no_worry = TRUE;
+	    break;
 #if defined(HAVE_NEWTERM)
-	case 'p':	do_select = TRUE;	break;
+	case 'p':
+	    do_select = TRUE;
+	    break;
 #endif
-	default:	usage();
-			/*NOTREACHED*/
+	default:
+	    usage();
+	    /*NOTREACHED */
 	}
 
 #ifdef	Z_RCS_SCCS
-	/* if we're going to sort by checkin-date, ensure we read the dates */
-	if (needSCCS(gbl,gbl->sortopt))
-		gbl->Z_opt = -1;
-#endif	/* Z_RCS_SCCS */
+    /* if we're going to sort by checkin-date, ensure we read the dates */
+    if (needSCCS(gbl, gbl->sortopt))
+	gbl->Z_opt = -1;
+#endif /* Z_RCS_SCCS */
 
 #define	DED_TREE	".ftree"
-	if (tree_opt != 0) {
-		abspath(tree_opt = strcpy(tree_bfr, tree_opt));
-	} else {
-		if ((tree_opt = getenv("DED_TREE")) == 0)
-			tree_opt = strcpy(tree_bfr, gethome());
+    if (tree_opt != 0) {
+	abspath(tree_opt = strcpy(tree_bfr, tree_opt));
+    } else {
+	if ((tree_opt = getenv("DED_TREE")) == 0)
+	    tree_opt = strcpy(tree_bfr, gethome());
+    }
+    if (stat_dir(tree_opt, &sb) >= 0)
+	tree_opt = pathcat(tree_opt, tree_opt, DED_TREE);
+
+    if (!getwd(old_wd))
+	(void) strcpy(old_wd, ".");
+    ft_read(old_wd, tree_opt);
+
+    /* find which copy I am executing from, for future use */
+    if (which(whoami, sizeof(whoami), argv[0], old_wd) <= 0)
+	failed("which-path");
+
+    /* my help-file lives where the binary does */
+    strcpy(howami, whoami);
+    strcpy(ftype(howami), ".hlp");
+
+    /* pass options to lower-level processes of ded */
+    (void) strcat(strcat(whoami, " -t"), tree_opt);
+    if (log_opt)
+	(void) strcat(strcat(whoami, " -l"), log_opt);
+    (void) strcat(whoami, " -n");
+
+    if (!isatty(fileno(stdin))) {
+	if (optind < argc)
+	    FPRINTF(stderr, "? ignored arguments, using pipe\n");
+	argc = fp2argv(stdin, &argv, trace_pipe);
+	optind = 0;
+	for (j = 0; j < argc; j++) {
+	    char *s = argv[j];
+	    int len = strlen(s) - 1;
+	    if (len >= 0 && s[len] == '\n')
+		s[len] = EOS;	/* trim trailing newline */
 	}
-	if (stat_dir(tree_opt, &sb) >= 0)
-		tree_opt = pathcat(tree_opt, tree_opt, DED_TREE);
+    }
 
-	if (!getwd(old_wd))
-		(void)strcpy(old_wd, ".");
-	ft_read(old_wd, tree_opt);
-
-	/* find which copy I am executing from, for future use */
-	if (which(whoami, sizeof(whoami), argv[0], old_wd) <= 0)
-		failed("which-path");
-
-	/* my help-file lives where the binary does */
-	strcpy(howami, whoami);
-	strcpy(ftype(howami), ".hlp");
-
-	/* pass options to lower-level processes of ded */
-	(void)strcat(strcat(whoami, " -t"), tree_opt);
-	if (log_opt)
-		(void)strcat(strcat(whoami, " -l"), log_opt);
-	(void)strcat(whoami, " -n");
-
-	if (!isatty(fileno(stdin))) {
-		if (optind < argc)
-			FPRINTF(stderr, "? ignored arguments, using pipe\n");
-		argc = fp2argv(stdin, &argv, trace_pipe);
-		optind = 0;
-		for (j = 0; j < argc; j++) {
-			register char *s = argv[j];
-			register int  len = strlen(s) - 1;
-			if (len >= 0 && s[len] == '\n')
-				s[len] = EOS;	/* trim trailing newline */
-		}
-	}
-
-	/* protect against pipes */
-	if (!isatty(fileno(stdin))) {
+    /* protect against pipes */
+    if (!isatty(fileno(stdin))) {
 # if defined(HAVE_TTYNAME)
-		char	*tty = ttyname(fileno(stderr));
+	char *tty = ttyname(fileno(stderr));
 # else
-		char	*tty = "/dev/tty";
+	char *tty = "/dev/tty";
 # endif
-		if ((freopen(tty, "r", stdin)) == 0
-		 || !isatty(fileno(stdin)))
-			failed("reopen stdin");
-	}
+	if ((freopen(tty, "r", stdin)) == 0
+	    || !isatty(fileno(stdin)))
+	    failed("reopen stdin");
+    }
 
-	save_terminal();
+    save_terminal();
 
-	if (getenv("TERM") == 0) {
-		FPRINTF(stderr, "$TERM is not set\n");
-		return(FAIL);
-	}
+    if (getenv("TERM") == 0) {
+	FPRINTF(stderr, "$TERM is not set\n");
+	return (FAIL);
+    }
 #if defined(HAVE_NEWTERM)
-	if (!newterm(getenv("TERM"), do_select ? stderr : stdout, stdin)) {
-		FPRINTF(stderr, "newterm failed to initialize screen\n");
-		return(FAIL);
-	}
+    if (!newterm(getenv("TERM"), do_select ? stderr : stdout, stdin)) {
+	FPRINTF(stderr, "newterm failed to initialize screen\n");
+	return (FAIL);
+    }
 #else
-	if (!initscr()) {
-		FPRINTF(stderr, "initscr failed to initialize screen\n");
-		return(FAIL);
-	}
+    if (!initscr()) {
+	FPRINTF(stderr, "initscr failed to initialize screen\n");
+	return (FAIL);
+    }
 #endif
-	(void)dedsigs(TRUE);
-	(void)dedsize((RING *)0);
+    (void) dedsigs(TRUE);
+    (void) dedsize((RING *) 0);
 
 #if defined(HAVE_WSCRL)
-	(void)scrollok(stdscr, TRUE);
+    (void) scrollok(stdscr, TRUE);
 #endif
 #if defined(HAVE_HAS_COLORS)
-	init_dedcolor();
+    init_dedcolor();
 #endif
 #if defined(HAVE_TYPEAHEAD)
-	typeahead(-1);			/* disable it */
+    typeahead(-1);		/* disable it */
 #endif
-	boxchars(optBox);
+    boxchars(optBox);
 
-	in_screen = TRUE;
-	if (LINES > BUFSIZ || COLS > BUFSIZ) {
-	char	bfr[80];
-		FORMAT(bfr, "screen too big: %d by %d\n", LINES, COLS);
-		failed(bfr);
-	}
-	rawterm();
+    in_screen = TRUE;
+    if (LINES > BUFSIZ || COLS > BUFSIZ) {
+	char bfr[80];
+	FORMAT(bfr, "screen too big: %d by %d\n", LINES, COLS);
+	failed(bfr);
+    }
+    rawterm();
 
-	argc -= optind;
-	argv += optind;
-	first_scan = TRUE;
-	ring_args(gbl, argc, argv);
-	first_scan = FALSE;
+    argc -= optind;
+    argv += optind;
+    first_scan = TRUE;
+    ring_args(gbl, argc, argv);
+    first_scan = FALSE;
 
-	mark_W = (LINES/2);
-	openVIEW(gbl);
+    mark_W = (LINES / 2);
+    openVIEW(gbl);
 
-	while (gbl != 0) { switch (c = dlog_char(gbl, &count, 1)) {
-			/* scrolling */
+    while (gbl != 0) {
+	switch (c = dlog_char(gbl, &count, 1)) {
+	    /* scrolling */
 	case KEY_UP:
 	case '\b':
-	case 'k':	upLINE(gbl, count);
-			break;
+	case 'k':
+	    upLINE(gbl, count);
+	    break;
 
 	case KEY_DOWN:
 	case '\n':
-	case 'j':	downLINE(gbl, count);
-			break;
+	case 'j':
+	    downLINE(gbl, count);
+	    break;
 
-	case KEY_HOME:	upLINE(gbl, gbl->curfile);
-			break;
+	case KEY_HOME:
+	    upLINE(gbl, gbl->curfile);
+	    break;
 
-	case KEY_END:	downLINE(gbl, gbl->numfiles - gbl->curfile);
-			break;
+	case KEY_END:
+	    downLINE(gbl, gbl->numfiles - gbl->curfile);
+	    break;
 
 	case KEY_NPAGE:
-	case 'f':	scrollVIEW(gbl, count);
-			break;
+	case 'f':
+	    scrollVIEW(gbl, count);
+	    break;
 
 	case KEY_PPAGE:
-	case 'b':	scrollVIEW(gbl, -count);
-			break;
+	case 'b':
+	    scrollVIEW(gbl, -count);
+	    break;
 
 #ifndef	NO_XTERM_MOUSE
 	case KEY_MOUSE:
-			if (xt_mouse.released) {
-				if (xt_mouse.button == 1) {
-					gbl = row2VIEW(gbl, xt_mouse.row);
-					if (xt_mouse.dbl_clik) {
-						j = (realstat(gbl, gbl->curfile, &sb)) ? 'E' : CTL('v');
-						(void)ungetch(j);
-					}
-				} else {
-					beep();
-				}
-			}
-			break;
+	    if (xt_mouse.released) {
+		if (xt_mouse.button == 1) {
+		    gbl = row2VIEW(gbl, xt_mouse.row);
+		    if (xt_mouse.dbl_clik) {
+			j = (realstat(gbl, gbl->curfile, &sb)) ? 'E' : CTL('v');
+			(void) ungetch(j);
+		    }
+		} else {
+		    beep();
+		}
+	    }
+	    break;
 #endif
-	case KEY_LEFT:	if (gbl->Xbase > 0) {
-				if ((gbl->Xbase -= x_scroll() * count) < 0)
-					gbl->Xbase = 0;
-				showFILES(gbl,FALSE);
-			} else
-				dedmsg(gbl, "already at left margin");
-			break;
+	case KEY_LEFT:
+	    if (gbl->Xbase > 0) {
+		if ((gbl->Xbase -= x_scroll() * count) < 0)
+		    gbl->Xbase = 0;
+		showFILES(gbl, FALSE);
+	    } else
+		dedmsg(gbl, "already at left margin");
+	    break;
 
-	case KEY_RIGHT:	if ((j = (gbl->Xbase + (x_scroll() * count))) < 990) {
-				gbl->Xbase = j;
-				showFILES(gbl,FALSE);
-			} else
-				beep();
-			break;
+	case KEY_RIGHT:
+	    if ((j = (gbl->Xbase + (x_scroll() * count))) < 990) {
+		gbl->Xbase = j;
+		showFILES(gbl, FALSE);
+	    } else
+		beep();
+	    break;
 
-			/* cursor-movement in-screen */
-	case 'H':	gbl->curfile = baseVIEW();
-			showC(gbl);
-			break;
-	case 'M':	gbl->curfile = (baseVIEW()+lastVIEW())/2;
-			showC(gbl);
-			break;
-	case 'L':	gbl->curfile = lastVIEW();
-			showC(gbl);
-			break;
-	case '^':	top2VIEW(gbl);
-			break;
+	    /* cursor-movement in-screen */
+	case 'H':
+	    gbl->curfile = baseVIEW();
+	    showC(gbl);
+	    break;
+	case 'M':
+	    gbl->curfile = (baseVIEW() + lastVIEW()) / 2;
+	    showC(gbl);
+	    break;
+	case 'L':
+	    gbl->curfile = lastVIEW();
+	    showC(gbl);
+	    break;
+	case '^':
+	    top2VIEW(gbl);
+	    break;
 
-			/* display-toggles */
+	    /* display-toggles */
 #ifdef	S_IFLNK
-	case '@':	COMPLEMENT(gbl->AT_opt);
-			count = 0;
-			set_dedblip(gbl);
-			for_each_file(gbl,k) {
-				if (gLTXT(k)) {
-					put_dedblip('@');
-					statLINE(gbl, k);
-					count++;
-				} else
-					put_dedblip('.');
-			}
-			if (count)
-				showFILES(gbl,TRUE);
-			else
-				showC(gbl);
-			break;
-#endif	/* S_IFLNK */
+	case '@':
+	    COMPLEMENT(gbl->AT_opt);
+	    count = 0;
+	    set_dedblip(gbl);
+	    for_each_file(gbl, k) {
+		if (gLTXT(k)) {
+		    put_dedblip('@');
+		    statLINE(gbl, k);
+		    count++;
+		} else
+		    put_dedblip('.');
+	    }
+	    if (count)
+		showFILES(gbl, TRUE);
+	    else
+		showC(gbl);
+	    break;
+#endif /* S_IFLNK */
 
-			/* note that '.' and '..' may be the only files! */
-	case '&':	COMPLEMENT(gbl->A_opt); /* sorry about inconsistency */
-			gbl = rescan(gbl, TRUE);
-			break;
-	case 'G':	gbl->G_opt = one_or_both(j = gbl->G_opt,count);
-			showFILES(gbl,(gbl->G_opt < 2) != (j < 2));
-			break;
-	case 'I':	gbl->I_opt = one_or_both(j = gbl->I_opt,count);
-			showFILES(gbl,gbl->I_opt != j);
-			break;
-	case 'P':	gbl->P_opt = one_or_both(j = gbl->P_opt,count);
-			showFILES(gbl,gbl->P_opt != j);
-			break;
-	case 'S':	gbl->S_opt = one_or_both(j = gbl->S_opt,count);
-			showFILES(gbl,gbl->S_opt != j);
-			break;
-	case 'T':	gbl->T_opt = one_or_both(j = gbl->T_opt,count);
-			showFILES(gbl,gbl->T_opt != j);
-			break;
+	    /* note that '.' and '..' may be the only files! */
+	case '&':
+	    COMPLEMENT(gbl->A_opt);	/* sorry about inconsistency */
+	    gbl = rescan(gbl, TRUE);
+	    break;
+	case 'G':
+	    gbl->G_opt = one_or_both(j = gbl->G_opt, count);
+	    showFILES(gbl, (gbl->G_opt < 2) != (j < 2));
+	    break;
+	case 'I':
+	    gbl->I_opt = one_or_both(j = gbl->I_opt, count);
+	    showFILES(gbl, gbl->I_opt != j);
+	    break;
+	case 'P':
+	    gbl->P_opt = one_or_both(j = gbl->P_opt, count);
+	    showFILES(gbl, gbl->P_opt != j);
+	    break;
+	case 'S':
+	    gbl->S_opt = one_or_both(j = gbl->S_opt, count);
+	    showFILES(gbl, gbl->S_opt != j);
+	    break;
+	case 'T':
+	    gbl->T_opt = one_or_both(j = gbl->T_opt, count);
+	    showFILES(gbl, gbl->T_opt != j);
+	    break;
 #ifdef	apollo
-	case 'U':	COMPLEMENT(gbl->U_opt);
-			showFILES(gbl, FALSE);
-			break;
+	case 'U':
+	    COMPLEMENT(gbl->U_opt);
+	    showFILES(gbl, FALSE);
+	    break;
 #endif
 
 #ifdef	Z_RCS_SCCS
-	case 'V':	/* toggle sccs-version display */
-			showSCCS(gbl);
-			gbl->V_opt = !gbl->V_opt;
-			showFILES(gbl,TRUE);
-			break;
+	case 'V':		/* toggle sccs-version display */
+	    showSCCS(gbl);
+	    gbl->V_opt = !gbl->V_opt;
+	    showFILES(gbl, TRUE);
+	    break;
 
-	case 'O':	/* show owner of file lock */
-			showSCCS(gbl);
-			gbl->O_opt = !gbl->O_opt;
-			showFILES(gbl,TRUE);
-			break;
+	case 'O':		/* show owner of file lock */
+	    showSCCS(gbl);
+	    gbl->O_opt = !gbl->O_opt;
+	    showFILES(gbl, TRUE);
+	    break;
 
-	case 'Z':	/* toggle sccs-date display */
-			showSCCS(gbl);
-			gbl->Z_opt = -gbl->Z_opt;
-			showFILES(gbl,TRUE);
-			break;
+	case 'Z':		/* toggle sccs-date display */
+	    showSCCS(gbl);
+	    gbl->Z_opt = -gbl->Z_opt;
+	    showFILES(gbl, TRUE);
+	    break;
 
-	case 'z':	/* cancel sccs-display */
-			if (gbl->Z_opt) {
-				gbl->Z_opt = 0;
-				showFILES(gbl,TRUE);
-			}
-			break;
-#endif	/* Z_RCS_SCCS */
+	case 'z':		/* cancel sccs-display */
+	    if (gbl->Z_opt) {
+		gbl->Z_opt = 0;
+		showFILES(gbl, TRUE);
+	    }
+	    break;
+#endif /* Z_RCS_SCCS */
 
-	case 'q':	/* quit this process */
-			if (lastc == 't')
-				retouch(gbl, mark_W+1);
-			else if (user_says(gbl, no_worry))
-				gbl = 0;
-			break;
+	case 'q':		/* quit this process */
+	    if (lastc == 't')
+		retouch(gbl, mark_W + 1);
+	    else if (user_says(gbl, no_worry))
+		gbl = 0;
+	    break;
 
-			/* move work-area marker */
-	case 'A':	count = -count;
+	    /* move work-area marker */
+	case 'A':
+	    count = -count;
 	case 'a':
-			markset(gbl, mark_W + count);
-			break;
+	    markset(gbl, mark_W + count);
+	    break;
 
-	case CTL('R'):	/* modify read-expression */
-			while (dedread(gbl, &gbl->toscan, gbl->numfiles == 0)) {
-				RING *tmp;
-				if ((tmp = rescan(gbl, FALSE)) != NULL) {
-					gbl = tmp;
-					break;
-				}
-			}
-			break;
+	case CTL('R'):		/* modify read-expression */
+	    while (dedread(gbl, &gbl->toscan, gbl->numfiles == 0)) {
+		RING *tmp;
+		if ((tmp = rescan(gbl, FALSE)) != NULL) {
+		    gbl = tmp;
+		    break;
+		}
+	    }
+	    break;
 
-	case 'R':	/* re-stat display-list */
-			gbl = rescan(gbl, TRUE);
-			break;
+	case 'R':		/* re-stat display-list */
+	    gbl = rescan(gbl, TRUE);
+	    break;
 
-	case 'W':	/* re-stat window */
-			resleep(gbl, count,restat_W);
-			break;
+	case 'W':		/* re-stat window */
+	    resleep(gbl, count, restat_W);
+	    break;
 
-	case 'w':	/* refresh window */
-			retouch(gbl, 0);
-			break;
+	case 'w':		/* refresh window */
+	    retouch(gbl, 0);
+	    break;
 
-	case 'l':	/* re-stat line */
-			resleep(gbl, count,restat_l);
-			break;
+	case 'l':		/* re-stat line */
+	    resleep(gbl, count, restat_l);
+	    break;
 
-	case ' ':	/* clear workspace */
+	case ' ':		/* clear workspace */
 #if	!defined(CURSES_LIKE_BSD)
-			if (lastc == c)
-				clearok(stdscr, TRUE);
+	    if (lastc == c)
+		clearok(stdscr, TRUE);
 #endif
-			retouch(gbl, mark_W+1);
-			break;
+	    retouch(gbl, mark_W + 1);
+	    break;
 
 	case 'r':
-	case 's':	j = dlog_char(gbl, (int *)0, 0);
-			if ((gbl->tagsort = (j == '+')) != 0)
-				j = dlog_char(gbl, (int *)0, 0);
-			if (!(j = sortget(gbl, j)))
-				;
-			else if (sortset(gbl, c,j)) {
+	case 's':
+	    j = dlog_char(gbl, (int *) 0, 0);
+	    if ((gbl->tagsort = (j == '+')) != 0)
+		j = dlog_char(gbl, (int *) 0, 0);
+	    if (!(j = sortget(gbl, j))) ;
+	    else if (sortset(gbl, c, j)) {
 #ifdef	Z_RCS_SCCS
-				if (needSCCS(gbl,j))
-					showSCCS(gbl);
-#endif	/* Z_RCS_SCCS */
-				dedsort(gbl);
-				(void)to_file(gbl);
-				showFILES(gbl,FALSE);
-			} else
-				dedmsg(gbl, "unknown sort-key");
-			break;
+		if (needSCCS(gbl, j))
+		    showSCCS(gbl);
+#endif /* Z_RCS_SCCS */
+		dedsort(gbl);
+		(void) to_file(gbl);
+		showFILES(gbl, FALSE);
+	    } else
+		dedmsg(gbl, "unknown sort-key");
+	    break;
 
-	case 'C':	gbl->dateopt += 1;
-			if (gbl->dateopt > 2)	gbl->dateopt = 0;
-			showFILES(gbl,FALSE);
-			break;
+	case 'C':
+	    gbl->dateopt += 1;
+	    if (gbl->dateopt > 2)
+		gbl->dateopt = 0;
+	    showFILES(gbl, FALSE);
+	    break;
 
-	case '#':	/* tag files with duplicated fields */
-			deduniq(gbl, count);
-			count_tags(gbl);
-			showFILES(gbl,FALSE);
-			break;
+	case '#':		/* tag files with duplicated fields */
+	    deduniq(gbl, count);
+	    count_tags(gbl);
+	    showFILES(gbl, FALSE);
+	    break;
 
-			/* tag/untag specific files */
-	case '+':	tag_entry(gbl, gbl->curfile, count);
-			downLINE(gbl, count);
-			showFILES(gbl,FALSE);
-			break;
+	    /* tag/untag specific files */
+	case '+':
+	    tag_entry(gbl, gbl->curfile, count);
+	    downLINE(gbl, count);
+	    showFILES(gbl, FALSE);
+	    break;
 
-	case '-':	untag_entry(gbl, gbl->curfile, count);
-			downLINE(gbl, count);
-			showFILES(gbl,FALSE);
-			break;
+	case '-':
+	    untag_entry(gbl, gbl->curfile, count);
+	    downLINE(gbl, count);
+	    showFILES(gbl, FALSE);
+	    break;
 
-	case '_':	for_each_file(gbl,k)
-				untag_entry(gbl,k,1);
-			init_tags(gbl);
-			showFILES(gbl,FALSE);
-			break;
+	case '_':
+	    for_each_file(gbl, k)
+		untag_entry(gbl, k, 1);
+	    init_tags(gbl);
+	    showFILES(gbl, FALSE);
+	    break;
 
-	case CTL('G'):	gbl->tag_opt = one_or_both(j = gbl->tag_opt,count);
-			if (gbl->tag_opt != j) {
-				showWHAT(gbl);
-				showC(gbl);
-			}
-			break;
+	case CTL('G'):
+	    gbl->tag_opt = one_or_both(j = gbl->tag_opt, count);
+	    if (gbl->tag_opt != j) {
+		showWHAT(gbl);
+		showC(gbl);
+	    }
+	    break;
 
-			/* edit specific fields */
-	case '\'':	ReplayFind(
-				inline_nesting(gbl,
-					dlog_char(gbl, (int *)0, FALSE)));
-			ReplayTrim();	/* chop off endc */
-	case '"':	inline_command(gbl, edit_inline(TRUE));
-			break;
+	    /* edit specific fields */
+	case '\'':
+	    ReplayFind(
+			  inline_nesting(gbl,
+					 dlog_char(gbl, (int *) 0, FALSE)));
+	    ReplayTrim();	/* chop off endc */
+	case '"':
+	    inline_command(gbl, edit_inline(TRUE));
+	    break;
 
 	case 'p':
 	case 'u':
@@ -1319,103 +1310,110 @@ _MAIN
 	case '=':
 	case '<':
 	case '>':
-	case 'c':	inline_command(gbl, ReplayInit(inline_nesting(gbl,c)));
-			break;
+	case 'c':
+	    inline_command(gbl, ReplayInit(inline_nesting(gbl, c)));
+	    break;
 
-	case 'm':	to_work(gbl,TRUE);
-			forkfile(gbl, ENV(PAGER), cNAME, TRUE+1);
-			break;
+	case 'm':
+	    to_work(gbl, TRUE);
+	    forkfile(gbl, ENV(PAGER), cNAME, TRUE + 1);
+	    break;
 
-			/* page thru files in work area */
-	case 'h':	dedtype(gbl, howami,-1,FALSE,FALSE,FALSE);
-			c = 't';	/* force work-clear if 'q' */
-			break;
-	case 't':	if ((j = realstat(gbl, gbl->curfile, &sb)) >= 0)
-				dedtype(gbl, cNAME,gbl->curfile,(count != 1),(count>2),j);
-			break;
+	    /* page thru files in work area */
+	case 'h':
+	    dedtype(gbl, howami, -1, FALSE, FALSE, FALSE);
+	    c = 't';		/* force work-clear if 'q' */
+	    break;
+	case 't':
+	    if ((j = realstat(gbl, gbl->curfile, &sb)) >= 0)
+		dedtype(gbl, cNAME, gbl->curfile, (count != 1), (count > 2), j);
+	    break;
 
-	case '%':	/* execute shell command with screen refresh */
-	case '!':	/* execute shell command w/o screen refresh */
-			count = (c == '!') ? 0 : 2; /* force refresh-sense */
-	case '.':	/* re-execute last shell command */
-	case ':':	/* edit last shell command */
-			deddoit(gbl, c,count);
-			break;
+	case '%':		/* execute shell command with screen refresh */
+	case '!':		/* execute shell command w/o screen refresh */
+	    count = (c == '!') ? 0 : 2;		/* force refresh-sense */
+	case '.':		/* re-execute last shell command */
+	case ':':		/* edit last shell command */
+	    deddoit(gbl, c, count);
+	    break;
 
-	case '*':	/* display last shell command(s) */
-			show_history(gbl, count);
-			break;
+	case '*':		/* display last shell command(s) */
+	    show_history(gbl, count);
+	    break;
 
 	case '/':
 	case '?':
 	case 'n':
-	case 'N':	/* execute a search command */
-			dedfind(gbl, c);
-			break;
+	case 'N':		/* execute a search command */
+	    dedfind(gbl, c);
+	    break;
 
-	case 'D':	/* toggle directory/filelist mode */
-			(void)strcpy(dpath, strcpy(tpath, gbl->new_wd) );
-			for (;;) {
-				RING *tmp;
-				tree_visible = TRUE;
-				gbl = ft_view(gbl, tpath, &c);
-				tree_visible = FALSE;
-				if (c == 'e' && !optInprocess)
-					new_process(gbl, tpath);
-				else if ((tmp = new_tree(gbl, tpath, c)) != NULL) {
-					gbl = tmp;
-					break;
-				}
-			}
-			break;
+	case 'D':		/* toggle directory/filelist mode */
+	    (void) strcpy(dpath, strcpy(tpath, gbl->new_wd));
+	    for (;;) {
+		RING *tmp;
+		tree_visible = TRUE;
+		gbl = ft_view(gbl, tpath, &c);
+		tree_visible = FALSE;
+		if (c == 'e' && !optInprocess)
+		    new_process(gbl, tpath);
+		else if ((tmp = new_tree(gbl, tpath, c)) != NULL) {
+		    gbl = tmp;
+		    break;
+		}
+	    }
+	    break;
 
-	case CTL('e'):	/* pad-edit */
-	case CTL('v'):	/* pad-view */
+	case CTL('e'):		/* pad-edit */
+	case CTL('v'):		/* pad-view */
 	case 'e':
-	case 'v':	/* enter new process with current file */
-			if (!optInprocess
-			 || !realstat(gbl, gbl->curfile, &sb)
-			 || iscntrl(c)) {
-				gbl = run_editor(gbl, (c & 037) != CTL('e'), (int)iscntrl(c));
-				break;
-			}
-			/*FALLTHRU*/
+	case 'v':		/* enter new process with current file */
+	    if (!optInprocess
+		|| !realstat(gbl, gbl->curfile, &sb)
+		|| iscntrl(c)) {
+		gbl = run_editor(gbl, (c & 037) != CTL('e'), (int) iscntrl(c));
+		break;
+	    }
+	    /*FALLTHRU */
 
-	case 'E':	/* enter new directory on ring */
-			gbl = edit_directory(gbl);
-			break;
+	case 'E':		/* enter new directory on ring */
+	    gbl = edit_directory(gbl);
+	    break;
 
-	case 'F':	/* move forward in directory-ring */
-	case 'B':	/* move backward in directory-ring */
-			gbl = old_args(gbl, c, count);
-			break;
+	case 'F':		/* move forward in directory-ring */
+	case 'B':		/* move backward in directory-ring */
+	    gbl = old_args(gbl, c, count);
+	    break;
 
-	case CTL('K'):	/* dump the current screen */
-			deddump(gbl);
-			break;
+	case CTL('K'):		/* dump the current screen */
+	    deddump(gbl);
+	    break;
 
-	case 'Y':	/* FIXME: reserve for vertical split */
-			beep();
-			break;
+	case 'Y':		/* FIXME: reserve for vertical split */
+	    beep();
+	    break;
 
-	case 'X':	/* split/join screen (1 or 2 viewports) */
-			gbl = splitVIEW(gbl);
-			break;
+	case 'X':		/* split/join screen (1 or 2 viewports) */
+	    gbl = splitVIEW(gbl);
+	    break;
 
-	case '\t':	/* tab to next viewport */
-			gbl = tab2VIEW(gbl);
-			break;
+	case '\t':		/* tab to next viewport */
+	    gbl = tab2VIEW(gbl);
+	    break;
 
-	default:	beep();
-	}; lastc = c; }
+	default:
+	    beep();
+	};
+	lastc = c;
+    }
 
-	to_exit(TRUE);
+    to_exit(TRUE);
 #if defined(HAVE_NEWTERM)
-	if (do_select)
-		ring_tags();
+    if (do_select)
+	ring_tags();
 #endif
-	ft_write();
-	dlog_exit(SUCCESS);
-	/*NOTREACHED*/
-	return(SUCCESS);
+    ft_write();
+    dlog_exit(SUCCESS);
+    /*NOTREACHED */
+    return (SUCCESS);
 }

@@ -3,6 +3,7 @@
  * Author:	T.E.Dickey
  * Created:	03 Aug 1988
  * Modified:
+ *		07 Mar 2004, remove K&R support, indent'd
  *		29 May 1998, compile with g++
  *		26 Jun 1994, catch INTR only when flag argument is TRUE.
  *		29 Oct 1993, ifdef-ident
@@ -21,63 +22,64 @@
 
 #include	"ded.h"
 
-MODULE_ID("$Id: dedsigs.c,v 12.12 1998/05/30 02:08:52 tom Exp $")
+MODULE_ID("$Id: dedsigs.c,v 12.13 2004/03/07 23:25:18 tom Exp $")
 
-static	int	caught;		/* counts number of interrupts */
-static	int	init	= -1;	/* last-flag, to prevent redundant 'signal()' */
+static int caught;		/* counts number of interrupts */
+static int init = -1;		/* last-flag, to prevent redundant 'signal()' */
 
 /*
  * Catch "intr" signals.
  */
-private	SIGNAL_FUNC(intr_catcher)
+static
+SIGNAL_FUNC(intr_catcher)
 {
-	(void)signal (sig,  intr_catcher);
-	beep();
-	caught++;
+    (void) signal(sig, intr_catcher);
+    beep();
+    caught++;
 }
 
-private	SIGNAL_FUNC(dedquit)
+static
+SIGNAL_FUNC(dedquit)
 {
-	static	char	msg[] = "** quit **";
-	auto	char	temp[BUFSIZ];
+    static char msg[] = "** quit **";
+    char temp[BUFSIZ];
 
-	(void)strcpy(temp, msg);
-	if (sig != SIGQUIT)
-		FORMAT(temp + strlen(temp), " (signal %d)", sig);
-	(void)strcat(temp, "\n");
+    (void) strcpy(temp, msg);
+    if (sig != SIGQUIT)
+	FORMAT(temp + strlen(temp), " (signal %d)", sig);
+    (void) strcat(temp, "\n");
 
-	to_exit(1);
-	FPRINTF(stderr, temp);
-	dlog_comment(temp);
+    to_exit(1);
+    FPRINTF(stderr, temp);
+    dlog_comment(temp);
 
-	dlog_exit(FAIL);
+    dlog_exit(FAIL);
 }
 
 /*
  * Process signals: we may catch interrupts, but try to clean up and exit if
  * we get a quit-signal.
  */
-public	int	dedsigs (
-	_AR1(int,	flag))
-	_DCL(int,	flag)
+int
+dedsigs(int flag)
 {
-	int	code	= caught;
+    int code = caught;
 
-	caught = 0;		/* reset interrupt-count */
-	if (flag != init) {
-		if (init < 0) {
-			(void)signal (SIGHUP,  dedquit);
-			(void)signal (SIGTERM, dedquit);
-		}
-		init = flag;
-		if (flag) {
-			(void)signal(SIGINT,  intr_catcher);
-			(void)signal(SIGQUIT, dedquit);
-		} else {
-			(void)signal(SIGINT,  SIG_DFL);
-			(void)signal(SIGQUIT, SIG_IGN);
-		}
-		enable_winch(flag);
+    caught = 0;			/* reset interrupt-count */
+    if (flag != init) {
+	if (init < 0) {
+	    (void) signal(SIGHUP, dedquit);
+	    (void) signal(SIGTERM, dedquit);
 	}
-	return (code);		/* return number of interrupts we had */
+	init = flag;
+	if (flag) {
+	    (void) signal(SIGINT, intr_catcher);
+	    (void) signal(SIGQUIT, dedquit);
+	} else {
+	    (void) signal(SIGINT, SIG_DFL);
+	    (void) signal(SIGQUIT, SIG_IGN);
+	}
+	enable_winch(flag);
+    }
+    return (code);		/* return number of interrupts we had */
 }

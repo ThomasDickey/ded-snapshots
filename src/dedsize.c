@@ -3,6 +3,7 @@
  * Author:	T.E.Dickey
  * Created:	26 Jun 1994
  * Modified:
+ *		07 Mar 2004, remove K&R support, indent'd
  *
  * Function:	Detect resizing of the window within which DED is running,
  *		and adjust the curses screen (if possible).
@@ -21,38 +22,38 @@
 
 #include "ded.h"
 
-MODULE_ID("$Id: dedsize.c,v 12.8 1995/04/02 00:35:30 tom Exp $")
+MODULE_ID("$Id: dedsize.c,v 12.9 2004/03/07 23:25:18 tom Exp $")
 
 #ifdef	SIGWINCH
 
-static	RING	*save_gbl;
+static RING *save_gbl;
 
-private	void	handle_resize (_AR0)
+static void
+handle_resize(void)
 {
-	static	int	working;	/* latch for repeated interrupts */
+    static int working;		/* latch for repeated interrupts */
 
-	if (save_gbl != 0) {
-		if (!working++) {
-			dlog_comment("resizewin LINES=%d, COLS=%d\n", LINES, COLS);
-			if (!ft_resize()) {
-				markset(save_gbl, mark_W);
-				/*patch showFILES(save_gbl, FALSE); */
-				if (gets_active)
-					dlog_resize();
-			}
-		}
-		working--;
+    if (save_gbl != 0) {
+	if (!working++) {
+	    dlog_comment("resizewin LINES=%d, COLS=%d\n", LINES, COLS);
+	    if (!ft_resize()) {
+		markset(save_gbl, mark_W);
+		/*patch showFILES(save_gbl, FALSE); */
+		if (gets_active)
+		    dlog_resize();
+	    }
 	}
+	working--;
+    }
 }
-#endif	/* SIGWINCH */
+#endif /* SIGWINCH */
 
-public	void	dedsize (
-		_AR1(RING *,	gbl))
-		_DCL(RING *,	gbl)
+void
+dedsize(RING * gbl)
 {
 #ifdef	SIGWINCH
-	static	void	(*dummy)(_AR0);
-	save_gbl = gbl;
-	on_winch(gbl ? handle_resize : dummy);
-#endif	/* SIGWINCH */
+    static void (*dummy) (void);
+    save_gbl = gbl;
+    on_winch(gbl ? handle_resize : dummy);
+#endif /* SIGWINCH */
 }

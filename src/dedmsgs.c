@@ -3,6 +3,7 @@
  * Author:	T.E.Dickey
  * Created:	07 Apr 1992, from 'ded.c'
  * Modified:
+ *		07 Mar 2004, remove K&R support, indent'd
  *		29 Oct 1993, ifdef-ident
  *		28 Sep 1993, gcc warnings
  *
@@ -11,82 +12,69 @@
 
 #include	"ded.h"
 
-MODULE_ID("$Id: dedmsgs.c,v 12.10 1995/11/05 21:39:26 tom Exp $")
+MODULE_ID("$Id: dedmsgs.c,v 12.11 2004/03/07 23:25:18 tom Exp $")
 
 /*
  * Clear the message-line
  */
-public	void	clearmsg(_AR0)
+void
+clearmsg(void)
 {
-	move(LINES-1,0);
-	clrtoeol();		/* clear off the waiting-message */
+    move(LINES - 1, 0);
+    clrtoeol();			/* clear off the waiting-message */
 }
 
 /*
  * Print an error/warning message, optionally pausing
  */
-private	void	show_message(
-	_ARX(RING *,	gbl)
-	_ARX(char *,	tag)
-	_AR1(char *,	msg)
-		)
-	_DCL(RING *,	gbl)
-	_DCL(char *,	tag)
-	_DCL(char *,	msg)
+static void
+show_message(RING * gbl, char *tag, char *msg)
 {
-	if (in_screen) {
-		move(LINES-1,0);
-		PRINTW("** %.*s", COLS-4, msg);
-		clrtoeol();
-		if (gbl == 0) {
-			/* pause beside error message */
-			/* ...and clear it after pause */
-			move(LINES-1,0);
-			beep();
-			(void)dlog_char(gbl, (int *)0, -1);
-			clrtoeol();
-		} else
-			showC(gbl);
-	} else {
-		FPRINTF(stderr, "?? %s\n", msg);
-	}
-	dlog_comment("(%s) %s\n", tag, msg);
+    if (in_screen) {
+	move(LINES - 1, 0);
+	PRINTW("** %.*s", COLS - 4, msg);
+	clrtoeol();
+	if (gbl == 0) {
+	    /* pause beside error message */
+	    /* ...and clear it after pause */
+	    move(LINES - 1, 0);
+	    beep();
+	    (void) dlog_char(gbl, (int *) 0, -1);
+	    clrtoeol();
+	} else
+	    showC(gbl);
+    } else {
+	FPRINTF(stderr, "?? %s\n", msg);
+    }
+    dlog_comment("(%s) %s\n", tag, msg);
 }
 
-private	char *	err_msg (
-	_AR1(char *,	msg))
-	_DCL(char *,	msg)
+static char *
+err_msg(char *msg)
 {
-	static	char	*bfr;
-	char	*text	= strerror(errno);
+    static char *bfr;
+    char *text = strerror(errno);
 
-	if (bfr == 0)
-		bfr = malloc(BUFSIZ);
-	if (bfr == 0)
-		abort();
-	if (msg == 0)	msg = "?";
-	FORMAT(bfr, "%s: %s", msg, text);
-	return (bfr);
+    if (bfr == 0)
+	bfr = malloc(BUFSIZ);
+    if (bfr == 0)
+	abort();
+    if (msg == 0)
+	msg = "?";
+    FORMAT(bfr, "%s: %s", msg, text);
+    return (bfr);
 }
 
-public	void	dedmsg(
-	_ARX(RING *,	gbl)
-	_AR1(char *,	msg)
-		)
-	_DCL(RING *,	gbl)
-	_DCL(char *,	msg)
+void
+dedmsg(RING * gbl, char *msg)
 {
-	show_message(gbl, "dedmsg", msg);
+    show_message(gbl, "dedmsg", msg);
 }
 
-public	void	warn(
-	_ARX(RING *,	gbl)
-	_AR1(char *,	msg)
-		)
-	_DCL(RING *,	gbl)
-	_DCL(char *,	msg)
+void
+warn(RING * gbl, char *msg)
 {
-	show_message(gbl, "warn", err_msg(msg));
+    show_message(gbl, "warn", err_msg(msg));
 }
 
 /*
@@ -94,16 +82,14 @@ public	void	warn(
  * used when we have put a message up and may be going back to the
  * directory tree display.
  */
-void	waitmsg (
-	_AR1(char *,	msg))
-	_DCL(char *,	msg)
+void
+waitmsg(char *msg)
 {
-	show_message((RING *)0, "waitmsg", msg);
+    show_message((RING *) 0, "waitmsg", msg);
 }
 
-void	wait_warn (
-	_AR1(char *,	msg))
-	_DCL(char *,	msg)
+void
+wait_warn(char *msg)
 {
-	waitmsg(err_msg(msg));
+    waitmsg(err_msg(msg));
 }
