@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	sccs_id[] = "$Header: /users/source/archives/ded.vcs/src/RCS/dedline.c,v 2.0 1989/03/14 13:19:29 ste_cm Exp $";
+static	char	sccs_id[] = "$Header: /users/source/archives/ded.vcs/src/RCS/dedline.c,v 3.0 1989/06/12 13:12:51 ste_cm Rel $";
 #endif	lint
 
 /*
@@ -7,9 +7,16 @@ static	char	sccs_id[] = "$Header: /users/source/archives/ded.vcs/src/RCS/dedline
  * Author:	T.E.Dickey
  * Created:	01 Aug 1988 (from 'ded.c')
  * $Log: dedline.c,v $
- * Revision 2.0  1989/03/14 13:19:29  ste_cm
- * BASELINE Thu Apr  6 13:14:13 EDT 1989
+ * Revision 3.0  1989/06/12 13:12:51  ste_cm
+ * BASELINE Mon Jun 19 14:21:57 EDT 1989
  *
+ *		Revision 2.1  89/06/12  13:12:51  dickey
+ *		corrected '<' command-substitution, which lost chars after
+ *		the '#' substitution.
+ *		
+ *		Revision 2.0  89/03/14  13:19:29  ste_cm
+ *		BASELINE Thu Apr  6 13:14:13 EDT 1989
+ *		
  *		Revision 1.14  89/03/14  13:19:29  dickey
  *		sccs2rcs keywords
  *		
@@ -211,7 +218,7 @@ char	*bfr;
 			}
 		} else if (*d == '#') {
 			t = xNAME(x);
-			while (*d++ = *t++);
+			while (*d = *t++)	d++;
 		} else
 			d++;
 	}
