@@ -1,5 +1,5 @@
 #ifndef	NO_SCCS_ID
-static	char	sccs_id[] = "@(#)ded.c	1.19 88/05/09 11:11:37";
+static	char	sccs_id[] = "@(#)ded.c	1.20 88/05/10 13:17:50";
 #endif	NO_SCCS_ID
 
 /*
@@ -28,7 +28,7 @@ static	char	sccs_id[] = "@(#)ded.c	1.19 88/05/09 11:11:37";
 #include	"ded.h"
 #include	<ctype.h>
 extern	char	*getenv(),
-		*stralloc(),
+		*txtalloc(),
 		*strchr();
 
 #ifndef	EDITOR
@@ -838,8 +838,8 @@ char	bfr[BUFSIZ];
 	}
 
 	if (ok) {
-		strfree(flist[x].name);
-		flist[x].name = stralloc(newname);
+		txtfree(flist[x].name);
+		flist[x].name = txtalloc(newname);
 	}
 	return (0);
 }

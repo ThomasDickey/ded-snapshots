@@ -1,5 +1,5 @@
 #ifndef	NO_SCCS_ID
-static	char	sccs_id[] = "@(#)dedscan.c	1.8 88/05/09 07:25:28";
+static	char	sccs_id[] = "@(#)dedscan.c	1.9 88/05/10 13:18:54";
 #endif	NO_SCCS_ID
 
 /*
@@ -8,7 +8,7 @@ static	char	sccs_id[] = "@(#)dedscan.c	1.8 88/05/09 07:25:28";
  * Created:	09 Nov 1987
  * Modified:
  *		09 May 1988, corrected full-name computation for ftree.
- *		22 Apr 1988, use external 'stralloc()', integrated with ftree.
+ *		22 Apr 1988, use external 'txtalloc()', integrated with ftree.
  *
  * Function:	Scan a list of arguments, to make up a display list.
  * Arguments:   argc, argv passed down from the original invocation, with
@@ -16,7 +16,7 @@ static	char	sccs_id[] = "@(#)dedscan.c	1.8 88/05/09 07:25:28";
  */
 #include	"ded.h"
 extern	FLIST	*dedfree();
-extern	char	*stralloc();
+extern	char	*txtalloc();
 
 /************************************************************************
  *	dedscan(@)							*
@@ -128,7 +128,7 @@ register int j = lookup(name);
 
 	Zero(&flist[numfiles]);
 	flist[numfiles]      = *f_;
-	flist[numfiles].name = stralloc(name);
+	flist[numfiles].name = txtalloc(name);
 	numfiles++;
 }
 
@@ -153,7 +153,7 @@ ReZero(f_)
 FLIST	*f_;
 {
 char	*name = f_->name;
-	if (f_->ltxt)	free(f_->ltxt);
+	if (f_->ltxt)	txtfree(f_->ltxt);
 	Zero(f_);
 	f_->name = name;
 }
@@ -184,8 +184,8 @@ char	bfr[BUFSIZ];
 		len = readlink(name, bfr, sizeof(bfr));
 		if (len > 0) {
 			bfr[len] = EOS;
-			if (f_->ltxt)	strfree(f_->ltxt);
-			f_->ltxt = stralloc(bfr);
+			if (f_->ltxt)	txtfree(f_->ltxt);
+			f_->ltxt = txtalloc(bfr);
 		}
 	}
 #ifdef	Z_SCCS

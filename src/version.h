@@ -1,5 +1,6 @@
 /*
  * Version-identifier for DED
+ * 10 May 1988, use 'txtalloc()' to reduce the amount of malloc/realloc.
  * 09 May 1988, ported from Apollo to Sun (gould).
  * 06 May 1988, more fixes, added W,Q commands to ftree.
  * 03 May 1988, more fixes, added P,s,t subcommands to 'p'.
@@ -15,4 +16,4 @@
  * 01 Dec 1987, added '*', '^' commands, made '%' refresh screen
  * 25 Nov 1987, added sccs-support (V,z,Z toggles, V,z,Z sorts)
  */
-static	char	version[] = "@(#)DED Directory Editor (88/05/09 11:36:08)";
+static	char	version[] = "@(#)DED Directory Editor (88/05/10 16:07:58)";
