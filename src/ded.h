@@ -3,7 +3,7 @@
 
 #ifdef	MAIN
 #if	!defined(NO_IDENT)
-static	char	*ded_h = "$Id: ded.h,v 12.12 1994/05/27 21:55:35 tom Exp $";
+static	char	*ded_h = "$Id: ded.h,v 12.14 1994/05/29 00:47:58 tom Exp $";
 #endif
 #endif	/* MAIN */
 
@@ -21,27 +21,12 @@ static	char	*ded_h = "$Id: ded.h,v 12.12 1994/05/27 21:55:35 tom Exp $";
 #include	<ctype.h>
 #include	<errno.h>
 
-#if defined(apollo)
-# if defined(__STDCPP__)
-#  define ANSI_VARARGS 1
-# else
-#  define ANSI_VARARGS 0
-# endif
-#endif
-
-#ifndef ANSI_VARARGS
-# if defined(__STDC__) || VMS || NEWDOSCC
-#  define ANSI_VARARGS 1	/* look in <stdarg.h> */
-# else
-#  define ANSI_VARARGS 0	/* look in <varargs.h> */
-# endif
-#endif
-
-#if ANSI_VARARGS
+#if HAVE_STDARG_H
 #include	<stdarg.h>
 #else
 #include	<varargs.h>
 #endif
+
 extern	char	*sys_errlist[];
 
 #define	private	static
@@ -53,7 +38,7 @@ extern	char	*sys_errlist[];
  * SYSTEM5/BSD4.x differences between regular-expression handling:
  */
 #if defined(SYSTEM5)
-#  if HAVE_REGEX_H && HAVE_REGCOMP && HAVE_REGEXEC && HAVE_REGFREE /* HP/UX, Linux */
+#  if HAVE_REGEX_H_FUNCS		/* HP/UX, Linux */
 #    include <regex.h>
 #    define REGEX_T regex_t
 #    define OLD_REGEX(expr)		regfree(&expr)
@@ -95,11 +80,11 @@ extern	int	re_exec(_ar1(char *,s));  /* (return > 0): match */
 #define	Z_RCS			/* compile-in '-z' rcs support */
 
 #ifdef	Z_SCCS
-#define	Z_RCS_SCCS		/* compile-in common sccs/rcs support */
+#  define Z_RCS_SCCS		/* compile-in common sccs/rcs support */
 #else
-#ifdef	Z_RCS
-#define	Z_RCS_SCCS
-#endif
+#  ifdef  Z_RCS
+#  define Z_RCS_SCCS
+#  endif
 #endif
 
 /*
@@ -107,10 +92,10 @@ extern	int	re_exec(_ar1(char *,s));  /* (return > 0): match */
  */
 #define	NO_HISTORY (HIST **)0
 
-#if	ANSI_CPP
-#define	ENV(n)	dftenv(n,#n)
+#if HAVE_NEW_TOKEN_QUOTE
+#  define ENV(n) dftenv(n,#n)
 #else
-#define	ENV(n)	dftenv(n,"n")
+#  define ENV(n) dftenv(n,"n")
 #endif
 
 #define	UIDLEN	9		/* length of uid/gid field */
@@ -121,7 +106,7 @@ extern	int	re_exec(_ar1(char *,s));  /* (return > 0): match */
 			||	(mode & S_IFMT) == S_IFCHR)
 
 #ifndef	MAIN
-#define	MAIN	extern
+#  define MAIN extern
 #endif	/* MAIN */
 
 /*
@@ -645,7 +630,7 @@ extern	void	dlog_name(
 
 extern	void	dlog_comment(
 #if PROTOTYPES
-# if ANSI_VARARGS
+# if HAVE_STDARG_H
 			char * fmt,
 			...
 # endif
