@@ -1,3 +1,12 @@
+1988-09-09  dickey@software.org
+
+	* src/version.h: bug fixes
+
+	* src/ftree.c:
+	added 'ft_dump2()', fixed handling of "~" in '=' command.
+
+	* src/deddoit.c: lint
+
 1988-09-08  dickey@software.org
 
 	* src/README: added more things.
