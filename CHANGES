@@ -1,3 +1,14 @@
+1988-07-25  dickey@software.org
+
+	* src/ded.c: lint
+
+	* src/version.h:
+	added repeat/level count argument to directory-tree 'R' command.
+
+	* src/ftree.c:
+	added repeat-count to 'R' command so it can recur to a given number of
+	levels.  altered pacifier display to make it more descriptive to accommodate.
+
 1988-07-11  dickey@software.org
 
 	* src/version.h: added tagsort-capability.

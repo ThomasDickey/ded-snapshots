@@ -1,5 +1,5 @@
 #ifndef	NO_SCCS_ID
-static	char	sccs_id[] = "@(#)ded.c	1.35 88/07/11 07:28:53";
+static	char	sccs_id[] = "@(#)ded.c	1.36 88/07/25 07:05:03";
 #endif	NO_SCCS_ID
 
 /*
@@ -914,7 +914,7 @@ int	pid ,
 			if (c < 0) break;
 		}
 		rawterm();
-		chdir(new_wd);
+		(void)chdir(new_wd);
 		if (normal) {
 			retouch(0);
 			restat(FALSE);
