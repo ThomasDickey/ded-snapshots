@@ -1,3 +1,13 @@
+1988-06-27  dickey@software.org
+
+	* src/README: more on renaming directories.
+
+	* src/ftree.c:
+	recoded 'ft_purge()' -- don't need recursive marking via 'do_purge()'!
+
+	* src/dedring.c:
+	recoded 'dedrung()' -- wasn't working with abs(count) > 1.
+
 1988-06-16  dickey@software.org
 
 	* src/README: new release: added '@' toggle.

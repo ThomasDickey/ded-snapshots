@@ -1,11 +1,12 @@
 #ifndef	NO_SCCS_ID
-static	char	sccs_id[] = "@(#)ftree.c	1.46 88/06/07 06:36:57";
+static	char	sccs_id[] = "@(#)ftree.c	1.47 88/06/27 08:40:06";
 #endif
 
 /*
  * Author:	T.E.Dickey
  * Created:	02 Sep 1987
  * Modified:
+ *		27 Jun 1988, recoded 'ft_purge()' so it isn't recursive.
  *		07 Jun 1988, added CTL(K) command.
  *		06 Jun 1988, use 'gethome()' for ".ftree" location.
  *		01 Jun 1988, added SCCS_DIR environment variable.
@@ -85,6 +86,9 @@ extern	char	*txtalloc(),
 #define	NOSCCS	4	/* set to disable viewing sccs-directories */
 #define	NOVIEW	8	/* set to disable viewing of a tree */
 #define	LINKED	16	/* set to show link-to-directory */
+
+#define	zMARK(j)	(ftree[j].f_mark & MARKED)
+#define	zROOT(j)	(ftree[j].f_root)
 
 /************************************************************************
  *	Public data							*
@@ -473,11 +477,35 @@ register int j;
  */
 ft_purge()
 {
-register int j;
+register int j, k, adj;
+int	changed	= 0;
 
-	for (j = 1; j <= FDlast; j++)
-		if (ftree[j].f_mark & MARKED)
-			do_purge(j--);
+	for (j = 1; j <= FDlast; j++) {	/* scan for things to purge */
+		if (!zMARK(j)) 	continue;
+		for (k = j; (k <= FDlast) && (zMARK(k) || zROOT(k) >= j); k++);
+		adj = k - j;
+		while (k <= FDlast) {
+			if (zROOT(k) >= j)	zROOT(k) -= adj;
+			ftree[k-adj] = ftree[k];
+			k++;
+		}
+		FDlast -= adj;
+		changed++;
+		j--;			/* re-start scan */
+	}
+
+#ifndef	TEST
+	if (changed) {			/* re-insert ring */
+	extern	char	*dedrung();
+	char	tmp[BUFSIZ], *s;
+		(void)strcpy(tmp, new_wd);
+		for (j = 1; s = dedrung(j); j++) {
+			ft_insert(s);
+			if (!strcmp(s,tmp))
+				break;
+		}
+	}
+#endif	TEST
 }
 
 /*
