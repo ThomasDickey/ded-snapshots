@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	Id[] = "$Id: ded2s.c,v 4.4 1989/10/05 14:32:44 dickey Exp $";
+static	char	Id[] = "$Id: ded2s.c,v 4.5 1989/10/06 08:08:58 dickey Exp $";
 #endif	lint
 
 /*
@@ -7,9 +7,14 @@ static	char	Id[] = "$Id: ded2s.c,v 4.4 1989/10/05 14:32:44 dickey Exp $";
  * Author:	T.E.Dickey
  * Created:	09 Nov 1987
  * $Log: ded2s.c,v $
- * Revision 4.4  1989/10/05 14:32:44  dickey
- * corrected treatment of nil-objects
+ * Revision 4.5  1989/10/06 08:08:58  dickey
+ * modified computation of 'cmdcol[]' so that it is not reset
+ * per-line, but accumulated in a file-list.  added column
+ * after size-field, since sr10.1 has some long dev-ids!
  *
+ *		Revision 4.4  89/10/05  14:32:44  dickey
+ *		corrected treatment of nil-objects
+ *		
  *		Revision 4.3  89/10/05  07:57:37  dickey
  *		don't show deleted-files as having extended acls
  *		
@@ -72,6 +77,19 @@ extern	char	*uid2s(),
 #define SIXDAYS		(6 * 24 * HOUR)
 #define SIXMONTHS	(30 * SIXDAYS)
 
+static
+char	*
+setcol(bfr,n,val)
+char	*bfr;
+{
+	if (cmdcol[n] < val)	cmdcol[n] = val;
+	else {
+		while (val++ < cmdcol[n])
+			*bfr++ = ' ';
+	}
+	return (bfr);
+}
+
 ded2s(inx, bfr, len)
 register char	*bfr;
 {
@@ -88,10 +106,10 @@ char	*t,
 	mj = s->st_mode;
 	if (P_opt) {
 		FORMAT(bfr, "%6o ", mj);
-		cmdcol[0] = 3;
+		cmdcol[CCOL_PROT] = 3;
 	} else {
 		*bfr++ = modechar(mj); /* translate the type of file */
-		cmdcol[0] = bfr - base;
+		cmdcol[CCOL_PROT] = bfr - base;
 
 		(void)strcpy(bfr, "---------");
 		for (c = 0; c < 9; c += 3) {
@@ -129,12 +147,12 @@ char	*t,
 #endif	apollo/unix
 	else		FORMAT(bfr, "%3d ", s->st_nlink);
 	bfr += field(bfr,mj);
+	bfr = setcol(bfr, CCOL_UID, bfr - base);
 
 	/* show the user-id or group-id */
 	if (G_opt)	t = gid2s((int)(s->st_gid));
 	else		t = uid2s((int)(s->st_uid));
 	FORMAT(bfr, "%-*.*s ", UIDLEN, UIDLEN, t);
-	cmdcol[1] = bfr - base;
 	bfr += field(bfr,mj);
 
 	/* show the file-size (or major/minor device codes, if device) */
@@ -159,6 +177,7 @@ char	*t,
 		FORMAT(bfr, "%7d ", s->st_size);
 	}
 	bfr += field(bfr,mj);
+	bfr = setcol(bfr, CCOL_DATE, bfr - base);
 
 	/* show sccs-date, if any */
 #ifdef	Z_RCS_SCCS
@@ -196,12 +215,12 @@ char	*t,
 	}
 #endif	Z_RCS_SCCS
 
-	cmdcol[2] = bfr - base;
+	bfr = setcol(bfr, CCOL_CMD, bfr - base);
 	*bfr++ = ' ';
 	*bfr++ = ' ';
 
 	/* translate the filename */
-	cmdcol[3] = bfr - base;
+	bfr = setcol(bfr, CCOL_NAME, bfr - base);
 	len -= (bfr-base);
 	bfr += ded2string(bfr, len, name, FALSE);
 

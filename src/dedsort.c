@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	Id[] = "$Id: dedsort.c,v 4.1 1989/10/04 16:48:36 dickey Exp $";
+static	char	Id[] = "$Id: dedsort.c,v 4.2 1989/10/06 11:40:05 dickey Exp $";
 #endif	lint
 
 /*
@@ -7,9 +7,13 @@ static	char	Id[] = "$Id: dedsort.c,v 4.1 1989/10/04 16:48:36 dickey Exp $";
  * Author:	T.E.Dickey
  * Created:	11 Nov 1987
  * $Log: dedsort.c,v $
- * Revision 4.1  1989/10/04 16:48:36  dickey
- * added o,O sorts
+ * Revision 4.2  1989/10/06 11:40:05  dickey
+ * modified 't' sort so that names beginning with '.' are
+ * sorted in a more natural manner
  *
+ *		Revision 4.1  89/10/04  16:48:36  dickey
+ *		added o,O sorts
+ *		
  *		Revision 4.0  89/01/23  09:57:37  ste_cm
  *		BASELINE Thu Aug 24 10:20:06 EDT 1989 -- support:navi_011(rel2)
  *		
@@ -48,6 +52,25 @@ extern	char	*type_uid2s();
 #define	CMP2S(f,m)	cmp = strcmp(strcpy(bfr, f((int)p1->s.m)),\
 						 f((int)p2->s.m))
 
+/* sort types so that names beginning with '.' are treated specially */
+static
+char	*
+f_type(s)
+char	*s;
+{
+	register char	*t = ftype(s);
+	if (t != s) {
+		if (t[-1] == '/')
+			t = f_type(t);
+	} else {
+		if (dotname(t))
+			t += strlen(t);
+		else
+			t = ftype(t+1);
+	}
+	return (t);
+}
+
 /*
  * Compare the specified file-list entries, returning 0 iff their sort-key is
  * equivalent, +/- according to the direction of the inequality.
@@ -82,7 +105,7 @@ char	bfr[BUFSIZ];
 			break;
 
 			/* sort by file types (suffixes) */
-	case 't':	cmp = strcmp(ftype(p1->name), ftype(p2->name));
+	case 't':	cmp = strcmp(f_type(p1->name), f_type(p2->name));
 			break;
 	case 'T':	cmp = strcmp(ftype2(p1->name), ftype2(p2->name));
 			break;

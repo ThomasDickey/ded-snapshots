@@ -1,3 +1,23 @@
+1989-10-06  dickey@software.org
+
+	* src/dedsort.c: modified 't' sort so that names beginning with '.' are
+	sorted in a more natural manner
+
+	* src/ded.c:
+	modified 'showFILES()' so that on certain calls we reset the
+	'cmdcol[]' array.
+
+	* src/ded2s.c:
+	modified computation of 'cmdcol[]' so that it is not reset
+	per-line, but accumulated in a file-list.  added column
+	after size-field, since sr10.1 has some long dev-ids!
+
+	* src/ded.h: added mnemonics for 'cmdcol[]' indices
+
+	* src/dedscan.c: modified interface to 'showFILES()'
+
+	* src/dedline.c: modified treatment of 'cmdcol[]' (cf: showFILES)
+
 1989-10-05  dickey@software.org
 
 	* src/dedmake.c: modified treatment of 'cmdcol[]' (cf: showFILES)
