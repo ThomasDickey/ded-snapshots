@@ -1,4 +1,4 @@
-$Id: ded.hlp,v 9.5 1991/07/24 12:16:45 dickey Exp $
+$Id: ded.hlp,v 9.6 1991/08/16 13:57:42 dickey Exp $
 
 DED (Directory EDitor)
 ======================
@@ -64,7 +64,7 @@ Display-Adjustment:
   P		toggle file protection-mode (octal/normal) display field.
 		Use "2P" to show uid/gid fields numerically.
   S		toggle filesize (in blocks) field. Use "2S" to show both.
-  T		toggle date+time length
+  T		toggle date+time length (Use "2T" to show numeric date)
   U		toggle filename display (unix vs apollo)
   V		toggle rcs/sccs version display
   Y		toggle rcs/sccs lock-owner display

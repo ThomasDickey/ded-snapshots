@@ -1,3 +1,10 @@
+1991-08-16  dickey@software.org
+
+	* src/version.h:
+	interpret "2T" to show numeric date (fractions of days)
+
+	* src/ded.hlp, src/ded2s.c, src/ded.c: added interpretation of "2T"
+
 1991-07-24  dickey@software.org
 
 	* src/ded.h: moved MAXPATHLEN definition to "ptypes.h"

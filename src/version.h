@@ -1,10 +1,13 @@
 /*
- * $Id: version.h,v 9.6 1991/07/24 12:18:05 dickey Exp $
+ * $Id: version.h,v 9.7 1991/08/16 13:58:07 dickey Exp $
  * Version-identifier for DED
  * $Log: version.h,v $
- * Revision 9.6  1991/07/24 12:18:05  dickey
- * added command-substitution codes u,g,v,y
+ * Revision 9.7  1991/08/16 13:58:07  dickey
+ * interpret "2T" to show numeric date (fractions of days)
  *
+ *		Revision 9.6  91/07/24  12:18:05  dickey
+ *		added command-substitution codes u,g,v,y
+ *		
  *		Revision 9.5  91/07/17  07:45:18  dickey
  *		added @-sort and D-sort
  *		
@@ -206,4 +209,4 @@
  * 01 Dec 1987, added '*', '^' commands, made '%' refresh screen
  * 25 Nov 1987, added sccs-support (V,z,Z toggles, V,z,Z sorts)
  */
-static	char	version[] = "$Date: 1991/07/24 12:18:05 $";
+static	char	version[] = "$Date: 1991/08/16 13:58:07 $";

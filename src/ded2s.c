@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	Id[] = "$Id: ded2s.c,v 9.3 1991/07/16 08:03:04 dickey Exp $";
+static	char	Id[] = "$Id: ded2s.c,v 9.4 1991/08/16 13:53:32 dickey Exp $";
 #endif
 
 /*
@@ -313,7 +313,9 @@ time_t  fdate;
 						/* 0123456789.123456789.123 */
 	t[24]	= ' ';				/* ddd mmm DD HH:MM:SS YYYY */
 
-	if (T_opt) {
+	if (T_opt == 2) {
+		FORMAT(bfr, "%12.6f ", fdate / (24.0 * HOUR));
+	} else if (T_opt == 1) {
 		(void)strcpy(bfr, t);
 	} else {
 		if (midnite == 0) {

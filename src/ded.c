@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	Id[] = "$Header: /users/source/archives/ded.vcs/src/RCS/ded.c,v 9.11 1991/07/22 07:13:10 dickey Exp $";
+static	char	Id[] = "$Header: /users/source/archives/ded.vcs/src/RCS/ded.c,v 9.12 1991/08/16 13:48:47 dickey Exp $";
 #endif
 
 /*
@@ -7,9 +7,12 @@ static	char	Id[] = "$Header: /users/source/archives/ded.vcs/src/RCS/ded.c,v 9.11
  * Author:	T.E.Dickey
  * Created:	09 Nov 1987
  * $Log: ded.c,v $
- * Revision 9.11  1991/07/22 07:13:10  dickey
- * quote filename before using it in 'forkfile()'
+ * Revision 9.12  1991/08/16 13:48:47  dickey
+ * added interpretation of "2T"
  *
+ *		Revision 9.11  91/07/22  07:13:10  dickey
+ *		quote filename before using it in 'forkfile()'
+ *		
  *		Revision 9.10  91/07/19  07:52:29  dickey
  *		added parm to 'markset()' to tell if we must clear workspace
  *		
@@ -1530,7 +1533,9 @@ char	*argv[];
 	case 'S':	S_opt = one_or_both(j = S_opt,count);
 			showFILES(S_opt != j, FALSE);
 			break;
-	case 'T':	T_opt = !T_opt; showFILES(TRUE, FALSE); break;
+	case 'T':	T_opt = one_or_both(j = T_opt,count);
+			showFILES(T_opt != j, FALSE);
+			break;
 #ifdef	apollo
 	case 'U':	U_opt = !U_opt; showFILES(FALSE,FALSE);	break;
 #endif
