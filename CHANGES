@@ -1,3 +1,77 @@
+1989-10-12  dickey@software.org
+
+	* src/version.h: tuned apollo sr10.1 code (type-uid display).
+	make "2G" and "2I" commands show double-columns of info.
+	enhanced treatment of 'cmdcol[]' for better alignment.
+	protect against chmod of extended-acls
+	refined "st" command to handle "." and DSEE files.
+	corrected RCS/SCCS display to show version/locker always.
+
+1989-10-12  ste_cm@software.org
+
+	* src/version.h:
+	BASELINE Fri Oct 27 12:27:25 1989 -- apollo SR10.1 mods + ADA_PITS 4.0
+
+1989-10-12  dickey@software.org
+
+	* src/ded.hlp: added interpretation of 2I, 2G commands
+
+1989-10-12  ste_cm@software.org
+
+	* src/ded.hlp:
+	BASELINE Fri Oct 27 12:27:25 1989 -- apollo SR10.1 mods + ADA_PITS 4.0
+
+1989-10-12  dickey@software.org
+
+	* src/ded2s.c:
+	refined the date-conversion in 'time2s()'.  added procedure
+	'has_extended_acl()'
+
+	* src/dedsort.c:
+	refined inode-, uid-, gid-sorts so that if I_opt or G_opt are
+	in two-column mode, we sort what the user sees.
+
+1989-10-12  ste_cm@software.org
+
+	* src/dedsort.c:
+	BASELINE Fri Oct 27 12:27:25 1989 -- apollo SR10.1 mods + ADA_PITS 4.0
+
+1989-10-12  dickey@software.org
+
+	* src/ded.c: converted 'I', 'G' commands to three-state toggles
+
+1989-10-12  ste_cm@software.org
+
+	* src/ded.c:
+	BASELINE Fri Oct 27 12:27:25 1989 -- apollo SR10.1 mods + ADA_PITS 4.0
+
+1989-10-12  dickey@software.org
+
+	* src/dedline.c:
+	altered format so that uid,gid columns are not necessarily
+	obscured (G_opt == 2).  also, prevent chmod if object has
+	extended acls -- and user is not owner (prevents trouble!)
+
+	* src/ded.h:
+	made uid,gid columns quasi-independent.  force rcs-ident to
+	be seen in "ded.o".
+
+1989-10-12  ste_cm@software.org
+
+	* src/ded.h:
+	BASELINE Fri Oct 27 12:27:25 1989 -- apollo SR10.1 mods + ADA_PITS 4.0
+
+1989-10-12  dickey@software.org
+
+	* src/dedscan.c:
+	only fall-thru to 'sccslast()' if we found *nothing* of rcs.
+
+	* src/ded2s.c:
+	show z_vers, z_lock fields even if z_time is null, since we
+	may have gotten to the view via a symbolic link.
+
+	* src/ded2s.c: recoded 'type_uid2s()' using 'type_$get_name()'
+
 1989-10-11  dickey@software.org
 
 	* src/ded2s.c: recoded type-uid table with a pipe-call to 'lty'

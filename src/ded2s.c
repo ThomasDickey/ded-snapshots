@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	Id[] = "$Id: ded2s.c,v 4.6 1989/10/11 16:43:49 dickey Exp $";
+static	char	Id[] = "$Id: ded2s.c,v 4.9 1989/10/12 15:53:54 dickey Exp $";
 #endif	lint
 
 /*
@@ -7,9 +7,20 @@ static	char	Id[] = "$Id: ded2s.c,v 4.6 1989/10/11 16:43:49 dickey Exp $";
  * Author:	T.E.Dickey
  * Created:	09 Nov 1987
  * $Log: ded2s.c,v $
- * Revision 4.6  1989/10/11 16:43:49  dickey
- * recoded type-uid table with a pipe-call to 'lty'
+ * Revision 4.9  1989/10/12 15:53:54  dickey
+ * refined the date-conversion in 'time2s()'.  added procedure
+ * 'has_extended_acl()'
  *
+ *		Revision 4.8  89/10/12  09:15:15  dickey
+ *		show z_vers, z_lock fields even if z_time is null, since we
+ *		may have gotten to the view via a symbolic link.
+ *		
+ *		Revision 4.7  89/10/12  08:58:57  dickey
+ *		recoded 'type_uid2s()' using 'type_$get_name()'
+ *		
+ *		Revision 4.6  89/10/11  16:47:27  dickey
+ *		recoded type-uid table with a pipe-call to 'lty'
+ *		
  *		Revision 4.5  89/10/06  08:08:58  dickey
  *		modified computation of 'cmdcol[]' so that it is not reset
  *		per-line, but accumulated in a file-list.  added column
@@ -51,11 +62,10 @@ static	char	Id[] = "$Id: ded2s.c,v 4.6 1989/10/11 16:43:49 dickey Exp $";
  *		options).  In doing so, save into the global 'cmdcol[]' the
  *		index of various fields to which we may wish to move the
  *		cursor.
- *
- * patch:	should consider showing both user+group columns.
  */
 
 #include	"ded.h"
+#include	<time.h>
 #include	<ctype.h>
 
 #ifdef	apollo_sr10
@@ -76,8 +86,8 @@ extern	char	*uid2s(),
 #define	_toupper	toupper
 #endif	_toupper
 
-#define SIXDAYS		(6 * 24 * HOUR)
-#define SIXMONTHS	(30 * SIXDAYS)
+#define ONE_WEEK	(7 * 24 * HOUR)
+#define SIXMONTHS	(26 * ONE_WEEK)
 
 static
 char	*
@@ -133,7 +143,7 @@ char	*t,
 #endif	S_IFLNK
 	bfr += strlen(bfr);
 #ifdef	apollo_sr10
-	*bfr++ = ((mj != 0) && is_EXTENDED_ACL(s->st_rfu4)) ? '+' : ' ';
+	*bfr++ = ((mj != 0) && has_extended_acl(inx)) ? '+' : ' ';
 	if (O_opt) {
 		FORMAT(bfr, " %-9.9s ", type_uid2s(s));
 		bfr += field(bfr,mj);
@@ -149,13 +159,23 @@ char	*t,
 #endif	apollo/unix
 	else		FORMAT(bfr, "%3d ", s->st_nlink);
 	bfr += field(bfr,mj);
-	bfr = setcol(bfr, CCOL_UID, bfr - base);
+	if (I_opt == 2)	{
+		FORMAT(bfr, "%08x ", s->st_dev);
+		bfr += field(bfr,mj);
+	}
 
-	/* show the user-id or group-id */
-	if (G_opt)	t = gid2s((int)(s->st_gid));
-	else		t = uid2s((int)(s->st_uid));
-	FORMAT(bfr, "%-*.*s ", UIDLEN, UIDLEN, t);
-	bfr += field(bfr,mj);
+	bfr = setcol(bfr, CCOL_UID, bfr - base);
+	if (!(G_opt & 1)) {	/* show the user-id */
+		FORMAT(bfr, "%-*.*s ", UIDLEN, UIDLEN, uid2s((int)(s->st_uid)));
+		bfr += field(bfr,mj);
+	}
+
+	if (G_opt != 0) {	/* show the group-id */
+		bfr = setcol(bfr, CCOL_GID, bfr - base);
+		FORMAT(bfr, "%-*.*s ", UIDLEN, UIDLEN, gid2s((int)(s->st_gid)));
+		bfr += field(bfr,mj);
+	} else
+		cmdcol[CCOL_GID] = cmdcol[CCOL_UID];
 
 	/* show the file-size (or major/minor device codes, if device) */
 	switch (mj & S_IFMT) {
@@ -208,11 +228,11 @@ char	*t,
 	if (Z_opt) {
 		if (V_opt) {	/* show highest version number */
 			FORMAT(bfr, "%-7s ", f_->z_vers);
-			bfr += field(bfr, (unsigned)(f_->z_time != 0));
+			bfr += field(bfr, (unsigned)(f_->z_vers[0] != '?'));
 		}
 		if (Y_opt) {	/* show current lock */
 			FORMAT(bfr, "%-*.*s ", UIDLEN, UIDLEN, f_->z_lock);
-			bfr += field(bfr, (unsigned)(f_->z_time != 0));
+			bfr += field(bfr, (unsigned)(f_->z_lock[0] != '?'));
 		}
 	}
 #endif	Z_RCS_SCCS
@@ -288,15 +308,26 @@ time2s(bfr,fdate)
 char	*bfr;
 time_t  fdate;
 {
-time_t  now	= time((time_t *)0);
-char	*t	= ctime(&fdate);	/* 0123456789.123456789.123 */
-	t[24]	= 0;			/* ddd mmm DD HH:MM:SS YYYY */
+	static	time_t	midnite;
+	auto	time_t  now	= time((time_t *)0);
+	auto	char	*t	= ctime(&fdate);/* 0123456789.123456789.123 */
+			t[24]	= 0;		/* ddd mmm DD HH:MM:SS YYYY */
 
-	if ((now - SIXDAYS) < fdate) {	  /* ddd HH:MM:SS */
+	if (midnite == 0) {
+		struct	tm	*p = localtime(&now);
+		midnite	= now	/* compute next 00:00:00 time */
+			+ (23 - p->tm_hour) * HOUR
+			+ (59 - p->tm_min) * 60
+			+ (60 - p->tm_sec);
+	}
+	if (now >= midnite)	/* bump if program is run past midnite */
+		midnite += (24 * HOUR);
+
+	if ((midnite - ONE_WEEK) <= fdate) {		/* ddd HH:MM:SS */
 		FORMAT(bfr, "%.4s%.8s ", t, t+11);
-	} else if ((now - SIXMONTHS) < fdate) { /* mmm DD HH:MM */
+	} else if ((midnite - SIXMONTHS) < fdate) {	/* mmm DD HH:MM */
 		FORMAT(bfr, "%.12s ", t+4);
-	} else {				/* mmm DD YYYY  */
+	} else {					/* mmm DD YYYY  */
 		FORMAT(bfr, "%.7s%.4s  ", t+4, t+20);
 	}
 	if (fdate == 0L)
@@ -310,6 +341,13 @@ char	*bfr, *name;
 }
 
 #ifdef	apollo_sr10
+extern	type_$get_name(
+		uid_$t		&vol,
+		uid_$t		&tid,
+		name_$name_t	&tname,
+		short		&nlen,
+		status_$t	&st);
+
 typedef	struct	_lty {
 	struct	_lty	*link;
 	uid_$t		uid;
@@ -320,52 +358,50 @@ typedef	struct	_lty {
 	def_ALLOC(LTY)
 
 /*
- * patch: the trait/type manager of sr10 is not documented (yet).  return the
- * known/fixed types
+ * return the string corresponding to apollo type-uid stored in the stat-block.
  */
 char	*
 type_uid2s(s)
 struct	stat *s;
 {
+	extern	char	*txtalloc();
 	static	LTY	*list;
 	register LTY	*p;
 	auto	char	*t;
+	auto	uid_$t	type_uid;
+	auto	name_$name_t	typename;
+	auto	short		namelen;
+	auto	status_$t	status;
 
 	if (s->st_mode != 0) {
-		if (list == 0) {
-			extern	FILE	*popen();
-			extern	char	*txtalloc();
-			static	char	*fmt = "%x.%x  %s\n";
-			auto	FILE	*ip;
-			auto	char	bfr[BUFSIZ];
-			auto	char	name[BUFSIZ];
-			auto	long	lo, hi;
-	
-			if (ip = popen("/com/lty -u", "r")) {
-				while (fgets(bfr, sizeof(bfr), ip)) {
-					if (sscanf(bfr, fmt, &hi, &lo, name)
-					== 3) {
-						p = ALLOC(LTY,1);
-						p->link     = list;
-						p->uid.high = hi;
-						p->uid.low  = lo;
-						p->name     = txtalloc(name);
-						list        = p;
-					}
-				}
-				(void)pclose(ip);
-			}
-		}
-		t = "?";
+		type_uid.high = s->st_rfu4[0];
+		type_uid.low  = s->st_rfu4[1];
+		t = 0;
 		for (p = list; p != 0; p = p->link) {
-			if (p->uid.high == s->st_rfu4[0]
-			&&  p->uid.low  == s->st_rfu4[1]) {
+			if (p->uid == type_uid) {
 				t = p->name;
 				break;
 			}
 		}
+		if (t == 0) {
+			type_$get_name(uid_$nil, type_uid,
+				typename, namelen, status);  
+			if (status.all != status_$ok)
+				namelen = 0;
+      			typename[namelen] = EOS;
+			p = ALLOC(LTY,1);
+			p->link = list;
+			p->uid  = type_uid;
+			p->name = t = txtalloc(typename);
+			list    = p;
+		}
 	} else
 		t = " ";
 	return (t);
+}
+
+has_extended_acl(x)
+{
+	return (is_EXTENDED_ACL(xSTAT(x).st_rfu4));
 }
 #endif

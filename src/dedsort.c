@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	Id[] = "$Id: dedsort.c,v 4.3 1989/10/11 16:29:49 dickey Exp $";
+static	char	Id[] = "$Id: dedsort.c,v 5.0 1989/10/12 15:47:10 ste_cm Rel $";
 #endif	lint
 
 /*
@@ -7,10 +7,17 @@ static	char	Id[] = "$Id: dedsort.c,v 4.3 1989/10/11 16:29:49 dickey Exp $";
  * Author:	T.E.Dickey
  * Created:	11 Nov 1987
  * $Log: dedsort.c,v $
- * Revision 4.3  1989/10/11 16:29:49  dickey
- * added apollo-only fix for t-sort for DSEE-directory names
- * (ending with "$.*.$").
+ * Revision 5.0  1989/10/12 15:47:10  ste_cm
+ * BASELINE Fri Oct 27 12:27:25 1989 -- apollo SR10.1 mods + ADA_PITS 4.0
  *
+ *		Revision 4.4  89/10/12  15:47:10  dickey
+ *		refined inode-, uid-, gid-sorts so that if I_opt or G_opt are
+ *		in two-column mode, we sort what the user sees.
+ *		
+ *		Revision 4.3  89/10/11  16:29:49  dickey
+ *		added apollo-only fix for t-sort for DSEE-directory names
+ *		(ending with "$.*.$").
+ *		
  *		Revision 4.2  89/10/06  11:40:05  dickey
  *		modified 't' sort so that names beginning with '.' are
  *		sorted in a more natural manner
@@ -174,16 +181,35 @@ char	bfr[BUFSIZ];
 			break;
 
 	case 'l':	cmp = CMP(st_nlink);	break;
-	case 'i':	cmp = CMP(st_ino);	break;
+	case 'i':	if (I_opt == 2) {
+				cmp = CMP(st_dev);
+				if (cmp == 0)
+					cmp = CMP(st_ino);
+			} else
+				cmp = CMP(st_ino);
+			break;
 	case 'd':	cmp = p1->dord - p2->dord;	break;
 
 			/* compare uid/gid fields numerically */
-	case 'U':	cmp = CMP(st_uid);	break;
-	case 'G':	cmp = CMP(st_gid);	break;
+	case 'U':	cmp = CMP(st_uid);
+			if (cmp == 0 && G_opt == 2)
+				cmp = CMP(st_gid);
+			break;
+	case 'G':	cmp = CMP(st_gid);
+			if (cmp == 0 && G_opt == 2)
+				cmp = CMP(st_uid);
+			break;
 
 			/* compare uid/gid fields lexically */
-	case 'u':	cmp  = CMP2S(uid2s,st_uid);	break;
-	case 'g':	cmp  = CMP2S(gid2s,st_gid);	break;
+	case 'u':	cmp  = CMP2S(uid2s,st_uid);
+			if (cmp == 0 && G_opt == 2)
+				cmp  = CMP2S(gid2s,st_gid);
+			break;
+	case 'g':	cmp  = CMP2S(gid2s,st_gid);
+			if (cmp == 0 && G_opt == 2)
+				cmp  = CMP2S(gid2s,st_uid);
+			break;
+
 	case 'N':	(void)strcpy(bfr, pathleaf(p2->name));
 			cmp  = strcmp(pathleaf(p1->name), bfr);	break;
 	default:	cmp  = strcmp(p1->name, p2->name);
