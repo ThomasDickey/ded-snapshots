@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	Id[] = "$Header: /users/source/archives/ded.vcs/src/RCS/ded.c,v 11.13 1992/08/24 08:20:04 dickey Exp $";
+static	char	Id[] = "$Header: /users/source/archives/ded.vcs/src/RCS/ded.c,v 11.14 1992/08/25 13:18:50 dickey Exp $";
 #endif
 
 /*
@@ -797,8 +797,17 @@ private	int	inline_nesting _ONE(int,c)
 	if (c == 'c') {
 		ReplayTopC(c);
 		c = dlog_char((int *)0,FALSE);
-	} else
-		ReplayTopC(EOS);
+	} else {
+		switch (c) {
+#ifdef	S_IFLNK
+		case 'l':
+#endif	/* S_IFLNK */
+		case 'd':
+		case 'f':
+		case 'L':	ReplayTopC('c');	break;
+		default:	ReplayTopC(EOS);
+		}
+	}
 	return (c);
 }
 
