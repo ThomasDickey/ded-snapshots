@@ -1,3 +1,11 @@
+1997-02-11  Thomas E. Dickey  <dickey@clark.net>
+
+	* src/version.h:
+	fixes to dedscan's handling of common-prefix trimming (97/1, 97/2).
+	restructured initialization of dedcolor to use ncurses 'use_default_colors()'.
+	move ANSI_VARARGS tests into td_lib configure.
+	make dedblip work before curses is initialized.
+
 1997-02-02  Thomas E. Dickey  <dickey@clark.net>
 
 	* src/dedscan.c:
