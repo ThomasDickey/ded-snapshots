@@ -1,3 +1,38 @@
+1994-06-26  Thomas E. Dickey  <dickey@clark.net>
+
+	* src/ded.c: added quick hack to work on 'dedsize()'
+
+	* src/dedsize.c: RCS_BASE
+
+	* src/Makefile: added 'dedsize.c'
+
+	* test/Makefile: renamed edit_test.[sed/sh] to edittest.[sed/sh]
+
+	* test/edittest.sh: RCS_BASE
+
+	* test/run_test.sh: renamed edit_test.sh to edittest.sh
+
+	* src/dedsigs.c:
+	put the beep back into 'catch()', since my problem was really that I was
+	not ignoring the INTR character within forkfile().
+
+	* src/dedsigs.c:
+	changed calling convention to catch SIGINT only when caller sets flag=TRUE.
+	I did this because I was having trouble on Linux when I'd spawn an editor,
+	and hit the INTR character -- the signal was caught in both places.
+
+	* src/ded.c:
+	don't try to catch signals when we're executing a forkfile call (e.g.,.
+	when editing a file)
+
+	* src/ded.h: adjustments to current TD_LIB autoconf
+
+	* src/ftree.c, src/dedtype.c, src/dedscan.c: td_lib-autoconf
+
+	* src/dedsigs.c:
+	took out 'beep()' command to try to fix problem with interrupting a
+	subprocess
+
 1994-06-02  Thomas E. Dickey  <dickey@clark.net>
 
 	* src/ftree.c:

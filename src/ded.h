@@ -1,9 +1,9 @@
-#ifndef	_ded_h
-#define	_ded_h
+#ifndef	DED_H
+#define	DED_H
 
 #ifdef	MAIN
 #if	!defined(NO_IDENT)
-static	char	*ded_h = "$Id: ded.h,v 12.17 1994/05/30 20:35:38 tom Exp $";
+static	char	*ded_h = "$Id: ded.h,v 12.18 1994/06/26 22:22:21 tom Exp $";
 #endif
 #endif	/* MAIN */
 
@@ -17,6 +17,7 @@ static	char	*ded_h = "$Id: ded.h,v 12.17 1994/05/30 20:35:38 tom Exp $";
 #define		OPN_PTYPES	/* use <fcntl.h> */
 #define		SIG_PTYPES	/* use <signal.h> */
 #define		STR_PTYPES	/* use <string.h> */
+#define		TIM_PTYPES	/* use <time.h> */
 #include	<ptypes.h>
 #include	<dyn_str.h>	/* dynamic strings */
 #include	<td_regex.h>	/* regular expressions */
@@ -65,8 +66,6 @@ extern	char	*sys_errlist[];
 #endif
 
 #define	UIDLEN	9		/* length of uid/gid field */
-
-#define	HOUR		(60*60)	/* unix time for one hour */
 
 #define	isDEV(mode)	(	(mode & S_IFMT) == S_IFBLK\
 			||	(mode & S_IFMT) == S_IFCHR)
@@ -711,4 +710,4 @@ extern	int	sortget(
 		_arx(RING *,	gbl)
 		_ar1(int,	c));
 
-#endif	/* _ded_h */
+#endif	/* DED_H */

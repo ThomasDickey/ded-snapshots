@@ -1,5 +1,5 @@
 #if	!defined(NO_IDENT)
-static	char	Id[] = "$Id: dedtype.c,v 12.8 1994/05/23 00:20:18 tom Exp $";
+static	char	Id[] = "$Id: dedtype.c,v 12.9 1994/06/26 22:14:40 tom Exp $";
 #endif
 
 /*
@@ -543,12 +543,12 @@ public	void	dedtype(
 
 	if (isdir && !OptBinary) {
 		DIR	*dp;
-		Dirent_t *de;
+		DirentT *de;
 		char	bfr[MAXPATHLEN];
 #ifdef	apollo
-		char	*fmt = "%08x %s\n";
+# define INO_FMT "%08lx %s\n"
 #else
-		char	*fmt = "%5u %s\n";
+# define INO_FMT "%5lu %s\n"
 #endif
 		if ((InFile = tmpfile()) == 0) {
 			warn(gbl, "tmp-file");
@@ -560,7 +560,7 @@ public	void	dedtype(
 					(int)de->d_namlen,
 					de->d_name,
 					FALSE);
-				FPRINTF(InFile, fmt, de->d_ino, bfr);
+				FPRINTF(InFile, INO_FMT, de->d_ino, bfr);
 			}
 			(void)closedir(dp);
 			rewind(InFile);

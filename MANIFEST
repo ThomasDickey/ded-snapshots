@@ -1,4 +1,4 @@
-MANIFEST for ded, version t19940602
+MANIFEST for ded, version t19940626
 --------------------------------------------------------------------------------
 MANIFEST                        this file
 COPYING                         copyright notice for DED
@@ -47,9 +47,8 @@ src/version.h                   version/release history for DED
 test                            subdirectory
 test/Makefile                   make-file for regression tests of unix directory editor
 test/README                     read-me file for the ded/test directory
-test/edit_test.sed              sed-script which gets rid of trivial differences between command script/log
-test/edit_test.sh               shell script which converts a directory-editor log-file to a form which can
 test/edittest.sed               sed-script for 'edittest.sh'
+test/edittest.sh                edits test-log to simplify comparison
 test/run_test.sh                regression-test script for unix directory-editor
 test/test1.cmd                  test-script for unix directory-editor
 test/test2.cmd                  test-script for unix directory-editor
