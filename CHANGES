@@ -1,3 +1,7 @@
+1988-05-24  dickey@software.org
+
+	* src/Makefile: added 'all' production.
+
 1988-05-23  dickey@software.org
 
 	* src/ded.c: use 'setmtime()', corrected masking in 'replay()'.

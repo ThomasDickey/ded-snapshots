@@ -1,4 +1,4 @@
-# @(#)Makefile	1.13 88/05/13 06:24:48
+# @(#)Makefile	1.14 88/05/24 07:51:17
 # MAKE-file for directory editor
 B	= ../../bin
 DED_H   = ded.h ../lib/cmdch.h
@@ -6,6 +6,8 @@ INCLUDES= -I. -I../lib
 CFLAGS  = $(DEFINES) $(INCLUDES) -O
 LIBS	=\
 	../lib/lib.a
+#
+all:	ded
 #
 ded:	ded.o ded.a $(LIBS)
 	$(CC) -o $@ ded.o ded.a $(LIBS) -lcurses -ltermcap
