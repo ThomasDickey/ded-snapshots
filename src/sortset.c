@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	what[] = "$Id: sortset.c,v 9.3 1991/07/11 12:44:39 dickey Exp $";
+static	char	what[] = "$Id: sortset.c,v 9.4 1991/07/17 07:33:20 dickey Exp $";
 #endif
 
 /*
@@ -7,6 +7,7 @@ static	char	what[] = "$Id: sortset.c,v 9.3 1991/07/11 12:44:39 dickey Exp $";
  * Author:	T.E.Dickey
  * Created:	01 Dec 1989 (from ded.c)
  * Modified:
+ *		17 Jul 1991, added '@', 'D' sorts
  *		28 Jun 1991, added 'P' (apollo sr10)
  *		11 Dec 1989, corrected call on 'dlog_char()'
  *		08 Dec 1989, added ':' special-sort to allow user to scroll
@@ -22,8 +23,12 @@ char	sortc[128];
 
 static	char	*sort_msg[] = {
 	 ". - lengths of dot-separated items"
+#ifdef	S_IFLNK
+	,"@ - symbolic-link targets"
+#endif	/* S_IFLNK */
 	,"c - ctime (chmod time)"
 	,"d - directory-order"
+	,"D - device-code"
 	,"g - group"
 	,"G - group (numeric)"
 	,"i - inode"

@@ -1,64 +1,24 @@
 #ifndef	lint
-static	char	Id[] = "$Id: dedsort.c,v 9.1 1991/06/28 07:47:56 dickey Exp $";
+static	char	Id[] = "$Id: dedsort.c,v 9.2 1991/07/17 07:43:12 dickey Exp $";
 #endif
 
 /*
  * Title:	dedsort.c (ded-sort)
  * Author:	T.E.Dickey
  * Created:	11 Nov 1987
- * $Log: dedsort.c,v $
- * Revision 9.1  1991/06/28 07:47:56  dickey
- * added P-sort (same as p-sort, but keeps "+" for apollo-sr10
- * extended-acls sorted into groups)
- *
- *		Revision 9.0  91/05/16  07:43:46  ste_cm
- *		BASELINE Mon Jun 10 10:09:56 1991 -- apollo sr10.3
- *		
- *		Revision 8.1  91/05/16  07:43:46  dickey
- *		apollo sr10.3 cpp complains about tag on #endif
- *		
- *		Revision 8.0  90/01/22  15:04:29  ste_cm
- *		BASELINE Mon Aug 13 15:06:41 1990 -- LINCNT, ADA_TRANS
- *		
- *		Revision 7.0  90/01/22  15:04:29  ste_cm
- *		BASELINE Mon Apr 30 09:54:01 1990 -- (CPROTO)
- *		
- *		Revision 6.0  90/01/22  15:04:29  ste_cm
- *		BASELINE Thu Mar 29 07:37:55 1990 -- maintenance release (SYNTHESIS)
- *		
- *		Revision 5.1  90/01/22  15:04:29  dickey
- *		corrections to 'v'-sort
- *		
- *		Revision 5.0  89/10/12  15:47:10  ste_cm
- *		BASELINE Fri Oct 27 12:27:25 1989 -- apollo SR10.1 mods + ADA_PITS 4.0
- *		
- *		Revision 4.4  89/10/12  15:47:10  dickey
- *		refined inode-, uid-, gid-sorts so that if I_opt or G_opt are
- *		in two-column mode, we sort what the user sees.
- *		
- *		Revision 4.3  89/10/11  16:29:49  dickey
- *		added apollo-only fix for t-sort for DSEE-directory names
- *		(ending with "$.*.$").
- *		
- *		Revision 4.2  89/10/06  11:40:05  dickey
- *		modified 't' sort so that names beginning with '.' are
- *		sorted in a more natural manner
- *		
- *		Revision 4.1  89/10/04  16:48:36  dickey
- *		added o,O sorts
- *		
- *		Revision 4.0  89/01/23  09:57:37  ste_cm
- *		BASELINE Thu Aug 24 10:20:06 EDT 1989 -- support:navi_011(rel2)
- *		
- *		Revision 3.0  89/01/23  09:57:37  ste_cm
- *		BASELINE Mon Jun 19 14:21:57 EDT 1989
- *		
- *		Revision 2.0  89/01/23  09:57:37  ste_cm
- *		BASELINE Thu Apr  6 13:14:13 EDT 1989
- *		
- *		Revision 1.16  89/01/23  09:57:37  dickey
- *		sccs2rcs keywords
- *		
+ * Modified:
+ *		17 Jul 1991, added '@' and 'D' sort.
+ *		28 Jun 1991, added P-sort (same as p-sort, but keeps "+" for
+ *			     apollo-sr10 extended-acls sorted into groups)
+ *		22 Jan 1990, corrections to 'v'-sort
+ *		12 Oct 1989, refined inode-, uid-, gid-sorts so that if I_opt
+ *			     or G_opt are in two-column mode, we sort what the
+ *			     user sees.
+ *		11 Oct 1989, added apollo-only fix for t-sort for DSEE-directory
+ *			     names (ending with "$.*.$").
+ *		06 Oct 1989, modified 't' sort so that names beginning with '.'
+ *			     are sorted in a more natural manner
+ *		04 Oct 1989, added o,O sorts
  *		23 Jan 1989, added 'N' sort.
  *		18 Jan 1989, made 'dedsort_cmp()' public, for use by 'deduniq()'
  *		13 Sep 1988, use external 'ftype()', 'ftype2()'.
@@ -149,6 +109,19 @@ FLIST	*p1, *p2;
 	case '.':	cmp = dotcmp(p1->name, p2->name);
 			break;
 
+#ifdef	S_IFLNK
+			/* sort by link-text */
+	case '@':
+			if (p1->ltxt != 0 && p2->ltxt != 0)
+				cmp = strcmp(p1->ltxt, p2->ltxt);
+			else if (p1->ltxt != 0)
+				cmp = -1;
+			else if (p2->ltxt != 0)
+				cmp = 1;
+			else
+				cmp = 0;
+			break;
+#endif
 			/* sort by file types (suffixes) */
 	case 't':	cmp = strcmp(f_type(p1->name), f_type(p2->name));
 			break;
@@ -228,6 +201,7 @@ FLIST	*p1, *p2;
 				cmp = CMP(st_ino);
 			break;
 	case 'd':	cmp = p1->dord - p2->dord;	break;
+	case 'D':	cmp = CMP(st_dev);		break;
 
 			/* compare uid/gid fields numerically */
 	case 'U':	cmp = CMP(st_uid);

@@ -1,3 +1,8 @@
+1991-07-17  dickey@software.org
+
+	* src/version.h, src/dedsort.c, src/ded.hlp, src/sortset.c:
+	added @-sort and D-sort
+
 1991-07-16  dickey@software.org
 
 	* src/ded.c: modified logic of 'edithead()' to account for the case in
