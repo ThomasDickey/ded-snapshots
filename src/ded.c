@@ -1,5 +1,5 @@
 #if	!defined(NO_IDENT)
-static	char	Id[] = "$Header: /users/source/archives/ded.vcs/src/RCS/ded.c,v 12.38 1995/07/30 17:59:34 tom Exp $";
+static	char	Id[] = "$Header: /users/source/archives/ded.vcs/src/RCS/ded.c,v 12.39 1995/08/30 14:25:35 tom Exp $";
 #endif
 
 /*
@@ -7,6 +7,7 @@ static	char	Id[] = "$Header: /users/source/archives/ded.vcs/src/RCS/ded.c,v 12.3
  * Author:	T.E.Dickey
  * Created:	09 Nov 1987
  * Modified:
+ *		30 Aug 1995, added "-e" option.
  *		16 Jul 1994, allow DED_TREE to be file or directory.
  *		23 May 1994, port to Solaris.
  *		26 Apr 1994, provided sys5-like defaults for EDITOR, etc.
@@ -786,7 +787,9 @@ void	usage(_AR0)
 			"  -r KEY   set reverse sort",
 			"",
 			"Options controlling environment:",
+			"  -b       use box characters",
 			"  -c FILE  read DED commands from FILE",
+			"  -e       edit 'e' in new process",
 			"  -d       (debug)",
 			"  -l FILE  write DED commands to log-FILE",
 			"  -n       disable \"are you sure\" on quit",
@@ -862,6 +865,7 @@ _MAIN
 #include	"version.h"
 
 	int	optBox = FALSE;
+	int	optInprocess = TRUE;
 	register int	j;
 	auto	Stat_t	sb;
 	auto	int	c,
@@ -879,9 +883,10 @@ _MAIN
 	/* show when entering process */
 	(void)fflush(stdout);
 
-	while ((c = getopt(argc, argv, "abGIOPSTUZc:l:r:s:zdt:n")) != EOF)
+	while ((c = getopt(argc, argv, "abeGIOPSTUZc:l:r:s:zdt:n")) != EOF)
 	switch (c) {
-	case 'b':	optBox = TRUE;	break;
+	case 'b':	optBox = TRUE;		break;
+	case 'e':	optInprocess = FALSE;	break;
 	case 'a':	COMPLEMENT(gbl->A_opt);	break;
 	case 'G':	COMPLEMENT(gbl->G_opt);	break;
 	case 'I':	COMPLEMENT(gbl->I_opt);	break;
@@ -1251,13 +1256,6 @@ _MAIN
 	case 'c':	inline_command(gbl, ReplayInit(inline_nesting(gbl,c)));
 			break;
 
-	case CTL('e'):	/* pad-edit */
-	case CTL('v'):	/* pad-view */
-	case 'e':
-	case 'v':	/* enter new process with current file */
-			gbl = run_editor(gbl, (c & 037) != CTL('e'), (int)iscntrl(c));
-			break;
-
 	case 'm':	to_work(gbl,TRUE);
 			forkfile(gbl, ENV(PAGER), cNAME, TRUE+1);
 			break;
@@ -1296,7 +1294,7 @@ _MAIN
 				tree_visible = TRUE;
 				gbl = ft_view(gbl, tpath, &c);
 				tree_visible = FALSE;
-				if (c == 'e')
+				if (c == 'e' && !optInprocess)
 					new_process(gbl, tpath);
 				else if ((new = new_tree(gbl, tpath, c)) != NULL) {
 					gbl = new;
@@ -1304,6 +1302,18 @@ _MAIN
 				}
 			}
 			break;
+
+	case CTL('e'):	/* pad-edit */
+	case CTL('v'):	/* pad-view */
+	case 'e':
+	case 'v':	/* enter new process with current file */
+			if (!optInprocess
+			 || !realstat(gbl, gbl->curfile, &sb)
+			 || iscntrl(c)) {
+				gbl = run_editor(gbl, (c & 037) != CTL('e'), (int)iscntrl(c));
+				break;
+			}
+			/*FALLTHRU*/
 
 	case 'E':	/* enter new directory on ring */
 			gbl = edit_directory(gbl);
