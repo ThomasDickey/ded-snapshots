@@ -43,7 +43,7 @@
 #define	QSORT_SRC	FLIST
 #include	<td_qsort.h>
 
-MODULE_ID("$Id: dedsort.c,v 12.13 2001/01/30 01:59:11 tom Exp $")
+MODULE_ID("$Id: dedsort.c,v 12.14 2002/04/16 10:13:25 tom Exp $")
 
 #define	CHECKED(p)	(p->z_time == p->s.st_mtime)
 #define	CMPF(f)	(f(&(p1->s)) > f(&(p2->s)) ? -1 : (f(&(p1->s)) < f(&(p2->s)) ? 1 : 0))
@@ -184,7 +184,7 @@ public	int	dedsort_cmp(
 			break;
 
 	case 'l':	cmp = CMP(st_nlink);	break;
-	case 'i':	if (gbl->I_opt == 2) {
+	case 'i':	if (gbl->I_opt >= 2) {
 				cmp = CMP(st_dev);
 				if (cmp == 0)
 					cmp = CMP(st_ino);
@@ -196,21 +196,21 @@ public	int	dedsort_cmp(
 
 			/* compare uid/gid fields numerically */
 	case 'U':	cmp = CMP(st_uid);
-			if (cmp == 0 && gbl->G_opt == 2)
+			if (cmp == 0 && gbl->G_opt >= 2)
 				cmp = CMP(st_gid);
 			break;
 	case 'G':	cmp = CMP(st_gid);
-			if (cmp == 0 && gbl->G_opt == 2)
+			if (cmp == 0 && gbl->G_opt >= 2)
 				cmp = CMP(st_uid);
 			break;
 
 			/* compare uid/gid fields lexically */
 	case 'u':	cmp  = CMP2S(uid2s,st_uid);
-			if (cmp == 0 && gbl->G_opt == 2)
+			if (cmp == 0 && gbl->G_opt >= 2)
 				cmp  = CMP2S(gid2s,st_gid);
 			break;
 	case 'g':	cmp  = CMP2S(gid2s,st_gid);
-			if (cmp == 0 && gbl->G_opt == 2)
+			if (cmp == 0 && gbl->G_opt >= 2)
 				cmp  = CMP2S(gid2s,st_uid);
 			break;
 

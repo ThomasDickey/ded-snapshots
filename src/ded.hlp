@@ -1,4 +1,4 @@
-$Id: ded.hlp,v 12.4 1998/02/16 00:41:32 tom Exp $
+$Id: ded.hlp,v 12.5 2002/04/16 10:18:14 tom Exp $
 
 DED (Directory EDitor)
 ======================
@@ -63,7 +63,9 @@ Display-Adjustment:
 		Use "2P" to show uid/gid fields numerically.
   O		toggle rcs/sccs lock-owner display
   S		toggle filesize (in blocks) field. Use "2S" to show both.
-  T		toggle date+time length (Use "2T" to show numeric date)
+  T		toggle date+time length
+		Use "2T" to show date in days since the current time.
+		Use "3T" to show date in seconds since 1 Jan 1970.
   U		toggle filename display (unix vs apollo)
   V		toggle rcs/sccs version display
   Z		toggle rcs/sccs filedate display
