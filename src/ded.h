@@ -3,7 +3,7 @@
 
 #ifdef	MAIN
 #ifndef	lint
-static	char	*ded_h = "$Id: ded.h,v 9.5 1991/10/16 12:37:16 dickey Exp $";
+static	char	*ded_h = "$Id: ded.h,v 9.6 1991/10/17 08:20:52 dickey Exp $";
 #endif
 #endif	/* MAIN */
 
@@ -286,10 +286,6 @@ extern	int	fixtime(
 		_ar1(int,	j));
 
 extern	int	usage(_ar0);
-
-extern	int	main(
-		_arx(int,	argc)
-		_ar1(char **,	argv));
 
 /* *** "deddoit.c" *** */
 extern	int	deddoit(

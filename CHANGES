@@ -1,3 +1,7 @@
+1991-10-17  dickey@software.org
+
+	* src/ded.h: trim out redundant prototype for 'main()'
+
 1991-10-16  dickey@software.org
 
 	* user/ded.man: mods to inline-edit commands
