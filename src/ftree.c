@@ -1,5 +1,5 @@
 #ifndef	NO_IDENT
-static	char	Id[] = "$Id: ftree.c,v 12.28 1994/07/23 15:45:12 tom Exp $";
+static	char	Id[] = "$Id: ftree.c,v 12.30 1994/07/24 01:13:35 tom Exp $";
 #endif
 
 /*
@@ -1067,6 +1067,7 @@ private	int	ft_show(
 #else
 					PRINTW(fmt, len, fill);
 #endif
+					move(row-1, LEN_MARK + (count+1-k) * BAR_WIDTH);
 					limit -= len;
 				}
 				count = 0;
@@ -1418,7 +1419,7 @@ public	RING *	ft_view(
 	_DCL(int *,	cmdp)
 {
 	static	 DYN *	my_text;
-	static	 HIST 	*JumpHistory, *FindHistory;
+	static	 HIST 	*JumpHistory, *FindHistory, *NameHistory;
 	auto	 RING *	tmp;
 	auto	 int	row,
 			lvl,
@@ -1645,7 +1646,7 @@ public	RING *	ft_view(
 						Null,
 						&my_text,
 						(DYN **)0,
-						NO_HISTORY,
+						&NameHistory,
 						'=',
 						MAXPATHLEN)))
 					break;

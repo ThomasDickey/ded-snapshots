@@ -1,9 +1,18 @@
 /*
- * $Id: version.h,v 12.5 1994/07/01 00:21:51 tom Exp $
+ * $Id: version.h,v 12.6 1994/07/24 01:01:24 tom Exp $
  * Version-identifier for DED
  * $Log: version.h,v $
- * Revision 12.5  1994/07/01 00:21:51  tom
- * S-sort. Mods to make scrolling smoother.
+ * Revision 12.6  1994/07/24 01:01:24  tom
+ * Allow '*' to have repeat count.
+ * Handle empty directories better (force '.').
+ * Mods for $DED_TREE.
+ * Revised ftree display; do left/right scroll; renamed 'A' to '&'.
+ * Support for auxiliary character set/ncurses.
+ * Added color support.
+ * Allow resizing (if curses supports it).
+ *
+ *		Revision 12.5  1994/07/01  00:21:51  tom
+ *		S-sort. Mods to make scrolling smoother.
  *
  *		Revision 12.4  1994/07/01  00:18:43  tom
  *		HP/UX port. Linux port. Mods for autoconf. Mods for resizing (non-Sys5)
@@ -286,4 +295,4 @@
  * 01 Dec 1987, added '*', '^' commands, made '%' refresh screen
  * 25 Nov 1987, added sccs-support (V,z,Z toggles, V,z,Z sorts)
  */
-static	char	version[] = "$Date: 1994/07/01 00:21:51 $";
+static	char	version[] = "$Date: 1994/07/24 01:01:24 $";

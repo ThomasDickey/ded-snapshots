@@ -1,3 +1,11 @@
+1994-07-26  Thomas E. Dickey  <dickey@clark.net>
+
+	* src/ded.c:
+	made a (temporary?) hack to add "-b" option so I can test SYS5_CURSES w/o
+	having box characters.
+
+	* src/boxchars.c: vline, hline are macros somewhere on SunOS.
+
 1994-07-23  Thomas E. Dickey  <dickey@clark.net>
 
 	* src/ftree.c: addchnstr doesn't move.

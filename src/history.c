@@ -1,5 +1,5 @@
 #if	!defined(NO_IDENT)
-static	char	Id[] = "$Id: history.c,v 12.3 1993/10/29 20:26:57 dickey Exp $";
+static	char	Id[] = "$Id: history.c,v 12.4 1994/07/24 00:57:59 tom Exp $";
 #endif
 
 /*
@@ -7,6 +7,7 @@ static	char	Id[] = "$Id: history.c,v 12.3 1993/10/29 20:26:57 dickey Exp $";
  * Author:	T.E.Dickey
  * Created:	07 Aug 1992
  * Modified:
+ *		23 Jul 1994, added 'show_history()'
  *		29 Oct 1993, ifdef-ident
  *		28 Sep 1993, gcc warnings
  *		28 Aug 1992, if caller puts history item which is repeated,
@@ -26,7 +27,7 @@ static	char	Id[] = "$Id: history.c,v 12.3 1993/10/29 20:26:57 dickey Exp $";
 #define	MAX_AGE	10
 
 #ifdef	DEBUG
-private	void	show_history(
+private	void	dump_history(
 	_ARX(HIST *,	table)
 	_AR1(char *,	tag)
 		)
@@ -50,9 +51,9 @@ private	void	show_history(
 		table = table->next;
 	}
 }
-#define	SHOW_HISTORY(table,tag)	show_history(table,tag)
+#define	DUMP_HISTORY(table,tag)	dump_history(table,tag)
 #else
-#define	SHOW_HISTORY(table,tag)
+#define	DUMP_HISTORY(table,tag)
 #endif
 
 private	int	same_history(
@@ -115,10 +116,9 @@ public	void	put_history(
 				dofree((char *)q);
 			}
 		}
-		SHOW_HISTORY(*table,"put");
+		DUMP_HISTORY(*table,"put");
 	}
 }
-
 
 /*
  * Returns the string corresponding to the 'age' (indexed from 0), or null if
@@ -139,4 +139,34 @@ public	char *	get_history(
 		table = table->next;
 	}
 	return table ? table->text : 0;
+}
+
+/*
+ * Displays the command-history for a given filelist.  The first item is always
+ * the command that's cached with the RING structure.
+ */
+public	void	show_history(
+	_ARX(RING *,	gbl)
+	_AR1(int,	depth)
+		)
+	_DCL(RING *,	gbl)
+	_DCL(int,	depth)
+{
+	HIST *	table	= cmd_history;
+	char	temp[20];
+	int	count	= 0;
+	int	shown	= 1;
+
+	dedshow(gbl, "Command=", dyn_string(gbl->cmd_sh));
+	while ((table != 0) && (count < depth)) {
+		if ((count++ != 0)
+		 || strcmp(table->text, dyn_string(gbl->cmd_sh))) {
+			FORMAT(temp, "%d %c ", ++shown, gbl->clr_sh ? '%' : '!');
+			dedshow2(temp);
+			dedshow2(table->text);
+			dedshow2("\n");
+		}
+		table = table->next;
+	}
+	showC(gbl);
 }

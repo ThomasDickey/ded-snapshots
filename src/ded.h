@@ -3,7 +3,7 @@
 
 #ifdef	MAIN
 #if	!defined(NO_IDENT)
-static	char	*ded_h = "$Id: ded.h,v 12.31 1994/07/23 14:10:55 tom Exp $";
+static	char	*ded_h = "$Id: ded.h,v 12.32 1994/07/24 00:57:34 tom Exp $";
 #endif
 #endif	/* MAIN */
 
@@ -207,6 +207,8 @@ MAIN	char	old_wd[MAXPATHLEN]; /* original working-directory */
 MAIN	int	mark_W;		/* row of work-area marker */
 MAIN	int	tree_visible;	/* denotes filelist vs directory-tree */
 MAIN	int	gets_active;	/* true while in 'dlog_string()' */
+MAIN	HIST	*cmd_history;	/* command-history shared by all filelists */
+
 
 /* *** "boxchars.c" *** */
 #define	BAR_WIDTH 4
@@ -415,6 +417,9 @@ extern	int	path_RESOLVE(
 		_ar1(char *,	path));
 
 /* *** "dedshow.c" *** */
+extern	void	dedshow2 (
+		_ar1(char *,	arg));
+
 extern	void	dedshow(
 		_arx(RING *,	gbl)
 		_arx(char *,	tag)
@@ -671,7 +676,7 @@ extern	int	ft_scan(
 		_arx(int,	levels)
 		_ar1(int,	base));
 
-public	void	ft_set_levels (
+extern	void	ft_set_levels (
 		_arx(int,	row)
 		_ar1(int,	levels));
 
@@ -682,6 +687,8 @@ extern	int	ft_stat(
 extern	void	ft_write(_ar0);
 
 /* *** "history.c" *** */
+extern	HIST	*cmd_history;
+
 extern	void	put_history(
 		_arx(HIST **,	table)
 		_ar1(char *,	text));
@@ -689,6 +696,10 @@ extern	void	put_history(
 extern	char *	get_history(
 		_arx(HIST *,	table)
 		_ar1(int,	age));
+
+extern	void	show_history(
+		_arx(RING *,	gbl)
+		_ar1(int,	depth));
 
 /* *** "restat.c" *** */
 extern	void	restat(

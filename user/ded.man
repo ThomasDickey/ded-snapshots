@@ -1,4 +1,4 @@
-.\" $Id: ded.man,v 12.3 1994/07/23 14:06:31 tom Exp $
+.\" $Id: ded.man,v 12.4 1994/07/24 01:08:54 tom Exp $
 .if t .ds T \(tm
 .if n .ds T (tm)
 .
@@ -993,6 +993,7 @@ Prompt for, and execute a shell command, prompting
 .TP
 .B *
 Display text of last "\fB!\fR" or "\fB%\fR" command.
+Use a repeat count to display items from the command stack.
 .TP
 .B :
 Edit text of last "\fB!\fR" or "\fB%\fR" command, re-execute.

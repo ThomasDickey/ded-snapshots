@@ -1,7 +1,3 @@
-#if	!defined(NO_IDENT)
-static	char	Id[] = "$Id: dedshow.c,v 12.5 1994/07/02 20:07:31 tom Exp $";
-#endif
-
 /*
  * Title:	dedshow.c (ded show-text)
  * Author:	T.E.Dickey
@@ -24,7 +20,9 @@ static	char	Id[] = "$Id: dedshow.c,v 12.5 1994/07/02 20:07:31 tom Exp $";
 
 #include	"ded.h"
 
-private	void	Show (
+MODULE_ID("$Id: dedshow.c,v 12.7 1994/07/24 00:48:52 tom Exp $")
+
+public	void	dedshow2 (
 	_AR1(char *,	arg))
 	_DCL(char *,	arg)
 {
@@ -63,7 +61,7 @@ private	void	Show (
 		} else {
 			addch('{');
 			standout();
-			Show("...");
+			dedshow2("...");
 			standend();
 			addch('}');
 			getyx(stdscr, y, x);
@@ -93,9 +91,9 @@ void	dedshow(
 		move(y+1,0);
 	}
 
-	Show(tag);
-	Show(arg);
-	Show("\n");
+	dedshow2(tag);
+	dedshow2(arg);
+	dedshow2("\n");
 
 	clrtoeol();
 }
