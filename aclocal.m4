@@ -1,4 +1,4 @@
-dnl $Id: aclocal.m4,v 12.14 2004/09/17 00:37:27 tom Exp $
+dnl $Id: aclocal.m4,v 12.15 2005/01/25 01:36:14 tom Exp $
 dnl Macros for DED configure script.
 dnl ---------------------------------------------------------------------------
 dnl ---------------------------------------------------------------------------
@@ -103,7 +103,7 @@ AC_SUBST(SHOW_CC)
 AC_SUBST(ECHO_CC)
 ])dnl
 dnl ---------------------------------------------------------------------------
-dnl CF_FIND_LIBRARY version: 7 updated: 2000/04/13 21:38:04
+dnl CF_FIND_LIBRARY version: 8 updated: 2004/11/23 20:14:58
 dnl ---------------
 dnl Look for a non-standard library, given parameters for AC_TRY_LINK.  We
 dnl prefer a standard location, and use -L options only if we do not find the
@@ -113,7 +113,7 @@ dnl	$2 = library class, usually the same as library name
 dnl	$3 = includes
 dnl	$4 = code fragment to compile/link
 dnl	$5 = corresponding function-name
-dnl	$6 = flag, nonnull if failure causes an error-exit
+dnl	$6 = flag, nonnull if failure should not cause an error-exit
 dnl
 dnl Sets the variable "$cf_libdir" as a side-effect, so we can see if we had
 dnl to use a -L option.

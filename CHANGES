@@ -1,3 +1,12 @@
+2005-01-24  Thomas E. Dickey  <dickey@invisible-island.net>
+
+	* src/dedview.c, src/dedtype.c, src/dedscan.c, src/ded2s.c:
+	Intel compiler warning
+
+	* aclocal.m4: comments for CF_FIND_LIBRARY
+
+	* src/ded2s.c: add a cast to quiet compiler
+
 2004-09-16  Thomas E. Dickey  <dickey@invisible-island.net>
 
 	* configure: RCS_BASE

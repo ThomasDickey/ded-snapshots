@@ -26,7 +26,7 @@
 
 #include	"ded.h"
 
-MODULE_ID("$Id: dedview.c,v 12.45 2004/03/09 00:16:12 tom Exp $")
+MODULE_ID("$Id: dedview.c,v 12.46 2005/01/25 01:46:28 tom Exp $")
 
 #define	MINLIST	2		/* minimum length of file-list + header */
 #define	MINWORK	3		/* minimum size of work-area */
@@ -312,7 +312,7 @@ show_what(VIEW * vp)
 		(long) ((gbl->tag_opt > 1) ? gbl->tag_bytes : gbl->tag_blocks),
 		(gbl->tag_opt > 1) ? "bytes" : "blocks");
     }
-    sprintf(buffer + strlen(buffer), "%d of %d [%ctime]",
+    sprintf(buffer + strlen(buffer), "%u of %u [%ctime]",
 	    gbl->curfile + 1,
 	    gbl->numfiles,
 	    datechr[gbl->dateopt]);

@@ -59,7 +59,7 @@
 #define		DIR_PTYPES	/* includes directory-stuff */
 #include	"ded.h"
 
-MODULE_ID("$Id: dedtype.c,v 12.33 2004/03/07 23:25:18 tom Exp $")
+MODULE_ID("$Id: dedtype.c,v 12.34 2005/01/25 01:45:46 tom Exp $")
 
 typedef struct {
     OFF_T offset;
@@ -663,11 +663,7 @@ dedtype(RING * gbl,
 	DIR *dp;
 	DirentT *de;
 	char bfr[MAXPATHLEN];
-#ifdef	apollo
-# define INO_FMT "%08lx"
-#else
 # define INO_FMT "%5lu"
-#endif
 	if ((InFile = tmpfile()) == 0) {
 	    warn(gbl, "tmp-file");
 	    return;
@@ -678,7 +674,7 @@ dedtype(RING * gbl,
 				  NAMLEN(de),
 				  de->d_name,
 				  FALSE);
-		FPRINTF(InFile, INO_FMT, (long) de->d_ino);
+		FPRINTF(InFile, INO_FMT, (unsigned long) de->d_ino);
 		FPRINTF(InFile, " %s\n", bfr);
 	    }
 	    (void) closedir(dp);
