@@ -1,10 +1,16 @@
-# $Header: /users/source/archives/ded.vcs/src/RCS/Makefile,v 1.28 1989/03/28 16:23:30 dickey Exp $
+# $Header: /users/source/archives/ded.vcs/src/RCS/Makefile,v 2.0 1989/04/03 08:13:33 ste_cm Exp $
 # MAKE-file for directory editor
 #
 # $Log: Makefile,v $
-# Revision 1.28  1989/03/28 16:23:30  dickey
-# corrected 'destroy' rule
+# Revision 2.0  1989/04/03 08:13:33  ste_cm
+# BASELINE Thu Apr  6 13:14:13 EDT 1989
 #
+#        Revision 1.29  89/04/03  08:13:33  dickey
+#        added README to sources
+#        
+#        Revision 1.28  89/03/28  16:23:30  dickey
+#        corrected 'destroy' rule
+#        
 #        Revision 1.27  89/03/28  13:04:04  dickey
 #        added 'run_tests' rule
 #        
@@ -73,7 +79,7 @@ OBJS	= \
 	dlog.o \
 	ftree.o
 #
-SRCS	= $(CSRC) $(HSRC) ded.hlp
+SRCS	= README $(CSRC) $(HSRC) ded.hlp
 MAIN_O	= ded.o $A $(LIBS)
 #
 ####### (Standard Productions) #################################################
