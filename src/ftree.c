@@ -1,5 +1,5 @@
 #if	!defined(NO_IDENT)
-static	char	Id[] = "$Id: ftree.c,v 12.20 1994/07/15 09:44:32 tom Exp $";
+static	char	Id[] = "$Id: ftree.c,v 12.22 1994/07/16 22:47:59 tom Exp $";
 #endif
 
 /*
@@ -399,10 +399,10 @@ private	int	fd_find (
 	static	REGEX_T	expr;		/* regex-state/output		*/
 	static	int	ok_expr;
 
-	register int	step,
-		new = old,
-		skip,
-		looped = 0;
+	register int	snxt,
+			new = old,
+			skip,
+			looped = 0;
 
 	if (cmd == '?' || cmd == '/') {
 		if (strchr(buffer, (*gap))) {
@@ -411,10 +411,10 @@ private	int	fd_find (
 		}
 		if (*buffer)
 			(void)strcpy(pattern,buffer);
-		step =
+		snxt =
 		next = (cmd == '/') ? 1 : -1;
 	} else
-		step = (cmd == 'n') ? next : -next;
+		snxt = (cmd == 'n') ? next : -next;
 
 	if (!*pattern && strchr("?/nN", cmd)) {
 		waitmsg("No previous regular expression");
@@ -426,7 +426,7 @@ private	int	fd_find (
 	if ((ok_expr = NEW_REGEX(expr,pattern)) != 0) {
 		do {
 			if (looped++ && (new == old)) { beep();	return(-1); }
-			else if ((new += step) < 0)		new = FDlast;
+			else if ((new += snxt) < 0)		new = FDlast;
 			else if (new > FDlast)			new = 0;
 			skip = (out_of_sight && !fd_show(new));
 		} while (skip || !GOT_REGEX(expr, ftree[new].f_name));
@@ -504,19 +504,6 @@ private	int	row2node (
 	return node;
 }
 #endif
-
-/*
- * Returns a code appropriate for displaying the directory-tree's lines
- */
-private	char *	fd_line (
-	_AR1(int,	height))
-	_DCL(int,	height)
-{
-	if (height != 1) {
-		return("|   ");
-	}
-	return("|---");
-}
 
 /*
  * Compute a pathname for a given node
@@ -970,8 +957,16 @@ private	int	ft_show(
 			if (*marker == '.' && (ring_get(bfr) != 0))
 				marker = "* ";
 			PRINTW("%5d%s", j, marker);
-			for (k = fd_level(j); k > 0; k--)
-				addstr(fd_line(k));
+			for (k = fd_level(j); k > 0; k--) {
+				chtype	*fill = (k != 1)
+						? bar_space
+						: bar_hline;
+#ifdef addchnstr
+				addchnstr(fill, BAR_WIDTH);
+#else
+				addstr(fill);
+#endif
+			}
 			if (ftree[j].f_mark & MARKED)	standout();
 			(void)ded2string(gbl, bfr, sizeof(bfr), ftree[j].f_name, FALSE);
 			PRINTW("%s%s",
@@ -1365,7 +1360,7 @@ public	RING *	ft_view(
 			if (xt_mouse.released) {
 				if (xt_mouse.button == 1
 				 && xt_mouse.row >= LOSHOW-1) {
-					j = strlen(fd_line(1));
+					j = BAR_WIDTH;
 					row = row2node(xt_mouse.row);
 					lvl = (xt_mouse.col - 7 + (j/2)) / j;
 					if (lvl < 0)

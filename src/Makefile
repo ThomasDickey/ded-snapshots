@@ -1,4 +1,4 @@
-# $Id: Makefile,v 12.8 1994/07/12 18:01:08 tom Exp $
+# $Id: Makefile,v 12.10 1994/07/16 22:36:06 tom Exp $
 # MAKE-file for directory editor
 
 THIS	= ded
@@ -6,7 +6,7 @@ TOP	= ../..
 include $(TOP)/td_lib/support/td_lib.mk
 
 ####### (Standard Lists) #######################################################
-LINTLIBS= -ltd -lcurses -lapollo
+LINTLIBS= -ltd -lcurses
 
 DED_H	= $(THIS).h $(CURSES_H) $I/dyn_str.h
 
@@ -14,6 +14,7 @@ ALL	= $B/$(THIS) $B/$(THIS).hlp
 
 CSRC	=\
 	$(THIS).c \
+	boxchars.c \
 	ded2s.c \
 	dedblip.c \
 	dedcolor.c \
@@ -50,6 +51,7 @@ HSRC	= \
 
 Z	= $(THIS).a
 OBJS	= \
+	$Z(boxchars.o) \
 	$Z(ded2s.o) \
 	$Z(dedblip.o) \
 	$Z(dedcolor.o) \

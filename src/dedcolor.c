@@ -1,5 +1,5 @@
 #ifndef	NO_IDENT
-static	char	Id[] = "$Id: dedcolor.c,v 12.4 1994/07/12 19:02:08 tom Exp $";
+static	char	Id[] = "$Id: dedcolor.c,v 12.5 1994/07/16 22:08:13 tom Exp $";
 #endif
 
 /*
@@ -316,7 +316,7 @@ private	int	AttributesOf(
 {
 	KEYATTR	*p;
 	Stat_t	*sb	= &(entry->s);
-	char	*suffix = ftype(entry->name);
+	char	*suffix = ftype2(entry->name);
 	int	attr	= A_NORMAL;
 
 	for (p = keypairs; p != 0; p = p->next) {

@@ -3,7 +3,7 @@
 
 #ifdef	MAIN
 #if	!defined(NO_IDENT)
-static	char	*ded_h = "$Id: ded.h,v 12.28 1994/07/15 13:04:54 tom Exp $";
+static	char	*ded_h = "$Id: ded.h,v 12.29 1994/07/16 22:41:26 tom Exp $";
 #endif
 #endif	/* MAIN */
 
@@ -207,6 +207,15 @@ MAIN	char	old_wd[MAXPATHLEN]; /* original working-directory */
 MAIN	int	mark_W;		/* row of work-area marker */
 MAIN	int	tree_visible;	/* denotes filelist vs directory-tree */
 MAIN	int	gets_active;	/* true while in 'dlog_string()' */
+
+/* *** "boxchars.c" *** */
+#define	BAR_WIDTH 4
+extern	chtype	bar_space[];
+extern	chtype	bar_hline[];
+extern	chtype	bar_ruler[];
+
+extern	void	boxchars(
+		_ar1(int,	flag));
 
 /* *** "ded.c" *** */
 extern	int	debug;

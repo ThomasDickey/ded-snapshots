@@ -1,4 +1,4 @@
-MANIFEST for ded, version t19940715
+MANIFEST for ded, version t19940716
 --------------------------------------------------------------------------------
 MANIFEST                        this file
 COPYING                         copyright notice for DED
@@ -12,6 +12,7 @@ certify/release.txt             release history for DED
 src                             subdirectory
 src/Makefile                    makefile for src-directory
 src/README                      to-do list for DED
+src/boxchars.c                  encapsulate knowledge of box-characters
 src/ded.c                       main program of DED
 src/ded.h                       common definitions of DED
 src/ded.hlp                     help-file for DED
