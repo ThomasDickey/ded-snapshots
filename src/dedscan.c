@@ -1,5 +1,5 @@
 #if	!defined(NO_IDENT)
-static	char	Id[] = "$Id: dedscan.c,v 12.16 1994/10/05 23:55:32 tom Exp $";
+static	char	Id[] = "$Id: dedscan.c,v 12.17 1994/10/06 23:41:05 tom Exp $";
 #endif
 
 /*
@@ -438,7 +438,7 @@ public	void	statSCCS(
 	if (gbl->Z_opt) {
 		if (isFILE(f_->s.st_mode)) {
 #ifdef CMV_PATH
-			purge_cmv_dir(gbl->new_wd, ".");
+			purge_cmv_dir(gbl->new_wd, name);
 #endif
 			lastrev(gbl->new_wd,
 				name,
