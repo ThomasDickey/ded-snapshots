@@ -1,3 +1,7 @@
+2000-04-08  Thomas E. Dickey  <dickey@clark.net>
+
+	* src/ded.c: I didn't really need to reset trace() for ncurses
+
 2000-01-24  Thomas E. Dickey  <dickey@clark.net>
 
 	* aclocal.m4: resync with my-autoconf (minor changes)
