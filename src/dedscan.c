@@ -1,5 +1,5 @@
 #if	!defined(NO_IDENT)
-static	char	Id[] = "$Id: dedscan.c,v 12.13 1994/08/15 23:51:11 tom Exp $";
+static	char	Id[] = "$Id: dedscan.c,v 12.14 1994/09/27 23:37:21 tom Exp $";
 #endif
 
 /*
@@ -416,44 +416,6 @@ public	int	dedscan (
 /************************************************************************
  *	alternate entrypoints						*
  ************************************************************************/
-
-/*
- * This is driven by an environment variable, but ultimately should be done
- * via ".dedrc"
- */
-typedef	enum TrySCCS { DontTry, TrySccs, TryRcs, TryCmVision } TRY;
-
-private	TRY	try_order(
-	_AR1(int,	try))
-	_DCL(int,	try)
-{
-	static	int	 num_order;
-	static	TRY vec_order[10];
-
-	if (num_order == 0) {
-		char	*env = getenv("DED_CM_LOOKUP");
-		if (env != 0) {
-			char	temp[BUFSIZ];
-			char	*s;
-
-			env = strlcpy(temp, env);
-			while ((s = strtok(env, ",")) != 0) {
-				if (!strcmp(s, "rcs")) {
-					vec_order[num_order++] = TryRcs;
-				} else if (!strcmp(s, "sccs")) {
-					vec_order[num_order++] = TrySccs;
-				} else if (!strcmp(s, "cmv")) {
-					vec_order[num_order++] = TryCmVision;
-				}
-				env = 0;
-			}
-		}
-		vec_order[num_order++] = DontTry; /* end-marker */
-	}
-	if (try >= num_order)
-		try = num_order;
-	return vec_order[try];
-}
 
 /*
  * This entrypoint explicitly examines a file to see what sccs file relates
