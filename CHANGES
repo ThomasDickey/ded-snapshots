@@ -1,3 +1,8 @@
+2004-03-18  Thomas E. Dickey  <dickey@invisible-island.net>
+
+	* src/dedname.c, src/ftree.c:
+	update old_wd if we rename the directory it was.
+
 2004-03-08  Thomas E. Dickey  <dickey@invisible-island.net>
 
 	* src/dedview.c: add a cast to ensure that "%ld" honored.
