@@ -1,4 +1,4 @@
-/* $Id: ded.h,v 4.0 1989/08/08 13:49:03 ste_cm Rel $ */
+/* $Id: ded.h,v 4.1 1989/09/06 15:38:11 dickey Exp $ */
 
 /*
  * Created:	09 Nov 1987
@@ -25,20 +25,6 @@ extern	char	*doalloc(),	/* (re)allocate memory		*/
 #ifndef	MAXPATHLEN
 #define	MAXPATHLEN	BUFSIZ
 #endif	MAXPATHLEN
-
-/*
- * Map differences between BSD4.2 and SYSTEM5 runtime libraries:
- */
-#ifdef	SYSTEM5
-#define	getwd(p)	getcwd(p,sizeof(p)-2)
-extern	char	*getcwd();
-#else	BSD
-extern	char	*getwd();
-#endif	SYSTEM5/BSD
-
-#ifndef	S_IFLNK
-#define	lstat	stat
-#endif	S_IFLNK
 
 /*
  * SYSTEM5/BSD4.x differences between regular-expression handling:
