@@ -1,5 +1,5 @@
 #ifndef	NO_SCCS_ID
-static	char	sccs_id[] = "@(#)ftree.c	1.11 87/09/29 12:48:21";
+static	char	sccs_id[] = "@(#)ftree.c	1.12 87/09/30 11:30:13";
 #endif
 
 /*
@@ -34,12 +34,18 @@ static	char	sccs_id[] = "@(#)ftree.c	1.11 87/09/29 12:48:21";
 extern	long	time();
 extern	int	errno;
 extern	char	*getenv(),
+		*regcmp(),
+		*regex(),
 		*strcat(),
 		*strchr(),
 		*strcpy();
+extern	void	free();
 
 #include	"screen.h"
-extern	char	*doalloc();
+#ifdef	lint
+#define	doalloc	doalloc4
+#endif	lint
+extern	long	*doalloc();
 
 #define	MAXPATHLEN	BUFSIZ
 
@@ -102,6 +108,48 @@ fd_alloc()
 			size++;
 		}
 	}
+}
+
+/*
+ * Perform a search through the database for a selected directory name.
+ */
+static
+fd_find (buffer,cmd,old)
+char	*buffer, cmd;
+{
+static	int	next = 0;		/* last-direction		*/
+static	char	*expr;			/* 'regcmp()' output		*/
+
+register int	step,
+	new = old,
+	looped = 0;
+
+	if (cmd == '?' || cmd == '/') {
+		if (strchr(buffer, '/'))
+			return(-1);	/* we don't search full-paths */
+		if (*buffer) {
+			if (next) {	/* retain old pattern til new one */
+				next = 0;
+				free (expr);	/* Release old target */
+			}
+			expr = regcmp(buffer, 0);
+		}
+		if (expr)
+			step =
+			next = (cmd == '/') ? 1 : -1;
+	} else
+		step = (cmd == 'n') ? next : -next;
+
+	if (step && expr) {
+		do {
+			if (looped++ && (new == old))		return(old);
+			else if ((new += step) < 0)		new = FDlast;
+			else if (new > FDlast)			new = 0;
+		}
+		while (! regex(expr, ftree[new].f_name, 0));
+		return(new);
+	}
+	return(-1);
 }
 
 /*
@@ -562,14 +610,32 @@ int	old = f->f_mark;
 }
 
 static
+toggle_sccs()
+{
+register int j;
+	showsccs = !showsccs;
+	for (j = 0; j <= FDlast; j++) {
+	register FTREE *f = &ftree[j];
+		if (!strcmp(f->f_name,"sccs")) {
+			f->f_mark ^= NOSCCS;
+			showdiff = -1;
+		}
+	}
+}
+
+static
 scroll_to(node)
 {
 register int j = node;
 	if (!strcmp(ftree[j].f_name, "sccs") && !showsccs)
 		showsccs = TRUE;
+	if (ftree[j].f_mark & NOSCCS)
+		toggle_sccs();
 	while (j = ftree[j].f_root) {	/* ensure this is visible! */
 		if (ftree[j].f_mark & NOVIEW)
 			markit(j,NOVIEW,FALSE);
+		if (ftree[j].f_mark & NOSCCS)
+			toggle_sccs();
 	}
 	(void)limits(showbase,showbase);
 	while (node > showlast) (void)forward(1);
@@ -669,12 +735,22 @@ register int j;
 				beep();
 			break;
 
+		case '/':
+		case '?':
+		case 'n':
+		case 'N':
+			*cwdpath = '\0';
 		case '@':
-			move(0,0);
-			printw("find: %s", cwdpath);
-			refresh();
-			rawgets(cwdpath,sizeof(cwdpath),FALSE);
-			if ((c = do_find(cwdpath)) >= 0) {
+			if (!isalpha(c)) {
+				move(0,0);
+				printw("find: %s", cwdpath);
+				clrtoeol();
+				refresh();
+				rawgets(cwdpath,sizeof(cwdpath),FALSE);
+			}
+			if (c == '@')	c = do_find(cwdpath);
+			else		c = fd_find(cwdpath,c,row);
+			if (c >= 0) {
 				row = c;
 				lvl = fd_level(row);
 				scroll_to(row);
@@ -730,14 +806,7 @@ register int j;
 
 		/* toggle flag which controls whether we show 'sccs' */
 		case 'Z':
-			showsccs = !showsccs;
-			for (j = 0; j <= FDlast; j++) {
-			register FTREE *f = &ftree[j];
-				if (!strcmp(f->f_name,"sccs")) {
-					f->f_mark ^= NOSCCS;
-					showdiff = -1;
-				}
-			}
+			toggle_sccs();
 			scroll_to(row);
 			break;
 
