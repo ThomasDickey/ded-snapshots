@@ -1,11 +1,12 @@
 #ifndef	lint
-static	char	Id[] = "$Id: ftree.c,v 10.19 1992/04/06 12:06:49 dickey Exp $";
+static	char	Id[] = "$Id: ftree.c,v 11.0 1992/07/23 14:19:12 ste_cm Rel $";
 #endif
 
 /*
  * Author:	T.E.Dickey
  * Created:	02 Sep 1987
  * Modified:
+ *		23 Jul 1992, in '~' command, do chdir to resolve symbolic links
  *		01 Apr 1992, convert most global variables to RING-struct.
  *		30 Mar 1992, in 'ft_write()', copy strings to temp-buffer first
  *			     to avoid having to make lots of writes.
@@ -1311,14 +1312,19 @@ public	RING *	ft_view(
 			}
 			if (c != '@' && c != '~')
 				c = fd_find(cwdpath,c,row);
+			else if (!*cwdpath)
+				c = 0;
 			else {
 				abspath(cwdpath);
-				if ((c = do_find(cwdpath)) < 0) {
+				if (chdir(cwdpath) < 0)
+					c = -1;
+				else if ((c = do_find(getwd(cwdpath))) < 0) {
 					(void) ft_stat(cwdpath,cwdpath);
 					c = do_find(cwdpath);
 				}
 				if (c < 0)	beep();
 			}
+
 			if (c >= 0) {
 				row = c;
 				lvl = fd_level(row);

@@ -1,3 +1,69 @@
+1992-07-23  dickey@software.org
+
+	* src/ftree.c:
+	overlooked special case where I jump to '/' by '@' followed
+	by ^U
+
+1992-07-23  ste_cm@software.org
+
+	* src/ftree.c: BASELINE Thu Jul 23 14:22:47 1992
+
+1992-07-23  dickey@software.org
+
+	* test/Makefile: added 'test4.cmd'
+
+1992-07-23  ste_cm@software.org
+
+	* test/Makefile: BASELINE Thu Jul 23 12:10:21 1992
+
+1992-07-23  dickey@software.org
+
+	* test/run_test.sh: typo
+
+1992-07-23  ste_cm@software.org
+
+	* test/run_test.sh: BASELINE Thu Jul 23 12:10:21 1992
+
+1992-07-23  dickey@software.org
+
+	* src/dedring.c:
+	oops: when rewriting to get rid of globals, forgot to modify
+	'ring_rename()' so that it would (properly) re-insert items.
+
+1992-07-23  ste_cm@software.org
+
+	* src/dedring.c: BASELINE Thu Jul 23 12:04:51 1992
+
+1992-07-23  dickey@software.org
+
+	* test/test4.cmd: RCS_BASE
+
+1992-07-23  ste_cm@software.org
+
+	* test/test4.cmd: BASELINE Thu Jul 23 12:10:21 1992
+
+1992-07-23  dickey@software.org
+
+	* test/edit_test.sh:
+	make CM_TOOLS substitute global (in case of rename, which has 2 per line)
+
+1992-07-23  ste_cm@software.org
+
+	* test/edit_test.sh: BASELINE Thu Jul 23 12:10:21 1992
+
+	* test/edit_test.sh:
+	BASELINE Thu May  6 14:26:47 1993 -- split from CM_TOOLS #11
+
+1992-07-23  dickey@software.org
+
+	* test/run_test.sh:
+	make this able to generate scripts, or to run only specified scripts
+
+	* src/ftree.c:
+	modified '~' command to do a chdir/getwd to try to resolve
+	symbolic links.  I had to do this because of the bizarre
+	configuration on our SunOs systems.
+
 1992-07-02  dickey@software.org
 
 	* src/ded.c: corrected a place where we cannot reopen /dev/tty
