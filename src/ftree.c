@@ -1,14 +1,17 @@
 #ifndef	lint
-static	char	Id[] = "$Id: ftree.c,v 9.1 1991/06/28 08:15:22 dickey Exp $";
+static	char	Id[] = "$Id: ftree.c,v 9.2 1991/07/15 15:12:31 dickey Exp $";
 #endif
 
 /*
  * Author:	T.E.Dickey
  * Created:	02 Sep 1987
  * $Log: ftree.c,v $
- * Revision 9.1  1991/06/28 08:15:22  dickey
- * lint (apollo sr10.3)
+ * Revision 9.2  1991/07/15 15:12:31  dickey
+ * added guard in case 'ft_insert()' fails to insert current-dir
  *
+ *		Revision 9.1  91/06/28  08:15:22  dickey
+ *		lint (apollo sr10.3)
+ *		
  *		Revision 9.0  91/06/04  08:32:39  ste_cm
  *		BASELINE Mon Jun 10 10:09:56 1991 -- apollo sr10.3
  *		
@@ -1096,7 +1099,10 @@ register int j;
 static
 scroll_to(node)
 {
-register int j = node;
+	register int j;
+	if (node < 0)
+		node = 0;
+	j = node;
 
 	if (ftree[j].f_mark & NOSCCS)
 		toggle_sccs();
@@ -1130,7 +1136,10 @@ char	*path;
 	/* set initial position */
 	abspath(strcpy(cwdpath,path));
 	ft_insert(cwdpath);
-	row = do_find(cwdpath);
+	if ((row = do_find(cwdpath)) < 0) {
+		waitmsg(cwdpath);
+		return 'E';
+	}
 	lvl = fd_level(row);
 	scroll_to(row);
 	showdiff = -1;
