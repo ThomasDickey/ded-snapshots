@@ -1,3 +1,23 @@
+1991-06-04  dickey@software.org
+
+	* src/dedtype.c:
+	forgot to reset column on successive blank-lines that are
+	suppressed.
+
+1991-06-04  ste_cm@software.org
+
+	* src/dedtype.c: BASELINE Mon Jun 10 10:09:56 1991 -- apollo sr10.3
+
+1991-06-04  dickey@software.org
+
+	* src/ftree.c:
+	corrected logic in q/Q/F/B commands which caused program to
+	hang when call on 'fd_ring()' failed to find a path.
+
+1991-06-04  ste_cm@software.org
+
+	* src/ftree.c: BASELINE Mon Jun 10 10:09:56 1991 -- apollo sr10.3
+
 1991-05-31  dickey@software.org
 
 	* src/version.h:
