@@ -149,7 +149,7 @@
 #define	MAIN
 #include	"ded.h"
 
-MODULE_ID("$Header: /users/source/archives/ded.vcs/src/RCS/ded.c,v 12.47 1996/02/02 00:24:41 tom Exp $")
+MODULE_ID("$Header: /users/source/archives/ded.vcs/src/RCS/ded.c,v 12.48 1996/02/16 20:04:40 tom Exp $")
 
 #define	EDITOR	DEFAULT_EDITOR
 #define	BROWSE	DEFAULT_BROWSE
@@ -457,7 +457,7 @@ private	RING *	new_args(
 		markC(gbl,TRUE);
 	clear_work();
 	if ((ok = dedring(gbl, path, cmd, count, set_pattern, pattern)) != 0) {
-		redoVIEW(gbl = ok);
+		redoVIEW(gbl = ok, FALSE);
 		(void)to_file(gbl);
 		count_tags(gbl);
 		showFILES(gbl,TRUE);
@@ -882,6 +882,9 @@ _MAIN
 
 	RING	*gbl = ring_alloc();
 
+#ifdef NCURSES_VERSION
+	trace(0);
+#endif
 	(void)sortset(gbl, 's', 'n');
 	(void)sscanf(version, "%*s %s %s", tpath, dpath);
 	FPRINTF(stderr, "DED Directory Editor (%s %s)\r\n", tpath, dpath);

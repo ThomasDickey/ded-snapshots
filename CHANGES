@@ -1,3 +1,24 @@
+1996-02-16  Thomas E. Dickey  <dickey@clark.net>
+
+	* src/ded.h: add 'freed' parm to redoVIEW()
+
+	* src/dedview.c:
+	added a parm to 'redoVIEW()' so we don't try to save an obsolete RING
+	struct after quitting from it in ftree.c
+
+	* src/ded.c: added parm to redoVIEW
+
+	* src/ftree.c: operations that assign to 'gbl' should redoVIEW
+
+1996-02-09  Thomas E. Dickey  <dickey@clark.net>
+
+	* src/history.c: increased history-limit
+
+	* src/version.h: mods to support scrolling regions
+
+	* src/dedcolor.c:
+	Linux isn't the only system that I can use the ISO 6429 codes on...
+
 1996-02-01  Thomas E. Dickey  <dickey@clark.net>
 
 	* src/dedtype.c: removed a redundant 'refresh()'

@@ -3,6 +3,7 @@
  * Author:	T.E.Dickey
  * Created:	03 Apr 1992, from 'ded.c'
  * Modified:
+ *		16 Feb 1996, use 'freed' parm of redoVIEW (fixes memory bug).
  *		09 Jan 1996, mods for scrolling regions
  *		05 Nov 1995, use 80th column
  *		03 Sep 1995, mods to keep base_file, curfile more stable when
@@ -21,7 +22,7 @@
 
 #include	"ded.h"
 
-MODULE_ID("$Id: dedview.c,v 12.32 1996/01/11 01:25:31 tom Exp $")
+MODULE_ID("$Id: dedview.c,v 12.33 1996/02/16 20:05:44 tom Exp $")
 
 #define	MINLIST	2		/* minimum length of file-list + header */
 #define	MINWORK	3		/* minimum size of work-area */
@@ -739,10 +740,15 @@ public	void	openVIEW (
  * current viewport.
  */
 public	void	redoVIEW (
-	_AR1(RING *,	gbl))
+	_ARX(RING *,	gbl)
+	_AR1(int,	freed)
+		)
 	_DCL(RING *,	gbl)
+	_DCL(int,	freed)
 {
 	TRACE(("redoVIEW %s => %s\n", vue->gbl->new_wd, gbl->new_wd))
+	if (freed)
+		viewlist[curview].gbl = 0;
 	save_view(gbl);
 }
 
