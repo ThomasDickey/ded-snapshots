@@ -1,3 +1,11 @@
+1991-12-05  dickey@software.org
+
+	* src/Makefile: corrected use of 'copy'
+
+1991-12-05  ste_cm@software.org
+
+	* src/Makefile: BASELINE Thu Dec  5 15:14:27 1991
+
 1991-11-21  dickey@software.org
 
 	* src/ded.c: make 'tag_opt' public
