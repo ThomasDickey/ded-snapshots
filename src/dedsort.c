@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	Id[] = "$Id: dedsort.c,v 10.5 1992/04/03 12:11:23 dickey Exp $";
+static	char	Id[] = "$Id: dedsort.c,v 10.6 1992/04/06 15:44:31 dickey Exp $";
 #endif
 
 /*
@@ -261,7 +261,7 @@ private	int	compare(
  */
 public	void	dedsort _ONE(RING *,gbl)
 {
-	char	*name = gNAME(gbl->curfile);
+	char	*name = cNAME;
 	local = gbl;
 	qsort((char *)gbl->flist, (LEN_QSORT)gbl->numfiles, sizeof(FLIST), compare);
 	gbl->curfile = findFILE(gbl, name);

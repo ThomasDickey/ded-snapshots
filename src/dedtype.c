@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	Id[] = "$Id: dedtype.c,v 10.10 1992/04/03 12:08:58 dickey Exp $";
+static	char	Id[] = "$Id: dedtype.c,v 11.0 1992/04/06 16:38:15 ste_cm Rel $";
 #endif
 
 /*
@@ -232,7 +232,7 @@ public	void	dedtype(
 		FORMAT(tmp_name, "%s/ded%d", P_tmpdir, getpid());
 		(void)unlink(tmp_name);
 		if ((fp = fopen(tmp_name,"w+")) == 0) {
-			warn("tmp-file");
+			warn(gbl, "tmp-file");
 			return;
 		}
 		if ((dp = opendir(name)) != 0) {
@@ -246,7 +246,7 @@ public	void	dedtype(
 			(void)closedir(dp);
 			rewind(fp);
 		} else {
-			warn("opendir");
+			warn(gbl, "opendir");
 			FCLOSE(fp);
 			(void)unlink(tmp_name);
 			return;
@@ -263,7 +263,7 @@ public	void	dedtype(
 			name,
 			binary ? "binary" : "text",
 			isdir  ? "directory" : "file");
-		to_work(FALSE);
+		to_work(gbl,FALSE);
 		while (!done) {
 
 			if (again) {
@@ -279,7 +279,7 @@ public	void	dedtype(
 			y	= mark_W + 1;
 			blank	= TRUE;
 
-			markC(TRUE);
+			markC(gbl,TRUE);
 			showMARK(Shift);
 			move(y, 0);
 			typeinit();
@@ -322,7 +322,7 @@ public	void	dedtype(
 					shown  = reshow(gbl, inlist);
 					gbl->AT_opt = save;
 					length = gSTAT(inlist).st_size;
-					markC(TRUE);
+					markC(gbl,TRUE);
 					standout();
 					move(oldy,oldx);
 
@@ -348,11 +348,11 @@ public	void	dedtype(
 
 			switch (dlog_char(&count,1)) {
 			case CTL('K'):
-				deddump();
+				deddump(gbl);
 				again = 1;
 				break;
 			case 'w':
-				retouch(0);
+				retouch(gbl,0);
 				again = 1;
 				break;
 			case '\t':
@@ -412,13 +412,13 @@ public	void	dedtype(
 		FCLOSE(fp);
 		if (shown)
 			(void)reshow(gbl, inlist);
-		showMARK(Xbase);
+		showMARK(gbl->Xbase);
 		if (isdir && !binary)
 			(void)unlink(tmp_name);
 		if (done < 0)
-			warn("fseek");
+			warn(gbl, "fseek");
 		else
-			showC();
+			showC(gbl);
 	} else
-		warn(name);
+		warn(gbl, name);
 }

@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	Id[] = "$Id: deduniq.c,v 10.4 1992/04/02 10:31:28 dickey Exp $";
+static	char	Id[] = "$Id: deduniq.c,v 12.0 1992/04/06 08:45:57 ste_cm Rel $";
 #endif
 
 /*
@@ -26,7 +26,7 @@ public	void	deduniq (
 	register int	j, k;
 	auto	 int	old, new;
 
-	to_work(TRUE);
+	to_work(gbl,TRUE);
 	gbl->tagsort = FALSE;	/* don't confuse 'dedsort_cmp()' */
 
 	for (j = (level > 1), old = FALSE; j < gbl->numfiles; j++) {

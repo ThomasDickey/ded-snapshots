@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	Id[] = "$Id: dedmake.c,v 10.6 1992/04/02 10:22:56 dickey Exp $";
+static	char	Id[] = "$Id: dedmake.c,v 11.0 1992/04/06 15:43:29 ste_cm Rel $";
 #endif
 
 /*
@@ -54,11 +54,11 @@ private	int	makeit(
 	}
 #ifdef	S_IFLNK
 	if (mode == S_IFLNK) {
-		if (symlink(gLTXT(gbl->curfile) = txtalloc("."), name) < 0)
+		if (symlink(cLTXT = txtalloc("."), name) < 0)
 			return (FALSE);
 	}
 #endif
-	gNAME(gbl->curfile) = txtalloc(name);
+	cNAME = txtalloc(name);
 	if (hard >= 0) {
 		register int j;
 		for (j = 0; j < gbl->numfiles; j++) {
@@ -104,10 +104,10 @@ private	int	made_or_quit(
 				waitmsg(sys_errlist[errno]);
 				statMAKE(gbl, 0); /* undo it -- error */
 			}
-			showC();
+			showC(gbl);
 			return TRUE;
 		}
-		dedmsg(sys_errlist[errno]);
+		dedmsg(gbl, sys_errlist[errno]);
 		(void)dedline(-TRUE);		/* force refresh! */
 		(void)replay(-1);
 		return FALSE;
@@ -134,13 +134,13 @@ public	void	dedmake(
 #ifdef	S_IFLNK
 	case 'l':	mode = S_IFLNK;	break;
 #endif
-	case 'L':	if ((mode = (gSTAT(gbl->curfile).st_mode & S_IFMT)) == S_IFREG) {
+	case 'L':	if ((mode = (cSTAT.st_mode & S_IFMT)) == S_IFREG) {
 				hard = gbl->curfile + 1;
 				break;
 			}
 	default:	if (isascii(firstc) && isgraph(firstc)) {
 				FORMAT(bfr, "create-%c not defined", firstc);
-				dedmsg(bfr);
+				dedmsg(gbl, bfr);
 			} else
 				beep();
 			return;
@@ -149,7 +149,7 @@ public	void	dedmake(
 
 	/* loop until either the user gives up, or supplies a legal name */
 	do {
-		(void)strcpy(bfr, (hard >= 0) ? gNAME(hard) : gNAME(gbl->curfile));
+		(void)strcpy(bfr, (hard >= 0) ? gNAME(hard) : cNAME);
 	} while (!made_or_quit(gbl, firstc, mode, hard, bfr));
 	(void)dedline(FALSE);
 }

@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	Id[] = "$Id: dedview.c,v 10.1 1992/04/03 15:37:20 dickey Exp $";
+static	char	Id[] = "$Id: dedview.c,v 10.6 1992/04/06 16:38:50 dickey Exp $";
 #endif
 
 /*
@@ -97,9 +97,14 @@ public	void	clear_work(_AR0)
 /*
  * Clear the work area, move the cursor there after setting marker
  */
-public	void	to_work _ONE(int,clear_it)
+public	void	to_work(
+	_ARX(RING *,	gbl)
+	_AR1(int,	clear_it)
+		)
+	_DCL(RING *,	gbl)
+	_DCL(int,	clear_it)
 {
-	markC(TRUE);
+	markC(gbl,TRUE);
 	if (clear_it)
 		clear_work();
 }
@@ -130,7 +135,7 @@ public	void	scroll_to_file(
 		if (to_file(gbl))
 			showFILES(gbl,FALSE,TRUE);
 		else
-			showC();
+			showC(gbl);
 	}
 }
 
@@ -193,7 +198,7 @@ public	void	upLINE(
 		while (gbl->curfile < Ybase)	backward(gbl, 1);
 		showFILES(gbl,FALSE,FALSE);
 	} else
-		showC();
+		showC(gbl);
 }
 
 public	void	downLINE(
@@ -209,7 +214,7 @@ public	void	downLINE(
 		while (gbl->curfile > Ylast)	forward(gbl, 1);
 		showFILES(gbl,FALSE,FALSE);
 	} else
-		showC();
+		showC(gbl);
 }
 
 public	int	showDOWN _ONE(RING *,gbl)
@@ -219,7 +224,7 @@ public	int	showDOWN _ONE(RING *,gbl)
 	if (gbl->curfile < gbl->numfiles - 1)
 		downLINE(gbl, 1);
 	else {
-		showC();
+		showC(gbl);
 		return (FALSE);
 	}
 	return (TRUE);
@@ -301,10 +306,10 @@ public	void	showLINE(
 
 	if (move2row(j,0)) {
 		ded2s(gbl, j, bfr, sizeof(bfr));
-		if (Xbase < strlen(bfr)) {
-			PRINTW("%.*s", COLS-1, &bfr[Xbase]);
-			if (xFLAG(j)) {
-				col = gbl->cmdcol[CCOL_NAME] - Xbase;
+		if (gbl->Xbase < strlen(bfr)) {
+			PRINTW("%.*s", COLS-1, &bfr[gbl->Xbase]);
+			if (gFLAG(j)) {
+				col = gbl->cmdcol[CCOL_NAME] - gbl->Xbase;
 				len = (COLS-1) - col;
 				if (len > 0) {
 					int	adj = gbl->cmdcol[CCOL_NAME];
@@ -384,12 +389,12 @@ public	void	showFILES(
 			nextVIEW(gbl,TRUE);
 		}
 	}
-	showMARK(Xbase);
+	showMARK(gbl->Xbase);
 	if (reset_work) {
 		move(mark_W+1,0);
 		clrtobot();
 	}
-	showC();
+	showC(gbl);
 }
 
 /*
@@ -398,7 +403,7 @@ public	void	showFILES(
 public	void	openVIEW _ONE(RING *,gbl)
 {
 	if (maxview < MAXVIEW) {
-		saveVIEW();
+		saveVIEW(gbl);
 		if (maxview) {
 			int	adj	= (Yhead = file2row(gbl->curfile) + 1)
 					- (mark_W - MINLIST);
@@ -411,16 +416,16 @@ public	void	openVIEW _ONE(RING *,gbl)
 		} else
 			Yhead = 0;
 		curview = maxview++;	/* patch: no insertion? */
-		saveVIEW();		/* current viewport */
+		saveVIEW(gbl);		/* current viewport */
 		markset(gbl, mark_W,TRUE);	/* adjust marker, re-display */
 	} else
-		dedmsg("too many viewports");
+		dedmsg(gbl, "too many viewports");
 }
 
 /*
  * Store parameters corresponding to the current viewport
  */
-public	void	saveVIEW(_AR0)
+public	void	saveVIEW _ONE(RING *,gbl)
 {
 	register VIEW *p = &viewlist[curview];
 	p->Yhead = Yhead;
@@ -445,7 +450,7 @@ public	void	quitVIEW _ONE(RING *,gbl)
 		nextVIEW(gbl,FALSE);	/* load current-viewport */
 		showFILES(gbl,FALSE,TRUE);
 	} else
-		dedmsg("no more viewports to quit");
+		dedmsg(gbl, "no more viewports to quit");
 }
 
 /*
@@ -470,7 +475,7 @@ public	void	nextVIEW(
 	register VIEW *p;
 
 	if (save)
-		saveVIEW();
+		saveVIEW(gbl);
 	if (++curview >= maxview)
 		curview = 0;
 	p = &viewlist[curview];
@@ -483,16 +488,16 @@ public	void	nextVIEW(
 /*
  * Set the cursor to the current file, noting this in the viewport header.
  */
-public	void	showC(_AR0)
+public	void	showC _ONE(RING *,gbl)
 {
-	register int	x = FOO->cmdcol[CCOL_CMD] - Xbase;
+	register int	x = gbl->cmdcol[CCOL_CMD] - gbl->Xbase;
 
 	if (x < 0)		x = 0;
 	if (x > COLS-1)		x = COLS-1;
 
-	showWHAT(FOO);
-	markC(FALSE);
-	(void)move2row(FOO->curfile, x);
+	showWHAT(gbl);
+	markC(gbl,FALSE);
+	(void)move2row(gbl->curfile, x);
 	refresh();
 }
 
@@ -503,38 +508,43 @@ public	void	tab2VIEW _ONE(RING *,gbl)
 {
 	if (maxview > 1) {
 		nextVIEW(gbl,TRUE);
-		showC();
+		showC(gbl);
 	} else
-		dedmsg("no other viewport");
+		dedmsg(gbl, "no other viewport");
 }
 
 /*
  * Flag the current-file in the display (i.e., when leaving the current
  * line for the work-area).
  */
-public	void	markC _ONE(int,on)
+public	void	markC(
+	_ARX(RING *,	gbl)
+	_AR1(int,	on)
+		)
+	_DCL(RING *,	gbl)
+	_DCL(int,	on)
 {
-	int	col = FOO->cmdcol[CCOL_CMD] - Xbase;
+	int	col = gbl->cmdcol[CCOL_CMD] - gbl->Xbase;
 
 	if (col >= 0) {
-		(void)move2row(FOO->curfile, col);
+		(void)move2row(gbl->curfile, col);
 		addch(on ? '*' : ' ');
 	}
 }
 
-public	void	restat_l(_AR0)
+public	void	restat_l _ONE(RING *,gbl)
 {
-	restat(TRUE);
+	restat(gbl,TRUE);
 }
 
-public	void	restat_W(_AR0)
+public	void	restat_W _ONE(RING *,gbl)
 {
 	register int j;
 	for (j = Ybase; j <= Ylast; j++) {
-		statLINE(FOO, j);
-		showLINE(FOO, j);
+		statLINE(gbl, j);
+		showLINE(gbl, j);
 	}
-	showC();
+	showC(gbl);
 }
 
 public	int	baseVIEW _ONE(RING *,gbl)

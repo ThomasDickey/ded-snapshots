@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	what[] = "$Id: sortset.c,v 10.2 1992/04/02 08:13:32 dickey Exp $";
+static	char	what[] = "$Id: sortset.c,v 11.0 1992/04/06 11:59:08 ste_cm Rel $";
 #endif
 
 /*
@@ -105,7 +105,7 @@ public	int	sortget(
 		LOOP(j)
 			if (*sort_msg[j] == gbl->sortopt) {
 				FORMAT(bfr, "sort option: %s", sort_msg[j]);
-				dedmsg(bfr);
+				dedmsg(gbl, bfr);
 				break;
 			}
 		c = 0;
@@ -116,7 +116,7 @@ public	int	sortget(
 				done = FALSE,
 				find, found;
 
-		to_work(TRUE);
+		to_work(gbl,TRUE);
 		PRINTW("Sort:> ");
 		getyx(stdscr,y,x);
 		find = gbl->sortopt;
@@ -135,7 +135,7 @@ public	int	sortget(
 				PRINTW("%s", bfr);
 				clrtobot();
 			} else {
-				dedmsg("up/down keys=scroll, return=select");
+				dedmsg(gbl, "up/down keys=scroll, return=select");
 				beep();
 			}
 			move(y,x-2);
@@ -148,8 +148,8 @@ public	int	sortget(
 					find = *sort_msg[j];	break;
 			case 'q':
 					c = 0;
-					to_work(TRUE);
-					showC();
+					to_work(gbl,TRUE);
+					showC(gbl);
 					/* fall-thru */
 			case '\r':
 			case '\n':	done = TRUE;		break;

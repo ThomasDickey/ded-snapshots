@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	Id[] = "$Id: dedfind.c,v 10.3 1992/04/03 12:06:55 dickey Exp $";
+static	char	Id[] = "$Id: dedfind.c,v 11.0 1992/04/06 11:56:51 ste_cm Rel $";
 #endif
 
 /*
@@ -36,7 +36,7 @@ public	void	dedfind(
 
 	if (key == '/' || key == '?') {
 
-		to_work(TRUE);
+		to_work(gbl,TRUE);
 		PRINTW("Target: ");
 		getyx(stdscr,j,k);
 		clrtobot();
@@ -69,18 +69,18 @@ public	void	dedfind(
 			if (j == gbl->curfile)	break;
 		}
 		if (found) {
-			markC(FALSE);
+			markC(gbl,FALSE);
 			scroll_to_file(gbl, j);
 			dlog_name(gNAME(j));
 		} else {
 		char	msg[BUFSIZ];
 			FORMAT(msg, "\"%s\" not found", text);
-			dedmsg(msg);
+			dedmsg(gbl, msg);
 			return;
 		}
 	} else {
 		order = 0;
 		BAD_REGEX(expr);
-		showC();
+		showC(gbl);
 	}
 }

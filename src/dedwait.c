@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	Id[] = "$Id: dedwait.c,v 10.0 1991/10/18 08:41:37 ste_cm Rel $";
+static	char	Id[] = "$Id: dedwait.c,v 11.0 1992/04/06 10:12:10 ste_cm Rel $";
 #endif
 
 /*
@@ -20,7 +20,12 @@ static	char	Id[] = "$Id: dedwait.c,v 10.0 1991/10/18 08:41:37 ste_cm Rel $";
 
 #include	"ded.h"
 
-dedwait _ONE(int,cursed)
+public	void	dedwait(
+	_ARX(RING *,	gbl)
+	_AR1(int,	cursed)
+		)
+	_DCL(RING *,	gbl)
+	_DCL(int,	cursed)
 {
 	register int	c;
 	static	 char	*msg = "Hit <RETURN> to continue";
@@ -41,5 +46,5 @@ dedwait _ONE(int,cursed)
 	do	c = dlog_char((int *)0,0);
 	while	(c != '\n' && c != '\r');
 	dlog_comment("%s\n", msg);
-	retouch(0);
+	retouch(gbl,0);
 }
