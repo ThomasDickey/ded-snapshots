@@ -1,5 +1,5 @@
 #if	!defined(NO_IDENT)
-static	char	Id[] = "$Id: ftree.c,v 12.9 1993/12/02 18:25:16 dickey Exp $";
+static	char	Id[] = "$Id: ftree.c,v 12.10 1994/05/23 00:20:22 tom Exp $";
 #endif
 
 /*
@@ -1743,7 +1743,7 @@ public	int	ft_scan(
 {
 	auto	int	found = FALSE;
 	auto	DIR	*dp;
-	auto	DIRENT	*d;
+	auto	Dirent_t *d;
 	auto	int	count	= 0;
 	char	bfr[MAXPATHLEN], *s_ = bfr;
 
