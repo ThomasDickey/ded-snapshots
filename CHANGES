@@ -1,3 +1,21 @@
+1992-10-09  dickey@software.org
+
+	* test/Makefile, src/Makefile, Makefile: split off CM_LIBRARY
+
+	* src/README:
+	fixed a place in @-toggle where curses would optimize w/o knowledge of blip
+
+1992-10-09  ste_cm@software.org
+
+	* src/README:
+	BASELINE Thu May  6 14:26:47 1993 -- split from CM_TOOLS #11
+
+1992-10-09  dickey@software.org
+
+	* src/ded.c:
+	patched a place where the curses optimizer did not work for
+	me
+
 1992-10-08  dickey@software.org
 
 	* src/dedtype.c:

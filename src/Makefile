@@ -1,9 +1,11 @@
-# $Id: Makefile,v 11.5 1992/08/11 17:15:53 dickey Exp $
+# $Id: Makefile,v 11.6 1992/10/09 13:04:30 dickey Exp $
 # MAKE-file for directory editor
 
 ####### (Environment) ##########################################################
+TOP	= ../../../..
+include $(TOP)/cm_library/support/cm_library.mk
+
 THIS	= ded
-include ../../common.mk
 
 ####### (Standard Lists) #######################################################
 DED_H	= $(THIS).h $(PTYPES_H) $I/cmdch.h $I/dyn_string.h

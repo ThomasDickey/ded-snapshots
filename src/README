@@ -1,4 +1,4 @@
-$Id: README,v 11.2 1992/09/04 13:25:58 dickey Exp $
+$Id: README,v 12.0 1992/10/09 08:11:55 ste_cm Rel $
 
 --(TO-DO)----------------------------------------------------------------------
 
@@ -33,14 +33,6 @@ $Id: README,v 11.2 1992/09/04 13:25:58 dickey Exp $
 	should consider processing '~'-style stuff in '@'-toggle, even tho
 	the 'stat()' command would need 'abspath()' processing.
 
-88/09/15:
-	Using '@' toggle with symbolic links on the last two lines of the
-	window, I get a screen-update glitch: apollo vt100 optimizes to
-	permit up to 3 lines upward; curses has lost its notion of the
-	column.  Should make 'blip()' able to reset curses' position.
-	Observed this when cursor is on the last line of the file-list screen.
-	('_puts()' is not a simple solution...)
-
 90/01/11:
 	should reduce the number of 'getwd()' and 'abspath()' calls needed
 	in the interfaces to 'dedring' and 'ftree'.  this would aid performance.
@@ -50,3 +42,9 @@ $Id: README,v 11.2 1992/09/04 13:25:58 dickey Exp $
 	shell-commands).
 
 	allow link to soft-link (actually to the link-target).
+
+92/10/09:
+	make directory-rename from ftree apply to the file-lists.
+
+	allow environment-variables to be interpreted in the pathnames in
+	ftree jump-commands.

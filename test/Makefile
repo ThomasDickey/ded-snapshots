@@ -1,8 +1,9 @@
-# $Id: Makefile,v 11.2 1992/08/28 15:19:16 dickey Exp $
+# $Id: Makefile,v 11.3 1992/10/09 13:05:32 dickey Exp $
 # make-file for testing unix directory editor
 #
 ####### (Development) ##########################################################
-include ../../common.mk
+TOP	= ../../../..
+include $(TOP)/cm_library/support/cm_library.mk
 
 ####### (Standard Lists) #######################################################
 SCRIPTS	=\
@@ -28,7 +29,7 @@ destroy:			; $(DESTROY)
 sources:	$(SOURCES)
 lint.out:
 lincnt.out:
-run_tests:	$(SOURCES)	; sh -c '$@.sh 2>&1 | tee -a $@.out'
+run_tests:	$(SOURCES)	; $(RUN_TESTS)
 
 ####### (Details of Productions) ###############################################
 $(SOURCES):			; $(GET) $@

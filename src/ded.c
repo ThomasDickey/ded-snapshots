@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	Id[] = "$Header: /users/source/archives/ded.vcs/src/RCS/ded.c,v 11.15 1992/09/23 12:23:41 dickey Exp $";
+static	char	Id[] = "$Header: /users/source/archives/ded.vcs/src/RCS/ded.c,v 11.16 1992/10/09 08:09:17 dickey Exp $";
 #endif
 
 /*
@@ -1009,6 +1009,8 @@ _MAIN
 	case '@':	COMPLEMENT(gbl->AT_opt);
 			count = 0;
 			to_work(gbl,TRUE);
+			PRINTW(" ");	/* cheat the optimizer */
+			refresh();
 			for (j = 0; j < gbl->numfiles; j++) {
 				if (gLTXT(j)) {
 					blip('@');
