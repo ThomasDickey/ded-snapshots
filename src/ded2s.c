@@ -1,5 +1,5 @@
 #if	!defined(NO_IDENT)
-static	char	Id[] = "$Id: ded2s.c,v 12.10 1994/07/02 21:21:08 tom Exp $";
+static	char	Id[] = "$Id: ded2s.c,v 12.11 1994/07/10 19:21:02 tom Exp $";
 #endif
 
 /*
@@ -85,24 +85,6 @@ char	*type_uid2s _ar1(Stat_t *,s);
 /************************************************************************
  *	local procedures						*
  ***********************************************************************/
-private	int	executable (
-	_AR1(Stat_t *,	s))
-	_DCL(Stat_t *,	s)
-{
-	int	uid = geteuid();
-	int	gid = getegid();
-
-	if (!uid) {		/* root can do anything */
-		uid = s->st_uid;
-		gid = s->st_gid;
-	}
-	if (uid == s->st_uid)
-		return (s->st_mode & S_IEXEC);
-	else if (gid == s->st_gid)
-		return (s->st_mode & (S_IEXEC >> 3));
-	return (s->st_mode & (S_IEXEC >> 6));
-}
-
 /*
  * Provide skip-over-field (blanking it if the file has been deleted).
  */
@@ -378,7 +360,8 @@ public	void	ded2s(
 #endif	/* S_IFLNK */
 		if (isDIR(mj)) {
 		*bfr++ = '/';
-	} else if (executable(s))	*bfr++ = '*';
+	} else if (ded_access(s, S_IEXEC))
+		*bfr++ = '*';
 	*bfr = '\0';
 }
 
@@ -396,6 +379,27 @@ public	int	ded2string(
 	_DCL(int,	flag)
 {
 	return (name2s(bfr, len, name, flag | (gbl->U_opt ? 2 : 0)));
+}
+
+public	int	ded_access (
+	_ARX(Stat_t *,	s)
+	_AR1(int,	mask)	/* one of S_IEXEC, S_IREAD, S_IWRITE */
+		)
+	_DCL(Stat_t *,	s)
+	_DCL(int,	mask)
+{
+	int	uid = geteuid();
+	int	gid = getegid();
+
+	if (!uid) {		/* root can do anything */
+		uid = s->st_uid;
+		gid = s->st_gid;
+	}
+	if (uid == s->st_uid)
+		return (s->st_mode & mask);
+	else if (gid == s->st_gid)
+		return (s->st_mode & (mask >> 3));
+	return (s->st_mode & (mask >> 6));
 }
 
 #ifdef	apollo_sr10

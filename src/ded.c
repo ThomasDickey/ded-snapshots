@@ -1,5 +1,5 @@
 #if	!defined(NO_IDENT)
-static	char	Id[] = "$Header: /users/source/archives/ded.vcs/src/RCS/ded.c,v 12.23 1994/07/02 21:18:58 tom Exp $";
+static	char	Id[] = "$Header: /users/source/archives/ded.vcs/src/RCS/ded.c,v 12.24 1994/07/10 15:21:50 tom Exp $";
 #endif
 
 /*
@@ -954,6 +954,9 @@ _MAIN
 	(void)dedsigs(TRUE);
 	(void)dedsize((RING *)0);
 	if (!initscr())			failed("initscr");
+#if HAVE_HAS_COLORS
+	(void)start_color();
+#endif
 	in_screen = TRUE;
 	if (LINES > BUFSIZ || COLS > BUFSIZ) {
 	char	bfr[80];

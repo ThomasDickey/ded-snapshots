@@ -1,5 +1,5 @@
 #if	!defined(NO_IDENT)
-static	char	Id[] = "$Id: dedview.c,v 12.13 1994/07/02 20:13:21 tom Exp $";
+static	char	Id[] = "$Id: dedview.c,v 12.14 1994/07/10 15:59:30 tom Exp $";
 #endif
 
 /*
@@ -168,32 +168,40 @@ private	void	show_line(
 	_DCL(int,	j)
 {
 	RING *	gbl = vp->gbl;
-	int	col,
-		line,
-		len;
 	char	bfr[BUFSIZ];
 
 	if (FILE_VISIBLE(vp,j)) {
-		line = FILE2ROW(vp,j),
+		int	line = FILE2ROW(vp,j);
+
 		move(line,0);
 		ded2s(gbl, j, bfr, sizeof(bfr));
 		if (gbl->Xbase < strlen(bfr)) {
+			int	adj = gbl->cmdcol[CCOL_NAME];
+			int	col = adj - gbl->Xbase;
+			int	len = (COLS-1) - col;
+
+			if (col < 0) {
+				adj -= col;
+				col  = 0;
+				len  = COLS-1;
+			}
+
 			PRINTW("%.*s", COLS-1, &bfr[gbl->Xbase]);
-			if (gFLAG(j)) {
-				col = gbl->cmdcol[CCOL_NAME] - gbl->Xbase;
-				len = (COLS-1) - col;
-				if (len > 0) {
-					int	adj = gbl->cmdcol[CCOL_NAME];
-					if (col < 0) {
-						adj -= col;
-						col  = 0;
-						len  = COLS-1;
-					}
+			if (len > 0) { /* filename is visible */
+				if (gFLAG(j)) {
 					move(line, col);
 					standout();
 					PRINTW("%.*s", len, &bfr[adj]);
 					standend();
 				}
+#if HAVE_HAS_COLORS
+				else if (has_colors()) {
+					move(line, col);
+					dedcolor(&(gENTRY(j)));
+					PRINTW("%.*s", len, &bfr[adj]);
+					dedcolor((FLIST *)0);
+				}
+#endif /* HAVE_HAS_COLORS */
 			}
 		}
 		clrtoeol();

@@ -1,3 +1,34 @@
+1994-07-10  Thomas E. Dickey  <dickey@clark.net>
+
+	* src/ded2s.c: maintain namlen field (for colors)
+
+	* src/ded.h: added namlen field to FLIST
+
+	* src/dedcolor.c: coded around a segmentation-violation bug
+
+	* src/dedcolor.c: took out my trace (it works...)
+
+	* src/dedcolor.c: RCS_BASE
+
+	* src/ded2s.c: made 'executable()' public, as 'ded_access()'
+
+	* src/ded.h: added 'dedcolor()' and 'ded_access()'
+
+	* src/dedview.c:
+	added logic to display filename in color (if it's not tagged)
+
+	* src/ded.c: added hook to use colors, if available
+
+	* src/Makefile: added 'dedcolor.c'
+
+1994-07-09  Thomas E. Dickey  <dickey@clark.net>
+
+	* src/dedwait.c:
+	adjusted so that Sys5 curses will be fooled into putting the prompt in the
+	right place
+
+	* src/dedwait.c: use MODULE_ID
+
 1994-07-04  Thomas E. Dickey  <dickey@clark.net>
 
 	* src/Makefile: new symbol for LIBS

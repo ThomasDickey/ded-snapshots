@@ -1,7 +1,3 @@
-#if	!defined(NO_IDENT)
-static	char	Id[] = "$Id: dedwait.c,v 12.3 1994/06/28 00:18:34 tom Exp $";
-#endif
-
 /*
  * Title:	dedwait.c (ded wait-for-RETURN)
  * Author:	T.E.Dickey
@@ -21,6 +17,9 @@ static	char	Id[] = "$Id: dedwait.c,v 12.3 1994/06/28 00:18:34 tom Exp $";
 
 #include	"ded.h"
 
+MODULE_ID("$Id: dedwait.c,v 12.5 1994/07/10 02:16:47 tom Exp $")
+
+/*ARGSUSED*/
 public	void	dedwait(
 	_ARX(RING *,	gbl)
 	_AR1(int,	cursed)
@@ -31,7 +30,9 @@ public	void	dedwait(
 	register int	c;
 	static	 char	*msg = "Hit <RETURN> to continue";
 
+	PRINTF("\n");
 	if (cursed) {	/* assume we are already in raw-mode */
+		move(LINES-1,0);
 		standout();
 		PRINTW("%.*s", COLS-1, msg);
 		standend();
