@@ -30,20 +30,20 @@ g
 1u	# before "LOGNAME"
 u
 	# after  "LOGNAME"
-1!\\#\sthe\sscreen\sshows\sded\sand\sded.hlp\safter\stemporarily\schanging\spermissions,\sand\safter\styping\sthe\shelp\sfile\r
+1!\\#\sthe\sscreen\sshows\sded\sand\sded.hlp\safter\stemporarily\schanging\spermissions,\sand\safter\styping\sthe\shelp\sfile\n
 	# execute # the screen shows ded and ded.hlp after temporarily changing permissions, and after typing the help file
 	# ELAPSED TIME
 3l
-1%ls\s-l\s%F\r
+1%ls\s-l\s%F\n
 	# execute ls -l CM_TOOLS/test
-\r	# Hit <RETURN> to continue
+\n	# Hit <RETURN> to continue
 	# ELAPSED TIME
-1!\\#\sjust\slisted\sthe\sother\sdirectory\r
+1!\\#\sjust\slisted\sthe\sother\sdirectory\n
 	# execute # just listed the other directory
 	# ELAPSED TIME
 1.	# execute # just listed the other directory
 	# ELAPSED TIME
-1%\r
+1%\n
 3l
 1D	# path: CM_TOOLS/bin
 1\L	# path: CM_TOOLS/bin
@@ -94,16 +94,16 @@ u
 	# "sortset.c"
 	# "ded.h"
 	# "version.h"
-1/ded.a\r
+1/ded.a\n
 	# "ded.a"
 1s+t
 1_
 2+	# "ded.a"
 	# "ded.hlp"
-1!\\#\sselected\sthe\sfiles\sof\swhich\sonly\sone\ssuffix\sexists\r
+1!\\#\sselected\sthe\sfiles\sof\swhich\sonly\sone\ssuffix\sexists\n
 	# execute # selected the files of which only one suffix exists
 	# ELAPSED TIME
-1!\r
+1!\n
 3l
 1_
 1st
@@ -130,7 +130,7 @@ u
 1\L
 1\L
 1I
-1!\\#\sshows\sinode\sin\sthis\sscreen\r
+1!\\#\sshows\sinode\sin\sthis\sscreen\n
 	# execute # shows inode in this screen
 	# ELAPSED TIME
 1F	# chdir CM_TOOLS/test
@@ -143,15 +143,15 @@ u
 1+	# "RCS"
 1+	# "README"
 1_
-1/\\.h$\r
+1/\\.h$\n
 	# "ded.h"
 1+	# "ded.h"
 1+	# "version.h"
 1+	# "ded.hlp"
 1k
-1%ls\s-l\s#\r
+1%ls\s-l\s#\n
 	# execute ls -l ded.h version.h ded.hlp
-\r	# Hit <RETURN> to continue
+\n	# Hit <RETURN> to continue
 	# ELAPSED TIME
 1_
 1X
@@ -174,17 +174,17 @@ u
 1X
 1_
 1n	# "ded.h"
-1%echo\sF=%F\r
+1%echo\sF=%F\n
 	# execute echo F=CM_TOOLS/test
-\r	# Hit <RETURN> to continue
+\n	# Hit <RETURN> to continue
 	# ELAPSED TIME
-1:\F\b\b\b\bB=%B\r
+1:\F\b\b\b\bB=%B\n
 	# execute echo B=CM_TOOLS/bin
-\r	# Hit <RETURN> to continue
+\n	# Hit <RETURN> to continue
 	# ELAPSED TIME
-1:\F\b\b\b\bh=%h,\sr=%r,\se=%e\r
+1:\F\b\b\b\bh=%h,\sr=%r,\se=%e\n
 	# execute echo h=./, r=ded, e=.h
-\r	# Hit <RETURN> to continue
+\n	# Hit <RETURN> to continue
 	# ELAPSED TIME
 1F	# chdir CM_TOOLS/test
 1R
@@ -195,5 +195,5 @@ u
 1F	# path: CM_TOOLS/test
 1Q	# path: CM_TOOLS/src
 1q	# chdir CM_TOOLS/src
-1qyes\r
+1qyes\n
 	# PROCESS ENDED

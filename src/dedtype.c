@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	Id[] = "$Id: dedtype.c,v 11.12 1992/08/07 13:34:27 dickey Exp $";
+static	char	Id[] = "$Id: dedtype.c,v 11.13 1992/08/12 09:27:23 dickey Exp $";
 #endif
 
 /*
@@ -592,7 +592,6 @@ public	void	dedtype(
 				break;
 			case ARO_DOWN:
 			case '\n':
-			case '\r':
 			case ' ':
 			case 'f':
 				jump = 0;

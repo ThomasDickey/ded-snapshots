@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	what[] = "$Id: dlog.c,v 11.14 1992/08/11 11:13:16 dickey Exp $";
+static	char	what[] = "$Id: dlog.c,v 11.16 1992/08/12 09:29:10 dickey Exp $";
 #endif
 
 /*
@@ -147,7 +147,8 @@ private	int	record_char(
 			mark_time = NOW;
 		}
 		pending = dyn_alloc(pending, dyn_length(pending)+20);
-		encode_logch(s = dyn_string(pending), count_, c);
+		s = dyn_string(pending) + dyn_length(pending);
+		encode_logch(s, count_, c);
 		pending->cur_length += strlen(s);
 	}
 	return c;
@@ -389,7 +390,7 @@ public	char *	dlog_string(
 				s = dyn_string(edited);
 			} else IGNORE
 
-		} else if (c == '\r' || c == '\n') {
+		} else if (c == '\n') {
 			done = TRUE;
 			break;
 		} else {/* assume quit */

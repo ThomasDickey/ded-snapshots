@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	Id[] = "$Header: /users/source/archives/ded.vcs/src/RCS/ded.c,v 11.4 1992/08/11 17:01:55 dickey Exp $";
+static	char	Id[] = "$Header: /users/source/archives/ded.vcs/src/RCS/ded.c,v 11.7 1992/08/12 16:31:25 dickey Exp $";
 #endif
 
 /*
@@ -7,6 +7,7 @@ static	char	Id[] = "$Header: /users/source/archives/ded.vcs/src/RCS/ded.c,v 11.4
  * Author:	T.E.Dickey
  * Created:	09 Nov 1987
  * Modified:
+ *		12 Aug 1992, added '-command.
  *		01 Apr 1992, convert most global variables to RING-struct.
  *		30 Mar 1992, corrected highlighting of long, shifted lines.
  *		28 Feb 1992, convert shell-command to dynamic-string.
@@ -791,6 +792,36 @@ usage(_AR0)
 	dlog_exit(FAIL);
 }
 
+private	repeat_command(
+	_ARX(RING *,	gbl)
+	_AR1(int,	c)
+		)
+	_DCL(RING *,	gbl)
+	_DCL(int,	c)
+{
+	switch (c) {
+	case 'p':	editprot(gbl);		break;
+	case 'u':	edit_uid(gbl);		break;
+	case 'g':	edit_gid(gbl);		break;
+	case '=':	editname(gbl);		break;
+#ifdef	S_IFLNK
+	case '<':
+	case '>':	editlink(gbl, c);	break;
+	case 'l':
+#endif	/* S_IFLNK */
+	case 'd':
+	case 'f':
+	case 'L':	dedmake(gbl, c);	break;
+
+	default:	{
+		char	temp[80];
+		FORMAT(temp, "no inline command (%c)", c ? c : '?');
+		dedmsg(gbl, temp);
+		}
+	}
+	(void)edit_inline(FALSE);
+}
+
 /*ARGSUSED*/
 _MAIN
 {
@@ -911,7 +942,6 @@ _MAIN
 			break;
 
 	case ARO_DOWN:
-	case '\r':
 	case '\n':
 	case 'j':	downLINE(gbl, count);
 			break;
@@ -1140,28 +1170,8 @@ _MAIN
 	case '>':	editlink(gbl, c);	break;
 #endif	/* S_IFLNK */
 
-	case '"':	switch (c = edit_inline(TRUE)) {
-			case 'p':	editprot(gbl);		break;
-			case 'u':	edit_uid(gbl);		break;
-			case 'g':	edit_gid(gbl);		break;
-			case '=':	editname(gbl);		break;
-#ifdef	S_IFLNK
-			case '<':
-			case '>':	editlink(gbl, c);	break;
-			case 'l':
-#endif	/* S_IFLNK */
-			case 'd':
-			case 'f':
-			case 'L':	dedmake(gbl, c);	break;
-
-			default:	{
-				char	temp[80];
-				FORMAT(temp, "no inline command (%c)", c);
-				dedmsg(gbl, temp);
-				}
-			}
-			(void)edit_inline(FALSE);
-			break;
+	case '\'':	repeat_command(gbl, dlog_char((int *)0,FALSE));	break;
+	case '"':	repeat_command(gbl, edit_inline(TRUE));		break;
 
 	case 'c':	/* create an entry */
 			ReplayStart('c');

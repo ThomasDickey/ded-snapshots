@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	Id[] = "$Id: ftree.c,v 11.5 1992/08/07 13:37:18 dickey Exp $";
+static	char	Id[] = "$Id: ftree.c,v 11.6 1992/08/12 09:28:03 dickey Exp $";
 #endif
 
 /*
@@ -1224,7 +1224,6 @@ public	RING *	ft_view(
 				else
 					beep();
 				break;
-		case '\r':
 		case '\n':
 				lvl = MAXLVL;
 		case ARO_DOWN:
