@@ -1,3 +1,28 @@
+1989-10-16  dickey@software.org
+
+	* src/ftree.c: re-simplified 'ft_stat()' (don't need lstat)
+
+1989-10-16  ste_cm@software.org
+
+	* src/ftree.c:
+	BASELINE Fri Oct 27 12:27:25 1989 -- apollo SR10.1 mods + ADA_PITS 4.0
+
+1989-10-16  dickey@software.org
+
+	* src/ftree.c:
+	altered 'ft_stat()' so we don't look at stat.st_ino (don't
+	assume inode is positive!), and to use lstat/stat combination
+
+	* src/dedscan.c: suppress 'ft_insert()' for "." and ".."
+
+1989-10-16  ste_cm@software.org
+
+	* src/dedscan.c:
+	BASELINE Fri Oct 27 12:27:25 1989 -- apollo SR10.1 mods + ADA_PITS 4.0
+
+	* src/dedscan.c:
+	BASELINE Thu Mar 29 07:37:55 1990 -- maintenance release (SYNTHESIS)
+
 1989-10-13  dickey@software.org
 
 	* src/dedtype.c:

@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	Id[] = "$Id: dedscan.c,v 4.3 1989/10/12 09:21:02 dickey Exp $";
+static	char	Id[] = "$Id: dedscan.c,v 6.0 1989/10/16 08:28:32 ste_cm Rel $";
 #endif	lint
 
 /*
@@ -7,9 +7,18 @@ static	char	Id[] = "$Id: dedscan.c,v 4.3 1989/10/12 09:21:02 dickey Exp $";
  * Author:	T.E.Dickey
  * Created:	09 Nov 1987
  * $Log: dedscan.c,v $
- * Revision 4.3  1989/10/12 09:21:02  dickey
- * only fall-thru to 'sccslast()' if we found *nothing* of rcs.
+ * Revision 6.0  1989/10/16 08:28:32  ste_cm
+ * BASELINE Thu Mar 29 07:37:55 1990 -- maintenance release (SYNTHESIS)
  *
+ *		Revision 5.0  89/10/16  08:28:32  ste_cm
+ *		BASELINE Fri Oct 27 12:27:25 1989 -- apollo SR10.1 mods + ADA_PITS 4.0
+ *		
+ *		Revision 4.4  89/10/16  08:28:32  dickey
+ *		suppress 'ft_insert()' for "." and ".."
+ *		
+ *		Revision 4.3  89/10/12  09:21:02  dickey
+ *		only fall-thru to 'sccslast()' if we found *nothing* of rcs.
+ *		
  *		Revision 4.2  89/10/06  09:38:03  dickey
  *		modified interface to 'showFILES()'
  *		
@@ -134,7 +143,8 @@ char	*argv[];
 					if (debug)
 						PRINTF(" file \"%s\"\r\n", s);
 					j = argstat(strcpy(name+len, s), TRUE);
-					if (j > 0
+					if (!dotname(s)
+					&&  j > 0
 					&&  (k = lookup(s)) >= 0) {
 						ft_insert(name);
 					}
