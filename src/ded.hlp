@@ -159,7 +159,22 @@ Shell commands:
 --------------
   Shell commands are executed in the work-area.  You may specify a
   command, substituting '#' for the current file, plus those which
-  are tagged.
+  are tagged.  Substitutions for the current file only are formed by
+  preceding the following characters with '%':
+
+  F		Following pathname in the list of directories
+  B		Previous pathname in the list of directories
+  D		Original directory (from which DED was invoked)
+  d		Current directory (shown in the display heading)
+  n		Current entry-name
+  h		Remove a pathname component, leaving head.
+  r		Remove a trailing ".xxx" component, leaving root
+  e		Remove all but trailing ".xxx" component
+  t		Remove all leading pathname components, leave tail
+
+  An uppercase N, H, R, E or T will cause DED to perform the substitution
+  using the full pathname; the lowercase letters use only the name shown
+  in the filename field of the display.  Shell commands are:
 
   !		Prompt for, and execute a shell command.
   %		Prompt for, and execute a shell command, refreshing

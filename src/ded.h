@@ -1,4 +1,4 @@
-/* @(#)ded.h	1.12 88/05/17 08:05:34 */
+/* @(#)ded.h	1.13 88/05/18 11:58:54 */
 
 /*
  * Created:	09 Nov 1987
@@ -104,6 +104,7 @@ extern	int	re_exec();	/* (return > 0): match */
  * Conditional-compilation variables
  */
 #define	Z_SCCS			/* compile-in '-z' sccs support */
+#define	Z_RCS			/* compile-in '-z' rcs support */
 
 /*
  * Miscellaneous definitions

@@ -1,5 +1,5 @@
 #ifndef	NO_SCCS_ID
-static	char	sccs_id[] = "@(#)ded2s.c	1.6 88/05/11 13:06:08";
+static	char	sccs_id[] = "@(#)ded2s.c	1.7 88/05/18 08:06:56";
 #endif	NO_SCCS_ID
 
 /*
@@ -7,12 +7,15 @@ static	char	sccs_id[] = "@(#)ded2s.c	1.6 88/05/11 13:06:08";
  * Author:	T.E.Dickey
  * Created:	09 Nov 1987
  * Modified:
+ *		18 May 1988, show Apollo inodes in hex.
  *		09 May 1988, sockets do not have major/minor numbers.
  *
  * Function:	Convert ded's FLIST structure to printing form (controlled by
  *		options).  In doing so, save into the global 'cmdcol[]' the
  *		index of various fields to which we may wish to move the
  *		cursor.
+ *
+ * patch:	should consider showing both user+group columns.
  */
 
 #include	"ded.h"
@@ -50,7 +53,7 @@ char	*t,
 		*bfr++ = modechar(mj); /* translate the type of file */
 		cmdcol[0] = bfr - base;
 
-		strcpy(bfr, "--------- ");
+		(void)strcpy(bfr, "--------- ");
 		for (c = 0; c < 9; c += 3) {
 			if (mj & (S_IREAD  >> c))	bfr[c]   = 'r';
 			if (mj & (S_IWRITE >> c))	bfr[c+1] = 'w';
@@ -63,7 +66,11 @@ char	*t,
 	bfr += strlen(bfr);
 
 	/* translate the number of links, or the inode value */
+#ifdef	apollo
+	if (I_opt)	FORMAT(bfr, "%08x ", s->st_ino);
+#else	apollo
 	if (I_opt)	FORMAT(bfr, "%5d ", s->st_ino);
+#endif	apollo
 	else		FORMAT(bfr, "%3d ", s->st_nlink);
 	bfr += field(bfr,mj);
 

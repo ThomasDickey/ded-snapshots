@@ -1,3 +1,23 @@
+1988-05-18  dickey@software.org
+
+	* src/ded.hlp: Documented extended ''-substitution.
+
+	* src/version.h: Added hook for 'rcslast()'.
+
+	* src/dedscan.c: added hook for 'rcslast()'.
+
+	* src/ded.h: added 'Z_RCS' definition.
+
+	* src/version.h: '' shell substitution completed.
+
+	* src/ded2s.c: show Apollo inodes in hex.
+
+	* src/dedring.c: added 'dedrung()' entrypoint.
+
+	* src/deddoit.c: recoded ''-substitution
+
+	* src/README: fixed some stuff for gould port.
+
 1988-05-17  dickey@software.org
 
 	* src/ftree.c: lint (gould)

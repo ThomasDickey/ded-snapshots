@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	sccs_id[] = "@(#)dedring.c	1.9 88/05/16 14:52:21";
+static	char	sccs_id[] = "@(#)dedring.c	1.10 88/05/18 07:44:06";
 #endif	lint
 
 /*
@@ -7,6 +7,7 @@ static	char	sccs_id[] = "@(#)dedring.c	1.9 88/05/16 14:52:21";
  * Author:	T.E.Dickey
  * Created:	27 Apr 1988
  * Modified:
+ *		18 May 1988, added 'dedrung()' entry.
  *		06 May 1988, added coercion for paths which may contain a
  *			     symbolic link.
  *		05 May 1988, added 'Q' command.
@@ -15,11 +16,11 @@ static	char	sccs_id[] = "@(#)dedring.c	1.9 88/05/16 14:52:21";
  *
  * Function:	Save the current state of the directory editor and scan
  *		a new directory.
+ *
+ * patch:	loop on ring_fwd/ring_bak may be confused with 'trans'.
  */
 
 #include	"ded.h"
-#include	<sys/errno.h>
-extern	int	errno;
 extern	FLIST	*dedfree();
 extern	char	*txtalloc();
 
@@ -424,4 +425,33 @@ dedrang(path)
 char	*path;
 {
 	return (ring_get(path) != 0);
+}
+
+/*
+ * Returns a pointer to the pathname forward/or backward in the ring.
+ */
+char *
+dedrung(count)
+{
+RING	*oldp	= insert(new_wd, FALSE),
+	*newp;
+static
+char	show[BUFSIZ];
+char	temp[BUFSIZ],
+	*path	= new_wd;
+
+	if (count > 0) {
+		while (count-- > 0) {
+			if ((newp = ring_fwd(path)) == oldp)
+				break;
+			untrans(path = temp, newp->new_wd);
+		}
+	} else if (count < 0) {
+		while (count++ < 0) {
+			if ((newp = ring_bak(path)) == oldp)
+				break;
+			untrans(path = temp, newp->new_wd);
+		}
+	}
+	return (strcpy(show, path));
 }
