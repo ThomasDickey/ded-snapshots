@@ -1,8 +1,14 @@
 /*
- * $Id: version.h,v 12.12 1996/03/16 19:36:50 tom Exp $
+ * $Id: version.h,v 12.13 1997/02/11 09:36:50 tom Exp $
  * Version-identifier for DED
  *
  *		$Log: version.h,v $
+ *		Revision 12.13  1997/02/11 09:36:50  tom
+ *		fixes to dedscan's handling of common-prefix trimming (97/1, 97/2).
+ *		restructured initialization of dedcolor to use ncurses 'use_default_colors()'.
+ *		move ANSI_VARARGS tests into td_lib configure.
+ *		make dedblip work before curses is initialized.
+ *
  *		Revision 12.12  1996/03/16 19:36:50  tom
  *		memory leaks, mod to redoVIEW interface.
  *
@@ -331,4 +337,4 @@ static
 #ifndef __hpux	/* scanf is broken on HP/UX 9 */
 const
 #endif
-char	version[] = "$Date: 1996/03/16 19:36:50 $";
+char	version[] = "$Date: 1997/02/11 09:36:50 $";
