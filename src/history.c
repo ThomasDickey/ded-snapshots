@@ -3,6 +3,7 @@
  * Author:	T.E.Dickey
  * Created:	07 Aug 1992
  * Modified:
+ *		09 Feb 1996, increase history limit.
  *		23 Jul 1994, added 'show_history()'
  *		29 Oct 1993, ifdef-ident
  *		28 Sep 1993, gcc warnings
@@ -16,13 +17,13 @@
 
 #include "ded.h"
 
-MODULE_ID("$Id: history.c,v 12.6 1994/10/05 23:44:53 tom Exp $")
+MODULE_ID("$Id: history.c,v 12.7 1996/02/10 01:33:39 tom Exp $")
 
 #define	def_alloc	HIST_alloc
 	/*ARGSUSED*/
 	def_ALLOC(HIST)
 
-#define	MAX_AGE	10
+#define	MAX_AGE	20
 
 #ifdef	DEBUG
 private	void	dump_history(

@@ -1,8 +1,11 @@
 /*
- * $Id: version.h,v 12.10 1996/01/13 15:11:04 tom Exp $
+ * $Id: version.h,v 12.11 1996/02/10 01:32:48 tom Exp $
  * Version-identifier for DED
  *
  *		$Log: version.h,v $
+ *		Revision 12.11  1996/02/10 01:32:48  tom
+ *		mods to support scrolling regions
+ *
  *		Revision 12.10  1996/01/13 15:11:04  tom
  *		mods for using the last (80th) column on display.  Use sysvr4 scrolling
  *		support if available.  Added -i option (temporary) for inverting color.
@@ -321,4 +324,4 @@
  * 01 Dec 1987, added '*', '^' commands, made '%' refresh screen
  * 25 Nov 1987, added sccs-support (V,z,Z toggles, V,z,Z sorts)
  */
-static	const	char	version[] = "$Date: 1996/01/13 15:11:04 $";
+static	const	char	version[] = "$Date: 1996/02/10 01:32:48 $";

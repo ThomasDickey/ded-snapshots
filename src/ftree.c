@@ -128,7 +128,7 @@
 
 #include	<fcntl.h>
 
-MODULE_ID("$Id: ftree.c,v 12.49 1996/01/25 23:40:35 tom Exp $")
+MODULE_ID("$Id: ftree.c,v 12.50 1996/02/16 20:04:10 tom Exp $")
 
 #define	Null	(char *)0	/* some NULL's are simply 0 */
 
@@ -1751,7 +1751,7 @@ public	RING *	ft_view(
 			while (num-- > 0) {
 				tmp = SKIP_THIS(1);
 				if ((j = (tmp != 0)) != 0)
-					gbl = tmp;
+					redoVIEW(gbl = tmp, TRUE);
 				else
 					break;
 				if (is_sccs(row) && (savesccs != showsccs))
@@ -1759,7 +1759,7 @@ public	RING *	ft_view(
 			}
 			while (!fd_ring(gbl, path, &row, &lvl)) {
 				if ((tmp = QUIT_THIS(1)) != 0)
-					gbl = tmp;
+					redoVIEW(gbl = tmp, TRUE);
 				else
 					return gbl;
 			}
@@ -1770,10 +1770,10 @@ public	RING *	ft_view(
 		case 'F':
 		case 'B':
 			if ((tmp = SKIP_THIS(num)) != 0)
-				gbl = tmp;
+				redoVIEW(gbl = tmp, TRUE);
 			while (!fd_ring(gbl, path, &row, &lvl)) {
 				if ((tmp = QUIT_THIS(1)) != 0)
-					gbl = tmp;
+					redoVIEW(gbl = tmp, TRUE);
 				else
 					return gbl;
 			}

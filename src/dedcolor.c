@@ -3,6 +3,7 @@
  * Author:	T.E.Dickey
  * Created:	10 Jul 1994
  * Modified:
+ *		09 Feb 1996, allow ISO 6429 codes to be used on non-Linux.
  *		16 Dec 1995, mods to override curses's sense of default color.
  *
  * Function:	If we've got SYS5-curses and appropriate display hardware,
@@ -14,7 +15,7 @@
  */
 #include "ded.h"
 
-MODULE_ID("$Id: dedcolor.c,v 12.9 1995/12/16 15:51:49 tom Exp $")
+MODULE_ID("$Id: dedcolor.c,v 12.10 1996/02/10 01:32:16 tom Exp $")
 
 #if HAVE_HAS_COLORS
 
@@ -77,8 +78,8 @@ private	int	CreatePair(
 
 /*
  * The DIR_COLORS file on Linux specifies colors in a manner that is specific
- * to the IBM PC.  Colors and attributes are given by a series of numbers
- * separated by semicolons. We translate these codes back to a form that is
+ * to the ISO 6429.  Colors and attributes are given by a series of numbers
+ * separated by semicolons.  We translate these codes back to a form that is
  * usable in [n]curses.
  */
 private	void	SaveColor(
@@ -123,7 +124,6 @@ private	void	SaveColor(
 			*next++ = EOS;
 			(void)strclean(spec);
 		}
-#ifdef	linux
 		code = strtol(spec, &temp, 10);
 		if (temp != spec) {	/* there's a number */
 			switch(code) {
@@ -152,13 +152,13 @@ private	void	SaveColor(
 			case 46:	bakg = COLOR_CYAN;	break;
 			case 47:	bakg = COLOR_WHITE;	break;
 			}
-		} else	/* non-number: keywords */
-#endif	/* linux */
-		for (n = 0; n < SIZEOF(attr_names); n++) {
-			if (!strcmp(spec, attr_names[n].name)) {
-				attr |= attr_names[n].code;
-				found = TRUE;
-				break;
+		} else {	/* non-number: keywords */
+			for (n = 0; n < SIZEOF(attr_names); n++) {
+				if (!strcmp(spec, attr_names[n].name)) {
+					attr |= attr_names[n].code;
+					found = TRUE;
+					break;
+				}
 			}
 		}
 		if (!found

@@ -19,7 +19,7 @@
 
 #ifdef	MAIN
 #if	!defined(NO_IDENT)
-static const char ded_h[] = "$Id: ded.h,v 12.42 1996/01/13 14:50:42 tom Exp $";
+static const char ded_h[] = "$Id: ded.h,v 12.43 1996/02/16 20:07:02 tom Exp $";
 #endif
 #endif	/* MAIN */
 
@@ -532,7 +532,8 @@ extern	void	openVIEW(
 		_ar1(RING *,	gbl));
 
 extern	void	redoVIEW(
-		_ar1(RING *,	gbl));
+		_arx(RING *,	gbl)
+		_ar1(int,	freed));
 
 extern	void	scrollVIEW(
 		_arx(RING *,	gbl)
