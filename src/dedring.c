@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	sccs_id[] = "@(#)dedring.c	1.17 88/08/01 11:16:13";
+static	char	sccs_id[] = "@(#)dedring.c	1.18 88/08/12 07:28:33";
 #endif	lint
 
 /*
@@ -28,6 +28,7 @@ static	char	sccs_id[] = "@(#)dedring.c	1.17 88/08/01 11:16:13";
 
 #include	"ded.h"
 extern	FLIST	*dedfree();
+extern	char	**vecalloc();
 extern	char	*txtalloc();
 
 /*
@@ -49,9 +50,9 @@ typedef	struct	_ring	{
 			sortord,
 			sortopt,
 			tagsort,
-#ifndef	SYSTEM5
+#ifdef	S_IFLNK
 			AT_opt,
-#endif	SYSTEM5
+#endif	S_IFLNK
 			G_opt,
 			I_opt,
 			P_opt,
@@ -64,6 +65,10 @@ typedef	struct	_ring	{
 #endif	Z_RCS_SCCS
 	unsigned	numfiles;
 	} RING;
+
+#define	def_alloc	RING_alloc
+	/*ARGSUSED*/
+	def_ALLOC(RING)
 
 static	RING	*ring,		/* directory-list */
 		*rang;		/* reference so we don't free real argv! */
@@ -121,9 +126,9 @@ RING	*p;
 	SAVE(sortord);
 	SAVE(sortopt);
 	SAVE(tagsort);
-#ifndef	SYSTEM5
+#ifdef	S_IFLNK
 	SAVE(AT_opt);
-#endif	SYSTEM5
+#endif	S_IFLNK
 	SAVE(G_opt);
 	SAVE(I_opt);
 	SAVE(P_opt);
@@ -158,9 +163,9 @@ RING	*p;
 	UNSAVE(sortord);
 	UNSAVE(sortopt);
 	UNSAVE(tagsort);
-#ifndef	SYSTEM5
+#ifdef	S_IFLNK
 	UNSAVE(AT_opt);
-#endif	SYSTEM5
+#endif	S_IFLNK
 	UNSAVE(G_opt);
 	UNSAVE(I_opt);
 	UNSAVE(P_opt);
@@ -204,7 +209,7 @@ char	bfr[BUFSIZ];
 	 * Make a new entry, using all of the current state except for
 	 * the actual file-list
 	 */
-	p = DOALLOC(RING,0,1);
+	p = ALLOC(RING,1);
 	if (!rang)	rang = p;
 
 	save(p);
@@ -212,7 +217,7 @@ char	bfr[BUFSIZ];
 	if (first) {
 		p->flist    = 0;
 		p->top_argc = 1;
-		p->top_argv = DOALLOC(char *,0, 2);
+		p->top_argv = vecalloc(2);
 		p->top_argv[0] = txtalloc(path);
 		p->clr_sh   = FALSE;
 		p->curfile  = 0;
@@ -414,7 +419,7 @@ char	tmp[BUFSIZ];
 			Y_opt = 0;
 			Z_opt = 0;
 #endif	Z_RCS_SCCS
-#ifndef	SYSTEM5
+#ifdef	S_IFLNK
 			AT_opt = 0;
 
 			/*
@@ -433,7 +438,7 @@ char	tmp[BUFSIZ];
 				success = FALSE;
 			}
 			if (success && numfiles == 0)
-#endif	SYSTEM5
+#endif	S_IFLNK
 			if (dedscan(newp->top_argc, newp->top_argv)) {
 				curfile = 0;
 				dedsort();

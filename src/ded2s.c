@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	sccs_id[] = "@(#)ded2s.c	1.12 88/07/28 09:11:30";
+static	char	sccs_id[] = "@(#)ded2s.c	1.13 88/08/12 08:06:50";
 #endif	lint
 
 /*
@@ -7,6 +7,7 @@ static	char	sccs_id[] = "@(#)ded2s.c	1.12 88/07/28 09:11:30";
  * Author:	T.E.Dickey
  * Created:	09 Nov 1987
  * Modified:
+ *		12 Aug 1988, apollo sys5 environment permits symbolic links.
  *		16 Jun 1988, added uppercase-code for AT_opt.
  *		01 Jun 1988, added 'Y_opt' field.
  *		23 May 1988, absorbed 'z_rels' into 'z_vers'.
@@ -70,13 +71,13 @@ char	*t,
 		if (mj & S_ISVTX)			bfr[8]   = 't';
 	}
 
-#ifndef	SYSTEM5
+#ifdef	S_IFLNK
 	/* show symbolic link target mode in uppercase */
 	if (AT_opt && f_->ltxt) {
 		for (t = base; *t; t++)
 			if (isalpha(*t))	*t = _toupper(*t);
 	}
-#endif	SYSTEM5
+#endif	S_IFLNK
 	bfr += strlen(bfr);
 
 	/* translate the number of links, or the inode value */
@@ -89,8 +90,8 @@ char	*t,
 	bfr += field(bfr,mj);
 
 	/* show the user-id or group-id */
-	if (G_opt)	t = gid2s(s->st_gid);
-	else		t = uid2s(s->st_uid);
+	if (G_opt)	t = gid2s((int)(s->st_gid));
+	else		t = uid2s((int)(s->st_uid));
 	FORMAT(bfr, "%-*.*s ", UIDLEN, UIDLEN, t);
 	cmdcol[1] = bfr - base;
 	bfr += field(bfr,mj);
@@ -163,7 +164,7 @@ char	*t,
 	len -= (bfr-base);
 	bfr += name2s(bfr, name, len, FALSE);
 
-#ifndef	SYSTEM5
+#ifdef	S_IFLNK
 	if ((t = f_->ltxt) != 0) {
 		*bfr++ = ' ';
 		*bfr++ = '-';
@@ -172,7 +173,7 @@ char	*t,
 		len -= (bfr-base);
 		bfr += name2s(bfr, t, len, FALSE);
 	} else
-#endif	SYSTEM5
+#endif	S_IFLNK
 		if (isDIR(mj)) {
 		*bfr++ = '/';
 	} else if (executable(s))	*bfr++ = '*';

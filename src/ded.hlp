@@ -79,6 +79,7 @@ Display-Adjustment:
 		from others.
 
 		c	last-change date
+		d	order in directory-file (cf: 'find' utility)
 		i	inode
 		l	number of links
 		n	filename

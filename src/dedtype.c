@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	sccs_id[] = "@(#)dedtype.c	1.10 88/08/09 06:52:44";
+static	char	sccs_id[] = "@(#)dedtype.c	1.11 88/08/12 08:07:48";
 #endif	lint
 
 /*
@@ -22,6 +22,10 @@ static	char	sccs_id[] = "@(#)dedtype.c	1.10 88/08/09 06:52:44";
  * patch: should not reread page from file if we don't move.
  */
 #include	"ded.h"
+
+#define	def_doalloc	OFF_T_alloc
+	/*ARGSUSED*/
+	def_DOALLOC(OFF_T)
 
 static	char	text[BUFSIZ],		/* converted display-text */
 		over[BUFSIZ];		/* overstrike/underline flags */
@@ -132,7 +136,7 @@ int	c,			/* current character */
 		to_work();
 		while (!done) {
 		static	OFF_T	*infile;
-		static	int	maxpage = 0;
+		static	unsigned maxpage = 0;
 		int	replay	= 0;
 
 			y	= mark_W + 1;
@@ -143,9 +147,9 @@ int	c,			/* current character */
 			clrtobot();
 			typeinit();
 
-			if (page > maxpage-2) {
+			if (page+2 > maxpage) {
 				maxpage = page + 100;
-				infile = DOALLOC(OFF_T,infile, maxpage);
+				infile = DOALLOC(infile,OFF_T,maxpage);
 			}
 			infile[page++] = ftell(fp);
 			while (c = fgetc(fp), !feof(fp)) {

@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	sccs_id[] = "@(#)ded.c	1.48 88/08/11 09:38:44";
+static	char	sccs_id[] = "@(#)ded.c	1.50 88/08/12 09:30:07";
 #endif	lint
 
 /*
@@ -7,6 +7,8 @@ static	char	sccs_id[] = "@(#)ded.c	1.48 88/08/11 09:38:44";
  * Author:	T.E.Dickey
  * Created:	09 Nov 1987
  * Modified:
+ *		12 Aug 1988, apollo sys5 environment permits symbolic links.
+ *			     Added 'd' (directory-order) sort.
  *		04 Aug 1988, added debug-option.
  *		03 Aug 1988, added signal catch/ignore processing.
  *		02 Aug 1988, show column-scale on workspace marker, permit a
@@ -61,13 +63,6 @@ extern	char	*txtalloc();
 #define	PAGER	"/usr/ucb/more"
 #endif	PAGER
 
-#ifdef	lint
-#undef	putchar
-#ifndef	SYSTEM5
-/*ARGSUSED*/	putchar(c) { return(0); }
-#endif	SYSTEM5
-#endif	lint
-
 #define	MAXVIEW	2		/* number of viewports */
 #define	MINLIST	2		/* minimum length of file-list + header */
 #define	MINWORK	3		/* minimum size of work-area */
@@ -102,7 +97,7 @@ static	int	in_screen;		/* TRUE if we have successfully init'ed */
 static	char	whoami[BUFSIZ],		/* my execution-path */
 		howami[BUFSIZ];		/* my help-file */
 
-static	char	sortc[] = ".cgilnprstuwGTUyvzZ";/* valid sort-keys */
+static	char	sortc[] = ".cdgilnprstuwGTUyvzZ";/* valid sort-keys */
 					/* (may correspond with cmds) */
 
 /************************************************************************
@@ -242,12 +237,12 @@ realstat(inx)
 {
 register j = xSTAT(inx).st_mode;
 
-#ifndef	SYSTEM5
+#ifdef	S_IFLNK
 	if (isLINK(j)) {
 	struct	stat	sb;
 		j = (stat(xNAME(inx), &sb) >= 0) ? sb.st_mode : 0;
 	}
-#endif	SYSTEM5
+#endif	S_IFLNK
 	if (isFILE(j))	return(0);
 	if (isDIR(j))	return(1);
 	return (-1);
@@ -876,7 +871,7 @@ char	tpath[BUFSIZ],
 			break;
 
 			/* display-toggles */
-#ifndef	SYSTEM5
+#ifdef	S_IFLNK
 	case '@':	AT_opt= !AT_opt;
 			count = 0;
 			for (j = 0; j < numfiles; j++) {
@@ -887,7 +882,7 @@ char	tpath[BUFSIZ],
 			if (count)
 				showFILES();
 			break;
-#endif	SYSTEM5
+#endif	S_IFLNK
 	case 'G':	G_opt = !G_opt; showFILES(); break;
 	case 'I':	I_opt = !I_opt; showFILES(); break;
 	case 'P':	P_opt = !P_opt; showFILES(); break;

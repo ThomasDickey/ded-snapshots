@@ -1,5 +1,6 @@
 /*
  * Version-identifier for DED
+ * 12 Aug 1988, added "d" sort; lint/compile on apollo sys5 environment.
  * 03 Aug 1988, added 'X' command (splits current window), signals to long
  *		commands.  Added workspace-marker column-scale.
  * 25 Jul 1988, added repeat (level) count to ftree's R-command.
@@ -31,4 +32,4 @@
  * 01 Dec 1987, added '*', '^' commands, made '%' refresh screen
  * 25 Nov 1987, added sccs-support (V,z,Z toggles, V,z,Z sorts)
  */
-static	char	version[] = "@(#)DED Directory Editor (88/08/03 11:01:02)";
+static	char	version[] = "@(#)DED Directory Editor (88/08/12 09:17:16)";
