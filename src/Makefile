@@ -1,4 +1,4 @@
-# $Id: Makefile,v 11.7 1992/10/16 09:25:33 dickey Exp $
+# $Id: Makefile,v 11.8 1992/11/20 14:53:38 dickey Exp $
 # MAKE-file for directory editor
 
 THIS	= ded
@@ -8,7 +8,7 @@ include $(TOP)/cm_library/support/cm_library.mk
 ####### (Standard Lists) #######################################################
 LINTLIBS= -ltd -lcurses -lapollo
 
-DED_H	= $(THIS).h $(PTYPES_H) $I/cmdch.h $I/dyn_string.h
+DED_H	= $(THIS).h $(CURSES_H) $I/cmdch.h $I/dyn_string.h
 
 ALL	= $B/$(THIS) $B/$(THIS).hlp
 
@@ -97,6 +97,7 @@ $Z:	$(OBJS)
 
 $(THIS).o:	$(DED_H) $(THIS).c version.h
 $(OBJS):	$(DED_H)
+$Z(dedsort.o):	$(QSORT_H)
 $Z(ded2s.o):	$I/acl.h
 $Z(dedscan.o):	$(RCSDEFS_H) $(SCCSDEFS_H)
 $Z(ftree.o):	$(RCSDEFS_H) $(SCCSDEFS_H)
