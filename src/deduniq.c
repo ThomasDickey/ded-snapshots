@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	Id[] = "$Id: deduniq.c,v 10.1 1992/04/01 14:29:24 dickey Exp $";
+static	char	Id[] = "$Id: deduniq.c,v 10.4 1992/04/02 10:31:28 dickey Exp $";
 #endif
 
 /*
@@ -16,28 +16,33 @@ static	char	Id[] = "$Id: deduniq.c,v 10.1 1992/04/01 14:29:24 dickey Exp $";
  */
 #include	"ded.h"
 
-deduniq _ONE(int,level)
+public	void	deduniq (
+	_ARX(RING *,	gbl)
+	_AR1(int,	level)
+		)
+	_DCL(RING *,	gbl)
+	_DCL(int,	level)
 {
 	register int	j, k;
 	auto	 int	old, new;
 
 	to_work(TRUE);
-	FOO->tagsort = FALSE;	/* don't confuse 'dedsort_cmp()' */
+	gbl->tagsort = FALSE;	/* don't confuse 'dedsort_cmp()' */
 
-	for (j = (level > 1), old = FALSE; j < FOO->numfiles; j++) {
+	for (j = (level > 1), old = FALSE; j < gbl->numfiles; j++) {
 
-		k = (level > 1) ? j-1 : FOO->curfile;
+		k = (level > 1) ? j-1 : gbl->curfile;
 
 		if (new = (k == j)) {
 			blip('*');
-			dlog_name(xNAME(k));
-		} else if (new = (! dedsort_cmp(FOO->flist+k, FOO->flist+j)) ) {
+			dlog_name(gNAME(k));
+		} else if (new = (! dedsort_cmp(gbl, gbl->flist+k, gbl->flist+j)) ) {
 			blip('#');
-			xFLAG(k) =
-			xFLAG(j) = (level > 0);
+			gFLAG(k) =
+			gFLAG(j) = (level > 0);
 			if (!old)
-				dlog_name(xNAME(k));
-			dlog_name(xNAME(j));
+				dlog_name(gNAME(k));
+			dlog_name(gNAME(j));
 		} else
 			blip('.');
 		old = new;

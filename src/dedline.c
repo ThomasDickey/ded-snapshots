@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	Id[] = "$Id: dedline.c,v 10.2 1992/04/01 14:56:11 dickey Exp $";
+static	char	Id[] = "$Id: dedline.c,v 10.7 1992/04/02 12:49:56 dickey Exp $";
 #endif
 
 /*
@@ -52,8 +52,8 @@ static	char	Id[] = "$Id: dedline.c,v 10.2 1992/04/01 14:56:11 dickey Exp $";
 
 #include	"ded.h"
 
-#define	CHMOD(n)	(xSTAT(n).st_mode & 07777)
-#define	OWNER(n)	((geteuid() == 0) || (xSTAT(x).st_uid == geteuid()))
+#define	CHMOD(n)	(gSTAT(n).st_mode & 07777)
+#define	OWNER(n)	((geteuid() == 0) || (gSTAT(x).st_uid == geteuid()))
 
 #define	TO_FIRST	CTL('b')
 #define	TO_LAST		CTL('f')
@@ -69,7 +69,7 @@ static	char	lastedit[BUFSIZ];
  * Store/retrieve field-editing commands.  The first character of the buffer
  * 'lastedit[]' is reserved to tell us what the command was.
  */
-replay _ONE(int,c)
+public	int	replay _ONE(int,c)
 {
 	static	int	in_edit;
 
@@ -105,94 +105,98 @@ replay _ONE(int,c)
  * Construct an editable-string for 'editname()' and 'editlink()'.
  * All nonprinting characters will be shown as '?'.
  */
-static
-char *
-name2bfr(
-_ARX(char *,	dst)
-_AR1(char *,	src)
-	)
-_DCL(char *,	dst)
-_DCL(char *,	src)
+private	char *	name2bfr(
+	_ARX(char *,	dst)
+	_AR1(char *,	src)
+		)
+	_DCL(char *,	dst)
+	_DCL(char *,	src)
 {
 	(void)name2s(dst, BUFSIZ, src, FALSE);
 	return (dst);
 }
 
-/*
- * Save AT_opt mode when we are editing inline, and show mapped-thru stat for
- * symbolic links.
- */
 #ifdef	S_IFLNK
-static
-at_save(_AR0)
-{
-	if (!FOO->AT_opt) {	/* chmod applies only to target of symbolic link */
-		return (at_last(TRUE));
-	}
-	return (FALSE);
-}
-
 /*
  * If any tagged files are symbolic links, set the AT_opt to the specified flag
  * value and re-stat them.  Return a count of the number of links.
  */
-static
-at_last _ONE(int,flag)
+private	int	at_last(
+	_ARX(RING *,	gbl)
+	_AR1(int,	flag)
+		)
+	_DCL(RING *,	gbl)
+	_DCL(int,	flag)
 {
 	register int x;
 	register int changed = 0;
 
-	for (x = 0; x < FOO->numfiles; x++)
+	for (x = 0; x < gbl->numfiles; x++)
 		if (GROUPED(x)
-		&& xLTXT(x)) {
-			FOO->AT_opt = flag;
-			statLINE(FOO, x);
-			showLINE(FOO, x);
+		&& gLTXT(x)) {
+			gbl->AT_opt = flag;
+			statLINE(gbl, x);
+			showLINE(gbl, x);
 			changed++;
 		}
 	return (changed);
 }
 
 /*
- * Assign a new target for a symbolic link.
+ * Save AT_opt mode when we are editing inline, and show mapped-thru stat for
+ * symbolic links.
  */
-static
-relink(
-_ARX(int,	x)
-_AR1(char *,	name)
-	)
-_DCL(int,	x)
-_DCL(char *,	name)
+private	int	at_save _ONE(RING *,gbl)
 {
-	dlog_comment("relink \"%s\" (link=%s)\n", name, xNAME(x));
-	if (unlink(xNAME(x)) >= 0) {
-		if (symlink(name, xNAME(x)) >= 0)
-			return (TRUE);
-		(void)symlink(xLTXT(x), xNAME(x));	/* try to restore */
+	if (!gbl->AT_opt) {
+		/* chmod applies only to target of symbolic link */
+		return (at_last(gbl, TRUE));
 	}
-	waitmsg(xNAME(x));
 	return (FALSE);
 }
 
-static	int	cmd_link;	/* true if we use short-form */
+/*
+ * Assign a new target for a symbolic link.
+ */
+private	int	relink(
+	_ARX(RING *,	gbl)
+	_ARX(int,	x)
+	_AR1(char *,	name)
+		)
+	_DCL(RING *,	gbl)
+	_DCL(int,	x)
+	_DCL(char *,	name)
+{
+	dlog_comment("relink \"%s\" (link=%s)\n", name, gNAME(x));
+	if (unlink(gNAME(x)) >= 0) {
+		if (symlink(name, gNAME(x)) >= 0)
+			return (TRUE);
+		(void)symlink(gLTXT(x), gNAME(x));	/* try to restore */
+	}
+	waitmsg(gNAME(x));
+	return (FALSE);
+}
+
+private	int	cmd_link;	/* true if we use short-form */
 
 /*
  * Substitute a symbolic link into short-form, so that the 'subslink()' code
  * can later expand it.
  */
-static
-subspath(
-_ARX(char *,	path)
-_ARX(int,	count)
-_ARX(char *,	short_form)
-_AR1(int,	x)
-	)
-_DCL(char *,	path)
-_DCL(int,	count)
-_DCL(char *,	short_form)
-_DCL(int,	x)
+private	int	subspath(
+	_ARX(RING *,	gbl)
+	_ARX(char *,	path)
+	_ARX(int,	count)
+	_ARX(char *,	short_form)
+	_AR1(int,	x)
+		)
+	_DCL(RING *,	gbl)
+	_DCL(char *,	path)
+	_DCL(int,	count)
+	_DCL(char *,	short_form)
+	_DCL(int,	x)
 {
-	register char	*p = dedrung(count);
+	register char	*p = ring_path(count);
 	register size_t	len = strlen(p);
 	auto	 int	changed = FALSE;
 	auto	 char	tmp[BUFSIZ];
@@ -211,9 +215,9 @@ _DCL(int,	x)
 	}
 	if (changed)
 		path += strlen(short_form);
-	len = strlen(xNAME(x));
+	len = strlen(gNAME(x));
 	while (*path) {			/* substitute current-name */
-		if (!strncmp(path, xNAME(x), len)) {
+		if (!strncmp(path, gNAME(x), len)) {
 			(void)strcpy(tmp, path+len);
 			(void)strcat(strcpy(path, "#"), tmp);
 		}
@@ -222,19 +226,19 @@ _DCL(int,	x)
 	return (changed);
 }
 
-static
-char *
-link2bfr(
-_ARX(char *,	dst)
-_AR1(int,	x)
-	)
-_DCL(char *,	dst)
-_DCL(int,	x)
+private	char *	link2bfr(
+	_ARX(RING *,	gbl)
+	_ARX(char *,	dst)
+	_AR1(int,	x)
+		)
+	_DCL(RING *,	gbl)
+	_DCL(char *,	dst)
+	_DCL(int,	x)
 {
-	(void)name2bfr(dst, xLTXT(x));
+	(void)name2bfr(dst, gLTXT(x));
 	if (cmd_link) {
-		if (!subspath(dst, 1, "%F", x))
-			(void)subspath(dst, -1, "%B", x);
+		if (!subspath(gbl, dst, 1, "%F", x))
+			(void)subspath(gbl, dst, -1, "%B", x);
 	}
 	return (dst);
 }
@@ -242,14 +246,14 @@ _DCL(int,	x)
 /*
  * Substitute user's short-hand notation back to normal link-text.
  */
-static
-char *
-subslink(
-_ARX(char *,	bfr)
-_AR1(int,	x)
-	)
-_DCL(char *,	bfr)
-_DCL(int,	x)
+private	char *	subslink(
+	_ARX(RING *,	gbl)
+	_ARX(char *,	bfr)
+	_AR1(int,	x)
+		)
+	_DCL(RING *,	gbl)
+	_DCL(char *,	bfr)
+	_DCL(int,	x)
 {
 	auto	char	tmp[BUFSIZ];
 	register char	*s = strcpy(tmp, bfr);
@@ -259,15 +263,15 @@ _DCL(int,	x)
 	while (*d = *s) {
 		if (*s++ == '%') {
 			if (*s++ == 'F')
-				d += strlen(strcpy(d, dedrung(1)));
+				d += strlen(strcpy(d, ring_path(1)));
 			else if (s[-1] == 'B')
-				d += strlen(strcpy(d, dedrung(-1)));
+				d += strlen(strcpy(d, ring_path(-1)));
 			else {
 				d++;
 				s--;	/* point back just after '%' */
 			}
 		} else if (*d == '#') {
-			t = xNAME(x);
+			t = gNAME(x);
 			while (*d = *t++)	d++;
 		} else
 			d++;
@@ -279,8 +283,7 @@ _DCL(int,	x)
 /*
  * Coerce Xbase (left/right scrolling) so we can display a given column
  */
-static
-save_Xbase _ONE(int,col) /* leftmost column we need to show */
+private	int	save_Xbase _ONE(int,col) /* leftmost column we need to show */
 {
 	auto	int	old = Xbase;
 	if (col < Xbase)
@@ -292,35 +295,34 @@ save_Xbase _ONE(int,col) /* leftmost column we need to show */
 	return (col - Xbase);
 }
 
-static
-change_protection(_AR0)
+private	int	change_protection _ONE(RING *,gbl)
 {
 	int	changed = FALSE;
 	register int	c, x;
 
 	(void)dedsigs(TRUE);	/* reset interrupt counter */
-	c = CHMOD(FOO->curfile);
-	for (x = 0; x < FOO->numfiles; x++) {
+	c = CHMOD(gbl->curfile);
+	for (x = 0; x < gbl->numfiles; x++) {
 		if (GROUPED(x)) {
 			if (dedsigs(TRUE)) {
-				waitmsg(xNAME(x));
+				waitmsg(gNAME(x));
 				break;
 			}
-			statLINE(FOO, x);
+			statLINE(gbl, x);
 			changed++;
 			if (c != CHMOD(x)) {
 				dlog_comment("chmod %o %s\n",
-					c, xNAME(x));
+					c, gNAME(x));
 #ifdef	apollo_sr10
-				if (has_extended_acl(x)
+				if (has_extended_acl(gbl, x)
 					&& !OWNER(x)) {
 					errno = EPERM;
-					warn(xNAME(x));
+					warn(gNAME(x));
 					break;
 				}
 #endif
-				if (chmod(xNAME(x), c) < 0) {
-					warn(xNAME(x));
+				if (chmod(gNAME(x), c) < 0) {
+					warn(gNAME(x));
 					break;
 				}
 				fixtime(x);
@@ -337,21 +339,22 @@ change_protection(_AR0)
 /*
  * edit protection-code for current & tagged files
  */
-editprot(_AR0)
+public	void	editprot _ONE(RING *,gbl)
 {
-register
-int	y	= file2row(FOO->curfile),
-	x	= 0,
-	c;
-auto	int
-	opt	= FOO->P_opt,
-	changed	= FALSE,
-	done	= FALSE;
+	register
+	STAT	*sb	= &gSTAT(gbl->curfile);
+	int	y	= file2row(gbl->curfile),
+		x	= 0,
+		c;
+	auto	int
+		opt	= gbl->P_opt,
+		changed	= FALSE,
+		done	= FALSE;
 #ifdef	S_IFLNK
-int	at_flag	= at_save();
+	int	at_flag	= at_save(gbl);
 #endif
 
-	(void)save_Xbase(FOO->cmdcol[CCOL_PROT]);
+	(void)save_Xbase(gbl->cmdcol[CCOL_PROT]);
 
 	(void)replay('p');
 
@@ -359,10 +362,10 @@ int	at_flag	= at_save();
 	int	rwx,
 		cols[3];
 
-		showLINE(FOO, FOO->curfile);
+		showLINE(gbl, gbl->curfile);
 
-		rwx	= (FOO->P_opt ? 1 : 3),
-		cols[0] = FOO->cmdcol[CCOL_PROT];
+		rwx	= (gbl->P_opt ? 1 : 3),
+		cols[0] = gbl->cmdcol[CCOL_PROT];
 		cols[1] = cols[0] + rwx;
 		cols[2] = cols[1] + rwx;
 
@@ -371,7 +374,7 @@ int	at_flag	= at_save();
 		switch (c = replay(EOS)) {
 		case '\n':
 		case 'p':
-			changed = change_protection();
+			changed = change_protection(gbl);
 			done = TRUE;
 			break;
 		case 'q':
@@ -398,22 +401,22 @@ int	at_flag	= at_save();
 		default:
 			if (c >= '0' && c <= '7') {
 			int	shift = 6 - (x * rwx);
-				cSTAT.st_mode &= ~(7      << shift);
-				cSTAT.st_mode |= ((c-'0') << shift);
+				sb->st_mode &= ~(7      << shift);
+				sb->st_mode |= ((c-'0') << shift);
 				if (x < 2)
 					x++;
 			} else if (c == 'P') {
-				FOO->P_opt = !FOO->P_opt;
+				gbl->P_opt = !gbl->P_opt;
 			} else if (c == 's') {
 				if (x == 0)
-					cSTAT.st_mode ^= S_ISUID;
+					sb->st_mode ^= S_ISUID;
 				else if (x == 1)
-					cSTAT.st_mode ^= S_ISGID;
+					sb->st_mode ^= S_ISGID;
 				else
 					beep();
 			} else if (c == 't') {
 				if (x == 2)
-					cSTAT.st_mode ^= S_ISVTX;
+					sb->st_mode ^= S_ISVTX;
 				else
 					beep();
 			} else
@@ -422,12 +425,13 @@ int	at_flag	= at_save();
 	}
 #ifdef	S_IFLNK
 	if (at_flag) {		/* we had to toggle because of sym-link	*/
-		(void)at_last(FALSE); /* force stat on the files, cleanup */
+		(void)at_last(gbl, FALSE);
+		/* force stat on the files, cleanup */
 	}
 #endif
-	if (opt != FOO->P_opt) {
-		FOO->P_opt = opt;
-		showLINE(FOO, FOO->curfile);
+	if (opt != gbl->P_opt) {
+		gbl->P_opt = opt;
+		showLINE(gbl, gbl->curfile);
 	}
 	restat(changed);
 }
@@ -437,31 +441,33 @@ int	at_flag	= at_save();
  * moving within the line, and for setting/resetting insert mode.  Use
  * backspace to delete characters.
  */
-edittext(
-_ARX(int,	endc)
-_ARX(int,	col)
-_ARX(int,	len)
-_AR1(char *,	bfr)
-	)
-_DCL(int,	endc)
-_DCL(int,	col)
-_DCL(int,	len)
-_DCL(char *,	bfr)
+public	int	edittext(
+	_ARX(RING *,	gbl)
+	_ARX(int,	endc)
+	_ARX(int,	col)
+	_ARX(int,	len)
+	_AR1(char *,	bfr)
+		)
+	_DCL(RING *,	gbl)
+	_DCL(int,	endc)
+	_DCL(int,	col)
+	_DCL(int,	len)
+	_DCL(char *,	bfr)
 {
-int	y	= file2row(FOO->curfile),
-	x	= 0,
-	c,
-	shift	= 0,			/* kludge to permit long edits */
-	last,				/* length of edit-window */
-	code	= TRUE,
-	ec	= erasechar(),
-	kc	= killchar(),
-	insert	= FALSE,
-	delete;
-register char *s;
+	int	y	= file2row(gbl->curfile),
+		x	= 0,
+		c,
+		shift	= 0,		/* kludge to permit long edits */
+		last,			/* length of edit-window */
+		code	= TRUE,
+		ec	= erasechar(),
+		kc	= killchar(),
+		insert	= FALSE,
+		delete;
+	register char *s;
 
 #ifdef	S_IFLNK
-int	at_flag	= ((endc == 'u') || (endc == 'g')) ? at_save() : FALSE;
+	int	at_flag	= ((endc == 'u') || (endc == 'g')) ? at_save(gbl) : FALSE;
 #endif
 
 	dlog_comment("before \"%s\"\n", bfr);
@@ -470,7 +476,7 @@ int	at_flag	= ((endc == 'u') || (endc == 'g')) ? at_save() : FALSE;
 	col = save_Xbase(col);
 #ifdef	S_IFLNK
 	if (at_flag)
-		showLINE(FOO, FOO->curfile);
+		showLINE(gbl, gbl->curfile);
 #endif
 	(void)replay(endc);
 
@@ -550,7 +556,8 @@ int	at_flag	= ((endc == 'u') || (endc == 'g')) ? at_save() : FALSE;
 
 #ifdef	S_IFLNK
 	if (at_flag) {		/* we had to toggle because of sym-link	*/
-		(void)at_last(FALSE); /* force stat on the files to cleanup */
+		(void)at_last(gbl, FALSE);
+		/* force stat on the files to cleanup */
 	}
 #endif
 	dlog_flush();
@@ -561,34 +568,34 @@ int	at_flag	= ((endc == 'u') || (endc == 'g')) ? at_save() : FALSE;
 /*
  * Change file's owner.
  */
-edit_uid(_AR0)
+public	void	edit_uid _ONE(RING *,gbl)
 {
-register int j;
-int	uid	= cSTAT.st_uid,
-	changed	= FALSE;
-char	bfr[BUFSIZ];
+	register int j;
+	int	uid	= gSTAT(gbl->curfile).st_uid,
+		changed	= FALSE;
+	char	bfr[BUFSIZ];
 
-	if (FOO->G_opt == 1) {
-		FOO->G_opt = 0;
+	if (gbl->G_opt == 1) {
+		gbl->G_opt = 0;
 		showFILES(FALSE,FALSE);
 	}
-	if (edittext('u', FOO->cmdcol[CCOL_UID], UIDLEN, strcpy(bfr, uid2s(uid)))
+	if (edittext(gbl, 'u', gbl->cmdcol[CCOL_UID], UIDLEN, strcpy(bfr, uid2s(uid)))
 	&&  (uid = s2uid(bfr)) >= 0) {
 		(void)dedsigs(TRUE);	/* reset interrupt-count */
-		for (j = 0; j < FOO->numfiles; j++) {
-			if (xSTAT(j).st_uid == uid)	continue;
+		for (j = 0; j < gbl->numfiles; j++) {
+			if (gSTAT(j).st_uid == uid)	continue;
 			if (dedsigs(TRUE)) {
-				waitmsg(xNAME(j));
+				waitmsg(gNAME(j));
 				break;
 			}
 			if (GROUPED(j)) {
-				if (chown(xNAME(j),
-					uid, (int)xSTAT(j).st_gid) < 0) {
-					warn(xNAME(j));
+				if (chown(gNAME(j),
+					uid, (int)gSTAT(j).st_gid) < 0) {
+					warn(gNAME(j));
 					break;
 				}
 				fixtime(j);
-				xSTAT(j).st_uid = uid;
+				gSTAT(j).st_uid = uid;
 				changed++;
 			}
 		}
@@ -599,51 +606,51 @@ char	bfr[BUFSIZ];
 /*
  * Change file's group.
  */
-edit_gid(_AR0)
+public	void	edit_gid _ONE(RING *,gbl)
 {
-register int j;
-int	gid	= cSTAT.st_gid,
-	changed	= FALSE,
-	root	= (geteuid() == 0);
-char	bfr[BUFSIZ];
+	register int j;
+	int	gid	= gSTAT(gbl->curfile).st_gid,
+		changed	= FALSE,
+		root	= (geteuid() == 0);
+	char	bfr[BUFSIZ];
 
-	if (!FOO->G_opt) {
-		FOO->G_opt = 1;
+	if (!gbl->G_opt) {
+		gbl->G_opt = 1;
 		showFILES(FALSE,FALSE);
 	}
-	if (edittext('g', FOO->cmdcol[CCOL_GID], UIDLEN, strcpy(bfr, gid2s(gid)))
+	if (edittext(gbl, 'g', gbl->cmdcol[CCOL_GID], UIDLEN, strcpy(bfr, gid2s(gid)))
 	&&  (gid = s2gid(bfr)) >= 0) {
 	char	newgrp[BUFSIZ];
 	static	char	*fmt = "chgrp -f %s %s";
 
 		(void)dedsigs(TRUE);	/* reset interrupt-count */
 		(void)strcpy(newgrp, gid2s(gid));
-		for (j = 0; j < FOO->numfiles; j++) {
-			if (xSTAT(j).st_gid == gid)	continue;
+		for (j = 0; j < gbl->numfiles; j++) {
+			if (gSTAT(j).st_gid == gid)	continue;
 			if (dedsigs(TRUE)) {
-				waitmsg(xNAME(j));
+				waitmsg(gNAME(j));
 				break;
 			}
 			if (GROUPED(j)) {
 				if (root) {
-					if (chown(xNAME(j),
-						(int)xSTAT(j).st_uid, gid) < 0){
-						warn(xNAME(j));
+					if (chown(gNAME(j),
+						(int)gSTAT(j).st_uid, gid) < 0){
+						warn(gNAME(j));
 						break;
 					}
-					xSTAT(j).st_gid = gid;
+					gSTAT(j).st_gid = gid;
 				} else {
 					FORMAT(bfr, fmt, newgrp, fixname(j));
 					(void)system(bfr);
 				}
 				fixtime(j);
 				if (!root) {
-					statLINE(FOO, j);
-					showLINE(FOO, j);
+					statLINE(gbl, j);
+					showLINE(gbl, j);
 					showC();
 				} else
 					changed++;
-				if (xSTAT(j).st_gid != gid) {
+				if (gSTAT(j).st_gid != gid) {
 					FORMAT(bfr, fmt, newgrp, fixname(j));
 					dedmsg(bfr);
 					beep();
@@ -658,27 +665,27 @@ char	bfr[BUFSIZ];
 /*
  * Change file's name
  */
-editname(_AR0)
+public	void	editname _ONE(RING *,gbl)
 {
 	auto	 int	changed	= 0;
 	register int	j;
 	auto	 char	bfr[BUFSIZ];
 
-#define	EDITNAME(n)	edittext('=', FOO->cmdcol[CCOL_NAME], sizeof(bfr), name2bfr(bfr, n))
-	if (EDITNAME(cNAME) && strcmp(cNAME, bfr)) {
-		if (dedname(FOO->curfile, bfr) >= 0) {
+#define	EDITNAME(n)	edittext(gbl, '=', gbl->cmdcol[CCOL_NAME], sizeof(bfr), name2bfr(bfr, n))
+	if (EDITNAME(gNAME(gbl->curfile)) && strcmp(gNAME(gbl->curfile), bfr)) {
+		if (dedname(gbl, gbl->curfile, bfr) >= 0) {
 			(void)dedsigs(TRUE);	/* reset interrupt count */
 			re_edit = TRUE;
-			for (j = 0; j < FOO->numfiles; j++) {
-				if (j == FOO->curfile)
+			for (j = 0; j < gbl->numfiles; j++) {
+				if (j == gbl->curfile)
 					continue;
 				if (dedsigs(TRUE)) {
-					waitmsg(xNAME(j));
+					waitmsg(gNAME(j));
 					break;
 				}
-				if (xFLAG(j)) {
-					(void)EDITNAME(xNAME(j));
-					if (dedname(j, bfr) >= 0)
+				if (gFLAG(j)) {
+					(void)EDITNAME(gNAME(j));
+					if (dedname(gbl, j, bfr) >= 0)
 						changed++;
 					else
 						break;
@@ -694,7 +701,12 @@ editname(_AR0)
 /*
  * Change file's link-text
  */
-editlink _ONE(int,cmd)
+public	void	editlink(
+	_ARX(RING *,	gbl)
+	_AR1(int,	cmd)
+		)
+	_DCL(RING *,	gbl)
+	_DCL(int,	cmd)
 {
 	auto	 int	col,
 			changed	= 0;
@@ -703,26 +715,26 @@ editlink _ONE(int,cmd)
 
 	cmd_link = (cmd == '<');
 
-#define	EDITLINK(n)	edittext(cmd, col, sizeof(bfr), link2bfr(bfr, n))
-	if (!cLTXT)
+#define	EDITLINK(n)	edittext(gbl, cmd, col, sizeof(bfr), link2bfr(gbl, bfr, n))
+	if (!gLTXT(gbl->curfile))
 		beep();
 	else {
 		auto	int	restore = FALSE;
-		col = save_Xbase(FOO->cmdcol[CCOL_NAME]);
+		col = save_Xbase(gbl->cmdcol[CCOL_NAME]);
 
 		/* test if we must show substitution */
 		if (cmd_link) {
-			for (j = 0; j < FOO->numfiles; j++) {
-				if (j == FOO->curfile)
+			for (j = 0; j < gbl->numfiles; j++) {
+				if (j == gbl->curfile)
 					continue;
-				if (xFLAG(j) && xLTXT(j)) {
+				if (gFLAG(j) && gLTXT(j)) {
 					if (move2row(j, col)) {
 						standout();
 						PRINTW("-> ");
 						standend();
 						PRINTW("%.*s",
 							COLS - col - 4,
-							link2bfr(bfr, j));
+							link2bfr(gbl, bfr, j));
 						clrtoeol();
 						restore = TRUE;
 					}
@@ -730,25 +742,26 @@ editlink _ONE(int,cmd)
 			}
 		}
 
-		(void)move2row(FOO->curfile, col);
+		(void)move2row(gbl->curfile, col);
 		PRINTW("=> ");
 		col += 3;
-		if (EDITLINK(FOO->curfile)
-		&&  strcmp(cLTXT, subslink(bfr,FOO->curfile))) {
-			if (relink(FOO->curfile, bfr)) {
+		if (EDITLINK(gbl->curfile)
+		&&  strcmp(gLTXT(gbl->curfile),
+			subslink(gbl, bfr, gbl->curfile))) {
+			if (relink(gbl, gbl->curfile, bfr)) {
 				(void)dedsigs(TRUE);
 					/* reset interrupt count */
 				re_edit = TRUE;
-				for (j = 0; j < FOO->numfiles; j++) {
-					if (j == FOO->curfile)
+				for (j = 0; j < gbl->numfiles; j++) {
+					if (j == gbl->curfile)
 						continue;
 					if (dedsigs(TRUE)) {
-						waitmsg(xNAME(j));
+						waitmsg(gNAME(j));
 						break;
 					}
-					if (xFLAG(j) && xLTXT(j)) {
+					if (gFLAG(j) && gLTXT(j)) {
 						(void)EDITLINK(j);
-						if (relink(j, subslink(bfr,j)))
+						if (relink(gbl, j, subslink(gbl, bfr,j)))
 							changed++;
 						else
 							break;

@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	Id[] = "$Id: dedtype.c,v 10.6 1992/04/01 16:27:12 dickey Exp $";
+static	char	Id[] = "$Id: dedtype.c,v 10.9 1992/04/02 08:46:09 dickey Exp $";
 #endif
 
 /*
@@ -65,13 +65,12 @@ typeinit(_AR0)
 	text[Tlen = Tcol = 0] = EOS;
 }
 
-static
-typeline(
-_ARX(int,	y)
-_AR1(int,	skip)
-	)
-_DCL(int,	y)
-_DCL(int,	skip)
+private	int	typeline(
+	_ARX(int,	y)
+	_AR1(int,	skip)
+		)
+	_DCL(int,	y)
+	_DCL(int,	skip)
 {
 	if (!skip) {
 		move(y,0);
@@ -99,8 +98,7 @@ _DCL(int,	skip)
 	return (++y);
 }
 
-static
-typeover _ONE(register int,c)
+private	void	typeover _ONE(register int,c)
 {
 	if (Tcol <= END_COL) {
 		if (over[Tcol] = text[Tcol]) {
@@ -118,15 +116,14 @@ typeover _ONE(register int,c)
 	}
 }
 
-static
-typeconv(
-_ARX(int,	c)
-_ARX(int,	binary)
-_AR1(int,	stripped)
-	)
-_DCL(int,	c)
-_DCL(int,	binary)
-_DCL(int,	stripped)
+private	int	typeconv(
+	_ARX(int,	c)
+	_ARX(int,	binary)
+	_AR1(int,	stripped)
+		)
+	_DCL(int,	c)
+	_DCL(int,	binary)
+	_DCL(int,	stripped)
 {
 	char	dot	= stripped ? ' ' : '.';
 
@@ -170,9 +167,7 @@ _DCL(int,	stripped)
 	return (FALSE);
 }
 
-static
-int
-GetC _ONE(FILE *,fp)
+private	int	GetC _ONE(FILE *,fp)
 {
 	register int c = fgetc(fp);
 	if (feof(fp) || ferror(fp) || dedsigs(TRUE))
@@ -182,29 +177,32 @@ GetC _ONE(FILE *,fp)
 	return (c);
 }
 
-static
-int
-reshow _ONE(int, inlist)
+private	int	reshow(
+	_ARX(RING *,	gbl)
+	_AR1(int,	inlist)
+		)
+	_DCL(RING *,	gbl)
+	_DCL(int,	inlist)
 {
-	statLINE(FOO, inlist);
-	showLINE(FOO, inlist);
+	statLINE(gbl, inlist);
+	showLINE(gbl, inlist);
 	return TRUE;
 }
 
-dedtype(
-_ARX(RING *,	gbl)
-_ARX(char *,	name)
-_ARX(int,	inlist)
-_ARX(int,	binary)
-_ARX(int,	stripped)
-_AR1(int,	isdir)
-	)
-_DCL(RING *,	gbl)
-_DCL(char *,	name)
-_DCL(int,	inlist)
-_DCL(int,	binary)
-_DCL(int,	stripped)
-_DCL(int,	isdir)
+public	void	dedtype(
+	_ARX(RING *,	gbl)
+	_ARX(char *,	name)
+	_ARX(int,	inlist)
+	_ARX(int,	binary)
+	_ARX(int,	stripped)
+	_AR1(int,	isdir)
+		)
+	_DCL(RING *,	gbl)
+	_DCL(char *,	name)
+	_DCL(int,	inlist)
+	_DCL(int,	binary)
+	_DCL(int,	stripped)
+	_DCL(int,	isdir)
 {
 	static	char	tmp_name[L_tmpnam];
 	STAT	sb;
@@ -239,7 +237,7 @@ _DCL(int,	isdir)
 		}
 		if ((dp = opendir(name)) != 0) {
 			while (de = readdir(dp)) {
-				(void)ded2string(bfr,
+				(void)ded2string(gbl, bfr,
 					(int)de->d_namlen,
 					de->d_name,
 					FALSE);
@@ -316,14 +314,14 @@ _DCL(int,	isdir)
 				PRINTW("---page %d", page);
 				if (inlist >= 0) {
 					int	oldy, oldx;
-					int	save = FOO->AT_opt;
+					int	save = gbl->AT_opt;
 
 					getyx(stdscr,oldy,oldx);
 					standend();
-					FOO->AT_opt = TRUE;
-					shown  = reshow(inlist);
-					FOO->AT_opt = save;
-					length = cSTAT.st_size;
+					gbl->AT_opt = TRUE;
+					shown  = reshow(gbl, inlist);
+					gbl->AT_opt = save;
+					length = gSTAT(inlist).st_size;
 					markC(TRUE);
 					standout();
 					move(oldy,oldx);
@@ -413,7 +411,7 @@ _DCL(int,	isdir)
 		}
 		FCLOSE(fp);
 		if (shown)
-			(void)reshow(inlist);
+			(void)reshow(gbl, inlist);
 		showMARK(Xbase);
 		if (isdir && !binary)
 			(void)unlink(tmp_name);

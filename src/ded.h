@@ -3,7 +3,7 @@
 
 #ifdef	MAIN
 #ifndef	lint
-static	char	*ded_h = "$Id: ded.h,v 10.7 1992/04/01 16:27:27 dickey Exp $";
+static	char	*ded_h = "$Id: ded.h,v 10.23 1992/04/02 14:10:29 dickey Exp $";
 #endif
 #endif	/* MAIN */
 
@@ -140,7 +140,7 @@ typedef	FLIST	{
 #define	cLOCK		cENTRY.z_lock
 #define	cTIME		cENTRY.z_time
 
-#define	GROUPED(n)	(xFLAG(n) || ((n) == FOO->curfile))
+#define	GROUPED(n)	(gFLAG(n) || ((n) == gbl->curfile))
 
 			/* markers for column-beginnings */
 #define	CCOL_PROT	0
@@ -237,7 +237,7 @@ extern	int	markset(
 
 extern	int	realstat(
 		_arx(int,	inx)
-		_ar1(struct stat *,sb));
+		_ar1(STAT *,	sb));
 
 extern	void	clearmsg(_ar0);
 
@@ -328,7 +328,8 @@ extern	int	fixtime(
 extern	int	usage(_ar0);
 
 /* *** "deddoit.c" *** */
-extern	int	deddoit(
+extern	void	deddoit(
+		_arx(RING *,	gbl)
 		_arx(int,	key)
 		_ar1(int,	sense));
 
@@ -336,7 +337,8 @@ extern	int	deddoit(
 extern	int	deddump(_ar0);
 
 /* *** "dedfind.c" *** */
-extern	int	dedfind(
+extern	void	dedfind(
+		_arx(RING *,	gbl)
 		_ar1(int,	key));
 
 /* *** "dedfree.c" *** */
@@ -348,47 +350,66 @@ extern	FLIST	*dedfree(
 extern	int	replay(
 		_ar1(int,	cmd));
 
-extern	int	editprot(_ar0);
+extern	void	editprot(
+		_arx(RING *,	gbl));
 
 extern	int	edittext(
+		_arx(RING *,	gbl)
 		_arx(int,	endc)
 		_arx(int,	col)
 		_arx(int,	len)
 		_ar1(char *,	bfr));
 
-extern	int	edit_uid(_ar0);
+extern	void	edit_uid(
+		_ar1(RING *,	gbl));
 
-extern	int	edit_gid(_ar0);
+extern	void	edit_gid(
+		_ar1(RING *,	gbl));
 
-extern	int	editname(_ar0);
+extern	void	editname(
+		_ar1(RING *,	gbl));
 
-extern	int	editlink(
+extern	void	editlink(
+		_arx(RING *,	gbl)
 		_ar1(int,	cmd));
 
 extern	int	dedline(
 		_ar1(int,	flag));
 
 /* *** "dedmake.c" *** */
-extern	int	dedmake(
+extern	void	dedmake(
+		_arx(RING *,	gbl)
 		_ar1(int,	firstc));
 
 /* *** "dedname.c" *** */
 extern	int	dedname(
+		_arx(RING *,	gbl)
 		_arx(int,	x)
 		_ar1(char *,	newname));
 
 /* *** "dedread.c" *** */
 extern	int	dedread(
+		_arx(RING *,	gbl)
 		_arx(char *,	*pattern_)
 		_ar1(int,	change_needed));
 
-extern	int	init_scan(_ar0);
+extern	void	init_scan(
+		_ar1(RING *,	gbl));
 
 extern	int	ok_scan(
+		_arx(RING *,	gbl)
 		_ar1(char *,	name));
 
 /* *** "dedring.c" *** */
 extern	RING	*ring_alloc(_ar0);
+
+extern	void	ring_args(
+		_arx(RING *,	gbl)
+		_arx(int,	argc)
+		_ar1(char **,	argv));
+
+extern	RING *	ring_get(
+		_ar1(char *,	path));
 
 extern	int	dedring(
 		_arx(char *,	path)
@@ -397,13 +418,14 @@ extern	int	dedring(
 		_arx(int,	set_pattern)
 		_ar1(char *,	pattern));
 
-extern	int	dedrang(
-		_ar1(char *,	path));
-
-extern	char	*dedrung(
+extern	RING *	ring_pointer(
 		_ar1(int,	count));
 
-extern	void	dedrering(
+extern	char *	ring_path(
+		_ar1(int,	count));
+
+extern	void	ring_rename(
+		_arx(RING *,	gbl)
 		_arx(char *,	oldname)
 		_ar1(char *,	newname));
 
@@ -441,13 +463,15 @@ extern	int	dedsigs(
 
 /* *** "dedsort.c" *** */
 extern	int	dedsort_cmp(
+		_arx(RING *,	gbl)
 		_arx(FLIST *,	p1)
 		_ar1(FLIST *,	p2));
 
-extern	int	dedsort(_ar0);
+extern	void	dedsort(
+		_ar1(RING *,	gbl));
 
 /* *** "dedtype.c" *** */
-extern	int	dedtype(
+extern	void	dedtype(
 		_arx(RING *,	gbl)
 		_arx(char *,	name)
 		_arx(int,	inlist)
@@ -456,7 +480,8 @@ extern	int	dedtype(
 		_ar1(int,	isdir));
 
 /* *** "deduniq.c" *** */
-extern	int	deduniq(
+extern	void	deduniq(
+		_arx(RING *,	gbl)
 		_ar1(int,	level));
 
 /* *** "dedwait.c" *** */
@@ -464,21 +489,24 @@ extern	int	dedwait(
 		_ar1(int,	cursed));
 
 /* *** "ded2s.c" *** */
-extern	int	ded2s(
+extern	void	ded2s(
+		_arx(RING *,	gbl)
 		_arx(int,	inx)
 		_arx(char *,	bfr)
 		_ar1(int,	len));
 
 extern	int	ded2string(
+		_arx(RING *,	gbl)
 		_arx(char *,	bfr)
 		_arx(int,	len)
 		_arx(char *,	name)
 		_ar1(int,	flag));
 
 extern	char	*type_uid2s(
-		_ar1(struct stat *,s));
+		_ar1(STAT *,	s));
 
 extern	int	has_extended_acl(
+		_arx(RING *,	gbl)
 		_ar1(int,	x));
 
 /* *** "dlog.c" *** */
@@ -520,27 +548,30 @@ extern	int	dlog_comment(
 		);
 
 /* *** "ftree.c" *** */
-extern	int	ft_insert(
+extern	void	ft_insert(
 		_ar1(char *,	path));
 
-extern	int	ft_remove(
+extern	void	ft_remove(
 		_arx(char *,	path)
 		_ar1(int,	all));
 
-extern	int	ft_purge(_ar0);
+extern	void	ft_purge(
+		_ar1(RING *,	gbl));
 
-extern	int	ft_rename(
+extern	void	ft_rename(
 		_arx(char *,	old)
 		_ar1(char *,	new));
 
-extern	int	ft_read(
+extern	void	ft_read(
 		_arx(char *,	first)
 		_ar1(char *,	home_dir));
 
 extern	int	ft_view(
+		_arx(RING *,	gbl)
 		_ar1(char *,	path));
 
 extern	int	ft_scan(
+		_arx(RING *,	gbl)
 		_arx(int,	node)
 		_arx(int,	levels)
 		_ar1(int,	base));
@@ -549,7 +580,7 @@ extern	int	ft_stat(
 		_arx(char *,	name)
 		_ar1(char *,	leaf));
 
-extern	int	ft_write(_ar0);
+extern	void	ft_write(_ar0);
 
 /* *** "showpath.c" *** */
 extern	int	showpath(
@@ -562,10 +593,12 @@ extern	int	showpath(
 extern	char	sortc[];
 
 extern	int	sortset(
+		_arx(RING *,	gbl)
 		_arx(int,	ord)
 		_ar1(int,	opt));
 
 extern	int	sortget(
+		_arx(RING *,	gbl)
 		_ar1(int,	c));
 
 #endif	/* _ded_h */

@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	Id[] = "$Id: dedscan.c,v 10.6 1992/04/01 16:24:29 dickey Exp $";
+static	char	Id[] = "$Id: dedscan.c,v 10.8 1992/04/02 11:12:23 dickey Exp $";
 #endif
 
 /*
@@ -283,7 +283,7 @@ public	int	dedscan(
 	if (argc > 1) {
 		(void)chdir(strcpy(gbl->new_wd,old_wd));
 		for (j = 0; j < argc; j++)
-			if (ok_scan(argv[j])
+			if (ok_scan(gbl, argv[j])
 			&&  argstat(gbl, argv[j], TRUE) >= 0)
 				common = 0;
 	} else {
@@ -297,7 +297,7 @@ public	int	dedscan(
 			if (gbl->toscan == 0)
 				ft_remove(gbl->new_wd, gbl->AT_opt);
 			else
-				init_scan();
+				init_scan(gbl);
 
 			if (dp = opendir(".")) {
 			int	len = strlen(strcpy(name, gbl->new_wd));
@@ -309,7 +309,7 @@ public	int	dedscan(
 					if (dotname(s = de->d_name))
 						if (!gbl->A_opt)
 							continue;
-					if (!ok_scan(s))
+					if (!ok_scan(gbl, s))
 						continue;
 					j = argstat(gbl, strcpy(name+len, s), TRUE);
 					if (!dotname(s)
@@ -326,7 +326,7 @@ public	int	dedscan(
 				return(0);
 			}
 			if (gbl->toscan == 0)
-				ft_purge(); /* remove items not reinserted */
+				ft_purge(gbl); /* remove items not reinserted */
 		} else if (common == N_FILE)
 			gbl->numfiles = 1;
 	}

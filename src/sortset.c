@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	what[] = "$Id: sortset.c,v 10.1 1992/04/01 14:29:35 dickey Exp $";
+static	char	what[] = "$Id: sortset.c,v 10.2 1992/04/02 08:13:32 dickey Exp $";
 #endif
 
 /*
@@ -21,7 +21,7 @@ static	char	what[] = "$Id: sortset.c,v 10.1 1992/04/01 14:29:35 dickey Exp $";
 
 #include	"ded.h"
 
-char	sortc[128];
+public	char	sortc[128];
 
 static	char	*sort_msg[] = {
 	 ". - lengths of dot-separated items"
@@ -62,12 +62,14 @@ static	char	*sort_msg[] = {
 
 #define	LOOP(j)	for (j = 0; j < sizeof(sort_msg)/sizeof(sort_msg[0]); j++)
 
-sortset(
-_ARX(int,	ord)
-_AR1(int,	opt)
-	)
-_DCL(int,	ord)
-_DCL(int,	opt)
+public	int	sortset(
+	_ARX(RING *,	gbl)
+	_ARX(int,	ord)
+	_AR1(int,	opt)
+		)
+	_DCL(RING *,	gbl)
+	_DCL(int,	ord)
+	_DCL(int,	opt)
 {
 	if (*sortc == EOS) {
 		register int	j, k = 0;
@@ -76,9 +78,9 @@ _DCL(int,	opt)
 		sortc[k] = EOS;
 	}
 	if (strchr(sortc, opt) != 0) {
-		FOO->dateopt = (opt == 'c') ? 1 : (opt == 'r' ? 0 : 2);
-		FOO->sortopt = opt;
-		FOO->sortord = (ord == 'r');
+		gbl->dateopt = (opt == 'c') ? 1 : (opt == 'r' ? 0 : 2);
+		gbl->sortopt = opt;
+		gbl->sortord = (ord == 'r');
 		return(TRUE);
 	}
 	return(FALSE);
@@ -89,21 +91,26 @@ _DCL(int,	opt)
  * to review the current sorting mode (by '?'), or to re-sort with the
  * present direction (with newline or return).
  */
-sortget _ONE(int,c)
+public	int	sortget(
+	_ARX(RING *,	gbl)
+	_AR1(int,	c)
+		)
+	_DCL(RING *,	gbl)
+	_DCL(int,	c)
 {
 	auto	char	bfr[80];
 	register int	j, k;
 
 	if (c == '?') {
 		LOOP(j)
-			if (*sort_msg[j] == FOO->sortopt) {
+			if (*sort_msg[j] == gbl->sortopt) {
 				FORMAT(bfr, "sort option: %s", sort_msg[j]);
 				dedmsg(bfr);
 				break;
 			}
 		c = 0;
 	} else if (c == '\r' || c == '\n') {
-		c = FOO->sortopt;
+		c = gbl->sortopt;
 	} else if (c == ':') {
 		auto	int	y,x,
 				done = FALSE,
@@ -112,7 +119,7 @@ sortget _ONE(int,c)
 		to_work(TRUE);
 		PRINTW("Sort:> ");
 		getyx(stdscr,y,x);
-		find = FOO->sortopt;
+		find = gbl->sortopt;
 		while (!done) {
 			found = FALSE;
 			LOOP(k) {

@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	Id[] = "$Id: deddoit.c,v 10.3 1992/04/01 14:29:52 dickey Exp $";
+static	char	Id[] = "$Id: deddoit.c,v 10.7 1992/04/02 12:49:38 dickey Exp $";
 #endif
 
 /*
@@ -38,11 +38,10 @@ static	char	Id[] = "$Id: deddoit.c,v 10.3 1992/04/01 14:29:52 dickey Exp $";
 /*
  * Return a pointer to a leaf of a given name
  */
-static
-char *
-subleaf _ONE(char *,name)
+private	char *	subleaf _ONE(char *,name)
 {
-char	*leaf	= name;
+	char	*leaf	= name;
+
 #ifdef	apollo
 	if (*leaf == '/')	leaf++;
 #endif
@@ -56,11 +55,10 @@ char	*leaf	= name;
 /*
  * Return a pointer to the "." extension of a given name.
  */
-static
-char *
-subroot _ONE(char *,name)
+private	char *	subroot _ONE(char *,name)
 {
-char	*root;
+	char	*root;
+
 	if (!(root = strrchr(name, '.')))
 		root = name + strlen(name);
 	return (root);
@@ -70,34 +68,38 @@ char	*root;
  * Perform '%' expansions for current-entry.  The substitutions are modified
  * from the ":" modifiers defined for "csh".
  */
-static
-Expand(
-_ARX(int,	code)
-_AR1(DYN *,	subs)
-	)
-_DCL(int,	code)
-_DCL(DYN *,	subs)
+private	void	Expand(
+	_ARX(RING *,	gbl)
+	_ARX(int,	code)
+	_AR1(DYN *,	subs)
+		)
+	_DCL(RING *,	gbl)
+	_DCL(int,	code)
+	_DCL(DYN *,	subs)
 {
+	char *	cur_name =  gNAME(gbl->curfile);
+	STAT *	cur_stat = &gSTAT(gbl->curfile);
+	FLIST *	cur_item = &gENTRY(gbl->curfile);
 	char	temp[BUFSIZ],
 		name[BUFSIZ],
 		*from;
 
 	if (strchr("NHRET", code))
-		abspath(pathcat(name, FOO->new_wd, cNAME));
+		abspath(pathcat(name, gbl->new_wd, cur_name));
 	else
-		(void)strcpy(name, cNAME);
+		(void)strcpy(name, cur_name);
 
 	switch(code) {
-	case 'F':	from = dedrung(1);
+	case 'F':	from = ring_path(1);
 			break;
 
-	case 'B':	from = dedrung(-1);
+	case 'B':	from = ring_path(-1);
 			break;
 
 	case 'D':	from = old_wd;	/* original working directory */
 			break;
 
-	case 'd':	from = FOO->new_wd;	/* current working directory */
+	case 'd':	from = gbl->new_wd;	/* current working directory */
 			break;
 
 	case 'N':
@@ -128,31 +130,33 @@ _DCL(DYN *,	subs)
 			break;
 
 			/* non-pathname attributes */
-	case 'u':	from = uid2s((int)(cSTAT.st_uid));	break;
-	case 'g':	from = gid2s((int)(cSTAT.st_gid));	break;
+	case 'u':	from = uid2s((int)(cur_stat->st_uid));	break;
+	case 'g':	from = gid2s((int)(cur_stat->st_gid));	break;
 #ifdef	Z_RCS_SCCS
-	case 'v':	if (!(from = cENTRY.z_vers)) from = "?";
+	case 'v':	if (!(from = cur_item->z_vers)) from = "?";
 			break;
-	case 'y':	if (!(from = cENTRY.z_lock)) from = "?";
+	case 'y':	if (!(from = cur_item->z_lock)) from = "?";
 			break;
 #endif
 	default:
 			from = "?";
 	}
 
-	(void)ded2string(temp, sizeof(temp), from, TRUE);
+	(void)ded2string(gbl, temp, sizeof(temp), from, TRUE);
 	APPEND(subs, temp);
 }
 
 /*
  * Prompt for, substitute and execute a shell command.
  */
-deddoit(
-_ARX(int,	key)
-_AR1(int,	sense)
-	)
-_DCL(int,	key)
-_DCL(int,	sense)
+public	void	deddoit(
+	_ARX(RING *,	gbl)
+	_ARX(int,	key)
+	_AR1(int,	sense)
+		)
+	_DCL(RING *,	gbl)
+	_DCL(int,	key)
+	_DCL(int,	sense)
 {
 	static	DYN	*Subs;
 	register int	c, j, k;
@@ -161,19 +165,19 @@ _DCL(int,	sense)
 	dyn_init(&Subs, BUFSIZ);
 
 	if (sense == 0)
-		FOO->clr_sh = FALSE;
+		gbl->clr_sh = FALSE;
 	else if (sense > 1)
-		FOO->clr_sh = TRUE;
+		gbl->clr_sh = TRUE;
 
 	to_work(TRUE);
-	PRINTW("%c Command: ", FOO->clr_sh ? '%' : '!');
+	PRINTW("%c Command: ", gbl->clr_sh ? '%' : '!');
 	getyx(stdscr,j,k);
 	clrtobot();
 	move(j,k);
 
-	if ((key != '.') || (*dyn_string(FOO->cmd_sh) == EOS)) {
+	if ((key != '.') || (*dyn_string(gbl->cmd_sh) == EOS)) {
 		if (key == ':')
-			APPEND(Subs, dyn_string(FOO->cmd_sh));
+			APPEND(Subs, dyn_string(gbl->cmd_sh));
 
 		refresh();
 		dlog_string(dyn_string(Subs), Subs->max_length, TRUE); /* patch */
@@ -181,14 +185,14 @@ _DCL(int,	sense)
 		c = FALSE;
 		for (s = dyn_string(Subs); *s; s++) { /* skip leading blanks */
 			if (!isspace(*s)) {
-				dyn_init(&FOO->cmd_sh, BUFSIZ);
-				APPEND(FOO->cmd_sh, s);
+				dyn_init(&gbl->cmd_sh, BUFSIZ);
+				APPEND(gbl->cmd_sh, s);
 				c = TRUE;
 				break;
 			}
 		}
 		if (c) {	/* trim trailing blanks */
-			(void)strtrim(dyn_string(FOO->cmd_sh));
+			(void)strtrim(dyn_string(gbl->cmd_sh));
 		} else {
 			PRINTW("(no command)");
 			showC();
@@ -198,7 +202,7 @@ _DCL(int,	sense)
 		PRINTW("(ditto)\n");
 
 	dyn_init(&Subs, BUFSIZ);
-	for (j = 0; *(s = dyn_string(FOO->cmd_sh) + j); j++) {
+	for (j = 0; *(s = dyn_string(gbl->cmd_sh) + j); j++) {
 		static	char	This[] = "?",
 				Next[] = "?";
 
@@ -215,7 +219,7 @@ _DCL(int,	sense)
 				len,
 				x;
 
-			for (x = 0; x < FOO->numfiles; x++) {
+			for (x = 0; x < gbl->numfiles; x++) {
 				if (GROUPED(x)) {
 					len = strlen(s = fixname(x));
 					if (others++)
@@ -235,7 +239,7 @@ _DCL(int,	sense)
 		} else if (*This == '%') {	/* substitute current file */
 			if (*Next != EOS)
 				j++;
-			Expand(*Next, Subs);
+			Expand(gbl, *Next, Subs);
 		} else {
 			APPEND(Subs, This);
 		}
@@ -255,7 +259,7 @@ _DCL(int,	sense)
 			warn("system");
 		(void)dedsigs(TRUE);
 		rawterm();
-		if (FOO->clr_sh) dedwait(TRUE);
+		if (gbl->clr_sh) dedwait(TRUE);
 		dlog_elapsed();
 	}
 	showC();

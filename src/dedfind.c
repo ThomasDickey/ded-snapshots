@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	Id[] = "$Id: dedfind.c,v 10.1 1992/04/01 14:29:32 dickey Exp $";
+static	char	Id[] = "$Id: dedfind.c,v 10.2 1992/04/02 08:03:04 dickey Exp $";
 #endif
 
 /*
@@ -21,13 +21,18 @@ static	char	Id[] = "$Id: dedfind.c,v 10.1 1992/04/01 14:29:32 dickey Exp $";
  */
 #include	"ded.h"
 
-dedfind _ONE(int,key)
+public	void	dedfind(
+	_ARX(RING *,	gbl)
+	_AR1(int,	key)
+		)
+	_DCL(RING *,	gbl)
+	_DCL(int,	key)
 {
-int	j,k,
-	found	= FALSE,
-	next	= 0;
-static	char	text[BUFSIZ], *expr;
-static	int	order;		/* saves last legal search order */
+	int	j,k,
+		found	= FALSE,
+		next	= 0;
+	static	char	text[BUFSIZ], *expr;
+	static	int	order;		/* saves last legal search order */
 
 	if (key == '/' || key == '?') {
 
@@ -50,23 +55,23 @@ static	int	order;		/* saves last legal search order */
 
 	OLD_REGEX(expr);
 	if (NEW_REGEX(expr,text)) {
-		for (j = FOO->curfile + next; ; j += next) {
+		for (j = gbl->curfile + next; ; j += next) {
 			if (j < 0) {
-				j = FOO->numfiles;
-			} else if (j >= FOO->numfiles) {
+				j = gbl->numfiles;
+			} else if (j >= gbl->numfiles) {
 				j = -1;
-			} else if (found = GOT_REGEX(expr,xNAME(j))) {
+			} else if (found = GOT_REGEX(expr,gNAME(j))) {
 				break;
-			} else if (xLTXT(j) != 0) {
-				if (found = GOT_REGEX(expr,xLTXT(j)))
+			} else if (gLTXT(j) != 0) {
+				if (found = GOT_REGEX(expr,gLTXT(j)))
 					break;
 			}
-			if (j == FOO->curfile)	break;
+			if (j == gbl->curfile)	break;
 		}
 		if (found) {
 			markC(FALSE);
 			scroll_to_file(j);
-			dlog_name(cNAME);
+			dlog_name(gNAME(j));
 		} else {
 		char	msg[BUFSIZ];
 			FORMAT(msg, "\"%s\" not found", text);
