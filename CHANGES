@@ -1,3 +1,15 @@
+1989-12-01  dickey@software.org
+
+	* src/ded.hlp: documented special sort-keys '?' and newline
+
+	* src/version.h: added special sort-keys '?' and newline.
+
+	* src/sortset.c: RCS_BASE
+
+	* src/ded.c: broke out 'sortset()' module
+
+	* src/Makefile: broke 'sortset.c' out of 'ded.c'
+
 1989-11-13  dickey@software.org
 
 	* src/ftree.c:
