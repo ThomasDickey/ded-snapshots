@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	Id[] = "$Header: /users/source/archives/ded.vcs/src/RCS/ded.c,v 9.17 1991/10/18 10:18:44 dickey Exp $";
+static	char	Id[] = "$Header: /users/source/archives/ded.vcs/src/RCS/ded.c,v 10.0 1991/11/21 07:27:47 ste_cm Rel $";
 #endif
 
 /*
@@ -7,6 +7,7 @@ static	char	Id[] = "$Header: /users/source/archives/ded.vcs/src/RCS/ded.c,v 9.17
  * Author:	T.E.Dickey
  * Created:	09 Nov 1987
  * Modified:
+ *		21 Nov 1991, make 'tag_opt' public to use in dedring.
  *		15 Oct 1991, converted to ANSI. Allow replay of 'c' commands.
  *		16 Aug 1991, added interpretation of "2T"
  *		22 Jul 1991, quote filename before using it in 'forkfile()'
@@ -179,7 +180,6 @@ static	int	curview,		/* 0..MAXVIEW			*/
 
 static	int	Xscroll;		/* amount by which to left/right */
 static	int	tag_count;		/* number of tagged files */
-static	int	tag_opt;		/* nonzero to show totals */
 static	off_t	tag_bytes;
 static	long	tag_blocks;
 
