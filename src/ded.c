@@ -1,15 +1,18 @@
 #ifndef	lint
-static	char	what[] = "$Id: ded.c,v 8.6 1991/04/22 08:07:45 dickey Exp $";
-#endif	lint
+static	char	Id[] = "$Header: /users/source/archives/ded.vcs/src/RCS/ded.c,v 8.7 1991/05/15 13:37:09 dickey Exp $";
+#endif
 
 /*
  * Title:	ded.c (directory-editor)
  * Author:	T.E.Dickey
  * Created:	09 Nov 1987
  * $Log: ded.c,v $
- * Revision 8.6  1991/04/22 08:07:45  dickey
- * re-open standard input if we were reading from a pipe.
+ * Revision 8.7  1991/05/15 13:37:09  dickey
+ * mods to accommodate apollo sr10.3
  *
+ *		Revision 8.6  91/04/22  08:24:18  dickey
+ *		re-open standard input if we were reading from a pipe.
+ *		
  *		Revision 8.5  91/04/18  08:07:14  dickey
  *		mods to 'dedwait()' and 'dedread()' to debug and guard against
  *		user-pattern not finding files.
@@ -210,22 +213,24 @@ static	char	what[] = "$Id: ded.c,v 8.6 1991/04/22 08:07:45 dickey Exp $";
 #define	MAIN
 #include	"ded.h"
 #include	<signal.h>
+#include	<errno.h>
 extern	char	*dlog_open();
 extern	char	*pathcat();
+extern	char	*sys_errlist[];
 extern	char	*txtalloc();
 extern	char	**vecalloc();
 
 #ifndef	EDITOR
 #define	EDITOR	"/usr/ucb/vi"
-#endif	EDITOR
+#endif
 
 #ifndef	BROWSE
 #define	BROWSE	"/usr/ucb/view"
-#endif	BROWSE
+#endif
 
 #ifndef	PAGER
 #define	PAGER	"/usr/ucb/more"
-#endif	PAGER
+#endif
 
 #define	needSCCS(c)	(!Z_opt && (strchr("vyZz",(size_t)c) != 0))
 
@@ -323,7 +328,7 @@ char	*dst,*leaf,*src;
 					while (*leaf++ = *s++);
 				}
 			} else
-#endif
+#endif	/* apollo */
 			if (s[1] != EOS)
 				(void)strcpy(leaf, ++s);
 		}
@@ -331,7 +336,7 @@ char	*dst,*leaf,*src;
 	}
 	return (FALSE);		/* head would duplicate current directory */
 }
-#endif	S_IFLNK
+#endif	/* S_IFLNK */
 
 /************************************************************************
  *	public	utility procedures					*
@@ -471,7 +476,7 @@ register j = xSTAT(inx).st_mode;
 		j = (stat(xNAME(inx), sb) >= 0) ? sb->st_mode : 0;
 	} else
 		sb->st_mode = 0;
-#endif	S_IFLNK
+#endif
 	if (isFILE(j))	return(0);
 	if (isDIR(j))	return(1);
 	return (-1);
@@ -498,8 +503,6 @@ char	*
 err_msg(msg)
 char	*msg;
 {
-	extern	int	errno;
-	extern	char	*sys_errlist[];
 	static	char	bfr[BUFSIZ];
 	if (msg == 0)	msg = "?";
 	FORMAT(bfr, "%s: %s", msg, sys_errlist[errno]);
@@ -569,7 +572,7 @@ char	*msg;
 		(void)kill(getpid(), SIGKILL);
 		for (;;);	/* when terminated, will be able to use 'tb' */
 	}
-#endif	apollo
+#endif
 	dlog_exit(FAIL);
 }
 
@@ -862,7 +865,7 @@ register int j;
 			}
 	}
 }
-#endif	Z_RCS_SCCS
+#endif	/* Z_RCS_SCCS */
 
 /*
  * Set the cursor to the current file, noting this in the viewport header.
@@ -907,7 +910,7 @@ int	y,x;
 		showFILES(FALSE);
 		return;
 	}
-#endif	apollo
+#endif	/* apollo */
 	getyx(stdscr,y,x);
 	move(mark_W+1,0);
 	clrtobot();
@@ -1187,7 +1190,7 @@ usage()
 #ifdef	Z_RCS_SCCS
 			"  -Z       read RCS/SCCS data, show date",
 			"  -z       read RCS/SCCS data, don't show date",
-#endif	Z_RCS_SCCS
+#endif
 			"",
 			"Options controlling initial sort:",
 			"  -s KEY   set forward sort",
@@ -1252,7 +1255,7 @@ char	*argv[];
 #ifdef	Z_RCS_SCCS
 	case 'Z':	Z_opt = 1;	break;
 	case 'z':	Z_opt = -1;	break;
-#endif	Z_RCS_SCCS
+#endif
 	case 'c':	dlog_read(optarg);			break;
 	case 'l':	log_opt = dlog_open(optarg,argc,argv);	break;
 	case 's':
@@ -1407,7 +1410,7 @@ char	*argv[];
 			else
 				showC();
 			break;
-#endif	S_IFLNK
+#endif	/* S_IFLNK */
 
 			/* note that '.' and '..' may be the only files! */
 	case '&':	A_opt = !A_opt;	/* sorry about inconsistency */
@@ -1454,7 +1457,7 @@ char	*argv[];
 				showFILES(TRUE);
 			}
 			break;
-#endif	Z_RCS_SCCS
+#endif	/* Z_RCS_SCCS */
 
 	case 'q':	/* quit this process */
 			if (lastc == 't')
@@ -1469,7 +1472,7 @@ char	*argv[];
 			markset(mark_W + count);
 			break;
 
-	case CTL(R):	/* modify read-expression */
+	case CTL('R'):	/* modify read-expression */
 			(void)strcpy(tpath, cNAME);
 			while (dedread(&toscan, numfiles == 0))
 				if (rescan(FALSE, tpath))
@@ -1559,7 +1562,7 @@ char	*argv[];
 #ifdef	S_IFLNK
 	case '<':
 	case '>':	editlink(c);	break;
-#endif	S_IFLNK
+#endif	/* S_IFLNK */
 
 	case '"':	switch (c = dedline(TRUE)) {
 			case 'p':	editprot();	break;
@@ -1569,7 +1572,7 @@ char	*argv[];
 #ifdef	S_IFLNK
 			case '<':
 			case '>':	editlink(c);	break;
-#endif	S_IFLNK
+#endif	/* S_IFLNK */
 			default:	dedmsg("no inline command saved");
 			}
 			(void)dedline(FALSE);
@@ -1579,18 +1582,18 @@ char	*argv[];
 			dedmake();
 			break;
 
-	case CTL(e):	/* pad-edit */
-	case CTL(v):	/* pad-view */
+	case CTL('e'):	/* pad-edit */
+	case CTL('v'):	/* pad-view */
 	case 'e':
 	case 'v':	/* enter new process with current file */
-			editfile((c & 037) != CTL(e), iscntrl(c));
+			editfile((c & 037) != CTL('e'), iscntrl(c));
 			break;
 
 	case 'm':	to_work();
 			forkfile(ENV(PAGER), cNAME, TRUE);
 #ifndef	apollo
 			dedwait(TRUE);
-#endif	apollo
+#endif
 			break;
 
 			/* page thru files in work area */
@@ -1654,7 +1657,7 @@ char	*argv[];
 				&&  !new_args(tpath, c, 1, 3, FALSE, (char *)0))
 					break;
 				scroll_to_file(findFILE(txtalloc(dpath)));
-#endif	S_IFLNK
+#endif	/* S_IFLNK */
 			} else
 				dedmsg("not a directory");
 			break;
@@ -1665,7 +1668,7 @@ char	*argv[];
 				showC();
 			break;
 
-	case CTL(K):	/* dump the current screen */
+	case CTL('K'):	/* dump the current screen */
 			deddump();
 			break;
 

@@ -1,15 +1,21 @@
 #ifndef	lint
-static	char	Id[] = "$Id: dedscan.c,v 8.2 1991/04/17 08:01:53 dickey Exp $";
-#endif	lint
+static	char	Id[] = "$Id: dedscan.c,v 9.0 1991/05/15 13:58:28 ste_cm Rel $";
+#endif
 
 /*
  * Title:	dedscan.c (stat & scan argument lists)
  * Author:	T.E.Dickey
  * Created:	09 Nov 1987
  * $Log: dedscan.c,v $
- * Revision 8.2  1991/04/17 08:01:53  dickey
- * modified debug-trace to make it easier to watch
+ * Revision 9.0  1991/05/15 13:58:28  ste_cm
+ * BASELINE Mon Jun 10 10:09:56 1991 -- apollo sr10.3
  *
+ *		Revision 8.3  91/05/15  13:58:28  dickey
+ *		apollo sr10.3 cpp complains about tag on #endif
+ *		
+ *		Revision 8.2  91/04/18  08:08:39  dickey
+ *		modified debug-trace to make it easier to watch
+ *		
  *		Revision 8.1  91/04/04  09:15:08  dickey
  *		guard against 'getwd()' failure.
  *		
@@ -238,7 +244,7 @@ char	*argv[];
 					||  (d[1] == '/'))
 						slash = 0; /* fix truncation */
 				}
-#endif	apollo
+#endif
 				common = slash;
 			}
 			dlog_comment("common '%.*s' (%d:%s)\n", common, name, slash, d);
@@ -362,7 +368,7 @@ FLIST	*f_;
 #ifdef	S_IFLNK
 	int	len;
 	char	bfr[BUFSIZ];
-#endif	S_IFLNK
+#endif
 	int	code;
 
 	ReZero(f_);
@@ -387,10 +393,10 @@ FLIST	*f_;
 			}
 		}
 	}
-#endif	S_IFLNK
+#endif
 #ifdef	Z_RCS_SCCS
 	statSCCS(name, f_);
-#endif	Z_RCS_SCCS
+#endif
 	return (code);
 }
 
@@ -446,11 +452,11 @@ FLIST	*f_;
 			if (f_->z_time == 0
 			&&  f_->z_vers[0] == '?'
 			&&  f_->z_lock[0] == '?')	/* fall-thru ? */
-#endif	Z_SCCS
-#endif	Z_RCS
+#endif
+#endif
 #ifdef	Z_SCCS
 			LAST(sccslast);
-#endif	Z_SCCS
+#endif
 #ifdef	Z_RCS
 		} else if (isDIR(f_->s.st_mode)
 			&& sameleaf(name,rcs_dir())) {
@@ -463,7 +469,7 @@ FLIST	*f_;
 		}
 	}
 }
-#endif	Z_RCS_SCCS
+#endif	/* Z_RCS_SCCS */
 
 /*
  * This entrypoint is called to re-stat entries which already have been put

@@ -1,15 +1,21 @@
 #ifndef	lint
-static	char	Id[] = "$Id: dedname.c,v 8.0 1990/05/23 09:08:25 ste_cm Rel $";
-#endif	lint
+static	char	Id[] = "$Id: dedname.c,v 9.0 1991/05/15 14:02:16 ste_cm Rel $";
+#endif
 
 /*
  * Title:	dedname.c (ded rename)
  * Author:	T.E.Dickey
  * Created:	11 May 1988
  * $Log: dedname.c,v $
- * Revision 8.0  1990/05/23 09:08:25  ste_cm
- * BASELINE Mon Aug 13 15:06:41 1990 -- LINCNT, ADA_TRANS
+ * Revision 9.0  1991/05/15 14:02:16  ste_cm
+ * BASELINE Mon Jun 10 10:09:56 1991 -- apollo sr10.3
  *
+ *		Revision 8.1  91/05/15  14:02:16  dickey
+ *		apollo sr10.3 cpp complains about tag on #endif
+ *		
+ *		Revision 8.0  90/05/23  09:08:25  ste_cm
+ *		BASELINE Mon Aug 13 15:06:41 1990 -- LINCNT, ADA_TRANS
+ *		
  *		Revision 7.1  90/05/23  09:08:25  dickey
  *		modified interface to 'dedring()'
  *		
@@ -98,13 +104,13 @@ char	oldname[BUFSIZ],
 			return (-1);
 		}
 		/* patch: should do 'system()' to rename directory, etc. */
-#else	SYSTEM5
+#else	/* !SYSTEM5 */
 		if (rename(oldname, newname) < 0) {
 			warn(newname);
 			return (-1);
 		}
 		ok = TRUE;
-#endif	SYSTEM5
+#endif	/* SYSTEM5/!SYSTEM5 */
 		/*
 		 * If we renamed a directory, update ftree.
 		 */

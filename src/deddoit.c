@@ -1,15 +1,21 @@
 #ifndef	lint
-static	char	Id[] = "$Id: deddoit.c,v 8.2 1991/04/17 07:33:09 dickey Exp $";
-#endif	lint
+static	char	Id[] = "$Id: deddoit.c,v 9.0 1991/05/15 13:38:37 ste_cm Rel $";
+#endif
 
 /*
  * Title:	deddoit.c (do it for ded!)
  * Author:	T.E.Dickey
  * Created:	17 Nov 1987
  * $Log: deddoit.c,v $
- * Revision 8.2  1991/04/17 07:33:09  dickey
- * modified interface of 'dedwait()'
+ * Revision 9.0  1991/05/15 13:38:37  ste_cm
+ * BASELINE Mon Jun 10 10:09:56 1991 -- apollo sr10.3
  *
+ *		Revision 8.3  91/05/15  13:38:37  dickey
+ *		apollo sr10.3 cpp complains about tag on #endif
+ *		
+ *		Revision 8.2  91/04/18  08:10:16  dickey
+ *		modified interface of 'dedwait()'
+ *		
  *		Revision 8.1  91/04/16  08:51:20  dickey
  *		absorb backslash only when it precedes "#" or "%", to make
  *		typing commands with backslashes simpler (though inconsistent).
@@ -77,7 +83,7 @@ char	*name;
 char	*leaf	= name;
 #ifdef	apollo
 	if (*leaf == '/')	leaf++;
-#endif	apollo
+#endif
 	if (leaf = strrchr(leaf, '/'))
 		leaf++;
 	else
