@@ -1,3 +1,12 @@
+1994-07-15  Thomas E. Dickey  <dickey@clark.net>
+
+	* src/Makefile: took out apollo lint-lib
+
+	* src/ded.h: added 'ERR_PTYPES'
+
+	* src/ftree.c: added test for CVS-directories
+	modified interface to 'sccs_dir()'
+
 1994-07-12  Thomas E. Dickey  <dickey@clark.net>
 
 	* src/ded2s.c: typo

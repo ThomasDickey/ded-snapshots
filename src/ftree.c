@@ -1,5 +1,5 @@
 #if	!defined(NO_IDENT)
-static	char	Id[] = "$Id: ftree.c,v 12.19 1994/07/12 15:22:52 tom Exp $";
+static	char	Id[] = "$Id: ftree.c,v 12.20 1994/07/15 09:44:32 tom Exp $";
 #endif
 
 /*
@@ -120,6 +120,8 @@ static	char	Id[] = "$Id: ftree.c,v 12.19 1994/07/12 15:22:52 tom Exp $";
 #include	"sccsdefs.h"
 
 #include	<fcntl.h>
+
+#define	Null	(char *)0	/* some NULL's are simply 0 */
 
 #ifdef	apollo
 #define	TOP	2
@@ -861,7 +863,7 @@ private	void	read_ftree (
 
 		/* (3) string-heap */
 		if ((size -= vecsize) > 0) {
-		char	*heap = doalloc((char *)0, (unsigned)(size+1));
+		char	*heap = doalloc(Null, (unsigned)(size+1));
 		register char *s = heap;
 			if (!ok_read(fid,
 					heap, (LEN_READ)size,
@@ -901,7 +903,6 @@ public	void	ft_read(
 	_DCL(char *,	tree_name)
 {
 	register int	j;
-	register char	*s;
 
 	read_ftree(strcpy(FDname, tree_name));
 	FDdiff = 0;
@@ -1239,8 +1240,11 @@ private	int	is_sccs (
 {
 	register FTREE *f = &ftree[node];
 
-	if (!strcmp(f->f_name, sccs_dir()))	return (TRUE);
-	if (!strcmp(f->f_name, rcs_dir()))	return (TRUE);
+	if (!strcmp(f->f_name, sccs_dir(Null,Null)))	return (TRUE);
+	if (!strcmp(f->f_name, rcs_dir()))		return (TRUE);
+#ifdef CVS_PATH
+	if (!strcmp(f->f_name, "CVS"))			return (TRUE);
+#endif
 	return (FALSE);
 }
 
@@ -1434,7 +1438,7 @@ public	RING *	ft_view(
 			dyn_init(&my_text,1);
 			if (!(s = dlog_string(
 					gbl,
-					(char *)0,
+					Null,
 					&my_text,
 					(DYN **)0,
 					NO_HISTORY,
@@ -1473,7 +1477,7 @@ public	RING *	ft_view(
 					(c == '~') ? "~" : cwdpath);
 				if (!(s = dlog_string(
 						gbl,
-						(char *)0,
+						Null,
 						&my_text,
 						(DYN **)0,
 						j ? &JumpHistory : &FindHistory,
@@ -1519,7 +1523,7 @@ public	RING *	ft_view(
 				my_text = dyn_copy(my_text, ftree[row].f_name);
 				if (!(s = dlog_string(
 						gbl,
-						(char *)0,
+						Null,
 						&my_text,
 						(DYN **)0,
 						NO_HISTORY,
@@ -1544,8 +1548,8 @@ public	RING *	ft_view(
 			deddump(gbl);
 			break;
 
-#define	SKIP_THIS(num)	dedring(gbl, fd_path(cwdpath, row), c, num, FALSE, (char *)0)
-#define	QUIT_THIS(num)	dedring(gbl, fd_path(cwdpath, row),'q',num, FALSE, (char *)0)
+#define	SKIP_THIS(num)	dedring(gbl, fd_path(cwdpath, row), c, num, FALSE, Null)
+#define	QUIT_THIS(num)	dedring(gbl, fd_path(cwdpath, row),'q',num, FALSE, Null)
 
 		/* quit lists in directory-ring */
 		case 'Q':
@@ -1923,7 +1927,7 @@ public	void	ft_write(_AR0)
 
 			for (j = k = 0; j <= FDlast; j++)
 				k += strlen(ftree[j].f_name)+1;
-			heap = doalloc((char *)0, k);
+			heap = doalloc(Null, k);
 			for (j = k = 0; j <= FDlast; j++)
 				k += strlen(strcpy(heap+k, ftree[j].f_name)) + 1;
 			(void)write(fid, heap, (LEN_READ)k);

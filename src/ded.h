@@ -3,7 +3,7 @@
 
 #ifdef	MAIN
 #if	!defined(NO_IDENT)
-static	char	*ded_h = "$Id: ded.h,v 12.27 1994/07/12 23:33:13 tom Exp $";
+static	char	*ded_h = "$Id: ded.h,v 12.28 1994/07/15 13:04:54 tom Exp $";
 #endif
 #endif	/* MAIN */
 
@@ -14,6 +14,7 @@ static	char	*ded_h = "$Id: ded.h,v 12.27 1994/07/12 23:33:13 tom Exp $";
 
 #define		CUR_PTYPES	/* use "td_curse.h" */
 #define		CHR_PTYPES	/* use <ctype.h> */
+#define		ERR_PTYPES	/* use <errno.h> */
 #define		OPN_PTYPES	/* use <fcntl.h> */
 #define		SIG_PTYPES	/* use <signal.h> */
 #define		STR_PTYPES	/* use <string.h> */
@@ -21,8 +22,6 @@ static	char	*ded_h = "$Id: ded.h,v 12.27 1994/07/12 23:33:13 tom Exp $";
 #include	<ptypes.h>
 #include	<dyn_str.h>	/* dynamic strings */
 #include	<td_regex.h>	/* regular expressions */
-#include	<ctype.h>
-#include	<errno.h>
 
 #if HAVE_STDARG_H
 #include	<stdarg.h>
