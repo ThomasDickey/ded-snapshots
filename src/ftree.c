@@ -1,14 +1,19 @@
 #ifndef	lint
-static	char	Id[] = "$Id: ftree.c,v 8.3 1991/05/16 07:48:31 dickey Exp $";
+static	char	Id[] = "$Id: ftree.c,v 8.4 1991/05/31 08:27:59 dickey Exp $";
 #endif
 
 /*
  * Author:	T.E.Dickey
  * Created:	02 Sep 1987
  * $Log: ftree.c,v $
- * Revision 8.3  1991/05/16 07:48:31  dickey
- * mods to accommodate apollo sr10.3
+ * Revision 8.4  1991/05/31 08:27:59  dickey
+ * modified interface to 'showpath()' so that 'fd_slow()' will
+ * highlight subtree scanned by 'ft_scan()'. increased width
+ * of number-tag.
  *
+ *		Revision 8.3  91/05/16  07:48:31  dickey
+ *		mods to accommodate apollo sr10.3
+ *		
  *		Revision 8.2  91/04/18  09:40:09  dickey
  *		added ':' command to simplify jumps to specific point
  *		,
@@ -225,7 +230,8 @@ static	FTREE	*ftree;			/* array of database entries	*/
  * Show count while doing things which may be time-consuming.
  */
 static
-fd_slow(count, pathname)
+fd_slow(count, base, pathname)
+int	count, base;
 char	*pathname;
 {
 static
@@ -237,7 +243,7 @@ int	y,x;
 		getyx(stdscr,y,x);
 		move(PATH_ROW,0);
 		PRINTW("%4d: ", count);
-		showpath(pathname, 999, 0);
+		showpath(pathname, 999, base, 0);
 		clrtoeol();
 		refresh();
 		move(y,x);
@@ -324,7 +330,7 @@ node2col(node, level)
 	register int k = fd_level(node);
 
 	if (level < k) k = level;
-	return ((k * 4) + 6);
+	return ((k * 4) + 7);
 }
 
 static
@@ -842,7 +848,7 @@ char	*path, *home;
 	node = limits(showbase, node);
 	k = FDdiff || (savesccs != showsccs);
 	PRINTW("path: ");
-	showpath(path, level, k ? 5 : 0);
+	showpath(path, level, -1, k ? 5 : 0);
 	dlog_comment("path: %s\n", path);
 	clrtoeol();
 	if (k) {	/* show W-command if we have pending diffs */
@@ -864,7 +870,7 @@ char	*path, *home;
 			if (*marker == '.' && dedrang(bfr))
 				marker = "* ";
 #endif
-			PRINTW("%4d%s", j, marker);
+			PRINTW("%5d%s", j, marker);
 			for (k = fd_level(j); k > 0; k--)
 				addstr(fd_line(k));
 			if (ftree[j].f_mark & MARKED)	standout();
@@ -1324,7 +1330,7 @@ char	*path;
 		case 'R':	if (ftree[row].f_mark & LINKED)
 					beep();
 				else
-					(void)ft_scan(row, num);
+					(void)ft_scan(row, num, fd_level(row));
 				break;
 		case '+':	while (num-- > 0) {
 					markit(row,MARKED,TRUE);
@@ -1515,7 +1521,8 @@ char	*msg;
  * Scan a given directory, inserting all entries which are themselves valid
  * directories
  */
-ft_scan(node, levels)
+ft_scan(node, levels, base)
+int	node, levels, base;
 {
 DIR	*dp;
 struct	direct	*d;
@@ -1539,7 +1546,7 @@ int	interrupted = 0;
 		if (strcmp(bfr,zero))	*s_++ = '/';
 		while (d = readdir(dp)) {
 			(void)strcpy(s_, "*");
-			fd_slow(count++, bfr);
+			fd_slow(count++, base, bfr);
 			FORMAT(s_, "%s", d->d_name);
 			if (dotname(s_))		continue;
 			ft_stat(bfr, s_);
@@ -1563,7 +1570,7 @@ int	interrupted = 0;
 			register int j;
 			for (j = node+1; j <= FDlast; j++)
 				if ((zROOT(j) == node) && !zLINK(j))
-					if (ft_scan(j, levels-1) < 0)
+					if (ft_scan(j, levels-1, base) < 0)
 						return (-1);
 		}
 	}

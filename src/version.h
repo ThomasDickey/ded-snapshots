@@ -1,10 +1,17 @@
 /*
- * $Id: version.h,v 8.7 1991/04/18 09:42:38 dickey Exp $
+ * $Id: version.h,v 9.0 1991/05/31 09:15:12 ste_cm Rel $
  * Version-identifier for DED
  * $Log: version.h,v $
- * Revision 8.7  1991/04/18 09:42:38  dickey
- * added ':' command to directory-tree
+ * Revision 9.0  1991/05/31 09:15:12  ste_cm
+ * BASELINE Mon Jun 10 10:09:56 1991 -- apollo sr10.3
  *
+ *		Revision 8.8  91/05/31  09:15:12  dickey
+ *		highlight the subtree in ftree 'R' command. mods for apollo
+ *		sr10.3
+ *		
+ *		Revision 8.7  91/04/18  09:42:38  dickey
+ *		added ':' command to directory-tree
+ *		
  *		Revision 8.6  91/04/18  09:00:29  dickey
  *		added "cL" command to create hard links.
  *		
@@ -179,4 +186,4 @@
  * 01 Dec 1987, added '*', '^' commands, made '%' refresh screen
  * 25 Nov 1987, added sccs-support (V,z,Z toggles, V,z,Z sorts)
  */
-static	char	version[] = "$Date: 1991/04/18 09:42:38 $";
+static	char	version[] = "$Date: 1991/05/31 09:15:12 $";
