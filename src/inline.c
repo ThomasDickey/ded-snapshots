@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	Id[] = "$Id: inline.c,v 11.16 1992/08/25 11:56:11 dickey Exp $";
+static	char	Id[] = "$Id: inline.c,v 12.0 1992/08/27 12:24:18 ste_cm Rel $";
 #endif
 
 /*
@@ -327,4 +327,9 @@ public	HIST **	inline_hist(_AR0)
 {
 	register ITEM *	p = find_item();
 	return &(p->hist);
+}
+
+public	int	inline_hidden(_AR0)
+{
+	return re_edit;
 }
