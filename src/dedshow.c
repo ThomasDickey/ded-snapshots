@@ -3,6 +3,7 @@
  * Author:	T.E.Dickey
  * Created:	01 Dec 1987
  * Modified:
+ *		21 Oct 1995, show escaped control chars in printable form.
  *		29 Oct 1993, ifdef-ident, port to HP/UX.
  *		28 Sep 1993, gcc warnings
  *		28 Feb 1992, corrected LINES-limit.
@@ -20,7 +21,27 @@
 
 #include	"ded.h"
 
-MODULE_ID("$Id: dedshow.c,v 12.7 1994/07/24 00:48:52 tom Exp $")
+MODULE_ID("$Id: dedshow.c,v 12.8 1995/10/21 22:53:56 tom Exp $")
+
+private	int	dedshow_c (
+	_AR1(int,	ch))
+	_DCL(int,	ch)
+{
+	auto	int	max_Y	= LINES - 1,
+			max_X	= COLS  - 1;
+	register int x, y;
+
+	getyx(stdscr, y, x);
+	if (addch((chtype)ch) == ERR)
+		return FALSE;
+	if (++x > max_X) {
+		x = 0;
+		if (++y >= max_Y)
+			return FALSE;
+		move(y,x);
+	}
+	return TRUE;
+}
 
 public	void	dedshow2 (
 	_AR1(char *,	arg))
@@ -28,7 +49,9 @@ public	void	dedshow2 (
 {
 	register int	y, x, ch;
 	auto	int	max_Y	= LINES - 1,
-			max_X	= COLS  - 1;
+			literal	= lnext_char(),
+			escaped	= 0;
+	auto	char	buf[4];
 
 	if (arg == 0)
 		return;
@@ -39,35 +62,54 @@ public	void	dedshow2 (
 
 	while ((ch = *arg++) != EOS) {
 
-		if (isascii(ch)) {
-			if (ch == '\t')
-				ch = ' ';
+		if (isascii(ch) || escaped) {
+			if (ch == literal || ch == '\\')
+				escaped = 2;
 			if (!isprint(ch)) {
-				if (ch == '\n') {
+				if (escaped) {
+					if (ch == 0177) {
+						if (!dedshow_c('^'))
+							return;
+						ch = '?';
+					} else if (ch >= 0200) {
+						sprintf(buf, "%03o", ch & 0xff);
+						dedshow2(buf);
+						escaped--;
+						continue;
+					} else if (iscntrl(ch)) {
+						if (!dedshow_c('^'))
+							return;
+						ch |= 0100;
+					}
+				} else if (ch == '\t') {
+					ch = ' ';
+				} else if (ch == '\n') {
+					getyx(stdscr, y, x);
 					x = 0;
 					if (++y > max_Y)
 						return;
 					move(y,x);
+					continue;
+				} else {
+					/* ignore other chars */
+					continue;
 				}
-				continue;
 			}
-			addch((chtype)ch);
-			if (++x > max_X) {
-				x = 0;
-				if (++y >= max_Y)
-					return;
-				move(y,x);
-			}
+			if (!dedshow_c(ch))
+				return;
 		} else {
-			addch('{');
+			if (!dedshow_c('{'))
+				return;
 			standout();
 			dedshow2("...");
 			standend();
-			addch('}');
-			getyx(stdscr, y, x);
+			if (!dedshow_c('}'))
+				return;
 			while ((*arg != EOS) && !isascii(*arg))
 				arg++;
 		}
+		if (escaped > 0)
+			escaped--;
 	}
 }
 

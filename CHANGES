@@ -1,3 +1,9 @@
+1995-10-21  Thomas E. Dickey  <dickey@clark.net>
+
+	* src/dedshow.c:
+	show escaped chars in printable form, so that when we echo a command
+	with escaped tabs, carriage returns, we'll see them.
+
 1995-09-05  Thomas E. Dickey  <dickey@clark.net>
 
 	* src/ftree.c: tweaked interaction between '&' and all_show
