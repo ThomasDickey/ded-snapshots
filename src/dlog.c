@@ -1,59 +1,19 @@
 #ifndef	lint
-static	char	what[] = "$Id: dlog.c,v 9.0 1991/05/16 07:46:51 ste_cm Rel $";
+static	char	what[] = "$Id: dlog.c,v 9.1 1991/09/09 08:06:52 dickey Exp $";
 #endif
 
 /*
  * Title:	dlog.c
  * Author:	T.E.Dickey
  * Created:	14 Mar 1989
- * $Log: dlog.c,v $
- * Revision 9.0  1991/05/16 07:46:51  ste_cm
- * BASELINE Mon Jun 10 10:09:56 1991 -- apollo sr10.3
- *
- *		Revision 8.1  91/05/16  07:46:51  dickey
- *		apollo sr10.3 cpp complains about tag on #endif
- *		
- *		Revision 8.0  90/03/06  07:28:42  ste_cm
- *		BASELINE Mon Aug 13 15:06:41 1990 -- LINCNT, ADA_TRANS
- *		
- *		Revision 7.0  90/03/06  07:28:42  ste_cm
- *		BASELINE Mon Apr 30 09:54:01 1990 -- (CPROTO)
- *		
- *		Revision 6.0  90/03/06  07:28:42  ste_cm
- *		BASELINE Thu Mar 29 07:37:55 1990 -- maintenance release (SYNTHESIS)
- *		
- *		Revision 5.1  90/03/06  07:28:42  dickey
- *		'cmdch()' can now return explicit zero-count
- *		
- *		Revision 5.0  89/08/11  14:22:26  ste_cm
- *		BASELINE Fri Oct 27 12:27:25 1989 -- apollo SR10.1 mods + ADA_PITS 4.0
- *		
- *		Revision 4.0  89/08/11  14:22:26  ste_cm
- *		BASELINE Thu Aug 24 10:20:06 EDT 1989 -- support:navi_011(rel2)
- *		
- *		Revision 3.2  89/08/11  14:22:26  dickey
- *		lint
- *		
- *		Revision 3.1  89/08/11  10:42:32  dickey
- *		wrapped some code around the call on 'cmdch()' to try to
- *		recover from I/O errors.
- *		
- *		Revision 3.0  89/03/24  10:43:36  ste_cm
- *		BASELINE Mon Jun 19 14:21:57 EDT 1989
- *		
- *		Revision 2.0  89/03/24  10:43:36  ste_cm
- *		BASELINE Thu Apr  6 13:14:13 EDT 1989
- *		
- *		Revision 1.6  89/03/24  10:43:36  dickey
- *		fixed bugs in command-script found in regression tests
- *		
- *		Revision 1.5  89/03/24  08:39:26  dickey
- *		added 'dlog_read()' and local code to support
- *		command-script.  also, some lint.
- *		
- *		Revision 1.4  89/03/15  11:34:19  dickey
- *		sccs2rcs keywords
- *		
+ * Modified:
+ *		09 Sep 1991, lint
+ *		06 Mar 1990, 'cmdch()' can now return explicit zero-count
+ *		11 Aug 1989, wrapped some code around the call on 'cmdch()' to
+ *			     try to recover from I/O errors.
+ *		24 Mar 1989, fixed bugs in command-script found in regression
+ *			     tests.  Added 'dlog_read()' and local code to
+ *			     support command-script.  also, some lint.
  *		15 Mar 1989, added 'dlog_exit()', mods to make this work with
  *			     subprocesses.
  *
@@ -401,6 +361,8 @@ char	*name;
 #ifdef	lint
 #undef	va_dcl
 #define	va_dcl		char	*va_alist;
+#undef	va_start
+#define	va_start(args)	args = va_alist
 #undef	va_arg
 #define	va_arg(p,c)	(c)0
 #endif

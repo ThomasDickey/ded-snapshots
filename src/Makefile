@@ -1,28 +1,6 @@
-# $Id: Makefile,v 9.0 1990/08/27 08:12:09 ste_cm Rel $
+# $Id: Makefile,v 9.1 1991/09/09 07:39:09 dickey Exp $
 # MAKE-file for directory editor
 #
-# $Log: Makefile,v $
-# Revision 9.0  1990/08/27 08:12:09  ste_cm
-# BASELINE Mon Jun 10 10:09:56 1991 -- apollo sr10.3
-#
-#        Revision 8.1  90/08/27  08:12:09  dickey
-#        really need to lint with apollo stuff, tho not portable
-#        
-#        Revision 8.0  90/04/18  07:42:02  ste_cm
-#        BASELINE Mon Aug 13 15:06:41 1990 -- LINCNT, ADA_TRANS
-#        
-#        Revision 7.0  90/04/18  07:42:02  ste_cm
-#        BASELINE Mon Apr 30 09:54:01 1990 -- (CPROTO)
-#        
-#        Revision 6.2  90/04/18  07:42:02  dickey
-#        updated include-dependency for 'dedscan.c'
-#        
-#        Revision 6.1  90/04/17  09:12:31  dickey
-#        suppress .c.a rule to cover up apollo sr10.2 make-bug (ded.c -> ded.a)
-#        
-#        Revision 6.0  90/03/05  11:13:33  ste_cm
-#        BASELINE Thu Mar 29 07:37:55 1990 -- maintenance release (SYNTHESIS)
-#        
 ####### (Environment) ##########################################################
 B	= ../bin
 I	= ../../common/interface
@@ -96,7 +74,7 @@ MAIN_O	= ded.o $A $(LIBS)
 ####### (Standard Productions) #################################################
 all:		sources $(ALL)
 #
-clean:				; rm -f *.[oa] *.out
+clean:				; rm -f *.[oa] *.out *.bak core
 clobber:	clean		; rm -f $(ALL)
 destroy:
 	sh -c 'for i in *;do case $$i in RCS);; *) rm -f $$i;;esac;done;exit 0'

@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	Id[] = "$Id: ded2s.c,v 9.4 1991/08/16 13:53:32 dickey Exp $";
+static	char	Id[] = "$Id: ded2s.c,v 9.5 1991/09/09 08:10:27 dickey Exp $";
 #endif
 
 /*
@@ -7,6 +7,8 @@ static	char	Id[] = "$Id: ded2s.c,v 9.4 1991/08/16 13:53:32 dickey Exp $";
  * Author:	T.E.Dickey
  * Created:	09 Nov 1987
  * Modified:
+ *		16 Aug 1991, added interpretation of "2T"
+ *		16 Jul 1991, inode-value and number-of-blocks are unsigned
  *		02 Jul 1991, make S_opt, P_opt 3-way toggles.
  *		28 Jun 1991, corrected code which tests for executable-access
  *			     (must look at effective-id, not real-id).
@@ -314,7 +316,7 @@ time_t  fdate;
 	t[24]	= ' ';				/* ddd mmm DD HH:MM:SS YYYY */
 
 	if (T_opt == 2) {
-		FORMAT(bfr, "%12.6f ", fdate / (24.0 * HOUR));
+		FORMAT(bfr, "%12.6f ", (now - fdate) / (24.0 * HOUR));
 	} else if (T_opt == 1) {
 		(void)strcpy(bfr, t);
 	} else {
@@ -381,7 +383,8 @@ struct	stat *s;
 		type_uid.low  = s->st_rfu4[1];
 		t = 0;
 		for (p = list; p != 0; p = p->link) {
-			if (p->uid == type_uid) {
+			if (p->uid.high == type_uid.high
+			&&  p->uid.low  == type_uid.low) {
 				t = p->name;
 				break;
 			}

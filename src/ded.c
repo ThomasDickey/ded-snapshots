@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	Id[] = "$Header: /users/source/archives/ded.vcs/src/RCS/ded.c,v 9.12 1991/08/16 13:48:47 dickey Exp $";
+static	char	Id[] = "$Header: /users/source/archives/ded.vcs/src/RCS/ded.c,v 9.13 1991/09/09 07:54:12 dickey Exp $";
 #endif
 
 /*
@@ -7,9 +7,12 @@ static	char	Id[] = "$Header: /users/source/archives/ded.vcs/src/RCS/ded.c,v 9.12
  * Author:	T.E.Dickey
  * Created:	09 Nov 1987
  * $Log: ded.c,v $
- * Revision 9.12  1991/08/16 13:48:47  dickey
- * added interpretation of "2T"
+ * Revision 9.13  1991/09/09 07:54:12  dickey
+ * lint
  *
+ *		Revision 9.12  91/08/16  13:59:31  dickey
+ *		added interpretation of "2T"
+ *		
  *		Revision 9.11  91/07/22  07:13:10  dickey
  *		quote filename before using it in 'forkfile()'
  *		
@@ -1700,7 +1703,7 @@ char	*argv[];
 	case CTL('v'):	/* pad-view */
 	case 'e':
 	case 'v':	/* enter new process with current file */
-			editfile((c & 037) != CTL('e'), iscntrl(c));
+			editfile((c & 037) != CTL('e'), (int)iscntrl(c));
 			break;
 
 	case 'm':	to_work(TRUE);

@@ -1,3 +1,19 @@
+1991-09-09  dickey@software.org
+
+	* src/version.h:
+	make "2T" show days.fraction relative to the current time
+
+	* src/ded2s.c: make "2T" show days.fractions relative to current time.
+	lint
+
+	* src/dlog.c: lint
+
+	* src/deddump.c: lint: use return-value from 'win2file()'
+
+	* src/ded.c: lint
+
+	* test/Makefile, src/Makefile: fix clean-rule
+
 1991-08-16  dickey@software.org
 
 	* src/version.h:
