@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	Id[] = "$Id: ftree.c,v 10.8 1992/04/01 14:29:58 dickey Exp $";
+static	char	Id[] = "$Id: ftree.c,v 10.16 1992/04/02 13:03:31 dickey Exp $";
 #endif
 
 /*
@@ -102,12 +102,7 @@ static	char	Id[] = "$Id: ftree.c,v 10.8 1992/04/01 14:29:58 dickey Exp $";
  *
  * Configure:	DEBUG	- dump a logfile in readable form at the end
  *			  (i.e., when calling 'ft_read()' or 'ft_write()').
- *		TEST	- make a standalone program (otherwise, part of 'ded')
  */
-
-#ifdef	TEST
-#define	MAIN
-#endif
 
 #define	ACC_PTYPES
 #define	DIR_PTYPES
@@ -186,14 +181,12 @@ static	FTREE	*ftree;			/* array of database entries	*/
  *	Database Manipulation						*
  ************************************************************************/
 
-static
-int
-ok_rename(
-_ARX(char *,	oldname)
-_AR1(char *,	newname)
-	)
-_DCL(char *,	oldname)
-_DCL(char *,	newname)
+private	int	ok_rename(
+	_ARX(char *,	oldname)
+	_AR1(char *,	newname)
+		)
+	_DCL(char *,	oldname)
+	_DCL(char *,	newname)
 {
 	if (strcmp(oldname, newname)) {
 		dlog_comment("rename \"%s\" (name=%s)\n", newname, oldname);
@@ -207,21 +200,19 @@ _DCL(char *,	newname)
 /*
  * Show count while doing things which may be time-consuming.
  */
-static
-void
-fd_slow(
-_ARX(int,	count)
-_ARX(int,	base)
-_AR1(char *,	pathname)
-	)
-_DCL(int,	count)
-_DCL(int,	base)
-_DCL(char *,	pathname)
+private	void	fd_slow(
+	_ARX(int,	count)
+	_ARX(int,	base)
+	_AR1(char *,	pathname)
+		)
+	_DCL(int,	count)
+	_DCL(int,	base)
+	_DCL(char *,	pathname)
 {
-static
-time_t	last;
-time_t	this	= time((time_t *)0);
-int	y,x;
+	static
+		time_t	last;
+		time_t	this	= time((time_t *)0);
+	int	y,x;
 
 	if ((count == 0) || (last != this)) {
 		getyx(stdscr,y,x);
@@ -238,9 +229,7 @@ int	y,x;
 /*
  * Ensure that the database has allocated enough space for the current entry.
  */
-static
-void
-fd_alloc(_AR0)
+private	void	fd_alloc(_AR0)
 {
 	if (FDlast >= FDsize) {
 	register int	size = FDsize;
@@ -259,14 +248,12 @@ fd_alloc(_AR0)
  * Add a path to the database.  As we add them, we insert in alphabetical
  * order to make it simple to display the tree.
  */
-static
-void
-fd_add_path(
-_ARX(char *,	path)
-_AR1(char *,	validated)
-	)
-_DCL(char *,	path)
-_DCL(char *,	validated)
+private	void	fd_add_path(
+	_ARX(char *,	path)
+	_AR1(char *,	validated)
+		)
+	_DCL(char *,	path)
+	_DCL(char *,	validated)
 {
 	auto	int	last = 0, /* assume we start from root level */
 			order,
@@ -369,25 +356,23 @@ _DCL(char *,	validated)
 /*
  * Perform a search through the database for a selected directory name.
  */
-static
-int
-fd_find (
-_ARX(char *,	buffer)
-_ARX(int,	cmd)
-_AR1(int,	old)
-	)
-_DCL(char *,	buffer)
-_DCL(int,	cmd)
-_DCL(int,	old)
+private	int	fd_find (
+	_ARX(char *,	buffer)
+	_ARX(int,	cmd)
+	_AR1(int,	old)
+		)
+	_DCL(char *,	buffer)
+	_DCL(int,	cmd)
+	_DCL(int,	old)
 {
-static	int	next = 0;		/* last-direction		*/
-static	char	pattern[MAXPATHLEN],
-		*expr;			/* regex-state/output		*/
+	static	int	next = 0;	/* last-direction		*/
+	static	char	pattern[MAXPATHLEN],
+			*expr;		/* regex-state/output		*/
 
-register int	step,
-	new = old,
-	skip,
-	looped = 0;
+	register int	step,
+		new = old,
+		skip,
+		looped = 0;
 
 	if (cmd == '?' || cmd == '/') {
 		if (strchr(buffer, (*gap)))
@@ -410,32 +395,27 @@ register int	step,
 		while (skip || !GOT_REGEX(expr, ftree[new].f_name));
 		return(new);
 	}
-#ifndef	TEST
 	BAD_REGEX(expr);
-#endif
 	return (-1);
 }
 
 /*
  * Returns the hierarchical level of a given node
  */
-static
-int
-fd_level _ONE(int,this)
+private	int	fd_level _ONE(int,this)
 {
-register int level = this ? 1 : 0;
+	register int level = this ? 1 : 0;
+
 	while (this = ftree[this].f_root) level++;
 	return(level);
 }
 
-static
-int
-node2col(
-_ARX(int,	node)
-_AR1(int,	level)
-	)
-_DCL(int,	node)
-_DCL(int,	level)
+private	int	node2col(
+	_ARX(int,	node)
+	_AR1(int,	level)
+		)
+	_DCL(int,	node)
+	_DCL(int,	level)
 {
 	register int k = fd_level(node);
 
@@ -443,9 +423,7 @@ _DCL(int,	level)
 	return ((k * 4) + 7);
 }
 
-static
-int
-node2row _ONE(int,node)
+private	int	node2row _ONE(int,node)
 {
 	register int j, row;
 
@@ -459,9 +437,7 @@ node2row _ONE(int,node)
 /*
  * Returns a code appropriate for displaying the directory-tree's lines
  */
-static
-char *
-fd_line _ONE(int,height)
+private	char *	fd_line _ONE(int,height)
 {
 	if (height != 1) {
 		return("|   ");
@@ -472,17 +448,16 @@ fd_line _ONE(int,height)
 /*
  * Compute a pathname for a given node
  */
-static
-char *
-fd_path(
-_ARX(char *,	bfr)
-_AR1(int,	node)
-	)
-_DCL(char *,	bfr)
-_DCL(int,	node)
+private	char *	fd_path(
+	_ARX(char *,	bfr)
+	_AR1(int,	node)
+		)
+	_DCL(char *,	bfr)
+	_DCL(int,	node)
 {
-char	tmp[MAXPATHLEN];
-	*bfr = EOS;
+	char	tmp[MAXPATHLEN];
+		*bfr = EOS;
+
 	do {
 		(void)strcpy(tmp, bfr);
 		(void)strcat(strcat(strcpy(bfr, gap), ftree[node].f_name), tmp);
@@ -499,9 +474,7 @@ char	tmp[MAXPATHLEN];
 /*
  * Returns true iff the node should be displayed
  */
-static
-int
-fd_show _ONE(int,node)
+private	int	fd_show _ONE(int,node)
 {
 	if (ftree[node].f_mark & NOSCCS)
 		return(FALSE);
@@ -524,7 +497,7 @@ fd_show _ONE(int,node)
  * Add a path to the database.  As we add them, we insert in alphabetical
  * order to make it simple to display the tree.
  */
-ft_insert _ONE(char *,path)
+public	void	ft_insert _ONE(char *,path)
 {
 	auto	char		bfr[MAXPATHLEN];
 
@@ -535,12 +508,10 @@ ft_insert _ONE(char *,path)
 /*
  * Locate the node corresponding to a particular path.
  */
-static
-int
-do_find _ONE(char *,path)
+private	int	do_find _ONE(char *,path)
 {
-char	bfr[MAXPATHLEN];
-register int j, this, last = 0;
+	char	bfr[MAXPATHLEN];
+	register int j, this, last = 0;
 
 	abspath(path = strcpy(bfr,path));
 	if (!strcmp(path,zero))
@@ -584,15 +555,15 @@ register int j, this, last = 0;
  * retain them in a directory-scan.  If 'all' is true, then we will purge
  * symbolic links as well.
  */
-ft_remove(
-_ARX(char *,	path)
-_AR1(int,	all)
-	)
-_DCL(char *,	path)
-_DCL(int,	all)
+public	void	ft_remove(
+	_ARX(char *,	path)
+	_AR1(int,	all)
+		)
+	_DCL(char *,	path)
+	_DCL(int,	all)
 {
-int	last = do_find(path);
-register int j;
+	int	last = do_find(path);
+	register int j;
 
 	if (last >= 0) {
 		for (j = last+1; j <= FDlast; j++) {
@@ -613,10 +584,10 @@ register int j;
  * is found, it, and all of its dependents are purged from the database (i.e.,
  * the database is packed, leaving no trace of the removed entry).
  */
-ft_purge(_AR0)
+public	void	ft_purge _ONE(RING *,gbl)
 {
-register int j, k, adj;
-int	changed	= 0;
+	register int j, k, adj;
+	int	changed	= 0;
 
 	for (j = 1; j <= FDlast; j++) {	/* scan for things to purge */
 		if (!zMARK(j)) 	continue;
@@ -633,28 +604,27 @@ int	changed	= 0;
 	}
 	FDdiff += changed;
 
-#ifndef	TEST
 	if (changed) {			/* re-insert ring */
-	char	tmp[BUFSIZ], *s;
-		(void)strcpy(tmp, FOO->new_wd);
-		for (j = 1; s = dedrung(j); j++) {
+		char	tmp[BUFSIZ], *s;
+
+		(void)strcpy(tmp, gbl->new_wd);
+		for (j = 1; s = ring_path(j); j++) {
 			ft_insert(s);
 			if (!strcmp(s,tmp))
 				break;
 		}
 	}
-#endif
 }
 
 /*
  * Rename a directory or link.
  */
-ft_rename(
-_ARX(char *,	old)
-_AR1(char *,	new)
-	)
-_DCL(char *,	old)
-_DCL(char *,	new)
+public	void	ft_rename(
+	_ARX(char *,	old)
+	_AR1(char *,	new)
+		)
+	_DCL(char *,	old)
+	_DCL(char *,	new)
 {
 	register int	j, k;
 	int	oldloc, newloc, base, len1, len2, chop, count;
@@ -732,9 +702,7 @@ _DCL(char *,	new)
 
 
 /* recover from corrupt .ftree file by initializing to empty-state */
-static
-int
-ft_init _ONE(char *,msg)
+private	int	ft_init _ONE(char *,msg)
 {
 	waitmsg(msg);
 	FDtime = time((time_t *)0);
@@ -744,18 +712,16 @@ ft_init _ONE(char *,msg)
 }
 
 /* read from the .ftree file, testing for consistency in sizes */
-static
-int
-ok_read(
-_ARX(int,	fid)
-_ARX(char *,	s)
-_ARX(int,	ask)
-_AR1(char *,	msg)
-	)
-_DCL(int,	fid)
-_DCL(char *,	s)
-_DCL(int,	ask)
-_DCL(char *,	msg)
+private	int	ok_read(
+	_ARX(int,	fid)
+	_ARX(char *,	s)
+	_ARX(int,	ask)
+	_AR1(char *,	msg)
+		)
+	_DCL(int,	fid)
+	_DCL(char *,	s)
+	_DCL(int,	ask)
+	_DCL(char *,	msg)
 {
 	LEN_READ	got = read(fid,s,ask);
 	if (got != ask) {
@@ -766,9 +732,7 @@ _DCL(char *,	msg)
 	return (TRUE);
 }
 
-static
-void
-read_ftree _ONE(char *,the_file)
+private	void	read_ftree _ONE(char *,the_file)
 {
 	struct		stat sb;
 	register int	j;
@@ -848,12 +812,12 @@ read_ftree _ONE(char *,the_file)
  *	2) the vector (with name-pointers adjusted to integer indices)
  *	3) the string-heap
  */
-ft_read(
-_ARX(char *,	first)	/* => string defining the initial directory */
-_AR1(char *,	home_dir)
-	)
-_DCL(char *,	first)
-_DCL(char *,	home_dir)
+public	void	ft_read(
+	_ARX(char *,	first)	/* => string defining the initial directory */
+	_AR1(char *,	home_dir)
+		)
+	_DCL(char *,	first)
+	_DCL(char *,	home_dir)
 {
 	register int	j;
 
@@ -879,18 +843,18 @@ _DCL(char *,	home_dir)
  * the common (at least to the current screen) part of the path in the
  * status line, moving to the common nodes only if the user directs so.
  */
-static
-int
-ft_show(
-_ARX(char *,	path)
-_ARX(char *,	home)
-_ARX(int,	node)
-_AR1(int,	level)
-	)
-_DCL(char *,	path)
-_DCL(char *,	home)
-_DCL(int,	node)
-_DCL(int,	level)
+private	int	ft_show(
+	_ARX(RING *,	gbl)
+	_ARX(char *,	path)
+	_ARX(char *,	home)
+	_ARX(int,	node)
+	_AR1(int,	level)
+		)
+	_DCL(RING *,	gbl)
+	_DCL(char *,	path)
+	_DCL(char *,	home)
+	_DCL(int,	node)
+	_DCL(int,	level)
 {
 	register int j, k;
 	auto	int	row;
@@ -920,15 +884,13 @@ _DCL(int,	level)
 			if (!fd_show(j)) continue;
 			move(row++,0);
 			marker = strcmp(fd_path(bfr, j), home) ? ". " : "=>";
-#ifndef	TEST
-			if (*marker == '.' && dedrang(bfr))
+			if (*marker == '.' && (ring_get(bfr) != 0))
 				marker = "* ";
-#endif
 			PRINTW("%5d%s", j, marker);
 			for (k = fd_level(j); k > 0; k--)
 				addstr(fd_line(k));
 			if (ftree[j].f_mark & MARKED)	standout();
-			(void)ded2string(bfr, sizeof(bfr), ftree[j].f_name, FALSE);
+			(void)ded2string(gbl, bfr, sizeof(bfr), ftree[j].f_name, FALSE);
 			PRINTW("%s%s",
 				bfr,
 				(ftree[j].f_mark &LINKED) ? "@" : gap);
@@ -951,17 +913,15 @@ _DCL(int,	level)
 /*
  * Set base/last limits for the current screen
  */
-static
-int
-limits(
-_ARX(int,	base)
-_AR1(int,	row)
-	)
-_DCL(int,	base)
-_DCL(int,	row)
+private	int	limits(
+	_ARX(int,	base)
+	_AR1(int,	row)
+		)
+	_DCL(int,	base)
+	_DCL(int,	row)
 {
-register int j;
-int	len = 0;
+	register int j;
+	int	len = 0;
 
 	showbase = fd_show(base) ? base : -1;
 	showlast = -1;
@@ -990,9 +950,7 @@ int	len = 0;
 	return(row);
 }
 
-static
-int
-fd_fwd _ONE(int,num)
+private	int	fd_fwd _ONE(int,num)
 {
 	while (num-- > 0) {
 		if (showlast < FDlast) {
@@ -1005,9 +963,7 @@ fd_fwd _ONE(int,num)
 	return(showlast);
 }
 
-static
-int
-fd_bak _ONE(int,num)
+private	int	fd_bak _ONE(int,num)
 {
 	while (num-- > 0) {
 	register int j, len = 0, base = -1;
@@ -1030,11 +986,10 @@ fd_bak _ONE(int,num)
  * Toggles the state of the sccs-directory visibility, and coerces all nodes
  * to correspond to the new state.
  */
-static
-void
-toggle_sccs(_AR0)
+private	void	toggle_sccs(_AR0)
 {
-register int j;
+	register int j;
+
 	showsccs = !showsccs;
 	for (j = 1; j <= FDlast; j++) {
 	register FTREE *f = &ftree[j];
@@ -1052,16 +1007,14 @@ register int j;
 	}
 }
 
-static
-void
-markit(
-_ARX(int,	node)
-_ARX(int,	flag)
-_AR1(int,	on)
-	)
-_DCL(int,	node)
-_DCL(int,	flag)
-_DCL(int,	on)
+private	void	markit(
+	_ARX(int,	node)
+	_ARX(int,	flag)
+	_AR1(int,	on)
+		)
+	_DCL(int,	node)
+	_DCL(int,	flag)
+	_DCL(int,	on)
 {
 	register FTREE *f = &ftree[node];
 	register int	old = f->f_mark;
@@ -1074,9 +1027,7 @@ _DCL(int,	on)
 /*
  * Set up for display of the given node.  If it is not visible, make it so.
  */
-static
-void
-scroll_to _ONE(int,node)
+private	void	scroll_to _ONE(int,node)
 {
 	register int j;
 	if (node < 0)
@@ -1099,21 +1050,21 @@ scroll_to _ONE(int,node)
 /*
  * Scroll to current ring-entry
  */
-static
-int
-fd_ring(
-_ARX(char *,	path)
-_ARX(int *,	row_)
-_AR1(int *,	level_)
-	)
-_DCL(char *,	path)
-_DCL(int *,	row_)
-_DCL(int *,	level_)
+private	int	fd_ring(
+	_ARX(RING *,	gbl)
+	_ARX(char *,	path)
+	_ARX(int *,	row_)
+	_AR1(int *,	level_)
+		)
+	_DCL(RING *,	gbl)
+	_DCL(char *,	path)
+	_DCL(int *,	row_)
+	_DCL(int *,	level_)
 {
 	int	newrow;
 	char	cwdpath[BUFSIZ];
 
-	if ((newrow = do_find(strcpy(cwdpath,FOO->new_wd))) < 0) {
+	if ((newrow = do_find(strcpy(cwdpath, gbl->new_wd))) < 0) {
 		/* path was deleted, put it back if it is really there */
 		(void) ft_stat(cwdpath, cwdpath);
 		newrow = do_find(cwdpath);
@@ -1130,18 +1081,17 @@ _DCL(int *,	level_)
 	return FALSE;
 }
 
-static
-int
-uprow(
-_ARX(int,	node)
-_ARX(int,	count)
-_AR1(int,	level)
-	)
-_DCL(int,	node)
-_DCL(int,	count)
-_DCL(int,	level)
+private	int	uprow(
+	_ARX(int,	node)
+	_ARX(int,	count)
+	_AR1(int,	level)
+		)
+	_DCL(int,	node)
+	_DCL(int,	count)
+	_DCL(int,	level)
 {
-register int j, k = node;
+	register int j, k = node;
+
 	level++;
 	for (j = node-1; j >= 0; j--) {
 		if (fd_show(j) && fd_level(j) <= level) {
@@ -1158,18 +1108,17 @@ register int j, k = node;
 	return(k);
 }
 
-static
-int
-downrow(
-_ARX(int,	node)
-_ARX(int,	count)
-_AR1(int,	level)
-	)
-_DCL(int,	node)
-_DCL(int,	count)
-_DCL(int,	level)
+private	int	downrow(
+	_ARX(int,	node)
+	_ARX(int,	count)
+	_AR1(int,	level)
+		)
+	_DCL(int,	node)
+	_DCL(int,	count)
+	_DCL(int,	level)
 {
-register int j, k = node;
+	register int j, k = node;
+
 	level++;
 	for (j = node+1; j <= FDlast; j++) {
 		if (fd_show(j) && fd_level(j) <= level) {
@@ -1190,11 +1139,10 @@ register int j, k = node;
  * Returns TRUE iff the name of the node corresponds to a source-control
  * directory.
  */
-static
-int
-is_sccs _ONE(int,node)
+private	int	is_sccs _ONE(int,node)
 {
-register FTREE *f = &ftree[node];
+	register FTREE *f = &ftree[node];
+
 	if (!strcmp(f->f_name, sccs_dir()))	return (TRUE);
 	if (!strcmp(f->f_name, rcs_dir()))	return (TRUE);
 	return (FALSE);
@@ -1206,7 +1154,12 @@ register FTREE *f = &ftree[node];
  *	* The argument is overwritten with the name of the new directory
  *	  for e/E commands.
  */
-ft_view _ONE(char *,	path)	/* caller's current directory */
+public	int	ft_view(
+	_ARX(RING *,	gbl)
+	_AR1(char *,	path) /* caller's current directory */
+		)
+	_DCL(RING *,	gbl)
+	_DCL(char *,	path)
 {
 	auto	 int	row,
 			lvl,
@@ -1232,7 +1185,7 @@ ft_view _ONE(char *,	path)	/* caller's current directory */
 
 		c = fd_level(row);
 		if (c < lvl) lvl = c;	/* loosely drag down level */
-		row = ft_show(fd_path(cwdpath,row), path, row, lvl);
+		row = ft_show(gbl, fd_path(cwdpath,row), path, row, lvl);
 
 		switch(c = dlog_char(&num,1)) {
 		/* Ordinary cursor movement */
@@ -1368,18 +1321,15 @@ ft_view _ONE(char *,	path)	/* caller's current directory */
 				abspath(bfr);
 
 				if (ok_rename(cwdpath, bfr) ) {
-#ifndef	TEST
-					dedrering(cwdpath, bfr);
-					(void)strcpy(path, FOO->new_wd);
-#endif
+					ring_rename(gbl, cwdpath, bfr);
+					(void)strcpy(path, gbl->new_wd);
 					ft_rename(cwdpath, bfr);
 					scroll_to (row = do_find(bfr));
 				}
-				(void)chdir(FOO->new_wd);
+				(void)chdir(gbl->new_wd);
 			} else
 				waitmsg(cwdpath);
 			break;
-#ifndef	TEST
 		/* dump the current screen */
 		case CTL('K'):
 			deddump();
@@ -1398,7 +1348,7 @@ ft_view _ONE(char *,	path)	/* caller's current directory */
 				if (is_sccs(row) && (savesccs != showsccs))
 					toggle_sccs();
 			}
-			while (!fd_ring(path, &row, &lvl))
+			while (!fd_ring(gbl, path, &row, &lvl))
 				if (!QUIT_THIS(1))
 					return('E');
 			if (!j)
@@ -1408,7 +1358,7 @@ ft_view _ONE(char *,	path)	/* caller's current directory */
 		case 'F':
 		case 'B':
 			num = SKIP_THIS(num);
-			while (!fd_ring(path, &row, &lvl))
+			while (!fd_ring(gbl, path, &row, &lvl))
 				if (!QUIT_THIS(1))
 					return('E');
 			break;
@@ -1430,7 +1380,7 @@ ft_view _ONE(char *,	path)	/* caller's current directory */
 				}
 				bfr[len] = EOS;
 				abspath(strcpy(cwdpath, bfr));
-				(void)chdir(FOO->new_wd);
+				(void)chdir(gbl->new_wd);
 			}
 #endif	/* S_IFLNK */
 			if (access(cwdpath, R_OK | X_OK) < 0) {
@@ -1439,7 +1389,6 @@ ft_view _ONE(char *,	path)	/* caller's current directory */
 			}
 			(void)strcpy(path, cwdpath);
 			/* fall-thru to return */
-#endif	/* TEST */
 		case 'D':
 			return(c);	/* 'e', 'E' CTL(E) or 'D' -- only! */
 
@@ -1447,7 +1396,7 @@ ft_view _ONE(char *,	path)	/* caller's current directory */
 		case 'R':	if (ftree[row].f_mark & LINKED)
 					beep();
 				else
-					(void)ft_scan(row, num, fd_level(row));
+					(void)ft_scan(gbl, row, num, fd_level(row));
 				break;
 		case '+':	while (num-- > 0) {
 					markit(row,MARKED,TRUE);
@@ -1469,7 +1418,7 @@ ft_view _ONE(char *,	path)	/* caller's current directory */
 					else if (num == 0)
 						num = j;
 				if (num >= 0) {
-					ft_purge();
+					ft_purge(gbl);
 					while (num > 0) {
 						if (!fd_show(num))
 							num--;
@@ -1522,7 +1471,7 @@ ft_view _ONE(char *,	path)	/* caller's current directory */
 #ifdef	apollo
 		/* toggle flag showing Aegis/Unix names */
 		case 'U':
-			FOO->U_opt = !FOO->U_opt;
+			gbl->U_opt = !gbl->U_opt;
 			showdiff = -1;
 			break;
 #endif	/* apollo */
@@ -1557,9 +1506,7 @@ ft_view _ONE(char *,	path)	/* caller's current directory */
 }
 
 #ifdef	DEBUG
-static
-FILE *
-ft_DUMP(_AR0)
+private	FILE *	ft_DUMP(_AR0)
 {
 	static	char	logname[BUFSIZ];
 	return (fopen(strcat(strcpy(logname, gethome()), "/ftree.log"), "a+"));
@@ -1568,12 +1515,12 @@ ft_DUMP(_AR0)
 /*
  * Dump a message to a log-file
  */
-ft_dump2(
-_ARX(char *,	fmt)
-_AR1(char *,	msg)
-	)
-_DCL(char *,	fmt)
-_DCL(char *,	msg)
+private	ft_dump2(
+	_ARX(char *,	fmt)
+	_AR1(char *,	msg)
+		)
+	_DCL(char *,	fmt)
+	_DCL(char *,	msg)
 {
 	auto	FILE	*fp = ft_DUMP();
 	if (fp) {
@@ -1587,7 +1534,7 @@ _DCL(char *,	msg)
 /*
  * Dump the current tree to a log-file
  */
-ft_dump _ONE(char *,	msg)
+private	ft_dump _ONE(char *,	msg)
 {
 	auto	 time_t	now	= time((time_t *)0);
 	auto	 FILE	*fp;
@@ -1643,14 +1590,16 @@ ft_dump _ONE(char *,	msg)
  * Scan a given directory, inserting all entries which are themselves valid
  * directories
  */
-ft_scan(
-_ARX(int,	node)
-_ARX(int,	levels)
-_AR1(int,	base)
-	)
-_DCL(int,	node)
-_DCL(int,	levels)
-_DCL(int,	base)
+public	int	ft_scan(
+	_ARX(RING *,	gbl)
+	_ARX(int,	node)
+	_ARX(int,	levels)
+	_AR1(int,	base)
+		)
+	_DCL(RING *,	gbl)
+	_DCL(int,	node)
+	_DCL(int,	levels)
+	_DCL(int,	base)
 {
 	auto	int	found = FALSE;
 	auto	DIR	*dp;
@@ -1658,13 +1607,8 @@ _DCL(int,	base)
 	auto	int	count	= 0;
 	char	bfr[MAXPATHLEN], *s_ = bfr;
 
-#ifdef	TEST
-	auto	char	old[MAXPATHLEN];
-	abspath(strcpy(old,"."));
-#else	/* !TEST */
 	auto	int	interrupted = 0;
 	(void)dedsigs(TRUE);		/* reset interrupt-counter */
-#endif	/* TEST */
 
 	s_ += strlen(fd_path(bfr,node));
 
@@ -1680,20 +1624,16 @@ _DCL(int,	base)
 			if (dotname(s_))		continue;
 			if (ft_stat(bfr, s_))
 				found = TRUE;
-#ifndef	TEST
 			if (interrupted = dedsigs(TRUE))
 				break;	/* exit loop so we can cleanup */
-#endif
 		}
-		ft_purge();
+		ft_purge(gbl);
 		(void)closedir(dp);
 
-#ifndef	TEST
 		if (interrupted) {
 			waitmsg(bfr);	/* show where we stopped */
 			return (-1);	/* ...and give up from there */
 		}
-#endif
 
 		/* recur to lower levels if asked */
 		if (levels > 1) {
@@ -1703,7 +1643,7 @@ _DCL(int,	base)
 					found = TRUE;
 					if (zLINK(j))
 						continue;
-					if (ft_scan(j, levels-1, base) < 0)
+					if (ft_scan(gbl, j, levels-1, base) < 0)
 						return (-1);
 				}
 			}
@@ -1711,11 +1651,7 @@ _DCL(int,	base)
 		if (!found)
 			markit(node,NOVIEW,FALSE);
 	}
-#ifdef	TEST
-	(void)chdir(old);
-#else
-	(void)chdir(FOO->new_wd);
-#endif
+	(void)chdir(gbl->new_wd);
 	return (0);
 }
 
@@ -1723,13 +1659,12 @@ _DCL(int,	base)
  * Test a given name to see if it is either a directory name, or a symbolic
  * link.  In either (successful) case, add the name to the database.
  */
-int
-ft_stat(
-_ARX(char *,	name)
-_AR1(char *,	leaf)
-	)
-_DCL(char *,	name)
-_DCL(char *,	leaf)
+public	int	ft_stat(
+	_ARX(char *,	name)
+	_AR1(char *,	leaf)
+		)
+	_DCL(char *,	name)
+	_DCL(char *,	leaf)
 {
 	auto	STAT	sb;
 
@@ -1745,7 +1680,7 @@ _DCL(char *,	leaf)
  * in the user's home directory.  If we cannot write back to the user's
  * directory, no matter, since we mustn't use root privilege for this!
  */
-ft_write(_AR0)
+public	void	ft_write(_AR0)
 {
 	if (FDdiff || (savesccs != showsccs)) {
 	int	fid;
@@ -1783,51 +1718,3 @@ ft_write(_AR0)
 			wait_warn(FDname);
 	}
 }
-
-#ifdef	TEST
-/*
- * Main program, for standalone applications
- */
-/*ARGSUSED*/
-_MAIN
-{
-extern	WINDOW	*initscr();
-int	j,
-	remove	= FALSE,
-	purge	= FALSE;
-char	cwdpath[MAXPATHLEN],
-	*s;
-
-	if (!getwd(cwdpath))
-		failed("getwd");
-
-	ft_read(".", gethome());
-	for (j = 1; j < argc; j++) {
-		s = argv[j];
-		if (*s == '-') {
-			while (*++s) {
-				switch(*s) {
-				case 'r':	remove = TRUE;	break;
-				case 'i':	remove = FALSE;	break;
-				case 'p':	purge  = TRUE;	break;
-				}
-			}
-		} else {
-			if (remove)	ft_remove(s);
-			else		ft_insert(s);
-		}
-	}
-	if (purge)
-		ft_purge();
-	if (!initscr())			failed("initscr");
-	rawterm();
-	(void)ft_view(cwdpath);
-	move(LINES-1,0);
-	refresh();
-	PRINTF("\n");
-	endwin();
-	ft_write();
-	(void)exit(0);
-	/*NOTREACHED*/
-}
-#endif

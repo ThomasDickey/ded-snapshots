@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	Id[] = "$Id: dedread.c,v 10.1 1992/04/01 14:29:29 dickey Exp $";
+static	char	Id[] = "$Id: dedread.c,v 10.2 1992/04/02 07:48:56 dickey Exp $";
 #endif
 
 /*
@@ -23,12 +23,14 @@ static	char	Id[] = "$Id: dedread.c,v 10.1 1992/04/01 14:29:29 dickey Exp $";
  */
 #include	"ded.h"
 
-dedread(
-_ARX(char **,	pattern_)
-_AR1(int,	change_needed)
-	)
-_DCL(char **,	pattern_)
-_DCL(int,	change_needed)
+public	int	dedread(
+	_ARX(RING *,	gbl)
+	_ARX(char **,	pattern_)
+	_AR1(int,	change_needed)
+		)
+	_DCL(RING *,	gbl)
+	_DCL(char **,	pattern_)
+	_DCL(int,	change_needed)
 {
 	register int	j,k;
 	auto	char	text[BUFSIZ], *expr;
@@ -52,13 +54,13 @@ _DCL(int,	change_needed)
 	} else if (!*text) {
 		*pattern_ = 0;
 		showC();
-		OLD_REGEX(FOO->scan_expr);
+		OLD_REGEX(gbl->scan_expr);
 		return (TRUE);
 	} else if (NEW_REGEX(expr,text)) {
 		showC();
 		*pattern_ = txtalloc(text);
-		OLD_REGEX(FOO->scan_expr);
-		FOO->scan_expr = expr;
+		OLD_REGEX(gbl->scan_expr);
+		gbl->scan_expr = expr;
 		return (TRUE);
 	} else {
 		BAD_REGEX(expr);
@@ -71,15 +73,15 @@ _DCL(int,	change_needed)
  * Initialize the match for regular-expression selection of files.  We need this
  * entrypoint because the BSD-style code does not save the compiled-expr.
  */
-init_scan(_AR0)
+public	void	init_scan _ONE(RING *,gbl)
 {
-	if (FOO->toscan != 0) {
-		dlog_comment("scan for \"%s\"\n", FOO->toscan);
-		OLD_REGEX(FOO->scan_expr);
-		if (!NEW_REGEX(FOO->scan_expr,FOO->toscan)) {
+	if (gbl->toscan != 0) {
+		dlog_comment("scan for \"%s\"\n", gbl->toscan);
+		OLD_REGEX(gbl->scan_expr);
+		if (!NEW_REGEX(gbl->scan_expr,gbl->toscan)) {
 			/* shouldn't happen */
-			BAD_REGEX(FOO->scan_expr);
-			FOO->toscan = 0;
+			BAD_REGEX(gbl->scan_expr);
+			gbl->toscan = 0;
 		}
 	}
 }
@@ -87,9 +89,14 @@ init_scan(_AR0)
 /*
  * Returns true if the given name was selectable by the current read-expression
  */
-ok_scan _ONE(char *,name)
+public	int	ok_scan (
+	_ARX(RING *,	gbl)
+	_AR1(char *,	name)
+		)
+	_DCL(RING *,	gbl)
+	_DCL(char *,	name)
 {
-	if (FOO->toscan != 0)
-		return (GOT_REGEX(FOO->scan_expr,name) != 0);
+	if (gbl->toscan != 0)
+		return (GOT_REGEX(gbl->scan_expr,name) != 0);
 	return (TRUE);
 }

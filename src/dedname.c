@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	Id[] = "$Id: dedname.c,v 10.2 1992/02/18 07:58:06 dickey Exp $";
+static	char	Id[] = "$Id: dedname.c,v 10.4 1992/04/02 12:37:55 dickey Exp $";
 #endif
 
 /*
@@ -7,7 +7,7 @@ static	char	Id[] = "$Id: dedname.c,v 10.2 1992/02/18 07:58:06 dickey Exp $";
  * Author:	T.E.Dickey
  * Created:	11 May 1988
  * Modified:
- *		17 Feb 1992, use 'dedrering()' to simplify list-renaming.
+ *		17 Feb 1992, use 'ring_rename()' to simplify list-renaming.
  *		18 Oct 1991, converted to ANSI
  *		15 May 1991, apollo sr10.3 cpp complains about tag on #endif
  *		23 May 1990, modified interface to 'dedring()'
@@ -20,19 +20,21 @@ static	char	Id[] = "$Id: dedname.c,v 10.2 1992/02/18 07:58:06 dickey Exp $";
 #include	"ded.h"
 
 dedname(
+_ARX(RING *,	gbl)
 _ARX(int,	x)
 _AR1(char *,	newname)
 	)
+_DCL(RING *,	gbl)
 _DCL(int,	x)
 _DCL(char *,	newname)
 {
 	int	ok	= FALSE;
 	char	oldname[BUFSIZ];
 
-	if (strcmp(strcpy(oldname, xNAME(x)), newname)) {
-		dlog_comment("rename \"%s\" (name=%s)\n", newname, xNAME(x));
+	if (strcmp(strcpy(oldname, gNAME(x)), newname)) {
+		dlog_comment("rename \"%s\" (name=%s)\n", newname, gNAME(x));
 #ifdef	SYSTEM5
-		if (isFILE(xSTAT(x).st_mode)) {
+		if (isFILE(gSTAT(x).st_mode)) {
 			if (link(oldname, newname) < 0) {
 				warn(newname);
 				return (-1);
@@ -44,7 +46,7 @@ _DCL(char *,	newname)
 			ok = TRUE;
 		} else {
 			char	bfr[BUFSIZ];
-			FORMAT(bfr, "cannot rename \"%s\"", xNAME(x));
+			FORMAT(bfr, "cannot rename \"%s\"", gNAME(x));
 			dedmsg(bfr);
 			return (-1);
 		}
@@ -59,15 +61,15 @@ _DCL(char *,	newname)
 		/*
 		 * If we renamed a directory, update ftree.
 		 */
-		if (isDIR(xSTAT(x).st_mode)) {
-			dedrering(oldname, newname);
+		if (isDIR(gSTAT(x).st_mode)) {
+			ring_rename(gbl, oldname, newname);
 			ft_rename(oldname, newname);
 		}
 	}
 
 	if (ok) {
-		txtfree(xNAME(x));
-		xNAME(x) = txtalloc(newname);
+		txtfree(gNAME(x));
+		gNAME(x) = txtalloc(newname);
 	}
 	return (0);
 }

@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	Id[] = "$Id: dedmake.c,v 10.3 1992/04/01 14:57:35 dickey Exp $";
+static	char	Id[] = "$Id: dedmake.c,v 10.6 1992/04/02 10:22:56 dickey Exp $";
 #endif
 
 /*
@@ -23,15 +23,16 @@ static	char	Id[] = "$Id: dedmake.c,v 10.3 1992/04/01 14:57:35 dickey Exp $";
 
 #include	"ded.h"
 
-static
-makeit(
-_ARX(char *,	name)
-_ARX(int,	mode)
-_AR1(int,	hard)
-	)
-_DCL(char *,	name)
-_DCL(int,	mode)
-_DCL(int,	hard)
+private	int	makeit(
+	_ARX(RING *,	gbl)
+	_ARX(char *,	name)
+	_ARX(int,	mode)
+	_AR1(int,	hard)
+		)
+	_DCL(RING *,	gbl)
+	_DCL(char *,	name)
+	_DCL(int,	mode)
+	_DCL(int,	hard)
 {
 	int	fid;
 
@@ -43,7 +44,7 @@ _DCL(int,	hard)
 	}
 	if (mode == S_IFREG) {
 		if (hard >= 0) {
-			if (link(xNAME(hard), name) < 0)
+			if (link(gNAME(hard), name) < 0)
 				return (FALSE);
 		} else {
 			if ((fid = creat(name, 0777)) < 0)
@@ -53,42 +54,44 @@ _DCL(int,	hard)
 	}
 #ifdef	S_IFLNK
 	if (mode == S_IFLNK) {
-		if (symlink(cLTXT = txtalloc("."), name) < 0)
+		if (symlink(gLTXT(gbl->curfile) = txtalloc("."), name) < 0)
 			return (FALSE);
 	}
 #endif
-	cNAME = txtalloc(name);
+	gNAME(gbl->curfile) = txtalloc(name);
 	if (hard >= 0) {
 		register int j;
-		for (j = 0; j < FOO->numfiles; j++) {
-			if (j == FOO->curfile
-			 || xSTAT(j).st_ino == xSTAT(hard).st_ino) {
-				statLINE(FOO, j);
-				showLINE(FOO, j);
+		for (j = 0; j < gbl->numfiles; j++) {
+			if (j == gbl->curfile
+			 || gSTAT(j).st_ino == gSTAT(hard).st_ino) {
+				statLINE(gbl, j);
+				showLINE(gbl, j);
 			}
 		}
 	} else {
-		statLINE(FOO, FOO->curfile);
-		showLINE(FOO, FOO->curfile);
+		statLINE(gbl, gbl->curfile);
+		showLINE(gbl, gbl->curfile);
 	}
 	return (TRUE);
 }
 
-static
-made_or_quit(
-_ARX(int,	firstc)
-_ARX(int,	mode)
-_ARX(int,	hard)
-_AR1(char *,	to_edit)
-	)
-_DCL(int,	firstc)
-_DCL(int,	mode)
-_DCL(int,	hard)
-_DCL(char *,	to_edit)
+private	int	made_or_quit(
+	_ARX(RING *,	gbl)
+	_ARX(int,	firstc)
+	_ARX(int,	mode)
+	_ARX(int,	hard)
+	_AR1(char *,	to_edit)
+		)
+	_DCL(RING *,	gbl)
+	_DCL(int,	firstc)
+	_DCL(int,	mode)
+	_DCL(int,	hard)
+	_DCL(char *,	to_edit)
 {
-	auto	struct	stat	sb;
-	auto	int	ok =
-			edittext(firstc, FOO->cmdcol[CCOL_NAME], BUFSIZ, to_edit);
+	auto	STAT	sb;
+	auto	int	ok;
+
+	ok = edittext(gbl, firstc, gbl->cmdcol[CCOL_NAME], BUFSIZ, to_edit);
 
 	clearmsg();
 
@@ -97,9 +100,9 @@ _DCL(char *,	to_edit)
 		if (stat(to_edit, &sb) >= 0)
 			errno = EEXIST;
 		else if (errno == ENOENT) {
-			if (!makeit(to_edit, mode, hard)) {
+			if (!makeit(gbl, to_edit, mode, hard)) {
 				waitmsg(sys_errlist[errno]);
-				statMAKE(FOO, 0); /* undo it -- error */
+				statMAKE(gbl, 0); /* undo it -- error */
 			}
 			showC();
 			return TRUE;
@@ -109,11 +112,16 @@ _DCL(char *,	to_edit)
 		(void)replay(-1);
 		return FALSE;
 	}
-	statMAKE(FOO, 0);			/* undo it -- gave up */
+	statMAKE(gbl, 0);			/* undo it -- gave up */
 	return TRUE;
 }
 
-dedmake _ONE(int,firstc)
+public	void	dedmake(
+	_ARX(RING *,	gbl)
+	_AR1(int,	firstc)
+		)
+	_DCL(RING *,	gbl)
+	_DCL(int,	firstc)
 {
 	auto	int	mode;
 	auto	int	hard	= -1;
@@ -126,8 +134,8 @@ dedmake _ONE(int,firstc)
 #ifdef	S_IFLNK
 	case 'l':	mode = S_IFLNK;	break;
 #endif
-	case 'L':	if ((mode = (cSTAT.st_mode & S_IFMT)) == S_IFREG) {
-				hard = FOO->curfile + 1;
+	case 'L':	if ((mode = (gSTAT(gbl->curfile).st_mode & S_IFMT)) == S_IFREG) {
+				hard = gbl->curfile + 1;
 				break;
 			}
 	default:	if (isascii(firstc) && isgraph(firstc)) {
@@ -137,11 +145,11 @@ dedmake _ONE(int,firstc)
 				beep();
 			return;
 	}
-	statMAKE(FOO, mode);
+	statMAKE(gbl, mode);
 
 	/* loop until either the user gives up, or supplies a legal name */
 	do {
-		(void)strcpy(bfr, (hard >= 0) ? xNAME(hard) : cNAME);
-	} while (!made_or_quit(firstc, mode, hard, bfr));
+		(void)strcpy(bfr, (hard >= 0) ? gNAME(hard) : gNAME(gbl->curfile));
+	} while (!made_or_quit(gbl, firstc, mode, hard, bfr));
 	(void)dedline(FALSE);
 }

@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	Id[] = "$Header: /users/source/archives/ded.vcs/src/RCS/ded.c,v 10.6 1992/04/01 16:27:48 dickey Exp $";
+static	char	Id[] = "$Header: /users/source/archives/ded.vcs/src/RCS/ded.c,v 10.17 1992/04/02 14:05:38 dickey Exp $";
 #endif
 
 /*
@@ -658,7 +658,7 @@ public	void	showLINE(
 	char	bfr[BUFSIZ];
 
 	if (move2row(j,0)) {
-		ded2s(j, bfr, sizeof(bfr));
+		ded2s(FOO, j, bfr, sizeof(bfr));
 		if (Xbase < strlen(bfr)) {
 			PRINTW("%.*s", COLS-1, &bfr[Xbase]);
 			if (xFLAG(j)) {
@@ -909,7 +909,7 @@ _DCL(char *,	backto)
 	init_tags();
 	if (dedscan(FOO, FOO->top_argc, FOO->top_argv)) {
 		FOO->curfile = 0;	/* numfiles may be less now */
-		dedsort();
+		dedsort(FOO);
 		FOO->curfile = 0;
 		for (j = 0; j < FOO->numfiles; j++)
 			if (!strcmp(xNAME(j), backto)) {
@@ -1096,7 +1096,7 @@ static
 pattern_args _ONE(char *,path)
 {
 	char	*pattern = 0;
-	while (dedread(&pattern, FALSE)) {
+	while (dedread(FOO, &pattern, FALSE)) {
 		if (new_args(path, 'E', 1, 3, TRUE, pattern))
 			return (TRUE);
 	}
@@ -1132,7 +1132,7 @@ char *
 fixname _ONE(int,j)
 {
 static	char	nbfr[BUFSIZ];
-	(void)ded2string(nbfr, sizeof(nbfr), xNAME(j), TRUE);
+	(void)ded2string(FOO, nbfr, sizeof(nbfr), xNAME(j), TRUE);
 	return (nbfr);
 }
 
@@ -1302,7 +1302,7 @@ _MAIN
 
 	FOO = ring_alloc();
 
-	(void)sortset('s', 'n');
+	(void)sortset(FOO, 's', 'n');
 	(void)sscanf(version, "%*s %s %s", tpath, dpath);
 	FPRINTF(stderr, "DED Directory Editor (%s %s)\r\n", tpath, dpath);
 	/* show when entering process */
@@ -1323,13 +1323,13 @@ _MAIN
 	case 'U':	COMPLEMENT(FOO->U_opt);	break;
 #endif
 #ifdef	Z_RCS_SCCS
-	case 'Z':	FOO->Z_opt = 1;	break;
+	case 'Z':	FOO->Z_opt = 1;		break;
 	case 'z':	FOO->Z_opt = -1;	break;
 #endif
 	case 'c':	dlog_read(optarg);			break;
 	case 'l':	log_opt = dlog_open(optarg,argc,argv);	break;
 	case 's':
-	case 'r':	if (!sortset(c,*optarg))	usage();
+	case 'r':	if (!sortset(FOO, c,*optarg))	usage();
 #ifdef	Z_RCS_SCCS
 			if (needSCCS(c))
 				FOO->Z_opt = -1;
@@ -1388,31 +1388,17 @@ _MAIN
 	}
 	rawterm();
 
-	/* Copy 'argv[]' so we can reallocate it; also trim repeated items */
-	FOO->top_argv = vecalloc((unsigned)(argc - optind + 2));
-	FOO->top_argc = 0;
-	if (optind < argc) {
-		for (j = 0; j < argc - optind; j++) {
-			char *s = txtalloc(argv[j+optind]);
-			if (*s == EOS)
-				continue;
-			for (k = 0; k < j; k++)
-				/* look for repeats (same pointer) */
-				if (FOO->top_argv[k] == s)
-					break;
-			if (k == j)	/* ... then we never found a repeat */
-				FOO->top_argv[FOO->top_argc++] = s;
-		}
-	} else
-		FOO->top_argv[FOO->top_argc++] = ".";
-	FOO->top_argv[FOO->top_argc] = 0; /* always keep a null pointer on end */
+	argc -= optind;
+	argv += optind;
+	ring_args(FOO, argc, argv);
+
 	if (!dedscan(FOO, FOO->top_argc, FOO->top_argv))
 		failed((char *)0);
 
 	mark_W = (LINES/2);
 	Xbase = Ybase = 0;
 	Xscroll = (1 + (COLS/4)/10) * 10;
-	dedsort();
+	dedsort(FOO);
 	FOO->curfile = 0;
 	openVIEW();
 
@@ -1555,7 +1541,7 @@ _MAIN
 
 	case CTL('R'):	/* modify read-expression */
 			(void)strcpy(tpath, cNAME);
-			while (dedread(&FOO->toscan, FOO->numfiles == 0))
+			while (dedread(FOO, &FOO->toscan, FOO->numfiles == 0))
 				if (rescan(FALSE, tpath))
 					break;
 			break;
@@ -1584,14 +1570,14 @@ _MAIN
 	case 's':	j = dlog_char((int *)0,0);
 			if (FOO->tagsort = (j == '+'))
 				j = dlog_char((int *)0,0);
-			if (!(j = sortget(j)))
+			if (!(j = sortget(FOO, j)))
 				;
-			else if (sortset(c,j)) {
+			else if (sortset(FOO, c,j)) {
 #ifdef	Z_RCS_SCCS
 				if (needSCCS(j))
 					showSCCS();
 #endif	/* Z_RCS_SCCS */
-				dedsort();
+				dedsort(FOO);
 				(void)to_file();
 				showFILES(FALSE,FALSE);
 			} else
@@ -1604,7 +1590,7 @@ _MAIN
 			break;
 
 	case '#':	/* tag files with duplicated fields */
-			deduniq(count);
+			deduniq(FOO, count);
 			count_tags();
 			showFILES(FALSE,TRUE);
 			break;
@@ -1640,28 +1626,28 @@ _MAIN
 			break;
 
 			/* edit specific fields */
-	case 'p':	editprot();	break;
-	case 'u':	edit_uid();	break;
-	case 'g':	edit_gid();	break;
-	case '=':	editname();	break;
+	case 'p':	editprot(FOO);		break;
+	case 'u':	edit_uid(FOO);		break;
+	case 'g':	edit_gid(FOO);		break;
+	case '=':	editname(FOO);		break;
 #ifdef	S_IFLNK
 	case '<':
-	case '>':	editlink(c);	break;
+	case '>':	editlink(FOO, c);	break;
 #endif	/* S_IFLNK */
 
 	case '"':	switch (c = dedline(TRUE)) {
-			case 'p':	editprot();	break;
-			case 'u':	edit_uid();	break;
-			case 'g':	edit_gid();	break;
-			case '=':	editname();	break;
+			case 'p':	editprot(FOO);		break;
+			case 'u':	edit_uid(FOO);		break;
+			case 'g':	edit_gid(FOO);		break;
+			case '=':	editname(FOO);		break;
 #ifdef	S_IFLNK
 			case '<':
-			case '>':	editlink(c);	break;
+			case '>':	editlink(FOO, c);	break;
 			case 'l':
 #endif	/* S_IFLNK */
 			case 'd':
 			case 'f':
-			case 'L':	dedmake(c);	break;
+			case 'L':	dedmake(FOO, c);	break;
 
 			default:	{
 				char	temp[80];
@@ -1675,7 +1661,7 @@ _MAIN
 
 	case 'c':	/* create an entry */
 			(void)replay('c');
-			dedmake(replay(EOS));
+			dedmake(FOO, replay(EOS));
 			break;
 
 	case CTL('e'):	/* pad-edit */
@@ -1705,7 +1691,7 @@ _MAIN
 			count = (c == '!') ? 0 : 2; /* force refresh-sense */
 	case '.':	/* re-execute last shell command */
 	case ':':	/* edit last shell command */
-			deddoit(c,count);
+			deddoit(FOO, c,count);
 			break;
 
 	case '*':	/* display last shell command */
@@ -1717,13 +1703,13 @@ _MAIN
 	case '?':
 	case 'n':
 	case 'N':	/* execute a search command */
-			dedfind(c);
+			dedfind(FOO, c);
 			break;
 
 	case 'D':	/* toggle directory/filelist mode */
 			(void)strcpy(dpath, strcpy(tpath,FOO->new_wd) );
 			do {
-			    while ((c = ft_view(tpath)) == 'e') {
+			    while ((c = ft_view(FOO, tpath)) == 'e') {
 			    int	y,x;
 
 				getyx(stdscr, y, x);

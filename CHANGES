@@ -1,3 +1,92 @@
+1992-04-02  dickey@software.org
+
+	* src/dedring.c:
+	got rid of logic which prevented freeing first top_argv to
+	be allocated (obs); fixed error in 'ring_args()' -- wrong
+	size of allocation.
+
+	* src/dedring.c: moved logic for 'ring_args()' here from 'ded.c'
+
+	* src/ded.h: new entrypoint 'ring_args()'
+
+	* src/ded.c: chopped out logic for 'ring_args()'
+
+	* src/dedring.c: added 'ring_pointer()'
+	make 'ring_get()' public, obsoleted 'dedrang()'
+	modified so that we store sort_key separate from 'new_wd'
+	field of RING, means that we no longer have to toggle
+	representation of pathname to store/load.
+
+	* src/ded.h: 'ring_get()' obsoletes 'dedrang()' entrypoint.
+	added 'ring_pointer()'
+
+	* src/ftree.c: use 'ring_get()' instead of 'dedrang()'
+
+	* src/ftree.c, src/dedline.c, src/deddoit.c, src/ded.h, src/dedring.c:
+	ring_path:interface
+
+	* src/ftree.c, src/dedname.c, src/ded.h, src/dedring.c:
+	ring_rename:interface
+
+	* src/dedline.c, src/ded.h, src/dedname.c: dedname-interface
+
+	* src/ftree.c: eradicated FOO (global data)
+
+	* src/ftree.c, src/ded.h, src/dedscan.c, src/ded.c: ftree-interface
+
+	* src/ftree.c:
+	use macros public/private to setup for change of interface
+	(no obj change in this, or prior delta)
+
+	* src/ftree.c: took out TEST-ifdefs (too obsolete to maintain)
+
+	* src/dedsort.c: eradicated FOO (global data)
+
+	* src/ded.h, src/dedring.c, src/ded.c, src/deduniq.c, src/dedsort.c:
+	dedsort-interface
+
+	* src/dedmake.c: eradicated FOO (global data)
+
+	* src/dedmake.c, src/ded.c, src/ded.h: dedmake-interface
+
+	* src/deddoit.c: eradicated FOO (global data)
+
+	* src/ded.c: deddoit-interface
+
+	* src/ded.h: deddoit-interface
+	definition of GROUPED (no longer uses FOO, global)
+
+	* src/deddoit.c: deddoit-interface
+
+	* src/dedline.c: eradicate FOO (global data)
+
+	* src/dedline.c, src/dedmake.c, src/ded.h, src/ded.c: dedline-interface
+
+	* src/ded2s.c: eradicated FOO (global data)
+
+1992-04-02  ste_cm@software.org
+
+	* src/ded2s.c: BASELINE Thu Jul 16 09:39:01 1992 -- EBPM4 support
+
+1992-04-02  dickey@software.org
+
+	* src/ftree.c, src/dedtype.c, src/dedline.c, src/deddoit.c, src/ded2s.c, src/ded.c, src/ded.h:
+	ded2s-interface
+
+	* src/ded.c, src/ded.h, src/sortset.c: sortset-interface
+
+	* src/ded.h, src/ded.c, src/dedfind.c: dedfind-interface
+
+	* src/dedscan.c, src/ded.c, src/ded.h, src/dedread.c: dedread-interface
+
+	* src/deduniq.c: eradicated FOO (global data)
+
+	* src/ded.c, src/deduniq.c, src/ded.h: deduniq-interface
+
+	* src/dedtype.c: eradicated FOO (global data)
+
+	* src/ded.h, src/dedtype.c: more-interface
+
 1992-04-01  dickey@software.org
 
 	* src/ded.c, src/ded.h:

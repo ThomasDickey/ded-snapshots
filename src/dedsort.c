@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	Id[] = "$Id: dedsort.c,v 10.2 1992/04/01 14:29:49 dickey Exp $";
+static	char	Id[] = "$Id: dedsort.c,v 10.4 1992/04/02 10:48:44 dickey Exp $";
 #endif
 
 /*
@@ -48,9 +48,7 @@ extern	char	*type_uid2s();
 						 f((int)p2->s.m))
 
 /* sort types so that names beginning with '.' are treated specially */
-static
-char	*
-f_type _ONE(char *,s)
+private	char *	f_type _ONE(char *,s)
 {
 	register char	*t = ftype(s);
 	if (t != s) {
@@ -79,25 +77,27 @@ f_type _ONE(char *,s)
  * Compare the specified file-list entries, returning 0 iff their sort-key is
  * equivalent, +/- according to the direction of the inequality.
  */
-dedsort_cmp(
-_ARX(FLIST *,	p1)
-_AR1(FLIST *,	p2)
-	)
-_DCL(FLIST *,	p1)
-_DCL(FLIST *,	p2)
+public	int	dedsort_cmp(
+	_ARX(RING *,	gbl)
+	_ARX(FLIST *,	p1)
+	_AR1(FLIST *,	p2)
+		)
+	_DCL(RING *,	gbl)
+	_DCL(FLIST *,	p1)
+	_DCL(FLIST *,	p2)
 {
 	register int	cmp = 0;
 	auto	 char	bfr[BUFSIZ];
 	auto	 char	*s1, *s2;
 
-	if (FOO->tagsort) {
+	if (gbl->tagsort) {
 		if (p1->flag && !p2->flag)
 			return (-1);
 		if (p2->flag && !p1->flag)
 			return (1);
 	}
 
-	switch (FOO->sortopt) {
+	switch (gbl->sortopt) {
 			/* patch: N sort from 'fl' would be nice... */
 
 #ifdef	apollo_sr10
@@ -141,7 +141,7 @@ _DCL(FLIST *,	p2)
 			if (!cmp) {
 				cmp = CMP(st_mode);
 #ifdef	apollo_sr10
-				if (!cmp && FOO->sortopt == 'P') {
+				if (!cmp && gbl->sortopt == 'P') {
 				int	x1 = (is_EXTENDED_ACL(p1->s.st_rfu4)),
 					x2 = (is_EXTENDED_ACL(p2->s.st_rfu4));
 					cmp = (x1 && !x2)
@@ -195,7 +195,7 @@ _DCL(FLIST *,	p2)
 			break;
 
 	case 'l':	cmp = CMP(st_nlink);	break;
-	case 'i':	if (FOO->I_opt == 2) {
+	case 'i':	if (gbl->I_opt == 2) {
 				cmp = CMP(st_dev);
 				if (cmp == 0)
 					cmp = CMP(st_ino);
@@ -207,21 +207,21 @@ _DCL(FLIST *,	p2)
 
 			/* compare uid/gid fields numerically */
 	case 'U':	cmp = CMP(st_uid);
-			if (cmp == 0 && FOO->G_opt == 2)
+			if (cmp == 0 && gbl->G_opt == 2)
 				cmp = CMP(st_gid);
 			break;
 	case 'G':	cmp = CMP(st_gid);
-			if (cmp == 0 && FOO->G_opt == 2)
+			if (cmp == 0 && gbl->G_opt == 2)
 				cmp = CMP(st_uid);
 			break;
 
 			/* compare uid/gid fields lexically */
 	case 'u':	cmp  = CMP2S(uid2s,st_uid);
-			if (cmp == 0 && FOO->G_opt == 2)
+			if (cmp == 0 && gbl->G_opt == 2)
 				cmp  = CMP2S(gid2s,st_gid);
 			break;
 	case 'g':	cmp  = CMP2S(gid2s,st_gid);
-			if (cmp == 0 && FOO->G_opt == 2)
+			if (cmp == 0 && gbl->G_opt == 2)
 				cmp  = CMP2S(gid2s,st_uid);
 			break;
 
@@ -236,32 +236,33 @@ _DCL(FLIST *,	p2)
  * Always returns a reasonable qsort-value for sorting the file-list.  This is
  * used only via 'dedsort()'.
  */
-static
-compare(
-_ARX(FLIST *,	p1)
-_AR1(FLIST *,	p2)
-	)
-_DCL(FLIST *,	p1)
-_DCL(FLIST *,	p2)
+private	RING *	local;	/* so we can hack qsort's interface */
+private	int	compare(
+	_ARX(FLIST *,	p1)
+	_AR1(FLIST *,	p2)
+		)
+	_DCL(FLIST *,	p1)
+	_DCL(FLIST *,	p2)
 {
-	int	cmp = dedsort_cmp(p1,p2);
+	int	cmp = dedsort_cmp(local, p1, p2);
 
 	if (!cmp) {
-		if (FOO->sortopt == 'Z')
+		if (local->sortopt == 'Z')
 			cmp = CMP(st_mtime);
 		else
 			cmp = strcmp(p1->name, p2->name);
 	}
-	return(FOO->sortord ? -cmp : cmp);
+	return (local->sortord ? -cmp : cmp);
 }
 
 /*
  * perform the requested sort-operation, restoring current-file pointer
  * to point to the original name.
  */
-dedsort(_AR0)
+public	void	dedsort _ONE(RING *,gbl)
 {
-	char	*name = cNAME;
-	qsort((char *)FOO->flist, (LEN_QSORT)FOO->numfiles, sizeof(FLIST), compare);
-	FOO->curfile = findFILE(name);
+	char	*name = gNAME(gbl->curfile);
+	local = gbl;
+	qsort((char *)gbl->flist, (LEN_QSORT)gbl->numfiles, sizeof(FLIST), compare);
+	gbl->curfile = findFILE(name);
 }
