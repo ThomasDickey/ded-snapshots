@@ -1,3 +1,10 @@
+2001-07-15  Thomas E. Dickey  <dickey@clark.net>
+
+	* aclocal.m4: overrides for SHELL and CDPATH
+
+	* src/dedscan.c:
+	fix an oops (uninitialized value) that appears only on U/Win...
+
 2001-07-11  Thomas E. Dickey  <dickey@clark.net>
 
 	* src/dedring.c: rename 'ring' to work with U/Win

@@ -3,6 +3,8 @@
  * Author:	T.E.Dickey
  * Created:	09 Nov 1987
  * Modified:
+ *		15 Jul 2001, fix uninitialized FLIST struct in dedstat() call
+ *			     in path_RESOLVE() - U/Win.
  *		29 Jan 2001, support caseless filenames.
  *		15 Feb 1998, corrected ifdef'ing of realpath vs chdir.
  *		02 Feb 1997, add chdir's within path_RESOLVE to make it work
@@ -91,7 +93,7 @@
 #include	<rcsdefs.h>
 #include	<sccsdefs.h>
 
-MODULE_ID("$Id: dedscan.c,v 12.36 2001/01/30 10:09:13 tom Exp $")
+MODULE_ID("$Id: dedscan.c,v 12.37 2001/07/15 16:08:11 tom Exp $")
 
 #define	def_doalloc	FLIST_alloc
 	/*ARGSUSED*/
@@ -533,7 +535,7 @@ public	void	statMAKE (
 		FLIST	dummy;
 		unsigned n;
 
-		memset(&dummy, 0, sizeof(FLIST));
+		Zero(&dummy);
 		dummy.s.st_mode = mode;
 		dummy.s.st_uid  = getuid();
 		dummy.s.st_gid  = getgid();
@@ -666,6 +668,7 @@ public	int	path_RESOLVE (
 		FLIST	fb;
 		int	save = gbl->AT_opt;
 		int	code;
+		Zero(&fb);
 		gbl->AT_opt = TRUE;
 		code	= dedstat(gbl, path, &fb);
 		gbl->AT_opt = save;
