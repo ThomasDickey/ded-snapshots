@@ -1,5 +1,5 @@
 #ifndef	NO_SCCS_ID
-static	char	sccs_id[] = "@(#)ded.c	1.6 87/12/14 10:18:03";
+static	char	sccs_id[] = "@(#)ded.c	1.7 88/02/01 10:37:57";
 #endif	NO_SCCS_ID
 
 /*
@@ -378,8 +378,19 @@ chtype	*s;
 }
 
 static
-restat()		/* re-'stat()' the current line */
+restat(group)		/* re-'stat()' the current line, and optionally group */
 {
+	if (group) {
+	register int j;
+		for (j = 0; j < numfiles; j++) {
+			if (j != curfile) {
+				if (flist[j].flag) {
+					statLINE(j);
+					showLINE(j);
+				}
+			}
+		}
+	}
 	statLINE(curfile);
 	showLINE(curfile);
 	showC();
@@ -443,6 +454,7 @@ int	y	= file2row(curfile),
 	x	= cmdcol[0],
 	c,
 	rwx	= (P_opt ? 1 : 3),
+	changed	= FALSE,
 	done	= FALSE;
 
 	if (Xbase > 0) {
@@ -460,15 +472,14 @@ int	y	= file2row(curfile),
 			for (x = 0; x < numfiles; x++) {
 				if (flist[x].flag || x == curfile) {
 					statLINE(x);
+					changed++;
 					if (c != CHMOD(x)) {
 						if (chmod(flist[x].name, c) < 0) {
 							warn(flist[x].name);
 							break;
 						}
 						fixtime(x);
-						statLINE(x);
 					}
-					showLINE(x);
 				}
 			}
 		case 'q':
@@ -499,7 +510,7 @@ int	y	= file2row(curfile),
 				beep();
 		}
 	}
-	restat();
+	restat(changed);
 }
 
 /*
@@ -567,7 +578,8 @@ static
 edit_uid()
 {
 register int j;
-int	uid;
+int	uid,
+	changed	= FALSE;
 char	bfr[UIDLEN+1];
 
 	if (G_opt) {
@@ -586,11 +598,11 @@ char	bfr[UIDLEN+1];
 				}
 				fixtime(j);
 				flist[j].s.st_uid = uid;
-				showLINE(j);
+				changed++;
 			}
 		}
 	}
-	restat();
+	restat(changed);
 }
 
 /*
@@ -601,6 +613,7 @@ edit_gid()
 {
 register int j;
 int	gid,
+	changed	= FALSE,
 	root	= (getuid() == 0);
 char	bfr[BUFSIZ];
 
@@ -627,9 +640,7 @@ char	bfr[BUFSIZ];
 					system(bfr);
 				}
 				fixtime(j);
-				if (!root)
-					statLINE(j);
-				showLINE(j);
+				changed++;
 				if (flist[j].s.st_gid != gid) {
 					beep();
 					break;
@@ -637,7 +648,7 @@ char	bfr[BUFSIZ];
 			}
 		}
 	}
-	restat();
+	restat(changed);
 }
 
 /*
@@ -660,7 +671,7 @@ int	pid ,
 		}
 		rawterm();
 		retouch(0);
-		restat();
+		restat(FALSE);
 	} else if (pid < 0) {
 		printf("fork failed\n");
 	} else {
@@ -827,7 +838,7 @@ int	c,
 			markset(mark_W + count);
 			break;
 
-	case 'R':	/* restat display-list */
+	case 'R':	/* re-stat display-list */
 			to_work();
 			tag_count = 0;
 			if (!(quit = !dedscan(argc, argv))) {
@@ -839,7 +850,7 @@ int	c,
 			}
 			break;
 
-	case 'W':	/* restat window */
+	case 'W':	/* re-stat window */
 			for (j = Ybase; j <= Ylast; j++)
 				statLINE(j);
 			showFILES();
@@ -849,8 +860,8 @@ int	c,
 			retouch(0);
 			break;
 
-	case 'l':	/* restat line */
-			restat();
+	case 'l':	/* re-stat line */
+			restat(TRUE);
 			break;
 
 	case ' ':	/* clear workspace */
@@ -916,7 +927,7 @@ int	c,
 				to_work();
 				if (padedit(cNAME, c != CTL(e)) < 0)
 					beep();
-				restat();
+				restat(FALSE);
 				break;
 			case 1:
 				to_work();
