@@ -25,7 +25,7 @@
 
 #include	"ded.h"
 
-MODULE_ID("$Id: dedview.c,v 12.42 2002/07/05 13:33:59 tom Exp $")
+MODULE_ID("$Id: dedview.c,v 12.43 2002/12/21 20:29:18 tom Exp $")
 
 #define	MINLIST	2		/* minimum length of file-list + header */
 #define	MINWORK	3		/* minimum size of work-area */
@@ -115,7 +115,7 @@ private	void	setup_view (
 
 	vue->last_row = (j >= maxview)
 		? mark_W
-		: viewlist[j].base_row;
+		: (int) viewlist[j].base_row;
 
 	vue->last_file = vue->last_row
 		+ vue->base_file
@@ -908,7 +908,7 @@ public	void	markC(
 		(void)move2row(gbl->curfile, col);
 
 		if (!on || (gbl->mrkfile < 0)) {
-			gbl->mrkfile = on ? gbl->curfile : -1;
+			gbl->mrkfile = on ? (int)gbl->curfile : -1;
 
 			getyx(stdscr,y,x);
 			addch((chtype)(on ? '*' : ' '));
