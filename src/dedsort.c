@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	Id[] = "$Id: dedsort.c,v 11.1 1992/11/20 14:52:21 dickey Exp $";
+static	char	Id[] = "$Id: dedsort.c,v 12.0 1993/04/27 11:03:49 ste_cm Rel $";
 #endif
 
 /*
@@ -38,7 +38,7 @@ static	char	Id[] = "$Id: dedsort.c,v 11.1 1992/11/20 14:52:21 dickey Exp $";
 
 #define	QSORT_SRC	FLIST
 #include	"ded.h"
-#include	"cm_qsort.h"
+#include	"td_qsort.h"
 
 #ifdef	apollo_sr10
 #include	<acl.h>

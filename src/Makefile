@@ -1,14 +1,14 @@
-# $Id: Makefile,v 11.8 1992/11/20 14:53:38 dickey Exp $
+# $Id: Makefile,v 11.9 1993/04/27 10:51:24 dickey Exp $
 # MAKE-file for directory editor
 
 THIS	= ded
 TOP	= ../../../..
-include $(TOP)/cm_library/support/cm_library.mk
+include $(TOP)/td_lib/support/td_lib.mk
 
 ####### (Standard Lists) #######################################################
 LINTLIBS= -ltd -lcurses -lapollo
 
-DED_H	= $(THIS).h $(CURSES_H) $I/cmdch.h $I/dyn_string.h
+DED_H	= $(THIS).h $(CURSES_H) $I/cmdch.h $I/dyn_str.h
 
 ALL	= $B/$(THIS) $B/$(THIS).hlp
 
@@ -85,7 +85,7 @@ install:	$(SOURCES) $(ALL)
 clean:				; rm -f $(CLEAN)
 clobber:	clean		; rm -f $(ALL)
 destroy:			; $(DESTROY)
-run_tests:
+run_test:
 sources:	$(SOURCES)
 
 ####### (Details of Productions) ###############################################

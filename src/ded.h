@@ -3,7 +3,7 @@
 
 #ifdef	MAIN
 #ifndef	lint
-static	char	*ded_h = "$Id: ded.h,v 11.15 1992/11/20 14:40:07 dickey Exp $";
+static	char	*ded_h = "$Id: ded.h,v 12.0 1993/04/27 11:03:18 ste_cm Rel $";
 #endif
 #endif	/* MAIN */
 
@@ -15,7 +15,7 @@ static	char	*ded_h = "$Id: ded.h,v 11.15 1992/11/20 14:40:07 dickey Exp $";
 #define		CUR_PTYPES	/* use "curses" */
 #define		STR_PTYPES	/* use "strrchr" */
 #include	<ptypes.h>
-#include	<dyn_string.h>
+#include	<dyn_str.h>
 #include	<ctype.h>
 #include	<errno.h>
 #include	<cmdch.h>
