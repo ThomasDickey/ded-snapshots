@@ -1,3 +1,7 @@
+1988-06-13  dickey@software.org
+
+	* src/README: more bugss..
+
 1988-06-07  dickey@software.org
 
 	* src/version.h, src/dedtype.c: added screen-dump command.

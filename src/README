@@ -80,4 +80,19 @@ To do:
 	about comparison with an unsigned.
 
 88/06/06:
-	add a screen-dump command.
+	should move Xbase, Ybase to common so we can restore screen properly
+	when F/B scrolling.
+
+88/06/10:
+	should escape '[' in system-commands.
+
+	for chmod, chown, chgrp, should ensure that item is not a symbolic
+	link.
+
+	should have a toggle showing ownership of targets of symbolic link.
+	show link actual in uppercase; note that this requires making restat
+	to do the switch.
+
+88/06/13:
+	sometimes the '@' state in ftree is not cleared when we re-read and
+	it should now be a directory instead of a link.
