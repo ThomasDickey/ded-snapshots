@@ -1,3 +1,7 @@
+1987-10-01  Thomas E. Dickey
+
+	* src/ftree.c: corrected test-for-permissions in 'ft_write()'.
+
 1987-09-30  Thomas E. Dickey
 
 	* src/ftree.c:  added a regular search facility a la vi.
