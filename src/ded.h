@@ -1,4 +1,4 @@
-/* @(#)ded.h	1.11 88/05/16 14:50:17 */
+/* @(#)ded.h	1.12 88/05/17 08:05:34 */
 
 /*
  * Created:	09 Nov 1987
@@ -90,6 +90,15 @@ extern	int	re_exec();	/* (return > 0): match */
 #define	GOT_REGEX(expr,string)	(re_exec(string) != 0)
 #define	BAD_REGEX(expr)		dedmsg(expr)
 #endif	SYSTEM5
+
+/*
+ * system: Gould
+ */
+#ifdef	gould
+#define	OFF_T	long
+#else	gould
+#define	OFF_T	off_t
+#endif	gould
 
 /*
  * Conditional-compilation variables

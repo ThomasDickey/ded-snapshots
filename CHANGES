@@ -1,3 +1,11 @@
+1988-05-17  dickey@software.org
+
+	* src/ftree.c: lint (gould)
+
+	* src/ded.h: gould has obsolete 'off_t' definition.
+
+	* src/dedtype.c: lint (gould)
+
 1988-05-16  dickey@software.org
 
 	* src/dedring.c: getcwd/getwd porting.
