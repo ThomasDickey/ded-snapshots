@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	*Id = "$Id: history.c,v 12.1 1993/09/21 20:28:34 dickey Exp $";
+static	char	*Id = "$Id: history.c,v 12.2 1993/09/28 12:21:23 dickey Exp $";
 #endif
 
 /*
@@ -7,6 +7,7 @@ static	char	*Id = "$Id: history.c,v 12.1 1993/09/21 20:28:34 dickey Exp $";
  * Author:	T.E.Dickey
  * Created:	07 Aug 1992
  * Modified:
+ *		28 Sep 1993, gcc warnings
  *		28 Aug 1992, if caller puts history item which is repeated,
  *			     simply move it to the front of the list.
  *

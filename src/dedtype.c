@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	Id[] = "$Id: dedtype.c,v 12.1 1993/09/21 17:57:29 dickey Exp $";
+static	char	Id[] = "$Id: dedtype.c,v 12.2 1993/09/28 12:21:22 dickey Exp $";
 #endif
 
 /*
@@ -7,6 +7,7 @@ static	char	Id[] = "$Id: dedtype.c,v 12.1 1993/09/21 17:57:29 dickey Exp $";
  * Author:	T.E.Dickey
  * Created:	16 Nov 1987
  * Modified:
+ *		28 Sep 1993, gcc warnings
  *		08 Oct 1992, make search/scrolling interruptible.
  *		05 Aug 1992, added search commands, and '<', '>'.
  *		04 Aug 1992, use dynamic-buffers to allow wide files

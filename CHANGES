@@ -1,3 +1,20 @@
+1993-09-28  dickey@software.org
+
+	* src/sortset.c: gcc warnings
+
+	* src/dedline.c: redundant SIZEOF definition
+
+	* src/ftree.c: gcc warnings
+
+	* src/ded.h: tweaks for apollo sr10.3
+
+	* src/inline.c: lint
+
+	* src/version.h: gcc warnings
+
+	* src/dlog.c, src/ftree.c, src/history.c, src/inline.c, src/showpath.c, src/dedsigs.c, src/dedtype.c, src/deduniq.c, src/dedview.c, src/dedname.c, src/dedring.c, src/dedscan.c, src/dedshow.c, src/ded2s.c, src/dedfind.c, src/dedline.c, src/dedmsgs.c, src/ded.c, src/deddoit.c, src/dedsort.c, src/sortset.c:
+	log-comment:gcc-warnings
+
 1993-09-24  dickey@software.org
 
 	* certify/release.txt, certify/config.txt: gcc-warnings

@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	Id[] = "$Id: dedshow.c,v 12.1 1993/09/21 17:35:07 dickey Exp $";
+static	char	Id[] = "$Id: dedshow.c,v 12.2 1993/09/28 12:21:21 dickey Exp $";
 #endif
 
 /*
@@ -7,6 +7,7 @@ static	char	Id[] = "$Id: dedshow.c,v 12.1 1993/09/21 17:35:07 dickey Exp $";
  * Author:	T.E.Dickey
  * Created:	01 Dec 1987
  * Modified:
+ *		28 Sep 1993, gcc warnings
  *		28 Feb 1992, corrected LINES-limit.
  *		18 Oct 1991, converted to ANSI
  *		11 Jul 1991, interface to 'to_work'

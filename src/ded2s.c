@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	Id[] = "$Id: ded2s.c,v 12.1 1993/09/21 17:31:27 dickey Exp $";
+static	char	Id[] = "$Id: ded2s.c,v 12.2 1993/09/28 12:21:20 dickey Exp $";
 #endif
 
 /*
@@ -7,6 +7,7 @@ static	char	Id[] = "$Id: ded2s.c,v 12.1 1993/09/21 17:31:27 dickey Exp $";
  * Author:	T.E.Dickey
  * Created:	09 Nov 1987
  * Modified:
+ *		28 Sep 1993, gcc warnings
  *		23 Nov 1992, for RCS version 5, show differences in ztime/mtime
  *			     that are probably due to localtime/gmt_offset diff
  *			     as "~".

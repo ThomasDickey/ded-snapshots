@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	Id[] = "$Id: sortset.c,v 12.1 1993/09/21 20:30:47 dickey Exp $";
+static	char	Id[] = "$Id: sortset.c,v 12.3 1993/09/28 15:51:33 dickey Exp $";
 #endif
 
 /*
@@ -7,6 +7,7 @@ static	char	Id[] = "$Id: sortset.c,v 12.1 1993/09/21 20:30:47 dickey Exp $";
  * Author:	T.E.Dickey
  * Created:	01 Dec 1989 (from ded.c)
  * Modified:
+ *		28 Sep 1993, gcc warnings
  *		01 Apr 1992, convert most global variables to RING-struct.
  *		18 Oct 1991, converted to ANSI
  *		17 Jul 1991, added '@', 'D' sorts
@@ -60,7 +61,7 @@ static	char	*sort_msg[] = {
 #endif	/* Z_RCS_SCCS */
 	};
 
-#define	LOOP(j)	for (j = 0; j < sizeof(sort_msg)/sizeof(sort_msg[0]); j++)
+#define	LOOP(j)	for (j = 0; j < SIZEOF(sort_msg); j++)
 
 public	int	sortset(
 	_ARX(RING *,	gbl)
@@ -120,6 +121,7 @@ public	int	sortget(
 		PRINTW("Sort:> ");
 		getyx(stdscr,y,x);
 		find = gbl->sortopt;
+		j = 0;
 		while (!done) {
 			found = FALSE;
 			LOOP(k) {

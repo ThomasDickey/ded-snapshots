@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	Id[] = "$Id: dedline.c,v 12.1 1993/09/21 17:33:10 dickey Exp $";
+static	char	Id[] = "$Id: dedline.c,v 12.3 1993/09/28 15:33:43 dickey Exp $";
 #endif
 
 /*
@@ -7,6 +7,7 @@ static	char	Id[] = "$Id: dedline.c,v 12.1 1993/09/21 17:33:10 dickey Exp $";
  * Author:	T.E.Dickey
  * Created:	01 Aug 1988 (from 'ded.c')
  * Modified:
+ *		28 Sep 1993, gcc warnings
  *		27 May 1992, make '<' substitution recognize "%D" and "%d".
  *		01 Apr 1992, convert most global variables to RING-struct.
  *		12 Nov 1991, killchar in 'edittext()' was not properly erasing
@@ -53,7 +54,6 @@ static	char	Id[] = "$Id: dedline.c,v 12.1 1993/09/21 17:33:10 dickey Exp $";
 
 #include	"ded.h"
 
-#define	SIZEOF(v)	(sizeof(v)/sizeof(v[0]))
 #define	CHMOD(n)	(gSTAT(n).st_mode & 07777)
 #define	OWNER(n)	((geteuid() == 0) || (gSTAT(x).st_uid == geteuid()))
 

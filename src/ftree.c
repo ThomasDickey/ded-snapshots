@@ -1,11 +1,12 @@
 #ifndef	lint
-static	char	Id[] = "$Id: ftree.c,v 12.1 1993/09/21 20:28:20 dickey Exp $";
+static	char	Id[] = "$Id: ftree.c,v 12.3 1993/09/28 15:28:52 dickey Exp $";
 #endif
 
 /*
  * Author:	T.E.Dickey
  * Created:	02 Sep 1987
  * Modified:
+ *		28 Sep 1993, gcc warnings
  *		23 Jul 1992, in '~' command, do chdir to resolve symbolic links
  *		01 Apr 1992, convert most global variables to RING-struct.
  *		30 Mar 1992, in 'ft_write()', copy strings to temp-buffer first
@@ -1325,6 +1326,7 @@ public	RING *	ft_view(
 		case '~':
 		case '@':
 			j = (c == '@' || c == '~');
+			s = "";
 			if (!isalpha(c)) {
 				move(PATH_ROW,0);
 				PRINTW(j ? "jump: " : "find: ");
@@ -1407,6 +1409,7 @@ public	RING *	ft_view(
 		/* quit lists in directory-ring */
 		case 'Q':
 		case 'q':
+			j = 1;
 			while (num-- > 0) {
 				tmp = SKIP_THIS(1);
 				if ((j = (tmp != 0)) != 0)
