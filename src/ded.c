@@ -1,5 +1,5 @@
 #if	!defined(NO_IDENT)
-static	char	Id[] = "$Header: /users/source/archives/ded.vcs/src/RCS/ded.c,v 12.4 1993/11/01 18:11:31 dickey Exp $";
+static	char	Id[] = "$Header: /users/source/archives/ded.vcs/src/RCS/ded.c,v 12.6 1993/11/19 20:28:48 dickey Exp $";
 #endif
 
 /*
@@ -7,6 +7,7 @@ static	char	Id[] = "$Header: /users/source/archives/ded.vcs/src/RCS/ded.c,v 12.4
  * Author:	T.E.Dickey
  * Created:	09 Nov 1987
  * Modified:
+ *		19 Nov 1993, added xterm-mouse support.
  *		01 Nov 1993, port to HP/UX.
  *		29 Oct 1993, ifdef-ident
  *		28 Sep 1993, gcc warnings
@@ -248,7 +249,7 @@ public	void	to_exit _ONE(int,last)
 			clearmsg();
 			refresh();
 		}
-		resetty();
+		cookterm();
 #ifndef	SYSTEM5			/* patch: apollo 'endwin()' ? */
 		endwin();
 #endif
@@ -587,7 +588,7 @@ private	void	forkfile(
 	*quoted = EOS;
 	catarg(quoted, arg1);
 
-	resetty();
+	cookterm();
 	dlog_comment("execute %s %s\n", arg0, arg1);
 	if (execute(arg0, quoted) < 0)
 		warn(gbl, arg0);
@@ -980,6 +981,21 @@ _MAIN
 	case 'b':	scrollVIEW(gbl, -count);
 			break;
 
+#ifndef	NO_XTERM_MOUSE
+	case ARO_MOUSE:
+			if (xt_mouse.released) {
+				if (xt_mouse.button == 1) {
+					gbl = row2VIEW(gbl, xt_mouse.row);
+					if (xt_mouse.dbl_clik) {
+						j = (realstat(gbl, gbl->curfile, &sb)) ? 'E' : CTL('v');
+						ungetc(j,stdin);
+					}
+				} else {
+					beep();
+				}
+			}
+			break;
+#endif
 	case ARO_LEFT:	if (gbl->Xbase > 0) {
 				if ((gbl->Xbase -= x_scroll() * count) < 0)
 					gbl->Xbase = 0;

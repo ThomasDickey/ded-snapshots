@@ -1,4 +1,4 @@
-$Id: README,v 12.1 1993/11/01 20:26:16 dickey Exp $
+$Id: README,v 12.2 1993/11/19 21:17:13 dickey Exp $
 
 --(TO-DO)----------------------------------------------------------------------
 
@@ -54,5 +54,3 @@ $Id: README,v 12.1 1993/11/01 20:26:16 dickey Exp $
 	visibility to the given level.
 
 	modify to support Sys5-curses (including keypad stuff).
-
-	modify to use mouse in xterm-mode.

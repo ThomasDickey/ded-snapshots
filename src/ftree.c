@@ -1,11 +1,12 @@
 #if	!defined(NO_IDENT)
-static	char	Id[] = "$Id: ftree.c,v 12.5 1993/11/18 15:38:08 dickey Exp $";
+static	char	Id[] = "$Id: ftree.c,v 12.6 1993/11/19 21:11:55 dickey Exp $";
 #endif
 
 /*
  * Author:	T.E.Dickey
  * Created:	02 Sep 1987
  * Modified:
+ *		19 Nov 1993, added mouse-support.
  *		18 Nov 1993, modified to make "^" command toggle, and to make
  *			     up/down row commands simulate scrolling.
  *		29 Oct 1993, ifdef-ident, port to HP/UX
@@ -464,6 +465,20 @@ private	int	node2row _ONE(int,node)
 	}
 	return (row);
 }
+
+#ifndef	NO_XTERM_MOUSE
+private	int	row2node _ONE(int, row)
+{
+	register int node;
+
+	row -= LOSHOW;
+	for (node = showbase; (row > 0) && (node < showlast); node++) {
+		if (fd_show(node))
+			row--;
+	}
+	return node;
+}
+#endif
 
 /*
  * Returns a code appropriate for displaying the directory-tree's lines
@@ -1254,6 +1269,25 @@ public	RING *	ft_view(
 		case ARO_RIGHT:
 		case 'l':	lvl += num;			break;
 
+#ifndef	NO_XTERM_MOUSE
+	case ARO_MOUSE:
+			if (xt_mouse.released) {
+				if (xt_mouse.button == 1
+				 && xt_mouse.row >= LOSHOW-1) {
+					j = strlen(fd_line(1));
+					row = row2node(xt_mouse.row);
+					lvl = (xt_mouse.col - 7 + (j/2)) / j;
+					if (lvl < 0)
+						lvl = 0;
+					if (xt_mouse.dbl_clik) {
+						ungetc('E',stdin);
+					}
+				} else {
+					beep();
+				}
+			}
+			break;
+#endif
 		case 'J':	row = downrow(row,num,MAXLVL);	break;
 		case 'K':	row = uprow(row,num,MAXLVL);	break;
 
