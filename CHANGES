@@ -1,3 +1,271 @@
+1991-10-18  ste_cm@software.org
+
+	* src/dedscan.c:
+	BASELINE Fri Oct 18 16:46:43 1991 -- ANSI conversion; vcs
+
+	* src/dedscan.c: broke up logic in 'statLINE()' to avoid apollo cc 6.7 
+	optimizer bug (it made the first arg on 'dedstat()' null).
+
+1991-10-18  dickey@software.org
+
+	* test/test2.cmd: filter file-group
+
+1991-10-18  ste_cm@software.org
+
+	* test/test2.cmd:
+	BASELINE Fri Oct 18 16:46:43 1991 -- ANSI conversion; vcs
+
+1991-10-18  dickey@software.org
+
+	* test/edit_test.sh: do the same for owner (uid)
+
+1991-10-18  ste_cm@software.org
+
+	* test/edit_test.sh:
+	BASELINE Fri Oct 18 16:46:43 1991 -- ANSI conversion; vcs
+
+1991-10-18  dickey@software.org
+
+	* test/edit_test.sh: try hack to filter out groups from test2.cmd
+
+	* test/run_test.sh: test assumes 'ded' has mode '755' initially
+
+	* test/edit_test.sh: prefer $USER to $LOGNAME (actually from `whoami`)
+
+	* src/Makefile:
+	need both rcsdefs.h & sccsdefs.h in both dedscan.c, ftree.c
+
+	* src/ftree.c: converted to ANSI
+
+1991-10-18  ste_cm@software.org
+
+	* src/ftree.c:
+	BASELINE Fri Oct 18 16:46:43 1991 -- ANSI conversion; vcs
+
+1991-10-18  dickey@software.org
+
+	* src/dedscan.c: adjusted includes
+
+	* Makefile: cleanup recursion
+
+1991-10-18  ste_cm@software.org
+
+	* Makefile: BASELINE Fri Oct 18 16:46:43 1991 -- ANSI conversion; vcs
+
+1991-10-18  dickey@software.org
+
+	* test/test1.cmd: mods to test
+
+1991-10-18  ste_cm@software.org
+
+	* test/test1.cmd:
+	BASELINE Fri Oct 18 16:46:43 1991 -- ANSI conversion; vcs
+
+1991-10-18  dickey@software.org
+
+	* test/test2.cmd: mods to test
+
+	* test/run_test.sh: removed log-comment
+	run from test-versions
+	don't write to log-file directly
+
+	* test/test3.cmd: mods to test
+
+1991-10-18  ste_cm@software.org
+
+	* test/test3.cmd:
+	BASELINE Fri Oct 18 16:46:43 1991 -- ANSI conversion; vcs
+
+	* test/test3.cmd: BASELINE Thu Jul 16 09:39:01 1992 -- EBPM4 support
+
+1991-10-18  dickey@software.org
+
+	* test/Makefile:
+	made invocation of run_tests consistent with other programs
+
+1991-10-18  ste_cm@software.org
+
+	* test/Makefile:
+	BASELINE Fri Oct 18 16:46:43 1991 -- ANSI conversion; vcs
+
+1991-10-18  dickey@software.org
+
+	* test/edit_test.sh: removed log-comment
+	run from test-versions
+
+	* src/dedline.c, src/dedmake.c: lint
+
+1991-10-18  ste_cm@software.org
+
+	* src/dedmake.c:
+	BASELINE Fri Oct 18 16:46:43 1991 -- ANSI conversion; vcs
+
+1991-10-18  dickey@software.org
+
+	* src/ded.h: added extern-def for 'sortc[]'
+
+	* src/ded.c, src/dedsigs.c: lint
+
+1991-10-18  ste_cm@software.org
+
+	* src/dedsigs.c:
+	BASELINE Fri Oct 18 16:46:43 1991 -- ANSI conversion; vcs
+
+	* src/dedsigs.c: BASELINE Thu Jul 16 09:39:01 1992 -- EBPM4 support
+
+	* src/dedsigs.c:
+	BASELINE Thu May  6 14:26:47 1993 -- split from CM_TOOLS #11
+
+1991-10-18  dickey@software.org
+
+	* src/dedtype.c: lint
+
+1991-10-18  ste_cm@software.org
+
+	* src/dedtype.c:
+	BASELINE Fri Oct 18 16:46:43 1991 -- ANSI conversion; vcs
+
+1991-10-18  dickey@software.org
+
+	* src/ded.h: added externs for 'debug' and 'no_worry'
+
+	* src/dedring.c, src/showpath.c: converted to ANSI
+
+1991-10-18  ste_cm@software.org
+
+	* src/showpath.c:
+	BASELINE Fri Oct 18 16:46:43 1991 -- ANSI conversion; vcs
+
+	* src/showpath.c: BASELINE Thu Jul 16 09:39:01 1992 -- EBPM4 support
+
+	* src/showpath.c:
+	BASELINE Thu May  6 14:26:47 1993 -- split from CM_TOOLS #11
+
+1991-10-18  dickey@software.org
+
+	* src/dedscan.c, src/sortset.c: converted to ANSI
+
+1991-10-18  ste_cm@software.org
+
+	* src/sortset.c:
+	BASELINE Fri Oct 18 16:46:43 1991 -- ANSI conversion; vcs
+
+1991-10-18  dickey@software.org
+
+	* src/dedsort.c: converted to ANSI
+
+1991-10-18  ste_cm@software.org
+
+	* src/dedsort.c:
+	BASELINE Fri Oct 18 16:46:43 1991 -- ANSI conversion; vcs
+
+1991-10-18  dickey@software.org
+
+	* src/dedtype.c, src/deddump.c: converted to ANSI
+
+1991-10-18  ste_cm@software.org
+
+	* src/deddump.c:
+	BASELINE Fri Oct 18 16:46:43 1991 -- ANSI conversion; vcs
+
+1991-10-18  dickey@software.org
+
+	* src/dlog.c: converted to ANSI
+
+1991-10-18  ste_cm@software.org
+
+	* src/dlog.c: BASELINE Fri Oct 18 16:46:43 1991 -- ANSI conversion; vcs
+
+	* src/dlog.c: BASELINE Thu Jul 16 09:39:01 1992 -- EBPM4 support
+
+1991-10-18  dickey@software.org
+
+	* src/ded2s.c: converted to ANSI
+
+1991-10-18  ste_cm@software.org
+
+	* src/ded2s.c:
+	BASELINE Fri Oct 18 16:46:43 1991 -- ANSI conversion; vcs
+
+1991-10-18  dickey@software.org
+
+	* src/dedsigs.c, src/deddoit.c: converted to ANSI
+
+1991-10-18  ste_cm@software.org
+
+	* src/deddoit.c:
+	BASELINE Fri Oct 18 16:46:43 1991 -- ANSI conversion; vcs
+
+1991-10-18  dickey@software.org
+
+	* src/Makefile: eliminated override of CFLAGS
+
+	* src/dedfree.c: converted to ANSI
+
+1991-10-18  ste_cm@software.org
+
+	* src/dedfree.c:
+	BASELINE Fri Oct 18 16:46:43 1991 -- ANSI conversion; vcs
+
+	* src/dedfree.c: BASELINE Thu Jul 16 09:39:01 1992 -- EBPM4 support
+
+	* src/dedfree.c:
+	BASELINE Thu May  6 14:26:47 1993 -- split from CM_TOOLS #11
+
+1991-10-18  dickey@software.org
+
+	* src/dedname.c: converted to ANSI
+
+1991-10-18  ste_cm@software.org
+
+	* src/dedname.c:
+	BASELINE Fri Oct 18 16:46:43 1991 -- ANSI conversion; vcs
+
+1991-10-18  dickey@software.org
+
+	* src/dedwait.c: converted to ANSI
+
+1991-10-18  ste_cm@software.org
+
+	* src/dedwait.c:
+	BASELINE Fri Oct 18 16:46:43 1991 -- ANSI conversion; vcs
+
+1991-10-18  dickey@software.org
+
+	* src/deduniq.c: converted to ANSI
+
+1991-10-18  ste_cm@software.org
+
+	* src/deduniq.c:
+	BASELINE Fri Oct 18 16:46:43 1991 -- ANSI conversion; vcs
+
+1991-10-18  dickey@software.org
+
+	* src/dedshow.c: converted to ANSI
+
+1991-10-18  ste_cm@software.org
+
+	* src/dedshow.c:
+	BASELINE Fri Oct 18 16:46:43 1991 -- ANSI conversion; vcs
+
+1991-10-18  dickey@software.org
+
+	* src/dedread.c: converted to ANSI
+
+1991-10-18  ste_cm@software.org
+
+	* src/dedread.c:
+	BASELINE Fri Oct 18 16:46:43 1991 -- ANSI conversion; vcs
+
+1991-10-18  dickey@software.org
+
+	* src/dedfind.c: converted to ANSI
+
+1991-10-18  ste_cm@software.org
+
+	* src/dedfind.c:
+	BASELINE Fri Oct 18 16:46:43 1991 -- ANSI conversion; vcs
+
 1991-10-17  dickey@software.org
 
 	* src/ded.h: trim out redundant prototype for 'main()'

@@ -1,34 +1,16 @@
 #ifndef	lint
-static	char	Id[] = "$Id: showpath.c,v 9.0 1991/05/31 08:54:22 ste_cm Rel $";
+static	char	Id[] = "$Id: showpath.c,v 12.0 1991/10/18 09:58:07 ste_cm Rel $";
 #endif
 
 /*
  * Title:	showpath.c (show pathname)
  * Author:	T.E.Dickey
  * Created:	01 Feb 1990
- * $Log: showpath.c,v $
- * Revision 9.0  1991/05/31 08:54:22  ste_cm
- * BASELINE Mon Jun 10 10:09:56 1991 -- apollo sr10.3
- *
- *		Revision 8.2  91/05/31  08:54:22  dickey
- *		added 'base' argument to control highlighting of a portion
- *		of the path.
- *		
- *		Revision 8.1  91/05/16  07:55:20  dickey
- *		apollo sr10.3 cpp complains about tag on #endif
- *		
- *		Revision 8.0  90/02/01  15:22:29  ste_cm
- *		BASELINE Mon Aug 13 15:06:41 1990 -- LINCNT, ADA_TRANS
- *		
- *		Revision 7.0  90/02/01  15:22:29  ste_cm
- *		BASELINE Mon Apr 30 09:54:01 1990 -- (CPROTO)
- *		
- *		Revision 6.0  90/02/01  15:22:29  ste_cm
- *		BASELINE Thu Mar 29 07:37:55 1990 -- maintenance release (SYNTHESIS)
- *		
- *		Revision 5.1  90/02/01  15:22:29  dickey
- *		RCS_BASE
- *		
+ * Modified:
+ *		18 Oct 1991, converted to ANSI
+ *		31 May 1991, added 'base' argument to control highlighting of a
+ *			     portion of the path.
+ *		16 May 1991, apollo sr10.3 cpp complains about tag on #endif
  *
  * Function:	Shows an arbitrarily long directory-path using curses on the
  *		current line (up to the right margin).
@@ -40,11 +22,16 @@ static	char	Id[] = "$Id: showpath.c,v 9.0 1991/05/31 08:54:22 ste_cm Rel $";
 #define	LEFT	4
 #define	RIGHT	3
 
-showpath(path, level, base, margin)
-char	*path;		/* pathname to display */
-int	level;		/* level we must show */
-int	base;		/* first-level to highlight */
-int	margin;		/* space to allow on right */
+showpath(
+_ARX(char *,	path)		/* pathname to display */
+_ARX(int,	level)		/* level we must show */
+_ARX(int,	base)		/* first-level to highlight */
+_AR1(int,	margin)		/* space to allow on right */
+	)
+_DCL(char *,	path)
+_DCL(int,	level)
+_DCL(int,	base)
+_DCL(int,	margin)
 {
 	register char	*s	= path;
 	auto	int	cols	= COLS - ((stdscr->_curx) + 2 + margin);

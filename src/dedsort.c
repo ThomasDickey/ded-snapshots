@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	Id[] = "$Id: dedsort.c,v 9.2 1991/07/17 07:43:12 dickey Exp $";
+static	char	Id[] = "$Id: dedsort.c,v 10.0 1991/10/18 09:53:06 ste_cm Rel $";
 #endif
 
 /*
@@ -7,6 +7,7 @@ static	char	Id[] = "$Id: dedsort.c,v 9.2 1991/07/17 07:43:12 dickey Exp $";
  * Author:	T.E.Dickey
  * Created:	11 Nov 1987
  * Modified:
+ *		18 Oct 1991, converted to ANSI
  *		17 Jul 1991, added '@' and 'D' sort.
  *		28 Jun 1991, added P-sort (same as p-sort, but keeps "+" for
  *			     apollo-sr10 extended-acls sorted into groups)
@@ -31,12 +32,9 @@ static	char	Id[] = "$Id: dedsort.c,v 9.2 1991/07/17 07:43:12 dickey Exp $";
  * Function:	Perform display-list sorting for DED directory editor.
  */
 #include	"ded.h"
-extern	char	*ftype();
-extern	char	*ftype2();
-extern	char	*pathleaf();
 
 #ifdef	apollo_sr10
-#include	"acl.h"
+#include	<acl.h>
 extern	char	*type_uid2s();
 #endif
 
@@ -49,8 +47,7 @@ extern	char	*type_uid2s();
 /* sort types so that names beginning with '.' are treated specially */
 static
 char	*
-f_type(s)
-char	*s;
+f_type _ONE(char *,s)
 {
 	register char	*t = ftype(s);
 	if (t != s) {
@@ -79,8 +76,12 @@ char	*s;
  * Compare the specified file-list entries, returning 0 iff their sort-key is
  * equivalent, +/- according to the direction of the inequality.
  */
-dedsort_cmp(p1, p2)
-FLIST	*p1, *p2;
+dedsort_cmp(
+_ARX(FLIST *,	p1)
+_AR1(FLIST *,	p2)
+	)
+_DCL(FLIST *,	p1)
+_DCL(FLIST *,	p2)
 {
 	register int	cmp = 0;
 	auto	 char	bfr[BUFSIZ];
@@ -235,8 +236,12 @@ FLIST	*p1, *p2;
  * used only via 'dedsort()'.
  */
 static
-compare(p1, p2)
-FLIST	*p1, *p2;
+compare(
+_ARX(FLIST *,	p1)
+_AR1(FLIST *,	p2)
+	)
+_DCL(FLIST *,	p1)
+_DCL(FLIST *,	p2)
 {
 	int	cmp = dedsort_cmp(p1,p2);
 	if (!cmp)
@@ -248,7 +253,7 @@ FLIST	*p1, *p2;
  * perform the requested sort-operation, restoring current-file pointer
  * to point to the original name.
  */
-dedsort()
+dedsort(_AR0)
 {
 	char	*name = cNAME;
 	qsort((char *)flist, (LEN_QSORT)numfiles, sizeof(FLIST), compare);

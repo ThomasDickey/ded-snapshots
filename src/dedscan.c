@@ -1,112 +1,53 @@
 #ifndef	lint
-static	char	Id[] = "$Id: dedscan.c,v 9.1 1991/07/11 10:44:51 dickey Exp $";
+static	char	Id[] = "$Id: dedscan.c,v 10.0 1991/10/18 16:39:16 ste_cm Rel $";
 #endif
 
 /*
  * Title:	dedscan.c (stat & scan argument lists)
  * Author:	T.E.Dickey
  * Created:	09 Nov 1987
- * $Log: dedscan.c,v $
- * Revision 9.1  1991/07/11 10:44:51  dickey
- * modified interface to 'showFILES()'
- *
- *		Revision 9.0  91/05/15  13:58:28  ste_cm
- *		BASELINE Mon Jun 10 10:09:56 1991 -- apollo sr10.3
- *		
- *		Revision 8.3  91/05/15  13:58:28  dickey
- *		apollo sr10.3 cpp complains about tag on #endif
- *		
- *		Revision 8.2  91/04/18  08:08:39  dickey
- *		modified debug-trace to make it easier to watch
- *		
- *		Revision 8.1  91/04/04  09:15:08  dickey
- *		guard against 'getwd()' failure.
- *		
- *		Revision 8.0  90/08/13  13:44:29  ste_cm
- *		BASELINE Mon Aug 13 15:06:41 1990 -- LINCNT, ADA_TRANS
- *		
- *		Revision 7.3  90/08/13  13:44:29  dickey
- *		lint
- *		
- *		Revision 7.2  90/07/27  08:35:25  dickey
- *		modified 'argstat()' and 'dedstat()' so that 'dedstat()' does
- *		all of the stat-work.  Did this so that it calls 'statSCCS()'
- *		for all directory arguments, making 'l' command work properly.
- *		Also, this eliminates a redundant 'stat()' in 'argstat()'.
- *		
- *		Revision 7.1  90/05/16  08:14:49  dickey
- *		added code to strip prefixes which are common to the new-wd,
- *		but not among the other arguments.
- *		
- *		Revision 7.0  90/04/25  13:35:39  ste_cm
- *		BASELINE Mon Apr 30 09:54:01 1990 -- (CPROTO)
- *		
- *		Revision 6.5  90/04/25  13:35:39  dickey
- *		corrected code which tries to circumvent unreadable old_wd
- *		(had broken the 'R' command in that fix...)
- *		
- *		Revision 6.4  90/04/25  08:18:54  dickey
- *		refined pathname-conversion using 'abshome()' followed by
- *		'getwd()' when needed, rather than 'abspath()' to avoid
- *		confusion with symbolic links.
- *		
- *		Revision 6.3  90/04/24  11:34:25  dickey
- *		modified 'argstat()' so that if shell (e.g., Bourne) passes
- *		a "~" argument, we expand it properly.
- *		
- *		Revision 6.2  90/04/23  13:55:06  dickey
- *		modify initial 'chdir()' so we try to recover from unreadable
- *		directory (e.g., when invoking "su" from a protected directory)
- *		
- *		Revision 6.1  90/04/18  07:40:54  dickey
- *		invoke 'rcslast()' to pick up information about permit-file
- *		(e.g., "RCS,v").
- *		
- *		Revision 6.0  89/10/16  08:28:32  ste_cm
- *		BASELINE Thu Mar 29 07:37:55 1990 -- maintenance release (SYNTHESIS)
- *		
- *		Revision 5.0  89/10/16  08:28:32  ste_cm
- *		BASELINE Fri Oct 27 12:27:25 1989 -- apollo SR10.1 mods + ADA_PITS 4.0
- *		
- *		Revision 4.4  89/10/16  08:28:32  dickey
- *		suppress 'ft_insert()' for "." and ".."
- *		
- *		Revision 4.3  89/10/12  09:21:02  dickey
- *		only fall-thru to 'sccslast()' if we found *nothing* of rcs.
- *		
- *		Revision 4.2  89/10/06  09:38:03  dickey
- *		modified interface to 'showFILES()'
- *		
- *		Revision 4.1  89/10/04  17:09:47  dickey
- *		added A_opt code (permit dot-names)
- *		
- *		Revision 4.0  89/06/06  09:01:28  ste_cm
- *		BASELINE Thu Aug 24 10:20:06 EDT 1989 -- support:navi_011(rel2)
- *		
- *		Revision 3.0  89/06/06  09:01:28  ste_cm
- *		BASELINE Mon Jun 19 14:21:57 EDT 1989
- *		
- *		Revision 2.6  89/06/06  09:01:28  dickey
- *		made read-pattern apply to explicit lists as well.
- *		
- *		Revision 2.5  89/06/06  08:32:48  dickey
- *		last change broke '@'-toggle; fixed.
- *		
- *		Revision 2.4  89/06/05  15:40:48  dickey
- *		simplified interface to ftree-module
- *		
- *		Revision 2.3  89/05/31  09:03:58  dickey
- *		added 'init_scan()' to fix regular-expression kludge
- *		
- *		Revision 2.2  89/05/26  14:20:57  dickey
- *		don't purge ftree if we are using read-expression
- *		
- *		Revision 2.1  89/05/26  13:14:42  dickey
- *		use read-selection (CTL/R command) to suppress unwanted names
- *		
- *		Revision 2.0  89/03/24  08:37:17  ste_cm
- *		BASELINE Thu Apr  6 13:14:13 EDT 1989
- *		
+ * Modified:
+ *		18 Oct 1991, converted to ANSI.
+ *			     ** hack 'statLINE()' to avoid apollo cc 6.7 bug.
+ *		11 Jul 1991, modified interface to 'showFILES()'
+ *		15 May 1991, apollo sr10.3 cpp complains about tag on #endif
+ *		18 Apr 1991, modified debug-trace to make it easier to watch
+ *		04 Apr 1991, guard against 'getwd()' failure.
+ *		13 Aug 1990, lint
+ *		27 Jul 1990, modified 'argstat()' and 'dedstat()' so that
+ *			     'dedstat()' does all of the stat-work.  Did this
+ *			     so that it calls 'statSCCS()' for all directory
+ *			     arguments, making 'l' command work properly.  Also,
+ *			     this eliminates a redundant 'stat()' in
+ *			     'argstat()'.
+ *		16 May 1990, added code to strip prefixes which are common to
+ *			     the new-wd, but not among the other arguments.
+ *		25 Apr 1990, corrected code which tries to circumvent unreadable
+ *			     old_wd (had broken the 'R' command in that fix...)
+ *			     Refined pathname-conversion using 'abshome()'
+ *			     followed by 'getwd()' when needed, rather than
+ *			     'abspath()' to avoid confusion with symbolic links.
+ *		24 Apr 1990, modified 'argstat()' so that if shell (e.g.,
+ *			     Bourne) passes a "~" argument, we expand it
+ *			     properly.
+ *		23 Apr 1990, modify initial 'chdir()' so we try to recover from
+ *			     unreadable directory (e.g., when invoking "su"
+ *			     from a protected directory)
+ *		18 Apr 1990, invoke 'rcslast()' to pick up information about
+ *			     permit-file (e.g., "RCS,v").
+ *		16 Oct 1989, suppress 'ft_insert()' for "." and ".."
+ *		12 Oct 1989, only fall-thru to 'sccslast()' if we found
+ *			     *nothing* of rcs.
+ *		06 Oct 1989, modified interface to 'showFILES()'
+ *		04 Oct 1989, added A_opt code (permit dot-names)
+ *		06 Jun 1989, made read-pattern apply to explicit lists as well.
+ *			     Last change broke '@'-toggle; fixed.
+ *		05 Jun 1989, simplified interface to ftree-module
+ *		31 May 1989, added 'init_scan()' to fix regular-expression
+ *			     kludge.
+ *		26 May 1989, don't purge ftree if we are using read-expression
+ *			     Use read-selection (CTL/R command) to suppress
+ *			     unwanted names.
  *		14 Mar 1989, corrections to common-path algorithm
  *		12 Sep 1988, don't force resolution of symbolic links unless
  *			     AT_opt is set.  Added 'statMAKE()'.
@@ -131,11 +72,7 @@ static	char	Id[] = "$Id: dedscan.c,v 9.1 1991/07/11 10:44:51 dickey Exp $";
 #define		DIR_PTYPES	/* includes directory-stuff */
 #include	"ded.h"
 #include	"rcsdefs.h"
-extern	FLIST	*dedfree();
-extern	char	*pathcat();
-extern	char	*txtalloc();
-
-extern	int	debug;
+#include	"sccsdefs.h"
 
 #define	def_doalloc	FLIST_alloc
 	/*ARGSUSED*/
@@ -155,8 +92,12 @@ static	int	dir_order;
  * Arguments:   argc, argv passed down from the original invocation,	*
  *		with leading options parsed off.			*
  ************************************************************************/
-dedscan(argc, argv)
-char	*argv[];
+dedscan(
+_ARX(int,	argc)
+_AR1(char **,	argv)
+	)
+_DCL(int,	argc)
+_DCL(char **,	argv)
 {
 	DIR		*dp;
 	struct	direct	*de;
@@ -287,8 +228,7 @@ char	*argv[];
  * Find a given name in the display list, returning -1 if not found, or index.
  */
 static
-lookup(name)
-char	*name;
+lookup _ONE(char *, name)
 {
 register int j;
 
@@ -303,9 +243,12 @@ register int j;
  * For a given name, update/append to the display-list the new FLIST data.
  */
 static
-append(name, f_)
-char	*name;
-FLIST	*f_;
+append(
+_ARX(char *,	name)
+_AR1(FLIST *,	f_)
+	)
+_DCL(char *,	name)
+_DCL(FLIST *,	f_)
 {
 register int j = lookup(name);
 
@@ -331,8 +274,7 @@ register int j = lookup(name);
  * Clear an FLIST data block.
  */
 static
-Zero(f_)
-FLIST	*f_;
+Zero _ONE(FLIST *,	f_)
 {
 register char *s = (char *)f_;
 register int  len = sizeof(FLIST);
@@ -344,8 +286,7 @@ register int  len = sizeof(FLIST);
  * retain the name-string.
  */
 static
-ReZero(f_)
-FLIST	*f_;
+ReZero _ONE(FLIST *,	f_)
 {
 char	*name = f_->name;
 	if (f_->ltxt)	txtfree(f_->ltxt);
@@ -364,9 +305,12 @@ char	*name = f_->name;
  * symbolic link.
  */
 static
-dedstat (name, f_)
-char	*name;
-FLIST	*f_;
+dedstat (
+_ARX(char *,	name)
+_AR1(FLIST *,	f_)
+	)
+_DCL(char *,	name)
+_DCL(FLIST *,	f_)
 {
 #ifdef	S_IFLNK
 	int	len;
@@ -409,8 +353,12 @@ FLIST	*f_;
  * links are tested to see if they resolve to a directory.
  */
 static
-argstat(name, list)
-char	*name;
+argstat(
+_ARX(char *,	name)
+_AR1(int,	list)
+	)
+_DCL(char *,	name)
+_DCL(int,	list)
 {
 	FLIST	fb;
 	char	full[BUFSIZ];
@@ -443,9 +391,13 @@ char	*name;
  */
 #ifdef	Z_RCS_SCCS
 #define	LAST(p)	p(new_wd, name, &(f_->z_vers), &(f_->z_time), &(f_->z_lock))
-statSCCS(name, f_)
-char	*name;
-FLIST	*f_;
+
+statSCCS(
+_ARX(char *,	name)
+_AR1(FLIST *,	f_)
+	)
+_DCL(char *,	name)
+_DCL(FLIST *,	f_)
 {
 	if (Z_opt) {
 		if (isFILE(f_->s.st_mode)) {
@@ -478,12 +430,14 @@ FLIST	*f_;
  * This entrypoint is called to re-stat entries which already have been put
  * into the display-list.
  */
-statLINE(j)
+statLINE _ONE(int,j)
 {
+	char *	path = xNAME(j);
+	FLIST * blok = &flist[j];
 	int	flag = xFLAG(j);
 	int	dord = xDORD(j);
 
-	(void)dedstat(xNAME(j), &flist[j]);
+	(void)dedstat(path, blok);
 	xFLAG(j) = flag;
 	xDORD(j) = dord;
 }
@@ -492,7 +446,7 @@ statLINE(j)
  * For 'dedmake()', this adds a temporary entry, moving the former current
  * entry down, so the user can edit the name in-place.
  */
-statMAKE(mode)
+statMAKE _ONE(int,mode)
 {
 	static	char	*null = "";
 	static	FLIST	dummy;
@@ -531,8 +485,7 @@ statMAKE(mode)
  * a symbolic link into a directory in which we have execute, but no read-
  * access. In this case we try to live with the link-text.
  */
-path_RESOLVE(path)
-char	*path;
+path_RESOLVE _ONE(char *,path)
 {
 	char	temp[BUFSIZ];
 	if (chdir(strcpy(temp, path)) < 0)

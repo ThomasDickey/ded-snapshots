@@ -3,7 +3,7 @@
 
 #ifdef	MAIN
 #ifndef	lint
-static	char	*ded_h = "$Id: ded.h,v 9.6 1991/10/17 08:20:52 dickey Exp $";
+static	char	*ded_h = "$Id: ded.h,v 9.8 1991/10/18 10:19:48 dickey Exp $";
 #endif
 #endif	/* MAIN */
 
@@ -172,6 +172,9 @@ MAIN	int	V_opt,		/* show sccs-versions */
 MAIN unsigned	numfiles;	/* total files in display-list */
 
 /* *** "ded.c" *** */
+extern	int	debug;
+extern	int	no_worry;
+
 extern	int	file2row(
 		_ar1(int,	n));
 
@@ -506,6 +509,8 @@ extern	int	showpath(
 		_ar1(int,	margin));
 
 /* *** "sortset.c" *** */
+extern	char	sortc[];
+
 extern	int	sortset(
 		_arx(int,	ord)
 		_ar1(int,	opt));

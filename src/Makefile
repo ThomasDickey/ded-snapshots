@@ -1,4 +1,4 @@
-# $Id: Makefile,v 9.2 1991/10/15 16:22:30 dickey Exp $
+# $Id: Makefile,v 9.4 1991/10/18 14:14:50 dickey Exp $
 # MAKE-file for directory editor
 #
 ####### (Environment) ##########################################################
@@ -9,9 +9,10 @@ GET	= checkout
 #
 ####### (Command-line Options) #################################################
 DED_H	= ded.h $I/ptypes.h $I/common.h $I/cmdch.h
+
 INCLUDES= -I. -I$I
 CPP_OPTS= $(DEFINES) $(INCLUDES)
-CFLAGS	=
+
 LIBS	= $L/lib.a
 DATE	= echo '****'`date` >> $@
 LINTOPT	= $(CPP_OPTS) -ltd -lcurses -lapollo
@@ -97,7 +98,8 @@ archive: $(OBJS)
 ded.o:		$(DED_H) ded.c version.h
 $(OBJS):	$(DED_H)
 ded2s.o:	$I/acl.h
-dedscan:	$I/rcsdefs.h
+dedscan:	$I/rcsdefs.h $I/sccsdefs.h
+ftree.o:	$I/rcsdefs.h $I/sccsdefs.h
 #
 ####### (Development) ##########################################################
 $(SOURCES):			; $(GET) $@

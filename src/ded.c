@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	Id[] = "$Header: /users/source/archives/ded.vcs/src/RCS/ded.c,v 9.16 1991/10/16 12:37:24 dickey Exp $";
+static	char	Id[] = "$Header: /users/source/archives/ded.vcs/src/RCS/ded.c,v 9.17 1991/10/18 10:18:44 dickey Exp $";
 #endif
 
 /*
@@ -137,8 +137,6 @@ static	char	Id[] = "$Header: /users/source/archives/ded.vcs/src/RCS/ded.c,v 9.16
 #include	"ded.h"
 #include	<signal.h>
 #include	<errno.h>
-extern	char	*dlog_open();
-extern	char	*sys_errlist[];
 
 #ifndef	EDITOR
 #define	EDITOR	"/usr/ucb/vi"
@@ -241,7 +239,6 @@ _AR1(char *,	leaf)
 _DCL(char *,	dst)
 _DCL(char *,	leaf)
 {
-	extern	char		*pathhead();
 	auto	struct	stat	sb;
 	auto	char		*s;
 
@@ -1223,7 +1220,6 @@ trace_pipe _ONE(char *,arg)
 
 usage(_AR0)
 {
-	extern	char	sortc[];
 	auto	char	tmp[BUFSIZ];
 	static	char	*tbl[] = {
 			"Usage: ded [options] [filespecs]",
@@ -1269,11 +1265,9 @@ usage(_AR0)
 	dlog_exit(FAIL);
 }
 
+/*ARGSUSED*/
 _MAIN
 {
-	extern	int	optind;
-	extern	char	*optarg;
-
 #include	"version.h"
 
 	register int		j, k;

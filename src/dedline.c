@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	Id[] = "$Id: dedline.c,v 9.5 1991/10/16 13:08:35 dickey Exp $";
+static	char	Id[] = "$Id: dedline.c,v 9.6 1991/10/18 10:29:05 dickey Exp $";
 #endif
 
 /*
@@ -372,7 +372,7 @@ int	at_flag	= at_save();
 			done = TRUE;
 			break;
 		case 'q':
-			replay(-2);
+			(void)replay(-2);
 			done = TRUE;
 			break;
 		case TO_FIRST:
@@ -523,7 +523,7 @@ int	at_flag	= ((endc == 'u') || (endc == 'g')) ? at_save() : FALSE;
 				beep();
 		} else {
 			if (c == 'q') {
-				replay(-2);
+				(void)replay(-2);
 				code = FALSE;
 				break;
 			} else if (c == endc) {

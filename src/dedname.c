@@ -1,49 +1,18 @@
 #ifndef	lint
-static	char	Id[] = "$Id: dedname.c,v 9.0 1991/05/15 14:02:16 ste_cm Rel $";
+static	char	Id[] = "$Id: dedname.c,v 10.0 1991/10/18 08:41:40 ste_cm Rel $";
 #endif
 
 /*
  * Title:	dedname.c (ded rename)
  * Author:	T.E.Dickey
  * Created:	11 May 1988
- * $Log: dedname.c,v $
- * Revision 9.0  1991/05/15 14:02:16  ste_cm
- * BASELINE Mon Jun 10 10:09:56 1991 -- apollo sr10.3
- *
- *		Revision 8.1  91/05/15  14:02:16  dickey
- *		apollo sr10.3 cpp complains about tag on #endif
- *		
- *		Revision 8.0  90/05/23  09:08:25  ste_cm
- *		BASELINE Mon Aug 13 15:06:41 1990 -- LINCNT, ADA_TRANS
- *		
- *		Revision 7.1  90/05/23  09:08:25  dickey
- *		modified interface to 'dedring()'
- *		
- *		Revision 7.0  89/07/25  10:50:39  ste_cm
- *		BASELINE Mon Apr 30 09:54:01 1990 -- (CPROTO)
- *		
- *		Revision 6.0  89/07/25  10:50:39  ste_cm
- *		BASELINE Thu Mar 29 07:37:55 1990 -- maintenance release (SYNTHESIS)
- *		
- *		Revision 5.0  89/07/25  10:50:39  ste_cm
- *		BASELINE Fri Oct 27 12:27:25 1989 -- apollo SR10.1 mods + ADA_PITS 4.0
- *		
- *		Revision 4.0  89/07/25  10:50:39  ste_cm
- *		BASELINE Thu Aug 24 10:20:06 EDT 1989 -- support:navi_011(rel2)
- *		
- *		Revision 3.1  89/07/25  10:50:39  dickey
- *		renamed 'fullname()' to 'expand_name()' to avoid conflict with curses-function
- *		when recompiling this under apollo SR10.1
- *		
- *		Revision 3.0  89/03/14  10:03:08  ste_cm
- *		BASELINE Mon Jun 19 14:21:57 EDT 1989
- *		
- *		Revision 2.0  89/03/14  10:03:08  ste_cm
- *		BASELINE Thu Apr  6 13:14:13 EDT 1989
- *		
- *		Revision 1.5  89/03/14  10:03:08  dickey
- *		sccs2rcs keywords
- *		
+ * Modified:
+ *		18 Oct 1991, converted to ANSI
+ *		15 May 1991, apollo sr10.3 cpp complains about tag on #endif
+ *		23 May 1990, modified interface to 'dedring()'
+ *		25 Jul 1989, renamed 'fullname()' to 'expand_name()' to avoid
+ *			     conflict with curses-function when recompiling this
+ *			     under apollo SR10.1
  *		12 Sep 1988, use 'pathcat()'
  *
  * Function:	Rename a file in the file-list, then perform cleanup of the
@@ -57,20 +26,16 @@ static	char	Id[] = "$Id: dedname.c,v 9.0 1991/05/15 14:02:16 ste_cm Rel $";
  */
 
 #include	"ded.h"
-extern	char	*pathcat();
-extern	char	*txtalloc();
 
 static
-expand_name(leaf)
-char	*leaf;
+expand_name _ONE(char *,leaf)
 {
 	char	path[BUFSIZ];
 	(void)strcpy(leaf, pathcat(path, new_wd, leaf));
 }
 
 static
-findname(path)
-char	*path;
+findname _ONE(char *,path)
 {
 char	tmp[BUFSIZ];
 	do {
@@ -78,8 +43,12 @@ char	tmp[BUFSIZ];
 	} while (strcmp(new_wd, path));
 }
 
-dedname(x, newname)
-char	*newname;
+dedname(
+_ARX(int,	x)
+_AR1(char *,	newname)
+	)
+_DCL(int,	x)
+_DCL(char *,	newname)
 {
 int	ok	= FALSE;
 char	oldname[BUFSIZ],

@@ -1,106 +1,47 @@
 #ifndef	lint
-static	char	Id[] = "$Id: ftree.c,v 9.3 1991/07/16 07:59:02 dickey Exp $";
+static	char	Id[] = "$Id: ftree.c,v 10.0 1991/10/18 14:14:41 ste_cm Rel $";
 #endif
 
 /*
  * Author:	T.E.Dickey
  * Created:	02 Sep 1987
- * $Log: ftree.c,v $
- * Revision 9.3  1991/07/16 07:59:02  dickey
- * broke out guts of 'ft_insert()' to allow special call from
- * 'ft_view()', allowing it to recover from bizarre case on
- * SunOS where real (mounted) directory was masked by a symbolic
- * link.
- *
- *		Revision 9.2  91/07/15  15:14:44  dickey
- *		added guard in case 'ft_insert()' fails to insert current-dir
- *		
- *		Revision 9.1  91/06/28  08:15:22  dickey
- *		lint (apollo sr10.3)
- *		
- *		Revision 9.0  91/06/04  08:32:39  ste_cm
- *		BASELINE Mon Jun 10 10:09:56 1991 -- apollo sr10.3
- *		
- *		Revision 8.5  91/06/04  08:32:39  dickey
- *		corrected logic in q/Q/F/B commands which caused program to
- *		hang when call on 'fd_ring()' failed to find a path.
- *		
- *		Revision 8.4  91/05/31  08:27:59  dickey
- *		modified interface to 'showpath()' so that 'fd_slow()' will
- *		highlight subtree scanned by 'ft_scan()'. increased width
- *		of number-tag.
- *		
- *		Revision 8.3  91/05/16  07:48:31  dickey
- *		mods to accommodate apollo sr10.3
- *		
- *		Revision 8.2  91/04/18  09:40:09  dickey
- *		added ':' command to simplify jumps to specific point
- *		,
- *		
- *		Revision 8.1  90/08/27  09:33:49  dickey
- *		modified 'ft_read()' and 'ft_write()' to try to recover from
- *		missing/corrupt ".ftree" file.
- *		
- *		Revision 8.0  90/05/23  10:51:18  ste_cm
- *		BASELINE Mon Aug 13 15:06:41 1990 -- LINCNT, ADA_TRANS
- *		
- *		Revision 7.2  90/05/23  10:51:18  dickey
- *		set initial "=>" marker in 'ft_view()' so that caller can
- *		give an arbitrary 'path' value (e.g., when error-recovering
- *		from 'E' command).  Also, pass CTL(E) command out of 'ft_view()'
- *		like 'E' command.
- *		
- *		Revision 7.1  90/05/23  09:29:30  dickey
- *		modified interface to 'dedring()'
- *		
- *		Revision 7.0  90/03/06  08:25:57  ste_cm
- *		BASELINE Mon Apr 30 09:54:01 1990 -- (CPROTO)
- *		
- *		Revision 6.0  90/03/06  08:25:57  ste_cm
- *		BASELINE Thu Mar 29 07:37:55 1990 -- maintenance release (SYNTHESIS)
- *		
- *		Revision 5.3  90/03/06  08:25:57  dickey
- *		lint
- *		
- *		Revision 5.2  90/02/01  13:25:15  dickey
- *		use 'showpath()' to handle long pathname-display
- *		
- *		Revision 5.1  89/11/13  14:19:15  dickey
- *		added some error recovery in 'ft_read()' against corrupted
- *		".ftree" file (i.e., missing string-heap).
- *		
- *		Revision 5.0  89/10/16  09:19:21  ste_cm
- *		BASELINE Fri Oct 27 12:27:25 1989 -- apollo SR10.1 mods + ADA_PITS 4.0
- *		
- *		Revision 4.4  89/10/16  09:19:21  dickey
- *		re-simplified 'ft_stat()' (don't need lstat)
- *		
- *		Revision 4.3  89/10/16  09:17:39  dickey
- *		altered 'ft_stat()' so we don't look at stat.st_ino (don't
- *		assume inode is positive!), and to use lstat/stat combination
- *		
- *		Revision 4.2  89/09/06  15:45:30  dickey
- *		use ACC_PTYPES rather than inline def's
- *		
- *		Revision 4.1  89/08/25  07:44:50  dickey
- *		use 'wrepaint()' rather than savewin/unsavewin
- *		
- *		Revision 4.0  89/06/05  15:44:44  ste_cm
- *		BASELINE Thu Aug 24 10:20:06 EDT 1989 -- support:navi_011(rel2)
- *		
- *		Revision 3.0  89/06/05  15:44:44  ste_cm
- *		BASELINE Mon Jun 19 14:21:57 EDT 1989
- *		
- *		Revision 2.1  89/06/05  15:44:44  dickey
- *		revised/simplified code which inserts logical links by making
- *		this part of 'ft_insert()'
- *		
- *		Revision 2.0  89/03/14  13:25:04  ste_cm
- *		BASELINE Thu Apr  6 13:14:13 EDT 1989
- *		
- *		Revision 1.66  89/03/14  13:25:04  dickey
- *		sccs2rcs keywords
- *		
+ * Modified:
+ *		18 Oct 1991, converted to ANSI
+ *		16 Jul 1991, broke out guts of 'ft_insert()' to allow special
+ *			     call from 'ft_view()', allowing it to recover from
+ *			     bizarre case on SunOS where real (mounted)
+ *			     directory was masked by a symbolic link.
+ *		15 Jul 1991, added guard in case 'ft_insert()' fails to insert
+ *			     current-dir
+ *		28 Jun 1991, lint (apollo sr10.3)
+ *		04 Jun 1991, corrected logic in q/Q/F/B commands which caused
+ *			     program to hang when call on 'fd_ring()' failed to
+ *			     find a path.
+ *		31 May 1991, modified interface to 'showpath()' so that
+ *			     'fd_slow()' will highlight subtree scanned by
+ *			     'ft_scan()'. increased width of number-tag.
+ *		16 May 1991, mods to accommodate apollo sr10.3
+ *		18 Apr 1991, added ':' command to simplify jumps to specific
+ *			     point
+ *		27 Aug 1990, modified 'ft_read()' and 'ft_write()' to try to
+ *			     recover from missing/corrupt ".ftree" file.
+ *		23 May 1990, set initial "=>" marker in 'ft_view()' so that
+ *			     caller can give an arbitrary 'path' value (e.g.,
+ *			     when error-recovering from 'E' command).  Also,
+ *			     pass CTL(E) command out of 'ft_view()' like 'E'
+ *			     command.  Modified interface to 'dedring()'
+ *		06 Mar 1990, lint
+ *		01 Feb 1990, use 'showpath()' to handle long pathname-display
+ *		13 Nov 1989, added some error recovery in 'ft_read()' against
+ *			     corrupted ".ftree" file (i.e., missing string-heap)
+ *		16 Oct 1989, re-simplified 'ft_stat()' (don't need lstat)
+ *		16 Oct 1989, altered 'ft_stat()' so we don't look at
+ *			     stat.st_ino (don't assume inode is positive!), and
+ *			     to use lstat/stat combination
+ *		06 Sep 1989, use ACC_PTYPES rather than inline def's
+ *		25 Aug 1989, use 'wrepaint()' rather than savewin/unsavewin
+ *		05 Jun 1989, revised/simplified code which inserts logical links
+ *			     by making this part of 'ft_insert()'
  *		14 Mar 1989, interface to 'dlog'.
  *		07 Mar 1989, forgot that 'strchr()' will also search for a null.
  *		23 Jan 1989, to support 'A' toggle and '~' home-command
@@ -166,15 +107,10 @@ static	char	Id[] = "$Id: ftree.c,v 9.3 1991/07/16 07:59:02 dickey Exp $";
 #define	ACC_PTYPES
 #define	DIR_PTYPES
 #include	"ded.h"
+#include	"rcsdefs.h"
+#include	"sccsdefs.h"
 
 #include	<fcntl.h>
-#include	<sys/errno.h>
-extern	time_t	time();
-extern	int	errno;
-extern	char	*pathcat(),
-		*rcs_dir(),
-		*sccs_dir(),
-		*txtalloc();
 
 #define	dedmsg	waitmsg	/* ...so we don't call 'showC' from this module */
 
@@ -249,9 +185,14 @@ static	FTREE	*ftree;			/* array of database entries	*/
  * Show count while doing things which may be time-consuming.
  */
 static
-fd_slow(count, base, pathname)
-int	count, base;
-char	*pathname;
+fd_slow(
+_ARX(int,	count)
+_ARX(int,	base)
+_AR1(char *,	pathname)
+	)
+_DCL(int,	count)
+_DCL(int,	base)
+_DCL(char *,	pathname)
 {
 static
 time_t	last;
@@ -274,7 +215,7 @@ int	y,x;
  * Ensure that the database has allocated enough space for the current entry.
  */
 static
-fd_alloc()
+fd_alloc(_AR0)
 {
 	if (FDlast >= FDsize) {
 	register int	size = FDsize;
@@ -293,8 +234,12 @@ fd_alloc()
  * Returns true iff the 'tst' argument is a sub-path of 'ref'.
  */
 static
-subpath(tst, ref)
-char	*tst, *ref;
+subpath(
+_ARX(char *,	tst)
+_AR1(char *,	ref)
+	)
+_DCL(char *,	tst)
+_DCL(char *,	ref)
 {
 	size_t	len_tst = strlen(tst),
 		len_ref = strlen(ref);
@@ -310,9 +255,12 @@ char	*tst, *ref;
  * order to make it simple to display the tree.
  */
 static
-fd_add_path(path, validated)
-char	*path;
-char	*validated;
+fd_add_path(
+_ARX(char *,	path)
+_AR1(char *,	validated)
+	)
+_DCL(char *,	path)
+_DCL(char *,	validated)
 {
 	auto	int		last = 0, /* assume we start from root level */
 				order,
@@ -417,8 +365,14 @@ char	*validated;
  * Perform a search through the database for a selected directory name.
  */
 static
-fd_find (buffer,cmd,old)
-char	*buffer, cmd;
+fd_find (
+_ARX(char *,	buffer)
+_ARX(int,	cmd)
+_AR1(int,	old)
+	)
+_DCL(char *,	buffer)
+_DCL(int,	cmd)
+_DCL(int,	old)
 {
 static	int	next = 0;		/* last-direction		*/
 static	char	pattern[MAXPATHLEN],
@@ -460,7 +414,7 @@ register int	step,
  * Returns the hierarchical level of a given node
  */
 static
-fd_level(this)
+fd_level _ONE(int,this)
 {
 register int level = this ? 1 : 0;
 	while (this = ftree[this].f_root) level++;
@@ -468,7 +422,12 @@ register int level = this ? 1 : 0;
 }
 
 static
-node2col(node, level)
+node2col(
+_ARX(int,	node)
+_AR1(int,	level)
+	)
+_DCL(int,	node)
+_DCL(int,	level)
 {
 	register int k = fd_level(node);
 
@@ -477,7 +436,7 @@ node2col(node, level)
 }
 
 static
-node2row(node)
+node2row _ONE(int,node)
 {
 	register int j, row;
 
@@ -493,7 +452,7 @@ node2row(node)
  */
 static
 char *
-fd_line(height)
+fd_line _ONE(int,height)
 {
 	if (height != 1) {
 		return("|   ");
@@ -506,8 +465,12 @@ fd_line(height)
  */
 static
 char *
-fd_path(bfr, node)
-char	*bfr;
+fd_path(
+_ARX(char *,	bfr)
+_AR1(int,	node)
+	)
+_DCL(char *,	bfr)
+_DCL(int,	node)
 {
 char	tmp[MAXPATHLEN];
 	*bfr = EOS;
@@ -528,7 +491,7 @@ char	tmp[MAXPATHLEN];
  * Returns true iff the node should be displayed
  */
 static
-fd_show(node)
+fd_show _ONE(int,node)
 {
 	if (ftree[node].f_mark & NOSCCS)
 		return(FALSE);
@@ -551,8 +514,7 @@ fd_show(node)
  * Add a path to the database.  As we add them, we insert in alphabetical
  * order to make it simple to display the tree.
  */
-ft_insert(path)
-char	*path;
+ft_insert _ONE(char *,path)
 {
 	auto	char		bfr[MAXPATHLEN];
 
@@ -564,8 +526,7 @@ char	*path;
  * Locate the node corresponding to a particular path.
  */
 static
-do_find(path)
-char	*path;
+do_find _ONE(char *,path)
 {
 char	bfr[MAXPATHLEN];
 register int j, this, last = 0;
@@ -612,8 +573,12 @@ register int j, this, last = 0;
  * retain them in a directory-scan.  If 'all' is true, then we will purge
  * symbolic links as well.
  */
-ft_remove(path,all)
-char	*path;
+ft_remove(
+_ARX(char *,	path)
+_AR1(int,	all)
+	)
+_DCL(char *,	path)
+_DCL(int,	all)
 {
 int	last = do_find(path);
 register int j;
@@ -637,7 +602,7 @@ register int j;
  * is found, it, and all of its dependents are purged from the database (i.e.,
  * the database is packed, leaving no trace of the removed entry).
  */
-ft_purge()
+ft_purge(_AR0)
 {
 register int j, k, adj;
 int	changed	= 0;
@@ -659,7 +624,6 @@ int	changed	= 0;
 
 #ifndef	TEST
 	if (changed) {			/* re-insert ring */
-	extern	char	*dedrung();
 	char	tmp[BUFSIZ], *s;
 		(void)strcpy(tmp, new_wd);
 		for (j = 1; s = dedrung(j); j++) {
@@ -674,8 +638,12 @@ int	changed	= 0;
 /*
  * Rename a directory or link.
  */
-ft_rename(old, new)
-char	*old, *new;
+ft_rename(
+_ARX(char *,	old)
+_AR1(char *,	new)
+	)
+_DCL(char *,	old)
+_DCL(char *,	new)
 {
 	register int	j, k;
 	int	oldloc, newloc, base, len1, len2, chop, count;
@@ -754,8 +722,7 @@ char	*old, *new;
 
 /* recover from corrupt .ftree file by initializing to empty-state */
 static
-ft_init(msg)
-char	*msg;
+ft_init _ONE(char *,msg)
 {
 	waitmsg(msg);
 	FDtime = time((time_t *)0);
@@ -766,9 +733,16 @@ char	*msg;
 
 /* read from the .ftree file, testing for consistency in sizes */
 static
-ok_read(fid,s,ask,msg)
-char	*s;
-char	*msg;
+ok_read(
+_ARX(int,	fid)
+_ARX(char *,	s)
+_ARX(int,	ask)
+_AR1(char *,	msg)
+	)
+_DCL(int,	fid)
+_DCL(char *,	s)
+_DCL(int,	ask)
+_DCL(char *,	msg)
 {
 	LEN_READ	got = read(fid,s,ask);
 	if (got != ask) {
@@ -780,8 +754,7 @@ char	*msg;
 }
 
 static
-read_ftree(the_file)
-char	*the_file;
+read_ftree _ONE(char *,the_file)
 {
 	struct		stat sb;
 	register int	j;
@@ -861,9 +834,12 @@ char	*the_file;
  *	2) the vector (with name-pointers adjusted to integer indices)
  *	3) the string-heap
  */
-ft_read(first,home_dir)
-char	*first;		/* => string defining the initial directory */
-char	*home_dir;
+ft_read(
+_ARX(char *,	first)	/* => string defining the initial directory */
+_AR1(char *,	home_dir)
+	)
+_DCL(char *,	first)
+_DCL(char *,	home_dir)
 {
 	register int	j;
 
@@ -890,8 +866,16 @@ char	*home_dir;
  * status line, moving to the common nodes only if the user directs so.
  */
 static
-ft_show(path, home, node, level)
-char	*path, *home;
+ft_show(
+_ARX(char *,	path)
+_ARX(char *,	home)
+_ARX(int,	node)
+_AR1(int,	level)
+	)
+_DCL(char *,	path)
+_DCL(char *,	home)
+_DCL(int,	node)
+_DCL(int,	level)
 {
 	register int j, k;
 	auto	int	row;
@@ -953,7 +937,12 @@ char	*path, *home;
  * Set base/last limits for the current screen
  */
 static
-limits(base,row)
+limits(
+_ARX(int,	base)
+_AR1(int,	row)
+	)
+_DCL(int,	base)
+_DCL(int,	row)
 {
 register int j;
 int	len = 0;
@@ -986,7 +975,7 @@ int	len = 0;
 }
 
 static
-fd_fwd(num)
+fd_fwd _ONE(int,num)
 {
 	while (num-- > 0) {
 		if (showlast < FDlast) {
@@ -1000,7 +989,7 @@ fd_fwd(num)
 }
 
 static
-fd_bak(num)
+fd_bak _ONE(int,num)
 {
 	while (num-- > 0) {
 	register int j, len = 0, base = -1;
@@ -1023,9 +1012,14 @@ fd_bak(num)
  * Scroll to current ring-entry
  */
 static
-fd_ring(path, row_, level_)
-char	*path;
-int	*row_, *level_;
+fd_ring(
+_ARX(char *,	path)
+_ARX(int *,	row_)
+_AR1(int *,	level_)
+	)
+_DCL(char *,	path)
+_DCL(int *,	row_)
+_DCL(int *,	level_)
 {
 	int	newrow;
 	char	cwdpath[BUFSIZ];
@@ -1048,7 +1042,14 @@ int	*row_, *level_;
 }
 
 static
-uprow(node,count,level)
+uprow(
+_ARX(int,	node)
+_ARX(int,	count)
+_AR1(int,	level)
+	)
+_DCL(int,	node)
+_DCL(int,	count)
+_DCL(int,	level)
 {
 register int j, k = node;
 	level++;
@@ -1068,7 +1069,14 @@ register int j, k = node;
 }
 
 static
-downrow(node,count,level)
+downrow(
+_ARX(int,	node)
+_ARX(int,	count)
+_AR1(int,	level)
+	)
+_DCL(int,	node)
+_DCL(int,	count)
+_DCL(int,	level)
 {
 register int j, k = node;
 	level++;
@@ -1088,7 +1096,14 @@ register int j, k = node;
 }
 
 static
-markit(node,flag,on)
+markit(
+_ARX(int,	node)
+_ARX(int,	flag)
+_AR1(int,	on)
+	)
+_DCL(int,	node)
+_DCL(int,	flag)
+_DCL(int,	on)
 {
 register FTREE *f = &ftree[node];
 int	old = f->f_mark;
@@ -1102,7 +1117,7 @@ int	old = f->f_mark;
  * directory.
  */
 static
-is_sccs(node)
+is_sccs _ONE(int,node)
 {
 register FTREE *f = &ftree[node];
 	if (!strcmp(f->f_name, sccs_dir()))	return (TRUE);
@@ -1115,7 +1130,7 @@ register FTREE *f = &ftree[node];
  * to correspond to the new state.
  */
 static
-toggle_sccs()
+toggle_sccs(_AR0)
 {
 register int j;
 	showsccs = !showsccs;
@@ -1139,7 +1154,7 @@ register int j;
  * Set up for display of the given node.  If it is not visible, make it so.
  */
 static
-scroll_to(node)
+scroll_to _ONE(int,node)
 {
 	register int j;
 	if (node < 0)
@@ -1165,8 +1180,7 @@ scroll_to(node)
  *	* The argument is overwritten with the name of the new directory
  *	  for e/E commands.
  */
-ft_view(path)
-char	*path;	/* caller's current directory */
+ft_view _ONE(char *,	path)	/* caller's current directory */
 {
 	auto	 int	row,
 			lvl,
@@ -1509,7 +1523,7 @@ char	*path;	/* caller's current directory */
 #ifdef	DEBUG
 static
 FILE *
-ft_DUMP()
+ft_DUMP(_AR0)
 {
 	static	char	logname[BUFSIZ];
 	return (fopen(strcat(strcpy(logname, gethome()), "/ftree.log"), "a+"));
@@ -1518,8 +1532,12 @@ ft_DUMP()
 /*
  * Dump a message to a log-file
  */
-ft_dump2(fmt, msg)
-char	*fmt,*msg;
+ft_dump2(
+_ARX(char *,	fmt)
+_AR1(char *,	msg)
+	)
+_DCL(char *,	fmt)
+_DCL(char *,	msg)
 {
 	auto	FILE	*fp = ft_DUMP();
 	if (fp) {
@@ -1533,11 +1551,8 @@ char	*fmt,*msg;
 /*
  * Dump the current tree to a log-file
  */
-ft_dump(msg)
-char	*msg;
+ft_dump _ONE(char *,	msg)
 {
-	extern	 char	*ctime();
-	extern	 time_t	time();
 	auto	 time_t	now	= time((time_t *)0);
 	auto	 FILE	*fp;
 	register FTREE *f;
@@ -1592,8 +1607,14 @@ char	*msg;
  * Scan a given directory, inserting all entries which are themselves valid
  * directories
  */
-ft_scan(node, levels, base)
-int	node, levels, base;
+ft_scan(
+_ARX(int,	node)
+_ARX(int,	levels)
+_AR1(int,	base)
+	)
+_DCL(int,	node)
+_DCL(int,	levels)
+_DCL(int,	base)
 {
 DIR	*dp;
 struct	direct	*d;
@@ -1657,8 +1678,12 @@ int	interrupted = 0;
  * Test a given name to see if it is either a directory name, or a symbolic
  * link.  In either (successful) case, add the name to the database.
  */
-ft_stat(name, leaf)
-char	*name, *leaf;
+ft_stat(
+_ARX(char *,	name)
+_AR1(char *,	leaf)
+	)
+_DCL(char *,	name)
+_DCL(char *,	leaf)
 {
 	auto	struct	stat	sb;
 
@@ -1673,7 +1698,7 @@ char	*name, *leaf;
  * in the user's home directory.  If we cannot write back to the user's
  * directory, no matter, since we mustn't use root privilege for this!
  */
-ft_write()
+ft_write(_AR0)
 {
 	if (FDdiff || (savesccs != showsccs)) {
 	int	fid;
@@ -1707,8 +1732,8 @@ ft_write()
 /*
  * Main program, for standalone applications
  */
-main(argc, argv)
-char	*argv[];
+/*ARGSUSED*/
+_MAIN
 {
 extern	WINDOW	*initscr();
 int	j,

@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	what[] = "$Id: dlog.c,v 9.1 1991/09/09 08:06:52 dickey Exp $";
+static	char	what[] = "$Id: dlog.c,v 11.0 1991/10/18 09:49:34 ste_cm Rel $";
 #endif
 
 /*
@@ -7,6 +7,7 @@ static	char	what[] = "$Id: dlog.c,v 9.1 1991/09/09 08:06:52 dickey Exp $";
  * Author:	T.E.Dickey
  * Created:	14 Mar 1989
  * Modified:
+ *		18 Oct 1991, converted to ANSI
  *		09 Sep 1991, lint
  *		06 Mar 1990, 'cmdch()' can now return explicit zero-count
  *		11 Aug 1989, wrapped some code around the call on 'cmdch()' to
@@ -30,7 +31,6 @@ static	char	what[] = "$Id: dlog.c,v 9.1 1991/09/09 08:06:52 dickey Exp $";
 #include	"ded.h"
 #include	<time.h>
 #include	<varargs.h>
-extern	time_t	time();
 
 #define	NOW	time((time_t *)0)
 #define	CONVERT(base,p,n)	n = (base * n) + (*p++ - '0')
@@ -47,8 +47,7 @@ static	time_t	mark_time;
 static	char	pending[BUFSIZ];	/* buffers parts of raw-commands */
 
 static
-show_time(msg)
-char	*msg;
+show_time _ONE(char *,msg)
 {
 	auto	time_t	now = NOW;
 
@@ -65,7 +64,7 @@ char	*msg;
 #define	PENDING(s,flag)	flush_pending(flag)
 
 static
-flush_pending(newline)
+flush_pending _ONE(int,newline)
 {
 	if (*pending) {
 		FPRINTF(log_fp, "%s%s", pending, newline ? "\n" : "");
@@ -79,7 +78,7 @@ flush_pending(newline)
  * return TRUE if we have command-file text available.
  */
 static
-read_script()
+read_script(_AR0)
 {
 	register char	*s;
 
@@ -108,8 +107,7 @@ read_script()
  * from the keyboard.
  */
 static
-read_char(count_)
-int	*count_;
+read_char _ONE(int *,count_)
 {
 	auto	int	num;
 	register int	j;
@@ -180,8 +178,14 @@ int	*count_;
  * a null-buffer (it simply has no more characters in the current buffer).
  */
 static
-read_line(s,len,wrap)
-char	*s;
+read_line(
+_ARX(char *,	s)
+_ARX(int,	len)
+_AR1(int,	wrap)
+	)
+_DCL(char *,	s)
+_DCL(int,	len)
+_DCL(int,	wrap)
 {
 	if (cmd_fp != 0) {
 		while (*cmd_ptr) {
@@ -204,8 +208,7 @@ char	*s;
  * work only within a single process, though logging is performed on multiple
  * processes.
  */
-dlog_read(name)
-char	*name;
+dlog_read _ONE(char *,name)
 {
 	if (!(cmd_fp = fopen(name, "r")))
 		failed(name);
@@ -216,9 +219,14 @@ char	*name;
  * Open/append to log-file
  */
 char *
-dlog_open(name, argc, argv)
-char	*name;
-char	*argv[];
+dlog_open(
+_ARX(char *,	name)
+_ARX(int,	argc)
+_AR1(char **,	argv)
+	)
+_DCL(char *,	name)
+_DCL(int,	argc)
+_DCL(char **,	argv)
 {
 	register int	j;
 
@@ -235,7 +243,7 @@ char	*argv[];
 	return ((char *)0);
 }
 
-dlog_reopen()
+dlog_reopen(_AR0)
 {
 	if (*log_name) {
 		if (log_fp = fopen(log_name, "a+"))
@@ -247,7 +255,7 @@ dlog_reopen()
  * Close the log-file (i.e., while spawning a subprocess which will append
  * to the log).
  */
-dlog_close()
+dlog_close(_AR0)
 {
 	if (log_fp) {
 		dlog_flush();
@@ -259,7 +267,7 @@ dlog_close()
 /*
  * Exit from the current process, marking the final time on the log-file
  */
-dlog_exit(code)
+dlog_exit _ONE(int,code)
 {
 	if (log_fp) {
 		show_time("ended");
@@ -271,8 +279,12 @@ dlog_exit(code)
 /*
  * Read a single-character command, logging it appropriately.
  */
-dlog_char(count_,begin)
-int	*count_;
+dlog_char(
+_ARX(int *,	count_)
+_AR1(int,	begin)
+	)
+_DCL(int *,	count_)
+_DCL(int,	begin)
 {
 	register int	c;
 	register char	*s;
@@ -314,8 +326,14 @@ int	*count_;
 /*
  * Obtain a string from the user and log it if logging is active.
  */
-dlog_string(s,len,wrap)
-char	*s;
+dlog_string(
+_ARX(char *,	s)
+_ARX(int,	len)
+_AR1(int,	wrap)
+	)
+_DCL(char *,	s)
+_DCL(int,	len)
+_DCL(int,	wrap)
 {
 	read_line(s, len, wrap);
 	if (log_fp) {
@@ -327,7 +345,7 @@ char	*s;
 /*
  * Log elapsed time since the beginning of a command
  */
-dlog_elapsed()
+dlog_elapsed(_AR0)
 {
 	if (log_fp) {
 		dlog_comment("elapsed time = %ld seconds\n", NOW - mark_time);
@@ -338,7 +356,7 @@ dlog_elapsed()
  * Flush the pending command.  We buffer commands so that multi-character
  * stuff (such as sort) is written on one line.
  */
-dlog_flush()
+dlog_flush(_AR0)
 {
 	if (log_fp) {
 		PENDING(flush,TRUE);
@@ -349,8 +367,7 @@ dlog_flush()
 /*
  * Annotate the given command with the name of the current entry
  */
-dlog_name(name)
-char	*name;
+dlog_name _ONE(char *,name)
 {
 	dlog_comment("\"%s\"\n", name);
 }

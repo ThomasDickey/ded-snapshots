@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	Id[] = "$Id: dedread.c,v 9.1 1991/07/11 12:52:51 dickey Exp $";
+static	char	Id[] = "$Id: dedread.c,v 10.0 1991/10/18 08:41:24 ste_cm Rel $";
 #endif
 
 /*
@@ -7,6 +7,7 @@ static	char	Id[] = "$Id: dedread.c,v 9.1 1991/07/11 12:52:51 dickey Exp $";
  * Author:	T.E.Dickey
  * Created:	26 May 1989
  * Modified:
+ *		18 Oct 1991, converted to ANSI
  *		11 Jul 1991, interface to 'to_work()'
  *		18 Apr 1991, added flag to control whether identical pattern
  *			     returns true or false (so that if nothing is found,
@@ -20,10 +21,13 @@ static	char	Id[] = "$Id: dedread.c,v 9.1 1991/07/11 12:52:51 dickey Exp $";
  * patch:	should accept a blank-separated list for multiple expressions
  */
 #include	"ded.h"
-extern	char	*txtalloc();
 
-dedread(pattern_, change_needed)
-char	**pattern_;
+dedread(
+_ARX(char **,	pattern_)
+_AR1(int,	change_needed)
+	)
+_DCL(char **,	pattern_)
+_DCL(int,	change_needed)
 {
 	register int	j,k;
 	auto	char	text[BUFSIZ], *expr;
@@ -66,7 +70,7 @@ char	**pattern_;
  * Initialize the match for regular-expression selection of files.  We need this
  * entrypoint because the BSD-style code does not save the compiled-expr.
  */
-init_scan()
+init_scan(_AR0)
 {
 	if (toscan != 0) {
 		dlog_comment("scan for \"%s\"\n", toscan);
@@ -81,8 +85,7 @@ init_scan()
 /*
  * Returns true if the given name was selectable by the current read-expression
  */
-ok_scan(name)
-char	*name;
+ok_scan _ONE(char *,name)
 {
 	if (toscan != 0)
 		return (GOT_REGEX(scan_expr,name) != 0);

@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	Id[] = "$Id: ded2s.c,v 9.5 1991/09/09 08:10:27 dickey Exp $";
+static	char	Id[] = "$Id: ded2s.c,v 10.0 1991/10/18 09:45:34 ste_cm Rel $";
 #endif
 
 /*
@@ -7,6 +7,7 @@ static	char	Id[] = "$Id: ded2s.c,v 9.5 1991/09/09 08:10:27 dickey Exp $";
  * Author:	T.E.Dickey
  * Created:	09 Nov 1987
  * Modified:
+ *		18 Oct 1991, converted to ANSI
  *		16 Aug 1991, added interpretation of "2T"
  *		16 Jul 1991, inode-value and number-of-blocks are unsigned
  *		02 Jul 1991, make S_opt, P_opt 3-way toggles.
@@ -53,7 +54,7 @@ static	char	Id[] = "$Id: ded2s.c,v 9.5 1991/09/09 08:10:27 dickey Exp $";
 #include	<ctype.h>
 
 #ifdef	apollo_sr10
-#include	"acl.h"
+#include	<acl.h>
 #include	<apollo/base.h>
 char	*type_uid2s();
 #endif
@@ -61,11 +62,6 @@ char	*type_uid2s();
 #ifdef	SYSTEM5
 #include	<sys/sysmacros.h>
 #endif
-extern  time_t  time();
-extern  char	*ctime();
-
-extern	char	*uid2s(),
-		*gid2s();
 #ifndef	_toupper
 #define	_toupper	toupper
 #endif
@@ -77,8 +73,14 @@ extern	char	*uid2s(),
 
 static
 char	*
-setcol(bfr,n,val)
-char	*bfr;
+setcol(
+_ARX(char *,	bfr)
+_ARX(int,	n)
+_AR1(int,	val)
+	)
+_DCL(char *,	bfr)
+_DCL(int,	n)
+_DCL(int,	val)
 {
 	if (cmdcol[n] < val)	cmdcol[n] = val;
 	else {
@@ -88,8 +90,14 @@ char	*bfr;
 	return (bfr);
 }
 
-ded2s(inx, bfr, len)
-register char	*bfr;
+ded2s(
+_ARX(int,	inx)
+_ARX(char *,	bfr)
+_AR1(int,	len)
+	)
+_DCL(int,	inx)
+_DCL(char *,	bfr)
+_DCL(int,	len)
 {
 FLIST		*f_	= &flist[inx];
 struct	stat	*s	= &(f_->s);
@@ -268,8 +276,7 @@ char	*t,
  *	local procedures						*
  ***********************************************************************/
 static
-executable(s)
-struct	stat *s;
+executable _ONE(struct stat *,s)
 {
 	int	uid = geteuid();
 	int	gid = getegid();
@@ -289,9 +296,12 @@ struct	stat *s;
  * Provide skip-over-field (blanking it if the file has been deleted).
  */
 static
-field(bfr, mode)
-char	*bfr;
-unsigned mode;
+field(
+_ARX(char *,	bfr)
+_AR1(unsigned,	mode)
+	)
+_DCL(char *,	bfr)
+_DCL(unsigned,	mode)
 {
 register char *s = bfr;
 register int len = strlen(s);
@@ -304,9 +314,12 @@ register int len = strlen(s);
  * Convert a unix time to an appropriate printing-string
  */
 static
-time2s(bfr,fdate)
-char	*bfr;
-time_t  fdate;
+time2s(
+_ARX(char *,	bfr)
+_AR1(time_t,	fdate)
+	)
+_DCL(char *,	bfr)
+_DCL(time_t,	fdate)
 {
 	static	time_t	midnite;
 	auto	time_t  now	= time((time_t *)0);
@@ -344,8 +357,16 @@ time_t  fdate;
 		(void)field(bfr,0);
 }
 
-ded2string(bfr, len, name, flag)
-char	*bfr, *name;
+ded2string(
+_ARX(char *,	bfr)
+_ARX(int,	len)
+_ARX(char *,	name)
+_AR1(int,	flag)
+	)
+_DCL(char *,	bfr)
+_DCL(int,	len)
+_DCL(char *,	name)
+_DCL(int,	flag)
 {
 	return (name2s(bfr, len, name, flag | (U_opt ? 2 : 0)));
 }
@@ -366,10 +387,8 @@ typedef	struct	_lty {
  * return the string corresponding to apollo type-uid stored in the stat-block.
  */
 char	*
-type_uid2s(s)
-struct	stat *s;
+type_uid2s _ONE(struct stat *,s)
 {
-	extern	char	*txtalloc();
 	static	LTY	*list;
 	register LTY	*p;
 	auto	char	*t;
@@ -406,7 +425,7 @@ struct	stat *s;
 	return (t);
 }
 
-has_extended_acl(x)
+has_extended_acl _ONE(int,x)
 {
 	return (is_EXTENDED_ACL(xSTAT(x).st_rfu4));
 }

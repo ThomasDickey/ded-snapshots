@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	Id[] = "$Id: deduniq.c,v 9.1 1991/07/11 12:50:54 dickey Exp $";
+static	char	Id[] = "$Id: deduniq.c,v 10.0 1991/10/18 08:41:30 ste_cm Rel $";
 #endif
 
 /*
@@ -7,6 +7,7 @@ static	char	Id[] = "$Id: deduniq.c,v 9.1 1991/07/11 12:50:54 dickey Exp $";
  * Author:	T.E.Dickey
  * Created:	18 Jan 1989
  * Modified:
+ *		18 Oct 1991, converted to ANSI
  *		11 Jul 1991, interface to 'to_work()'
  *		14 Mar 1989, interface to 'dlog'
  *
@@ -14,7 +15,7 @@ static	char	Id[] = "$Id: deduniq.c,v 9.1 1991/07/11 12:50:54 dickey Exp $";
  */
 #include	"ded.h"
 
-deduniq(level)
+deduniq _ONE(int,level)
 {
 	register int	j, k;
 	auto	 int	old, new;

@@ -1,5 +1,5 @@
 	# PROCESS BEGUN
-	# argv[0] = '../bin/ded'
+	# argv[0] = 'ded'
 	# argv[1] = '-t/tmp'
 	# argv[2] = '-ctest2.cmd'
 	# argv[3] = '-ltest2.out'
@@ -19,14 +19,14 @@
 1\s
 1b
 1q
-1h	# type "CM_TOOLS/test/../bin/ded.hlp" (text file)
+1h	# type "CM_TOOLS/bin/ded.hlp" (text file)
 1\s
 1b
 1q
 1\s
-1g	# before "spe"
+1g	# before "GROUP"
 g
-	# after  "spe"
+	# after  "GROUP"
 1u	# before "LOGNAME"
 u
 	# after  "LOGNAME"

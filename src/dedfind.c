@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	Id[] = "$Id: dedfind.c,v 9.1 1991/07/11 12:53:36 dickey Exp $";
+static	char	Id[] = "$Id: dedfind.c,v 10.0 1991/10/18 08:41:21 ste_cm Rel $";
 #endif
 
 /*
@@ -7,6 +7,7 @@ static	char	Id[] = "$Id: dedfind.c,v 9.1 1991/07/11 12:53:36 dickey Exp $";
  * Author:	T.E.Dickey
  * Created:	18 Nov 1987
  * Modified:
+ *		18 Oct 1991, converted to ANSI
  *		11 Jul 1991, interface to 'to_work()'
  *		25 Aug 1989, use 'scroll_to_file()'
  *		14 Mar 1989, interface to 'dlog' module.
@@ -19,7 +20,7 @@ static	char	Id[] = "$Id: dedfind.c,v 9.1 1991/07/11 12:53:36 dickey Exp $";
  */
 #include	"ded.h"
 
-dedfind(key)
+dedfind _ONE(int,key)
 {
 int	j,k,
 	found	= FALSE,
