@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	Id[] = "$Header: /users/source/archives/ded.vcs/src/RCS/ded.c,v 11.0 1992/07/02 07:45:05 ste_cm Rel $";
+static	char	Id[] = "$Header: /users/source/archives/ded.vcs/src/RCS/ded.c,v 11.1 1992/08/04 14:37:40 dickey Exp $";
 #endif
 
 /*
@@ -288,12 +288,11 @@ public	int	failed _ONE(char *,msg)
 	to_exit(msg != 0);
 	if (msg)
 		FPRINTF(stderr, "-------- \n?? %-79s\n-------- \n", msg);
-#ifdef	apollo
 	if (msg) {
-		(void)kill(getpid(), SIGKILL);
-		for (;;);	/* when terminated, will be able to use 'tb' */
+		(void)fflush(stderr);
+		abort();
 	}
-#endif
+
 	dlog_exit(FAIL);
 }
 
@@ -307,8 +306,9 @@ public	int	user_says(
 	_DCL(RING *,	gbl)
 	_DCL(int,	ok)
 {
+	register char	*s;
 	int	y,x;
-	char	reply[8];
+	static	DYN	*reply;
 
 	if (!ok) {
 		to_work(gbl,TRUE);
@@ -317,10 +317,10 @@ public	int	user_says(
 		clrtobot();
 		move(y,x);
 		refresh();
-		*reply = EOS;
-		dlog_string(reply,sizeof(reply),FALSE);
-		ok = (*reply == 'y') || (*reply == 'Y');
+		dyn_init(&reply, 8);
+		s = dlog_string(&reply,-8);
 		showC(gbl);
+		ok = (*s == 'y' || *s == 'Y');
 	}
 	return (ok);
 }
