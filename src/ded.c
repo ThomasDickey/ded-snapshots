@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	Id[] = "$Header: /users/source/archives/ded.vcs/src/RCS/ded.c,v 9.15 1991/10/15 09:48:36 dickey Exp $";
+static	char	Id[] = "$Header: /users/source/archives/ded.vcs/src/RCS/ded.c,v 9.16 1991/10/16 12:37:24 dickey Exp $";
 #endif
 
 /*
@@ -7,7 +7,7 @@ static	char	Id[] = "$Header: /users/source/archives/ded.vcs/src/RCS/ded.c,v 9.15
  * Author:	T.E.Dickey
  * Created:	09 Nov 1987
  * Modified:
- *		15 Oct 1991, converted to ANSI
+ *		15 Oct 1991, converted to ANSI. Allow replay of 'c' commands.
  *		16 Aug 1991, added interpretation of "2T"
  *		22 Jul 1991, quote filename before using it in 'forkfile()'
  *		10 Jul 1991, added parm to 'markset()' to tell if we must clear
@@ -139,8 +139,6 @@ static	char	Id[] = "$Header: /users/source/archives/ded.vcs/src/RCS/ded.c,v 9.15
 #include	<errno.h>
 extern	char	*dlog_open();
 extern	char	*sys_errlist[];
-
-#define	_ONE(t,a)	(_AR1(t,a)) _DCL(t,a)
 
 #ifndef	EDITOR
 #define	EDITOR	"/usr/ucb/vi"
@@ -312,8 +310,7 @@ to_exit _ONE(int,last)
 {
 	if (in_screen) {
 		if (last) {
-			move(LINES-1,0);
-			clrtoeol();
+			clearmsg();
 			refresh();
 		}
 		resetty();
@@ -430,6 +427,16 @@ register j = xSTAT(inx).st_mode;
 	if (isFILE(j))	return(0);
 	if (isDIR(j))	return(1);
 	return (-1);
+}
+
+/*
+ * Clear the message-line
+ */
+void
+clearmsg(_AR0)
+{
+	move(LINES-1,0);
+	clrtoeol();		/* clear off the waiting-message */
 }
 
 /*
@@ -956,8 +963,7 @@ _DCL(int,	(*func)())
 		if (interrupted = dedsigs(TRUE))
 			break;
 	}
-	move(LINES-1,0);
-	clrtoeol();		/* clear off the waiting-message */
+	clearmsg();
 	if (interrupted)
 		(*func)();
 	else
@@ -1633,14 +1639,25 @@ _MAIN
 #ifdef	S_IFLNK
 			case '<':
 			case '>':	editlink(c);	break;
+			case 'l':
 #endif	/* S_IFLNK */
-			default:	dedmsg("no inline command saved");
+			case 'd':
+			case 'f':
+			case 'L':	dedmake(c);	break;
+
+			default:	{
+				char	temp[80];
+				FORMAT(temp, "no inline command (%c)", c);
+				dedmsg(temp);
+				}
+				/* dedmsg("no inline command saved");*/
 			}
 			(void)dedline(FALSE);
 			break;
 
 	case 'c':	/* create an entry */
-			dedmake();
+			(void)replay('c');
+			dedmake(replay(EOS));
 			break;
 
 	case CTL('e'):	/* pad-edit */

@@ -3,7 +3,7 @@
 
 #ifdef	MAIN
 #ifndef	lint
-static	char	*ded_h = "$Id: ded.h,v 9.4 1991/10/15 16:34:09 dickey Exp $";
+static	char	*ded_h = "$Id: ded.h,v 9.5 1991/10/16 12:37:16 dickey Exp $";
 #endif
 #endif	/* MAIN */
 
@@ -200,6 +200,8 @@ extern	int	realstat(
 		_arx(int,	inx)
 		_ar1(struct stat *,sb));
 
+extern	void	clearmsg(_ar0);
+
 extern	char	*err_msg(
 		_ar1(char *,	msg));
 
@@ -307,6 +309,9 @@ extern	FLIST	*dedfree(
 		_ar1(unsigned,	num));
 
 /* *** "dedline.c" *** */
+extern	int	replay(
+		_ar1(int,	cmd));
+
 extern	int	editprot(_ar0);
 
 extern	int	edittext(
@@ -328,7 +333,8 @@ extern	int	dedline(
 		_ar1(int,	flag));
 
 /* *** "dedmake.c" *** */
-extern	int	dedmake(_ar0);
+extern	int	dedmake(
+		_ar1(int,	firstc));
 
 /* *** "dedname.c" *** */
 extern	int	dedname(

@@ -1,4 +1,4 @@
-.\" $Id: ded.man,v 9.4 1991/09/25 12:30:15 dickey Exp $
+.\" $Id: ded.man,v 10.0 1991/10/16 13:53:47 ste_cm Rel $
 .de DS
 .RS
 .nf
@@ -696,7 +696,7 @@ Editing is done with single characters:
 .RS
 .TP
 .B p
-complete command
+complete command (a newline or return also completes the command)
 .TP
 .B q
 abort command
@@ -722,6 +722,12 @@ according to the position of the cursor.
 .B t
 toggles "save swapped text" bit if cursor points
 to the last chmod field.
+.TP
+.I CTL/B
+move cursor to beginning of field
+.TP
+.I CTL/F
+move cursor to end of field
 .RE
 .TP
 .B u
@@ -786,8 +792,9 @@ create symbolic link (initially with "." for text).
 Each "\fBc\fR" command opens the list at the current position.
 You must provide a name, using the same inline name-editing as the
 "\fB=\fR" command.
-When the name is complete (nonnull, and
-nonconflicting), \fBded\fR creates it.
+When the name is complete (nonnull, and nonconflicting), \fBded\fR creates it.
+.PP
+The "\fBc\fR" commands may be repeated using the '"' command.
 .SS Built-in Operations on the Current File	\"**************************
 .PP
 The following built-in operations operate only on the current file,

@@ -1,4 +1,4 @@
-$Id: ded.hlp,v 9.6 1991/08/16 13:57:42 dickey Exp $
+$Id: ded.hlp,v 11.0 1991/10/16 13:03:41 ste_cm Rel $
 
 DED (Directory EDitor)
 ======================
@@ -129,9 +129,11 @@ Operations on Files:
   -		Remove the {count} entries from the {group}
   _		Remove all entries from the {group}
   #		Tag files whose current sort-key is not unique.
-		Use repeat count for variations: 0 to reset tag on files that
-		match current file's key, 1 to set tag, 2 to set tag on all
-		files that have non-unique sort-key.
+		Use repeat count for variations:
+
+		0	to reset tag on files that match current file's key,
+		1	to set tag,
+		2	to set tag on all files that have non-unique sort-key.
 
   p		Edit protection-code for {group} of entries.  The
 		code from the current entry is edited inline.  The
@@ -146,6 +148,8 @@ Operations on Files:
 		P	toggles format of display (octal/normal)
 		s	toggle uid/gid inheritance bit
 		t	toggle text-bit
+		CTL/B	move cursor to beginning of field
+		CTL/F	move cursor to end of field
 
   u		Edit user-id field.  The current entry's uid
 		is edited inline and the result used for all
@@ -178,7 +182,7 @@ Operations on Files:
 		substituted to the forward/backward directory-ring names,
 		and the '#' character to the name being edited..
 
-  "		Repeat the last p/u/g/= command.  This uses the actual
+  "		Repeat the last p/u/g/=/c command.  This uses the actual
 		set of characters typed for the command, so an editing
 		template may be made.
 

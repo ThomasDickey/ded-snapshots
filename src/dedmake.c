@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	Id[] = "$Id: dedmake.c,v 9.1 1991/10/15 16:54:10 dickey Exp $";
+static	char	Id[] = "$Id: dedmake.c,v 9.2 1991/10/16 12:44:18 dickey Exp $";
 #endif
 
 /*
@@ -7,6 +7,7 @@ static	char	Id[] = "$Id: dedmake.c,v 9.1 1991/10/15 16:54:10 dickey Exp $";
  * Author:	T.E.Dickey
  * Created:	12 Sep 1988
  * Modified:
+ *		16 Oct 1991, modified to allow command-replay
  *		15 Oct 1991, converted to ANSI
  *		15 May 1991, apollo sr10.3 cpp complains about tag on #endif
  *		18 Apr 1991, added command "cL" to create hard link (implicitly
@@ -71,15 +72,53 @@ _DCL(int,	hard)
 	return (TRUE);
 }
 
-dedmake(_AR0)
+static
+made_or_quit(
+_ARX(int,	firstc)
+_ARX(int,	mode)
+_ARX(int,	hard)
+_AR1(char *,	to_edit)
+	)
+_DCL(int,	firstc)
+_DCL(int,	mode)
+_DCL(int,	hard)
+_DCL(char *,	to_edit)
 {
 	auto	struct	stat	sb;
+	auto	int	ok =
+			edittext(firstc, cmdcol[CCOL_NAME], BUFSIZ, to_edit);
+
+	clearmsg();
+
+	if (ok) {
+		errno = 0;
+		if (stat(to_edit, &sb) >= 0)
+			errno = EEXIST;
+		else if (errno == ENOENT) {
+			if (!makeit(to_edit, mode, hard)) {
+				waitmsg(sys_errlist[errno]);
+				statMAKE(0);	/* undo it -- error */
+			}
+			showC();
+			return TRUE;
+		}
+		dedmsg(sys_errlist[errno]);
+		dedline(-TRUE);			/* force refresh! */
+		replay(-1);
+		return FALSE;
+	}
+	statMAKE(0);				/* undo it -- gave up */
+	return TRUE;
+}
+
+dedmake _ONE(int,firstc)
+{
 	auto	int	mode;
 	auto	int	hard	= -1;
 	auto	char	bfr[BUFSIZ];
 
 	/* make a dummy entry */
-	switch (dlog_char((int *)0,0)) {
+	switch (firstc) {
 	case 'd':	mode = S_IFDIR;	break;
 	case 'f':	mode = S_IFREG;	break;
 #ifdef	S_IFLNK
@@ -89,26 +128,17 @@ dedmake(_AR0)
 				hard = curfile + 1;
 				break;
 			}
-	default:	beep();
+	default:	if (isascii(firstc) && isgraph(firstc)) {
+				FORMAT(bfr, "create-%c not defined", firstc);
+				dedmsg(bfr);
+			} else
+				beep();
 			return;
 	}
 	statMAKE(mode);
 
 	/* loop until either the user gives up, or supplies a legal name */
-	(void)strcpy(bfr, (hard >= 0) ? xNAME(hard) : cNAME);
-	while (edittext('q', cmdcol[CCOL_NAME], sizeof(bfr), bfr)) {
-		errno = 0;
-		if (stat(bfr, &sb) >= 0)
-			errno = EEXIST;
-		else if (errno == ENOENT) {
-			if (!makeit(bfr, mode, hard)) {
-				waitmsg(sys_errlist[errno]);
-				statMAKE(0);	/* undo it -- error */
-			}
-			showC();
-			return;
-		}
-		waitmsg(sys_errlist[errno]);
-	}
-	statMAKE(0);				/* undo it -- gave up */
+	do {
+		(void)strcpy(bfr, (hard >= 0) ? xNAME(hard) : cNAME);
+	} while (!made_or_quit(firstc, mode, hard, bfr));
 }

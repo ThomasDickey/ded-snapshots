@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	Id[] = "$Id: dedline.c,v 9.3 1991/10/15 16:39:31 dickey Exp $";
+static	char	Id[] = "$Id: dedline.c,v 9.5 1991/10/16 13:08:35 dickey Exp $";
 #endif
 
 /*
@@ -7,6 +7,9 @@ static	char	Id[] = "$Id: dedline.c,v 9.3 1991/10/15 16:39:31 dickey Exp $";
  * Author:	T.E.Dickey
  * Created:	01 Aug 1988 (from 'ded.c')
  * Modified:
+ *		16 Oct 1991, mods to support replay of 'c'-commands.
+ *			     Allow newline to end 'p'-command, CTL/F and CTL/B
+ *			     recognized as in edit-text.
  *		15 Oct 1991, converted to ANSI.
  *		11 Jul 1991, modified interface to 'showFILES()' so that
  *			     workspace is not cleared when doing the inline
@@ -46,8 +49,14 @@ static	char	Id[] = "$Id: dedline.c,v 9.3 1991/10/15 16:39:31 dickey Exp $";
 
 #include	"ded.h"
 
+#define	CHMOD(n)	(xSTAT(n).st_mode & 07777)
+#define	OWNER(n)	((geteuid() == 0) || (xSTAT(x).st_uid == geteuid()))
+
+#define	TO_FIRST	CTL('b')
+#define	TO_LAST		CTL('f')
+
 static	int	re_edit;		/* flag for 'edittext()' */
-static	char	lastedit[BUFSIZ];	/* command-stream for 'edittext()' */
+static	char	lastedit[BUFSIZ];
 
 /************************************************************************
  *	local procedures						*
@@ -57,26 +66,35 @@ static	char	lastedit[BUFSIZ];	/* command-stream for 'edittext()' */
  * Store/retrieve field-editing commands.  The first character of the buffer
  * 'lastedit[]' is reserved to tell us what the command was.
  */
-static
-replay _ONE(int,cmd)
+replay _ONE(int,c)
 {
-	int	c;
 	static	int	in_edit;
 
-	if (cmd) {
-		in_edit = 1;
-		lastedit[0] = cmd;
-	} else {
-		if (re_edit) {
-			c = lastedit[in_edit++];
+	if (c != EOS) {
+		switch (c) {
+		case -2:	/* remove all data (quit/abend) */
+			in_edit = 1;
+		case -1:	/* remove prior-data (e.g., for retry/append) */
+			if (in_edit > 0) {
+				c = lastedit[--in_edit];
+				lastedit[in_edit] = EOS;
+			}
+			break;
+		default:
+			lastedit[0] = c;
+			in_edit = 1;
 		}
-		if (!re_edit) {
+	} else {
+		if (re_edit && lastedit[in_edit] != EOS) {
+			c = lastedit[in_edit++];
+		} else {
 			c = dlog_char((int *)0,0);
 			if (c == '\r') c = '\n';
 			lastedit[in_edit++] = c;
 			lastedit[in_edit]   = EOS;
 		}
 	}
+
 	return (c & 0xff);
 }
 
@@ -271,6 +289,44 @@ save_Xbase _ONE(int,col) /* leftmost column we need to show */
 	return (col - Xbase);
 }
 
+static
+change_protection(_AR0)
+{
+	int	changed = FALSE;
+	register int	c, x;
+
+	(void)dedsigs(TRUE);	/* reset interrupt counter */
+	c = CHMOD(curfile);
+	for (x = 0; x < numfiles; x++) {
+		if (GROUPED(x)) {
+			if (dedsigs(TRUE)) {
+				waitmsg(xNAME(x));
+				break;
+			}
+			statLINE(x);
+			changed++;
+			if (c != CHMOD(x)) {
+				dlog_comment("chmod %o %s\n",
+					c, xNAME(x));
+#ifdef	apollo_sr10
+				if (has_extended_acl(x)
+					&& !OWNER(x)) {
+					errno = EPERM;
+					warn(xNAME(x));
+					break;
+				}
+#endif
+				if (chmod(xNAME(x), c) < 0) {
+					warn(xNAME(x));
+					break;
+				}
+				fixtime(x);
+			}
+		}
+	}
+	return changed;
+}
+
 /************************************************************************
  *	public entrypoints						*
  ************************************************************************/
@@ -278,9 +334,6 @@ save_Xbase _ONE(int,col) /* leftmost column we need to show */
 /*
  * edit protection-code for current & tagged files
  */
-#define	CHMOD(n)	(xSTAT(n).st_mode & 07777)
-#define	OWNER(n)	((geteuid() == 0) || (xSTAT(x).st_uid == geteuid()))
-
 editprot(_AR0)
 {
 register
@@ -311,45 +364,25 @@ int	at_flag	= at_save();
 		cols[2] = cols[1] + rwx;
 
 		move(y, cols[x]);
-		if (!re_edit) refresh();
-		switch (c = replay(0)) {
+		if (re_edit <= 0) refresh();
+		switch (c = replay(EOS)) {
+		case '\n':
 		case 'p':
-			(void)dedsigs(TRUE);	/* reset interrupt counter */
+			changed = change_protection();
 			done = TRUE;
-			c = CHMOD(curfile);
-			for (x = 0; x < numfiles; x++) {
-				if (GROUPED(x)) {
-					if (dedsigs(TRUE)) {
-						waitmsg(xNAME(x));
-						break;
-					}
-					statLINE(x);
-					changed++;
-					if (c != CHMOD(x)) {
-						dlog_comment("chmod %o %s\n",
-							c, xNAME(x));
-#ifdef	apollo_sr10
-						if (has_extended_acl(x)
-						 && !OWNER(x)) {
-							errno = EPERM;
-							warn(xNAME(x));
-							break;
-						}
-#endif
-						if (chmod(xNAME(x), c) < 0) {
-							warn(xNAME(x));
-							break;
-						}
-						fixtime(x);
-					}
-				}
-			}
 			break;
 		case 'q':
-			lastedit[0] = EOS;
+			replay(-2);
 			done = TRUE;
 			break;
+		case TO_FIRST:
+			x = 0;
+			break;
+		case TO_LAST:
+			x = 2;
+			break;
 		case ARO_RIGHT:
+		case '\f':
 		case ' ':
 			if (x < 2)	x++;
 			else		beep();
@@ -456,10 +489,10 @@ int	at_flag	= ((endc == 'u') || (endc == 'g')) ? at_save() : FALSE;
 			addch(' ');
 		if (!insert)	standend();
 		move(y,x-shift+col);
-		if (!re_edit) refresh();
+		if (re_edit <= 0) refresh();
 
 		delete = -1;
-		c = replay(0);
+		c = replay(EOS);
 
 		if (c == '\n') {
 			break;
@@ -482,15 +515,15 @@ int	at_flag	= ((endc == 'u') || (endc == 'g')) ? at_save() : FALSE;
 				if (x > 0)	x--;
 			} else if (c == ARO_RIGHT) {
 				if (x < strlen(bfr))	x++;
-			} else if (c == CTL('b')) {
+			} else if (c == TO_FIRST) {
 				x = 0;
-			} else if (c == CTL('f')) {
+			} else if (c == TO_LAST) {
 				x = strlen(bfr);
 			} else
 				beep();
 		} else {
 			if (c == 'q') {
-				lastedit[0] = EOS;
+				replay(-2);
 				code = FALSE;
 				break;
 			} else if (c == endc) {
@@ -499,9 +532,9 @@ int	at_flag	= ((endc == 'u') || (endc == 'g')) ? at_save() : FALSE;
 				if (x > 0)	x--;
 			} else if (c == '\f' || c == ARO_RIGHT) {
 				if (x < strlen(bfr))	x++;
-			} else if (c == CTL('b')) {
+			} else if (c == TO_FIRST) {
 				x = 0;
-			} else if (c == CTL('f')) {
+			} else if (c == TO_LAST) {
 				x = strlen(bfr);
 			} else
 				beep();

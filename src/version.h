@@ -1,10 +1,16 @@
 /*
- * $Id: version.h,v 9.8 1991/09/09 08:14:51 dickey Exp $
+ * $Id: version.h,v 10.0 1991/10/16 12:47:15 ste_cm Rel $
  * Version-identifier for DED
  * $Log: version.h,v $
- * Revision 9.8  1991/09/09 08:14:51  dickey
- * make "2T" show days.fraction relative to the current time
+ * Revision 10.0  1991/10/16 12:47:15  ste_cm
+ * BASELINE Fri Oct 18 16:46:43 1991 -- ANSI conversion; vcs
  *
+ *		Revision 9.9  91/10/16  12:47:15  dickey
+ *		mods to support replay of 'c' commands
+ *		
+ *		Revision 9.8  91/09/09  08:14:51  dickey
+ *		make "2T" show days.fraction relative to the current time
+ *		
  *		Revision 9.7  91/08/16  13:58:07  dickey
  *		interpret "2T" to show numeric date (fractions of days)
  *		
@@ -212,4 +218,4 @@
  * 01 Dec 1987, added '*', '^' commands, made '%' refresh screen
  * 25 Nov 1987, added sccs-support (V,z,Z toggles, V,z,Z sorts)
  */
-static	char	version[] = "$Date: 1991/09/09 08:14:51 $";
+static	char	version[] = "$Date: 1991/10/16 12:47:15 $";
