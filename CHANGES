@@ -1,3 +1,14 @@
+1990-05-11  dickey@software.org
+
+	* test/run_test.sh: set umask to make test repeatable
+
+1990-05-11  ste_cm@software.org
+
+	* test/run_test.sh:
+	BASELINE Mon Aug 13 15:06:41 1990 -- LINCNT, ADA_TRANS
+
+	* test/run_test.sh: BASELINE Mon Jun 10 10:09:56 1991 -- apollo sr10.3
+
 1990-05-07  dickey@software.org
 
 	* src/ded.c: make "-t" option inherit into subprocesses
