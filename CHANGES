@@ -1,3 +1,47 @@
+1994-07-16  Thomas E. Dickey  <dickey@clark.net>
+
+	* user/ded.man: renamed flist-A command to '&'
+
+	* src/README: fixed more.
+
+	* src/ftree.c: renamed 'A' command to '&'
+	expanded header area, revising to use more sys5-curses features
+
+	* src/ded.hlp: renamed ftree 'A' to '&' for consistency with filelist
+
+	* src/boxchars.c: corrected location of ending null for bar_ruler
+
+	* src/dedview.c: recoded scale using boxchars module
+
+	* src/boxchars.c: RCS_BASE
+
+	* src/ftree.c: use new module boxchars.c
+
+	* src/ded.h, src/Makefile: added boxchars.c
+
+	* src/ded.c: enable boxchars by default
+
+	* src/dedcolor.c:
+	make my choice of ftype/ftype2 consistent with Linux's ls.
+
+	* src/README: bug didn't come back (yet)
+
+	* src/dedview.c:
+	adjusted so that we color only the name, not the other stuff made by ded2s
+
+	* src/README: fix a couple: restore_terminal
+
+	* src/ded.c:
+	added an extra call on 'restore_terminal()' for Linux (and some other)
+	implementations of 'curses' which don't restore ONLCR in 'endwin()'
+
+	* src/ded.c:
+	modified so that we can give -t option as file or directory, to make this
+	more flexible with the DED_TREE environment variable.
+
+	* src/ftree.c:
+	renamed 'step' to 'snxt' to avoid conflict with regex-code
+
 1994-07-15  Thomas E. Dickey  <dickey@clark.net>
 
 	* src/Makefile: took out apollo lint-lib

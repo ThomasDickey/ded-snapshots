@@ -1,5 +1,5 @@
 #if	!defined(NO_IDENT)
-static	char	Id[] = "$Id: dedview.c,v 12.14 1994/07/10 15:59:30 tom Exp $";
+static	char	Id[] = "$Id: dedview.c,v 12.16 1994/07/16 23:29:42 tom Exp $";
 #endif
 
 /*
@@ -179,6 +179,7 @@ private	void	show_line(
 			int	adj = gbl->cmdcol[CCOL_NAME];
 			int	col = adj - gbl->Xbase;
 			int	len = (COLS-1) - col;
+			int	end = gbl->cmdcol[CCOL_NAME] + gENTRY(j).namlen;
 
 			if (col < 0) {
 				adj -= col;
@@ -195,11 +196,15 @@ private	void	show_line(
 					standend();
 				}
 #if HAVE_HAS_COLORS
-				else if (has_colors()) {
+				else if (has_colors()
+				 && end > adj) {
+					int y, x;
+					getyx(stdscr, y, x);
 					move(line, col);
 					dedcolor(&(gENTRY(j)));
-					PRINTW("%.*s", len, &bfr[adj]);
+					PRINTW("%.*s", end-adj, &bfr[adj]);
 					dedcolor((FLIST *)0);
+					move(y, x);
 				}
 #endif /* HAVE_HAS_COLORS */
 			}
@@ -547,8 +552,7 @@ public	void	showMARK (
 {
 	register int marks, units;
 	int	y, x;
-	char	scale[20],
-		value[20];
+	char	value[20];
 
 	getyx(stdscr, y, x);
 	move(mark_W,0);
@@ -556,10 +560,24 @@ public	void	showMARK (
 	units = (col % 10);
 	col  /= 10;
 	while (marks > 0) {
+		int	ys, xs;
+		int	limit = ((marks > 10) ? 10 : marks) - units;
+		int	first;
+
+		if (limit <= 0)
+			break;
+		getyx(stdscr, ys, xs);
+#ifdef addchnstr
+		addchnstr(bar_ruler + units, limit);
+#else
+		PRINTW("%.*s", limit, bar_ruler + units);
+#endif
 		FORMAT(value, "%d", ++col);
-		(void)strcpy(scale, "----+-----");
-		(void)strcpy(scale + 10 - strlen(value), value);
-		PRINTW("%.*s", marks, scale + units);
+		first = 10 - units - strlen(value);
+		if (first < limit) {
+			move(ys, xs + first);
+			PRINTW("%.*s", limit - first, value);
+		}
 		marks -= (10 - units);
 		units = 0;
 	}

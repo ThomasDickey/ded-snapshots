@@ -1,5 +1,5 @@
 #if	!defined(NO_IDENT)
-static	char	Id[] = "$Header: /users/source/archives/ded.vcs/src/RCS/ded.c,v 12.25 1994/07/12 15:23:34 tom Exp $";
+static	char	Id[] = "$Header: /users/source/archives/ded.vcs/src/RCS/ded.c,v 12.28 1994/07/16 22:27:55 tom Exp $";
 #endif
 
 /*
@@ -7,6 +7,7 @@ static	char	Id[] = "$Header: /users/source/archives/ded.vcs/src/RCS/ded.c,v 12.2
  * Author:	T.E.Dickey
  * Created:	09 Nov 1987
  * Modified:
+ *		16 Jul 1994, allow DED_TREE to be file or directory.
  *		23 May 1994, port to Solaris.
  *		26 Apr 1994, provided sys5-like defaults for EDITOR, etc.
  *		23 Nov 1993, new blip-code.
@@ -245,9 +246,8 @@ public	void	to_exit (
 			refresh();
 		}
 		cookterm();
-#if	!SYS5_CURSES		/* patch: apollo 'endwin()' ? */
 		endwin();
-#endif
+		restore_terminal();	/* some curses are buggy */
 	}
 }
 
@@ -914,11 +914,13 @@ _MAIN
 #define	DED_TREE	".ftree"
 	if (tree_opt != 0) {
 		abspath(tree_opt = strcpy(tree_bfr, tree_opt));
-		(void)pathcat(tree_opt, tree_opt, DED_TREE);
 	} else {
 		if ((tree_opt = getenv("DED_TREE")) == 0)
-			tree_opt = pathcat(tree_bfr, gethome(), DED_TREE);
+			tree_opt = strcpy(tree_bfr, gethome());
 	}
+	if (stat_dir(tree_opt, &sb) >= 0)
+		tree_opt = pathcat(tree_opt, tree_opt, DED_TREE);
+
 	if (!getwd(old_wd))
 		(void)strcpy(old_wd, ".");
 	ft_read(old_wd, tree_opt);
@@ -959,10 +961,13 @@ _MAIN
 	save_terminal();
 	(void)dedsigs(TRUE);
 	(void)dedsize((RING *)0);
+
 	if (!initscr())			failed("initscr");
 #if HAVE_HAS_COLORS
 	(void)start_color();
 #endif
+	boxchars(TRUE);
+
 	in_screen = TRUE;
 	if (LINES > BUFSIZ || COLS > BUFSIZ) {
 	char	bfr[80];
