@@ -32,7 +32,7 @@
 #include	"ded.h"
 #include	<time.h>
 
-MODULE_ID("$Id: dlog.c,v 12.18 2001/12/11 14:17:50 tom Exp $")
+MODULE_ID("$Id: dlog.c,v 12.19 2002/07/03 13:22:18 tom Exp $")
 
 #define	NOW		time((time_t *)0)
 
@@ -159,7 +159,7 @@ private	int	read_script(_AR0)
 		else if (fgets(temp, sizeof(temp), cmd_fp)) {
 			join = TRUE;	/* ...unless we find newline */
 			for (s = temp; *s; s++)
-				if (!isprint(*s)) {	/* tab or newline */
+				if (!isprint(UCH(*s))) {	/* tab or newline */
 					join = (*s == '\t');
 					*s = EOS;
 					break;

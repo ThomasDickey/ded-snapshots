@@ -1,3 +1,8 @@
+2002-07-03  Thomas E. Dickey  <dickey@invisible-island.net>
+
+	* src/deddoit.c, src/dedscan.c, src/dedtype.c, src/dlog.c:
+	use UCH() to fix char-subscript warnings in gcc.
+
 2002-06-29  Thomas E. Dickey  <dickey@invisible-island.net>
 
 	* mkdirs.sh: resync with my-autoconf

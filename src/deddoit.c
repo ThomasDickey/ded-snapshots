@@ -36,7 +36,7 @@
  */
 #include	"ded.h"
 
-MODULE_ID("$Id: deddoit.c,v 12.18 1999/08/10 11:10:09 tom Exp $")
+MODULE_ID("$Id: deddoit.c,v 12.19 2002/07/03 13:22:18 tom Exp $")
 
 /*
  * Return a pointer to a leaf of a given name
@@ -192,7 +192,7 @@ public	void	deddoit(
 			return;
 		}
 		while (*s) {	/* skip leading blanks */
-			if (!isspace(*s)) {
+			if (!isspace(UCH(*s))) {
 				dyn_init(&gbl->cmd_sh, BUFSIZ);
 				APPEND(gbl->cmd_sh, s);
 				c = TRUE;
