@@ -1,5 +1,6 @@
-MANIFEST for ded, version t19871001
+MANIFEST for ded, version t19871118
 --------------------------------------------------------------------------------
 MANIFEST                        this file
 src                             subdirectory
+src/dedscan.c                   read file-list
 src/ftree.c                     directory-tree for DED
