@@ -1,29 +1,15 @@
-# $Id: Makefile,v 11.0 1992/05/12 14:46:58 ste_cm Rel $
+# $Id: Makefile,v 11.2 1992/08/05 14:31:00 dickey Exp $
 # MAKE-file for directory editor
-#
+
 ####### (Environment) ##########################################################
 THIS	= ded
+include ../../common.mk
 
-B	= ../bin
-I	= ../../common/interface
-L	= ../../common/lib
-
-GET	= checkout
-COPY	= cp -p
-PUT	= rm -f $@; $(COPY) $? $@
-#
-####### (Command-line Options) #################################################
-DED_H	= $(THIS).h $I/ptypes.h $I/common.h $I/cmdch.h $I/dyn_string.h
-
-INCLUDES= -I. -I$I
-CPP_OPTS= $(DEFINES) $(INCLUDES)
-
-LIBS	= $L/lib.a
-DATE	= echo '****'`date` >> $@
-LINTOPT	= $(CPP_OPTS) -ltd -lcurses -lapollo
-#
 ####### (Standard Lists) #######################################################
+DED_H	= $(THIS).h $(PTYPES_H) $I/cmdch.h $I/dyn_string.h
+
 ALL	= $B/$(THIS) $B/$(THIS).hlp
+
 CSRC	=\
 	$(THIS).c \
 	ded2s.c \
@@ -54,7 +40,7 @@ CSRC	=\
 HSRC	= \
 	$(THIS).h \
 	version.h
-#
+
 Z	= $(THIS).a
 OBJS	= \
 	$Z(ded2s.o) \
@@ -82,51 +68,37 @@ OBJS	= \
 	$Z(restat.o) \
 	$Z(showpath.o) \
 	$Z(sortset.o)
-#
+
 SOURCES	= Makefile README $(CSRC) $(HSRC) $(THIS).hlp
 MAIN_O	= $(THIS).o $Z $(LIBS)
-#
+
 ####### (Standard Productions) #################################################
-all:		sources $(ALL)
-#
-clean:				; rm -f *.[oa] *.out *.bak core
+all\
+install:	$(SOURCES) $(ALL)
+
+clean:				; rm -f $(CLEAN)
 clobber:	clean		; rm -f $(ALL)
-destroy:
-	sh -c 'for i in *;do case $$i in RCS);; *) rm -f $$i;;esac;done;exit 0'
+destroy:			; $(DESTROY)
 run_tests:
 sources:	$(SOURCES)
 
 ####### (Details of Productions) ###############################################
 $B/$(THIS):	$(MAIN_O)	; $(CC) -o $@ $(MAIN_O) -lcurses -ltermcap
 $B/$(THIS).hlp:	$(THIS).hlp	; $(PUT)
-#
+
 $Z:	$(OBJS)
 	ranlib $@
-#
+
 $(THIS).o:	$(DED_H) $(THIS).c version.h
 $(OBJS):	$(DED_H)
 $Z(ded2s.o):	$I/acl.h
-$Z(dedscan.o):	$I/rcsdefs.h $I/sccsdefs.h
-$Z(ftree.o):	$I/rcsdefs.h $I/sccsdefs.h
-#
+$Z(dedscan.o):	$(RCSDEFS_H) $(SCCSDEFS_H)
+$Z(ftree.o):	$(RCSDEFS_H) $(SCCSDEFS_H)
+
 ####### (Development) ##########################################################
 $(SOURCES):			; $(GET) $@
 lint.out:	$(CSRC)		; $(DATE); tdlint $(LINTOPT) $(CSRC) >>$@
 lincnt.out:	$(CSRC)		; $(DATE); lincnt $(CSRC) >>$@
 
-CPROTO	= cproto -e -i -fo'\\n\\t\\t' -fp'\\n\\t\\t'
-
 .PRECIOUS:	proto.h
 proto.h:	$(CSRC)		; $(CPROTO) $(CPP_OPTS) $? >$@
-
-.SUFFIXES:
-.SUFFIXES: .c .i .o .a .proto .lint
-.c.o:		; $(CC) $(CPP_OPTS) $(CFLAGS) -c $<
-.c.a:
-	@echo compile $<
-	@$(CC) $(CFLAGS) $(CPP_OPTS) -c $*.c
-	@ar rv $@ $*.o
-	@rm -f $*.o
-.c.i:		; $(CC) $(CPP_OPTS) -E -C $< >$@
-.c.proto:	; $(CPROTO) $(CPP_OPTS) $< >$@
-.c.lint:	; tdlint $(LINTOPT) $< >$@

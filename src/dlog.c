@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	what[] = "$Id: dlog.c,v 11.1 1992/08/04 14:51:20 dickey Exp $";
+static	char	what[] = "$Id: dlog.c,v 11.2 1992/08/05 12:49:57 dickey Exp $";
 #endif
 
 /*
@@ -180,8 +180,8 @@ private	char *	read_line(
 	_DCL(DYN **,	s)
 	_DCL(int,	wrap_len)
 {
-	int	wrap	= wrap_len > 0;
-	int	len	= wrap ? wrap_len : -wrap_len;
+	int	wrap	= wrap_len <= 0;
+	int	len	= wrap ? -wrap_len : wrap_len;
 	register int	c;
 
 	if (cmd_fp != 0) {

@@ -1,10 +1,14 @@
 /*
- * $Id: version.h,v 11.0 1992/04/08 13:17:04 ste_cm Rel $
+ * $Id: version.h,v 11.1 1992/08/05 09:18:55 dickey Exp $
  * Version-identifier for DED
  * $Log: version.h,v $
- * Revision 11.0  1992/04/08 13:17:04  ste_cm
- * BASELINE Thu Jul 16 09:39:01 1992 -- EBPM4 support
+ * Revision 11.1  1992/08/05 09:18:55  dickey
+ * added '/', '?', 'n', 'N' search commands to workspace pager.
+ * also added '<' and '>' commands to workspace pager.
  *
+ *		Revision 11.0  92/04/08  13:17:04  ste_cm
+ *		BASELINE Thu Jul 16 09:39:01 1992 -- EBPM4 support
+ *		
  *		Revision 10.5  92/04/08  13:17:04  dickey
  *		restructured so that there is not nearly as much global data.
  *		This allowed me to complete the split-screen operations,
@@ -248,4 +252,4 @@
  * 01 Dec 1987, added '*', '^' commands, made '%' refresh screen
  * 25 Nov 1987, added sccs-support (V,z,Z toggles, V,z,Z sorts)
  */
-static	char	version[] = "$Date: 1992/04/08 13:17:04 $";
+static	char	version[] = "$Date: 1992/08/05 09:18:55 $";

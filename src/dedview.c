@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	Id[] = "$Id: dedview.c,v 11.0 1992/04/08 12:57:18 ste_cm Rel $";
+static	char	Id[] = "$Id: dedview.c,v 11.1 1992/08/05 07:29:56 dickey Exp $";
 #endif
 
 /*
@@ -498,14 +498,21 @@ public	void	showLINE(
  */
 public	void	showMARK _ONE(int,col)
 {
-	register int j, k;
-	char	scale[20];
+	register int marks, units;
+	char	scale[20],
+		value[20];
 
 	move(mark_W,0);
-	for (j = 0; j < COLS - 1; j += 10) {
-		k = ((col + j) / 10) + 1;
-		FORMAT(scale, "----+---%d", k > 9 ? k : -k);
-		PRINTW("%.*s", COLS - j - 1, scale);
+	marks = COLS - 1;
+	units = (col % 10);
+	col  /= 10;
+	while (marks > 0) {
+		FORMAT(value, "%d", ++col);
+		(void)strcpy(scale, "----+-----");
+		(void)strcpy(scale + 10 - strlen(value), value);
+		PRINTW("%.*s", marks, scale + units);
+		marks -= (10 - units);
+		units = 0;
 	}
 }
 
