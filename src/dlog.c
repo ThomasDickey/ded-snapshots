@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	what[] = "$Id: dlog.c,v 11.20 1992/08/24 08:13:04 dickey Exp $";
+static	char	what[] = "$Id: dlog.c,v 11.22 1992/08/25 16:16:05 dickey Exp $";
 #endif
 
 /*
@@ -52,6 +52,22 @@ private	void	show_time _ONE(char *,msg)
 
 	dlog_comment("process %d %s at %s", getpid(), msg, ctime(&now));
 }
+
+#ifdef	DEBUG
+private	void	show_text _ONE(char *,text)
+{
+	if (log_fp) {
+		char	temp_t[BUFSIZ],
+			*text2s	= temp_t;
+
+		while (*text) {
+			encode_logch(text2s, (int *)0, *text++);
+			text2s += strlen(text2s);
+		}
+		FPRINTF(log_fp, "%s\n", temp_t);
+	}
+}
+#endif	/* DEBUG */
 
 /*
  * Flush pending text from raw commands so that it is logged without a
@@ -318,23 +334,43 @@ public	char *	dlog_string(
 	getyx(stdscr,y,x);
 
 	for (;;) {
+		int	first_col,	/* column at which to begin edit */
+			first_ins;	/* set true to initially insert */
 
 		/*
 		 * Replay the portion of the inline editing from history.
 		 */
-		if (inline
-		 && (prior = dyn_string(trace))
-		 && (*prior != EOS)) {
-			(void)wrawgets((WINDOW *)0,
-				buffer,
-				prefix,
-				len,
-				len,
-				0,
-				wrap,
-				fast_q,
-				&prior,
-				FALSE);
+		if (inline) {
+			if ((s = dyn_string(trace))
+			 && (*s != EOS)) {
+				*inline = dyn_copy(*inline, s);
+				trace = dyn_append_c(trace, '\n');
+				prior = dyn_string(trace);
+				(void)wrawgets(stdscr,
+					buffer,
+					prefix,
+					len,
+					len,
+					0,
+					(fast_q == EOS),
+					wrap,
+					fast_q,
+					&prior,
+					TRUE);
+#ifdef	DEBUG
+				dlog_comment("PLAY:");
+				show_text(rawgets_log());
+#endif
+				first_col = strlen(buffer);
+				first_ins = TRUE;
+			} else {
+				dyn_init(inline,1);
+				first_col = 0;
+				first_ins = FALSE;
+			}
+		} else {
+			first_col = strlen(buffer);
+			first_ins = (fast_q == EOS);
 		}
 
 		/*
@@ -349,7 +385,8 @@ public	char *	dlog_string(
 			prefix,
 			len,
 			len + 1,
-			inline ? 0 : (int)strlen(buffer),
+			first_col,
+			first_ins,
 			wrap,
 			fast_q,
 			cmd_fp ? &cmd_ptr : (char **)0,
@@ -359,12 +396,8 @@ public	char *	dlog_string(
 		 * Record the inline-editing keystrokes
 		 */
 		if (history && inline) {
+			(void)dyn_trim1(trace);
 			trace = dyn_append(trace, rawgets_log());
-			s = dyn_string(trace);
-
-			/* allow splice */
-			if (trace->cur_length > 0)
-				s[--(trace->cur_length)] = EOS;
 		}
 
 		to_hist = inline ? dyn_string(trace) : buffer;
@@ -421,10 +454,18 @@ public	char *	dlog_string(
 			trace = dyn_copy(trace, s);
 	}
 
+	if (inline)
+		*inline = dyn_copy(*inline, to_hist);
+
 	PENDING(string,TRUE);
 
+#ifdef	DEBUG
+	dlog_comment("done:%d:", done);
+	show_text(to_hist);
+#endif
 	if (done == TRUE) {
-		put_history(history, to_hist);
+		if (!inline)
+			put_history(history, to_hist);
 		return buffer;
 	}
 	return 0;	/* if quit, return null */

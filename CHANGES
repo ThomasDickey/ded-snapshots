@@ -1,3 +1,19 @@
+1992-08-25  dickey@software.org
+
+	* src/dlog.c: debug-trace
+	modified so that inline history is not saved here
+	(still have to make end-stops work with history)
+
+	* src/history.c: debug-trace
+
+	* src/ded.c: special hack so 'cf and 'f commands are the same
+
+	* src/dlog.c: mods to 'dlog_string()' to allow "cf" command's internal
+	replay to work.
+
+	* src/inline.c:
+	make 'dyn_trim1()' public so I can use it in 'dlog_string()'
+
 1992-08-24  dickey@software.org
 
 	* src/dedline.c: removed obsolete code for 'edittext()'

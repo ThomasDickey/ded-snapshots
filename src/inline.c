@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	Id[] = "$Id: inline.c,v 11.15 1992/08/20 07:47:16 dickey Exp $";
+static	char	Id[] = "$Id: inline.c,v 11.16 1992/08/25 11:56:11 dickey Exp $";
 #endif
 
 /*
@@ -37,7 +37,7 @@ static	int	re_edit,	/* flag for replay/editing */
 /************************************************************************
  *	local procedures						*
  ************************************************************************/
-private	int	trim_one(
+public	int	dyn_trim1(	/* patch */
 	_AR1(DYN *,	p))
 	_DCL(DYN *,	p)
 {
@@ -194,7 +194,7 @@ public	int	up_inline(_AR0)
 	register char	*s,
 			*t = dyn_string(p->text);
 
-	(void)trim_one(p->text);
+	(void)dyn_trim1(p->text);
 
 	if (!the_age)
 		edited = dyn_copy(edited, t);
@@ -216,7 +216,7 @@ public	int	down_inline(_AR0)
 	register ITEM	*p = find_item();
 	register char	*s;
 
-	(void)trim_one(p->text);
+	(void)dyn_trim1(p->text);
 
 	if (the_age <= 0) IGNORE
 
@@ -272,7 +272,7 @@ public	int	get_inline (
 
 	case C_DONE:	/* save buffer in history */
 		edited = dyn_copy(edited, dyn_string(p->text));
-		(void)trim_one(edited);
+		(void)dyn_trim1(edited);
 		put_history(&(p->hist), dyn_string(edited));
 		break;
 
@@ -285,7 +285,7 @@ public	int	get_inline (
 		/* fall-thru */
 
 	case C_TRIM:	/* remove prior-data (e.g., for retry/append) */
-		c = trim_one(p->text);
+		c = dyn_trim1(p->text);
 		p->play = dyn_length(p->text);
 		break;
 

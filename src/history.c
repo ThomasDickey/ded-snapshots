@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	*Id = "$Id: history.c,v 11.2 1992/08/07 12:07:35 dickey Exp $";
+static	char	*Id = "$Id: history.c,v 11.3 1992/08/25 15:57:10 dickey Exp $";
 #endif
 
 /*
@@ -19,6 +19,36 @@ static	char	*Id = "$Id: history.c,v 11.2 1992/08/07 12:07:35 dickey Exp $";
 	def_ALLOC(HIST)
 
 #define	MAX_AGE	10
+
+#ifdef	DEBUG
+private	void	show_history(
+	_ARX(HIST *,	table)
+	_AR1(char *,	tag)
+		)
+	_DCL(HIST *,	table)
+	_DCL(char *,	tag)
+{
+	int	number	= 0;
+
+	dlog_comment("history:%s\n",tag);
+	while (table != 0) {
+		char	temp_t[BUFSIZ],
+			*text2s	= temp_t,
+			*text	= table->text;
+
+		while (*text) {
+			encode_logch(text2s, (int *)0, *text++);
+			text2s += strlen(text2s);
+		}
+		*text2s = EOS;
+		dlog_comment("[%d] %s\n", number++, temp_t);
+		table = table->next;
+	}
+}
+#define	SHOW_HISTORY(table,tag)	show_history(table,tag)
+#else
+#define	SHOW_HISTORY(table,tag)
+#endif
 
 private	int	same_history(
 	_ARX(HIST *,	table)
@@ -62,6 +92,7 @@ public	void	put_history(
 			dofree((char *)old);
 		}
 	}
+	SHOW_HISTORY(*table,"put");
 }
 
 
