@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	sccs_id[] = "@(#)ded.c	1.53 88/08/18 14:39:54";
+static	char	sccs_id[] = "@(#)ded.c	1.54 88/09/01 09:09:28";
 #endif	lint
 
 /*
@@ -7,6 +7,7 @@ static	char	sccs_id[] = "@(#)ded.c	1.53 88/08/18 14:39:54";
  * Author:	T.E.Dickey
  * Created:	09 Nov 1987
  * Modified:
+ *		01 Sep 1988, trim repeats in 'argv[]'.
  *		17 Aug 1988, added repeat (sleep) count to 'W', 'l'.
  *		12 Aug 1988, apollo sys5 environment permits symbolic links.
  *			     Added 'd' (directory-order) sort.
@@ -51,6 +52,7 @@ static	char	sccs_id[] = "@(#)ded.c	1.53 88/08/18 14:39:54";
 #include	<signal.h>
 extern	char	*strchr();
 extern	char	*txtalloc();
+extern	char	**vecalloc();
 
 #ifndef	EDITOR
 #define	EDITOR	"/usr/ucb/vi"
@@ -803,7 +805,7 @@ extern	char	*optarg;
 
 #include	"version.h"
 
-register j;
+register int j, k;
 int	c,
 	count,
 	lastc	= '?',
@@ -849,9 +851,22 @@ char	tpath[BUFSIZ],
 	}
 	rawterm();
 
-	/* patch: should trim repeated items from arg-list */
-	top_argv = argv + optind;
-	top_argc = argc - optind;
+	/* Copy 'argv[]' so we can reallocate it; also trim repeated items */
+	top_argv = vecalloc((unsigned)(argc - optind + 2));
+	top_argc = 0;
+	if (optind < argc) {
+		for (j = 0; j < argc - optind; j++) {
+			char *s = txtalloc(argv[j+optind]);
+			for (k = 0; k < j; k++)
+				/* look for repeats (same pointer) */
+				if (top_argv[k] == s)
+					break;
+			if (k == j)	/* ... then we never found a repeat */
+				top_argv[top_argc++] = s;
+		}
+	} else
+		top_argv[top_argc++] = ".";
+	top_argv[top_argc] = 0;		/* always keep a null pointer on end */
 	if (!dedscan(top_argc, top_argv))	failed((char *)0);
 
 	mark_W = (LINES/2);

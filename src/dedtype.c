@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	sccs_id[] = "@(#)dedtype.c	1.12 88/08/17 07:38:32";
+static	char	sccs_id[] = "@(#)dedtype.c	1.13 88/09/01 15:37:08";
 #endif	lint
 
 /*
@@ -7,6 +7,7 @@ static	char	sccs_id[] = "@(#)dedtype.c	1.12 88/08/17 07:38:32";
  * Author:	T.E.Dickey
  * Created:	16 Nov 1987
  * Modified:
+ *		01 Sep 1988, break out of 'get' loop if interrupted or error.
  *		17 Aug 1988, test for error return from 'fseek()'.
  *		07 Jun 1988, added CTL(K) command.
  *		02 May 1988, fixed repeat-count for forward-command.
@@ -117,6 +118,18 @@ typeconv(c,binary)
 	return (FALSE);
 }
 
+static
+GetC(fp)
+FILE	*fp;
+{
+	register int c = fgetc(fp);
+	if (feof(fp) || ferror(fp) || dedsigs(TRUE))
+		c = EOF;
+	else if (c < 0)
+		c &= 0xff;
+	return (c);
+}
+
 dedtype(name,binary)
 char	*name;
 {
@@ -153,7 +166,7 @@ int	c,			/* current character */
 				infile = DOALLOC(infile,OFF_T,maxpage);
 			}
 			infile[page++] = ftell(fp);
-			while (c = fgetc(fp), !feof(fp)) {
+			while ((c = GetC(fp)) != EOF) {
 				if (typeconv(c,binary)) {
 					if ((Tlen == 0) && blank)
 						continue;
@@ -163,6 +176,7 @@ int	c,			/* current character */
 						break;
 				}
 			}
+			clearerr(fp);
 
 			while (y < LINES-1)
 				y = typeline(y);
@@ -250,7 +264,7 @@ int	c,			/* current character */
 					done = -1;
 			}
 		}
-		(void)fclose(fp);
+		FCLOSE(fp);
 		if (done < 0)
 			warn("fseek");
 		else {

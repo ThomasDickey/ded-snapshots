@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	sccs_id[] = "@(#)dedscan.c	1.22 88/08/17 15:11:24";
+static	char	sccs_id[] = "@(#)dedscan.c	1.23 88/09/01 09:09:39";
 #endif	lint
 
 /*
@@ -7,6 +7,7 @@ static	char	sccs_id[] = "@(#)dedscan.c	1.22 88/08/17 15:11:24";
  * Author:	T.E.Dickey
  * Created:	09 Nov 1987
  * Modified:
+ *		01 Sep 1988, look for, and reduce common leading pathname.
  *		17 Aug 1988, don't use 'dedmsg()', which assumes cursor position
  *		12 Aug 1988, added 'dir_order' to support sort into the order
  *			     in which we obtained names from the directory.
@@ -28,6 +29,8 @@ static	char	sccs_id[] = "@(#)dedscan.c	1.22 88/08/17 15:11:24";
 #define		DIR_PTYPES	/* includes directory-stuff */
 #include	"ded.h"
 extern	FLIST	*dedfree();
+extern	char	*strchr();
+extern	char	*strrchr();
 extern	char	*txtalloc();
 
 extern	int	debug;
@@ -50,28 +53,23 @@ char	*argv[];
 {
 	DIR		*dp;
 	struct	direct	*de;
-	register int	j;
+	register int	j, k;
+	auto	 int	common = -1;
 	char	name[BUFSIZ];
 	char	*s;
 
 	flist = dedfree(flist, numfiles);
 	dir_order = 0;
 
-	if (argc == 0) {
-	static	char	dot[]	= ".",
-			*dot_[]	= {dot,0};
-		argv = dot_;
-		argc = 1;
-	}
-
 	numfiles = 0;
 	if (chdir(strcpy(new_wd,old_wd)) < 0)
 		failed(old_wd);
 	if (argc > 1) {
 		for (j = 0; j < argc; j++)
-			(void)argstat(argv[j], TRUE);
+			if (argstat(argv[j], TRUE) >= 0)
+				common = 0;
 	} else {
-		if (argstat(argv[0], FALSE) > 0) {
+		if ((common = argstat(argv[0], FALSE)) > 0) {
 			if (chdir(strcpy(new_wd, argv[0])) < 0) {
 				warn(new_wd);
 				return(0);
@@ -104,6 +102,54 @@ char	*argv[];
 					waitmsg("no files found");
 			}
 			ft_purge();	/* remove items not reinserted */
+		}
+	}
+
+	/*
+	 * If the user specified in the command arguments a set of files from
+	 * multiple directories (or even a lot of files in the same directory)
+	 * find the longest common leading pathname component and readjust
+	 * everything if it is nonnull.
+	 */
+	if (common == 0 && numfiles != 0) {
+		common = strlen(strcpy(name,argv[0]));
+		for (j = 0; j < argc; j++) {
+			char	*z = argv[j];
+			if ((k = strlen(z)) > common
+			&&  !strncmp(z, name, common))
+				continue;
+			else {
+				char	*t = 0;
+				if ((k > common)
+				&&  (t = strchr(z+common, '/')))
+					*t = EOS;
+				s = strrchr(z, '/');
+				if (t != 0)
+					*t = '/';
+#ifdef	apollo
+				if (!strcmp(name, "//"))
+					s = 0;	/* truncating to "/" is err */
+#endif	apollo
+				if (s != 0) {
+					if ((k = (s + 1 - z)) < common) {
+						common = k;
+						strcpy(name, z)[k] = EOS;
+					}
+				} else {	/* give up */
+					name[common = 0] = EOS;
+					break;
+				}
+			}
+		}
+
+		/*
+		 * Readjustment relies on never 'free()'ing the strings in the
+		 * 'flist[]' array!
+		 */
+		if (common > 0 && chdir(name) >= 0) {
+			abspath(strcpy(new_wd, name));
+			for (j = 0; j < numfiles; j++)
+				xNAME(j) += common;
 		}
 	}
 	if (debug)
