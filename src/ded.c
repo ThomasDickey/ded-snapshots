@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	Id[] = "$Header: /users/source/archives/ded.vcs/src/RCS/ded.c,v 9.9 1991/07/16 13:03:04 dickey Exp $";
+static	char	Id[] = "$Header: /users/source/archives/ded.vcs/src/RCS/ded.c,v 9.10 1991/07/19 07:46:43 dickey Exp $";
 #endif
 
 /*
@@ -7,10 +7,13 @@ static	char	Id[] = "$Header: /users/source/archives/ded.vcs/src/RCS/ded.c,v 9.9 
  * Author:	T.E.Dickey
  * Created:	09 Nov 1987
  * $Log: ded.c,v $
- * Revision 9.9  1991/07/16 13:03:04  dickey
- * modified logic of 'edithead()' to account for the case in
- * which the current entry contains '/'.
+ * Revision 9.10  1991/07/19 07:46:43  dickey
+ * added parm to 'markset()' to tell if we must clear workspace
  *
+ *		Revision 9.9  91/07/16  13:09:13  dickey
+ *		modified logic of 'edithead()' to account for the case in
+ *		which the current entry contains '/'.
+ *		
  *		Revision 9.8  91/07/12  08:46:37  dickey
  *		last change introduced errs in 'count_tags()'
  *		
@@ -474,7 +477,7 @@ scroll_to_file(inx)
  * Move the workspace marker.  If we are in split-screen mode, also adjust the
  * length of the current viewport.  Finally, re-display the screen.
  */
-markset(num)
+markset(num,reset_work)
 {
 	int	lo = (Yhead + MINLIST * (maxview - curview)),
 		hi = (LINES - MINWORK);
@@ -502,7 +505,7 @@ markset(num)
 	}
 
 	(void)to_file();
-	showFILES(FALSE,FALSE);
+	showFILES(FALSE,reset_work);
 }
 
 /*
@@ -829,7 +832,7 @@ openVIEW()
 			Yhead = 0;
 		curview = maxview++;	/* patch: no insertion? */
 		saveVIEW();		/* current viewport */
-		markset(mark_W);	/* adjust marker, re-display */
+		markset(mark_W,TRUE);	/* adjust marker, re-display */
 	} else
 		dedmsg("too many viewports");
 }
@@ -941,7 +944,7 @@ int	y,x;
 #ifdef	apollo
 	if (resizewin()) {
 		dlog_comment("resizewin(%d,%d)\n", LINES, COLS);
-		markset(mark_W);
+		markset(mark_W,FALSE);
 		showFILES(FALSE,TRUE);
 		return;
 	}
@@ -1564,7 +1567,7 @@ char	*argv[];
 			/* move work-area marker */
 	case 'A':	count = -count;
 	case 'a':
-			markset(mark_W + count);
+			markset(mark_W + count,TRUE);
 			break;
 
 	case CTL('R'):	/* modify read-expression */
