@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	Id[] = "$Id: deduniq.c,v 5.1 1990/02/07 08:29:56 dickey Exp $";
+static	char	Id[] = "$Id: deduniq.c,v 5.2 1990/02/08 13:05:15 dickey Exp $";
 #endif	lint
 
 /*
@@ -7,10 +7,13 @@ static	char	Id[] = "$Id: deduniq.c,v 5.1 1990/02/07 08:29:56 dickey Exp $";
  * Author:	T.E.Dickey
  * Created:	18 Jan 1989
  * $Log: deduniq.c,v $
- * Revision 5.1  1990/02/07 08:29:56  dickey
- * rewrote, using 'level' argument to provide reset/set/all
- * modes of operation.
+ * Revision 5.2  1990/02/08 13:05:15  dickey
+ * don't tag current entry unless other entries match!
  *
+ *		Revision 5.1  90/02/07  08:29:56  dickey
+ *		rewrote, using 'level' argument to provide reset/set/all
+ *		modes of operation.
+ *		
  *		Revision 5.0  89/03/14  11:20:15  ste_cm
  *		BASELINE Fri Oct 27 12:27:25 1989 -- apollo SR10.1 mods + ADA_PITS 4.0
  *		
@@ -43,7 +46,9 @@ deduniq(level)
 
 		k = (level > 1) ? j-1 : curfile;
 
-		if (! dedsort_cmp(flist+k, flist+j)) {
+		if (k == j)
+			blip('*');
+		else if (! dedsort_cmp(flist+k, flist+j)) {
 			blip('#');
 			xFLAG(k) =
 			xFLAG(j) = (level > 0);
