@@ -1,5 +1,5 @@
 #ifndef	NO_SCCS_ID
-static	char	sccs_id[] = "@(#)ftree.c	1.7 87/09/16 16:46:04";
+static	char	sccs_id[] = "@(#)ftree.c	1.9 87/09/17 13:28:38";
 #endif
 
 /*
@@ -16,13 +16,11 @@ static	char	sccs_id[] = "@(#)ftree.c	1.7 87/09/16 16:46:04";
  *		ft_insert
  *		ft_remove
  *		ft_purge
+ *		ft_scan
+ *		ft_view
  *
  * Configure:	DEBUG	- dump a logfile in readable form at the end
  *		TEST	- make a standalone program (otherwise, part of 'fl')
- *
- * Notes:	To make the 'denode()' procedure work properly when we are
- *		in the "/" directory, we must append a "/", since Altos's
- *		'getcwd()' does not provide one!
  */
 
 #include	<ptypes.h>
@@ -42,8 +40,7 @@ extern	char	*getcwd(),
 		*strcpy();
 
 #include	"screen.h"
-extern	char	*denode(),
-		*doalloc();
+extern	char	*doalloc();
 
 #define	MAXPATHLEN	BUFSIZ
 
@@ -73,8 +70,7 @@ typedef	struct	{
 	char	f_name[DIRSIZ];		/* name of directory		*/
 	} FTREE;
 
-static	char	FDnode[MAXPATHLEN],	/* nodename, if any (stripped)	*/
-		FDname[MAXPATHLEN];	/* name of user's database	*/
+static	char	FDname[MAXPATHLEN];	/* name of user's database	*/
 static	long	FDtime;			/* time: last modified ".ftree"	*/
 static	int	FDdiff,			/* number of changes made	*/
 		FDlast,			/* last used-entry in ftree[]	*/
@@ -107,19 +103,6 @@ fd_alloc()
 			size++;
 		}
 	}
-}
-
-/*
- * Get the current working directory and return it in the given buffer.  Since
- * we have a conflict with the use of 'denode()' at the root-level, explicitly
- * adjust this case (node == wd).
- */
-static
-fd_getcwd(bfr)
-char	*bfr;
-{
-	if (!strcmp(getcwd(bfr, MAXPATHLEN-2), FDnode))
-		(void)strcpy(bfr, "/");
 }
 
 /*
@@ -162,59 +145,6 @@ char	tmp[MAXPATHLEN];
 	}
 	while (node = ftree[node].f_root);
 	return(bfr);
-}
-
-/*
- * Prepare a pathname (i.e., make it standardized, absolute).  Relative paths
- * may include the following cases (no embedded slashes):
- *	xx
- *	.
- *	./xx
- * The ".." notation may be embedded at any point (we recursively strip it).
- */
-static
-char *
-fd_prep(path)
-char	*path;
-{
-register char *s, *d;
-
-	path = denode(path, FDnode, (int *)0);
-	if (*path == '/')
-		;
-	else if (*path) {
-	char	cwdpath[MAXPATHLEN];
-		fd_getcwd(cwdpath);
-		s = path;
-		if (*s == '.')
-			if (s[1] == '\0' || s[1] == '/')
-				s++;		/* absorb "." */
-		(void)strcat(strcat(cwdpath, "/"), s);
-		(void)strcpy(path,denode(cwdpath, FDnode, (int *)0));
-	}
-
-	/* trim out repeated & trailing '/' marks, as well as ".." */
-	for (s = d = path; *s; s++) {
-		if (*s == '/')
-			while (s[1] == '/')	s++;
-		*d++ = *s;
-	}
-	while (d > path+1)
-		if (d[-1] == '/')	d--;
-		else			break;
-	*d = '\0';
-	for (s = path; *s; s++) {
-		if (s[0] == '.' && s[1] == '.')
-			if (s > path && s[-1] == '/')
-				if (s[2] == '\0' || s[2] == '/') {
-					d = s+2;
-					s -= 2;
-					while (s > path && *s != '/') s--;
-					while (*s++ = *d++);
-					s = path;	/* rescan */
-				}
-	}
-	return(path);
 }
 
 /*
@@ -267,7 +197,8 @@ char	bfr[MAXPATHLEN];
 register int j;
 register FTREE *f;
 
-	if (!strcmp(path = fd_prep(strcpy(bfr,path)), "/")) {
+	abspath(path = strcpy(bfr,path));
+	if (!strcmp(path, "/")) {
 		if (FDlast == 0) {	/* cwd is probably "/" */
 			FDdiff++;
 			FDlast++;
@@ -340,9 +271,13 @@ static
 do_find(path)
 char	*path;
 {
+char	bfr[MAXPATHLEN];
 register int j, this, last = 0;
 
-	path = fd_prep(path);
+	abspath(path = strcpy(bfr,path));
+	if (!strcmp(path,"/"))
+		return(0);
+
 	while (*path == '/') {
 	char	*name = ++path,
 		*next = strchr(path, '/');
@@ -363,7 +298,7 @@ register int j, this, last = 0;
 		if (this) {
 			last = this;
 		} else {
-			last = 0;
+			last = -1;
 			break;
 		}
 	}
@@ -375,19 +310,14 @@ register int j, this, last = 0;
  * are added back before the database is written out.  This is used to update
  * the database from 'fl' when (re)reading a directory.  The argument must
  * be a directory name.
- *
- * This procedure writes back into its argument to reduce the number of
- * 'getcwd()' calls on succeeding 'ft_insert()'s.
  */
 ft_remove(path)
 char	*path;
 {
-char	bfr[MAXPATHLEN];
-int	last = do_find(strcat(strcpy(bfr,path),"/"));
+int	last = do_find(path);
 register int j;
 
 	if (last >= 0) {
-		(void)strcpy(path,bfr);
 		for (j = last+1; j <= FDlast; j++) {
 		register FTREE *f = &ftree[j];
 			if (f->f_root == last)
@@ -430,9 +360,8 @@ ft_read()
 {
 struct	stat sb;
 register int j;
-int	fid, len = -1;
+int	fid;
 unsigned size;
-char	cwdpath[MAXPATHLEN];
 
 	/* read the current database */
 	(void)strcat(strcpy(FDname, getenv("HOME")), "/.ftree");
@@ -461,8 +390,7 @@ char	cwdpath[MAXPATHLEN];
 	FDdiff = 0;
 
 	/* append the current directory to the list */
-	(void)strcpy(cwdpath, getcwd(FDnode, MAXPATHLEN-2));
-	ft_insert(denode(strcat(cwdpath,"/"), FDnode, &len));
+	ft_insert(".");
 
 	/* inherit sense of 'Z' toggle from database */
 	for (j = 0; j <= FDlast; j++) {
@@ -636,6 +564,13 @@ int	old = f->f_mark;
 static
 scroll_to(node)
 {
+register int j = node;
+	if (!strcmp(ftree[j].f_name, "sccs") && !showsccs)
+		showsccs = TRUE;
+	while (j = ftree[j].f_root) {	/* ensure this is visible! */
+		if (ftree[j].f_mark & NOVIEW)
+			markit(j,NOVIEW,FALSE);
+	}
 	(void)limits(showbase,showbase);
 	while (node > showlast) (void)forward(1);
 	while (node < showbase) (void)backward(1);
@@ -661,10 +596,12 @@ char	cwdpath[MAXPATHLEN];
 register int j;
 
 	/* set initial position */
-	(void)limits(showbase,showbase);
-	row = do_find(strcpy(cwdpath,path));
+	abspath(strcpy(cwdpath,path));
+	ft_insert(cwdpath);
+	row = do_find(cwdpath);
 	lvl = fd_level(row);
 	scroll_to(row);
+	showdiff = -1;
 
 	/* process commands */
 	for (;;) {
@@ -798,13 +735,15 @@ register int j;
 }
 
 #ifdef	DEBUG
-ft_dump()
+ft_dump(msg)
+char	*msg;
 {
-FILE	*fp = fopen("ftree.log", "w");
+FILE	*fp = fopen("ftree.log", "a+");
 register FTREE *f;
 register int j, k;
 	if (fp) {
-		PRINTF("writing log file\n");
+		PRINTF("writing log file: %s\n", msg);
+		FPRINTF(fp, "FTREE LOG: %s\n", msg);
 		FPRINTF(fp, "Total nodes: %d\n", FDlast);
 		for (j = 0; j <= FDlast; j++) {
 			f = &ftree[j];
@@ -840,7 +779,7 @@ int	fid;
 char	old[MAXPATHLEN],
 	bfr[MAXPATHLEN], *s = bfr;
 
-	fd_getcwd(old);
+	(void)getcwd(old,sizeof(old)-2);
 	s += strlen(fd_path(bfr,node));
 
 	if (chdir(bfr) < 0)
@@ -870,7 +809,7 @@ ft_write()
 	if (FDdiff || (savesccs != showsccs)) {
 	int	fid;
 #ifdef	DEBUG
-		ft_dump();
+		ft_dump("write");
 #endif	DEBUG
 		if ((fid = open(FDname, O_WRONLY|O_CREAT|O_TRUNC, 0644)) >= 0) {
 #ifdef	DEBUG
@@ -920,7 +859,7 @@ char	cwdpath[MAXPATHLEN],
 		ft_purge();
 	(void) initscr();
 	setterm (1,-1,-1,-1);	/* raw; noecho; nonl; nocbreak; */
-	(void)ft_view(fd_getcwd(cwdpath));
+	(void)ft_view(getcwd(cwdpath,sizeof(cwdpath)-2));
 	move(LINES-1,0);
 	refresh();
 	PRINTF("\n");
