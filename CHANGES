@@ -1,3 +1,16 @@
+1988-09-01  dickey@software.org
+
+	* src/dedtype.c: break out of get-loop if interrupt or error.
+
+	* src/version.h:
+	common-pathname editing in 'dedscan()' (to use output of 'checkup').
+
+	* src/dedscan.c: eliminate common leading pathname if possible!
+
+	* src/ded.c: remove repeated items in 'argv[]' so 'R' runs fastest.
+
+	* src/README: note for apollo sys5.
+
 1988-08-19  dickey@software.org
 
 	* src/README: fix some, find some.

@@ -72,3 +72,7 @@ To do:
 	decide to permit editing the AEGIS name!).  Also, should consider
 	adding a command to edit link text.  Note that for these, I should
 	also consider letting 'edittext()' use more than one line...
+
+88/09/1:
+	For SYSTEM5, should use 'wrefresh(curscr)' to forcibly refresh the
+	screen.
