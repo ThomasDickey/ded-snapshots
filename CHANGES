@@ -1,3 +1,14 @@
+2002-07-05  Thomas E. Dickey  <dickey@invisible-island.net>
+
+	* src/ded.c, src/ded.h, src/dedcolor.c:
+	change ifdef convention to work with "gcc -Wundef"
+
+	* src/dedline.c, src/dedmake.c, src/dedname.c, src/dedscan.c, src/showpath.c:
+	changed ifdef convention to work with "gcc -Wundef"
+
+	* src/ded.c, src/ded2s.c, src/dedcolor.c, src/dedtype.c, src/dedview.c, src/ftree.c, src/ded.h:
+	change ifdef convention to work with "gcc -Wundef"
+
 2002-07-03  Thomas E. Dickey  <dickey@invisible-island.net>
 
 	* src/deddoit.c, src/dedscan.c, src/dedtype.c, src/dlog.c:

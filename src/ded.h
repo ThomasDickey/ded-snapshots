@@ -19,7 +19,7 @@
 
 #ifdef	MAIN
 #if	!defined(NO_IDENT)
-static const char ded_h[] = "$Id: ded.h,v 12.61 2001/01/30 01:49:45 tom Exp $";
+static const char ded_h[] = "$Id: ded.h,v 12.63 2002/07/05 13:55:00 tom Exp $";
 #endif
 #endif	/* MAIN */
 
@@ -27,7 +27,7 @@ static const char ded_h[] = "$Id: ded.h,v 12.61 2001/01/30 01:49:45 tom Exp $";
 #define S_IEXEC 0100	/* BeOS lacks this */
 #endif
 
-#if HAVE_STDARG_H && PROTOTYPES
+#if defined(HAVE_STDARG_H) && defined(PROTOTYPES)
 #include	<stdarg.h>
 #else
 #include	<varargs.h>
@@ -60,7 +60,7 @@ static const char ded_h[] = "$Id: ded.h,v 12.61 2001/01/30 01:49:45 tom Exp $";
  */
 #define	NO_HISTORY (HIST **)0
 
-#if HAVE_NEW_TOKEN_QUOTE
+#if defined(HAVE_NEW_TOKEN_QUOTE)
 #  define ENV(n) dftenv(n,#n)
 #else
 #  define ENV(n) dftenv(n,"n")
@@ -289,7 +289,7 @@ extern	void	put_dedblip (
 		_ar1(int,	code));
 
 /* *** "dedcolor.c" *** */
-#if HAVE_HAS_COLORS
+#if defined(HAVE_HAS_COLORS)
 extern	int	invert_colors;
 extern	void	init_dedcolor(_ar0);
 extern	void	dedcolor(
@@ -662,8 +662,8 @@ extern	void	dlog_name(
 		_ar1(char *,	name));
 
 extern	void	dlog_comment(
-#if PROTOTYPES
-# if HAVE_STDARG_H
+#if defined(PROTOTYPES)
+# if defined(HAVE_STDARG_H)
 			char * fmt,
 			...
 # endif

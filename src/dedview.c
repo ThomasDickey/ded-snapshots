@@ -25,7 +25,7 @@
 
 #include	"ded.h"
 
-MODULE_ID("$Id: dedview.c,v 12.41 2001/01/30 01:03:26 tom Exp $")
+MODULE_ID("$Id: dedview.c,v 12.42 2002/07/05 13:33:59 tom Exp $")
 
 #define	MINLIST	2		/* minimum length of file-list + header */
 #define	MINWORK	3		/* minimum size of work-area */
@@ -205,7 +205,7 @@ private	int	trim_at(
 
 	getyx(stdscr, y, x);
 	if (y == line
-#if CURSES_LIKE_BSD44
+#if defined(CURSES_LIKE_BSD44)
 	 && (x+1 < wMaxX(stdscr))
 #endif
 	) {
@@ -237,7 +237,7 @@ private	void	show_line(
 			int	adj = gbl->cmdcol[CCOL_NAME];
 			int	col = adj - gbl->Xbase;
 			int	len = COLS - col;
-#if HAVE_HAS_COLORS
+#if defined(HAVE_HAS_COLORS)
 			int	end = gbl->cmdcol[CCOL_NAME] + gENTRY(j).z_namlen;
 #endif
 
@@ -246,7 +246,7 @@ private	void	show_line(
 				col  = 0;
 				len  = COLS;
 			}
-#if HAVE_HAS_COLORS
+#if defined(HAVE_HAS_COLORS)
 			if (end > COLS + gbl->Xbase)
 				end = COLS + gbl->Xbase;
 #endif
@@ -260,7 +260,7 @@ private	void	show_line(
 					PRINTW("%.*s", len, &bfr[adj]);
 					standend();
 				}
-#if HAVE_HAS_COLORS
+#if defined(HAVE_HAS_COLORS)
 				else if (has_colors()
 				 && end > adj) {
 					trimmed = trim_at(line);
@@ -545,7 +545,7 @@ public	void	upLINE(
 			vue->base_file -= 1;
 			setup_view(gbl);
 		}
-#if HAVE_WSCRL && HAVE_WSETSCRREG
+#if defined(HAVE_WSCRL) && defined(HAVE_WSETSCRREG)
 		if (vue->base_file < savebase
 		 && setscrreg(vue->base_row+1, vue->last_row - 1) != ERR) {
 			scrl(vue->base_file - savebase);
@@ -577,7 +577,7 @@ public	void	downLINE(
 			vue->base_file += 1;
 			setup_view(gbl);
 		}
-#if HAVE_WSCRL && HAVE_WSETSCRREG
+#if defined(HAVE_WSCRL) && defined(HAVE_WSETSCRREG)
 		if (vue->base_file > savebase
 		 && setscrreg(vue->base_row+1, vue->last_row - 1) != ERR) {
 			scrl(vue->base_file - savebase);

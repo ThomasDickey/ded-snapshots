@@ -16,9 +16,9 @@
  */
 #include "ded.h"
 
-MODULE_ID("$Id: dedcolor.c,v 12.16 2001/05/15 21:16:30 tom Exp $")
+MODULE_ID("$Id: dedcolor.c,v 12.18 2002/07/05 13:55:00 tom Exp $")
 
-#if HAVE_HAS_COLORS
+#if defined(HAVE_HAS_COLORS)
 
 enum	ColorBy { ByType, ByMode, BySuffix };
 
@@ -372,7 +372,7 @@ public	void	dedcolor(
 public	void	init_dedcolor (_AR0)
 {
 	(void)start_color();
-#if HAVE_USE_DEFAULT_COLORS
+#if defined(HAVE_USE_DEFAULT_COLORS)
 	if (use_default_colors() == OK) {
 		default_foreground = -1;
 		default_background = -1;

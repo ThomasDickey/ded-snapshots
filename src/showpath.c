@@ -20,7 +20,7 @@
 
 #include	"ded.h"
 
-MODULE_ID("$Id: showpath.c,v 12.8 1998/07/21 22:21:54 tom Exp $")
+MODULE_ID("$Id: showpath.c,v 12.9 2002/07/05 13:55:00 tom Exp $")
 
 #define	DOTLEN	((int)sizeof(ellipsis)-1)
 
@@ -49,7 +49,7 @@ public	void	showpath(
 	auto	int	y, x;
 
 	if (len_host == 0) {
-#if HAVE_GETHOSTNAME
+#if defined(HAVE_GETHOSTNAME)
 		gethostname(the_host, sizeof(the_host)-1);
 		if (strlen(the_host) != 0)
 			strcat(the_host, ":");

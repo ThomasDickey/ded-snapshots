@@ -18,7 +18,7 @@
 
 #include	"ded.h"
 
-MODULE_ID("$Id: dedname.c,v 12.7 1995/09/03 19:42:14 tom Exp $")
+MODULE_ID("$Id: dedname.c,v 12.8 2002/07/05 13:55:00 tom Exp $")
 
 int	dedname(
 	_ARX(RING *,	gbl)
@@ -34,7 +34,7 @@ int	dedname(
 
 	if (strcmp(strcpy(oldname, gNAME(x)), newname)) {
 		dlog_comment("rename \"%s\" (name=%s)\n", newname, gNAME(x));
-#if HAVE_RENAME
+#if defined(HAVE_RENAME)
 		if (rename(oldname, newname) < 0) {
 			warn(gbl, newname);
 			return (-1);
