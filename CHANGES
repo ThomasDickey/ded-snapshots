@@ -1,3 +1,12 @@
+1992-12-18  dickey@software.org
+
+	* src/dedring.c: oops: forgot 0-case in ring_pointer()
+
+1992-12-18  ste_cm@software.org
+
+	* src/dedring.c:
+	BASELINE Thu May  6 14:26:47 1993 -- split from CM_TOOLS #11
+
 1992-12-02  dickey@software.org
 
 	* src/dedfind.c: show message "no other matches" when applicable
