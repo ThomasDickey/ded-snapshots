@@ -1,8 +1,13 @@
 	# PROCESS BEGUN
 	# argv[0] = '../bin/ded'
-	# argv[1] = '-ctest1.cmd'
-	# argv[2] = '-ltest1.out'
+	# argv[1] = '-t/tmp'
+	# argv[2] = '-ctest1.cmd'
+	# argv[3] = '-ltest1.out'
 1D	# path: CM_TOOLS/test
+1k	# path: CM_TOOLS
+9R	# path: CM_TOOLS
+1Z	# path: CM_TOOLS
+1F	# path: CM_TOOLS/test
 1k	# path: CM_TOOLS/src
 1k	# path: CM_TOOLS/bin
 1E	# chdir CM_TOOLS/bin

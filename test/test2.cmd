@@ -1,8 +1,14 @@
 	# PROCESS BEGUN
 	# argv[0] = '../bin/ded'
-	# argv[1] = '-ctest2.cmd'
-	# argv[2] = '-ltest2.out'
+	# argv[1] = '-t/tmp'
+	# argv[2] = '-ctest2.cmd'
+	# argv[3] = '-ltest2.out'
 1D	# path: CM_TOOLS/test
+1k	# path: CM_TOOLS
+9R	# path: CM_TOOLS
+1Z	# path: CM_TOOLS
+1W	# path: CM_TOOLS
+1F	# path: CM_TOOLS/test
 1k	# path: CM_TOOLS/src
 1k	# path: CM_TOOLS/bin
 1E	# chdir CM_TOOLS/bin
@@ -21,9 +27,9 @@
 1g	# before "spe"
 g
 	# after  "spe"
-1u	# before "dickey"
+1u	# before "LOGNAME"
 u
-	# after  "dickey"
+	# after  "LOGNAME"
 1!\# the screen shows ded and ded.hlp after temporarily changing permissions, and after typing the help file
 	# execute # the screen shows ded and ded.hlp after temporarily changing permissions, and after typing the help file
 	# ELAPSED TIME
