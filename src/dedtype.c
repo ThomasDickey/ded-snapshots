@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	sccs_id[] = "$Header: /users/source/archives/ded.vcs/src/RCS/dedtype.c,v 4.0 1989/03/14 10:32:36 ste_cm Rel $";
+static	char	Id[] = "$Id: dedtype.c,v 5.0 1989/10/13 13:43:28 ste_cm Rel $";
 #endif	lint
 
 /*
@@ -7,9 +7,15 @@ static	char	sccs_id[] = "$Header: /users/source/archives/ded.vcs/src/RCS/dedtype
  * Author:	T.E.Dickey
  * Created:	16 Nov 1987
  * $Log: dedtype.c,v $
- * Revision 4.0  1989/03/14 10:32:36  ste_cm
- * BASELINE Thu Aug 24 10:20:06 EDT 1989 -- support:navi_011(rel2)
+ * Revision 5.0  1989/10/13 13:43:28  ste_cm
+ * BASELINE Fri Oct 27 12:27:25 1989 -- apollo SR10.1 mods + ADA_PITS 4.0
  *
+ *		Revision 4.1  89/10/13  13:43:28  dickey
+ *		trim lines containing blanks so we don't display extra gaps
+ *		
+ *		Revision 4.0  89/03/14  10:32:36  ste_cm
+ *		BASELINE Thu Aug 24 10:20:06 EDT 1989 -- support:navi_011(rel2)
+ *		
  *		Revision 3.0  89/03/14  10:32:36  ste_cm
  *		BASELINE Mon Jun 19 14:21:57 EDT 1989
  *		
@@ -119,6 +125,9 @@ register c;
 				typeover(c);
 			} else if (isspace(c)) {
 				if (c == '\n') {
+					while (Tlen > 0
+					&& isspace(text[Tlen-1]))
+						Tlen--;
 					return (TRUE);
 				} else if (c == '\t') {
 					typeover(' ');
