@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	Id[] = "$Id: deddoit.c,v 8.0 1990/03/06 08:27:14 ste_cm Rel $";
+static	char	Id[] = "$Id: deddoit.c,v 8.1 1991/04/16 08:47:24 dickey Exp $";
 #endif	lint
 
 /*
@@ -7,9 +7,14 @@ static	char	Id[] = "$Id: deddoit.c,v 8.0 1990/03/06 08:27:14 ste_cm Rel $";
  * Author:	T.E.Dickey
  * Created:	17 Nov 1987
  * $Log: deddoit.c,v $
- * Revision 8.0  1990/03/06 08:27:14  ste_cm
- * BASELINE Mon Aug 13 15:06:41 1990 -- LINCNT, ADA_TRANS
+ * Revision 8.1  1991/04/16 08:47:24  dickey
+ * absorb backslash only when it precedes "#" or "%", to make
+ * typing commands with backslashes simpler (though inconsistent).
+ * also, made the static buffers auto (cleaner code).
  *
+ *		Revision 8.0  90/03/06  08:27:14  ste_cm
+ *		BASELINE Mon Aug 13 15:06:41 1990 -- LINCNT, ADA_TRANS
+ *		
  *		Revision 7.0  90/03/06  08:27:14  ste_cm
  *		BASELINE Mon Apr 30 09:54:01 1990 -- (CPROTO)
  *		
@@ -58,9 +63,6 @@ extern	char	*fixname();
 extern	char	*dedrung();
 extern	char	*pathcat();
 
-static	char	temp[BUFSIZ];
-static	char	subs[BUFSIZ];
-
 /*
  * Return a pointer to a leaf of a given name
  */
@@ -99,8 +101,10 @@ char	*root;
  * from the ":" modifiers defined for "csh".
  */
 static
-expand(code)
+Expand(code, b_subs, l_subs)
+char	*b_subs;
 {
+	char	temp[BUFSIZ];
 	char	name[BUFSIZ],
 	*from	= 0;
 
@@ -148,16 +152,18 @@ expand(code)
 	case 't':	/* Remove all leading pathname components, leave tail */
 			from = subleaf(name);
 			break;
+	default:
+			from = "?";
 	}
 
 	if (from) {
 		(void)ded2string(temp, sizeof(temp), from, TRUE);
-		if (strlen(subs) + strlen(temp) < sizeof(subs)-1)
-			(void)strcat(subs, temp);
+		if (strlen(b_subs) + strlen(temp) < l_subs - 1)
+			(void)strcat(b_subs, temp);
 		else
-			return(sizeof(subs));
+			return(l_subs);
 	}
-	return(strlen(subs));
+	return(strlen(b_subs));
 }
 
 /*
@@ -167,6 +173,7 @@ deddoit(key,sense)
 {
 	register int	c, j, k;
 	register char	*s;
+	char	Subs[BUFSIZ];
 
 	if (sense == 0)
 		clr_sh = FALSE;
@@ -181,11 +188,11 @@ deddoit(key,sense)
 
 	if ((key != '.') || (bfr_sh[0] == EOS)) {
 		if (key != ':')
-			*subs = EOS;
+			*Subs = EOS;
 		else
-			(void)strcpy(subs, bfr_sh);
+			(void)strcpy(Subs, bfr_sh);
 		refresh();
-		dlog_string(s = subs,sizeof(subs),TRUE);
+		dlog_string(s = Subs,sizeof(Subs),TRUE);
 		c = FALSE;
 		while (*s) {	/* skip leading blanks */
 			if (!isspace(*s)) {
@@ -207,57 +214,54 @@ deddoit(key,sense)
 	} else
 		PRINTW("(ditto)\n");
 
-	subs[k = 0] = EOS;
+	Subs[k = 0] = EOS;
 	for (j = 0; bfr_sh[j]; j++) {
 		c = bfr_sh[j];
-		if (c == '\\') {
-			if (bfr_sh[j+1]) {
-				subs[k++] = bfr_sh[++j];
-				subs[k] = EOS;
-			}
+		if (c == '\\'
+		 && (bfr_sh[j+1] == '#' || bfr_sh[j+1] == '%') ) {
+			Subs[k++] = bfr_sh[++j];
+			Subs[k] = EOS;
 		} else if (c == '#') {	/* substitute group */
 		int	first	= TRUE, x;
 			for (x = 0; x < numfiles; x++) {
 				if (GROUPED(x)) {
 					s = fixname(x);
 					if (!first) {
-						(void)strcat(subs, " ");
+						(void)strcat(Subs, " ");
 						k++;
 					}
-					if (k + strlen(s) < sizeof(subs)-1)
-						(void)strcat(subs, s);
+					if (k + strlen(s) < sizeof(Subs)-1)
+						(void)strcat(Subs, s);
 					else {
-						k = sizeof(subs);
+						k = sizeof(Subs);
 						break;
 					}
-					k += strlen(subs + k);
+					k += strlen(Subs + k);
 					first = FALSE;
 				}
 			}
 		} else if (c == '%') {	/* substitute current file */
-			if (bfr_sh[j+1])
-				k = expand(bfr_sh[++j]);
-			else
-				k = expand('?');
+			c = (bfr_sh[j+1] != EOS) ? bfr_sh[++j] : '?';
+			k = Expand(c, Subs, sizeof(Subs));
 		} else {
-			subs[k++] = c;
-			subs[k] = EOS;
+			Subs[k++] = c;
+			Subs[k] = EOS;
 		}
-		if (k >= sizeof(subs)-1) {
-			*subs = EOS;
+		if (k >= sizeof(Subs)-1) {
+			*Subs = EOS;
 			PRINTW("? command is too long\n");
 			beep();
 			break;
 		}
 	}
-	dedshow("> ", subs);
+	dedshow("> ", Subs);
 	refresh();
 
-	if (*subs) {
+	if (*Subs) {
 		resetty();
 		(void)dedsigs(FALSE);	/* prevent child from killing us */
-		dlog_comment("execute %s\n", subs);
-		if (system(subs) < 0)
+		dlog_comment("execute %s\n", Subs);
+		if (system(Subs) < 0)
 			warn("system");
 		(void)dedsigs(TRUE);
 		rawterm();
