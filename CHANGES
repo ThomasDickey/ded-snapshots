@@ -1,3 +1,9 @@
+1988-09-13  dickey@software.org
+
+	* src/dedmake.c: oops: forgot to close file after 'creat()'.
+
+	* src/dedsort.c: use external 'ftype()', 'ftype2()'.
+
 1988-09-12  dickey@software.org
 
 	* src/dedring.c:
