@@ -1,4 +1,4 @@
-# $Id: Makefile,v 12.5 1994/07/01 23:28:19 tom Exp $
+# $Id: Makefile,v 12.6 1994/07/05 01:04:46 tom Exp $
 # MAKE-file for directory editor
 
 THIS	= ded
@@ -80,7 +80,7 @@ OBJS	= \
 	$Z(sortset.o)
 
 SOURCES	= Makefile README $(CSRC) $(HSRC) $(THIS).hlp $(THIS)rc
-MAIN_O	= $(THIS).o $Z $(LIBS)
+MAIN_O	= $(THIS).o $Z
 
 ####### (Standard Productions) #################################################
 all\
@@ -94,7 +94,7 @@ sources:	$(SOURCES)
 
 ####### (Details of Productions) ###############################################
 $B:				; mkdir $@
-$B/$(THIS):	$(MAIN_O)	; $(LINK) -o $@ $(MAIN_O) -lcurses -ltermcap
+$B/$(THIS):	$(MAIN_O) $(LIB_DEPS)	; $(LINK) -o $@ $(MAIN_O) $(LIB_ARGS)
 $B/$(THIS).hlp:	$(THIS).hlp	; $(PUT)
 
 $Z:	$(OBJS)
