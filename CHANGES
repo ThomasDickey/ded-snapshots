@@ -1,3 +1,13 @@
+1993-11-17  dickey@software.org
+
+	* src/dedview.c:
+	modified so that up/down line code simulates scrolling (better than whole-
+	screen scrolling, I suppose)
+
+	* src/dedview.c:
+	tweaked so that "^" command toggles between the bottom and the top of the
+	screen
+
 1993-11-05  dickey@software.org
 
 	* src/Makefile, src/ded.h: absorbed:cmdch.h
