@@ -1,5 +1,5 @@
-#ifndef	lint
-static	char	Id[] = "$Id: dedshow.c,v 12.2 1993/09/28 12:21:21 dickey Exp $";
+#if	!defined(NO_IDENT)
+static	char	Id[] = "$Id: dedshow.c,v 12.3 1993/10/29 20:30:50 dickey Exp $";
 #endif
 
 /*
@@ -7,6 +7,7 @@ static	char	Id[] = "$Id: dedshow.c,v 12.2 1993/09/28 12:21:21 dickey Exp $";
  * Author:	T.E.Dickey
  * Created:	01 Dec 1987
  * Modified:
+ *		29 Oct 1993, ifdef-ident, port to HP/UX.
  *		28 Sep 1993, gcc warnings
  *		28 Feb 1992, corrected LINES-limit.
  *		18 Oct 1991, converted to ANSI
@@ -52,7 +53,7 @@ Show _ONE(char *,arg)
 				}
 				continue;
 			}
-			addch(ch);
+			addch((chtype)ch);
 			if (++x > max_X) {
 				x = 0;
 				if (++y >= max_Y)

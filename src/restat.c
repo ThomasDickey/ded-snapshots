@@ -1,5 +1,5 @@
-#ifndef	lint
-static	char	Id[] = "$Id: restat.c,v 12.0 1992/04/07 15:09:14 ste_cm Rel $";
+#if	!defined(NO_IDENT)
+static	char	Id[] = "$Id: restat.c,v 12.1 1993/10/29 20:26:56 dickey Exp $";
 #endif
 
 /*
@@ -7,6 +7,7 @@ static	char	Id[] = "$Id: restat.c,v 12.0 1992/04/07 15:09:14 ste_cm Rel $";
  * Author:	T.E.Dickey
  * Created:	07 Apr 1992, from 'ded.c'
  * Modified:
+ *		29 Oct 1993, ifdef-ident
  *
  * Function:	reinvokes 'stat()' for the specified files; redisplays.
  */

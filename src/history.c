@@ -1,5 +1,5 @@
-#ifndef	lint
-static	char	*Id = "$Id: history.c,v 12.2 1993/09/28 12:21:23 dickey Exp $";
+#if	!defined(NO_IDENT)
+static	char	Id[] = "$Id: history.c,v 12.3 1993/10/29 20:26:57 dickey Exp $";
 #endif
 
 /*
@@ -7,6 +7,7 @@ static	char	*Id = "$Id: history.c,v 12.2 1993/09/28 12:21:23 dickey Exp $";
  * Author:	T.E.Dickey
  * Created:	07 Aug 1992
  * Modified:
+ *		29 Oct 1993, ifdef-ident
  *		28 Sep 1993, gcc warnings
  *		28 Aug 1992, if caller puts history item which is repeated,
  *			     simply move it to the front of the list.

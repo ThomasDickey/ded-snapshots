@@ -1,5 +1,5 @@
-#ifndef	lint
-static	char	Id[] = "$Id: dedview.c,v 12.2 1993/09/28 12:21:22 dickey Exp $";
+#if	!defined(NO_IDENT)
+static	char	Id[] = "$Id: dedview.c,v 12.3 1993/10/29 20:30:49 dickey Exp $";
 #endif
 
 /*
@@ -7,6 +7,7 @@ static	char	Id[] = "$Id: dedview.c,v 12.2 1993/09/28 12:21:22 dickey Exp $";
  * Author:	T.E.Dickey
  * Created:	03 Apr 1992, from 'ded.c'
  * Modified:
+ *		29 Oct 1993, ifdef-ident, port to HP/UX.
  *		28 Sep 1993, gcc warnings
  *		02 Dec 1992, fix current-position in 'markC()'
  *
@@ -697,7 +698,7 @@ public	void	markC(
 		register int y,x;
 		(void)move2row(gbl->curfile, col);
 		getyx(stdscr,y,x);
-		addch(on ? '*' : ' ');
+		addch((chtype)(on ? '*' : ' '));
 		(void)move(y,x);
 	}
 }

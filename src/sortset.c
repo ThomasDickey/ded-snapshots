@@ -1,5 +1,5 @@
-#ifndef	lint
-static	char	Id[] = "$Id: sortset.c,v 12.3 1993/09/28 15:51:33 dickey Exp $";
+#if	!defined(NO_IDENT)
+static	char	Id[] = "$Id: sortset.c,v 12.4 1993/10/29 20:26:56 dickey Exp $";
 #endif
 
 /*
@@ -7,6 +7,7 @@ static	char	Id[] = "$Id: sortset.c,v 12.3 1993/09/28 15:51:33 dickey Exp $";
  * Author:	T.E.Dickey
  * Created:	01 Dec 1989 (from ded.c)
  * Modified:
+ *		29 Oct 1993, ifdef-ident
  *		28 Sep 1993, gcc warnings
  *		01 Apr 1992, convert most global variables to RING-struct.
  *		18 Oct 1991, converted to ANSI
