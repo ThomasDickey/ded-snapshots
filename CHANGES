@@ -1,3 +1,8 @@
+1994-05-09  Thomas E. Dickey  <dickey@clark.net>
+
+	* src/dedtype.c:
+	coded around bug in Linux's 'ftell()', which resets the eof-flag
+
 1994-04-27  Thomas E. Dickey  <dickey@clark.net>
 
 	* src/ded.c:

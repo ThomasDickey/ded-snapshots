@@ -1,5 +1,5 @@
 #if	!defined(NO_IDENT)
-static	char	Id[] = "$Id: dedtype.c,v 12.6 1993/12/17 20:27:19 dickey Exp $";
+static	char	Id[] = "$Id: dedtype.c,v 12.7 1994/05/09 18:55:26 tom Exp $";
 #endif
 
 /*
@@ -7,6 +7,7 @@ static	char	Id[] = "$Id: dedtype.c,v 12.6 1993/12/17 20:27:19 dickey Exp $";
  * Author:	T.E.Dickey
  * Created:	16 Nov 1987
  * Modified:
+ *		09 May 1994, Linux's 'ftell()' clears eof-flag.
  *		29 Oct 1993, ifdef-ident, port to HP/UX.
  *		28 Sep 1993, gcc warnings
  *		08 Oct 1992, make search/scrolling interruptible.
@@ -261,11 +262,13 @@ private	int	JumpBackwards(
  * we decide to use it.
  */
 private	int	StartPage(
-	_ARX(int *,	page)
-	_AR1(int,	skip)
+	_ARX(int *,	page)		/* in/out: current-page # */
+	_ARX(int,	skip)		/* in: # of pages to skip */
+	_AR1(int *,	eoff)		/* out: set iff we got eof */
 		)
 	_DCL(int *,	page)
 	_DCL(int,	skip)
+	_DCL(int *,	eoff)
 {
 	register int	c;
 	int	blank	= TRUE,		/* flag to suppress blank lines */
@@ -278,8 +281,13 @@ private	int	StartPage(
 
 	MarkPage(*page);
 	*page += 1;
+	*eoff = FALSE;
 
-	while ((c = GetC()) != EOF) {
+	for (;;) {
+		if ((c = GetC()) == EOF) {
+			*eoff = TRUE;
+			break;
+		}
 		if (typeconv(c)) {
 			if ((Tlen == 0) && blank) {
 				typeinit();
@@ -291,9 +299,10 @@ private	int	StartPage(
 				break;
 		}
 	}
-	if (!feof(InFile) && ferror(InFile))	clearerr(InFile);
+	if (!feof(InFile) && ferror(InFile))
+		clearerr(InFile);
 
-	return y;
+	return y;	/* result is the current line of display */
 }
 
 private	int	FinishPage(
@@ -391,11 +400,12 @@ private	int	FoundPattern(
 	_AR1(int *,	page))
 	_DCL(int *,	page)
 {
-	(void)StartPage(page, TRUE);
+	int	foo;
+	(void)StartPage(page, TRUE, &foo);
 	if (HadPattern || was_interrupted) {
 		reset_catcher();
 		if (JumpBackwards(page, 1) >= 0) {
-			(void)StartPage(page, FALSE);
+			(void)StartPage(page, FALSE, &foo);
 			return TRUE;
 		}
 	}
@@ -412,6 +422,7 @@ private	void	FindPattern(
 	_DCL(int *,	page)
 	_DCL(int,	key)
 {
+	int	foo;
 	register char	*s;
 	auto	int	y,x,
 			next,
@@ -472,7 +483,7 @@ private	void	FindPattern(
 
 		*page = save;
 		if (JumpBackwards(page, 1) >= 0)
-			(void)StartPage(page, FALSE);
+			(void)StartPage(page, FALSE, &foo);
 		waitmsg("Expression not found");
 
 	} else {
@@ -514,6 +525,7 @@ public	void	dedtype(
 	_DCL(int,	stripped)
 	_DCL(int,	isdir)
 {
+	int	had_eof;
 	register int	c;
 	int	count,			/* ...and repeat-count */
 		y,			/* current line-in-screen */
@@ -581,7 +593,7 @@ public	void	dedtype(
 			}
 
 			markC(gbl, TRUE);
-			y = StartPage(&page, skip);
+			y = StartPage(&page, skip, &had_eof);
 			if (skip && !was_interrupted) {
 				if (feof(InFile)) {
 					skip = 0;
@@ -630,7 +642,7 @@ public	void	dedtype(
 			case 'f':
 				jump = 0;
 				skip = count - 1;
-				if (feof(InFile))
+				if (had_eof)
 					done = JumpBackwards(&page, 1);
 				break;
 
