@@ -1,4 +1,4 @@
-dnl $Id: aclocal.m4,v 12.10 2001/01/30 00:55:35 tom Exp $
+dnl $Id: aclocal.m4,v 12.11 2001/07/15 16:09:38 tom Exp $
 dnl Macros for DED configure script.
 dnl ---------------------------------------------------------------------------
 dnl ---------------------------------------------------------------------------
@@ -286,6 +286,7 @@ cf_dir=subd$$
 cf_cv_ar_rules=unknown
 mkdir $cf_dir
 cat >$cf_dir/makefile <<CF_EOF
+SHELL = /bin/sh
 AR = ar crv
 CC = $CC
 
@@ -300,6 +301,7 @@ all:  conf.a
 conf.a : conf.a(conftest.o)
 CF_EOF
 touch $cf_dir/conftest.c
+CDPATH=; export CDPATH
 if ( cd $cf_dir && ${MAKE-make} 2>&AC_FD_CC >&AC_FD_CC && test -f conf.a )
 then
 	cf_cv_ar_rules=yes
@@ -307,6 +309,7 @@ else
 echo ... did not find archive >&AC_FD_CC
 rm -f $cf_dir/conftest.o
 cat >$cf_dir/makefile <<CF_EOF
+SHELL = /bin/sh
 AR = ar crv
 CC = $CC
 
@@ -321,6 +324,7 @@ all:  conf.a
 conf.a : conftest.o
 	\$(AR) \$[]@ \$?
 CF_EOF
+CDPATH=; export CDPATH
 if ( cd $cf_dir && ${MAKE-make} 2>&AC_FD_CC >&AC_FD_CC && test -f conf.a )
 then
 	cf_cv_ar_rules=no
@@ -359,6 +363,7 @@ all :
 	@echo 'cf_make_include=\$(RESULT)'
 CF_EOF
 	cf_make_include=""
+	CDPATH=; export CDPATH
 	eval `(cd $cf_dir && ${MAKE-make}) 2>&AC_FD_CC | grep cf_make_include=OK`
 	if test -n "$cf_make_include"; then
 		make_include_left="$cf_include"
