@@ -1,3 +1,30 @@
+1989-06-06  dickey@software.org
+
+	* src/dedscan.c: made read-pattern apply to explicit lists as well.
+
+1989-06-06  ste_cm@software.org
+
+	* src/dedscan.c: BASELINE Mon Jun 19 14:21:57 EDT 1989
+
+	* src/dedscan.c:
+	BASELINE Thu Aug 24 10:20:06 EDT 1989 -- support:navi_011(rel2)
+
+1989-06-06  dickey@software.org
+
+	* src/version.h:
+	corrected change to 'dedscan()' which broke '@' command.
+	modified blip-call in Z-toggle to show successful sccs/RCS lookup.
+
+	* src/ded.c: made blip-call for 'Z' toggle show results like '#'.
+
+1989-06-06  ste_cm@software.org
+
+	* src/ded.c: BASELINE Mon Jun 19 14:21:57 EDT 1989
+
+1989-06-06  dickey@software.org
+
+	* src/dedscan.c: last change broke '@'-toggle; fixed.
+
 1989-06-05  dickey@software.org
 
 	* src/version.h:

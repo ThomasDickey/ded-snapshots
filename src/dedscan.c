@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	sccs_id[] = "$Header: /users/source/archives/ded.vcs/src/RCS/dedscan.c,v 2.4 1989/06/05 15:40:48 dickey Exp $";
+static	char	sccs_id[] = "$Header: /users/source/archives/ded.vcs/src/RCS/dedscan.c,v 4.0 1989/06/06 09:01:28 ste_cm Rel $";
 #endif	lint
 
 /*
@@ -7,9 +7,21 @@ static	char	sccs_id[] = "$Header: /users/source/archives/ded.vcs/src/RCS/dedscan
  * Author:	T.E.Dickey
  * Created:	09 Nov 1987
  * $Log: dedscan.c,v $
- * Revision 2.4  1989/06/05 15:40:48  dickey
- * simplified interface to ftree-module
+ * Revision 4.0  1989/06/06 09:01:28  ste_cm
+ * BASELINE Thu Aug 24 10:20:06 EDT 1989 -- support:navi_011(rel2)
  *
+ *		Revision 3.0  89/06/06  09:01:28  ste_cm
+ *		BASELINE Mon Jun 19 14:21:57 EDT 1989
+ *		
+ *		Revision 2.6  89/06/06  09:01:28  dickey
+ *		made read-pattern apply to explicit lists as well.
+ *		
+ *		Revision 2.5  89/06/06  08:32:48  dickey
+ *		last change broke '@'-toggle; fixed.
+ *		
+ *		Revision 2.4  89/06/05  15:40:48  dickey
+ *		simplified interface to ftree-module
+ *		
  *		Revision 2.3  89/05/31  09:03:58  dickey
  *		added 'init_scan()' to fix regular-expression kludge
  *		
@@ -81,7 +93,8 @@ char	*argv[];
 		failed(old_wd);
 	if (argc > 1) {
 		for (j = 0; j < argc; j++)
-			if (argstat(argv[j], TRUE) >= 0)
+			if (ok_scan(argv[j])
+			&&  argstat(argv[j], TRUE) >= 0)
 				common = 0;
 	} else {
 		if ((common = argstat(argv[0], FALSE)) > 0) {
@@ -284,7 +297,9 @@ char	bfr[BUFSIZ];
 			bfr[len] = EOS;
 			if (f_->ltxt)	txtfree(f_->ltxt);
 			f_->ltxt = txtalloc(bfr);
-			if (AT_opt)
+			if (AT_opt
+			&&  (stat(name, &f_->s) >= 0)
+			&&  isDIR(f_->s.st_mode))
 				ft_insert(name);
 		}
 	}

@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	sccs_id[] = "$Header: /users/source/archives/ded.vcs/src/RCS/ded.c,v 2.3 1989/05/31 08:21:11 dickey Exp $";
+static	char	sccs_id[] = "$Header: /users/source/archives/ded.vcs/src/RCS/ded.c,v 3.0 1989/06/06 08:38:13 ste_cm Rel $";
 #endif	lint
 
 /*
@@ -7,9 +7,15 @@ static	char	sccs_id[] = "$Header: /users/source/archives/ded.vcs/src/RCS/ded.c,v
  * Author:	T.E.Dickey
  * Created:	09 Nov 1987
  * $Log: ded.c,v $
- * Revision 2.3  1989/05/31 08:21:11  dickey
- * revised/updated 'usage()'
+ * Revision 3.0  1989/06/06 08:38:13  ste_cm
+ * BASELINE Mon Jun 19 14:21:57 EDT 1989
  *
+ *		Revision 2.4  89/06/06  08:38:13  dickey
+ *		made blip-call for 'Z' toggle show results like '#'.
+ *		
+ *		Revision 2.3  89/05/31  08:21:11  dickey
+ *		revised/updated 'usage()'
+ *		
  *		Revision 2.2  89/05/26  14:05:00  dickey
  *		corrected last mod so failed-rescan keeps original
  *		name to find in resulting list
@@ -609,7 +615,7 @@ register int j;
 		for (j = 0; j < numfiles; j++)
 			if (!flist[j].z_time) {
 				statSCCS(xNAME(j), &flist[j]);
-				blip('*');
+				blip((flist[j].z_time != 0) ? '*' : '.');
 			}
 	}
 }
