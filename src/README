@@ -93,3 +93,6 @@ To do:
 
 88/06/27:
 	Should redo the ftree-rename so it renames the ring-entries too.
+
+88/07/28:
+	Should catch signals so I can stop long stuff (like 99R in ftree).

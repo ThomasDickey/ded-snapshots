@@ -1,3 +1,10 @@
+1988-07-28  dickey@software.org
+
+	* src/ded2s.c:
+	added fall-thru for '_toupper()', which wasn't defined on the sun.
+
+	* src/README: note about signals.
+
 1988-07-27  dickey@software.org
 
 	* src/ded.c:
