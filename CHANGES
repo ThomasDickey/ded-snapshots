@@ -1,3 +1,15 @@
+1992-08-20  dickey@software.org
+
+	* src/ftree.c: forgot to reinit 'my_text' in ':' command
+
+	* src/dlog.c: testing integration with 'edittext()'
+
+	* src/dedline.c:
+	added first cut (ifdef'd) of integration with 'dlog_string()'
+	and 'edittext()'
+
+	* src/ded.h, src/inline.c: added 'inline_text()', 'inline_hist()'
+
 1992-08-19  dickey@software.org
 
 	* test/test4.cmd:

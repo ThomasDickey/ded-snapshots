@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	what[] = "$Id: dlog.c,v 11.17 1992/08/17 13:04:03 dickey Exp $";
+static	char	what[] = "$Id: dlog.c,v 11.18 1992/08/20 10:02:35 dickey Exp $";
 #endif
 
 /*
@@ -296,6 +296,7 @@ public	char *	dlog_string(
 	*result = dyn_alloc(*result, (size_t)len+1);
 	buffer  = dyn_string(*result);
 
+
 	/* Inline-editing records the editing actions in history, not the
 	 * resulting buffer.
 	 */
@@ -314,15 +315,21 @@ public	char *	dlog_string(
 		/*
 		 * Replay the portion of the inline editing from history.
 		 */
-		if (inline && (prior = dyn_string(trace)))
+		if (inline
+		 && (prior = dyn_string(trace))
+		 && (*prior != EOS)) {
+			dlog_comment("replay:%s\n", prior);
 			(void)wrawgets((WINDOW *)0,
 				buffer,
 				prefix,
 				len,
+				len,
+				0,
 				wrap,
 				fast_q,
 				&prior,
 				FALSE);
+		}
 
 		/*
 		 * Perform interactive (or scripted) edit:
@@ -335,6 +342,8 @@ public	char *	dlog_string(
 			buffer,
 			prefix,
 			len,
+			len + 1,
+			inline ? 0 : (int)strlen(buffer),
 			wrap,
 			fast_q,
 			cmd_fp ? &cmd_ptr : (char **)0,

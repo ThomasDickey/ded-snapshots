@@ -3,7 +3,7 @@
 
 #ifdef	MAIN
 #ifndef	lint
-static	char	*ded_h = "$Id: ded.h,v 11.12 1992/08/17 12:55:02 dickey Exp $";
+static	char	*ded_h = "$Id: ded.h,v 11.13 1992/08/20 07:49:20 dickey Exp $";
 #endif
 #endif	/* MAIN */
 
@@ -680,6 +680,9 @@ extern	int	get_inline(
 #define	ReplayTrim()		(void)get_inline(EOS,C_TRIM)
 #define	ReplayQuit()		(void)get_inline(EOS,C_QUIT)
 #define	ReplayChar()		      get_inline(EOS,C_NEXT)
+
+extern	DYN **	inline_text(_ar0);
+extern	HIST **	inline_hist(_ar0);
 
 /* *** "showpath.c" *** */
 extern	int	showpath(

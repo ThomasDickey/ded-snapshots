@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	Id[] = "$Id: ftree.c,v 11.7 1992/08/17 13:20:26 dickey Exp $";
+static	char	Id[] = "$Id: ftree.c,v 11.8 1992/08/20 10:27:44 dickey Exp $";
 #endif
 
 /*
@@ -1286,6 +1286,7 @@ public	RING *	ft_view(
 			PRINTW("line: ");
 			clrtoeol();
 
+			dyn_init(&my_text,1);
 			s = dlog_string(
 				&my_text,
 				(DYN **)0,
