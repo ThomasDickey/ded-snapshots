@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	what[] = "$Id: ded.c,v 4.0 1989/08/22 16:31:22 ste_cm Rel $";
+static	char	what[] = "$Id: ded.c,v 4.2 1989/08/25 08:52:50 dickey Exp $";
 #endif	lint
 
 /*
@@ -7,9 +7,17 @@ static	char	what[] = "$Id: ded.c,v 4.0 1989/08/22 16:31:22 ste_cm Rel $";
  * Author:	T.E.Dickey
  * Created:	09 Nov 1987
  * $Log: ded.c,v $
- * Revision 4.0  1989/08/22 16:31:22  ste_cm
- * BASELINE Thu Aug 24 10:20:06 EDT 1989 -- support:navi_011(rel2)
+ * Revision 4.2  1989/08/25 08:52:50  dickey
+ * added new procedures 'scroll_to_stat()' and 'scroll_to_file()'
+ * so 'E'-command on link can go to link-target.
  *
+ *		Revision 4.1  89/08/25  08:22:15  dickey
+ *		use 'wrepaint()' rather than savewin/unsavewin.  added
+ *		arg to 'realstat()' for 'E'-enhancement.
+ *		
+ *		Revision 4.0  89/08/22  16:31:22  ste_cm
+ *		BASELINE Thu Aug 24 10:20:06 EDT 1989 -- support:navi_011(rel2)
+ *		
  *		Revision 3.2  89/08/22  16:31:22  dickey
  *		if user tries to apply 'E' command to symbolic-link-to-file,
  *		edit instead the directory containing the target file.
@@ -204,6 +212,21 @@ char	*dst,*src;
 	}
 	return (FALSE);		/* head would duplicate current directory */
 }
+
+/* after we edit the head-directory, try to find the link-target. */
+static
+scroll_to_stat(sb)
+struct	stat	*sb;
+{
+	register int	j;
+	for (j = 0; j < numfiles; j++) {
+		if (xSTAT(j).st_dev == sb->st_dev
+		&&  xSTAT(j).st_ino == sb->st_ino) {
+			scroll_to_file(j);
+			return;
+		}
+	}
+}
 #endif	S_IFLNK
 
 /************************************************************************
@@ -285,6 +308,17 @@ to_file()
 	return(code);
 }
 
+scroll_to_file(inx)
+{
+	if (curfile != inx) {
+		curfile = inx;
+		if (to_file())
+			showFILES();
+		else
+			showC();
+	}
+}
+
 /*
  * Move the workspace marker.  If we are in split-screen mode, also adjust the
  * length of the current viewport.  Finally, re-display the screen.
@@ -323,15 +357,16 @@ markset(num)
 /*
  * Determine if the given entry is a file, directory or none of these.
  */
-realstat(inx)
+realstat(inx, sb)
+struct	stat	*sb;
 {
 register j = xSTAT(inx).st_mode;
 
 #ifdef	S_IFLNK
 	if (isLINK(j)) {
-	struct	stat	sb;
-		j = (stat(xNAME(inx), &sb) >= 0) ? sb.st_mode : 0;
-	}
+		j = (stat(xNAME(inx), sb) >= 0) ? sb->st_mode : 0;
+	} else
+		sb->st_mode = 0;
 #endif	S_IFLNK
 	if (isFILE(j))	return(0);
 	if (isDIR(j))	return(1);
@@ -703,6 +738,7 @@ retouch(row)
 int	y,x;
 #ifdef	apollo
 	if (resizewin()) {
+		dlog_comment("resizewin(%d,%d)\n", LINES, COLS);
 		markset(mark_W);
 		showFILES();
 		return;
@@ -712,8 +748,7 @@ int	y,x;
 	move(mark_W+1,0);
 	clrtobot();
 	move(y,x);
-	savewin();
-	unsavewin(TRUE,row);
+	wrepaint(stdscr,row);
 }
 
 rescan(fwd, backto)		/* re-scan argument list */
@@ -885,10 +920,11 @@ char	*arg0, *arg1;
 static
 editfile(readonly, pad)
 {
+	struct	stat	sb;
 	char	*editor = (readonly ? ENV(BROWSE) : ENV(EDITOR));
 
 	dlog_name(cNAME);
-	switch (realstat(curfile)) {
+	switch (realstat(curfile, &sb)) {
 	case 0:
 		to_work();
 		if (pad) {
@@ -956,18 +992,19 @@ usage()
 main(argc, argv)
 char	*argv[];
 {
-extern	int	optind;
-extern	char	*optarg;
+	extern	int	optind;
+	extern	char	*optarg;
 
 #include	"version.h"
 
-register int j, k;
-int	c,
-	count,
-	lastc	= '?',
-	quit	= FALSE;
-char	tpath[BUFSIZ],
-	dpath[BUFSIZ];
+	register int		j, k;
+	auto	struct	stat	sb;
+	auto	int		c,
+				count,
+				lastc	= '?',
+				quit	= FALSE;
+	auto	char		tpath[BUFSIZ],
+				dpath[BUFSIZ];
 
 	(void)sortset('s', 'n');
 	(void)sscanf(version, "%*s %s %s", tpath, dpath);
@@ -1284,7 +1321,7 @@ char	tpath[BUFSIZ],
 			c = 't';	/* force work-clear if 'q' */
 			break;
 	case 't':
-	case 'T':	if (realstat(curfile) >= 0)
+	case 'T':	if (realstat(curfile, &sb) >= 0)
 				dedtype(cNAME,(c == 'T'));
 			c = 't';	/* force work-clear if 'q' */
 			break;
@@ -1314,7 +1351,6 @@ char	tpath[BUFSIZ],
 			    while ((c = ft_view(tpath)) == 'e') {
 			    int	y,x;
 
-				savewin();
 				getyx(stdscr, y, x);
 				if (++y >= LINES)	y = LINES-1;
 				move(y, x-x);
@@ -1325,14 +1361,14 @@ char	tpath[BUFSIZ],
 				dlog_close();
 				forkfile(whoami, tpath, FALSE);
 				dlog_reopen();
-				unsavewin(TRUE,0);
+				wrepaint(stdscr,0);
 				ft_read(new_wd, tree_opt);
 			    }
 			} while (!new_tree(tpath, 'E', 1));
 			break;
 
 	case 'E':	/* enter new directory on ring */
-			if (realstat(curfile) == 1) {
+			if (realstat(curfile, &sb) == 1) {
 				markC(TRUE);
 				if (!new_args(
 					pathcat(tpath, new_wd, cNAME),
@@ -1342,9 +1378,10 @@ char	tpath[BUFSIZ],
 #ifdef	S_IFLNK		/* try to edit head-directory of symbolic-link */
 			} else if (edithead(tpath, cLTXT)) {
 				markC(TRUE);
-				if (!new_args(tpath, c, 1)) {
+				if (!new_args(tpath, c, 1))
 					showC();
-				}
+				else
+					scroll_to_stat(&sb);
 #endif	S_IFLNK
 			} else
 				dedmsg("not a directory");

@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	sccs_id[] = "$Header: /users/source/archives/ded.vcs/src/RCS/dedfind.c,v 4.0 1989/03/14 11:16:57 ste_cm Rel $";
+static	char	Id[] = "$Id: dedfind.c,v 8.0 1989/08/25 08:53:40 ste_cm Rel $";
 #endif	lint
 
 /*
@@ -7,9 +7,24 @@ static	char	sccs_id[] = "$Header: /users/source/archives/ded.vcs/src/RCS/dedfind
  * Author:	T.E.Dickey
  * Created:	18 Nov 1987
  * $Log: dedfind.c,v $
- * Revision 4.0  1989/03/14 11:16:57  ste_cm
- * BASELINE Thu Aug 24 10:20:06 EDT 1989 -- support:navi_011(rel2)
+ * Revision 8.0  1989/08/25 08:53:40  ste_cm
+ * BASELINE Mon Aug 13 15:06:41 1990 -- LINCNT, ADA_TRANS
  *
+ *		Revision 7.0  89/08/25  08:53:40  ste_cm
+ *		BASELINE Mon Apr 30 09:54:01 1990 -- (CPROTO)
+ *		
+ *		Revision 6.0  89/08/25  08:53:40  ste_cm
+ *		BASELINE Thu Mar 29 07:37:55 1990 -- maintenance release (SYNTHESIS)
+ *		
+ *		Revision 5.0  89/08/25  08:53:40  ste_cm
+ *		BASELINE Fri Oct 27 12:27:25 1989 -- apollo SR10.1 mods + ADA_PITS 4.0
+ *		
+ *		Revision 4.1  89/08/25  08:53:40  dickey
+ *		use 'scroll_to_file()'
+ *		
+ *		Revision 4.0  89/03/14  11:16:57  ste_cm
+ *		BASELINE Thu Aug 24 10:20:06 EDT 1989 -- support:navi_011(rel2)
+ *		
  *		Revision 3.0  89/03/14  11:16:57  ste_cm
  *		BASELINE Mon Jun 19 14:21:57 EDT 1989
  *		
@@ -73,11 +88,7 @@ static	int	order;		/* saves last legal search order */
 		}
 		if (found) {
 			markC(FALSE);
-			curfile = j;
-			if (to_file())
-				showFILES();
-			else
-				showC();
+			scroll_to_file(j);
 			dlog_name(cNAME);
 		} else {
 		char	msg[BUFSIZ];

@@ -1,20 +1,23 @@
 #ifndef	lint
-static	char	sccs_id[] = "$Header: /users/source/archives/ded.vcs/src/RCS/ftree.c,v 4.0 1989/06/05 15:44:44 ste_cm Rel $";
+static	char	Id[] = "$Id: ftree.c,v 4.1 1989/08/25 07:44:50 dickey Exp $";
 #endif	lint
 
 /*
  * Author:	T.E.Dickey
  * Created:	02 Sep 1987
  * $Log: ftree.c,v $
- * Revision 4.0  1989/06/05 15:44:44  ste_cm
- * BASELINE Thu Aug 24 10:20:06 EDT 1989 -- support:navi_011(rel2)
+ * Revision 4.1  1989/08/25 07:44:50  dickey
+ * use 'wrepaint()' rather than savewin/unsavewin
  *
+ *		Revision 4.0  89/06/05  15:44:44  ste_cm
+ *		BASELINE Thu Aug 24 10:20:06 EDT 1989 -- support:navi_011(rel2)
+ *		
  *		Revision 3.0  89/06/05  15:44:44  ste_cm
  *		BASELINE Mon Jun 19 14:21:57 EDT 1989
  *		
  *		Revision 2.1  89/06/05  15:44:44  dickey
- *		revised/simplified code which inserts logical links by making this part
- *		of 'ft_insert()'
+ *		revised/simplified code which inserts logical links by making
+ *		this part of 'ft_insert()'
  *		
  *		Revision 2.0  89/03/14  13:25:04  ste_cm
  *		BASELINE Thu Apr  6 13:14:13 EDT 1989
@@ -1232,13 +1235,14 @@ char	*path;
 		case 'w':
 #ifdef	apollo
 				if (resizewin()) {
+					dlog_comment("resizewin(%d,%d)\n",
+						LINES, COLS);
 					showdiff = -1;
 					row = showbase;
 					break;
 				}
 #endif	apollo
-				savewin();
-				unsavewin(TRUE,0);
+				wrepaint(stdscr,0);
 				break;
 
 		/* Force dump */
