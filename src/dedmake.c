@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	sccs_id[] = "@(#)dedmake.c	1.1 88/09/12 12:47:10";
+static	char	sccs_id[] = "@(#)dedmake.c	1.2 88/09/13 16:20:58";
 #endif	lint
 
 /*
@@ -21,14 +21,16 @@ static
 makeit(name, mode)
 char	*name;
 {
+	int	fid;
 	errno = 0;
 	if (mode == S_IFDIR) {
 		if (mkdir(name, 0777) < 0)
 			return (FALSE);
 	}
 	if (mode == S_IFREG) {
-		if (creat(name, 0777) < 0)
+		if ((fid = creat(name, 0777)) < 0)
 			return (FALSE);
+		(void)close(fid);
 	}
 #ifdef	S_IFLNK
 	if (mode == S_IFLNK) {

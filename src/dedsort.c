@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	sccs_id[] = "@(#)dedsort.c	1.12 88/08/15 07:04:14";
+static	char	sccs_id[] = "@(#)dedsort.c	1.13 88/09/13 12:59:42";
 #endif	lint
 
 /*
@@ -7,6 +7,7 @@ static	char	sccs_id[] = "@(#)dedsort.c	1.12 88/08/15 07:04:14";
  * Author:	T.E.Dickey
  * Created:	11 Nov 1987
  * Modified:
+ *		13 Sep 1988, use external 'ftype()', 'ftype2()'.
  *		27 Jul 1988, corrected 'y' sort, in case no RCS/SCCS file exists
  *		11 Jul 1988, use 'tagsort' variable to group tagged-files.
  *		01 Jun 1988, added 'y' sort.
@@ -16,36 +17,8 @@ static	char	sccs_id[] = "@(#)dedsort.c	1.12 88/08/15 07:04:14";
  * Function:	Perform display-list sorting for DED directory editor.
  */
 #include	"ded.h"
-
-static
-char *
-ftype(name)			/* file type: after first '.' in name */
-char	*name;
-{
-extern	char	*strchr(), *strrchr();
-register char *s = strrchr(name, '/'),
-	*t;
-	if (s)	s++;
-	else	s = name;
-	if (t = strchr(s, '.'))		t++;
-	else				t = name+strlen(name);
-	return(t);
-}
-
-static
-char *
-fTYPE(name)			/* file type: after last '.' in name */
-char	*name;
-{
-extern	char	*strchr(), *strrchr();
-register char *s = strrchr(name, '/'),
-	*t;
-	if (s)	s++;
-	else	s = name;
-	if (t = strrchr(s, '.'))	t++;
-	else				t = name+strlen(name);
-	return(t);
-}
+extern	char	*ftype();
+extern	char	*ftype2();
 
 #define	CHECKED(p)	(p->z_time == p->s.st_mtime)
 #define	CMPX(m)		(p1->m > p2->m ? -1 : (p1->m < p2->m ? 1 : 0))
@@ -77,7 +50,7 @@ char	bfr[BUFSIZ];
 			/* sort by file types (suffixes) */
 	case 't':	cmp = strcmp(ftype(p1->name), ftype(p2->name));
 			break;
-	case 'T':	cmp = strcmp(fTYPE(p1->name), fTYPE(p2->name));
+	case 'T':	cmp = strcmp(ftype2(p1->name), ftype2(p2->name));
 			break;
 
 			/* sort filemodes within the mode-character */
