@@ -1,11 +1,12 @@
 #ifndef	lint
-static	char	sccs_id[] = "@(#)ftree.c	1.58 88/09/07 07:40:08";
+static	char	sccs_id[] = "@(#)ftree.c	1.59 88/09/09 08:54:31";
 #endif	lint
 
 /*
  * Author:	T.E.Dickey
  * Created:	02 Sep 1987
  * Modified:
+ *		09 Sep 1988, adjusted '=' to permit "~" expressions.
  *		07 Sep 1988, fixes to q/Q.
  *		02 Sep 1988, use 'rcs_dir()' and 'sccs_dir()'
  *		03 Aug 1988, use 'dedsigs()' in 'R' command to permit interrupt.
@@ -281,7 +282,7 @@ fd_path(bfr, node)
 char	*bfr;
 {
 char	tmp[MAXPATHLEN];
-	*bfr = '\0';
+	*bfr = EOS;
 	do {
 		(void)strcpy(tmp, bfr);
 		(void)strcat(strcat(strcpy(bfr, gap), ftree[node].f_name), tmp);
@@ -345,7 +346,7 @@ register FTREE *f;
 	char	*name = ++path,
 		*next = strchr(name, *gap);
 		if (next != 0)
-			*next = '\0';
+			*next = EOS;
 
 		this = sort = 0;
 		for (j = last+1; j <= FDlast; j++) {
@@ -415,7 +416,7 @@ register int j, this, last = 0;
 	while (*path == *gap) {
 	char	*name = ++path,
 		*next = strchr(path, *gap);
-		if (next) *next = '\0';
+		if (next) *next = EOS;
 		this = 0;
 		for (j = last+1; j <= FDlast; j++) {
 			if (ftree[j].f_root == last) {
@@ -1036,7 +1037,7 @@ char	*path;
 		case '?':
 		case 'n':
 		case 'N':
-			*cwdpath = '\0';
+			*cwdpath = EOS;
 		case '@':
 			if (!isalpha(c)) {
 				move(0,0);
@@ -1062,21 +1063,20 @@ char	*path;
 			break;
 
 		case '=':	/* patch: test rename-function */
-			{
+			if (chdir(fd_path(cwdpath,zROOT(row))) >= 0) {
 			char	bfr[BUFSIZ];
+				abspath(fd_path(cwdpath,row));
 				move(node2row(row),node2col(row,MAXLVL));
 				(void)strcpy(bfr, ftree[row].f_name);
 				rawgets(bfr,sizeof(bfr),FALSE);
-				if (*bfr == '/')
-					*cwdpath = EOS;
-				else
-					(void)strcat(fd_path(cwdpath,zROOT(row)), "/");
-				abspath(strcat(cwdpath, bfr));
-				if (strcmp(cwdpath, fd_path(bfr,row)) ) {
-					ft_rename(bfr, cwdpath);
-					scroll_to (row = do_find(cwdpath));
+				abspath(bfr);
+				if (strcmp(cwdpath, bfr) ) {
+					ft_rename(cwdpath, bfr);
+					scroll_to (row = do_find(bfr));
 				}
-			}
+				(void)chdir(new_wd);
+			} else
+				waitmsg(cwdpath);
 			break;
 #ifndef	TEST
 		/* dump the current screen */
@@ -1234,21 +1234,43 @@ char	*path;
 }
 
 #ifdef	DEBUG
+static
+FILE *
+ft_DUMP()
+{
+	static	char	logname[BUFSIZ];
+	return (fopen(strcat(strcpy(logname, gethome()), "/ftree.log"), "a+"));
+}
+
+/*
+ * Dump a message to a log-file
+ */
+ft_dump2(fmt, msg)
+char	*fmt,*msg;
+{
+	auto	FILE	*fp = ft_DUMP();
+	if (fp) {
+		FPRINTF(fp, "FTREE MSG: ");
+		FPRINTF(fp, fmt, msg);
+		FPRINTF(fp, "\n");
+		FCLOSE(fp);
+	}
+}
+
 /*
  * Dump the current tree to a log-file
  */
 ft_dump(msg)
 char	*msg;
 {
-extern	char	*ctime();
-extern	time_t	time();
-time_t	now	= time((time_t *)0);
-char	logname[BUFSIZ];
-FILE	*fp = fopen(strcat(strcpy(logname, gethome()), "/ftree.log"), "a+");
-register FTREE *f;
-register int j, k;
+	extern	 char	*ctime();
+	extern	 time_t	time();
+	auto	 time_t	now	= time((time_t *)0);
+	auto	 FILE	*fp;
+	register FTREE *f;
+	register int j, k;
 
-	if (fp) {
+	if (fp = ft_DUMP()) {
 		PRINTF("writing log file \"%s\"\r\n", msg);
 		FPRINTF(fp, "FTREE LOG: \"%s\" %s", msg, ctime(&now));
 		FPRINTF(fp, "Total diffs: %d\n", FDdiff);
@@ -1287,7 +1309,7 @@ register int j, k;
 			FPRINTF(fp, "\n");
 		}
 		PRINTF("**done***\r\n");
-		(void)fclose(fp);
+		FCLOSE(fp);
 	} else
 		perror("ftree.log");
 }

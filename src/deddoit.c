@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	sccs_id[] = "@(#)deddoit.c	1.12 88/08/18 14:40:13";
+static	char	sccs_id[] = "@(#)deddoit.c	1.13 88/09/09 06:52:38";
 #endif	lint
 
 /*
@@ -144,7 +144,7 @@ deddoit(key)
 	register char	*s;
 
 	to_work();
-	printw("Command: ");
+	PRINTW("Command: ");
 	getyx(stdscr,j,k);
 	clrtobot();
 	move(j,k);
@@ -175,12 +175,12 @@ deddoit(key)
 			while (--s > bfr_sh && isspace(*s))
 				*s = EOS;
 		} else {
-			printw("(no command)");
+			PRINTW("(no command)");
 			showC();
 			return;
 		}
 	} else
-		printw("(ditto)\n");
+		PRINTW("(ditto)\n");
 
 	subs[k = 0] = EOS;
 	for (j = 0; bfr_sh[j]; j++) {
@@ -220,7 +220,7 @@ deddoit(key)
 		}
 		if (k >= sizeof(subs)-1) {
 			*subs = EOS;
-			printw("? command is too long\n");
+			PRINTW("? command is too long\n");
 			beep();
 			break;
 		}
