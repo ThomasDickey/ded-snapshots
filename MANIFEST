@@ -1,0 +1,5 @@
+MANIFEST for ded, version t19870908
+--------------------------------------------------------------------------------
+MANIFEST                        this file
+src                             subdirectory
+src/ftree.c                     directory-tree for DED
