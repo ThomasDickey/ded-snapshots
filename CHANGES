@@ -1,3 +1,13 @@
+1994-11-22  Thomas E. Dickey  <dickey@clark.net>
+
+	* src/ded.h: added quitVIEW
+
+	* src/dedring.c: invoke quitVIEW to cleanup if we've got to
+
+	* src/dedview.c: added quitVIEW function
+
+	* src/ded.c: suppress type-ahead if we can
+
 1994-11-13  Thomas E. Dickey  <dickey@clark.net>
 
 	* src/ded.c: corrected logic that supports -sz, -sZ options
