@@ -157,7 +157,7 @@
 #define	MAIN
 #include	"ded.h"
 
-MODULE_ID("$Header: /users/source/archives/ded.vcs/src/RCS/ded.c,v 12.63 1999/08/17 01:28:53 tom Exp $")
+MODULE_ID("$Header: /users/source/archives/ded.vcs/src/RCS/ded.c,v 12.64 2000/01/17 20:03:39 tom Exp $")
 
 #define	EDITOR	DEFAULT_EDITOR
 #define	BROWSE	DEFAULT_BROWSE
@@ -962,7 +962,8 @@ _MAIN
 		failed("which-path");
 
 	/* my help-file lives where the binary does */
-	FORMAT(howami, "%s.hlp", whoami);
+	strcpy(howami, whoami);
+	strcpy(ftype(howami), ".hlp");
 
 	/* pass options to lower-level processes of ded */
 	(void)strcat(strcat(whoami, " -t"), tree_opt);
