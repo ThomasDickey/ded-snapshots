@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	sccs_id[] = "@(#)dedring.c	1.7 88/05/09 11:01:06";
+static	char	sccs_id[] = "@(#)dedring.c	1.8 88/05/10 13:18:23";
 #endif	lint
 
 /*
@@ -21,7 +21,7 @@ static	char	sccs_id[] = "@(#)dedring.c	1.7 88/05/09 11:01:06";
 #include	<sys/errno.h>
 extern	int	errno;
 extern	FLIST	*dedfree();
-extern	char	*stralloc();
+extern	char	*txtalloc();
 
 /*
  * The RING structure saves global data which lets us restore the state
@@ -185,7 +185,7 @@ char	bfr[BUFSIZ];
 		p->flist    = 0;
 		p->top_argc = 1;
 		p->top_argv = DOALLOC(char *,0, 2);
-		p->top_argv[0] = stralloc(path);
+		p->top_argv[0] = txtalloc(path);
 		p->clr_sh   = FALSE;
 		p->curfile  = 0;
 		p->numfiles = 0;
@@ -243,12 +243,12 @@ RING	*p	= ring_get(path),
 		if (p != rang) {
 			if (p->top_argv) {
 				if (p->top_argv[0]) {
-					free (p->top_argv[0]);
-					free ((char *)p->top_argv);
+					txtfree (p->top_argv[0]);
+					FREE((char *)p->top_argv);
 				}
 			}
 		}
-		free ((char *)p);
+		FREE((char *)p);
 	}
 }
 

@@ -1,5 +1,5 @@
 #ifndef	NO_SCCS_ID
-static	char	sccs_id[] = "@(#)ftree.c	1.38 88/05/09 11:22:03";
+static	char	sccs_id[] = "@(#)ftree.c	1.39 88/05/10 13:19:43";
 #endif
 
 /*
@@ -51,7 +51,7 @@ static	char	sccs_id[] = "@(#)ftree.c	1.38 88/05/09 11:22:03";
 #include	<sys/errno.h>
 extern	time_t	time();
 extern	int	errno;
-extern	char	*stralloc(),
+extern	char	*txtalloc(),
 		*strchr();
 
 #ifndef	R_OK		/* should be in <sys/file.h>, but apollo has conflict */
@@ -148,7 +148,7 @@ fd_alloc()
 		while (size < FDsize) {
 			ftree[size].f_root =
 			ftree[size].f_mark = 0;
-			ftree[size].f_name = stralloc("");
+			ftree[size].f_name = txtalloc("");
 			size++;
 		}
 	}
@@ -348,7 +348,7 @@ register FTREE *f;
 			ftree[this].f_mark = NORMAL;
 			if (!showsccs && !strcmp(name, "sccs"))
 				ftree[this].f_mark |= NOSCCS;
-			ftree[this].f_name = stralloc(name);
+			ftree[this].f_name = txtalloc(name);
 		}
 
 		last = this;

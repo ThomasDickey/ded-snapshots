@@ -1,4 +1,4 @@
-/* @(#)ded.h	1.8 88/05/06 12:57:44 */
+/* @(#)ded.h	1.9 88/05/10 12:10:46 */
 
 /*
  * Created:	09 Nov 1987
@@ -24,6 +24,7 @@ extern	char	*doalloc(),	/* (re)allocate memory		*/
 #else	lint
 #define	DOALLOC(t,p,n)	(t *)doalloc((char *)p,(n) * sizeof(t))
 #endif	lint
+#define	FREE(p)		dofree(p)
 
 /*
  * Main difference between SYSTEM5/BSD4.x is the use of sockets & symbolic links
