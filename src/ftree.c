@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	Id[] = "$Id: ftree.c,v 11.3 1992/08/05 12:59:36 dickey Exp $";
+static	char	Id[] = "$Id: ftree.c,v 11.4 1992/08/06 13:53:01 dickey Exp $";
 #endif
 
 /*
@@ -1286,7 +1286,7 @@ public	RING *	ft_view(
 			PRINTW("line: ");
 			clrtoeol();
 
-			s = dlog_string(&my_text,MAXPATHLEN);
+			s = dlog_string(&my_text,(DYN **)0,NO_HISTORY,MAXPATHLEN);
 
 			if (!strcmp(s, "$"))
 				c = FDlast;
@@ -1315,7 +1315,7 @@ public	RING *	ft_view(
 
 				my_text = dyn_copy(my_text,
 					(c == '~') ? "~" : cwdpath);
-				s = dlog_string(&my_text,MAXPATHLEN);
+				s = dlog_string(&my_text,(DYN **)0,NO_HISTORY,MAXPATHLEN);
 
 				if (!*s && c != '@') {
 					c = -1;
@@ -1352,7 +1352,7 @@ public	RING *	ft_view(
 				move(node2row(row),node2col(row,MAXLVL));
 
 				my_text = dyn_copy(my_text, ftree[row].f_name);
-				s = dlog_string(&my_text,MAXPATHLEN);
+				s = dlog_string(&my_text,(DYN **)0,NO_HISTORY,MAXPATHLEN);
 
 				abspath(strcpy(bfr,s));
 

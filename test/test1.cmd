@@ -11,7 +11,7 @@
 1k	# path: CM_TOOLS/src
 1k	# path: CM_TOOLS/bin
 1E	# chdir CM_TOOLS/bin
-1%ls -l
+1%ls\s-l\r
 	# execute ls -l
 \r	# Hit <RETURN> to continue
 	# ELAPSED TIME
@@ -30,7 +30,7 @@
 1st
 1Z
 1\s
-1!\# dummy comment, during wait
+1!\\#\sdummy\scomment,\sduring\swait\r
 	# execute # dummy comment, during wait
 	# ELAPSED TIME
 3l
@@ -98,5 +98,5 @@
 1.	# execute # dummy comment, during wait
 	# ELAPSED TIME
 3l
-1qyes
+1qyes\r
 	# PROCESS ENDED

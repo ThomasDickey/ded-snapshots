@@ -1,3 +1,37 @@
+1992-08-06  dickey@software.org
+
+	* src/dedread.c: dlog_string-interface
+
+	* src/dlog.c: revising 'dlog_string()' to add arguments for scrolling
+	thru list of alternatives, and for saving keystrokes for
+	"-command (replay).
+
+	* src/ded.h, src/deddoit.c, src/ftree.c, src/dedtype.c, src/ded.c, src/dedfind.c:
+	dlog_string-interface
+
+	* src/dlog.c: modified 'pending' so that it should never overflow.
+	make 'cmd_bfr' dynamically allocated (but fixed size!)
+
+	* src/dlog.c: chopped out code now in common/logch.c
+
+	* test/Makefile: use defs in common.mk
+
+	* test/test4.cmd, test/test3.cmd, test/test2.cmd: rawgets/logging
+
+	* src/dlog.c:
+	merged 'read_line()' into 'dlog_string()'; make the resulting
+	procedure work properly with the command-argument of 'wrawgets()'
+
+	* test/test1.cmd: rawgets/logging
+
+	* test/test4.cmd, test/test3.cmd: dlog-escapes
+
+	* src/dlog.c: split out 'record_char()' function to use in new function
+	'record_string()' -- to allow me to record individual chars
+	in 'dlog_string()' rather than the buffer-result.
+	added escape types \F, \B, \W and \? to make the log a little
+	more readable.
+
 1992-08-05  dickey@software.org
 
 	* src/Makefile: use include-defs from common.mk

@@ -3,7 +3,7 @@
 
 #ifdef	MAIN
 #ifndef	lint
-static	char	*ded_h = "$Id: ded.h,v 11.1 1992/08/04 13:16:37 dickey Exp $";
+static	char	*ded_h = "$Id: ded.h,v 11.2 1992/08/06 14:05:46 dickey Exp $";
 #endif
 #endif	/* MAIN */
 
@@ -68,6 +68,9 @@ extern	int	re_exec();	/* (return > 0): match */
 /*
  * Miscellaneous definitions
  */
+typedef	char *	  (*HistoryFuncPt)(/*_arx(int *,nnn) _ar1(int,d)*/);
+#define	NO_HISTORY (HistoryFuncPt)0
+
 #ifdef	__STDCPP__
 #define	ENV(n)	dftenv(n,#n)
 #else
@@ -566,7 +569,9 @@ extern	int	dlog_char(
 		_ar1(int,	begin));
 
 extern	char *	dlog_string(
-		_arx(DYN **,	buffer)
+		_arx(DYN **,	result)
+		_arx(DYN **,	history)
+		_fnx(char *,	scroller)
 		_ar1(int,	wrap_len));
 
 extern	void	dlog_elapsed(_ar0);

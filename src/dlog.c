@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	what[] = "$Id: dlog.c,v 11.2 1992/08/05 12:49:57 dickey Exp $";
+static	char	what[] = "$Id: dlog.c,v 11.7 1992/08/06 14:06:33 dickey Exp $";
 #endif
 
 /*
@@ -7,6 +7,7 @@ static	char	what[] = "$Id: dlog.c,v 11.2 1992/08/05 12:49:57 dickey Exp $";
  * Author:	T.E.Dickey
  * Created:	14 Mar 1989
  * Modified:
+ *		06 Aug 1992, added \F, \B, \W, \? escape decoding.
  *		18 Oct 1991, converted to ANSI
  *		09 Sep 1991, lint
  *		06 Mar 1990, 'cmdch()' can now return explicit zero-count
@@ -32,19 +33,19 @@ static	char	what[] = "$Id: dlog.c,v 11.2 1992/08/05 12:49:57 dickey Exp $";
 #include	<time.h>
 #include	<varargs.h>
 
-#define	NOW	time((time_t *)0)
-#define	CONVERT(base,p,n)	n = (base * n) + (*p++ - '0')
+#define	NOW		time((time_t *)0)
+#define	CMD_LIMIT	BUFSIZ
 
 /* state of command-file (input) */
 static	FILE	*cmd_fp;
-static	char	cmd_bfr[BUFSIZ],	/* most recently-read buffer */
-		*cmd_ptr;		/* points into cmd_bfr */
+static	char	*cmd_bfr,		/* most recently-read buffer */
+		*cmd_ptr;		/* points into cmd_bfr[] */
 
 /* state of log-file (output) */
 static	FILE	*log_fp;
-static	char	log_name[BUFSIZ];
+static	char	log_name[MAXPATHLEN];
 static	time_t	mark_time;
-static	char	pending[BUFSIZ];	/* buffers parts of raw-commands */
+static	DYN	*pending;		/* buffers parts of raw-commands */
 
 private	void	show_time _ONE(char *,msg)
 {
@@ -64,9 +65,12 @@ private	void	show_time _ONE(char *,msg)
 
 private	void	flush_pending _ONE(int,newline)
 {
-	if (*pending) {
-		FPRINTF(log_fp, "%s%s", pending, newline ? "\n" : "");
-		*pending = EOS;
+	if (log_fp) {
+		register char	*s = dyn_string(pending);
+		if (s != 0 && *s != EOS) {
+			FPRINTF(log_fp, "%s%s", s, newline ? "\n" : "");
+			dyn_init(&pending, 1);
+		}
 	}
 }
 
@@ -81,7 +85,7 @@ private	int	read_script(_AR0)
 
 	if (cmd_fp != 0) {
 		while (!*cmd_bfr || (cmd_ptr != 0 && !*cmd_ptr)) {
-			if (fgets(cmd_bfr, sizeof(cmd_bfr), cmd_fp)) {
+			if (fgets(cmd_bfr, CMD_LIMIT, cmd_fp)) {
 				cmd_ptr = cmd_bfr;
 				for (s = cmd_bfr; *s; s++)
 					if (!isprint(*s)) {
@@ -108,48 +112,8 @@ private	int	read_char _ONE(int *,count_)
 	auto	int	num;
 	register int	j;
 
-	if (read_script()) {
-		if (count_) {
-			num = 0;
-			while (isdigit(*cmd_ptr)) {
-				CONVERT(10,cmd_ptr,num);
-			}
-			*count_ = num;
-		}
-		if (*cmd_ptr == '\\') {
-			switch (*(++cmd_ptr)) {
-			case '\\':	num = '\\';		break;
-			case 'b':	num = '\b';		break;
-			case 'f':	num = '\f';		break;
-			case 'n':	num = '\n';		break;
-			case 'r':	num = '\r';		break;
-			case 't':	num = '\t';		break;
-			case 'v':	num = '\v';		break;
-			case 's':	num = ' ';		break;
-			case 'E':	num = '\033';		break;
-			case 'U':	num = ARO_UP;		break;
-			case 'D':	num = ARO_DOWN;		break;
-			case 'L':	num = ARO_LEFT;		break;
-			case 'R':	num = ARO_RIGHT;	break;
-			default:
-				if (isdigit(*cmd_ptr)) {
-					num = 0;
-					for (j = 0; j < 3; j++) {
-						if (isdigit(*cmd_ptr))
-							CONVERT(8,cmd_ptr,num);
-						else
-							break;	/* error? */
-					}
-					cmd_ptr--; /* point to last digit */
-				} else {
-					return (*(--cmd_ptr));	/* recover */
-				}
-			}
-			cmd_ptr++;	/* point past decoded char */
-			return (num);
-		} else
-			return (*cmd_ptr++);
-	}
+	if (read_script())
+		return decode_logch(&cmd_ptr, count_);
 
 #define	MAXTRIES	5
 	/*
@@ -167,36 +131,38 @@ private	int	read_char _ONE(int *,count_)
 	/*NOTREACHED*/
 }
 
-/*
- * Read a line-buffer from the command-file (if open), or from the keyboard
- * if not.  Note that all line-buffer text in DED is written after one or
- * more single-character commands, so we can test easily for the case of
- * a null-buffer (it simply has no more characters in the current buffer).
- */
-private	char *	read_line(
-	_ARX(DYN **,	s)
-	_AR1(int,	wrap_len)
+private	int	record_char(
+	_ARX(int,	c)
+	_ARX(int *,	count_)
+	_AR1(int,	begin)
 		)
-	_DCL(DYN **,	s)
-	_DCL(int,	wrap_len)
+	_DCL(int,	c)
+	_DCL(int *,	count_)
+	_DCL(int,	begin)
 {
-	int	wrap	= wrap_len <= 0;
-	int	len	= wrap ? -wrap_len : wrap_len;
-	register int	c;
-
-	if (cmd_fp != 0) {
-		dyn_init(s, 1);
-		while (c = *cmd_ptr++) {
-			if ((wrap_len == 0) || (len-- > 0))
-				*s = dyn_append_c(*s, c);
+	if (log_fp) {
+		register char	*s;
+		if (begin) {
+			dlog_flush();
+			mark_time = NOW;
 		}
-	} else {
-		if (!len)
-			len = BUFSIZ;
-		*s = dyn_alloc(*s, (size_t)len+1);
-		rawgets(dyn_string(*s), len, wrap);
+		pending = dyn_alloc(pending, dyn_length(pending)+20);
+		encode_logch(s = dyn_string(pending), count_, c);
+		pending->cur_length += strlen(s);
 	}
-	return dyn_string(*s);
+	return c;
+}
+
+private	char *	record_string _ONE(char *,s)
+{
+	register int	c;
+	char	*base	= s;
+
+	if (log_fp) {
+		while (c = *s++)
+			(void)record_char(c & 0xff, (int *)0, FALSE);
+	}
+	return base;
 }
 
 /************************************************************************
@@ -212,6 +178,8 @@ public	void	dlog_read _ONE(char *,name)
 {
 	if (!(cmd_fp = fopen(name, "r")))
 		failed(name);
+	if (!cmd_bfr)
+		cmd_bfr = doalloc(0, CMD_LIMIT);
 	*(cmd_ptr = cmd_bfr) = EOS;
 }
 
@@ -285,59 +253,71 @@ public	int	dlog_char(
 	_DCL(int *,	count_)
 	_DCL(int,	begin)
 {
-	register int	c;
-	register char	*s;
-
-	c = read_char(count_);
-	if (log_fp) {
-		if (begin) {
-			dlog_flush();
-			mark_time = NOW;
-		}
-		s = pending + strlen(pending);
-		if (count_) {
-			FORMAT(s, "%d", *count_);
-			s += strlen(s);
-		}
-		if (c == '\\')
-			FORMAT(s, "\\\\");
-		else if (isascii(c) && isgraph(c))
-			FORMAT(s, "%c", c);
-		else switch (c) {
-			case '\b':	FORMAT(s, "\\b");	break;
-			case '\f':	FORMAT(s, "\\f");	break;
-			case '\n':	FORMAT(s, "\\n");	break;
-			case '\r':	FORMAT(s, "\\r");	break;
-			case '\t':	FORMAT(s, "\\t");	break;
-			case '\v':	FORMAT(s, "\\v");	break;
-			case ' ':	FORMAT(s, "\\s");	break;
-			case '\033':	FORMAT(s, "\\E");	break;
-			case ARO_UP:	FORMAT(s, "\\U");	break;
-			case ARO_DOWN:	FORMAT(s, "\\D");	break;
-			case ARO_LEFT:	FORMAT(s, "\\L");	break;
-			case ARO_RIGHT:	FORMAT(s, "\\R");	break;
-			default:	FORMAT(s, "\\%03o", c);
-		}
-	}
-	return (c);
+	return record_char(read_char(count_), count_, begin);
 }
 
 /*
  * Obtain a string from the user and log it if logging is active.
+ *
+ * Note that all line-buffer text in DED is written after one or more single-
+ * character commands, so we can test easily for the case of a null-buffer (it
+ * simply has no more characters in the current buffer).
  */
 public	char *	dlog_string(
-	_ARX(DYN **,	bfr)
+	_ARX(DYN **,	result)
+	_ARX(DYN **,	history)
+	_FNX(char *,	scroller)
 	_AR1(int,	wrap_len)
 		)
-	_DCL(DYN **,	bfr)
+	_DCL(DYN **,	result)
+	_DCL(DYN **,	history)
+	_DCL(char *,	(*scroller()))
 	_DCL(int,	wrap_len)
 {
-	char	*s = read_line(bfr, wrap_len);
-	if (log_fp) {
-		PENDING(string,FALSE);
-		FPRINTF(log_fp, "%s\n", s);
-	}
-	return s;
+	int	done	= FALSE;
+	int	wrap	= wrap_len <= 0;
+	int	len	= wrap ? -wrap_len : wrap_len;
+	int	nnn	= 0;	/* scroller-index */
+	register int	c;
+
+	/* make sure we have enough space to write result; don't delete it! */
+	if (!len)
+		len = CMD_LIMIT;
+	*result = dyn_alloc(*result, (size_t)len+1);
+
+	if (history)
+		dyn_init(history,1);
+
+	do {
+		char	*buffer = dyn_string(*result);
+
+		c = wrawgets(stdscr,
+			buffer,
+			len,
+			wrap,
+			wrap ? EOS : 'q',
+			cmd_fp ? &cmd_ptr : (char **)0,
+			history || log_fp);
+
+		if (log_fp)
+			record_string(rawgets_log());
+
+		if (history)
+			*history = dyn_append(*history, rawgets_log());
+
+		if (scroller == 0)
+			done = TRUE;
+		else if (c == ARO_UP)
+			(void)strcpy(buffer, (*scroller)(&nnn, -1));
+		else if (c == ARO_DOWN)
+			(void)strcpy(buffer, (*scroller)(&nnn,  1));
+		else	/* assume quit */
+			done = TRUE;
+
+	} while (!done);
+
+	PENDING(string,TRUE);
+	return dyn_string(*result);
 }
 
 /*

@@ -1,8 +1,8 @@
-# $Id: Makefile,v 11.0 1992/07/23 12:05:48 ste_cm Rel $
+# $Id: Makefile,v 11.1 1992/08/06 12:10:11 dickey Exp $
 # make-file for testing unix directory editor
 #
 ####### (Development) ##########################################################
-GET	= checkout
+include ../../common.mk
 
 ####### (Standard Lists) #######################################################
 SCRIPTS	=\
@@ -19,11 +19,11 @@ CMD_FILES=\
 SOURCES	= README $(SCRIPTS) $(CMD_FILES)
 
 ####### (Standard Productions) #################################################
-all:		sources
-clean:				; rm -f *.out *.bak core
+all:		$(SOURCES)
+clean::				; rm -f $(CLEAN) *.tmp
+clean::				; rm -rf junk*
 clobber:	clean
-destroy:
-	sh -c 'for i in *;do case $$i in RCS);; *) rm -f $$i;;esac;done;exit 0'
+destroy:			; $(DESTROY)
 sources:	$(SOURCES)
 lint.out:
 lincnt.out:

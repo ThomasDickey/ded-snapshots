@@ -30,20 +30,20 @@ g
 1u	# before "LOGNAME"
 u
 	# after  "LOGNAME"
-1!\# the screen shows ded and ded.hlp after temporarily changing permissions, and after typing the help file
+1!\\#\sthe\sscreen\sshows\sded\sand\sded.hlp\safter\stemporarily\schanging\spermissions,\sand\safter\styping\sthe\shelp\sfile\r
 	# execute # the screen shows ded and ded.hlp after temporarily changing permissions, and after typing the help file
 	# ELAPSED TIME
 3l
-1%ls -l %F
+1%ls\s-l\s%F\r
 	# execute ls -l CM_TOOLS/test
 \r	# Hit <RETURN> to continue
 	# ELAPSED TIME
-1!\# just listed the other directory
+1!\\#\sjust\slisted\sthe\sother\sdirectory\r
 	# execute # just listed the other directory
 	# ELAPSED TIME
 1.	# execute # just listed the other directory
 	# ELAPSED TIME
-1%
+1%\r
 3l
 1D	# path: CM_TOOLS/bin
 1\L	# path: CM_TOOLS/bin
@@ -92,16 +92,16 @@ u
 	# "sortset.c"
 	# "ded.h"
 	# "version.h"
-1/ded.a
+1/ded.a\r
 	# "ded.a"
 1s+t
 1_
 2+	# "ded.a"
 	# "ded.hlp"
-1!\# selected the files of which only one suffix exists
+1!\\#\sselected\sthe\sfiles\sof\swhich\sonly\sone\ssuffix\sexists\r
 	# execute # selected the files of which only one suffix exists
 	# ELAPSED TIME
-1!
+1!\r
 3l
 1_
 1st
@@ -128,7 +128,7 @@ u
 1\L
 1\L
 1I
-1!\# shows inode in this screen
+1!\\#\sshows\sinode\sin\sthis\sscreen\r
 	# execute # shows inode in this screen
 	# ELAPSED TIME
 1F	# chdir CM_TOOLS/test
@@ -141,13 +141,13 @@ u
 1+	# "RCS"
 1+	# "README"
 1_
-1/\.h$
+1/\\.h$\r
 	# "ded.h"
 1+	# "ded.h"
 1+	# "version.h"
 1+	# "ded.hlp"
 1k
-1%ls -l #
+1%ls\s-l\s#\r
 	# execute ls -l ded.h version.h ded.hlp
 \r	# Hit <RETURN> to continue
 	# ELAPSED TIME
@@ -172,15 +172,15 @@ u
 1X
 1_
 1n	# "ded.h"
-1%echo F=%F
+1%echo\sF=%F\r
 	# execute echo F=CM_TOOLS/test
 \r	# Hit <RETURN> to continue
 	# ELAPSED TIME
-1:echo B=%B
+1:\F\b\b\b\bB=%B\r
 	# execute echo B=CM_TOOLS/bin
 \r	# Hit <RETURN> to continue
 	# ELAPSED TIME
-1:echo h=%h, r=%r, e=%e
+1:\F\b\b\b\bh=%h,\sr=%r,\se=%e\r
 	# execute echo h=./, r=ded, e=.h
 \r	# Hit <RETURN> to continue
 	# ELAPSED TIME
@@ -193,5 +193,5 @@ u
 1F	# path: CM_TOOLS/test
 1Q	# path: CM_TOOLS/src
 1q	# chdir CM_TOOLS/src
-1qyes
+1qyes\r
 	# PROCESS ENDED

@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	Id[] = "$Id: dedread.c,v 11.1 1992/08/04 13:50:22 dickey Exp $";
+static	char	Id[] = "$Id: dedread.c,v 11.2 1992/08/06 15:13:09 dickey Exp $";
 #endif
 
 /*
@@ -49,7 +49,7 @@ public	int	dedread(
 	else
 		dyn_init(&text, BUFSIZ);
 
-	s = dlog_string(&text,0);
+	s = dlog_string(&text,(DYN **)0, NO_HISTORY, 0);
 	if ((*pattern_ != 0) && !strcmp(s, *pattern_)) {
 		showC(gbl);
 		return (change_needed);
