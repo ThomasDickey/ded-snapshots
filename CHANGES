@@ -1,3 +1,9 @@
+1991-09-25  dickey@software.org
+
+	* user/ded.man: brought this up to date for baselines 9, 10
+
+	* user/ded.man: standalone-macros
+
 1991-09-24  dickey@software.org
 
 	* user/ded.man: fixed the stuff that shows backslashes
