@@ -1,3 +1,9 @@
+1996-02-26  Thomas E. Dickey  <dickey@clark.net>
+
+	* src/dedring.c: free memory-leak for cmd_sh, scan_expr
+
+	* src/dedmake.c: quiet gcc-warning about -TRUE
+
 1996-02-16  Thomas E. Dickey  <dickey@clark.net>
 
 	* src/ded.h: add 'freed' parm to redoVIEW()

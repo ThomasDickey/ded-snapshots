@@ -20,7 +20,7 @@
 
 #include	"ded.h"
 
-MODULE_ID("$Id: dedmake.c,v 12.5 1995/09/03 19:40:25 tom Exp $")
+MODULE_ID("$Id: dedmake.c,v 12.6 1996/02/26 11:32:35 tom Exp $")
 
 private	int	makeit(
 	_ARX(RING *,	gbl)
@@ -107,7 +107,7 @@ private	int	made_or_quit(
 			return TRUE;
 		}
 		dedmsg(gbl, strerror(errno));
-		(void)edit_inline(-TRUE);	/* force refresh! */
+		(void)edit_inline(-1);		/* force refresh! */
 		(void)ReplayTrim();
 		return FALSE;
 	}
