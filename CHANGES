@@ -1,3 +1,11 @@
+1992-01-02  dickey@software.org
+
+	* src/dedscan.c: make this handle "?" and "*" in initial argument
+
+	* src/dedscan.c:
+	if only a pathname is given in the initial arguments, then
+	initialize the 'toscan' pattern to match the filename.
+
 1991-12-05  dickey@software.org
 
 	* src/Makefile: corrected use of 'copy'
