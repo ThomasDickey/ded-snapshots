@@ -1,3 +1,12 @@
+1991-04-01  dickey@software.org
+
+	* src/version.h:
+	added CTL/I (tab) subcommand to 't' (type) to alter tabs.
+
+	* src/dedtype.c:
+	added command (tab-character) to allow user to alter tab
+	stops in the display.
+
 1990-08-27  dickey@software.org
 
 	* src/version.h: added better error recovery to ".ftree" read/write
