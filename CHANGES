@@ -1,3 +1,11 @@
+1987-09-16  Thomas E. Dickey
+
+	* src/ftree.c: mods to support 'fring' module.
+	Corrected 'fd_prep()' to strip ".." in relative paths.
+
+	* src/ftree.c:
+	workable interface with 'fl'; still have to do 'fring' module.
+
 1987-09-15  Thomas E. Dickey
 
 	* src/ftree.c: first version integrated with 'fl'.

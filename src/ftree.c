@@ -1,5 +1,5 @@
 #ifndef	NO_SCCS_ID
-static	char	sccs_id[] = "@(#)ftree.c	1.5 87/09/15 11:59:21";
+static	char	sccs_id[] = "@(#)ftree.c	1.7 87/09/16 16:46:04";
 #endif
 
 /*
@@ -10,8 +10,19 @@ static	char	sccs_id[] = "@(#)ftree.c	1.5 87/09/15 11:59:21";
  * Function:	This module performs functions supporting a file-tree display.
  *		We show the names of directories in tree-form.
  *
+ * Entrypoints:
+ *		ft_read
+ *		ft_write
+ *		ft_insert
+ *		ft_remove
+ *		ft_purge
+ *
  * Configure:	DEBUG	- dump a logfile in readable form at the end
  *		TEST	- make a standalone program (otherwise, part of 'fl')
+ *
+ * Notes:	To make the 'denode()' procedure work properly when we are
+ *		in the "/" directory, we must append a "/", since Altos's
+ *		'getcwd()' does not provide one!
  */
 
 #include	<ptypes.h>
@@ -22,6 +33,7 @@ static	char	sccs_id[] = "@(#)ftree.c	1.5 87/09/15 11:59:21";
 #include	<sys/dir.h>
 #include	<sys/errno.h>
 #include	<sys/stat.h>
+extern	long	time();
 extern	int	errno;
 extern	char	*getcwd(),
 		*getenv(),
@@ -39,6 +51,7 @@ extern	char	*denode(),
 
 #define	PRINTF	(void)printf
 #define	FPRINTF	(void)fprintf
+#define	FORMAT	(void)sprintf
 
 #define	NORMAL	0
 #define	MARKED	1
@@ -62,6 +75,7 @@ typedef	struct	{
 
 static	char	FDnode[MAXPATHLEN],	/* nodename, if any (stripped)	*/
 		FDname[MAXPATHLEN];	/* name of user's database	*/
+static	long	FDtime;			/* time: last modified ".ftree"	*/
 static	int	FDdiff,			/* number of changes made	*/
 		FDlast,			/* last used-entry in ftree[]	*/
 		FDsize,			/* current sizeof(ftree[])	*/
@@ -93,6 +107,19 @@ fd_alloc()
 			size++;
 		}
 	}
+}
+
+/*
+ * Get the current working directory and return it in the given buffer.  Since
+ * we have a conflict with the use of 'denode()' at the root-level, explicitly
+ * adjust this case (node == wd).
+ */
+static
+fd_getcwd(bfr)
+char	*bfr;
+{
+	if (!strcmp(getcwd(bfr, MAXPATHLEN-2), FDnode))
+		(void)strcpy(bfr, "/");
 }
 
 /*
@@ -138,7 +165,12 @@ char	tmp[MAXPATHLEN];
 }
 
 /*
- * Prepare a pathname (i.e., make it standardized, absolute)
+ * Prepare a pathname (i.e., make it standardized, absolute).  Relative paths
+ * may include the following cases (no embedded slashes):
+ *	xx
+ *	.
+ *	./xx
+ * The ".." notation may be embedded at any point (we recursively strip it).
  */
 static
 char *
@@ -150,16 +182,38 @@ register char *s, *d;
 	path = denode(path, FDnode, (int *)0);
 	if (*path == '/')
 		;
-	else if (*path)
-		failed("relative path?");
+	else if (*path) {
+	char	cwdpath[MAXPATHLEN];
+		fd_getcwd(cwdpath);
+		s = path;
+		if (*s == '.')
+			if (s[1] == '\0' || s[1] == '/')
+				s++;		/* absorb "." */
+		(void)strcat(strcat(cwdpath, "/"), s);
+		(void)strcpy(path,denode(cwdpath, FDnode, (int *)0));
+	}
 
-	/* trim out repeated '/' marks */
+	/* trim out repeated & trailing '/' marks, as well as ".." */
 	for (s = d = path; *s; s++) {
 		if (*s == '/')
 			while (s[1] == '/')	s++;
 		*d++ = *s;
 	}
+	while (d > path+1)
+		if (d[-1] == '/')	d--;
+		else			break;
 	*d = '\0';
+	for (s = path; *s; s++) {
+		if (s[0] == '.' && s[1] == '.')
+			if (s > path && s[-1] == '/')
+				if (s[2] == '\0' || s[2] == '/') {
+					d = s+2;
+					s -= 2;
+					while (s > path && *s != '/') s--;
+					while (*s++ = *d++);
+					s = path;	/* rescan */
+				}
+	}
 	return(path);
 }
 
@@ -209,17 +263,25 @@ int	last = 0,	/* assume we start from root level */
 	order,
 	sort,
 	this;
+char	bfr[MAXPATHLEN];
 register int j;
 register FTREE *f;
 
-	path = fd_prep(path);
+	if (!strcmp(path = fd_prep(strcpy(bfr,path)), "/")) {
+		if (FDlast == 0) {	/* cwd is probably "/" */
+			FDdiff++;
+			FDlast++;
+			fd_alloc();
+		}
+		return;
+	}
 
 	/* put this into the database, if it is not already */
 	while (*path == '/') {
 	char	*name = ++path,
-		*nextpath = strchr(name, '/');
-		if (nextpath != 0)
-			*nextpath = '\0';
+		*next = strchr(name, '/');
+		if (next != 0)
+			*next = '\0';
 
 		this = sort = 0;
 		for (j = last+1; j <= FDlast; j++) {
@@ -263,9 +325,9 @@ register FTREE *f;
 		last = this;
 		ftree[last].f_mark &= ~MARKED;
 
-		if (nextpath != 0) {
-			*nextpath = '/'; /* restore the one we knocked out */
-			path = nextpath;
+		if (next != 0) {
+			*next = '/'; /* restore the one we knocked out */
+			path  = next;
 		} else
 			break;
 	}
@@ -274,7 +336,8 @@ register FTREE *f;
 /*
  * Locate the node corresponding to a particular path.
  */
-ft_find(path)
+static
+do_find(path)
 char	*path;
 {
 register int j, this, last = 0;
@@ -300,8 +363,8 @@ register int j, this, last = 0;
 		if (this) {
 			last = this;
 		} else {
-			failed(path);
-			/*NOTREACHED*/
+			last = 0;
+			break;
 		}
 	}
 	return(last);
@@ -309,14 +372,30 @@ register int j, this, last = 0;
 
 /*
  * Mark nodes below a given path in the database for removal, unless they
- * are added back before the database is written out.  The pathname argument
- * is in absolute form.
+ * are added back before the database is written out.  This is used to update
+ * the database from 'fl' when (re)reading a directory.  The argument must
+ * be a directory name.
+ *
+ * This procedure writes back into its argument to reduce the number of
+ * 'getcwd()' calls on succeeding 'ft_insert()'s.
  */
 ft_remove(path)
 char	*path;
 {
-int	last = ft_find(path);
-	if (last) ftree[last].f_mark |= MARKED;
+char	bfr[MAXPATHLEN];
+int	last = do_find(strcat(strcpy(bfr,path),"/"));
+register int j;
+
+	if (last >= 0) {
+		(void)strcpy(path,bfr);
+		for (j = last+1; j <= FDlast; j++) {
+		register FTREE *f = &ftree[j];
+			if (f->f_root == last)
+				f->f_mark |= MARKED;
+			else if (f->f_root < last)
+				break;
+		}
+	}
 }
 
 /*
@@ -347,7 +426,7 @@ register int j, k;
  * Initialize this module, by reading the file-tree database from the user's
  * home directory.
  */
-ft_init()
+ft_read()
 {
 struct	stat sb;
 register int j;
@@ -360,11 +439,19 @@ char	cwdpath[MAXPATHLEN];
 	if ((fid = open(FDname, O_RDONLY)) >= 0) {
 		if (stat(FDname, &sb) < 0)
 			failed("stat \".ftree\"");
+		if (sb.st_mtime <= FDtime) {
+			(void)close(fid);
+			return;
+		} else if (FDtime) {
+			showdiff = -1;
+		}
+		FDtime = sb.st_mtime;
 		size = sb.st_size;
 		if (size % sizeof(FTREE))
 			failed("? size error");
 		else {
-			FDlast = (size / sizeof(FTREE)) - 1;
+			if ((j = (size / sizeof(FTREE)) - 1) > FDlast)
+				FDlast = j;
 			fd_alloc();
 			if (read(fid, (char *)ftree, size) != size)
 				failed("read \".ftree\"");
@@ -374,8 +461,8 @@ char	cwdpath[MAXPATHLEN];
 	FDdiff = 0;
 
 	/* append the current directory to the list */
-	(void)strcpy(cwdpath, getcwd(FDnode, sizeof(FDnode)-2));
-	ft_insert(denode(cwdpath, FDnode, &len));
+	(void)strcpy(cwdpath, getcwd(FDnode, MAXPATHLEN-2));
+	ft_insert(denode(strcat(cwdpath,"/"), FDnode, &len));
 
 	/* inherit sense of 'Z' toggle from database */
 	for (j = 0; j <= FDlast; j++) {
@@ -539,30 +626,45 @@ register int j, k = node;
 static
 markit(node,flag,on)
 {
-	if (on)	ftree[node].f_mark |= flag;
-	else	ftree[node].f_mark &= ~flag;
-	FDdiff++;
+register FTREE *f = &ftree[node];
+int	old = f->f_mark;
+	if (on)			f->f_mark |= flag;
+	else			f->f_mark &= ~flag;
+	if (old != f->f_mark)	FDdiff++;
+}
+
+static
+scroll_to(node)
+{
+	(void)limits(showbase,showbase);
+	while (node > showlast) (void)forward(1);
+	while (node < showbase) (void)backward(1);
 }
 
 /*
  * Interactively display the directory tree and modify it.  The return value
  * is used by the coroutine as the next command.
  */
-ft_view()
+ft_view(path)
+char	*path;
 {
 static
 int	row,
 	lvl,
 	count	= 0,
 	c;
+#ifndef	TEST
+extern	char	*fr_find();
+int	ring	= 1;
+#endif	TEST
 char	cwdpath[MAXPATHLEN];
 register int j;
 
 	/* set initial position */
 	(void)limits(showbase,showbase);
-	row = ft_find(getcwd(cwdpath,sizeof(cwdpath)-2));
+	row = do_find(strcpy(cwdpath,path));
 	lvl = fd_level(row);
-	while (row > showlast) (void)forward(1);
+	scroll_to(row);
 
 	/* process commands */
 	for (;;) {
@@ -627,8 +729,16 @@ register int j;
 				beep();
 			break;
 
-		/* Exit from this program (back to 'fl') */
 #ifndef	TEST
+		/* scroll through the directory-ring */
+		case 'F':
+		case 'B':
+			row = do_find(fr_find(c, &ring));
+			lvl = fd_level(row);
+			scroll_to(row);
+			break;
+
+		/* Exit from this program (back to 'fl') */
 		case 'E':
 		case 'e':
 			if (chdir(fd_path(cwdpath,row)) < 0) {
@@ -674,9 +784,7 @@ register int j;
 					showdiff = -1;
 				}
 			}
-			(void)limits(showbase,showbase);
-			while (row > showlast) (void)forward(1);
-			while (row < showbase) (void)backward(1);
+			scroll_to(row);
 			break;
 
 		default:
@@ -732,14 +840,14 @@ int	fid;
 char	old[MAXPATHLEN],
 	bfr[MAXPATHLEN], *s = bfr;
 
-	(void)getcwd(old, sizeof(old)-2);
+	fd_getcwd(old);
 	s += strlen(fd_path(bfr,node));
 
 	if (chdir(bfr) < 0)
 		perror(bfr);
 	else if ((fid = open(bfr, O_RDONLY)) >= 0) {
 		while (read(fid, &d, sizeof(d)) == sizeof(d)) {
-			sprintf(s, "/%.*s", DIRSIZ, d.d_name);
+			FORMAT(s, "/%.*s", DIRSIZ, d.d_name);
 			if (dotname(s+1))		continue;
 			if (stat(s+1, &sb) < 0)		continue;
 			if ((int)sb.st_ino <= 0)	continue;
@@ -749,7 +857,7 @@ char	old[MAXPATHLEN],
 		}
 		(void)close(fid);
 	}
-	chdir(old);
+	(void)chdir(old);
 }
 
 /*
@@ -757,7 +865,7 @@ char	old[MAXPATHLEN],
  * in the user's home directory.  If we cannot write back to the user's
  * directory, no matter, since we mustn't use root privilege for this!
  */
-ft_done()
+ft_write()
 {
 	if (FDdiff || (savesccs != showsccs)) {
 	int	fid;
@@ -773,6 +881,9 @@ ft_done()
 		} else if (errno != EPERM)
 			failed(FDname);
 	}
+	(void)time(&FDtime);
+	showdiff = FDdiff = 0;
+	savesccs = showsccs;
 }
 
 #ifdef	TEST
@@ -786,9 +897,10 @@ extern	WINDOW	*initscr();
 int	j,
 	remove	= FALSE,
 	purge	= FALSE;
-char	*s;
+char	cwdpath[MAXPATHLEN],
+	*s;
 
-	ft_init();
+	ft_read();
 	for (j = 1; j < argc; j++) {
 		s = argv[j];
 		if (*s == '-') {
@@ -808,12 +920,12 @@ char	*s;
 		ft_purge();
 	(void) initscr();
 	setterm (1,-1,-1,-1);	/* raw; noecho; nonl; nocbreak; */
-	(void)ft_view();
+	(void)ft_view(fd_getcwd(cwdpath));
 	move(LINES-1,0);
 	refresh();
 	PRINTF("\n");
 	endwin();
-	ft_done();
+	ft_write();
 	(void)exit(0);
 	/*NOTREACHED*/
 }
