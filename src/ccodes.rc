@@ -31,6 +31,7 @@ TERM con80x50
 TERM con80x60
 TERM xterm
 TERM vt100
+TERM ansi
 
 # Below are the color init strings for the basic file types. A color init
 # string consists of one or more of the following numeric codes:
@@ -66,6 +67,7 @@ EXEC 01;32
 .tgz 01;31
 .arj 01;31
 .taz 01;31
+.tbz 01;31
 .lzh 01;31
 .zip 01;31
 .bz2 01;31
@@ -74,6 +76,7 @@ EXEC 01;32
 .z   01;31
 .Z   01;31
 .gz  01;31
+.bz2 01;31
 
 .jpg 01;35 # image formats
 .gif 01;35

@@ -2,6 +2,8 @@
  * Author:	T.E.Dickey
  * Created:	02 Sep 1987
  * Modified:
+ *		01 Nov 2000, fix uninitialized caller_top when SIGWINCH is not
+ *			     defined.
  *		24 Jan 2000, open in binary-mode for OS/2 EMX and Cygwin.
  *		21 Jul 1998, changes to showpath.
  *		29 May 1998, compile with g++
@@ -134,7 +136,7 @@
 
 #include	<fcntl.h>
 
-MODULE_ID("$Id: ftree.c,v 12.56 2000/01/24 11:57:04 tom Exp $")
+MODULE_ID("$Id: ftree.c,v 12.57 2000/11/02 01:10:47 tom Exp $")
 
 #define	Null	(char *)0	/* some NULL's are simply 0 */
 
@@ -555,7 +557,8 @@ private	char *	fd_path(
 	_DCL(int,	node)
 {
 	char	tmp[MAXPATHLEN];
-		*bfr = EOS;
+
+	*bfr = EOS;
 
 	do {
 		(void)strcpy(tmp, bfr);
@@ -716,7 +719,7 @@ public	void	ft_purge (
 	int	changed	= 0;
 
 	for (j = 1; j <= FDlast; j++) {	/* scan for things to purge */
-		if (!zMARK(j)) 	continue;
+		if (!zMARK(j))	continue;
 		for (k = j; (k <= FDlast) && (zMARK(k) || zROOT(k) >= j); k++);
 		adj = k - j;
 		while (k <= FDlast) {
@@ -1026,8 +1029,8 @@ private	int	ft_show(
 	move(FLAG_ROW,0);
 	PRINTW("flags:");
 	if (!all_show)		PRINTW(" & ('.' names)");
-	if (out_of_sight) 	PRINTW(" I (inhibit search)");
-	if (!showsccs) 		PRINTW(" Z (SCCS/RCS)");
+	if (out_of_sight)	PRINTW(" I (inhibit search)");
+	if (!showsccs)		PRINTW(" Z (SCCS/RCS)");
 	clrtoeol();
 	FORMAT(bfr, "  node: %d of %d ", node+1, FDlast+1);
 	if ((int)strlen(bfr) < COLS) {
@@ -1484,7 +1487,7 @@ public	RING *	ft_view(
 	_DCL(int *,	cmdp)
 {
 	static	 DYN *	my_text;
-	static	 HIST 	*JumpHistory, *FindHistory, *NameHistory;
+	static	 HIST	*JumpHistory, *FindHistory, *NameHistory;
 	auto	 RING *	tmp;
 	auto	 int	row,
 			lvl,
@@ -1496,11 +1499,11 @@ public	RING *	ft_view(
 	register char	*s;
 
 #ifdef	SIGWINCH	/* make the row/column visible to signal handler */
-	caller_top = path;
 	resize_gbl = gbl;
 	resize_row = &row;
 	resize_lvl = &lvl;
 #endif
+	caller_top = path;
 	viewer_top = cwdpath;
 	*cmdp = 'E';	/* the most common return-value */
 

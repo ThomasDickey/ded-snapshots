@@ -1,4 +1,4 @@
-dnl $Id: aclocal.m4,v 12.6 2000/10/19 01:34:54 tom Exp $
+dnl $Id: aclocal.m4,v 12.9 2000/11/02 01:49:38 tom Exp $
 dnl Macros for DED configure script.
 dnl ---------------------------------------------------------------------------
 dnl ---------------------------------------------------------------------------
@@ -146,6 +146,7 @@ dnl	TD_LIB_rules - actual path of td_lib.mk
 dnl
 AC_DEFUN([CF_FIND_TDLIB],
 [
+AC_REQUIRE([CF_LIB_PREFIX])
 AC_MSG_CHECKING(for td_lib in side-by-side directory)
 AC_CACHE_VAL(cf_cv_tdlib_devel,[
 	cf_cv_tdlib_devel=no
@@ -154,7 +155,7 @@ AC_CACHE_VAL(cf_cv_tdlib_devel,[
 	test -d ../td_lib/include &&
 	test -f ../td_lib/include/td_config.h &&
 	test -d ../td_lib/lib &&
-	test -f ../td_lib/lib/libtd.a &&
+	test -f ../td_lib/lib/${LIB_PREFIX}td.a &&
 	cf_cv_tdlib_devel=yes
 
 	if test "$cf_cv_tdlib_devel" = yes ; then
@@ -260,6 +261,19 @@ test -d /opt && \
 $1="[$]$1 /opt/lib /opt/lib/$2 /opt/$2/lib"
 
 $1="[$]$1 [$]HOME/lib [$]HOME/lib/$2 [$]HOME/$2/lib"
+])dnl
+dnl ---------------------------------------------------------------------------
+dnl Compute the library-prefix for the given host system
+dnl $1 = variable to set
+AC_DEFUN([CF_LIB_PREFIX],
+[
+	case $cf_cv_system_name in
+	OS/2*)	LIB_PREFIX=''     ;;
+	os2)	LIB_PREFIX=''     ;;
+	*)	LIB_PREFIX='lib'  ;;
+	esac
+ifelse($1,,,[$1=$LIB_PREFIX])
+	AC_SUBST(LIB_PREFIX)
 ])dnl
 dnl ---------------------------------------------------------------------------
 dnl Check if the 'make' program knows how to interpret archive rules.  Though
@@ -374,17 +388,30 @@ AC_SUBST(make_include_left)
 AC_SUBST(make_include_right)
 ])dnl
 dnl ---------------------------------------------------------------------------
+dnl Provide a value for the $PATH and similar separator
+AC_DEFUN([CF_PATHSEP],
+[
+	case $cf_cv_system_name in
+	os2)	PATHSEP=';'  ;;
+	*)	PATHSEP=':'  ;;
+	esac
+ifelse($1,,,[$1=$PATHSEP])
+	AC_SUBST(PATHSEP)
+])dnl
+dnl ---------------------------------------------------------------------------
 dnl Tests for one or more programs given by name along the user's path, and
 dnl sets a variable to the program's full-path if found.
 AC_DEFUN([CF_PROGRAM_FULLPATH],
 [
+AC_REQUIRE([CF_PATHSEP])
+AC_REQUIRE([CF_PROG_EXT])
 AC_MSG_CHECKING(full path of $1)
 AC_CACHE_VAL(cf_cv_$1,[
 	cf_cv_$1="[$]$1"
 	if test -z "[$]cf_cv_$1"; then
 		set -- $2;
 		while test [$]# != 0; do
-			cf_word=[$]1
+			cf_word=[$]1${PROG_EXT}
 			case [$]1 in
 			-*)
 				;;
@@ -392,7 +419,7 @@ AC_CACHE_VAL(cf_cv_$1,[
 				if test -f "$cf_word" && test ! -f "./$cf_word" && test -x "$cf_word"; then
 					cf_cv_$1="$cf_word"
 				else
-					IFS="${IFS= 	}"; cf_save_ifs="$IFS"; IFS="${IFS}:"
+					IFS="${IFS= 	}"; cf_save_ifs="$IFS"; IFS="${IFS}${PATHSEP}"
 					for cf_dir in $PATH; do
 						test -z "$cf_dir" && cf_dir=.
 						if test "$cf_dir" != "." && test -f $cf_dir/$cf_word && test -x $cf_dir/$cf_word; then
