@@ -1,3 +1,36 @@
+1989-12-11  dickey@software.org
+
+	* test/edit_test.sh: specify interpreter to avoid apollo sr10.1 bug
+
+1989-12-11  ste_cm@software.org
+
+	* test/edit_test.sh: BASELINE Mon Apr 30 09:54:01 1990 -- (CPROTO)
+
+	* test/edit_test.sh:
+	BASELINE Mon Aug 13 15:06:41 1990 -- LINCNT, ADA_TRANS
+
+	* test/edit_test.sh: BASELINE Mon Jun 10 10:09:56 1991 -- apollo sr10.3
+
+	* test/edit_test.sh:
+	BASELINE Thu Mar 29 07:37:55 1990 -- maintenance release (SYNTHESIS)
+
+1989-12-11  dickey@software.org
+
+	* test/run_test.sh: specify interpreter to avoid apollo sr10.1 bug
+
+1989-12-11  ste_cm@software.org
+
+	* test/run_test.sh: BASELINE Mon Apr 30 09:54:01 1990 -- (CPROTO)
+
+	* test/run_test.sh:
+	BASELINE Thu Mar 29 07:37:55 1990 -- maintenance release (SYNTHESIS)
+
+1989-12-11  dickey@software.org
+
+	* test/test2.cmd, test/test1.cmd: added sortset.[co] module
+
+	* src/sortset.c: corrected call on 'dlog_char()'
+
 1989-12-08  dickey@software.org
 
 	* src/version.h: added ":"-prompt scrolling for sort-commands

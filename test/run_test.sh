@@ -1,33 +1,20 @@
-: '$Header: /users/source/archives/ded.vcs/test/RCS/run_test.sh,v 5.0 1989/03/30 16:07:02 ste_cm Rel $'
+#!/bin/sh
+# $Id: run_test.sh,v 7.0 1989/12/11 09:52:18 ste_cm Rel $
 # Perform regression tests for unix directory editor.  If we find any problems,
 # show it in the log.
 #
 # $Log: run_test.sh,v $
-# Revision 5.0  1989/03/30 16:07:02  ste_cm
-# BASELINE Fri Oct 27 12:27:25 1989 -- apollo SR10.1 mods + ADA_PITS 4.0
+# Revision 7.0  1989/12/11 09:52:18  ste_cm
+# BASELINE Mon Apr 30 09:54:01 1990 -- (CPROTO)
 #
-# Revision 4.0  89/03/30  16:07:02  ste_cm
-# BASELINE Thu Aug 24 10:31:56 EDT 1989 -- support:navi_011(rel2)
+# Revision 6.0  89/12/11  09:52:18  ste_cm
+# BASELINE Thu Mar 29 07:37:55 1990 -- maintenance release (SYNTHESIS)
 # 
-# Revision 3.0  89/03/30  16:07:02  ste_cm
-# BASELINE Mon Jun 19 14:39:05 EDT 1989
+# Revision 5.1  89/12/11  09:52:18  dickey
+# specify interpreter to avoid apollo sr10.1 bug
 # 
-# Revision 2.0  89/03/30  16:07:02  ste_cm
-# BASELINE Thu Apr  6 13:28:24 EDT 1989
-# 
-# Revision 1.4  89/03/30  16:07:02  dickey
-# use -t option of ded so we can ensure we have empty (known-state)
-# directory-tree.
-# 
-# Revision 1.3  89/03/28  11:30:34  dickey
-# pipe ded-stdout to /dev/tty to avoid problems if the stdout of this script
-# is piped somewhere.
-# 
-# Revision 1.2  89/03/24  12:31:13  dickey
-# piping ded output on Apollo breaks tests
-# 
-# Revision 1.1  89/03/24  12:22:59  dickey
-# Initial revision
+# Revision 5.0  89/03/30  16:07:02  ste_cm
+# BASELINE Fri Oct 27 12:27:25 1989 -- apollo SR10.1 mods + ADA_PITS 4.0
 # 
 L=run_tests.out
 date >>$L

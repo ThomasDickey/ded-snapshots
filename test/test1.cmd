@@ -58,6 +58,7 @@
 	# "dedwait.c"
 	# "dlog.c"
 	# "ftree.c"
+	# "sortset.c"
 	# "ded.h"
 	# "version.h"
 	# "ded.o"
@@ -80,6 +81,7 @@
 	# "dedwait.o"
 	# "dlog.o"
 	# "ftree.o"
+	# "sortset.o"
 1\s
 1.	# execute # dummy comment, during wait
 	# ELAPSED TIME

@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	what[] = "$Id: sortset.c,v 5.2 1989/12/08 10:23:00 dickey Exp $";
+static	char	what[] = "$Id: sortset.c,v 5.3 1989/12/11 09:12:28 dickey Exp $";
 #endif	lint
 
 /*
@@ -7,10 +7,13 @@ static	char	what[] = "$Id: sortset.c,v 5.2 1989/12/08 10:23:00 dickey Exp $";
  * Author:	T.E.Dickey
  * Created:	01 Dec 1989 (from ded.c)
  * $Log: sortset.c,v $
- * Revision 5.2  1989/12/08 10:23:00  dickey
- * added ':' special-sort to allow user to scroll among all
- * sort options before selecting.
+ * Revision 5.3  1989/12/11 09:12:28  dickey
+ * corrected call on 'dlog_char()'
  *
+ *		Revision 5.2  89/12/08  10:23:00  dickey
+ *		added ':' special-sort to allow user to scroll among all
+ *		sort options before selecting.
+ *		
  *
  * Function:	Set sort-argument for ded, encapsulating knowledge of the
  *		particular sort-keys available (see also 'dedsort.c')
@@ -92,7 +95,6 @@ sortget(c)
 	} else if (c == ':') {
 		auto	int	y,x,
 				done = FALSE,
-				first = TRUE,
 				find, found;
 
 		to_work();
@@ -120,7 +122,7 @@ sortget(c)
 			move(y,x-2);
 			refresh();
 			k = strlen(sortc) - 1;
-			switch (found = dlog_char((int *)0, first)) {
+			switch (found = dlog_char((int *)0, 0)) {
 			case ARO_UP: 	if (--j < 0)	j = k;
 					find = *sort_msg[j];	break;
 			case ARO_DOWN:	if (++j > k)	j = 0;
@@ -134,7 +136,6 @@ sortget(c)
 			case '\n':	done = TRUE;		break;
 			default:	find = found;
 			}
-			first = FALSE;
 		}
 	}
 	return (c);
