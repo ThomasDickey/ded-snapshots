@@ -1,3 +1,35 @@
+1989-08-25  dickey@software.org
+
+	* src/version.h:
+	revised window-repainting (to reduce number of malloc/free
+	calls, which causes my apollo vt100 to barf).  Finished the
+	'E' enhancement by making ded scroll to link-target.
+
+	* src/dedfind.c: use 'scroll_to_file()'
+
+1989-08-25  ste_cm@software.org
+
+	* src/dedfind.c:
+	BASELINE Fri Oct 27 12:27:25 1989 -- apollo SR10.1 mods + ADA_PITS 4.0
+
+	* src/dedfind.c: BASELINE Mon Apr 30 09:54:01 1990 -- (CPROTO)
+
+	* src/dedfind.c: BASELINE Mon Aug 13 15:06:41 1990 -- LINCNT, ADA_TRANS
+
+	* src/dedfind.c:
+	BASELINE Thu Mar 29 07:37:55 1990 -- maintenance release (SYNTHESIS)
+
+1989-08-25  dickey@software.org
+
+	* src/ded.c:
+	added new procedures 'scroll_to_stat()' and 'scroll_to_file()'
+	so 'E'-command on link can go to link-target.
+
+	* src/ded.c: use 'wrepaint()' rather than savewin/unsavewin.  added
+	arg to 'realstat()' for 'E'-enhancement.
+
+	* src/ftree.c: use 'wrepaint()' rather than savewin/unsavewin
+
 1989-08-22  dickey@software.org
 
 	* src/version.h:
