@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	sccs_id[] = "$Header: /users/source/archives/ded.vcs/src/RCS/dlog.c,v 1.4 1989/03/15 11:34:19 dickey Exp $";
+static	char	sccs_id[] = "$Header: /users/source/archives/ded.vcs/src/RCS/dlog.c,v 3.0 1989/03/24 10:43:36 ste_cm Rel $";
 #endif	lint
 
 /*
@@ -7,9 +7,22 @@ static	char	sccs_id[] = "$Header: /users/source/archives/ded.vcs/src/RCS/dlog.c,
  * Author:	T.E.Dickey
  * Created:	14 Mar 1989
  * $Log: dlog.c,v $
- * Revision 1.4  1989/03/15 11:34:19  dickey
- * sccs2rcs keywords
+ * Revision 3.0  1989/03/24 10:43:36  ste_cm
+ * BASELINE Mon Jun 19 14:21:57 EDT 1989
  *
+ *		Revision 2.0  89/03/24  10:43:36  ste_cm
+ *		BASELINE Thu Apr  6 13:14:13 EDT 1989
+ *		
+ *		Revision 1.6  89/03/24  10:43:36  dickey
+ *		fixed bugs in command-script found in regression tests
+ *		
+ *		Revision 1.5  89/03/24  08:39:26  dickey
+ *		added 'dlog_read()' and local code to support
+ *		command-script.  also, some lint.
+ *		
+ *		Revision 1.4  89/03/15  11:34:19  dickey
+ *		sccs2rcs keywords
+ *		
  *		15 Mar 1989, added 'dlog_exit()', mods to make this work with
  *			     subprocesses.
  *
@@ -29,12 +42,18 @@ static	char	sccs_id[] = "$Header: /users/source/archives/ded.vcs/src/RCS/dlog.c,
 extern	time_t	time();
 
 #define	NOW	time((time_t *)0)
+#define	CONVERT(base,p,n)	n = (base * n) + (*p++ - '0')
 
+/* state of command-file (input) */
+static	FILE	*cmd_fp;
+static	char	cmd_bfr[BUFSIZ],	/* most recently-read buffer */
+		*cmd_ptr;		/* points into cmd_bfr */
 
+/* state of log-file (output) */
 static	FILE	*log_fp;
 static	char	log_name[BUFSIZ];
 static	time_t	mark_time;
-static	char	pending[BUFSIZ];
+static	char	pending[BUFSIZ];	/* buffers parts of raw-commands */
 
 static
 show_time(msg)
@@ -43,6 +62,149 @@ char	*msg;
 	auto	time_t	now = NOW;
 
 	dlog_comment("process %d %s at %s", getpid(), msg, ctime(&now));
+}
+
+/*
+ * Flush pending text from raw commands so that it is logged without a
+ * newline embedded.  We suppress newline after flush if we call this from
+ * the string-read, to make the entire command appear on a single line.
+ *
+ * Keep 's' argument in PENDING for debugging aid.
+ */
+#define	PENDING(s,flag)	flush_pending(flag)
+
+static
+flush_pending(newline)
+{
+	if (*pending) {
+		FPRINTF(log_fp, "%s%s", pending, newline ? "\n" : "");
+		*pending = EOS;
+	}
+}
+
+/*
+ * See if we have a command-file open, and if so, whether we have exhausted
+ * the current buffer.  If so, read the next buffer from the command-file.
+ * return TRUE if we have command-file text available.
+ */
+static
+read_script()
+{
+	register char	*s;
+
+	if (cmd_fp != 0) {
+		while (!*cmd_bfr || (cmd_ptr != 0 && !*cmd_ptr)) {
+			if (fgets(cmd_bfr, sizeof(cmd_bfr), cmd_fp)) {
+				cmd_ptr = cmd_bfr;
+				for (s = cmd_bfr; *s; s++)
+					if (!isprint(*s)) {
+						*s = EOS;
+						break;
+					}
+			} else {
+				FCLOSE(cmd_fp);
+				cmd_fp = 0;
+				return (FALSE);	/* forced-close */
+			}
+		}
+		return (TRUE);	/* have text to process */
+	}
+	return (FALSE);		/* no command-script to read */
+}
+
+/*
+ * Read a single-letter command from either the command-file (if open), or
+ * from the keyboard.
+ */
+static
+read_char(count_)
+int	*count_;
+{
+	auto	int	num;
+	register int	j;
+
+	if (read_script()) {
+		if (count_) {
+			num = 0;
+			while (isdigit(*cmd_ptr)) {
+				CONVERT(10,cmd_ptr,num);
+			}
+			*count_ = num;
+		}
+		if (*cmd_ptr == '\\') {
+			switch (*(++cmd_ptr)) {
+			case '\\':	num = '\\';		break;
+			case 'b':	num = '\b';		break;
+			case 'f':	num = '\f';		break;
+			case 'n':	num = '\n';		break;
+			case 'r':	num = '\r';		break;
+			case 't':	num = '\t';		break;
+			case 'v':	num = '\v';		break;
+			case 's':	num = ' ';		break;
+			case 'E':	num = '\033';		break;
+			case 'U':	num = ARO_UP;		break;
+			case 'D':	num = ARO_DOWN;		break;
+			case 'L':	num = ARO_LEFT;		break;
+			case 'R':	num = ARO_RIGHT;	break;
+			default:
+				if (isdigit(*cmd_ptr)) {
+					num = 0;
+					for (j = 0; j < 3; j++) {
+						if (isdigit(*cmd_ptr))
+							CONVERT(8,cmd_ptr,num);
+						else
+							break;	/* error? */
+					}
+					cmd_ptr--; /* point to last digit */
+				} else {
+					return (*(--cmd_ptr));	/* recover */
+				}
+			}
+			cmd_ptr++;	/* point past decoded char */
+			return (num);
+		} else
+			return (*cmd_ptr++);
+	}
+	return (cmdch(count_));
+}
+
+/*
+ * Read a line-buffer from the command-file (if open), or from the keyboard
+ * if not.  Note that all line-buffer text in DED is written after one or
+ * more single-character commands, so we can test easily for the case of
+ * a null-buffer (it simply has no more characters in the current buffer).
+ */
+static
+read_line(s,len,wrap)
+char	*s;
+{
+	if (cmd_fp != 0) {
+		while (*cmd_ptr) {
+			*s = *cmd_ptr++;
+			if (len-- > 0)
+				s++;
+		}
+		*s = EOS;
+		return;
+	}
+	rawgets(s, len, wrap);
+}
+
+/************************************************************************
+ *	public entrypoints						*
+ ************************************************************************/
+
+/*
+ * Specify a command-script from which to read.  Note that command scripts
+ * work only within a single process, though logging is performed on multiple
+ * processes.
+ */
+dlog_read(name)
+char	*name;
+{
+	if (!(cmd_fp = fopen(name, "r")))
+		failed(name);
+	*(cmd_ptr = cmd_bfr) = EOS;
 }
 
 /*
@@ -110,7 +272,7 @@ int	*count_;
 	register int	c;
 	register char	*s;
 
-	c = cmdch(count_);
+	c = read_char(count_);
 	if (log_fp) {
 		if (begin) {
 			dlog_flush();
@@ -150,12 +312,9 @@ int	*count_;
 dlog_string(s,len,wrap)
 char	*s;
 {
-	rawgets(s, len, wrap);
+	read_line(s, len, wrap);
 	if (log_fp) {
-		if (*pending) {
-			FPRINTF(log_fp, "%s", pending);
-			*pending = EOS;
-		}
+		PENDING(string,FALSE);
 		FPRINTF(log_fp, "%s\n", s);
 	}
 }
@@ -176,12 +335,10 @@ dlog_elapsed()
  */
 dlog_flush()
 {
-	if (log_fp)
-		if (*pending) {
-			FPRINTF(log_fp, "%s\n", pending);
-			(void)fflush(log_fp);
-			*pending = EOS;
-		}
+	if (log_fp) {
+		PENDING(flush,TRUE);
+		(void)fflush(log_fp);
+	}
 }
 
 /*
@@ -198,7 +355,9 @@ char	*name;
  */
 #ifdef	lint
 #undef	va_dcl
-#define	va_dcl	char	*va_alist;
+#define	va_dcl		char	*va_alist;
+#undef	va_arg
+#define	va_arg(p,c)	(c)0
 #endif	lint
 
 /*VARARGS*/
@@ -209,10 +368,7 @@ va_dcl
 	auto	char	*fmt;
 
 	if (log_fp) {
-		if (*pending) {
-			FPRINTF(log_fp, "%s", pending);
-			*pending = EOS;
-		}
+		PENDING(comment,FALSE);
 		FPRINTF(log_fp, "\t# ");
 		va_start(args);
 		fmt = va_arg(args, char *);
