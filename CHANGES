@@ -1,3 +1,11 @@
+1992-04-10  dickey@software.org
+
+	* src/dedsort.c: don't sort empty lists!
+
+1992-04-10  ste_cm@software.org
+
+	* src/dedsort.c: BASELINE Thu Jul 16 09:39:01 1992 -- EBPM4 support
+
 1992-04-09  dickey@software.org
 
 	* src/dedring.c:
