@@ -1,3 +1,8 @@
+1993-12-17  dickey@software.org
+
+	* src/dedtype.c:
+	adjusted call on 'markC()' to account for new variable 'mrkfile'
+
 1993-12-16  dickey@software.org
 
 	* src/dedview.c, src/dedring.c, src/ded.h: mrkfile-hack
