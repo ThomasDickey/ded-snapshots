@@ -1,5 +1,5 @@
 #ifndef	NO_SCCS_ID
-static	char	sccs_id[] = "@(#)ded.c	1.11 88/04/11 07:01:52";
+static	char	sccs_id[] = "@(#)ded.c	1.12 88/04/21 14:43:41";
 #endif	NO_SCCS_ID
 
 /*
@@ -7,6 +7,8 @@ static	char	sccs_id[] = "@(#)ded.c	1.11 88/04/11 07:01:52";
  * Author:	T.E.Dickey
  * Created:	09 Nov 1987
  * Modified:
+ *		21 Apr 1988, use 'savewin()' module for retouch.  Apollo SR9.7
+ *			     changes 'fixtime()'.  Added call on 'resizewin'.
  *		25 Mar 1988, corrected 'retouch()' so that last line is cleared,
  *			     and so we don't have to change terminal-mode.
  *			     Added ':' command, and began interface to 'ftree'.
@@ -359,17 +361,15 @@ int	col = cmdcol[2] - Xbase;
 /*
  * Repaint the screen
  */
-retouch(row)
+retouch()
 {
-chtype	*s;
-
-	while (row < LINES) {
-		/* patch: should use 'addstr()' */
-		for (s = stdscr->_y[row]; *s; *s++ = '?');
-		for (s = curscr->_y[row]; *s; *s++ = '*');
-		row++;
-	}
-	showFILES();
+int	y,x;
+	getyx(stdscr,y,x);
+	move(mark_W+1,0);
+	clrtobot();
+	move(y,x);
+	savewin();
+	unsavewin(TRUE);
 }
 
 static
@@ -411,15 +411,21 @@ static	char	nbfr[BUFSIZ];
 static
 fixtime(j)
 {
+#ifdef	apollo_9_5
+#define	FIXTIME	1
+#else	apollo_9_5
+#define	FIXTIME	0
+#endif	apollo_9_5
+
 #ifdef	SYSTEM5
 struct { time_t x, y; } tp;
-	tp.x = flist[j].s.st_atime + 1;
-	tp.y = flist[j].s.st_mtime + 1;
+	tp.x = flist[j].s.st_atime + FIXTIME;
+	tp.y = flist[j].s.st_mtime + FIXTIME;
 	if (utime(flist[j].name, &tp) < 0)	warn("utime");
 #else	SYSTEM5
 time_t	tv[2];
-	tv[0] = flist[j].s.st_atime + 1;
-	tv[1] = flist[j].s.st_mtime + 1;
+	tv[0] = flist[j].s.st_atime + FIXTIME;
+	tv[1] = flist[j].s.st_mtime + FIXTIME;
 	if (utime(flist[j].name, tv) < 0)	warn("utime");
 #endif	SYSTEM5
 }
@@ -647,7 +653,7 @@ char	bfr[BUFSIZ];
  * patch: should parse for options a la 'bldarg()'.
  */
 static
-forkfile(arg0, arg1)
+forkfile(arg0, arg1, normal)
 char	*arg0, *arg1;
 {
 int	pid ,
@@ -662,8 +668,10 @@ int	pid ,
 		}
 		rawterm();
 		chdir(new_wd);
-		retouch(0);
-		restat(FALSE);
+		if (normal) {
+			retouch();
+			restat(FALSE);
+		}
 	} else if (pid < 0) {
 		printf("fork failed\n");
 	} else {
@@ -690,12 +698,12 @@ editfile(readonly, pad)
 #endif	apollo
 			forkfile(readonly ? ENV(BROWSE)
 					  : ENV(EDITOR),
-				 cNAME);
+				 cNAME, TRUE);
 		break;
 	case 1:
 		to_work();
 		ft_write();
-		forkfile(whoami, cNAME);
+		forkfile(whoami, cNAME, TRUE);
 		ft_read(new_wd);
 		break;
 	default:
@@ -851,7 +859,7 @@ char	tpath[BUFSIZ];
 
 	case 'q':	/* quit this process */
 			if (lastc == 't')
-				retouch(mark_W+1);
+				retouch();
 			else
 				quit = TRUE;
 			break;
@@ -881,7 +889,14 @@ char	tpath[BUFSIZ];
 			break;
 
 	case 'w':	/* refresh window */
-			retouch(0);
+#ifdef	apollo
+			if (resizewin()) {
+				markset(mark_W);
+				showFILES();
+				break;
+			}
+#endif	apollo
+			retouch();
 			break;
 
 	case 'l':	/* re-stat line */
@@ -889,7 +904,7 @@ char	tpath[BUFSIZ];
 			break;
 
 	case ' ':	/* clear workspace */
-			retouch(mark_W+1);
+			retouch();
 			break;
 
 	case 'r':
@@ -956,7 +971,7 @@ char	tpath[BUFSIZ];
 			break;
 
 	case 'm':	to_work();
-			forkfile(ENV(PAGER), cNAME);
+			forkfile(ENV(PAGER), cNAME, TRUE);
 			break;
 
 			/* page thru files in work area */
@@ -989,10 +1004,12 @@ char	tpath[BUFSIZ];
 			break;
 
 	case 'D':	/* toggle directory/filelist mode */
+			savewin();
 			(void)strcpy(tpath,new_wd);
 			while ((c = ft_view(tpath)) == 'e') {
 			int	y,x;
 
+				savewin();
 				getyx(stdscr, y, x);
 				if (++y >= LINES)	y = LINES-1;
 				move(y, x-x);
@@ -1000,10 +1017,11 @@ char	tpath[BUFSIZ];
 				move(y, 0);
 				refresh();
 				ft_write();
-				forkfile(whoami, tpath);
+				forkfile(whoami, tpath, FALSE);
+				unsavewin(TRUE);
 				ft_read(new_wd);
 			}
-			retouch(0);
+			unsavewin(FALSE);
 			break;
 
 			/* patch: not implemented */
