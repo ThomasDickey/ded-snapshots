@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	what[] = "$Id: ded.c,v 8.1 1990/08/27 09:43:19 dickey Exp $";
+static	char	what[] = "$Id: ded.c,v 8.2 1991/04/04 09:28:13 dickey Exp $";
 #endif	lint
 
 /*
@@ -7,11 +7,14 @@ static	char	what[] = "$Id: ded.c,v 8.1 1990/08/27 09:43:19 dickey Exp $";
  * Author:	T.E.Dickey
  * Created:	09 Nov 1987
  * $Log: ded.c,v $
- * Revision 8.1  1990/08/27 09:43:19  dickey
- * mods to make error-reporting routines work properly if they
- * are called before screen is initialized, etc., to support mods
- * to "ftree.c" for better error recovery.
+ * Revision 8.2  1991/04/04 09:28:13  dickey
+ * guard against 'getwd()' failure.
  *
+ *		Revision 8.1  90/08/27  09:43:19  dickey
+ *		mods to make error-reporting routines work properly if they
+ *		are called before screen is initialized, etc., to support mods
+ *		to "ftree.c" for better error recovery.
+ *		
  *		Revision 8.0  90/05/23  12:00:28  ste_cm
  *		BASELINE Mon Aug 13 15:06:41 1990 -- LINCNT, ADA_TRANS
  *		
@@ -541,6 +544,10 @@ char	*msg;
 failed(msg)
 char	*msg;
 {
+	if (debug) {
+		FPRINTF(stderr, "failed?");
+		(void) cmdch((int *)0);
+	}
 	to_exit(msg != 0);
 	if (msg)
 		FPRINTF(stderr, "-------- \n?? %-79s\n-------- \n", msg);
@@ -1251,7 +1258,9 @@ char	*argv[];
 
 	if (!tree_opt)	tree_opt = gethome();
 	else		abspath(tree_opt = strcpy(tree_bfr, tree_opt));
-	ft_read(getwd(old_wd), tree_opt);
+	if (!getwd(old_wd))
+		(void)strcpy(old_wd, ".");
+	ft_read(old_wd, tree_opt);
 
 	/* find which copy I am executing from, for future use */
 	if (which(whoami, sizeof(whoami), argv[0], old_wd) <= 0)

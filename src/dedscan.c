@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	Id[] = "$Id: dedscan.c,v 8.0 1990/08/13 13:44:29 ste_cm Rel $";
+static	char	Id[] = "$Id: dedscan.c,v 8.1 1991/04/04 09:15:08 dickey Exp $";
 #endif	lint
 
 /*
@@ -7,9 +7,12 @@ static	char	Id[] = "$Id: dedscan.c,v 8.0 1990/08/13 13:44:29 ste_cm Rel $";
  * Author:	T.E.Dickey
  * Created:	09 Nov 1987
  * $Log: dedscan.c,v $
- * Revision 8.0  1990/08/13 13:44:29  ste_cm
- * BASELINE Mon Aug 13 15:06:41 1990 -- LINCNT, ADA_TRANS
+ * Revision 8.1  1991/04/04 09:15:08  dickey
+ * guard against 'getwd()' failure.
  *
+ *		Revision 8.0  90/08/13  13:44:29  ste_cm
+ *		BASELINE Mon Aug 13 15:06:41 1990 -- LINCNT, ADA_TRANS
+ *		
  *		Revision 7.3  90/08/13  13:44:29  dickey
  *		lint
  *		
@@ -162,7 +165,7 @@ char	*argv[];
 				common = 0;
 	} else {
 		abshome(pathcat(new_wd, old_wd, argv[0]));
-		if (chdir(new_wd) < 0 || !getwd(new_wd)) {
+		if (!path_RESOLVE(new_wd)) {
 			warn(new_wd);
 			return(0);
 		}
@@ -245,7 +248,7 @@ char	*argv[];
 			if (chdir(strcpy(new_wd,old_wd)) < 0)
 				failed(old_wd);
 			abshome(strcpy(new_wd, name));
-			if (chdir(new_wd) < 0 || !getwd(new_wd))
+			if (!path_RESOLVE(new_wd))
 				failed(new_wd);
 			for (j = 0; j < numfiles; j++)
 				xNAME(j) = txtalloc(xNAME(j) + common);
@@ -505,4 +508,32 @@ statMAKE(mode)
 		}
 	}
 	showFILES(FALSE);
+}
+
+/*
+ * Change to the given directory, and then (try to) get an absolute path by
+ * using the 'getwd()' function.  Note that the latter may fail if we follow
+ * a symbolic link into a directory in which we have execute, but no read-
+ * access. In this case we try to live with the link-text.
+ */
+path_RESOLVE(path)
+char	*path;
+{
+	char	temp[BUFSIZ];
+	if (chdir(strcpy(temp, path)) < 0)
+		return(FALSE);
+
+	if (getwd(temp))
+		(void) strcpy(path, temp);
+	else {	/* for SunOS? */
+		FLIST	fb;
+		int	save = AT_opt;
+		int	code;
+		AT_opt	= TRUE;
+		code	= dedstat(path, &fb);
+		AT_opt	= save;
+		if (code == N_LDIR)
+			(void)strcpy (path, fb.ltxt);
+	}
+	return (TRUE);
 }

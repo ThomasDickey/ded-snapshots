@@ -1,10 +1,14 @@
 /*
- * $Id: version.h,v 8.2 1991/04/01 12:34:48 dickey Exp $
+ * $Id: version.h,v 8.3 1991/04/04 09:28:42 dickey Exp $
  * Version-identifier for DED
  * $Log: version.h,v $
- * Revision 8.2  1991/04/01 12:34:48  dickey
- * added CTL/I (tab) subcommand to 't' (type) to alter tabs.
+ * Revision 8.3  1991/04/04 09:28:42  dickey
+ * mods to recover/proceed when 'chdir()' works but 'getwd()'
+ * does not (execute, but no read permission in path).
  *
+ *		Revision 8.2  91/04/01  12:34:48  dickey
+ *		added CTL/I (tab) subcommand to 't' (type) to alter tabs.
+ *		
  *		Revision 8.1  90/08/27  10:46:21  dickey
  *		added better error recovery to ".ftree" read/write
  *		
@@ -161,4 +165,4 @@
  * 01 Dec 1987, added '*', '^' commands, made '%' refresh screen
  * 25 Nov 1987, added sccs-support (V,z,Z toggles, V,z,Z sorts)
  */
-static	char	version[] = "$Date: 1991/04/01 12:34:48 $";
+static	char	version[] = "$Date: 1991/04/04 09:28:42 $";
