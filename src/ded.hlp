@@ -1,4 +1,4 @@
-$Id: ded.hlp,v 9.3 1991/07/12 08:23:32 dickey Exp $
+$Id: ded.hlp,v 9.4 1991/07/17 07:34:16 dickey Exp $
 
 DED (Directory EDitor)
 ======================
@@ -95,6 +95,7 @@ Display-Adjustment:
 
 		c	last-change date
 		d	order in directory-file (cf: 'find' utility)
+		D	device-code
 		g	group-id (lexically)
 		G	group-id (numerically)
 		i	inode
@@ -117,6 +118,7 @@ Display-Adjustment:
 		z	rcs/sccs checkin-dates
                 Z       rcs/sccs checkin-dates over modification dates
 		.	sort with dotted components in increasing length.
+		@	symbolic link targets
 
 Operations on Files:
 -------------------
