@@ -1,5 +1,5 @@
 #if	!defined(NO_IDENT)
-static	char	Id[] = "$Id: dedscan.c,v 12.17 1994/10/06 23:41:05 tom Exp $";
+static	char	Id[] = "$Id: dedscan.c,v 12.18 1995/08/30 13:05:07 tom Exp $";
 #endif
 
 /*
@@ -7,6 +7,7 @@ static	char	Id[] = "$Id: dedscan.c,v 12.17 1994/10/06 23:41:05 tom Exp $";
  * Author:	T.E.Dickey
  * Created:	09 Nov 1987
  * Modified:
+ *		30 Aug 1995, make A_opt apply to all dot-files
  *		03 Aug 1994, split out 'lastrev()'
  *		23 Jul 1994, force "." into empty filelists.
  *		23 Nov 1993, new blip-code.
@@ -318,9 +319,9 @@ public	int	dedscan (
 					name[len]   = EOS;
 				}
 				while ((de = readdir(dp)) != NULL) {
-					if (dotname(s = de->d_name))
-						if (!gbl->A_opt)
-							continue;
+					s = de->d_name;
+					if (*s == '.' && !gbl->A_opt)
+						continue;
 					if (!ok_scan(gbl, s))
 						continue;
 					j = argstat(gbl, strcpy(name+len, s), TRUE);

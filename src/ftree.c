@@ -1,5 +1,5 @@
 #ifndef	NO_IDENT
-static	char	Id[] = "$Id: ftree.c,v 12.38 1995/07/30 18:02:12 tom Exp $";
+static	char	Id[] = "$Id: ftree.c,v 12.39 1995/08/30 14:38:04 tom Exp $";
 #endif
 
 /*
@@ -1439,6 +1439,7 @@ public	RING *	ft_view(
 #endif
 	viewer_top = cwdpath;
 	*cmdp = 'E';	/* the most common return-value */
+	all_show = gbl->A_opt;
 
 	/* Set initial position. This has to be done by assuming the 'path'
 	 * argument is a true result from 'getwd' since the mount-table may

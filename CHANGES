@@ -1,3 +1,11 @@
+1995-08-30  Thomas E. Dickey  <dickey@clark.net>
+
+	* src/ftree.c: set initial value of '&' from gbl->A_opt
+
+	* src/ded.c: added '-e' option (to make default in-process)
+
+	* src/dedscan.c: make '&' toggle apply to _all_ dot-files
+
 1995-07-30  Thomas E. Dickey  <dickey@clark.net>
 
 	* src/sortset.c: ARO/KEY-definitions
