@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	sccs_id[] = "$Header: /users/source/archives/ded.vcs/src/RCS/ded.c,v 1.64 1989/03/24 08:36:36 dickey Exp $";
+static	char	sccs_id[] = "$Header: /users/source/archives/ded.vcs/src/RCS/ded.c,v 2.0 1989/04/03 09:41:04 ste_cm Exp $";
 #endif	lint
 
 /*
@@ -7,10 +7,17 @@ static	char	sccs_id[] = "$Header: /users/source/archives/ded.vcs/src/RCS/ded.c,v
  * Author:	T.E.Dickey
  * Created:	09 Nov 1987
  * $Log: ded.c,v $
- * Revision 1.64  1989/03/24 08:36:36  dickey
- * added "-c" (command-script) option, and changed version to RCS
- * format using sscanf hack.
+ * Revision 2.0  1989/04/03 09:41:04  ste_cm
+ * BASELINE Thu Apr  6 13:14:13 EDT 1989
  *
+ *		Revision 1.65  89/04/03  09:41:04  dickey
+ *		use of 'showFILES()' in 'restat_W()' did not work (?).  Recoded
+ *		using 'showLINE()' and 'showC()'.
+ *		
+ *		Revision 1.64  89/03/24  08:36:36  dickey
+ *		added "-c" (command-script) option, and changed version to RCS
+ *		format using sscanf hack.
+ *		
  *		Revision 1.63  89/03/15  09:12:02  dickey
  *		sccs2rcs keywords
  *		
@@ -675,9 +682,11 @@ restat_l()
 restat_W()
 {
 	register int j;
-	for (j = Ybase; j <= Ylast; j++)
+	for (j = Ybase; j <= Ylast; j++) {
 		statLINE(j);
-	showFILES();
+		showLINE(j);
+	}
+	showC();
 }
 
 /*

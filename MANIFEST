@@ -1,4 +1,4 @@
-MANIFEST for ded, version t19890330
+MANIFEST for ded, version t19890403
 --------------------------------------------------------------------------------
 MANIFEST                        this file
 Makefile                        top-level makefile for unix directory editor
@@ -29,6 +29,7 @@ src/ftree.c                     directory-tree for DED
 src/version.h                   version/release history for DED
 test                            subdirectory
 test/Makefile                   make-file for regression tests of unix directory editor
+test/README                     read-me file for the ded/test directory
 test/edit_test.sed              sed-script which gets rid of trivial differences between command script/log
 test/edit_test.sh               shell script which converts a directory-editor log-file to a form which can
 test/edittest.sed               sed-script for 'edittest.sh'

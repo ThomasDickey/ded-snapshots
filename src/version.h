@@ -1,10 +1,16 @@
 /*
  * Version-identifier for DED
  * $Log: version.h,v $
- * Revision 1.45  1989/03/24 09:17:39  dickey
- * added "-c" option to process command files.
- * converted version-date to RCS-format.
+ * Revision 2.0  1989/04/03 09:55:39  ste_cm
+ * BASELINE Thu Apr  6 13:14:13 EDT 1989
  *
+ *		Revision 1.46  89/04/03  09:55:39  dickey
+ *		patched 'restat_W()' function
+ *		
+ *		Revision 1.45  89/03/24  09:17:39  dickey
+ *		added "-c" option to process command files.
+ *		converted version-date to RCS-format.
+ *		
  *		Revision 1.44  89/03/23  15:12:26  dickey
  *		store RCS date in 'version[]' rather than SCCS date
  *		
@@ -53,4 +59,4 @@
  * 01 Dec 1987, added '*', '^' commands, made '%' refresh screen
  * 25 Nov 1987, added sccs-support (V,z,Z toggles, V,z,Z sorts)
  */
-static	char	version[] = "$Date: 1989/03/24 09:17:39 $";
+static	char	version[] = "$Date: 1989/04/03 09:55:39 $";

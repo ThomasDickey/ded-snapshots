@@ -1,0 +1,13 @@
+$Header: /users/source/archives/ded.vcs/test/RCS/README,v 12.0 1989/04/03 08:28:16 ste_cm Rel $
+
+--------------------------------------------------------------------------------
+
+The regression-test for DED must be run from a terminal which supports curses
+(i.e., has cursor addressability).  DED is run from a series of command scripts
+which do not alter permanently any of the files in the local tree (consisting
+of this test directory, and the corresponding src & bin directories).  It
+does assume that they are present, however.
+
+Differences between the command-script and the resulting log-file are reported.
+Except for the selection of "RCS" by certain commands, the sed-scripts in this
+test should filter out all differences.
