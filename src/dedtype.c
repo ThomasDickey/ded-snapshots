@@ -1,5 +1,5 @@
 #if	!defined(NO_IDENT)
-static	char	Id[] = "$Id: dedtype.c,v 12.5 1993/12/01 16:48:15 dickey Exp $";
+static	char	Id[] = "$Id: dedtype.c,v 12.6 1993/12/17 20:27:19 dickey Exp $";
 #endif
 
 /*
@@ -327,6 +327,7 @@ private	int	FinishPage(
 		shown  = reshow(gbl, inlist);
 		gbl->AT_opt = save;
 		length = gSTAT(inlist).st_size;
+		gbl->mrkfile = -1;
 		markC(gbl,TRUE);
 		standout();
 		move(oldy,oldx);
