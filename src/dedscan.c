@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	Id[] = "$Id: dedscan.c,v 4.1 1989/10/04 15:21:15 dickey Exp $";
+static	char	Id[] = "$Id: dedscan.c,v 4.2 1989/10/06 07:52:44 dickey Exp $";
 #endif	lint
 
 /*
@@ -7,9 +7,12 @@ static	char	Id[] = "$Id: dedscan.c,v 4.1 1989/10/04 15:21:15 dickey Exp $";
  * Author:	T.E.Dickey
  * Created:	09 Nov 1987
  * $Log: dedscan.c,v $
- * Revision 4.1  1989/10/04 15:21:15  dickey
- * added A_opt code (permit dot-names)
+ * Revision 4.2  1989/10/06 07:52:44  dickey
+ * modified interface to 'showFILES()'
  *
+ *		Revision 4.1  89/10/04  17:09:47  dickey
+ *		added A_opt code (permit dot-names)
+ *		
  *		Revision 4.0  89/06/06  09:01:28  ste_cm
  *		BASELINE Thu Aug 24 10:20:06 EDT 1989 -- support:navi_011(rel2)
  *		
@@ -427,5 +430,5 @@ statMAKE(mode)
 			numfiles--;
 		}
 	}
-	showFILES();
+	showFILES(FALSE);
 }

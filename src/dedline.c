@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	what[] = "$Id: dedline.c,v 4.0 1989/08/11 14:26:07 ste_cm Rel $";
+static	char	what[] = "$Id: dedline.c,v 4.1 1989/10/06 07:52:15 dickey Exp $";
 #endif	lint
 
 /*
@@ -7,9 +7,12 @@ static	char	what[] = "$Id: dedline.c,v 4.0 1989/08/11 14:26:07 ste_cm Rel $";
  * Author:	T.E.Dickey
  * Created:	01 Aug 1988 (from 'ded.c')
  * $Log: dedline.c,v $
- * Revision 4.0  1989/08/11 14:26:07  ste_cm
- * BASELINE Thu Aug 24 10:20:06 EDT 1989 -- support:navi_011(rel2)
+ * Revision 4.1  1989/10/06 07:52:15  dickey
+ * modified treatment of 'cmdcol[]' (cf: showFILES)
  *
+ *		Revision 4.0  89/08/11  14:26:07  ste_cm
+ *		BASELINE Thu Aug 24 10:20:06 EDT 1989 -- support:navi_011(rel2)
+ *		
  *		Revision 3.1  89/08/11  14:26:07  dickey
  *		modified "<" command so that we show all intermediate
  *		substitutions (i.e., "%F", "%B" and "#") which would be
@@ -247,7 +250,7 @@ int	col;			/* leftmost column we need to show */
 	if (col > (Xbase + COLS - 1))
 		Xbase = col;
 	if (old != Xbase)
-		showFILES();
+		showFILES(FALSE);
 	return (col - Xbase);
 }
 
@@ -273,7 +276,7 @@ int	y	= file2row(curfile),
 int	at_flag	= at_save();
 #endif	S_IFLNK
 
-	(void)save_Xbase(cmdcol[0]);
+	(void)save_Xbase(cmdcol[CCOL_PROT]);
 
 	(void)replay('p');
 
@@ -284,7 +287,7 @@ int	at_flag	= at_save();
 		showLINE(curfile);
 
 		rwx	= (P_opt ? 1 : 3),
-		cols[0] = cmdcol[0];
+		cols[0] = cmdcol[CCOL_PROT];
 		cols[1] = cols[0] + rwx;
 		cols[2] = cols[1] + rwx;
 
@@ -496,9 +499,9 @@ char	bfr[BUFSIZ];
 
 	if (G_opt) {
 		G_opt = FALSE;
-		showFILES();
+		showFILES(FALSE);
 	}
-	if (edittext('u', cmdcol[1], UIDLEN, strcpy(bfr, uid2s(uid)))
+	if (edittext('u', cmdcol[CCOL_UID], UIDLEN, strcpy(bfr, uid2s(uid)))
 	&&  (uid = s2uid(bfr)) >= 0) {
 		(void)dedsigs(TRUE);	/* reset interrupt-count */
 		for (j = 0; j < numfiles; j++) {
@@ -535,9 +538,9 @@ char	bfr[BUFSIZ];
 
 	if (!G_opt) {
 		G_opt = TRUE;
-		showFILES();
+		showFILES(FALSE);
 	}
-	if (edittext('g', cmdcol[1], UIDLEN, strcpy(bfr, gid2s(gid)))
+	if (edittext('g', cmdcol[CCOL_UID], UIDLEN, strcpy(bfr, gid2s(gid)))
 	&&  (gid = s2gid(bfr)) >= 0) {
 	char	newgrp[BUFSIZ];
 	static	char	*fmt = "chgrp -f %s %s";
@@ -590,7 +593,7 @@ editname()
 	register int	j;
 	auto	 char	bfr[BUFSIZ];
 
-#define	EDITNAME(n)	edittext('=', cmdcol[3], sizeof(bfr), name2bfr(bfr, n))
+#define	EDITNAME(n)	edittext('=', cmdcol[CCOL_NAME], sizeof(bfr), name2bfr(bfr, n))
 	if (EDITNAME(cNAME) && strcmp(cNAME, bfr)) {
 		if (dedname(curfile, bfr) >= 0) {
 			(void)dedsigs(TRUE);	/* reset interrupt count */
@@ -634,7 +637,7 @@ editlink(cmd)
 		beep();
 	else {
 		auto	int	restore = FALSE;
-		col = save_Xbase(cmdcol[3]);
+		col = save_Xbase(cmdcol[CCOL_NAME]);
 
 		/* test if we must show substitution */
 		if (cmd_link) {
@@ -684,7 +687,7 @@ editlink(cmd)
 			}
 		}
 		if (restore && !changed)
-			showFILES();
+			showFILES(FALSE);
 	}
 	restat(changed);
 }

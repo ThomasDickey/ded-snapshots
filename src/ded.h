@@ -1,4 +1,4 @@
-/* $Id: ded.h,v 4.2 1989/10/04 15:11:28 dickey Exp $ */
+/* $Id: ded.h,v 4.3 1989/10/06 08:08:45 dickey Exp $ */
 
 /*
  * Created:	09 Nov 1987
@@ -120,6 +120,15 @@ typedef	struct	{
 
 #define	GROUPED(n)	(xFLAG(n) || ((n) == curfile))
 
+			/* markers for column-beginnings */
+#define	CCOL_PROT	0
+#define	CCOL_UID	1
+#define	CCOL_DATE	2
+#define	CCOL_CMD	3
+#define	CCOL_NAME	4
+			/* total number of columns */
+#define	CCOL_MAX	5
+
 /*
  * Global data (cf: dedring.c)
  */
@@ -133,7 +142,7 @@ MAIN	FLIST	*flist;		/* pointer to display-list */
 
 MAIN	char	**top_argv;	/* 'argv[]' used in re-scanning, etc. */
 MAIN	int	top_argc,
-		cmdcol[4],	/* column in which to show cursor */
+		cmdcol[CCOL_MAX],/* column in which to show cursor */
 				/* 0=mode, 1=uid/gid, 2=normal */
 		mark_W,		/* row of work-area marker */
 		clr_sh,		/* true if we clear-screen after SHELL	*/

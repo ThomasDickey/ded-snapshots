@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	what[] = "$Id: ded.c,v 4.3 1989/10/04 16:46:48 dickey Exp $";
+static	char	what[] = "$Id: ded.c,v 4.4 1989/10/06 08:12:33 dickey Exp $";
 #endif	lint
 
 /*
@@ -7,11 +7,15 @@ static	char	what[] = "$Id: ded.c,v 4.3 1989/10/04 16:46:48 dickey Exp $";
  * Author:	T.E.Dickey
  * Created:	09 Nov 1987
  * $Log: ded.c,v $
- * Revision 4.3  1989/10/04 16:46:48  dickey
- * added -a, -O options
- * added &, O toggles
- * added o, O sorts
+ * Revision 4.4  1989/10/06 08:12:33  dickey
+ * modified 'showFILES()' so that on certain calls we reset the
+ * 'cmdcol[]' array.
  *
+ *		Revision 4.3  89/10/04  16:46:48  dickey
+ *		added -a, -O options
+ *		added &, O toggles
+ *		added o, O sorts
+ *		
  *		Revision 4.2  89/08/25  08:52:50  dickey
  *		added new procedures 'scroll_to_stat()' and 'scroll_to_file()'
  *		so 'E'-command on link can go to link-target.
@@ -322,7 +326,7 @@ scroll_to_file(inx)
 	if (curfile != inx) {
 		curfile = inx;
 		if (to_file())
-			showFILES();
+			showFILES(FALSE);
 		else
 			showC();
 	}
@@ -360,7 +364,7 @@ markset(num)
 	}
 
 	(void)to_file();
-	showFILES();
+	showFILES(FALSE);
 }
 
 /*
@@ -471,7 +475,7 @@ upLINE(n)
 	if (curfile < 0)		curfile = 0;
 	if (curfile < Ybase) {
 		while (curfile < Ybase)	backward(1);
-		showFILES();
+		showFILES(FALSE);
 	} else
 		showC();
 }
@@ -482,7 +486,7 @@ downLINE(n)
 	if (curfile >= numfiles)	curfile = numfiles-1;
 	if (curfile > Ylast) {
 		while (curfile > Ylast)	forward(1);
-		showFILES();
+		showFILES(FALSE);
 	} else
 		showC();
 }
@@ -556,12 +560,13 @@ char	bfr[BUFSIZ];
 		if (Xbase < strlen(bfr)) {
 			PRINTW("%.*s", COLS-1, &bfr[Xbase]);
 			if (xFLAG(j)) {
-				col = cmdcol[3] - Xbase;
+				col = cmdcol[CCOL_NAME] - Xbase;
 				len = (COLS-1) - col;
 				if (len > 0) {
 					(void)move2row(j, col);
 					standout();
-					PRINTW("%.*s", len, &bfr[cmdcol[3]]);
+					PRINTW("%.*s", len,
+						&bfr[cmdcol[CCOL_NAME]]);
 					standend();
 				}
 			}
@@ -592,10 +597,14 @@ showVIEW()
  * remaining stuff on the screen (position in each viewport and workspace
  * marker).
  */
-showFILES()
+showFILES(reset_cols)
 {
 	register int j, k;
 	char	scale[20];
+
+	if (reset_cols)
+		for (j = 0; j < CCOL_MAX; j++)
+			cmdcol[j] = 0;
 
 	for (j = 0; j < maxview; j++) {
 		showVIEW();
@@ -669,7 +678,7 @@ quitVIEW()
 		viewlist[0].Yhead = 0;
 		curview--;
 		nextVIEW(FALSE);	/* load current-viewport */
-		showFILES();
+		showFILES(FALSE);
 	} else
 		dedmsg("no more viewports to quit");
 }
@@ -714,7 +723,7 @@ register int j;
  */
 showC()
 {
-	register int	x = cmdcol[2] - Xbase;
+	register int	x = cmdcol[CCOL_CMD] - Xbase;
 
 	if (x < 0)		x = 0;
 	if (x > COLS-1)		x = COLS-1;
@@ -731,7 +740,7 @@ showC()
  */
 markC(on)
 {
-int	col = cmdcol[2] - Xbase;
+int	col = cmdcol[CCOL_CMD] - Xbase;
 
 	if (col >= 0) {
 		(void)move2row(curfile, col);
@@ -749,7 +758,7 @@ int	y,x;
 	if (resizewin()) {
 		dlog_comment("resizewin(%d,%d)\n", LINES, COLS);
 		markset(mark_W);
-		showFILES();
+		showFILES(FALSE);
 		return;
 	}
 #endif	apollo
@@ -778,7 +787,7 @@ char	*backto;		/* name to reset to, if possible */
 				break;
 			}
 		(void)to_file();
-		showFILES();
+		showFILES(TRUE);
 		return (TRUE);
 	} else if (fwd)
 		return (new_args(strcpy(tpath, new_wd), 'F', 1));
@@ -860,7 +869,7 @@ int	ok;
 		for (j = tag_count = 0; j < numfiles; j++)
 			if (xFLAG(j))
 				tag_count++;
-		showFILES();
+		showFILES(TRUE);
 	}
 	(void)chdir(new_wd);
 	dlog_comment("chdir %s\n", new_wd);
@@ -1115,25 +1124,25 @@ char	*argv[];
 
 	case 'f':	forward(count);
 			curfile = Ybase;
-			showFILES();
+			showFILES(FALSE);
 			break;
 
 	case 'b':	backward(count);
 			curfile = Ybase;
-			showFILES();
+			showFILES(FALSE);
 			break;
 
 	case ARO_LEFT:	if (Xbase > 0) {
 				if ((Xbase -= Xscroll * count) < 0)
 					Xbase = 0;
-				showFILES();
+				showFILES(FALSE);
 			} else
 				dedmsg("already at left margin");
 			break;
 
 	case ARO_RIGHT:	if (Xbase + (Xscroll * count) < 990) {
 				Xbase += Xscroll * count;
-				showFILES();
+				showFILES(FALSE);
 			} else
 				beep();
 			break;
@@ -1144,7 +1153,7 @@ char	*argv[];
 	case 'L':	curfile = Ylast;		showC(); break;
 	case '^':	if (Ybase != curfile) {
 				Ybase = curfile;
-				showFILES();
+				showFILES(FALSE);
 			}
 			break;
 
@@ -1162,7 +1171,7 @@ char	*argv[];
 					blip('.');
 			}
 			if (count)
-				showFILES();
+				showFILES(TRUE);
 			else
 				showC();
 			break;
@@ -1172,38 +1181,38 @@ char	*argv[];
 	case '&':	A_opt = !A_opt;	/* sorry about inconsistency */
 			quit = !rescan(TRUE, strcpy(tpath, cNAME));
 			break;
-	case 'G':	G_opt = !G_opt; showFILES(); break;
-	case 'I':	I_opt = !I_opt; showFILES(); break;
+	case 'G':	G_opt = !G_opt; showFILES(FALSE);break;
+	case 'I':	I_opt = !I_opt; showFILES(TRUE); break;
 #ifdef	apollo_sr10
-	case 'O':	O_opt = !O_opt; showFILES(); break;
+	case 'O':	O_opt = !O_opt; showFILES(TRUE); break;
 #endif
-	case 'P':	P_opt = !P_opt; showFILES(); break;
-	case 'S':	S_opt = !S_opt; showFILES(); break;
-	case 'U':	U_opt = !U_opt; showFILES(); break;
+	case 'P':	P_opt = !P_opt; showFILES(TRUE); break;
+	case 'S':	S_opt = !S_opt; showFILES(TRUE); break;
+	case 'U':	U_opt = !U_opt; showFILES(FALSE);break;
 
 #ifdef	Z_RCS_SCCS
 	case 'V':	/* toggle sccs-version display */
 			showSCCS();
 			V_opt = !V_opt;
-			showFILES();
+			showFILES(TRUE);
 			break;
 
 	case 'Y':	/* show owner of file lock */
 			showSCCS();
 			Y_opt = !Y_opt;
-			showFILES();
+			showFILES(TRUE);
 			break;
 
 	case 'Z':	/* toggle sccs-date display */
 			showSCCS();
 			Z_opt = -Z_opt;
-			showFILES();
+			showFILES(TRUE);
 			break;
 
 	case 'z':	/* cancel sccs-display */
 			if (Z_opt) {
 				Z_opt = 0;
-				showFILES();
+				showFILES(TRUE);
 			}
 			break;
 #endif	Z_RCS_SCCS
@@ -1255,19 +1264,19 @@ char	*argv[];
 			if (sortset(c,j)) {
 				dedsort();
 				(void)to_file();
-				showFILES();
+				showFILES(FALSE);
 			} else
 				dedmsg("unknown sort-key");
 			break;
 
 	case 'C':	if (++dateopt > 2)	dateopt = 0;
-			showFILES();
+			showFILES(FALSE);
 			break;
 
 	case '#':	/* tag files with duplicated fields */
 			count = tag_count;
 			if ((tag_count = deduniq()) || count)
-				showFILES();
+				showFILES(FALSE);
 			else
 				showC();
 			break;
@@ -1296,7 +1305,7 @@ char	*argv[];
 	case '_':	for (j = 0; j < numfiles; j++)
 				xFLAG(j) = FALSE;
 			tag_count = 0;
-			showFILES();
+			showFILES(FALSE);
 			break;
 
 			/* edit specific fields */
