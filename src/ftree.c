@@ -1,11 +1,12 @@
 #ifndef	NO_SCCS_ID
-static	char	sccs_id[] = "@(#)ftree.c	1.48 88/06/29 07:27:19";
+static	char	sccs_id[] = "@(#)ftree.c	1.49 88/07/06 07:31:44";
 #endif
 
 /*
  * Author:	T.E.Dickey
  * Created:	02 Sep 1987
  * Modified:
+ *		05 Jul 1988, recoded 'ft_rename()' so children are moved too.
  *		29 Jun 1988, added temporary '=' command for testing rename.
  *		27 Jun 1988, recoded 'ft_purge()' so it isn't recursive.
  *		07 Jun 1988, added CTL(K) command.
@@ -279,39 +280,6 @@ char	tmp[MAXPATHLEN];
 }
 
 /*
- * Recursively mark for removal entries which belong to a specified node
- */
-static
-fd_repur(last)
-{
-register int j;
-	for (j = last+1; j <= FDlast; j++) {
-	register FTREE *f = &ftree[j];
-		if (f->f_root == last) {
-			f->f_mark |= MARKED;
-			fd_repur(j);
-		}
-	}
-}
-
-/*
- * Purge a particular node and its descendents
- */
-static
-do_purge(node)
-{
-register int j;
-	fd_repur(node);
-	for (j = node; j < FDlast; j++) {
-		ftree[j] = ftree[j+1];
-		if (ftree[j].f_root > node)
-			ftree[j].f_root--;
-	}
-	FDlast--;
-	FDdiff++;
-}
-
-/*
  * Returns true iff the node should be displayed
  */
 static
@@ -533,16 +501,82 @@ int	changed	= 0;
 
 /*
  * Rename a directory or link.
- * patch: for now, simply do a delete/insert, but should complete this by
- *	copying a tree.
  */
 ft_rename(old, new)
 char	*old, *new;
 {
-register int	j;
-	if ((j = do_find(old)) >= 0)
-		do_purge(j);
+	register int	j, k;
+	int	oldloc, newloc, base, len1, len2, chop, count;
+
+	if (do_find(new) >= 0) {
+		beep();
+		return;
+	}
 	ft_insert(new);
+	newloc = do_find(new);
+	oldloc = do_find(old);
+	if (oldloc < 0)
+		return;
+
+	if (oldloc > newloc) {
+		chop =
+		base = newloc + 1;
+		len1 = oldloc - base;
+		len2 = len1 + 1;
+		for (j = oldloc+1; j <= FDlast; j++) {
+			if (zROOT(j) >= oldloc)
+				len2++;
+			else
+				break;
+		}
+	} else {		/* oldloc < newloc */
+		base = oldloc;
+		chop = newloc;
+		len2 = newloc + 1 - oldloc;
+		len1 = 1;
+		for (j = oldloc+1; j < FDlast; j++) {
+			if (zROOT(j) >= oldloc) {
+				chop--;
+				len1++;
+			} else
+				break;
+		}
+	}
+
+	/* interchange segments to make children follow renaming */
+	count = j = 0;
+	while (count < len2) {
+		int	first = j;
+		FTREE	tmp;
+		tmp = ftree[base+j];
+		for (;;) {
+			k = j + len1;
+			if (k >= len2) k -= len2;
+			count++;
+			if (k == first) {
+				ftree[base + (j++)] = tmp;
+				break;
+			}
+			ftree[base + j] = ftree[base + k];
+			j = k;
+		}
+	}
+
+	/* ...and readjust the root-pointers */
+	for (j = base; j <= FDlast; j++) {
+		k = zROOT(j);
+		if (k >= base && k < base + len1)
+			zROOT(j) += (len2 - len1);
+		else if (k >= base + len1 && k < base + len2)
+			zROOT(j) -= len1;
+	}
+
+	/* eliminate old entry */
+	for (j = chop; j < FDlast; j++) {
+		ftree[j] = ftree[j+1];
+		if (zROOT(j) >= chop)	zROOT(j) -= 1;
+	}
+	FDlast--;
 }
 
 /*
@@ -1006,10 +1040,9 @@ register int j;
 				else
 					(void)strcat(fd_path(cwdpath,zROOT(row)), "/");
 				abspath(strcat(cwdpath, bfr));
-				fd_path(bfr,row);
-				if (strcmp(cwdpath, bfr)) {
+				if (strcmp(cwdpath, fd_path(bfr,row)) ) {
 					ft_rename(bfr, cwdpath);
-					row = do_find(cwdpath);
+					scroll_to (row = do_find(cwdpath));
 				}
 			}
 			break;
@@ -1169,21 +1202,45 @@ register int j;
 }
 
 #ifdef	DEBUG
+/*
+ * Dump the current tree to a log-file
+ */
 ft_dump(msg)
 char	*msg;
 {
-FILE	*fp = fopen("ftree.log", "a+");
+extern	char	*ctime();
+extern	time_t	time();
+time_t	now	= time((time_t *)0);
+char	logname[BUFSIZ];
+FILE	*fp = fopen(strcat(strcpy(logname, gethome()), "/ftree.log"), "a+");
 register FTREE *f;
 register int j, k;
+
 	if (fp) {
-		PRINTF("writing log file: %s\n", msg);
-		FPRINTF(fp, "FTREE LOG: %s\n", msg);
+		PRINTF("writing log file \"%s\"\r\n", msg);
+		FPRINTF(fp, "FTREE LOG: \"%s\" %s", msg, ctime(&now));
 		FPRINTF(fp, "Total diffs: %d\n", FDdiff);
 		FPRINTF(fp, "Total size:  %d\n", FDsize);
 		FPRINTF(fp, "Total nodes: %d\n", FDlast);
 		for (j = 0; j <= FDlast; j++) {
 			f = &ftree[j];
 			FPRINTF(fp, "%3d ^%03d", j, f->f_root);
+			/* verify legality of the root-links */
+			for (k = j; k; k = f->f_root, f = &ftree[k]) {
+				if (f->f_root < 0 || f->f_root > FDlast) {
+					k = -1;
+					break;
+				}
+				if (k == f->f_root) {
+					k = -2;
+					break;
+				}
+			}
+			if (k < 0) {
+				FPRINTF(fp, "(%s)\n", k == -2 ? "err" : "loop");
+				continue;
+			}
+			f = &ftree[j];
 			for (k = fd_level(j); k > 0; k--)
 				FPRINTF(fp, "|---");
 			FPRINTF(fp, "%s/", f->f_name);
@@ -1197,6 +1254,7 @@ register int j, k;
 			}
 			FPRINTF(fp, "\n");
 		}
+		PRINTF("**done***\r\n");
 		(void)fclose(fp);
 	} else
 		perror("ftree.log");
