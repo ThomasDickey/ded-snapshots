@@ -1,4 +1,4 @@
-MANIFEST for ded, version t19940529
+MANIFEST for ded, version t19940530
 --------------------------------------------------------------------------------
 MANIFEST                        this file
 COPYING                         copyright notice for DED
@@ -56,7 +56,6 @@ test/test2.cmd                  test-script for unix directory-editor
 test/test3.cmd                  test-script for unix directory-editor
 test/test4.cmd                  regression case for renaming directories
 test/test5.cmd                  test-case for inline/history stuff
-test/traceback.sh               does a traceback, in case we blew it.
 test/walkback.sh                uses debugger to get a walkback, if core'd
 user                            subdirectory
 user/Makefile                   makefile for user-directory

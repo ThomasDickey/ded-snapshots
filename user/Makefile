@@ -1,4 +1,4 @@
-# $Id: Makefile,v 12.0 1993/05/06 14:07:06 ste_cm Rel $
+# $Id: Makefile,v 12.1 1994/05/30 17:41:10 tom Exp $
 
 THIS	= ded
 TOP	= ../..
@@ -20,13 +20,13 @@ ALL	=
 
 ####### (Standard Productions) #################################################
 all:		$(SOURCES) $(ALL)
-clean:					; rm -f $(CLEAN)
-clobber:	clean			; rm -f $(ALL) *.cat
+clean:					; -$(RM) $(CLEAN)
+clobber:	clean			; -$(RM) $(ALL) *.cat
 destroy:	clobber			; $(DESTROY)
 run_test:
 sources:	$(SOURCES)
 install:	$(IT)
-deinstall:				; rm -f $(IT)
+deinstall:				; -$(RM) $(IT)
 
 ####### (Details of Productions) ###############################################
 $(PREFIX)$(THIS).$(SECTION):	$(THIS).$(USE)	; $(PUT)

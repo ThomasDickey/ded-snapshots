@@ -1,5 +1,5 @@
 #if	!defined(NO_IDENT)
-static	char	Id[] = "$Id: dedsigs.c,v 12.3 1993/10/29 20:26:59 dickey Exp $";
+static	char	Id[] = "$Id: dedsigs.c,v 12.4 1994/05/30 20:35:48 tom Exp $";
 #endif
 
 /*
@@ -21,9 +21,7 @@ static	char	Id[] = "$Id: dedsigs.c,v 12.3 1993/10/29 20:26:59 dickey Exp $";
  * Function:	Process signals for 'ded'.
  */
 
-#define	SIG_PTYPES
 #include	"ded.h"
-#include	<signal.h>
 
 static	int	caught;		/* counts number of interrupts */
 static	int	init	= -1;	/* last-flag, to prevent redundant 'signal()' */

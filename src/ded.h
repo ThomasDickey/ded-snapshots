@@ -3,7 +3,7 @@
 
 #ifdef	MAIN
 #if	!defined(NO_IDENT)
-static	char	*ded_h = "$Id: ded.h,v 12.14 1994/05/29 00:47:58 tom Exp $";
+static	char	*ded_h = "$Id: ded.h,v 12.17 1994/05/30 20:35:38 tom Exp $";
 #endif
 #endif	/* MAIN */
 
@@ -15,9 +15,11 @@ static	char	*ded_h = "$Id: ded.h,v 12.14 1994/05/29 00:47:58 tom Exp $";
 #define		CUR_PTYPES	/* use "td_curse.h" */
 #define		CHR_PTYPES	/* use <ctype.h> */
 #define		OPN_PTYPES	/* use <fcntl.h> */
+#define		SIG_PTYPES	/* use <signal.h> */
 #define		STR_PTYPES	/* use <string.h> */
 #include	<ptypes.h>
-#include	<dyn_str.h>
+#include	<dyn_str.h>	/* dynamic strings */
+#include	<td_regex.h>	/* regular expressions */
 #include	<ctype.h>
 #include	<errno.h>
 
@@ -34,57 +36,21 @@ extern	char	*sys_errlist[];
 
 #define	FREE(p)		dofree(p)
 
-/*
- * SYSTEM5/BSD4.x differences between regular-expression handling:
- */
-#if defined(SYSTEM5)
-#  if HAVE_REGEX_H_FUNCS		/* HP/UX, Linux */
-#    include <regex.h>
-#    define REGEX_T regex_t
-#    define OLD_REGEX(expr)		regfree(&expr)
-#    define NEW_REGEX(expr,pattern)	(regcomp(&expr, pattern,0) == 0)
-#    define GOT_REGEX(expr,string)	(regexec(&expr, string, 0, (regmatch_t*)0, 0) == 0)
-#  else
-#    if HAVE_REGEXPR_H && HAVE_COMPILE && HAVE_STEP	/* Solaris */
-#      include <regexpr.h>
-#      define REGEX_T char *
-#      define OLD_REGEX(expr)		free(&expr)
-#      define NEW_REGEX(expr,pattern)	(step(pattern, expr) != 0)
-#      define GOT_REGEX(expr,string)	((expr = compile(string, NULL, NULL)) == 0)
-#    else	/* assume old SYSTEM5 */
-extern	char	*regcmp(_ar1(char *,s) _CDOTS);
-extern	char	*regex(_ar1(char *,re));
-#      define REGEX_T char *
-#      define OLD_REGEX(expr)		if (expr) free(expr)
-#      define NEW_REGEX(expr,pattern)	((expr = regcmp(pattern,0)) != 0)
-#      define GOT_REGEX(expr,string)	(regex(expr, string, 0) != 0)
-#    endif
-#  endif
-#  define BAD_REGEX(expr)		dedmsg(gbl, "illegal expression")
-#else		/* probably BSD4.x */
-extern	char	*re_comp(_ar1(char *,s)); /* returns 0 or error message */
-extern	int	re_exec(_ar1(char *,s));  /* (return > 0): match */
-#  define REGEX_T char *
-#  define OLD_REGEX(expr)
-#  define NEW_REGEX(expr,pattern)	((expr = re_comp(pattern)) == 0)
-#  define GOT_REGEX(expr,string)	(re_exec(string) != 0)
-#  define BAD_REGEX(expr)		dedmsg(gbl, expr)
-#endif		/* regular expression functions */
-
 #define	OFF_T	long		/* lint libraries should have 'off_t' */
 
 /*
  * Conditional-compilation variables
  */
-#define	Z_SCCS			/* compile-in '-z' sccs support */
-#define	Z_RCS			/* compile-in '-z' rcs support */
-
-#ifdef	Z_SCCS
+#if defined(RCS_PATH) || defined(SCCS_PATH)
 #  define Z_RCS_SCCS		/* compile-in common sccs/rcs support */
-#else
-#  ifdef  Z_RCS
-#  define Z_RCS_SCCS
-#  endif
+#endif
+
+#ifdef SCCS_PATH
+#  define	Z_SCCS		/* compile-in '-z' sccs support */
+#endif
+
+#ifdef RCS_PATH
+#  define	Z_RCS		/* compile-in '-z' rcs support */
 #endif
 
 /*

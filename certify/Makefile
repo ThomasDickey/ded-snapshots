@@ -1,4 +1,4 @@
-# $Id: Makefile,v 12.0 1993/05/06 13:39:04 ste_cm Rel $
+# $Id: Makefile,v 12.1 1994/05/30 17:40:53 tom Exp $
 
 TOP	= ../..
 include $(TOP)/td_lib/support/td_lib.mk
@@ -11,8 +11,8 @@ SOURCES	=\
 
 ####### (Standard Productions) #################################################
 all:		$(SOURCES) $(ALL)
-clean:				; rm -f $(CLEAN)
-clobber:	clean		; rm -f $(ALL)
+clean:				; -$(RM) $(CLEAN)
+clobber:	clean		; -$(RM) $(ALL)
 destroy:			; $(DESTROY)
 sources:	$(SOURCES)
 lint.out\

@@ -1,5 +1,5 @@
 #if	!defined(NO_IDENT)
-static	char	Id[] = "$Id: ded2s.c,v 12.5 1994/05/24 00:59:42 tom Exp $";
+static	char	Id[] = "$Id: ded2s.c,v 12.6 1994/05/30 22:11:46 tom Exp $";
 #endif
 
 /*
@@ -250,9 +250,9 @@ public	void	ded2s(
 
 	/* translate the number of links, or the inode value */
 #ifdef	apollo
-	if (gbl->I_opt)	FORMAT(bfr, "%08x ", s->st_ino);
+	if (gbl->I_opt)	FORMAT(bfr, "%08lx ", (unsigned long)s->st_ino);
 #else	/* unix */
-	if (gbl->I_opt)	FORMAT(bfr, "%5u ", s->st_ino);
+	if (gbl->I_opt)	FORMAT(bfr, "%5lu ", (unsigned long)s->st_ino);
 #endif	/* apollo/unix */
 	else		FORMAT(bfr, "%3d ", s->st_nlink);
 	bfr += field(bfr,mj);
@@ -296,11 +296,11 @@ public	void	ded2s(
 		break;
 	default:
 		if (gbl->S_opt >= 1) {
-			FORMAT(bfr, "%5u ", s->st_blocks);
+			FORMAT(bfr, "%5lu ", (unsigned long)s->st_blocks);
 			bfr += field(bfr,mj);
 		}
 		if (gbl->S_opt != 1) {
-			FORMAT(bfr, "%7d ", s->st_size);
+			FORMAT(bfr, "%7ld ", (unsigned long)s->st_size);
 			bfr += field(bfr,mj);
 		}
 	}

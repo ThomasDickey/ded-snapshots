@@ -1,5 +1,5 @@
 #if	!defined(NO_IDENT)
-static	char	Id[] = "$Header: /users/source/archives/ded.vcs/src/RCS/ded.c,v 12.12 1994/05/24 01:03:39 tom Exp $";
+static	char	Id[] = "$Header: /users/source/archives/ded.vcs/src/RCS/ded.c,v 12.13 1994/05/30 20:35:41 tom Exp $";
 #endif
 
 /*
@@ -147,38 +147,10 @@ static	char	Id[] = "$Header: /users/source/archives/ded.vcs/src/RCS/ded.c,v 12.1
 
 #define	MAIN
 #include	"ded.h"
-#include	<signal.h>
-#include	<errno.h>
 
-#ifdef	SYSTEM5	/* e.g., linux */
-
-# ifndef	EDITOR
-# define	EDITOR	"/usr/bin/vi"
-# endif
-
-# ifndef	BROWSE
-# define	BROWSE	"/usr/bin/view"
-# endif
-
-# ifndef	PAGER
-# define	PAGER	"/bin/more"
-# endif
-
-#else
-
-# ifndef	EDITOR
-# define	EDITOR	"/usr/ucb/vi"
-# endif
-
-# ifndef	BROWSE
-# define	BROWSE	"/usr/ucb/view"
-# endif
-
-# ifndef	PAGER
-# define	PAGER	"/usr/ucb/more"
-# endif
-
-#endif
+#define	EDITOR	DEFAULT_EDITOR
+#define	BROWSE	DEFAULT_BROWSE
+#define	PAGER	DEFAULT_PAGER
 
 #define	COMPLEMENT(opt) (opt) = !(opt)
 
