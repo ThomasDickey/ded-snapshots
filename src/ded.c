@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	Id[] = "$Header: /users/source/archives/ded.vcs/src/RCS/ded.c,v 9.13 1991/09/09 07:54:12 dickey Exp $";
+static	char	Id[] = "$Header: /users/source/archives/ded.vcs/src/RCS/ded.c,v 9.14 1991/10/11 17:06:16 dickey Exp $";
 #endif
 
 /*
@@ -7,9 +7,12 @@ static	char	Id[] = "$Header: /users/source/archives/ded.vcs/src/RCS/ded.c,v 9.13
  * Author:	T.E.Dickey
  * Created:	09 Nov 1987
  * $Log: ded.c,v $
- * Revision 9.13  1991/09/09 07:54:12  dickey
+ * Revision 9.14  1991/10/11 17:06:16  dickey
  * lint
  *
+ *		Revision 9.13  91/09/09  08:17:25  dickey
+ *		lint
+ *		
  *		Revision 9.12  91/08/16  13:59:31  dickey
  *		added interpretation of "2T"
  *		
@@ -1318,8 +1321,7 @@ usage()
 	dlog_exit(FAIL);
 }
 
-main(argc, argv)
-char	*argv[];
+_MAIN
 {
 	extern	int	optind;
 	extern	char	*optarg;
