@@ -1,4 +1,4 @@
-# @(#)Makefile	1.11 88/05/06 16:15:38
+# @(#)Makefile	1.12 88/05/11 11:40:19
 # MAKE-file for directory editor
 B	= ~/bin
 DED_H   = ded.h ../lib/cmdch.h
@@ -21,6 +21,7 @@ ded.a:	\
         dedfind.o\
         dedfree.o\
         deddoit.o\
+        dedname.o\
         dedring.o\
         dedscan.o\
 	dedshow.o\
@@ -36,6 +37,7 @@ ded.o:	        $(DED_H) ded.c version.h
 deddoit.o:      $(DED_H) deddoit.c
 dedfind.o:      $(DED_H) dedfind.c
 dedfree.o:      $(DED_H) dedfree.c
+dedname.o:      $(DED_H) dedname.c
 dedring.o:      $(DED_H) dedring.c
 dedscan.o:      $(DED_H) dedscan.c
 dedshow.o:      $(DED_H) dedshow.c

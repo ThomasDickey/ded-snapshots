@@ -39,3 +39,30 @@ To do:
 	Extra mode in ftree which prevents us from finding inVisible items?
 
 	Gould: does not use newer convention for daylight-savings time.
+
+88/05/10:
+	The 'resizewin()' code does not always work correctly -- sometimes
+	it crashes.  It seems that this code beats heavily on malloc.
+
+	Also, there is a hole: if I resize in ftree, the unsavewin() may
+	not work correctly, since we will be restoring to a different size.
+
+	The top_argv checking in 'dedring' does not take into account invocation
+	with a wildcard.
+
+88/05/11:
+	Running under 'xterm' on Apollo, the first use of '+' puts the
+	highlighting in the wrong place.
+
+	On Gould, saw ftree forget to put a '/' before a pathname, making
+	the root node forced to 'u1' rather than '' ('/').
+
+	Eric has a copy of curses under ~marshall/src/wm/libcurses
+	on the Gould.
+
+	Should treat RCS directories the same as sccs (i.e., provide Z-toggle).
+
+	Should provide a rename-leaf command in ftree using '='
+
+	The 'R' command from file-list should do a dedring-quit if no files
+	are found in the current directory, rather than a full quit.

@@ -1,5 +1,5 @@
 #ifndef	NO_SCCS_ID
-static	char	sccs_id[] = "@(#)ded.c	1.20 88/05/10 13:17:50";
+static	char	sccs_id[] = "@(#)ded.c	1.21 88/05/11 13:19:07";
 #endif	NO_SCCS_ID
 
 /*
@@ -7,6 +7,7 @@ static	char	sccs_id[] = "@(#)ded.c	1.20 88/05/10 13:17:50";
  * Author:	T.E.Dickey
  * Created:	09 Nov 1987
  * Modified:
+ *		11 May 1988, use 'rename()' if it is available.
  *		03 May 1988, added 'P', 's', 't' subcommands to editprot.
  *		02 May 1988, forgot to allow arrow keys in insert-mode of
  *			     'edittext()'.
@@ -28,7 +29,6 @@ static	char	sccs_id[] = "@(#)ded.c	1.20 88/05/10 13:17:50";
 #include	"ded.h"
 #include	<ctype.h>
 extern	char	*getenv(),
-		*txtalloc(),
 		*strchr();
 
 #ifndef	EDITOR
@@ -233,7 +233,7 @@ char	*msg;
 {
 	to_exit(msg != 0);
 	if (msg)
-		printf("-------- \n?? %-79s\n-------- \n", msg);
+		PRINTF("-------- \n?? %-79s\n-------- \n", msg);
 	exit(1);
 }
 
@@ -788,7 +788,7 @@ char	bfr[BUFSIZ];
 					}
 					flist[j].s.st_gid = gid;
 				} else {
-					sprintf(bfr, fmt, newgrp, fixname(j));
+					FORMAT(bfr, fmt, newgrp, fixname(j));
 					(void)system(bfr);
 				}
 				fixtime(j);
@@ -799,7 +799,7 @@ char	bfr[BUFSIZ];
 				} else
 					changed++;
 				if (flist[j].s.st_gid != gid) {
-					sprintf(bfr, fmt, newgrp, fixname(j));
+					FORMAT(bfr, fmt, newgrp, fixname(j));
 					dedmsg(bfr);
 					beep();
 					break;
@@ -808,40 +808,6 @@ char	bfr[BUFSIZ];
 		}
 	}
 	restat(changed);
-}
-
-static
-rename(x, newname)
-char	*newname;
-{
-int	ok	= FALSE;
-char	bfr[BUFSIZ];
-
-	if (strcmp(flist[x].name, newname)) {
-		if (isFILE(flist[x].s.st_mode)) {
-			if (link(flist[x].name, newname) < 0) {
-				warn(newname);
-				return (-1);
-			}
-			if (unlink(flist[x].name) < 0) {
-				warn(flist[x].name);
-				return (-1);
-			}
-			ok = TRUE;
-		} else {
-			sprintf(bfr, "cannot rename \"%s\"", flist[x].name);
-			dedmsg(bfr);
-			return (-1);
-		}
-		/* patch: should do 'system()' to rename directory, etc. */
-		/* patch: if rename-directory, must purge ftree & dedring! */
-	}
-
-	if (ok) {
-		txtfree(flist[x].name);
-		flist[x].name = txtalloc(newname);
-	}
-	return (0);
 }
 
 /*
@@ -857,14 +823,14 @@ char	bfr[BUFSIZ];
 
 #define	EDITNAME(n)	edittext('=', cmdcol[3], len, strcpy(bfr, n))
 	if (EDITNAME(cNAME)) {
-		if (rename(curfile, bfr) >= 0) {
+		if (dedname(curfile, bfr) >= 0) {
 			re_edit = TRUE;
 			for (j = 0; j < numfiles; j++) {
 				if (j == curfile)
 					continue;
 				if (flist[j].flag) {
 					(void)EDITNAME(flist[j].name);
-					if (rename(j, bfr) >= 0)
+					if (dedname(j, bfr) >= 0)
 						changed++;
 					else
 						break;
@@ -901,7 +867,7 @@ int	pid ,
 			restat(FALSE);
 		}
 	} else if (pid < 0) {
-		printf("fork failed\n");
+		PRINTF("fork failed\n");
 	} else {
 		execl(arg0, arg0, arg1, 0L);
 		exit(0);		/* just in case exec-failed */
@@ -946,7 +912,7 @@ editfile(readonly, pad)
 
 usage()
 {
-	fprintf(stderr, "usage: ded [-IGS] [-[s|r][%s]] [filespecs]\n", sortc);
+	FPRINTF(stderr, "usage: ded [-IGS] [-[s|r][%s]] [filespecs]\n", sortc);
 }
 
 main(argc, argv)
@@ -965,14 +931,15 @@ int	c,
 char	tpath[BUFSIZ],
 	dpath[BUFSIZ];
 
-	(void)printf("%s\r\n", version+4);	/* show me when entering process */
+	PRINTF("%s\r\n", version+4);	/* show me when entering process */
 	(void)fflush(stdout);
 	(void)sortset('s', 'n');
 	ft_read(getcwd(old_wd, sizeof(old_wd)-2));
 
 	/* find which copy I am executing from, for future use */
-	which(whoami, sizeof(whoami), argv[0], old_wd);
-	sprintf(howami, "%s.hlp", whoami);
+	if (which(whoami, sizeof(whoami), argv[0], old_wd) <= 0)
+		failed("which-path");
+	FORMAT(howami, "%s.hlp", whoami);
 
 	while ((c = getopt(argc, argv, "GIPSUZr:s:z")) != EOF) switch (c) {
 	case 'G':	G_opt = !G_opt;	break;
@@ -995,7 +962,7 @@ char	tpath[BUFSIZ],
 	in_screen = TRUE;
 	if (LINES > BUFSIZ || COLS > BUFSIZ) {
 	char	bfr[80];
-		sprintf(bfr, "screen too big: %d by %d\n", LINES, COLS);
+		FORMAT(bfr, "screen too big: %d by %d\n", LINES, COLS);
 		failed(bfr);
 	}
 	rawterm();

@@ -1,5 +1,5 @@
 #ifndef	NO_SCCS_ID
-static	char	sccs_id[] = "@(#)dedfind.c	1.4 88/05/06 13:25:09";
+static	char	sccs_id[] = "@(#)dedfind.c	1.5 88/05/11 13:07:15";
 #endif	NO_SCCS_ID
 
 /*
@@ -67,7 +67,7 @@ static	int	order;		/* saves last legal search order */
 				showC();
 		} else {
 		char	msg[BUFSIZ];
-			sprintf(msg, "\"%s\" not found", text);
+			FORMAT(msg, "\"%s\" not found", text);
 			dedmsg(msg);
 			return;
 		}

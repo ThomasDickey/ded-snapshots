@@ -1,4 +1,4 @@
-MANIFEST for ded, version t19880510
+MANIFEST for ded, version t19880511
 --------------------------------------------------------------------------------
 MANIFEST                        this file
 src                             subdirectory
@@ -11,6 +11,7 @@ src/ded2s.c                     convert file-entry to string
 src/deddoit.c                   execute shell commands
 src/dedfind.c                   search within file-list
 src/dedfree.c                   deallocate memory used in file-list
+src/dedname.c                   rename files within file-list
 src/dedring.c                   manage ring of file-lists
 src/dedscan.c                   read file-list
 src/dedshow.c                   display file-list

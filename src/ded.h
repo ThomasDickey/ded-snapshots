@@ -1,4 +1,4 @@
-/* @(#)ded.h	1.9 88/05/10 12:10:46 */
+/* @(#)ded.h	1.10 88/05/11 12:24:04 */
 
 /*
  * Created:	09 Nov 1987
@@ -19,12 +19,23 @@ extern	char	*doalloc(),	/* (re)allocate memory		*/
 		*gid2s(),	/* translate gid to string	*/
 		*uid2s();	/* translate uid to string	*/
 
+/*
+ * Definitions to make linting easier
+ */
 #ifdef	lint
 #define	DOALLOC(t,p,n)	(t *)0
 #else	lint
 #define	DOALLOC(t,p,n)	(t *)doalloc((char *)p,(n) * sizeof(t))
 #endif	lint
 #define	FREE(p)		dofree(p)
+
+#define	PRINTF	(void)printf
+#define	FPRINTF	(void)fprintf
+#define	FORMAT	(void)sprintf
+
+#ifndef	MAXPATHLEN
+#define	MAXPATHLEN	BUFSIZ
+#endif	MAXPATHLEN
 
 /*
  * Main difference between SYSTEM5/BSD4.x is the use of sockets & symbolic links

@@ -1,5 +1,5 @@
 #ifndef	NO_SCCS_ID
-static	char	sccs_id[] = "@(#)ded2s.c	1.5 88/05/09 10:52:30";
+static	char	sccs_id[] = "@(#)ded2s.c	1.6 88/05/11 13:06:08";
 #endif	NO_SCCS_ID
 
 /*
@@ -44,7 +44,7 @@ char	*t,
 	/* Translate the filemode (type+protection) */
 	mj = s->st_mode;
 	if (P_opt) {
-		sprintf(bfr, "%6o ", mj);
+		FORMAT(bfr, "%6o ", mj);
 		cmdcol[0] = 3;
 	} else {
 		*bfr++ = modechar(mj); /* translate the type of file */
@@ -63,14 +63,14 @@ char	*t,
 	bfr += strlen(bfr);
 
 	/* translate the number of links, or the inode value */
-	if (I_opt)	sprintf(bfr, "%5d ", s->st_ino);
-	else		sprintf(bfr, "%3d ", s->st_nlink);
+	if (I_opt)	FORMAT(bfr, "%5d ", s->st_ino);
+	else		FORMAT(bfr, "%3d ", s->st_nlink);
 	bfr += field(bfr,mj);
 
 	/* show the user-id or group-id */
 	if (G_opt)	t = gid2s(s->st_gid);
 	else		t = uid2s(s->st_uid);
-	sprintf(bfr, "%-*.*s ", UIDLEN, UIDLEN, t);
+	FORMAT(bfr, "%-*.*s ", UIDLEN, UIDLEN, t);
 	cmdcol[1] = bfr - base;
 	bfr += field(bfr,mj);
 
@@ -80,11 +80,11 @@ char	*t,
 	case S_IFCHR:
 		if (S_opt)
 			bfr += strlen(strcpy(bfr, "      "));
-		sprintf(bfr, "%3d,%3d ", major(s->st_rdev), minor(s->st_rdev));
+		FORMAT(bfr, "%3d,%3d ", major(s->st_rdev), minor(s->st_rdev));
 		break;
 	default:
 		if (S_opt) {
-			sprintf(bfr, "%5d ",
+			FORMAT(bfr, "%5d ",
 #ifdef	SYSTEM5
 				s->st_size / 1024	/* patch */
 #else
@@ -93,7 +93,7 @@ char	*t,
 				);
 			bfr += field(bfr,mj);
 		}
-		sprintf(bfr, "%7d ", s->st_size);
+		FORMAT(bfr, "%7d ", s->st_size);
 	}
 	bfr += field(bfr,mj);
 
@@ -122,7 +122,7 @@ char	*t,
 
 #ifdef	Z_SCCS
 	if (Z_opt && V_opt) {
-		sprintf(bfr, "%3d.%-3d ", f_->z_rels, f_->z_vers);
+		FORMAT(bfr, "%3d.%-3d ", f_->z_rels, f_->z_vers);
 		bfr += field(bfr, (unsigned)(f_->z_time != 0));
 	}
 #endif	Z_SCCS
@@ -200,11 +200,11 @@ char	*t	= ctime(&fdate);	/* 0123456789.123456789.123 */
 	t[24]	= 0;			/* ddd mmm DD HH:MM:SS YYYY */
 
 	if ((now - SIXDAYS) < fdate) {	  /* ddd HH:MM:SS */
-		sprintf(bfr, "%.4s%.8s ", t, t+11);
+		FORMAT(bfr, "%.4s%.8s ", t, t+11);
 	} else if ((now - SIXMONTHS) < fdate) { /* mmm DD HH:MM */
-		sprintf(bfr, "%.12s ", t+4);
+		FORMAT(bfr, "%.12s ", t+4);
 	} else {				/* mmm DD YYYY  */
-		sprintf(bfr, "%.7s%.4s  ", t+4, t+20);
+		FORMAT(bfr, "%.7s%.4s  ", t+4, t+20);
 	}
 	if (fdate == 0L)
 		(void)field(bfr,0);
@@ -236,7 +236,7 @@ register int c;
 				*bfr++ = ':';
 				*bfr++ = '_';
 			} else {
-				sprintf(bfr, "%s#%02x", esc ? "\\" : "", c);
+				FORMAT(bfr, "%s#%02x", esc ? "\\" : "", c);
 				bfr += strlen(bfr);
 			}
 		} else
