@@ -1,3 +1,7 @@
+1987-09-30  Thomas E. Dickey
+
+	* src/ftree.c:  added a regular search facility a la vi.
+
 1987-09-29  Thomas E. Dickey
 
 	* src/ftree.c: added '@' (position-at-directory) command.
