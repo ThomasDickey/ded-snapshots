@@ -22,7 +22,7 @@
 
 #include	"ded.h"
 
-MODULE_ID("$Id: dedmake.c,v 12.9 1998/03/01 23:55:23 tom Exp $")
+MODULE_ID("$Id: dedmake.c,v 12.10 1998/03/02 01:14:31 tom Exp $")
 
 private	int	makeit(
 	_ARX(RING *,	gbl)
@@ -49,10 +49,13 @@ private	int	makeit(
 			if (link(gNAME(hard), name) < 0)
 				return (FALSE);
 		}
+		else
 #endif
-		if ((fid = creat(name, 0777)) < 0)
-			return (FALSE);
-		(void)close(fid);
+		{
+			if ((fid = creat(name, 0777)) < 0)
+				return (FALSE);
+			(void)close(fid);
+		}
 	}
 #ifdef	S_IFLNK
 	if (mode == S_IFLNK) {
