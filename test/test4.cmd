@@ -48,10 +48,13 @@
 1D	# path: CM_TOOLS/test
 1\n	# path: CM_TOOLS/test/junk
 1E	# chdir CM_TOOLS/test/junk
+1sn
 1L
+1k
 1E	# chdir CM_TOOLS/test/junk/first
 1B	# chdir CM_TOOLS/test/junk
-1k
+1sn
+1L
 1E	# chdir CM_TOOLS/test/junk/second
 1D	# path: CM_TOOLS/test/junk/second
 1N
