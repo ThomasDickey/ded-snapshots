@@ -1,5 +1,5 @@
 #ifndef	NO_SCCS_ID
-static	char	sccs_id[] = "@(#)ded.c	1.24 88/05/23 07:45:28";
+static	char	sccs_id[] = "@(#)ded.c	1.25 88/05/25 15:35:27";
 #endif	NO_SCCS_ID
 
 /*
@@ -7,6 +7,8 @@ static	char	sccs_id[] = "@(#)ded.c	1.24 88/05/23 07:45:28";
  * Author:	T.E.Dickey
  * Created:	09 Nov 1987
  * Modified:
+ *		25 May 1988, fix 'edittext()' for left/right scroll position.
+ *			     also, +/- update via 'showDOWN()'.
  *		23 May 1988, use 'setmtime()', corrected masking in 'replay()'.
  *		13 May 1988, provide walkback on Apollo after 'failed()'.
  *		11 May 1988, use 'rename()' if it is available.
@@ -268,6 +270,18 @@ downLINE(n)
 		showFILES();
 	} else
 		showC();
+}
+
+showDOWN()
+{
+	showLINE(curfile);
+	if (curfile < numfiles-1)
+		downLINE(1);
+	else {
+		showC();
+		return (FALSE);
+	}
+	return (TRUE);
 }
 
 /*
@@ -644,6 +658,11 @@ int	y	= file2row(curfile),
 	delete;
 register char *s;
 
+	if ((col -= Xbase) < 1) {	/* convert to absolute column */
+		col += Xbase;
+		Xbase = 0;
+		showFILES();
+	}
 	(void)replay(endc);
 
 	for (;;) {
@@ -807,7 +826,7 @@ char	bfr[BUFSIZ];
 static
 editname()
 {
-int	len	= COLS - cmdcol[3] - 1,
+int	len	= COLS - (cmdcol[3] - Xbase) - 1,
 	changed	= 0;
 register int	j;
 char	bfr[BUFSIZ];
@@ -1107,23 +1126,17 @@ char	tpath[BUFSIZ],
 					cFLAG = TRUE;
 					tag_count++;
 				}
-				showLINE(curfile);
-				if (curfile < numfiles-1)
-					downLINE(1);
-				else
+				if (!showDOWN())
 					break;
 			}
 			break;
 
 	case '-':	while (count-- > 0) {
-				if (tag_count) {
+				if (cFLAG) {
 					cFLAG = FALSE;
 					tag_count--;
 				}
-				showLINE(curfile);
-				if (curfile < numfiles-1)
-					downLINE(1);
-				else
+				if (!showDOWN())
 					break;
 			}
 			break;

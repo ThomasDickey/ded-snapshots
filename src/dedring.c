@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	sccs_id[] = "@(#)dedring.c	1.10 88/05/18 07:44:06";
+static	char	sccs_id[] = "@(#)dedring.c	1.11 88/05/25 14:48:50";
 #endif	lint
 
 /*
@@ -7,6 +7,7 @@ static	char	sccs_id[] = "@(#)dedring.c	1.10 88/05/18 07:44:06";
  * Author:	T.E.Dickey
  * Created:	27 Apr 1988
  * Modified:
+ *		25 May 1988, don't force V/Z-mode continuation on dedscan.
  *		18 May 1988, added 'dedrung()' entry.
  *		06 May 1988, added coercion for paths which may contain a
  *			     symbolic link.
@@ -382,6 +383,10 @@ char	tmp[BUFSIZ];
 	if (newp != oldp) {
 		unsave(newp);
 		if (numfiles == 0) {
+#ifdef	Z_SCCS
+			V_opt = 0;
+			Z_opt = 0;
+#endif	Z_SCCS
 #ifndef	SYSTEM5
 			/*
 			 * Coerce translation of pathnames in case part of the
