@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	Id[] = "$Id: dedtype.c,v 8.0 1990/08/13 13:42:04 ste_cm Rel $";
+static	char	Id[] = "$Id: dedtype.c,v 8.1 1991/04/01 12:28:48 dickey Exp $";
 #endif	lint
 
 /*
@@ -7,9 +7,13 @@ static	char	Id[] = "$Id: dedtype.c,v 8.0 1990/08/13 13:42:04 ste_cm Rel $";
  * Author:	T.E.Dickey
  * Created:	16 Nov 1987
  * $Log: dedtype.c,v $
- * Revision 8.0  1990/08/13 13:42:04  ste_cm
- * BASELINE Mon Aug 13 15:06:41 1990 -- LINCNT, ADA_TRANS
+ * Revision 8.1  1991/04/01 12:28:48  dickey
+ * added command (tab-character) to allow user to alter tab
+ * stops in the display.
  *
+ *		Revision 8.0  90/08/13  13:42:04  ste_cm
+ *		BASELINE Mon Aug 13 15:06:41 1990 -- LINCNT, ADA_TRANS
+ *		
  *		Revision 7.1  90/08/13  13:42:04  dickey
  *		lint
  *		
@@ -75,7 +79,8 @@ static	char	text[BUFSIZ],		/* converted display-text */
 		over[BUFSIZ];		/* overstrike/underline flags */
 static	int	Shift,			/* left/right shift-column */
 		Tlen,			/* strlen(text) */
-		Tcol;			/* current column in text[] */
+		Tcol,			/* current column in text[] */
+		tabstop;
 
 static
 typeinit()
@@ -153,7 +158,7 @@ register c;
 					return (TRUE);
 				} else if (c == '\t') {
 					typeover(' ');
-					while (Tcol & 7) 
+					while (Tcol % tabstop) 
 						typeover(' ');
 				}
 			} else
@@ -194,6 +199,7 @@ int	c,			/* current character */
 	skip	= 0,
 	page	= 0;		/* counter to show how many screens done */
 
+	tabstop = 8;
 	Shift	= 0;
 
 	if (isdir && !binary) {
@@ -312,6 +318,15 @@ int	c,			/* current character */
 			case 'w':
 				retouch(0);
 				replay = 1;
+				break;
+			case '\t':
+				if (binary)
+					beep();
+				else
+					tabstop = (count <= 1)
+						? (tabstop == 8 ? 4 : 8)
+						: count;
+				replay  = 1;
 				break;
 			case 'q':
 				done = 1;
