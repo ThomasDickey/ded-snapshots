@@ -1,3 +1,42 @@
+1992-08-24  dickey@software.org
+
+	* src/dedline.c: removed obsolete code for 'edittext()'
+
+	* src/dedread.c: allow quit-dlog_string response
+
+1992-08-24  ste_cm@software.org
+
+	* src/dedread.c:
+	BASELINE Thu May  6 14:26:47 1993 -- split from CM_TOOLS #11
+
+1992-08-24  dickey@software.org
+
+	* src/ftree.c: allow quit-dlog_string as response in '@' command.
+
+	* src/ded.c, src/dedfind.c, src/deddoit.c:
+	dlog_string returns null-pointer on quit
+
+1992-08-24  ste_cm@software.org
+
+	* src/deddoit.c:
+	BASELINE Thu May  6 14:26:47 1993 -- split from CM_TOOLS #11
+
+1992-08-24  dickey@software.org
+
+	* src/dedline.c: make edittext work with 'dlog_string()'
+
+	* src/dedread.c: dlog_string returns null pointer on quit
+
+	* src/dedtype.c: dlog_string returns null-pointer on quit
+
+	* src/dlog.c: make dlog_string return null pointer on quit
+
+	* src/ftree.c: dlog_string returns null-pointer on quit
+
+	* src/dlog.c: recoded 'read_script()' so it joins lines that were split
+	by intervening comment(s).  This allows me to hide the
+	difference between single-char and buffer-commands.
+
 1992-08-20  dickey@software.org
 
 	* src/ftree.c: forgot to reinit 'my_text' in ':' command

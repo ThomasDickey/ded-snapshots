@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	Id[] = "$Id: dedline.c,v 11.4 1992/08/20 09:59:13 dickey Exp $";
+static	char	Id[] = "$Id: dedline.c,v 11.6 1992/08/24 08:32:15 dickey Exp $";
 #endif
 
 /*
@@ -504,22 +504,9 @@ public	int	edittext(
 	_DCL(char *,	bfr)
 {
 	static	DYN	*result;
-#ifdef	PATCH
 	int	y	= file2row(gbl->curfile),
 		code	= TRUE;
-#else
-	int	y	= file2row(gbl->curfile),
-		x	= 0,
-		c,
-		shift	= 0,		/* kludge to permit long edits */
-		last,			/* length of edit-window */
-		code	= TRUE,
-		ec	= erasechar(),
-		kc	= killchar(),
-		insert	= FALSE,
-		delete;
 	register char *s;
-#endif
 
 #ifdef	S_IFLNK
 	int	at_flag	= ((endc == 'u') || (endc == 'g'))
@@ -537,91 +524,21 @@ public	int	edittext(
 #endif
 	ReplayStart(endc);
 
-#ifdef	PATCH
 	move(y,col);
 	result = dyn_alloc(result, (size_t)len+1);
 	result = dyn_copy (result, bfr);
-	(void) strcpy(bfr,
-		dlog_string(
+	if (s = dlog_string(
 			&result,
 			inline_text(),
 			inline_hist(),
 			endc,
-			len));
-#else	/* !PATCH */
-	last = (COLS - 1 - col);
-	if (last > len) last = len;
-
-	for (;;) {
-		move(y,col-1);
-		PRINTW("%c", insert ? ' ' : '^');	/* a la rawgets */
-		if (!insert)	standout();
-		c = last;
-		while (shift > x)
-			shift -= 5;
-		while ((x - shift) >= last)
-			shift += 5;
-		for (s = bfr + shift; (*s != EOS) && (c-- > 0); s++)
-			addch(isprint(*s) ? *s : '?');
-		while (c-- > 0)
-			addch(' ');
-		if (!insert)	standend();
-		move(y,x-shift+col);
-
-		delete = -1;
-		c = ReplayChar();
-
-		if (c == '\n') {
-			break;
-		} else if (c == '\t') {
-			insert = ! insert;
-		} else if (insert) {
-			if (isascii(c) && isprint(c)) {
-			int	d,j = 0;
-				do {
-					d = c;
-					c = bfr[x+j];
-				} while (bfr[x+(j++)] = d);
-				bfr[len-1] = EOS;
-				if (x < len-1)	x++;
-			} else if (c == ec) {
-				delete = x-1;
-			} else if (c == kc) {
-				bfr[x = 0] = EOS;
-			} else if (c == ARO_LEFT) {
-				if (x > 0)	x--;
-			} else if (c == ARO_RIGHT) {
-				if (x < strlen(bfr))	x++;
-			} else if (c == TO_FIRST) {
-				x = 0;
-			} else if (c == TO_LAST) {
-				x = strlen(bfr);
-			} else
-				beep();
-		} else {
-			if (c == 'q') {
-				ReplayQuit();
-				code = FALSE;
-				break;
-			} else if (c == endc) {
-				break;
-			} else if (c == '\b' || c == ARO_LEFT) {
-				if (x > 0)	x--;
-			} else if (c == '\f' || c == ARO_RIGHT) {
-				if (x < strlen(bfr))	x++;
-			} else if (c == TO_FIRST) {
-				x = 0;
-			} else if (c == TO_LAST) {
-				x = strlen(bfr);
-			} else
-				beep();
-		}
-		if (delete >= 0) {
-			x = delete;
-			while (bfr[delete] = bfr[delete+1]) delete++;
-		}
+			len)) {
+		(void)strcpy(bfr, s);
+		ReplayFinish();
+	} else {
+		ReplayQuit();
+		code = FALSE;
 	}
-#endif	/* PATCH */
 
 #ifdef	S_IFLNK
 	if (at_flag) {		/* we had to toggle because of sym-link	*/

@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	Id[] = "$Id: dedtype.c,v 11.14 1992/08/17 12:58:11 dickey Exp $";
+static	char	Id[] = "$Id: dedtype.c,v 11.15 1992/08/24 08:13:48 dickey Exp $";
 #endif
 
 /*
@@ -397,7 +397,8 @@ private	void	FindPattern(
 		refresh();
 
 		dyn_init(&text, BUFSIZ);
-		s = dlog_string(&text,(DYN **)0, &History, EOS, 0);
+		if (!(s = dlog_string(&text,(DYN **)0, &History, EOS, 0)))
+			return;
 		if (key == '/')	order = 1;
 		if (key == '?') order = -1;
 		next = order;
