@@ -1,11 +1,18 @@
 #ifndef	lint
-static	char	sccs_id[] = "@(#)ftree.c	1.64 89/03/13 10:48:35";
+static	char	sccs_id[] = "$Header: /users/source/archives/ded.vcs/src/RCS/ftree.c,v 2.0 1989/03/14 13:25:04 ste_cm Exp $";
 #endif	lint
 
 /*
  * Author:	T.E.Dickey
  * Created:	02 Sep 1987
- * Modified:
+ * $Log: ftree.c,v $
+ * Revision 2.0  1989/03/14 13:25:04  ste_cm
+ * BASELINE Thu Apr  6 13:14:13 EDT 1989
+ *
+ *		Revision 1.66  89/03/14  13:25:04  dickey
+ *		sccs2rcs keywords
+ *		
+ *		14 Mar 1989, interface to 'dlog'.
  *		07 Mar 1989, forgot that 'strchr()' will also search for a null.
  *		23 Jan 1989, to support 'A' toggle and '~' home-command
  *		20 Jan 1989, to support "-t" option of DED.
@@ -76,8 +83,7 @@ extern	time_t	time();
 extern	int	errno;
 extern	char	*rcs_dir(),
 		*sccs_dir(),
-		*txtalloc(),
-		*strchr();
+		*txtalloc();
 
 #define	dedmsg	waitmsg	/* ...so we don't call 'showC' from this module */
 #ifndef	R_OK		/* should be in <sys/file.h>, but apollo has conflict */
@@ -718,6 +724,7 @@ char	*path, *home;
 	node = limits(showbase, node);
 	k = FDdiff || (savesccs != showsccs);
 	PRINTW("path: %.*s", COLS-8, path);
+	dlog_comment("path: %s\n", path);
 	clrtoeol();
 	if (k) {	/* show W-command if we have pending diffs */
 		move(PATH_ROW, COLS-5);
@@ -993,7 +1000,7 @@ char	*path;
 		if (c < lvl) lvl = c;	/* loosely drag down level */
 		row = ft_show(fd_path(cwdpath,row), path, row, lvl);
 
-		switch(c = cmdch(&num)) {
+		switch(c = dlog_char(&num,1)) {
 		/* Ordinary cursor movement */
 		case ARO_LEFT:
 		case '\b':
@@ -1075,7 +1082,7 @@ char	*path;
 				clrtoeol();
 				if (c == '~')
 					(void)strcpy(cwdpath, "~");
-				rawgets(cwdpath,sizeof(cwdpath),FALSE);
+				dlog_string(cwdpath,sizeof(cwdpath),FALSE);
 				if (!*cwdpath && c != '@') {
 					c = -1;
 					beep();
@@ -1104,7 +1111,7 @@ char	*path;
 				abspath(fd_path(cwdpath,row));
 				move(node2row(row),node2col(row,MAXLVL));
 				(void)strcpy(bfr, ftree[row].f_name);
-				rawgets(bfr,sizeof(bfr),FALSE);
+				dlog_string(bfr,sizeof(bfr),FALSE);
 				abspath(bfr);
 				if (strcmp(cwdpath, bfr) ) {
 					ft_rename(cwdpath, bfr);

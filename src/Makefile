@@ -1,4 +1,4 @@
-# @(#)Makefile	1.23 89/01/18 09:57:13
+# $Header: /users/source/archives/ded.vcs/src/RCS/Makefile,v 1.25 1989/03/14 08:26:05 dickey Exp $
 # MAKE-file for directory editor
 #
 ####### (Environment) ##########################################################
@@ -35,6 +35,7 @@ CSRC	=\
 	deduniq.c \
 	dedwait.c \
 	ded2s.c \
+	dlog.c \
 	ftree.c
 HSRC	= \
 	ded.h \
@@ -57,6 +58,7 @@ OBJS	= \
 	deduniq.o \
 	dedwait.o \
 	ded2s.o \
+	dlog.o \
 	ftree.o
 #
 SRCS	= $(CSRC) $(HSRC) ded.hlp

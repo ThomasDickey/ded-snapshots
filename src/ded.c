@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	sccs_id[] = "@(#)ded.c	1.60 89/01/23 11:14:31";
+static	char	sccs_id[] = "@(#)ded.c	1.61 89/03/14 13:19:02";
 #endif	lint
 
 /*
@@ -7,6 +7,8 @@ static	char	sccs_id[] = "@(#)ded.c	1.60 89/01/23 11:14:31";
  * Author:	T.E.Dickey
  * Created:	09 Nov 1987
  * Modified:
+ *		14 Mar 1989, added '-l' option for logging.
+ *		13 Mar 1989, added '<' command (short-form of '>')
  *		23 Jan 1989, added 'N' sort
  *		20 Jan 1989, added '-t' option.
  *		18 Jan 1989, added '#' command.
@@ -56,7 +58,6 @@ static	char	sccs_id[] = "@(#)ded.c	1.60 89/01/23 11:14:31";
 #include	"ded.h"
 #include	<signal.h>
 extern	char	*pathcat();
-extern	char	*strchr();
 extern	char	*txtalloc();
 extern	char	**vecalloc();
 
@@ -268,6 +269,7 @@ char	*msg;
 	PRINTW("** %s", msg);
 	clrtoeol();
 	showC();
+	dlog_comment("(dedmsg) %s\n", msg);
 }
 
 warn(msg)
@@ -279,6 +281,7 @@ extern	char	*sys_errlist[];
 	PRINTW("** %s: %s", msg, sys_errlist[errno]);
 	clrtoeol();
 	showC();
+	dlog_comment("(warn) %s: %s\n", msg, sys_errlist[errno]);
 }
 
 /*
@@ -293,11 +296,12 @@ char	*msg;
 		move(LINES-1,0);
 		PRINTW("** %s", msg);
 		clrtoeol();
+		dlog_comment("(waitmsg) %s\n", msg);
 	}
 	move(LINES-1,0);
 	refresh();
 	beep();
-	(void)cmdch((int *)0);	/* pause beside error message */
+	(void)dlog_char((int *)0,-1);	/* pause beside error message */
 	clrtoeol();		/* ...and clear it after pause */
 }
 
@@ -316,7 +320,8 @@ char	*msg;
 		for (;;);	/* when terminated, will be able to use 'tb' */
 	}
 #endif	apollo
-	exit(1);
+	dlog_flush();
+	exit(FAIL);
 }
 
 /*
@@ -363,6 +368,7 @@ downLINE(n)
 showDOWN()
 {
 	showLINE(curfile);
+	dlog_name(cNAME);
 	if (curfile < numfiles-1)
 		downLINE(1);
 	else {
@@ -710,6 +716,7 @@ int	ok;
 		showFILES();
 	}
 	(void)chdir(new_wd);
+	dlog_comment("chdir %s\n", new_wd);
 	return (ok);
 }
 
@@ -757,8 +764,10 @@ forkfile(arg0, arg1, normal)
 char	*arg0, *arg1;
 {
 	resetty();
+	dlog_comment("execute %s %s\n", arg0, arg1);
 	if (execute(arg0, arg1) < 0)
 		warn(arg0);
+	dlog_elapsed();
 	rawterm();
 	(void)chdir(new_wd);
 	if (normal) {
@@ -774,6 +783,8 @@ static
 editfile(readonly, pad)
 {
 	char	*editor = (readonly ? ENV(BROWSE) : ENV(EDITOR));
+
+	dlog_name(cNAME);
 	switch (realstat(curfile)) {
 	case 0:
 		to_work();
@@ -824,7 +835,7 @@ char	tpath[BUFSIZ],
 	PRINTF("%s\r\n", version+4);	/* show me when entering process */
 	(void)fflush(stdout);
 
-	while ((c = getopt(argc, argv, "GIPSUZr:s:zdt:")) != EOF) switch (c) {
+	while ((c = getopt(argc, argv, "GIPSUZl:r:s:zdt:")) != EOF) switch (c) {
 	case 'G':	G_opt = !G_opt;	break;
 	case 'I':	I_opt = !I_opt;	break;
 	case 'P':	P_opt = !P_opt;	break;
@@ -834,13 +845,14 @@ char	tpath[BUFSIZ],
 	case 'Z':	Z_opt = 1;	break;
 	case 'z':	Z_opt = -1;	break;
 #endif	Z_RCS_SCCS
+	case 'l':	dlog_open(optarg,argc,argv);	break;
 	case 's':
 	case 'r':	if (!sortset(c,*optarg))	usage();
 			break;
 	case 'd':	debug = TRUE;	break;
 	case 't':	tree_opt = optarg;	break;
 	default:	usage();
-			exit(1);
+			exit(FAIL);
 	}
 
 	if (!tree_opt)	tree_opt = gethome();
@@ -886,7 +898,7 @@ char	tpath[BUFSIZ],
 	curfile = 0;
 	openVIEW();
 
-	while (!quit) { switch (c = cmdch(&count)) {
+	while (!quit) { switch (c = dlog_char(&count,1)) {
 			/* scrolling */
 	case ARO_UP:
 	case '\b':
@@ -1035,9 +1047,9 @@ char	tpath[BUFSIZ],
 			break;
 
 	case 'r':
-	case 's':	j = cmdch((int *)0);
+	case 's':	j = dlog_char((int *)0,0);
 			if (tagsort = (j == '+'))
-				j = cmdch((int *)0);
+				j = dlog_char((int *)0,0);
 			if (sortset(c,j)) {
 				dedsort();
 				(void)to_file();
@@ -1091,16 +1103,18 @@ char	tpath[BUFSIZ],
 	case 'g':	edit_gid();	break;
 	case '=':	editname();	break;
 #ifdef	S_IFLNK
-	case '>':	editlink();	break;
+	case '<':
+	case '>':	editlink(c);	break;
 #endif	S_IFLNK
 
-	case '"':	switch (dedline(TRUE)) {
+	case '"':	switch (c = dedline(TRUE)) {
 			case 'p':	editprot();	break;
 			case 'u':	edit_uid();	break;
 			case 'g':	edit_gid();	break;
 			case '=':	editname();	break;
 #ifdef	S_IFLNK
-			case '>':	editlink();	break;
+			case '<':
+			case '>':	editlink(c);	break;
 #endif	S_IFLNK
 			default:	dedmsg("no inline command saved");
 			}
@@ -1216,6 +1230,7 @@ char	tpath[BUFSIZ],
 
 	to_exit(TRUE);
 	ft_write();
-	exit(0);
+	dlog_flush();
+	exit(SUCCESS);
 	/*NOTREACHED*/
 }

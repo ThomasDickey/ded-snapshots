@@ -1,12 +1,25 @@
 #ifndef	lint
-static	char	sccs_id[] = "@(#)dedtype.c	1.15 88/09/12 08:25:12";
+static	char	sccs_id[] = "$Header: /users/source/archives/ded.vcs/src/RCS/dedtype.c,v 4.0 1989/03/14 10:32:36 ste_cm Rel $";
 #endif	lint
 
 /*
  * Title:	dedtype.c (type files for ded)
  * Author:	T.E.Dickey
  * Created:	16 Nov 1987
- * Modified:
+ * $Log: dedtype.c,v $
+ * Revision 4.0  1989/03/14 10:32:36  ste_cm
+ * BASELINE Thu Aug 24 10:20:06 EDT 1989 -- support:navi_011(rel2)
+ *
+ *		Revision 3.0  89/03/14  10:32:36  ste_cm
+ *		BASELINE Mon Jun 19 14:21:57 EDT 1989
+ *		
+ *		Revision 2.0  89/03/14  10:32:36  ste_cm
+ *		BASELINE Thu Apr  6 13:14:13 EDT 1989
+ *		
+ *		Revision 1.17  89/03/14  10:32:36  dickey
+ *		sccs2rcs keywords
+ *		
+ *		14 Mar 1989, interface to 'dlog'.
  *		12 Sep 1988, suppress screen-operations during 'skip' -- faster.
  *		01 Sep 1988, break out of 'get' loop if interrupted or error.
  *		17 Aug 1988, test for error return from 'fseek()'.
@@ -155,6 +168,10 @@ int	c,			/* current character */
 		static	OFF_T	*infile;
 		static	unsigned maxpage = 0;
 		auto	int	replay	= 0;
+
+		dlog_comment("type \"%s\" (%s)\n",
+			name,
+			binary ? "binary" : "text");
 		to_work();
 		while (!done) {
 
@@ -219,7 +236,7 @@ int	c,			/* current character */
 				continue;
 			}
 
-			switch (cmdch(&count)) {
+			switch (dlog_char(&count,1)) {
 			case CTL(K):
 				deddump();
 				replay = 1;

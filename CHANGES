@@ -1,3 +1,163 @@
+1989-03-14  dickey@software.org
+
+	* src/version.h: first pass of cleanup for baseline
+
+	* src/ftree.c: sccs2rcs keywords
+
+	* src/ftree.c: use 'dlog' module to log commands
+
+1989-03-14  ste_cm@software.org
+
+	* src/ftree.c: BASELINE Thu Apr  6 13:14:13 EDT 1989
+
+1989-03-14  dickey@software.org
+
+	* src/dedscan.c: use 'dlog' module to log commands
+
+	* src/dedline.c: added '<' command for fast link-edits.
+	use 'dlog' module to log commands.
+
+	* src/dedline.c: sccs2rcs keywords
+
+1989-03-14  ste_cm@software.org
+
+	* src/dedline.c: BASELINE Thu Apr  6 13:14:13 EDT 1989
+
+1989-03-14  dickey@software.org
+
+	* src/deddoit.c: sccs2rcs keywords
+
+	* src/deddoit.c: use 'dlog' module to log commands
+
+1989-03-14  ste_cm@software.org
+
+	* src/deddoit.c:
+	BASELINE Fri Oct 27 12:27:25 1989 -- apollo SR10.1 mods + ADA_PITS 4.0
+
+	* src/deddoit.c: BASELINE Mon Jun 19 14:21:57 EDT 1989
+
+	* src/deddoit.c: BASELINE Thu Apr  6 13:14:13 EDT 1989
+
+	* src/deddoit.c:
+	BASELINE Thu Aug 24 10:20:06 EDT 1989 -- support:navi_011(rel2)
+
+1989-03-14  dickey@software.org
+
+	* src/ded.c: added "-l" (logfile) option.
+	use 'dlog' module to log commands
+
+	* src/ded.h: moved externs for 'strchr()', 'strrchr()' here
+
+	* src/ded.h: sccs2rcs keywords
+
+1989-03-14  ste_cm@software.org
+
+	* src/ded.h: BASELINE Thu Apr  6 13:14:13 EDT 1989
+
+1989-03-14  dickey@software.org
+
+	* src/dlog.c: New file.
+
+	* src/deduniq.c: sccs2rcs keywords
+
+	* src/deduniq.c: use 'dlog' module to log commands
+
+1989-03-14  ste_cm@software.org
+
+	* src/deduniq.c:
+	BASELINE Fri Oct 27 12:27:25 1989 -- apollo SR10.1 mods + ADA_PITS 4.0
+
+	* src/deduniq.c: BASELINE Mon Jun 19 14:21:57 EDT 1989
+
+	* src/deduniq.c: BASELINE Thu Apr  6 13:14:13 EDT 1989
+
+	* src/deduniq.c:
+	BASELINE Thu Aug 24 10:20:06 EDT 1989 -- support:navi_011(rel2)
+
+1989-03-14  dickey@software.org
+
+	* src/dedfind.c: sccs2rcs keywords
+
+	* src/dedfind.c: use dlog-module to log commands
+
+1989-03-14  ste_cm@software.org
+
+	* src/dedfind.c: BASELINE Mon Jun 19 14:21:57 EDT 1989
+
+	* src/dedfind.c: BASELINE Thu Apr  6 13:14:13 EDT 1989
+
+	* src/dedfind.c:
+	BASELINE Thu Aug 24 10:20:06 EDT 1989 -- support:navi_011(rel2)
+
+1989-03-14  dickey@software.org
+
+	* src/ded.hlp:
+	added "-l" (logfile) option and "<" command for fast link-editing
+
+1989-03-14  ste_cm@software.org
+
+	* src/ded.hlp: BASELINE Thu Apr  6 13:14:13 EDT 1989
+
+1989-03-14  dickey@software.org
+
+	* src/dedwait.c: sccs2rcs keywords
+
+	* src/dedwait.c: use 'dlog' module to log commands
+
+1989-03-14  ste_cm@software.org
+
+	* src/dedwait.c:
+	BASELINE Fri Oct 27 12:27:25 1989 -- apollo SR10.1 mods + ADA_PITS 4.0
+
+	* src/dedwait.c: BASELINE Mon Apr 30 09:54:01 1990 -- (CPROTO)
+
+	* src/dedwait.c: BASELINE Mon Aug 13 15:06:41 1990 -- LINCNT, ADA_TRANS
+
+	* src/dedwait.c: BASELINE Mon Jun 19 14:21:57 EDT 1989
+
+	* src/dedwait.c: BASELINE Thu Apr  6 13:14:13 EDT 1989
+
+	* src/dedwait.c:
+	BASELINE Thu Aug 24 10:20:06 EDT 1989 -- support:navi_011(rel2)
+
+	* src/dedwait.c:
+	BASELINE Thu Mar 29 07:37:55 1990 -- maintenance release (SYNTHESIS)
+
+1989-03-14  dickey@software.org
+
+	* src/dedmake.c: use 'dlog' module to log commands
+
+	* src/dedtype.c: sccs2rcs keywords
+
+	* src/dedtype.c: use 'dlog' module to log commands
+
+1989-03-14  ste_cm@software.org
+
+	* src/dedtype.c: BASELINE Mon Jun 19 14:21:57 EDT 1989
+
+	* src/dedtype.c: BASELINE Thu Apr  6 13:14:13 EDT 1989
+
+	* src/dedtype.c:
+	BASELINE Thu Aug 24 10:20:06 EDT 1989 -- support:navi_011(rel2)
+
+1989-03-14  dickey@software.org
+
+	* src/dedname.c: sccs2rcs keywords
+
+	* src/dedname.c: use 'dlog' module to log commands
+
+1989-03-14  ste_cm@software.org
+
+	* src/dedname.c: BASELINE Mon Jun 19 14:21:57 EDT 1989
+
+	* src/dedname.c: BASELINE Thu Apr  6 13:14:13 EDT 1989
+
+1989-03-14  dickey@software.org
+
+	* src/Makefile: added 'dlog.c' module
+
+	* src/Makefile: sccs2rcs keywords
+
 1989-03-13  dickey@software.org
 
 	* src/ftree.c: amended place where I checked result from @,/,? prompt

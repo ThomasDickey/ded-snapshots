@@ -1,12 +1,21 @@
 #ifndef	lint
-static	char	sccs_id[] = "@(#)dedname.c	1.3 88/09/12 15:18:42";
+static	char	sccs_id[] = "$Header: /users/source/archives/ded.vcs/src/RCS/dedname.c,v 3.0 1989/03/14 10:03:08 ste_cm Rel $";
 #endif	lint
 
 /*
  * Title:	dedname.c (ded rename)
  * Author:	T.E.Dickey
  * Created:	11 May 1988
- * Modified:
+ * $Log: dedname.c,v $
+ * Revision 3.0  1989/03/14 10:03:08  ste_cm
+ * BASELINE Mon Jun 19 14:21:57 EDT 1989
+ *
+ *		Revision 2.0  89/03/14  10:03:08  ste_cm
+ *		BASELINE Thu Apr  6 13:14:13 EDT 1989
+ *		
+ *		Revision 1.5  89/03/14  10:03:08  dickey
+ *		sccs2rcs keywords
+ *		
  *		12 Sep 1988, use 'pathcat()'
  *
  * Function:	Rename a file in the file-list, then perform cleanup of the
@@ -49,6 +58,7 @@ char	oldname[BUFSIZ],
 	bfr[BUFSIZ];
 
 	if (strcmp(strcpy(oldname, xNAME(x)), newname)) {
+		dlog_comment("rename \"%s\" (name=%s)\n", newname, xNAME(x));
 #ifdef	SYSTEM5
 		if (isFILE(xSTAT(x).st_mode)) {
 			if (link(oldname, newname) < 0) {

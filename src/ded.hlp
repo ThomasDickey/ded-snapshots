@@ -3,7 +3,7 @@ DED (Directory EDitor)
 
 Syntax:
 ------
-  ded [options] [file-specifications]
+  ded [options] [-l logfile] [file-specifications]
 
 Options:
 -------
@@ -149,8 +149,11 @@ Operations on Files:
   >		Edit link-text name of current symbolic link.  Editing is done
 		as in 'u' command, except that '>' completes command.  Links
 		which are grouped are renamed using the template formed by
-		your command.  The strings '%F' and '%B' are substituted to
-		the forward/backward directory-ring names.
+		your command.
+
+  <		Same as '>', save that The strings '%F' and '%B' are
+		substituted to the forward/backward directory-ring names,
+		and the '#' character to the name being edited..
 
   "		Repeat the last p/u/g/= command.  This uses the actual
 		set of characters typed for the command, so an editing

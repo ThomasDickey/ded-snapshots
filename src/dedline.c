@@ -1,12 +1,20 @@
 #ifndef	lint
-static	char	sccs_id[] = "@(#)dedline.c	1.12 89/01/25 12:53:49";
+static	char	sccs_id[] = "$Header: /users/source/archives/ded.vcs/src/RCS/dedline.c,v 2.0 1989/03/14 13:19:29 ste_cm Exp $";
 #endif	lint
 
 /*
  * Title:	dedline.c (directory-editor inline editing)
  * Author:	T.E.Dickey
  * Created:	01 Aug 1988 (from 'ded.c')
- * Modified:
+ * $Log: dedline.c,v $
+ * Revision 2.0  1989/03/14 13:19:29  ste_cm
+ * BASELINE Thu Apr  6 13:14:13 EDT 1989
+ *
+ *		Revision 1.14  89/03/14  13:19:29  dickey
+ *		sccs2rcs keywords
+ *		
+ *		14 Mar 1989, added '<' to do %F, %B, # substitution (was in '>')
+ *			     Interface to 'dlog'.
  *		23 Jan 1989, in '>', '=', do nothing if no text changed.
  *			     For '>', provide '%B' and '%F' expansion.
  *		02 Sep 1988, added 'editlink()'
@@ -49,13 +57,27 @@ replay(cmd)
 			c = lastedit[in_edit++];
 		}
 		if (!re_edit) {
-			c = cmdch((int *)0);
+			c = dlog_char((int *)0,0);
 			if (c == '\r') c = '\n';
 			lastedit[in_edit++] = c;
 			lastedit[in_edit]   = EOS;
 		}
 	}
 	return (c & 0xff);
+}
+
+/*
+ * Construct an editable-string for 'editname()' and 'editlink()'.
+ * All nonprinting characters will be shown as '?'.
+ */
+static
+char *
+name2bfr(dst,src)
+char	*dst;
+char	*src;
+{
+	(void)name2s(dst, BUFSIZ, src, FALSE);
+	return (dst);
 }
 
 /*
@@ -100,6 +122,7 @@ static
 relink(x, name)
 char	*name;
 {
+	dlog_comment("relink \"%s\" (link=%s)\n", name, xNAME(x));
 	if (unlink(xNAME(x)) >= 0) {
 		if (symlink(name, xNAME(x)) >= 0)
 			return (TRUE);
@@ -109,14 +132,72 @@ char	*name;
 	return (FALSE);
 }
 
+static	int	cmd_link;	/* true if we use short-form */
+
+/*
+ * Substitute a symbolic link into short-form, so that the 'subslink()' code
+ * can later expand it.
+ */
+static
+subspath(path, count, short_form, x)
+char	*path;
+char	*short_form;
+{
+	register char	*p = dedrung(count);
+	register int	len = strlen(p);
+	auto	 int	changed = FALSE;
+	auto	 char	tmp[BUFSIZ];
+
+	if (!path[len]) {		/* exact match ? */
+		if (!strcmp(path,p)) {
+			(void)strcpy(path, short_form);
+			changed = TRUE;
+		}
+	} else if (path[len] == '/') {	/* prefix-match ? */
+		if (!strncmp(path,p,len)) {
+			(void)strcpy(tmp, path+len);
+			(void)strcat(strcpy(path++, short_form), tmp);
+			changed = TRUE;
+		}
+	}
+	if (changed)
+		path += strlen(short_form);
+	len = strlen(xNAME(x));
+	while (*path) {			/* substitute current-name */
+		if (!strncmp(path, xNAME(x), len)) {
+			(void)strcpy(tmp, path+len);
+			(void)strcat(strcpy(path, "#"), tmp);
+		}
+		path++;
+	}
+	return (changed);
+}
+
 static
 char *
-subslink(bfr)
+link2bfr(dst, x)
+char	*dst;
+{
+	(void)name2bfr(dst, xLTXT(x));
+	if (cmd_link) {
+		if (!subspath(dst, 1, "%F", x))
+			(void)subspath(dst, -1, "%B", x);
+	}
+	return (dst);
+}
+
+/*
+ * Substitute user's short-hand notation back to normal link-text.
+ */
+static
+char *
+subslink(bfr,x)
 char	*bfr;
 {
 	auto	char	tmp[BUFSIZ];
 	register char	*s = strcpy(tmp, bfr);
 	register char	*d = bfr;
+	register char	*t;
 
 	while (*d = *s) {
 		if (*s++ == '%') {
@@ -128,26 +209,15 @@ char	*bfr;
 				d++;
 				s--;	/* point back just after '%' */
 			}
+		} else if (*d == '#') {
+			t = xNAME(x);
+			while (*d++ = *t++);
 		} else
 			d++;
 	}
 	return (bfr);
 }
 #endif	S_IFLNK
-
-/*
- * Construct an editable-string for 'editname()' and 'editlink()'.
- * All nonprinting characters will be shown as '?'.
- */
-static
-char *
-name2bfr(dst,src)
-char	*dst;
-char	*src;
-{
-	(void)name2s(dst, BUFSIZ, src, FALSE);
-	return (dst);
-}
 
 /************************************************************************
  *	public entrypoints						*
@@ -205,6 +275,8 @@ int	at_flag	= at_save();
 					statLINE(x);
 					changed++;
 					if (c != CHMOD(x)) {
+						dlog_comment("chmod %o %s\n",
+							c, xNAME(x));
 						if (chmod(xNAME(x), c) < 0) {
 							warn(xNAME(x));
 							break;
@@ -289,6 +361,7 @@ register char *s;
 int	at_flag	= ((endc == 'u') || (endc == 'g')) ? at_save() : FALSE;
 #endif	S_IFLNK
 
+	dlog_comment("before \"%s\"\n", bfr);
 	if (len < strlen(bfr) + 2)
 		len = strlen(bfr) + 2;
 	if ((col -= Xbase) < 1) {	/* convert to absolute column */
@@ -381,6 +454,8 @@ int	at_flag	= ((endc == 'u') || (endc == 'g')) ? at_save() : FALSE;
 		(void)at_last(FALSE); /* force stat on the files to cleanup */
 	}
 #endif	S_IFLNK
+	dlog_flush();
+	dlog_comment("after  \"%s\"\n", bfr);
 	return (code);
 }
 
@@ -520,20 +595,23 @@ editname()
 /*
  * Change file's link-text
  */
-editlink()
+editlink(cmd)
 {
 	auto	 int	col	= cmdcol[3] + 3,
 			changed	= 0;
 	register int	j;
 	auto	 char	bfr[BUFSIZ];
 
-#define	EDITLINK(n)	edittext('>', col, sizeof(bfr), name2bfr(bfr, xLTXT(n)))
+	cmd_link = (cmd == '<');
+
+#define	EDITLINK(n)	edittext(cmd, col, sizeof(bfr), link2bfr(bfr, n))
 	if (!cLTXT)
 		beep();
 	else {
 		move(file2row(curfile), cmdcol[3] - Xbase);
 		PRINTW("=> ");
-		if (EDITLINK(curfile) && strcmp(cLTXT, subslink(bfr))) {
+		if (EDITLINK(curfile)
+		&&  strcmp(cLTXT, subslink(bfr,curfile))) {
 			if (relink(curfile, bfr)) {
 				(void)dedsigs(TRUE);
 					/* reset interrupt count */
@@ -547,7 +625,7 @@ editlink()
 					}
 					if (xFLAG(j) && xLTXT(j)) {
 						(void)EDITLINK(j);
-						if (relink(j, bfr))
+						if (relink(j, subslink(bfr,j)))
 							changed++;
 						else
 							break;
