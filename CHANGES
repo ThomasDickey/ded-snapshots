@@ -1,3 +1,11 @@
+1990-07-27  dickey@software.org
+
+	* src/dedscan.c:
+	modified 'argstat()' and 'dedstat()' so that 'dedstat()' does
+	all of the stat-work.  Did this so that it calls 'statSCCS()'
+	for all directory arguments, making 'l' command work properly.
+	Also, this eliminates a redundant 'stat()' in 'argstat()'.
+
 1990-05-23  dickey@software.org
 
 	* src/ded.c: corrected bug in 'new_tree()' introduced in last change

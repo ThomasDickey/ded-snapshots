@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	Id[] = "$Id: dedscan.c,v 7.1 1990/05/16 08:02:22 dickey Exp $";
+static	char	Id[] = "$Id: dedscan.c,v 7.2 1990/07/27 08:28:37 dickey Exp $";
 #endif	lint
 
 /*
@@ -7,10 +7,16 @@ static	char	Id[] = "$Id: dedscan.c,v 7.1 1990/05/16 08:02:22 dickey Exp $";
  * Author:	T.E.Dickey
  * Created:	09 Nov 1987
  * $Log: dedscan.c,v $
- * Revision 7.1  1990/05/16 08:02:22  dickey
- * added code to strip prefixes which are common to the new-wd,
- * but not among the other arguments.
+ * Revision 7.2  1990/07/27 08:28:37  dickey
+ * modified 'argstat()' and 'dedstat()' so that 'dedstat()' does
+ * all of the stat-work.  Did this so that it calls 'statSCCS()'
+ * for all directory arguments, making 'l' command work properly.
+ * Also, this eliminates a redundant 'stat()' in 'argstat()'.
  *
+ *		Revision 7.1  90/05/16  08:14:49  dickey
+ *		added code to strip prefixes which are common to the new-wd,
+ *		but not among the other arguments.
+ *		
  *		Revision 7.0  90/04/25  13:35:39  ste_cm
  *		BASELINE Mon Apr 30 09:54:01 1990 -- (CPROTO)
  *		
@@ -113,6 +119,11 @@ extern	int	debug;
 #define	def_doalloc	FLIST_alloc
 	/*ARGSUSED*/
 	def_DOALLOC(FLIST)
+
+#define	N_UNKNOWN	-1	/* name does not exist */
+#define	N_FILE		0	/* a file */
+#define	N_DIR		1	/* a directory */
+#define	N_LDIR		2	/* symbolic link to a directory */
 
 static	int	dir_order;
 
@@ -337,18 +348,18 @@ char	*name;
 FLIST	*f_;
 {
 #ifdef	S_IFLNK
-int	len;
-char	bfr[BUFSIZ];
+	int	len;
+	char	bfr[BUFSIZ];
 #endif	S_IFLNK
+	int	code;
 
 	ReZero(f_);
 
 	if (lstat(name, &f_->s) < 0) {
 		ReZero(f_);	/* zero all but name-pointer */
-		return(-1);
+		return(N_UNKNOWN);
 	}
-	if (isDIR(f_->s.st_mode))
-		return(1);
+	code = isDIR(f_->s.st_mode) ? N_DIR : N_FILE;
 #ifdef	S_IFLNK
 	if (isLINK(f_->s.st_mode)) {
 		len = readlink(name, bfr, sizeof(bfr));
@@ -358,15 +369,17 @@ char	bfr[BUFSIZ];
 			f_->ltxt = txtalloc(bfr);
 			if (AT_opt
 			&&  (stat(name, &f_->s) >= 0)
-			&&  isDIR(f_->s.st_mode))
+			&&  isDIR(f_->s.st_mode)) {
 				ft_insert(name);
+				code = N_LDIR;
+			}
 		}
 	}
 #endif	S_IFLNK
 #ifdef	Z_RCS_SCCS
 	statSCCS(name, f_);
 #endif	Z_RCS_SCCS
-	return (0);
+	return (code);
 }
 
 /*
@@ -380,27 +393,19 @@ char	*name;
 {
 	FLIST	fb;
 	char	full[BUFSIZ];
+	int	code;
 
 	if (*name == '~')	/* permit "~" from Bourne-shell */
 		abshome(name = strcpy(full, name));
 
 	Zero(&fb);
-	if (dedstat(name, &fb) >= 0) {
-#ifdef	S_IFLNK
-		if (!list && (fb.ltxt != 0)) {
-			struct	stat	sb;
-			if ((stat(name, &sb) >= 0)
-			&&  isDIR(sb.st_mode))
-				return(2);		/* link to directory */
-		}
-#endif	S_IFLNK
-		if (!(fb.ltxt || isDIR(fb.s.st_mode)) || list) {
-			blip('.');
+	if ((code = dedstat(name, &fb)) != N_UNKNOWN) {
+		blip(code == N_LDIR ? '@' : '.');
+		if (list)
 			append(name, &fb);
-		}
-		return(isDIR(fb.s.st_mode) ? 1 : 0);	/* directory ? */
-	}
-	return(-1);					/* not found */
+	} else
+		blip('?');
+	return (code);
 }
 
 /************************************************************************
