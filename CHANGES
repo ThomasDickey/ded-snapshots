@@ -1,3 +1,13 @@
+2004-09-07  Thomas E. Dickey  <dickey@invisible-island.net>
+
+	* src/dedline.c: implement -D option, for editing dates
+
+	* src/inline.c: tidying up whitespace
+
+	* src/ded.c: added -D option, for editing dates
+
+	* src/ded.h: implement -D option
+
 2004-03-18  Thomas E. Dickey  <dickey@invisible-island.net>
 
 	* src/dedname.c, src/ftree.c:

@@ -3,6 +3,7 @@
  * Author:	T.E.Dickey
  * Created:	01 Aug 1988 (from 'ded.c')
  * Modified:
+ *		07 Sep 2004, add editdate().
  *		07 Mar 2004, remove K&R support, indent'd
  *		01 Mar 1998, mods to build with OS/2 EMX 0.9b
  *		15 Feb 1998, remove special code for apollo sr10
@@ -57,7 +58,7 @@
 
 #include	"ded.h"
 
-MODULE_ID("$Id: dedline.c,v 12.27 2004/03/07 23:25:18 tom Exp $")
+MODULE_ID("$Id: dedline.c,v 12.28 2004/09/08 01:08:02 tom Exp $")
 
 #define	CHMOD(n)	(gSTAT(n).st_mode & 07777)
 #define	OWNER(n)	((geteuid() == 0) || (gSTAT(x).st_uid == geteuid()))
@@ -330,6 +331,51 @@ change_protection(RING * gbl)
     return changed;
 }
 
+static int
+day_of_month(time_t when)
+{
+    struct tm *tm = localtime(&when);
+    return tm->tm_mday;
+}
+
+static void
+toggle_timestamp(time_t * stamp, int field, int by)
+{
+    time_t when = *stamp;
+    int before;
+    int after;
+
+    /* datemask[] = "ddd mmm DD HH:MM:SS YYYY" */
+    switch (field) {
+    case 0:
+    case 2:
+	when += (by * DAY);
+	break;
+    case 1:
+	before = day_of_month(when);
+	when += (by * 30 * DAY);
+	after = day_of_month(when);
+	when += (before - after) * DAY;
+	break;
+    case 3:
+	when += (by * HOUR);
+	break;
+    case 4:
+	when += (by * MINUTE);
+	break;
+    case 5:
+	when += by;
+	break;
+    case 6:
+	before = day_of_month(when);
+	when += (by * 365 * DAY);
+	after = day_of_month(when);
+	when += (before - after) * DAY;
+	break;
+    }
+    *stamp = when;
+}
+
 /************************************************************************
  *	public entrypoints						*
  ************************************************************************/
@@ -340,15 +386,16 @@ change_protection(RING * gbl)
 void
 editprot(RING * gbl)
 {
-
     Stat_t *sb = &cSTAT;
     int y = file2row(gbl->curfile), x = 0, c;
 #ifdef	S_IFLNK
     int at_flag = at_save(gbl);
 #endif
-    int
-      opt = gbl->P_opt, changed = FALSE, done = FALSE, init = TRUE, oldmode
-    = sb->st_mode;
+    int opt = gbl->P_opt;
+    int changed = FALSE;
+    int done = FALSE;
+    int init = TRUE;
+    int oldmode = sb->st_mode;
 
     (void) save_Xbase(gbl, gbl->cmdcol[CCOL_PROT]);
 
@@ -364,8 +411,8 @@ editprot(RING * gbl)
 	}
 	showLINE(gbl, gbl->curfile);
 
-	rwx = (gbl->P_opt ? 1 : 3),
-	    cols[0] = gbl->cmdcol[CCOL_PROT];
+	rwx = (gbl->P_opt ? 1 : 3);
+	cols[0] = gbl->cmdcol[CCOL_PROT];
 	cols[1] = cols[0] + rwx;
 	cols[2] = cols[1] + rwx;
 
@@ -712,3 +759,105 @@ editlink(RING * gbl, int cmd)
     restat(gbl, changed);
 }
 #endif /* S_IFLNK */
+
+/*
+ * Edit the file's modification time.
+ */
+void
+editdate(RING * gbl, int current, int recur)
+{
+    static const char datemask[] = "ddd mmm DD HH:MM:SS YYYY";
+
+    Stat_t *sb = &gSTAT(current);
+    int y = file2row(current);
+    int x = 0;
+    int c;
+    int changed = FALSE;
+    int done = FALSE;
+    int init = TRUE;
+    time_t oldmtime = sb->st_mtime;
+    int cols[sizeof(datemask)];
+    int fields;
+
+    (void) save_Xbase(gbl, gbl->cmdcol[CCOL_DATE]);
+
+    ReplayStart('T');
+
+    for (c = fields = 0; datemask[c] != 0; ++c) {
+	if (c == 0 || (isalpha(datemask[c]) && datemask[c] != datemask[c-1])) {
+	    cols[fields++] = gbl->cmdcol[CCOL_DATE] + c;
+	}
+    }
+
+    while (!done) {
+	if (init) {
+	    x = 0;
+	    init = FALSE;
+	    sb->st_mtime = oldmtime;
+	}
+	showLINE(gbl, current);
+
+	move(y, cols[x]);
+	switch (c = ReplayChar()) {
+	case '\n':
+	case 'T':
+	    ReplayFinish();
+	    ++changed;
+	    fixtime(gbl, current);
+	    if (!recur) {
+		unsigned n;
+		edit_inline(TRUE);
+		for_each_file(gbl, n) {
+		    if (n != (unsigned) current && GROUPED(n)) {
+			editdate(gbl, n, TRUE);
+		    }
+		}
+		edit_inline(FALSE);
+	    }
+	    done = TRUE;
+	    break;
+	case 'q':
+	    ReplayQuit();
+	    done = TRUE;
+	    sb->st_mtime = oldmtime;
+	    break;
+	case TO_FIRST:
+	    x = 0;
+	    break;
+	case TO_LAST:
+	    x = fields - 1;
+	    break;
+	case KEY_UP:
+	    init = up_inline();
+	    break;
+	case KEY_DOWN:
+	    init = down_inline();
+	    break;
+	case KEY_RIGHT:
+	case '\f':
+	case ' ':
+	    if (x < fields - 1)
+		x++;
+	    else
+		beep();
+	    break;
+	case KEY_LEFT:
+	case '\b':
+	    if (x > 0)
+		x--;
+	    else
+		beep();
+	    break;
+	case '+':
+	    toggle_timestamp(&(sb->st_mtime), x, 1);
+	    break;
+	case '-':
+	    toggle_timestamp(&(sb->st_mtime), x, -1);
+	    break;
+	default:
+	    beep();
+	    break;
+	}
+    }
+    restat(gbl, changed);
+}

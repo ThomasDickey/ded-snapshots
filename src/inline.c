@@ -13,13 +13,13 @@
 
 #include	"ded.h"
 
-MODULE_ID("$Id: inline.c,v 12.8 2004/03/07 23:25:18 tom Exp $")
+MODULE_ID("$Id: inline.c,v 12.9 2004/09/08 01:03:31 tom Exp $")
 
 #define	ITEM	struct	_item
 ITEM {
     ITEM *link;
-    int topc,			/* top-character, if nested */
-      endc;			/* inline-edit toggle character */
+    int topc;			/* top-character, if nested */
+    int endc;			/* inline-edit toggle character */
     size_t play;		/* index into 'text' of playback */
     DYN *text;			/* the text to play/record */
     HIST *hist;			/* prior copies of 'text' */
@@ -114,8 +114,8 @@ show_item(int c, int cmd, ITEM * item)
     show_text(c, cmd, item->play, temp_t);
 }
 
-#define	SHOW(c,cmd,item)	show_item(c,cmd,item);
-#define	SHOW2(c,cmd)		show_text(c,cmd,0,"");
+#define	SHOW(c,cmd,item)	show_item(c,cmd,item)
+#define	SHOW2(c,cmd)		show_text(c,cmd,0,"")
 #else
 #define	SHOW(c,cmd,item)
 #define	SHOW2(c,cmd)
@@ -247,8 +247,8 @@ get_inline(RING * gbl, int c, int cmd)
 
     switch (cmd) {
     case C_TOPC:
-	SHOW2(c, cmd)
-	    my_topc = c;
+	SHOW2(c, cmd);
+	my_topc = c;
 	return EOS;
     case C_FIND:
     case C_INIT:
@@ -310,8 +310,8 @@ get_inline(RING * gbl, int c, int cmd)
 	p->play = 0;
     }
 
-    SHOW(c, cmd, find_item())
-	return (c & 0xff);
+    SHOW(c, cmd, find_item());
+    return (c & 0xff);
 }
 
 DYN **

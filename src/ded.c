@@ -3,6 +3,7 @@
  * Author:	T.E.Dickey
  * Created:	09 Nov 1987
  * Modified:
+ *		07 Sep 2004, add -D option for date-editing.
  *		07 Mar 2004, remove K&R support, indent'd
  *		03 Jul 2003, move dedsigs() after initscr() to avoid conflict
  *			     with ncurses' sigwinch() handler.
@@ -168,7 +169,7 @@
 
 #include <locale.h>
 
-MODULE_ID("$Header: /users/source/archives/ded.vcs/src/RCS/ded.c,v 12.75 2004/03/07 23:25:18 tom Exp $")
+MODULE_ID("$Header: /users/source/archives/ded.vcs/src/RCS/ded.c,v 12.76 2004/09/08 00:49:45 tom Exp $")
 
 #define	EDITOR	DEFAULT_EDITOR
 #define	BROWSE	DEFAULT_BROWSE
@@ -798,6 +799,13 @@ inline_command(RING * gbl, int c)
 	dedmake(gbl, c);
 	break;
 
+    case 'T':
+	if (edit_dates)
+	    editdate(gbl, gbl->curfile, FALSE);
+	else
+	    dedmsg(gbl, "Date-editing is disabled");
+	break;
+
     default:{
 	    char temp[80];
 	    FORMAT(temp, "no inline command (%c)", isprint(c) ? c : '?');
@@ -840,13 +848,17 @@ _MAIN
 #ifdef ACS_PLUS
     optBox = TRUE;
 #endif
-    while ((c = getopt(argc, argv, "abeGIiOPSTUZc:l:r:s:zdt:np")) != EOF)
+    while ((c = getopt(argc, argv, "abDeGIiOPSTUZc:l:r:s:zdt:np")) != EOF)
 	switch (c) {
 	case 'a':
 	    COMPLEMENT(gbl->A_opt);
 	    break;
 	case 'b':
 	    optBox = !optBox;
+	    break;
+	case 'D':
+	    edit_dates = TRUE;
+	    gbl->T_opt = TRUE;
 	    break;
 	case 'e':
 	    optInprocess = FALSE;
@@ -872,7 +884,8 @@ _MAIN
 	    COMPLEMENT(gbl->S_opt);
 	    break;
 	case 'T':
-	    COMPLEMENT(gbl->T_opt);
+	    if (!edit_dates)
+		COMPLEMENT(gbl->T_opt);
 	    break;
 #ifdef	apollo
 	case 'U':
@@ -1150,8 +1163,12 @@ _MAIN
 	    showFILES(gbl, gbl->S_opt != j);
 	    break;
 	case 'T':
-	    gbl->T_opt = one_or_both(j = gbl->T_opt, count);
-	    showFILES(gbl, gbl->T_opt != j);
+	    if (edit_dates) {
+		inline_command(gbl, ReplayInit(inline_nesting(gbl, c)));
+	    } else {
+		gbl->T_opt = one_or_both(j = gbl->T_opt, count);
+		showFILES(gbl, gbl->T_opt != j);
+	    }
 	    break;
 #ifdef	apollo
 	case 'U':
@@ -1300,6 +1317,7 @@ _MAIN
 			  inline_nesting(gbl,
 					 dlog_char(gbl, (int *) 0, FALSE)));
 	    ReplayTrim();	/* chop off endc */
+	    /* FALLTHRU */
 	case '"':
 	    inline_command(gbl, edit_inline(TRUE));
 	    break;
