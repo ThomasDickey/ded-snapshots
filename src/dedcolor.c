@@ -3,6 +3,7 @@
  * Author:	T.E.Dickey
  * Created:	10 Jul 1994
  * Modified:
+ *		09 Aug 1999, allow color names to be mixed case, in any order.
  *		09 Feb 1996, allow ISO 6429 codes to be used on non-Linux.
  *		16 Dec 1995, mods to override curses's sense of default color.
  *
@@ -15,7 +16,7 @@
  */
 #include "ded.h"
 
-MODULE_ID("$Id: dedcolor.c,v 12.12 1997/09/13 12:40:05 tom Exp $")
+MODULE_ID("$Id: dedcolor.c,v 12.13 1999/08/09 23:34:54 tom Exp $")
 
 #if HAVE_HAS_COLORS
 
@@ -96,6 +97,7 @@ private	void	SaveColor(
 		{"UNDERLINE",	A_UNDERLINE},
 		{"REVERSE",	A_REVERSE},
 		{"DIM",		A_DIM},
+		{"INVIS",	A_INVIS},
 		{"BLINK",	A_BLINK},
 		{"BOLD",	A_BOLD}
 	}, color_names[] = {
@@ -118,6 +120,7 @@ private	void	SaveColor(
 
 	/* patch: how can I get the values for color-pair #0? */
 
+	strlcpy(spec,spec);	/* simplify case-independent matches */
 	/* build up the attribute+color */
 	while (spec != 0 && *spec != EOS) {
 		char *next = strchr(spec, ';');
@@ -126,14 +129,17 @@ private	void	SaveColor(
 			(void)strclean(spec);
 		}
 		code = strtol(spec, &temp, 10);
+		found = FALSE;
 		if (temp != spec) {	/* there's a number */
+			found = TRUE;
 			switch(code) {
 			/* attributes */
 			case  1:	attr |= A_BOLD;		break;
+			case  2:	attr |= A_DIM;		break;
 			case  4:	attr |= A_UNDERLINE;	break;
 			case  5:	attr |= A_BLINK;	break;
 			case  7:	attr |= A_REVERSE;	break;
-			case  8:	attr |= A_DIM;		break;
+			case  8:	attr |= A_INVIS;	break;
 			/* text (foreground) color */
 			case 30:	forg = COLOR_BLACK;	break;
 			case 31:	forg = COLOR_RED;	break;
@@ -155,7 +161,7 @@ private	void	SaveColor(
 			}
 		} else {	/* non-number: keywords */
 			for (n = 0; n < SIZEOF(attr_names); n++) {
-				if (!strcmp(spec, attr_names[n].name)) {
+				if (!strucmp(spec, attr_names[n].name)) {
 					attr |= attr_names[n].code;
 					found = TRUE;
 					break;
@@ -167,7 +173,7 @@ private	void	SaveColor(
 		 && (temp = strchr(spec, '=')) != 0) {
 			temp++;
 			for (n = 0; n < SIZEOF(color_names); n++) {
-				if (!strcmp(temp, color_names[n].name)) {
+				if (!strucmp(temp, color_names[n].name)) {
 					if (*spec == 'f')
 						forg = color_names[n].code;
 					else
@@ -214,7 +220,7 @@ private	const	KEYWORD	*FindKeyword(
 	size_t	n;
 
 	for (n = 0; n < SIZEOF(keywords); n++)
-		if (!strcmp(keywords[n].name, name))
+		if (!strucmp(keywords[n].name, name))
 			return &(keywords[n]);
 	return 0;
 }
@@ -245,7 +251,7 @@ private	void	ParseColorFile (_AR0)
 				temp.name = txtalloc("SUFFIX");
 				temp.code = BySuffix;
 				temp.value = txtalloc(bfr);
-				SaveColor(&temp, strucpy(s,s));
+				SaveColor(&temp, s);
 			}
 			/* else, ignore keyword */
 		}

@@ -1,3 +1,11 @@
+1999-08-09  Thomas E. Dickey  <dickey@clark.net>
+
+	* src/dedcolor.c:
+	duh.  I never did test with the .dir_colors file using names.  debugged this
+	on SCO, added the ability to use mixed case names.
+
+	* src/cnames.rc: RCS_BASE
+
 1999-08-07  Thomas E. Dickey  <dickey@clark.net>
 
 	* src/ccodes.rc: updates from Slackware 3.6
