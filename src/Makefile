@@ -1,7 +1,9 @@
-# $Id: Makefile,v 10.3 1992/02/28 14:46:43 dickey Exp $
+# $Id: Makefile,v 10.4 1992/03/12 12:07:37 dickey Exp $
 # MAKE-file for directory editor
 #
 ####### (Environment) ##########################################################
+THIS	= ded
+
 B	= ../bin
 I	= ../../common/interface
 L	= ../../common/lib
@@ -11,7 +13,7 @@ COPY	= cp -p
 PUT	= rm -f $@; $(COPY) $? $@
 #
 ####### (Command-line Options) #################################################
-DED_H	= ded.h $I/ptypes.h $I/common.h $I/cmdch.h $I/dyn_string.h
+DED_H	= $(THIS).h $I/ptypes.h $I/common.h $I/cmdch.h $I/dyn_string.h
 
 INCLUDES= -I. -I$I
 CPP_OPTS= $(DEFINES) $(INCLUDES)
@@ -21,10 +23,9 @@ DATE	= echo '****'`date` >> $@
 LINTOPT	= $(CPP_OPTS) -ltd -lcurses -lapollo
 #
 ####### (Standard Lists) #######################################################
-ALL	= $B/ded $B/ded.hlp
-A	= ded.a
+ALL	= $B/$(THIS) $B/$(THIS).hlp
 CSRC	=\
-	ded.c \
+	$(THIS).c \
 	deddoit.c \
 	deddump.c \
 	dedfind.c \
@@ -47,34 +48,35 @@ CSRC	=\
 	showpath.c \
 	sortset.c
 HSRC	= \
-	ded.h \
+	$(THIS).h \
 	version.h
 #
+Z	= $(THIS).a
 OBJS	= \
-	deddoit.o \
-	deddump.o \
-	dedfind.o \
-	dedfree.o \
-	dedline.o \
-	dedmake.o \
-	dedname.o \
-	dedread.o \
-	dedring.o \
-	dedscan.o \
-	dedshow.o \
-	dedsigs.o \
-	dedsort.o \
-	dedtype.o \
-	deduniq.o \
-	dedwait.o \
-	ded2s.o \
-	dlog.o \
-	ftree.o \
-	showpath.o \
-	sortset.o
+	$Z(deddoit.o) \
+	$Z(deddump.o) \
+	$Z(dedfind.o) \
+	$Z(dedfree.o) \
+	$Z(dedline.o) \
+	$Z(dedmake.o) \
+	$Z(dedname.o) \
+	$Z(dedread.o) \
+	$Z(dedring.o) \
+	$Z(dedscan.o) \
+	$Z(dedshow.o) \
+	$Z(dedsigs.o) \
+	$Z(dedsort.o) \
+	$Z(dedtype.o) \
+	$Z(deduniq.o) \
+	$Z(dedwait.o) \
+	$Z(ded2s.o) \
+	$Z(dlog.o) \
+	$Z(ftree.o) \
+	$Z(showpath.o) \
+	$Z(sortset.o)
 #
-SOURCES	= Makefile README $(CSRC) $(HSRC) ded.hlp
-MAIN_O	= ded.o $A $(LIBS)
+SOURCES	= Makefile README $(CSRC) $(HSRC) $(THIS).hlp
+MAIN_O	= $(THIS).o $Z $(LIBS)
 #
 ####### (Standard Productions) #################################################
 all:		sources $(ALL)
@@ -87,22 +89,17 @@ run_tests:
 sources:	$(SOURCES)
 
 ####### (Details of Productions) ###############################################
-$B/ded:	$(MAIN_O)		; $(CC) -o $@ $(MAIN_O) -lcurses -ltermcap
-$B/ded.hlp:	ded.hlp		; $(PUT)
+$B/$(THIS):	$(MAIN_O)	; $(CC) -o $@ $(MAIN_O) -lcurses -ltermcap
+$B/$(THIS).hlp:	$(THIS).hlp	; $(PUT)
 #
-$A:	$(OBJS)
-	ar rv $@ $?
+$Z:	$(OBJS)
 	ranlib $@
 #
-archive: $(OBJS)
-	rm -f $A
-	ar rv $A ($OBJS)
-#
-ded.o:		$(DED_H) ded.c version.h
+$(THIS).o:	$(DED_H) $(THIS).c version.h
 $(OBJS):	$(DED_H)
-ded2s.o:	$I/acl.h
-dedscan:	$I/rcsdefs.h $I/sccsdefs.h
-ftree.o:	$I/rcsdefs.h $I/sccsdefs.h
+$Z(ded2s.o):	$I/acl.h
+$Z(dedscan.o:	$I/rcsdefs.h $I/sccsdefs.h
+$Z(ftree.o):	$I/rcsdefs.h $I/sccsdefs.h
 #
 ####### (Development) ##########################################################
 $(SOURCES):			; $(GET) $@
@@ -115,7 +112,12 @@ CPROTO	= cproto -e -i -fo'\\n\\t\\t' -fp'\\n\\t\\t'
 proto.h:	$(CSRC)		; $(CPROTO) $(CPP_OPTS) $? >$@
 
 .SUFFIXES:
-.SUFFIXES: .c .i .o .proto
+.SUFFIXES: .c .i .o .a .proto
 .c.o:		; $(CC) $(CPP_OPTS) $(CFLAGS) -c $<
+.c.a:
+	@echo compile $<
+	@$(CC) $(CFLAGS) $(CPP_OPTS) -c $*.c
+	@ar rv $@ $*.o
+	@rm -f $*.o
 .c.i:		; $(CC) $(CPP_OPTS) -E -C $< >$@
 .c.proto:	; $(CPROTO) $(CPP_OPTS) $< >$@

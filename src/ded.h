@@ -3,7 +3,7 @@
 
 #ifdef	MAIN
 #ifndef	lint
-static	char	*ded_h = "$Id: ded.h,v 10.2 1992/02/28 09:28:03 dickey Exp $";
+static	char	*ded_h = "$Id: ded.h,v 10.3 1992/03/12 12:13:38 dickey Exp $";
 #endif
 #endif	/* MAIN */
 
@@ -405,6 +405,7 @@ extern	int	dedsort(_ar0);
 /* *** "dedtype.c" *** */
 extern	int	dedtype(
 		_arx(char *,	name)
+		_arx(int,	inlist)
 		_arx(int,	binary)
 		_arx(int,	stripped)
 		_ar1(int,	isdir));

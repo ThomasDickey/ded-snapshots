@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	Id[] = "$Header: /users/source/archives/ded.vcs/src/RCS/ded.c,v 10.1 1992/02/28 09:28:53 dickey Exp $";
+static	char	Id[] = "$Header: /users/source/archives/ded.vcs/src/RCS/ded.c,v 10.2 1992/03/12 12:51:46 dickey Exp $";
 #endif
 
 /*
@@ -1670,11 +1670,11 @@ _MAIN
 			break;
 
 			/* page thru files in work area */
-	case 'h':	dedtype(howami,FALSE,FALSE,FALSE);
+	case 'h':	dedtype(howami,-1,FALSE,FALSE,FALSE);
 			c = 't';	/* force work-clear if 'q' */
 			break;
 	case 't':	if ((j = realstat(curfile, &sb)) >= 0)
-				dedtype(cNAME,(count != 1),(count>2),j);
+				dedtype(cNAME,curfile,(count != 1),(count>2),j);
 			break;
 
 	case '%':	/* execute shell command with screen refresh */
