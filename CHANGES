@@ -1,3 +1,7 @@
+1995-11-27  Thomas E. Dickey  <dickey@clark.net>
+
+	* src/ccodes.rc: RCS_BASE
+
 1995-11-06  Thomas E. Dickey  <dickey@clark.net>
 
 	* src/dedview.c:

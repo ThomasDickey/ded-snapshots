@@ -1,12 +1,6 @@
 #ifndef	DED_H
 #define	DED_H
 
-#ifdef	MAIN
-#if	!defined(NO_IDENT)
-static const char ded_h[] = "$Id: ded.h,v 12.38 1995/11/05 21:36:30 tom Exp $";
-#endif
-#endif	/* MAIN */
-
 /*
  * Created:	09 Nov 1987
  * Function:	Common definitions for 'ded' (directory editor)
@@ -22,6 +16,12 @@ static const char ded_h[] = "$Id: ded.h,v 12.38 1995/11/05 21:36:30 tom Exp $";
 #include	<ptypes.h>
 #include	<dyn_str.h>	/* dynamic strings */
 #include	<td_regex.h>	/* regular expressions */
+
+#ifdef	MAIN
+#if	!defined(NO_IDENT)
+static const char ded_h[] = "$Id: ded.h,v 12.39 1995/11/07 00:16:25 tom Exp $";
+#endif
+#endif	/* MAIN */
 
 #if HAVE_STDARG_H && PROTOTYPES
 #include	<stdarg.h>

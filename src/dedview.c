@@ -20,7 +20,7 @@
 
 #include	"ded.h"
 
-MODULE_ID("$Id: dedview.c,v 12.28 1995/11/06 01:00:05 tom Exp $")
+MODULE_ID("$Id: dedview.c,v 12.29 1995/11/07 00:56:15 tom Exp $")
 
 #define	MINLIST	2		/* minimum length of file-list + header */
 #define	MINWORK	3		/* minimum size of work-area */
@@ -189,6 +189,27 @@ private	RING *	quit_view (
 }
 
 /*
+ * Special hack to clear the remainder of the line if we've not already passed
+ * it.
+ */
+private	int	trim_at(
+	_AR1(int,	line))
+	_DCL(int,	line)
+{
+	int	y, x;
+
+	getyx(stdscr, y, x);
+	if (y == line
+#if CURSES_LIKE_BSD44
+	 && (x+1 < wMaxX(stdscr))
+#endif
+	) {
+		clrtoeol();
+	}
+	return TRUE;
+}
+
+/*
  * Display the given line.  If it is tagged, highlight the name.
  */
 private	void	show_line(
@@ -204,7 +225,6 @@ private	void	show_line(
 	if (FILE_VISIBLE(vp,j)) {
 		int	line = FILE2ROW(vp,j);
 		int	trimmed = FALSE;
-		int	y, x;
 
 		move(line,0);
 		ded2s(gbl, j, bfr, sizeof(bfr));
@@ -229,8 +249,7 @@ private	void	show_line(
 			PRINTW("%.*s", COLS, &bfr[gbl->Xbase]);
 			if (len > 0) { /* filename is visible */
 				if (gFLAG(j)) {
-					clrtoeol();
-					trimmed = TRUE;
+					trimmed = trim_at(line);
 					move(line, col);
 					standout();
 					PRINTW("%.*s", len, &bfr[adj]);
@@ -239,8 +258,7 @@ private	void	show_line(
 #if HAVE_HAS_COLORS
 				else if (has_colors()
 				 && end > adj) {
-					clrtoeol();
-					trimmed = TRUE;
+					trimmed = trim_at(line);
 					move(line, col);
 					dedcolor(&(gENTRY(j)));
 					PRINTW("%.*s", end-adj, &bfr[adj]);
@@ -249,15 +267,8 @@ private	void	show_line(
 #endif /* HAVE_HAS_COLORS */
 			}
 		}
-		getyx(stdscr, y, x);
-		if (!trimmed
-		 && (line == y)		/* bsd4.3 curses wraps */
-#if CURSES_LIKE_BSD44
-		 && (x+1 < wMaxX(stdscr))
-#endif
-		   ) {
-			clrtoeol();
-		}
+		if (!trimmed)
+			(void)trim_at(line);
 	}
 }
 
