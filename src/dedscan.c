@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	Id[] = "$Id: dedscan.c,v 4.2 1989/10/06 07:52:44 dickey Exp $";
+static	char	Id[] = "$Id: dedscan.c,v 4.3 1989/10/12 09:21:02 dickey Exp $";
 #endif	lint
 
 /*
@@ -7,9 +7,12 @@ static	char	Id[] = "$Id: dedscan.c,v 4.2 1989/10/06 07:52:44 dickey Exp $";
  * Author:	T.E.Dickey
  * Created:	09 Nov 1987
  * $Log: dedscan.c,v $
- * Revision 4.2  1989/10/06 07:52:44  dickey
- * modified interface to 'showFILES()'
+ * Revision 4.3  1989/10/12 09:21:02  dickey
+ * only fall-thru to 'sccslast()' if we found *nothing* of rcs.
  *
+ *		Revision 4.2  89/10/06  09:38:03  dickey
+ *		modified interface to 'showFILES()'
+ *		
  *		Revision 4.1  89/10/04  17:09:47  dickey
  *		added A_opt code (permit dot-names)
  *		
@@ -367,7 +370,9 @@ FLIST	*f_;
 #ifdef	Z_RCS
 			LAST(rcslast);
 #ifdef	Z_SCCS
-			if (f_->z_time == 0)
+			if (f_->z_time == 0
+			&&  f_->z_vers[0] == '?'
+			&&  f_->z_lock[0] == '?')	/* fall-thru ? */
 #endif	Z_SCCS
 #endif	Z_RCS
 #ifdef	Z_SCCS

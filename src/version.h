@@ -1,11 +1,22 @@
 /*
  * Version-identifier for DED
  * $Log: version.h,v $
- * Revision 4.2  1989/10/04 17:02:38  dickey
- * added code for apollo/sr10.1: show extended acls, added
- * options '-a' and '-O', with corresponding commands '&' and
- * 'O', sorts 'o' and 'O'.
+ * Revision 5.0  1989/10/12 16:13:59  ste_cm
+ * BASELINE Fri Oct 27 12:27:25 1989 -- apollo SR10.1 mods + ADA_PITS 4.0
  *
+ *		Revision 4.3  89/10/12  16:13:59  dickey
+ *		tuned apollo sr10.1 code (type-uid display).
+ *		make "2G" and "2I" commands show double-columns of info.
+ *		enhanced treatment of 'cmdcol[]' for better alignment.
+ *		protect against chmod of extended-acls
+ *		refined "st" command to handle "." and DSEE files.
+ *		corrected RCS/SCCS display to show version/locker always.
+ *		
+ *		Revision 4.2  89/10/04  17:02:38  dickey
+ *		added code for apollo/sr10.1: show extended acls, added
+ *		options '-a' and '-O', with corresponding commands '&' and
+ *		'O', sorts 'o' and 'O'.
+ *		
  *		Revision 4.1  89/08/25  09:30:42  dickey
  *		revised window-repainting (to reduce number of malloc/free
  *		calls, which causes my apollo vt100 to barf).  Finished the
@@ -96,4 +107,4 @@
  * 01 Dec 1987, added '*', '^' commands, made '%' refresh screen
  * 25 Nov 1987, added sccs-support (V,z,Z toggles, V,z,Z sorts)
  */
-static	char	version[] = "$Date: 1989/10/04 17:02:38 $";
+static	char	version[] = "$Date: 1989/10/12 16:13:59 $";

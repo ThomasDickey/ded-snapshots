@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	what[] = "$Id: dedline.c,v 4.1 1989/10/06 07:52:15 dickey Exp $";
+static	char	what[] = "$Id: dedline.c,v 4.2 1989/10/12 14:30:55 dickey Exp $";
 #endif	lint
 
 /*
@@ -7,9 +7,14 @@ static	char	what[] = "$Id: dedline.c,v 4.1 1989/10/06 07:52:15 dickey Exp $";
  * Author:	T.E.Dickey
  * Created:	01 Aug 1988 (from 'ded.c')
  * $Log: dedline.c,v $
- * Revision 4.1  1989/10/06 07:52:15  dickey
- * modified treatment of 'cmdcol[]' (cf: showFILES)
+ * Revision 4.2  1989/10/12 14:30:55  dickey
+ * altered format so that uid,gid columns are not necessarily
+ * obscured (G_opt == 2).  also, prevent chmod if object has
+ * extended acls -- and user is not owner (prevents trouble!)
  *
+ *		Revision 4.1  89/10/06  09:40:17  dickey
+ *		modified treatment of 'cmdcol[]' (cf: showFILES)
+ *		
  *		Revision 4.0  89/08/11  14:26:07  ste_cm
  *		BASELINE Thu Aug 24 10:20:06 EDT 1989 -- support:navi_011(rel2)
  *		
@@ -309,6 +314,14 @@ int	at_flag	= at_save();
 					if (c != CHMOD(x)) {
 						dlog_comment("chmod %o %s\n",
 							c, xNAME(x));
+#ifdef	apollo_sr10
+						if (has_extended_acl(x)
+						&& xSTAT(x).st_uid != getuid()){
+							errno = EPERM;
+							warn(xNAME(x));
+							break;
+						}
+#endif
 						if (chmod(xNAME(x), c) < 0) {
 							warn(xNAME(x));
 							break;
@@ -497,8 +510,8 @@ int	uid	= cSTAT.st_uid,
 	changed	= FALSE;
 char	bfr[BUFSIZ];
 
-	if (G_opt) {
-		G_opt = FALSE;
+	if (G_opt == 1) {
+		G_opt = 0;
 		showFILES(FALSE);
 	}
 	if (edittext('u', cmdcol[CCOL_UID], UIDLEN, strcpy(bfr, uid2s(uid)))
@@ -537,10 +550,10 @@ int	gid	= cSTAT.st_gid,
 char	bfr[BUFSIZ];
 
 	if (!G_opt) {
-		G_opt = TRUE;
+		G_opt = 1;
 		showFILES(FALSE);
 	}
-	if (edittext('g', cmdcol[CCOL_UID], UIDLEN, strcpy(bfr, gid2s(gid)))
+	if (edittext('g', cmdcol[CCOL_GID], UIDLEN, strcpy(bfr, gid2s(gid)))
 	&&  (gid = s2gid(bfr)) >= 0) {
 	char	newgrp[BUFSIZ];
 	static	char	*fmt = "chgrp -f %s %s";

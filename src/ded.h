@@ -1,4 +1,6 @@
-/* $Id: ded.h,v 4.3 1989/10/06 08:08:45 dickey Exp $ */
+#ifdef	MAIN
+static	char	*ded_h = "$Id: ded.h,v 5.0 1989/10/12 14:13:19 ste_cm Rel $";
+#endif
 
 /*
  * Created:	09 Nov 1987
@@ -9,11 +11,12 @@
 #define		STR_PTYPES	/* use "strrchr" */
 #include	"ptypes.h"
 #include	<ctype.h>
+#include	<sys/errno.h>
 #include	"cmdch.h"
 extern	char	*getenv();
+extern	int	errno;
 
-extern	char	*doalloc(),	/* (re)allocate memory		*/
-		*gethome(),	/* find home-directory		*/
+extern	char	*gethome(),	/* find home-directory		*/
 		*gid2s(),	/* translate gid to string	*/
 		*uid2s();	/* translate uid to string	*/
 
@@ -123,11 +126,12 @@ typedef	struct	{
 			/* markers for column-beginnings */
 #define	CCOL_PROT	0
 #define	CCOL_UID	1
-#define	CCOL_DATE	2
-#define	CCOL_CMD	3
-#define	CCOL_NAME	4
+#define	CCOL_GID	2
+#define	CCOL_DATE	3
+#define	CCOL_CMD	4
+#define	CCOL_NAME	5
 			/* total number of columns */
-#define	CCOL_MAX	5
+#define	CCOL_MAX	6
 
 /*
  * Global data (cf: dedring.c)

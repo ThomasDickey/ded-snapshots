@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	what[] = "$Id: ded.c,v 4.4 1989/10/06 08:12:33 dickey Exp $";
+static	char	what[] = "$Id: ded.c,v 5.0 1989/10/12 15:36:54 ste_cm Rel $";
 #endif	lint
 
 /*
@@ -7,10 +7,16 @@ static	char	what[] = "$Id: ded.c,v 4.4 1989/10/06 08:12:33 dickey Exp $";
  * Author:	T.E.Dickey
  * Created:	09 Nov 1987
  * $Log: ded.c,v $
- * Revision 4.4  1989/10/06 08:12:33  dickey
- * modified 'showFILES()' so that on certain calls we reset the
- * 'cmdcol[]' array.
+ * Revision 5.0  1989/10/12 15:36:54  ste_cm
+ * BASELINE Fri Oct 27 12:27:25 1989 -- apollo SR10.1 mods + ADA_PITS 4.0
  *
+ *		Revision 4.5  89/10/12  15:36:54  dickey
+ *		converted 'I', 'G' commands to three-state toggles
+ *		
+ *		Revision 4.4  89/10/06  09:37:01  dickey
+ *		modified 'showFILES()' so that on certain calls we reset the
+ *		'cmdcol[]' array.
+ *		
  *		Revision 4.3  89/10/04  16:46:48  dickey
  *		added -a, -O options
  *		added &, O toggles
@@ -174,6 +180,22 @@ static	char	sortc[] = ".cdgGilnNoOprstTuUwyvzZ";/* valid sort-keys */
 /************************************************************************
  *	local procedures						*
  ************************************************************************/
+
+/*
+ * Returns 0, 1 or 2 for a three-way toggle
+ */
+static
+one_or_both(opt,val)
+{
+	if (val == 0)
+		opt = 0;
+	else if (val == 1)
+		opt = !opt;
+	else
+		opt = 2;
+	return (opt);
+}
+
 static
 sortset(ord,opt)
 {
@@ -1181,8 +1203,12 @@ char	*argv[];
 	case '&':	A_opt = !A_opt;	/* sorry about inconsistency */
 			quit = !rescan(TRUE, strcpy(tpath, cNAME));
 			break;
-	case 'G':	G_opt = !G_opt; showFILES(FALSE);break;
-	case 'I':	I_opt = !I_opt; showFILES(TRUE); break;
+	case 'G':	G_opt = one_or_both(j = G_opt,count);
+			showFILES((G_opt != 2) != (j != 2));
+			break;
+	case 'I':	I_opt = one_or_both(j = I_opt,count);
+			showFILES(I_opt != j);
+			break;
 #ifdef	apollo_sr10
 	case 'O':	O_opt = !O_opt; showFILES(TRUE); break;
 #endif
