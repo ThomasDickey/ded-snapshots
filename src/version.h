@@ -1,5 +1,6 @@
 /*
  * Version-identifier for DED
+ * 16 May 1988, added I,U toggles to ftree.  RCS mods.  Fixed 'resizewin()'.
  * 11 May 1988, first cut at renaming directories.
  * 10 May 1988, use 'txtalloc()' to reduce the amount of malloc/realloc.
  * 09 May 1988, ported from Apollo to Sun (gould).
@@ -17,4 +18,4 @@
  * 01 Dec 1987, added '*', '^' commands, made '%' refresh screen
  * 25 Nov 1987, added sccs-support (V,z,Z toggles, V,z,Z sorts)
  */
-static	char	version[] = "@(#)DED Directory Editor (88/05/11 13:25:50)";
+static	char	version[] = "@(#)DED Directory Editor (88/05/16 07:40:23)";

@@ -1,4 +1,4 @@
-/* @(#)ded.h	1.10 88/05/11 12:24:04 */
+/* @(#)ded.h	1.11 88/05/16 14:50:17 */
 
 /*
  * Created:	09 Nov 1987
@@ -10,8 +10,7 @@
 #include	<sys/stat.h>
 #include	<sys/dir.h>
 #include	"cmdch.h"
-extern	char	*getcwd(),
-		*getenv(),
+extern	char	*getenv(),
 		*strcat(),
 		*strcpy();
 
@@ -62,9 +61,12 @@ static	struct	direct	dbfr;
 extern	void	free(), qsort();
 #define	lstat	stat
 #define	utimes	utime
+#define	getwd(p)	getcwd(p,sizeof(p)-2)
+extern	char	*getcwd();
 typedef struct screen { char	dummy; };
 #else	SYSTEM5
 extern		free(), qsort();
+extern	char	*getwd();
 typedef char	chtype;		/* sys5-curses data-type */
 #define	strchr	index
 #define	strrchr	rindex

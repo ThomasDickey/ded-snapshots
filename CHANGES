@@ -1,3 +1,29 @@
+1988-05-16  dickey@software.org
+
+	* src/dedring.c: getcwd/getwd porting.
+
+	* src/dedscan.c: getwd/getcwd porting.
+
+	* src/ded.c, src/ded.h: getcwd/getwd porting.
+
+	* src/README: more bugs
+
+	* src/ftree.c: patched intermittent refresh of 'dedrang()' markers.
+
+	* src/version.h: resizewin fixed!
+
+	* src/ded.c:
+	permit 'tb' walkback after failure on Apollo by using 'kill' rather than 'exit()'.
+
+	* src/dedscan.c: do ft_linkto only for links to directory.
+
+	* src/README: new version, new bugs
+
+	* src/ftree.c:
+	Added I, U commands.  Added 'RCS' under 'sccs'-directory treatment.
+
+	* src/ded.hlp: added I, U toggles to ftree.
+
 1988-05-13  dickey@software.org
 
 	* src/Makefile: make this portable to Gould.

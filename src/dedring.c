@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	sccs_id[] = "@(#)dedring.c	1.8 88/05/10 13:18:23";
+static	char	sccs_id[] = "@(#)dedring.c	1.9 88/05/16 14:52:21";
 #endif	lint
 
 /*
@@ -384,12 +384,11 @@ char	tmp[BUFSIZ];
 #ifndef	SYSTEM5
 			/*
 			 * Coerce translation of pathnames in case part of the
-			 * path was a symbolic link.  We assume that 'getcwd()'
+			 * path was a symbolic link.  We assume that 'getwd()'
 			 * does the work:
 			 */
 			if (chdir(new_wd) >= 0) {
-				if (strcmp(getcwd(new_wd, sizeof(new_wd)-2),
-						path)) {
+				if (strcmp(getwd(new_wd), path)) {
 					remove (path);
 					if (!(newp = ring_get(new_wd)))
 						newp = insert(new_wd, TRUE);
