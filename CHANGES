@@ -1,3 +1,81 @@
+1989-03-30  dickey@software.org
+
+	* test/run_test.sh:
+	use -t option of ded so we can ensure we have empty (known-state)
+	directory-tree.
+
+1989-03-30  ste_cm@software.org
+
+	* test/run_test.sh:
+	BASELINE Fri Oct 27 12:27:25 1989 -- apollo SR10.1 mods + ADA_PITS 4.0
+
+	* test/run_test.sh: BASELINE Mon Jun 19 14:39:05 EDT 1989
+
+	* test/run_test.sh: BASELINE Thu Apr  6 13:28:24 EDT 1989
+
+	* test/run_test.sh:
+	BASELINE Thu Aug 24 10:31:56 EDT 1989 -- support:navi_011(rel2)
+
+1989-03-30  dickey@software.org
+
+	* test/test3.cmd: made this work from empty .ftree file in /tmp
+
+1989-03-30  ste_cm@software.org
+
+	* test/test3.cmd:
+	BASELINE Fri Oct 27 12:27:25 1989 -- apollo SR10.1 mods + ADA_PITS 4.0
+
+	* test/test3.cmd: BASELINE Mon Apr 30 09:54:01 1990 -- (CPROTO)
+
+	* test/test3.cmd:
+	BASELINE Mon Aug 13 15:06:41 1990 -- LINCNT, ADA_TRANS
+
+	* test/test3.cmd: BASELINE Mon Jun 10 10:09:56 1991 -- apollo sr10.3
+
+	* test/test3.cmd: BASELINE Mon Jun 19 14:39:05 EDT 1989
+
+	* test/test3.cmd: BASELINE Thu Apr  6 13:28:24 EDT 1989
+
+	* test/test3.cmd:
+	BASELINE Thu Aug 24 10:31:56 EDT 1989 -- support:navi_011(rel2)
+
+	* test/test3.cmd:
+	BASELINE Thu Mar 29 07:37:55 1990 -- maintenance release (SYNTHESIS)
+
+1989-03-30  dickey@software.org
+
+	* test/test2.cmd: made this work properly from empty .ftree file
+	also, edited file-owner to LOGNAME
+
+1989-03-30  ste_cm@software.org
+
+	* test/test2.cmd: BASELINE Thu Apr  6 13:28:24 EDT 1989
+
+1989-03-30  dickey@software.org
+
+	* test/edit_test.sh:
+	edit user-name (assumed to be file-owner!) to LOGNAME string.
+
+1989-03-30  ste_cm@software.org
+
+	* test/edit_test.sh:
+	BASELINE Fri Oct 27 12:27:25 1989 -- apollo SR10.1 mods + ADA_PITS 4.0
+
+	* test/edit_test.sh: BASELINE Mon Jun 19 14:39:05 EDT 1989
+
+	* test/edit_test.sh: BASELINE Thu Apr  6 13:28:24 EDT 1989
+
+	* test/edit_test.sh:
+	BASELINE Thu Aug 24 10:31:56 EDT 1989 -- support:navi_011(rel2)
+
+1989-03-30  dickey@software.org
+
+	* test/test1.cmd: altered so this runs from an empty .ftree file
+
+1989-03-30  ste_cm@software.org
+
+	* test/test1.cmd: BASELINE Thu Apr  6 13:28:24 EDT 1989
+
 1989-03-28  dickey@software.org
 
 	* src/Makefile: corrected 'destroy' rule

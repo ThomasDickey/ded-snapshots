@@ -1,7 +1,8 @@
 	# PROCESS BEGUN
 	# argv[0] = '../bin/ded'
-	# argv[1] = '-ctest3.cmd'
-	# argv[2] = '-ltest3.out'
+	# argv[1] = '-t/tmp'
+	# argv[2] = '-ctest3.cmd'
+	# argv[3] = '-ltest3.out'
 1cf	# before ""
 \tjunk_file\r
 	# after  "junk_file"
