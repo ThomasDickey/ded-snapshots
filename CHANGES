@@ -1,3 +1,74 @@
+1995-09-03  Thomas E. Dickey  <dickey@clark.net>
+
+	* src/dedring.c:
+	oops: I _don't_ want to copy base_of/item_of in ring_copy!
+
+	* src/dedring.c: use MODULE_ID
+
+	* src/dedview.c:
+	mods to keep the base_file value stable when switching viewports (to
+	make it easier to toggle between similar directories), and to keep
+	the curfile value for different viewports of the same list distinct.
+
+	* src/dedview.c: use MODULE_ID
+
+	* src/dedring.c: save base_of, item_of data
+
+	* src/ded.h:
+	added viewport stuff for keeping base_file/curfile more stable when
+	switching viewports
+
+	* src/dedscan.c:
+	moved warning message into path_RESOLVE, since it's argument is freed
+	there
+
+	* src/dedscan.c: use MODULE_ID
+
+	* src/deddoit.c: use MAXPATHLEN instead of BUFSIZ
+
+	* src/deddoit.c: use MODULE_ID
+
+	* src/dedring.c: put ifdef's inside debug-log defs for readability
+
+	* src/ded.c: use MAXPATHLEN instead of BUFSIZ
+	added flag 'first_scan'
+
+	* src/ded.c: use MODULE_ID
+
+	* src/dedscan.c:
+	mods to avoid a hole that results when path_RESOLVE is called while
+	processing 'R' command in a directory that's been removed (the parent
+	directory was already in the ring, and this caused the ring to get
+	a duplicate entry)
+
+	* src/ftree.c: use MAXPATHLEN in places where BUFSIZ isn't right
+
+	* src/dedname.c: use MAXPATHLEN instead of BUFSIZ
+
+	* src/dedname.c: use MODULE_ID
+
+	* src/dedmake.c: use MAXPATHLEN instead of BUFSIZ
+
+	* src/dedmake.c: use MODULE_ID
+
+	* src/dedline.c: use MAXPATHLEN instead of BUFSIZ
+
+	* src/dedline.c: use MODULE_ID
+
+	* src/ded.h: added variable 'first_scan'
+
+	* src/rcfile.c: use MODULE_ID
+
+	* src/ftree.c:
+	modified ft_remove to add 'dots' flag, so that when invoked from dedscan,
+	we don't accidentally purge dot-files from the .ftree database.
+
+	* src/dedscan.c:
+	modified interface of ft_remove() to take into account the extensions to
+	&-toggle (A_opt)
+
+	* src/ded.h: added 'dots' parm to ft_remove()
+
 1995-08-30  Thomas E. Dickey  <dickey@clark.net>
 
 	* src/ftree.c: set initial value of '&' from gbl->A_opt

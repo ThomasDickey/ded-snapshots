@@ -1,4 +1,4 @@
-MANIFEST for ded, version t19950830
+MANIFEST for ded, version t19950903
 --------------------------------------------------------------------------------
 MANIFEST                        this file
 COPYING                         copyright notice for DED
@@ -45,6 +45,7 @@ src/dlog.c                      logging functions
 src/ftree.c                     directory-tree for DED
 src/history.c                   save/restore history records
 src/inline.c                    split out from 'dedline.c' so I can rewrite the memory-management of the
+src/rcfile.c                    DED ".dedrc" file processing
 src/restat.c                    split off restat-stuff from 'ded.c'
 src/showpath.c                  encapsulates display of long pathnames for 'ded' and 'ftree', using
 src/sortset.c                   controls setting of sort-options & display/modification of preset option

@@ -1,7 +1,3 @@
-#if	!defined(NO_IDENT)
-static	char	Id[] = "$Id: deddoit.c,v 12.10 1994/07/24 00:33:59 tom Exp $";
-#endif
-
 /*
  * Title:	deddoit.c (do it for ded!)
  * Author:	T.E.Dickey
@@ -37,6 +33,8 @@ static	char	Id[] = "$Id: deddoit.c,v 12.10 1994/07/24 00:33:59 tom Exp $";
  * patch:	should permit repeat-count to 'r', 'e' commands, as well as F,B.
  */
 #include	"ded.h"
+
+MODULE_ID("$Id: deddoit.c,v 12.12 1995/09/03 20:08:15 tom Exp $")
 
 /*
  * Return a pointer to a leaf of a given name
@@ -87,8 +85,8 @@ private	void	Expand(
 	char *	cur_name =  cNAME;
 	Stat_t *cur_stat = &cSTAT;
 	FLIST *	cur_item = &cENTRY;
-	char	temp[BUFSIZ],
-		name[BUFSIZ],
+	char	temp[MAXPATHLEN],
+		name[MAXPATHLEN],
 		*from;
 
 	if (strchr("NHRET", code))

@@ -1,12 +1,10 @@
-#if	!defined(NO_IDENT)
-static	char	Id[] = "$Id: dedscan.c,v 12.18 1995/08/30 13:05:07 tom Exp $";
-#endif
-
 /*
  * Title:	dedscan.c (stat & scan argument lists)
  * Author:	T.E.Dickey
  * Created:	09 Nov 1987
  * Modified:
+ *		03 Sep 1995, modify path_RESOLVE to ensure that parent isn't
+ *			     already in ring (if so, return failure).
  *		30 Aug 1995, make A_opt apply to all dot-files
  *		03 Aug 1994, split out 'lastrev()'
  *		23 Jul 1994, force "." into empty filelists.
@@ -83,6 +81,8 @@ static	char	Id[] = "$Id: dedscan.c,v 12.18 1995/08/30 13:05:07 tom Exp $";
 #include	"cmv_defs.h"
 #include	"rcsdefs.h"
 #include	"sccsdefs.h"
+
+MODULE_ID("$Id: dedscan.c,v 12.22 1995/09/03 20:14:00 tom Exp $")
 
 #define	def_doalloc	FLIST_alloc
 	/*ARGSUSED*/
@@ -197,7 +197,7 @@ private	int	dedstat (
 {
 #ifdef	S_IFLNK
 	int	len;
-	char	bfr[BUFSIZ];
+	char	bfr[MAXPATHLEN];
 #endif
 	int	code;
 
@@ -245,7 +245,7 @@ private	int	argstat(
 	_DCL(int,	list)
 {
 	FLIST	fb;
-	char	full[BUFSIZ];
+	char	full[MAXPATHLEN];
 	int	code;
 
 	if (debug) {
@@ -283,7 +283,7 @@ public	int	dedscan (
 	auto	DirentT *de;
 	register int	j, k;
 	auto	 int	common = -1;
-	char	name[BUFSIZ];
+	char	name[MAXPATHLEN];
 	char	*s;
 
 	set_dedblip(gbl);
@@ -300,14 +300,13 @@ public	int	dedscan (
 	} else {
 		abshome(pathcat(gbl->new_wd, old_wd, argv[0]));
 		if (!path_RESOLVE(gbl, gbl->new_wd)) {
-			warn(gbl, gbl->new_wd);
 			return(0);
 		}
 
 		if ((common = argstat(gbl, gbl->new_wd, FALSE)) > 0) {
 				/* mark dep's for purge */
 			if (gbl->toscan == 0)
-				ft_remove(gbl->new_wd, gbl->AT_opt);
+				ft_remove(gbl->new_wd, gbl->AT_opt, gbl->A_opt);
 			else
 				init_scan(gbl);
 
@@ -531,7 +530,7 @@ private	char *	make_EXPR (
 	_AR1(char *,	path))
 	_DCL(char *,	path)
 {
-	char	temp[BUFSIZ],
+	char	temp[MAXPATHLEN],
 		*s = path,
 		*d = temp;
 	*d++ = '^';
@@ -559,9 +558,9 @@ private	char *	make_EXPR (
 
 /*
  * Change to the given directory, and then (try to) get an absolute path by
- * using the 'getwd()' function.  Note that the latter may fail if we follow
- * a symbolic link into a directory in which we have execute, but no read-
- * access. In this case we try to live with the link-text.
+ * using the 'getwd()' function.  Note that the latter may fail if we follow a
+ * symbolic link into a directory in which we have execute, but no read-
+ * access.  In this case we try to live with the link-text.
  */
 public	int	path_RESOLVE (
 	_ARX(RING *,	gbl)
@@ -570,13 +569,20 @@ public	int	path_RESOLVE (
 	_DCL(RING *,	gbl)
 	_DCL(char *,	path)
 {
-	char	temp[BUFSIZ];
+	char	temp[MAXPATHLEN];
+	char	*s;
 	static	int	tried;
 
 	if (chdir(strcpy(temp, path)) < 0) {
 		if (errno == ENOTDIR
 		 || errno == ENOENT) {
-			char *s = strrchr(temp, '/');
+			/*
+			 * Try to find the parent directory, then, and make a
+			 * pattern to match the leaf.  We'll do that only once,
+			 * to handle unresolved wildcards from the command
+			 * line.
+			 */
+			s = strrchr(temp, PATH_SLASH);
 			if (s != 0) {
 				s[1] = EOS;
 #ifdef	apollo
@@ -584,18 +590,34 @@ public	int	path_RESOLVE (
 #endif	/* apollo */
 				if (strcmp(temp, "/"))
 					s[0] = EOS;	/* trim trailing '/' */
+				/*
+				 * If we've already got the parent directory in
+				 * the ring, give up, removing this entry.
+				 */
+				if (ring_get(temp) != 0) {
+					warn(gbl, gbl->new_wd);
+					dedring(gbl, ".", 'Q', 1, FALSE, (char *)0);
+					return (FALSE);
+				}
 				if (chdir(temp) < 0)
 					return (FALSE);
-				if (!tried++)
+				if (first_scan && !tried++)
 					gbl->toscan = make_EXPR(path + (s - temp) + 1);
 			}
-		} else
+		} else {
+			warn(gbl, gbl->new_wd);
 			return(FALSE);
+		}
 	}
 
-	if (getwd(temp))
+#if HAVE_REALPATH
+	s = realpath(path, temp);
+#else
+	s = getwd(temp);
+#endif
+	if (s != 0) {
 		(void) strcpy(path, temp);
-	else {	/* for SunOS? */
+	} else {	/* for SunOS? */
 		FLIST	fb;
 		int	save = gbl->AT_opt;
 		int	code;
