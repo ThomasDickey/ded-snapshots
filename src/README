@@ -1,6 +1,7 @@
 To do:
 -----
-  Provide help from within workarea pager.
+	Provide help from within workarea pager.
+	Provide help from the directory tree.
 
   Make spawned processes inherit options from current one
 
@@ -36,9 +37,6 @@ To do:
 	inline code in ftree) to do a readlink/abspath/stat (on apollo at
 	least).
 
-	The 'h' and backspace command in ftree should not be sticky with
-	level.
-
 88/05/25:
 	Encountered bug (maybe apollo system) which caused vsize-call in
 	'resizewin()' to get strange values after toggling +/- commands
@@ -61,9 +59,6 @@ To do:
 	write to stderr.  I saw beep clobber an escape sequence on the gould.
 
 88/08/16:
-	In ftree, if I do a repeated 'q' or 'Q' command which exceeds the
-	number of actual ring-entries, I get a segment violation.
-
 	Also, sometimes the 'R' does not properly quit from the existing
 	ring entry when no files are found.
 
@@ -79,3 +74,18 @@ To do:
 	ft_rename() does not handle properly the "//" or "/" level stuff.
 
 	If '@'-toggle is active, stat-info sent to 'ft_insert()' will be wrong.
+
+88/09/06:
+	Consider another toggle in ftree to suppress names beginning with
+	'.' (e.g., 'A' or '.').
+
+	In '>' command (also, '=') don't try to perform change if none
+	occurred!
+
+	Should consider making the 'ft_linkto()' call from 'dedscan()'
+	only if we are running with '@' mode.  This would make ded run faster,
+	since we could dispense with the 'stat()' call.  First, optimize this
+	out by modifying calls/interface of 'ft_linkto()'
+
+88/09/07:
+	dedring's q/Q loop doesn't need repeat-count anymore.
