@@ -3,7 +3,7 @@
 
 #ifdef	MAIN
 #if	!defined(NO_IDENT)
-static	char	*ded_h = "$Id: ded.h,v 12.10 1994/04/26 22:51:20 tom Exp $";
+static	char	*ded_h = "$Id: ded.h,v 12.11 1994/05/24 01:04:24 tom Exp $";
 #endif
 #endif	/* MAIN */
 
@@ -14,15 +14,12 @@ static	char	*ded_h = "$Id: ded.h,v 12.10 1994/04/26 22:51:20 tom Exp $";
 
 #define		CUR_PTYPES	/* use "td_curse.h" */
 #define		CHR_PTYPES	/* use <ctype.h> */
+#define		OPN_PTYPES	/* use <fcntl.h> */
 #define		STR_PTYPES	/* use <string.h> */
 #include	<ptypes.h>
 #include	<dyn_str.h>
 #include	<ctype.h>
 #include	<errno.h>
-
-#if	defined(SYSTEM5)
-#include	<sys/fcntl.h>
-#endif
 
 #if defined(apollo)
 # if defined(__STDCPP__)

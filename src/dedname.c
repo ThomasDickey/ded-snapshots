@@ -1,5 +1,5 @@
 #if	!defined(NO_IDENT)
-static	char	Id[] = "$Id: dedname.c,v 12.4 1993/11/01 18:14:32 dickey Exp $";
+static	char	Id[] = "$Id: dedname.c,v 12.5 1994/05/24 01:01:32 tom Exp $";
 #endif
 
 /*
@@ -36,7 +36,13 @@ int	dedname(
 
 	if (strcmp(strcpy(oldname, gNAME(x)), newname)) {
 		dlog_comment("rename \"%s\" (name=%s)\n", newname, gNAME(x));
-#ifdef	OLD_SYSTEM5
+#if HAVE_RENAME
+		if (rename(oldname, newname) < 0) {
+			warn(gbl, newname);
+			return (-1);
+		}
+		ok = TRUE;
+#else
 		if (isFILE(gSTAT(x).st_mode)) {
 			if (link(oldname, newname) < 0) {
 				warn(gbl, newname);
@@ -54,13 +60,7 @@ int	dedname(
 			return (-1);
 		}
 		/* patch: should do 'system()' to rename directory, etc. */
-#else	/* !SYSTEM5 */
-		if (rename(oldname, newname) < 0) {
-			warn(gbl, newname);
-			return (-1);
-		}
-		ok = TRUE;
-#endif	/* SYSTEM5/!SYSTEM5 */
+#endif	/* HAVE_RENAME */
 		/*
 		 * If we renamed a directory, update ftree.
 		 */
