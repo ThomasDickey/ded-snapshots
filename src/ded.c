@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	what[] = "$Id: ded.c,v 3.1 1989/08/11 14:22:57 dickey Exp $";
+static	char	what[] = "$Id: ded.c,v 4.0 1989/08/22 16:31:22 ste_cm Rel $";
 #endif	lint
 
 /*
@@ -7,9 +7,16 @@ static	char	what[] = "$Id: ded.c,v 3.1 1989/08/11 14:22:57 dickey Exp $";
  * Author:	T.E.Dickey
  * Created:	09 Nov 1987
  * $Log: ded.c,v $
- * Revision 3.1  1989/08/11 14:22:57  dickey
- * added/used procedure 'move2row()'
+ * Revision 4.0  1989/08/22 16:31:22  ste_cm
+ * BASELINE Thu Aug 24 10:20:06 EDT 1989 -- support:navi_011(rel2)
  *
+ *		Revision 3.2  89/08/22  16:31:22  dickey
+ *		if user tries to apply 'E' command to symbolic-link-to-file,
+ *		edit instead the directory containing the target file.
+ *		
+ *		Revision 3.1  89/08/11  14:22:57  dickey
+ *		added/used procedure 'move2row()'
+ *		
  *		Revision 3.0  89/06/06  08:38:13  ste_cm
  *		BASELINE Mon Jun 19 14:21:57 EDT 1989
  *		
@@ -179,6 +186,29 @@ viewset()
 	Ylast	= Ynext + Ybase - (Yhead + MINLIST);
 	if (Ylast >= numfiles)	Ylast = numfiles-1;
 }
+
+#ifdef	S_IFLNK
+static
+edithead(dst, src)
+char	*dst,*src;
+{
+	extern	char		*pathhead();
+	auto	struct	stat	sb;
+
+	if (src != 0) {
+		dlog_comment("try to edit link-head \"%s\"\n", src);
+		(void)strcpy(dst, pathhead(strcpy(dst, src), &sb));
+		abspath(dst);
+		if (strcmp(dst, new_wd))
+			return (TRUE);
+	}
+	return (FALSE);		/* head would duplicate current directory */
+}
+#endif	S_IFLNK
+
+/************************************************************************
+ *	public	utility procedures					*
+ ************************************************************************/
 
 /*
  * Translate an index into the file-list to a row-number in the screen for the
@@ -1309,6 +1339,13 @@ char	tpath[BUFSIZ],
 					c, 1)) {
 					showC();
 				}
+#ifdef	S_IFLNK		/* try to edit head-directory of symbolic-link */
+			} else if (edithead(tpath, cLTXT)) {
+				markC(TRUE);
+				if (!new_args(tpath, c, 1)) {
+					showC();
+				}
+#endif	S_IFLNK
 			} else
 				dedmsg("not a directory");
 			break;

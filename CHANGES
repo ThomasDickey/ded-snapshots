@@ -1,3 +1,74 @@
+1989-08-22  dickey@software.org
+
+	* src/version.h:
+	augmented 'E' (enter-directory) when applied to symbolic
+	link to a file.
+
+1989-08-22  ste_cm@software.org
+
+	* src/version.h:
+	BASELINE Thu Aug 24 10:20:06 EDT 1989 -- support:navi_011(rel2)
+
+1989-08-22  dickey@software.org
+
+	* src/ded.c:
+	if user tries to apply 'E' command to symbolic-link-to-file,
+	edit instead the directory containing the target file.
+
+1989-08-22  ste_cm@software.org
+
+	* src/ded.c:
+	BASELINE Thu Aug 24 10:20:06 EDT 1989 -- support:navi_011(rel2)
+
+1989-08-22  dickey@software.org
+
+	* src/Makefile: corrected 'destroy' rule
+
+1989-08-22  ste_cm@software.org
+
+	* src/Makefile:
+	BASELINE Thu Aug 24 10:20:06 EDT 1989 -- support:navi_011(rel2)
+
+1989-08-22  dickey@software.org
+
+	* test/Makefile: corrected 'destroy' rule
+
+1989-08-22  ste_cm@software.org
+
+	* test/Makefile:
+	BASELINE Fri Oct 27 12:27:25 1989 -- apollo SR10.1 mods + ADA_PITS 4.0
+
+	* test/Makefile: BASELINE Mon Apr 30 09:54:01 1990 -- (CPROTO)
+
+	* test/Makefile: BASELINE Mon Aug 13 15:06:41 1990 -- LINCNT, ADA_TRANS
+
+	* test/Makefile: BASELINE Mon Jun 10 10:09:56 1991 -- apollo sr10.3
+
+	* test/Makefile:
+	BASELINE Thu Aug 24 10:31:56 EDT 1989 -- support:navi_011(rel2)
+
+	* test/Makefile:
+	BASELINE Thu Mar 29 07:37:55 1990 -- maintenance release (SYNTHESIS)
+
+1989-08-22  dickey@software.org
+
+	* Makefile: corrected 'destroy' rule
+
+1989-08-22  ste_cm@software.org
+
+	* Makefile:
+	BASELINE Fri Oct 27 12:27:25 1989 -- apollo SR10.1 mods + ADA_PITS 4.0
+
+	* Makefile: BASELINE Mon Apr 30 09:54:01 1990 -- (CPROTO)
+
+	* Makefile: BASELINE Mon Aug 13 15:06:41 1990 -- LINCNT, ADA_TRANS
+
+	* Makefile:
+	BASELINE Thu Aug 24 10:18:59 EDT 1989 -- support:navi_011(rel2)
+
+	* Makefile:
+	BASELINE Thu Mar 29 07:37:55 1990 -- maintenance release (SYNTHESIS)
+
 1989-08-11  dickey@software.org
 
 	* src/version.h: added a bit of error-recovery to 'read_char()'.
