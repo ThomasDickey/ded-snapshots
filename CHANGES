@@ -1,3 +1,15 @@
+2002-04-16  Thomas E. Dickey  <dickey@invisible-island.net>
+
+	* user/ded.man: check-manpage nits
+
+	* user/ded.man: implemented 3T command
+
+	* src/ded.hlp, src/ded.c: implemented 3T
+
+	* src/ded2s.c: implemented 3T (to show absolute seconds)
+
+	* src/dedsort.c: I_opt and G_opt may have values greater than 2
+
 2001-12-11  Thomas E. Dickey  <dickey@invisible-island.net>
 
 	* src/dlog.c: nit

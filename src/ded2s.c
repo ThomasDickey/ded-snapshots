@@ -61,7 +61,7 @@
 #include	<time.h>
 #include	<ctype.h>
 
-MODULE_ID("$Id: ded2s.c,v 12.25 2001/01/30 01:04:43 tom Exp $")
+MODULE_ID("$Id: ded2s.c,v 12.26 2002/04/16 10:16:12 tom Exp $")
 
 #if MAJOR_IN_MKDEV
 #  include	<sys/mkdev.h>
@@ -123,7 +123,9 @@ private	void	time2s(
 						/* 0123456789.123456789.123 */
 	t[24]	= ' ';				/* ddd mmm DD HH:MM:SS YYYY */
 
-	if (option == 2) {
+	if (option == 3) {
+		FORMAT(bfr, "%12ld ", (long) fdate);
+	} else if (option == 2) {
 		FORMAT(bfr, "%12.6f ", (now - fdate) / (24.0 * HOUR));
 	} else if (option == 1) {
 		(void)strcpy(bfr, t);
@@ -232,7 +234,7 @@ public	void	ded2s(
 #endif	/* apollo/unix */
 	else		FORMAT(bfr, "%3ld ", (long)s->st_nlink);
 	bfr += field(bfr,mj);
-	if (gbl->I_opt == 2)	{
+	if (gbl->I_opt >= 2)	{
 		FORMAT(bfr, "%08lx ", (long)s->st_dev);
 		bfr += field(bfr,mj);
 	}

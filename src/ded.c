@@ -3,6 +3,7 @@
  * Author:	T.E.Dickey
  * Created:	09 Nov 1987
  * Modified:
+ *		16 Apr 2002, make 'T' a 4-way toggle, showing seconds if T=3.
  *		30 Jan 2001, avoid aborting on initscr failure (use -d option,
  *			     or $DED_DEBUG variable to get this behavior).
  *		19 Oct 2000, add '-p' option to print selected pathnames.
@@ -161,7 +162,7 @@
 #define	MAIN
 #include	"ded.h"
 
-MODULE_ID("$Header: /users/source/archives/ded.vcs/src/RCS/ded.c,v 12.68 2001/01/30 09:56:00 tom Exp $")
+MODULE_ID("$Header: /users/source/archives/ded.vcs/src/RCS/ded.c,v 12.69 2002/04/16 10:17:16 tom Exp $")
 
 #define	EDITOR	DEFAULT_EDITOR
 #define	BROWSE	DEFAULT_BROWSE
@@ -186,7 +187,7 @@ static	char	whoami[MAXPATHLEN],	/* my execution-path */
  ************************************************************************/
 
 /*
- * Returns 0, 1 or 2 for a three-way toggle
+ * Returns 0, 1 or val for a multi-way toggle.  Normally 3 states.
  */
 private	int	one_or_both(
 	_ARX(int,	opt)
@@ -200,7 +201,7 @@ private	int	one_or_both(
 	else if (val == 1)
 		opt = !opt;
 	else
-		opt = 2;
+		opt = val;
 	return (opt);
 }
 
@@ -1149,7 +1150,7 @@ _MAIN
 			gbl = rescan(gbl, TRUE);
 			break;
 	case 'G':	gbl->G_opt = one_or_both(j = gbl->G_opt,count);
-			showFILES(gbl,(gbl->G_opt != 2) != (j != 2));
+			showFILES(gbl,(gbl->G_opt < 2) != (j < 2));
 			break;
 	case 'I':	gbl->I_opt = one_or_both(j = gbl->I_opt,count);
 			showFILES(gbl,gbl->I_opt != j);
