@@ -1,7 +1,3 @@
-#if	!defined(NO_IDENT)
-static	char	Id[] = "$Id: dedring.c,v 12.10 1995/09/04 00:20:50 tom Exp $";
-#endif
-
 /*
  * Title:	dedring.c (ded: ring of directories)
  * Author:	T.E.Dickey
@@ -54,6 +50,8 @@ static	char	Id[] = "$Id: dedring.c,v 12.10 1995/09/04 00:20:50 tom Exp $";
  */
 
 #include	"ded.h"
+
+MODULE_ID("$Id: dedring.c,v 12.11 1995/09/04 00:20:50 tom Exp $")
 
 #define	CMP_PATH(a,b)	pathcmp(a, b->new_wd)
 

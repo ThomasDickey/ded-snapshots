@@ -1,7 +1,3 @@
-#ifndef	NO_IDENT
-static	char	Id[] = "$Id: boxchars.c,v 12.4 1994/08/12 21:09:59 tom Exp $";
-#endif
-
 /*
  * Author:	T.E.Dickey
  * Created:	16 Jul 1994
@@ -11,6 +7,8 @@ static	char	Id[] = "$Id: boxchars.c,v 12.4 1994/08/12 21:09:59 tom Exp $";
  *		alternate characters.
  */
 #include	"ded.h"
+
+MODULE_ID("$Id: boxchars.c,v 12.5 1994/08/12 21:09:59 tom Exp $")
 
 #undef	vline
 #undef	hline

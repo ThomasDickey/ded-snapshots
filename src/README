@@ -1,4 +1,4 @@
-$Id: README,v 12.12 1994/07/24 01:00:15 tom Exp $
+$Id: README,v 12.13 1995/09/04 21:49:58 tom Exp $
 
 --(TO-DO)----------------------------------------------------------------------
 
@@ -46,8 +46,6 @@ DED:
 	make all keys rebindable.
 	config-file to control edit-keys
 
-	rationalize e/E commands
-
 	&-command toggle _all_ hidden files
 
 	allow 'R' command to be interrupted (get partial-scan)
@@ -78,11 +76,6 @@ DED:
 	'system()', maybe get rid of problems with signals.
 
 	make a message-table instead of the beeping.
-
-	use nicer characters than "*" and "=>" in ftree
-
-	in directory-tree, allow 0, 1, 2, ..., $ to set the cursor to
-	the corresponding directory level.
 
 	find why ncurses doesn't make colors in color xterm.
 

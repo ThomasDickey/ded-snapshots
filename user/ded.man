@@ -1,4 +1,4 @@
-.\" $Id: ded.man,v 12.5 1995/04/22 21:12:50 tom Exp $
+.\" $Id: ded.man,v 12.6 1995/09/04 23:29:11 tom Exp $
 .if t .ds T \(tm
 .if n .ds T (tm)
 .
@@ -78,13 +78,21 @@ and runs in a UNIX environment.
 .
 .SH OPTIONS					\"**************************
 .PP
-Most options are the same as display-manipulation commands.
+Most command-line options are the same as display-manipulation commands.
 They
 include:
 .TP
 .B \-a
 show "." and ".." entries in each file
 list (see "\fB&\fR" toggle).
+.TP
+.B \-b
+use the box-character set for displaying the directory-tree and workspace
+ruler.
+.TP
+.B \-e
+modify the interpretation of the "e" command to spawn a new process of
+\fBded\fR when editing a directory.
 .TP
 .B \-G
 toggle user/group display field (initially
@@ -112,7 +120,7 @@ toggle date-display to long format.
 read user commands from the
 specified file.
 The commands are assumed to be in the same format
-as the logfile generated with the "\-\fBl\fR" option.
+as the log-file generated with the "\-\fBl\fR" option.
 Subprocesses
 do not (currently) inherit this option.
 .TP
@@ -192,7 +200,7 @@ of ".." construct).
 .SS Exiting From DED				\"**************************
 .PP
 To exit from \fBded\fR, you must be in the file list display.
-If you are in the directory tree, typing "\fBq\fR" (for \fBqui\fRt)
+If you are in the directory tree, typing "\fBq\fR" (for \fBquit\fR)
 will release the current file list and move to the next file list
 (if any).
 Typing "\fBQ\fR" moves backward. When only one
@@ -314,6 +322,8 @@ moves cursor to the last entry on screen.
 .TP
 .B ^
 repositions the screen with current line at the top.
+If the current line is already at the top, \fBded\fR toggles,
+putting it at the bottom of the screen.
 .PP
 Within either the file list or directory tree displays, you may scroll
 to different items in the ring of file lists.
@@ -516,7 +526,7 @@ sort by symbolic-link target-names
 sort, using "." characters as column-separators.
 .TP
 .B c
-last-change date
+last-change date (e.g., chmod)
 .TP
 .B d
 directory-order (i.e., order in which items
@@ -559,7 +569,10 @@ file-protection mask/mode.
 last-access (read) date
 .TP
 .B s
-file size
+file size (bytes)
+.TP
+.B S
+file size (blocks)
 .TP
 .B t
 file type (after first ".")
@@ -848,7 +861,7 @@ create symbolic link (initially with "." for text).
 Each "\fBc\fR" command opens the list at the current position.
 You must provide a name, using the same inline name-editing as the
 "\fB=\fR" command.
-When the name is complete (nonnull, and nonconflicting), \fBded\fR creates it.
+When the name is complete (non-null, and non-conflicting), \fBded\fR creates it.
 .PP
 The "\fBc\fR" commands may be repeated using the '"' command.
 .
@@ -942,11 +955,11 @@ move the workspace marker down \fIcount\fR lines,
 redisplay.
 .TP
 .B f
-scroll forward \fIcount\fR subscreens
+scroll forward \fIcount\fR sub-screens
 (also, the \fIspace\fR and \fInewline\fR keys).
 .TP
 .B b
-scroll backward \fIcount\fR subscreens (also, the \fIbackspace\fR key).
+scroll backward \fIcount\fR sub-screens (also, the \fIbackspace\fR key).
 .TP
 .I left-arrow
 scroll left \fIcount\fR/4 screens
@@ -1129,8 +1142,9 @@ with "\fB=>\fR".
 Enter a new file-list at the indicated directory-name.
 .TP
 .B e
-Enter a new \fBded\fR process with the indicated
-directory name.
+Enter a new \fBded\fR file-list with the indicated directory name.
+If you have specified "\-\fBe\fR" on the command line, \fBded\fR
+spawns a new process.
 .TP
 .B F
 Move forward (with wraparound) in the ring of file
@@ -1374,7 +1388,7 @@ control/B
 control/W \- usually word-erase
 .
 .PP
-Other text (which is buffered) contains no nonprinting characters.
+Other text (which is buffered) contains no non-printing characters.
 .
 .SS Apollo DOMAIN/IX Enhancements		\"**************************
 .PP
@@ -1428,10 +1442,9 @@ view the current file with the pad-editor.
 \fBDed\fR does not wait for the pad to be closed; it will proceed to accept
 new commands.
 .
-.SS X Windows Enhancments			\"**************************
+.SS X Windows Enhancements			\"**************************
 .PP
-If you are not running under the Apollo Display Manager, \fBded\fR
-tentatively assumes that you are running under X\ Windows\*R.
+\fBDed\fR assumes that you are running under X\ Windows\*R.
 In this case, if the program \fBxterm\fR is found in your execution
 path, \fBded\fR will permit the following commands:
 .TP
@@ -1446,6 +1459,55 @@ invoked by the "\fBv\fR" command) in an \fBxterm\fR process.
 \fBDed\fR does not wait for you to exit from this process; it
 will proceed to accept new commands.
 .
+.PP
+\fBDed\fR also allows you to move the cursor by clicking with the mouse.
+Double-click to edit a selected item.
+.
+.PP
+\fBDed\fR can also handle window-resizing events, when properly
+configured (e.g., with BSD4.x curses, or ncurses).
+When running in an xterm or similar terminal emulator which supports
+the SIGWINCH signal, \fBded\fR resizes the curses display structures.
+.
+.SS Color Displays				\"**************************
+If the curses libraries which you use to build \fBded\fR support color
+(e.g., SystemV or ncurses), \fBded\fR can display filenames in color.
+It is designed to use the \fI/etc/DIR_COLORS\fR file which supports the
+Linux color \fBls\fR program.
+.
+.PP
+\fBDed\fR looks for the color-file in one of the following locations:
+.
+.sp
+.RS
+.nf
+~/.ded_colors
+~/.dir_colors
+/etc/DIR_COLORS
+.fi
+.RE
+.
+.PP
+The color-file specifies terminal types that can display in color,
+and patterns and their corresponding colors.
+On Linux, the colors may be specified by a series of numbers.
+On all systems, \fBded\fR recognizes assignments of the form
+.
+.sp
+.RS
+.nf
+f=white
+b=blue
+.fi
+.RE
+.sp
+to specify the foreground and background of characters.
+.
+.PP
+\fBDed\fR does not attempt to manage the background color of your display,
+because that does not work well when mixed with interactive shell commands
+whose output goes to the workspace.
+.
 .SH ENVIRONMENT					\"**************************
 .PP
 \fBDed\fR uses the following environment variables:
@@ -1453,6 +1515,16 @@ will proceed to accept new commands.
 .B PATH
 used to establish where \fBded\fR is run from,
 so that the help file can be found.
+.TP
+.B DED_CM_LOOKUP
+specifies the order to use when looking for the last version of files
+in RCS, SCCS, CmVision.
+If you do not specify it, the default order is "rcs,sccs".
+.TP
+.B DED_TREE
+overrides the default location of the directory-tree database file.
+Use this to maintain separate database files on a system which has
+your home directory mounted on several hosts.
 .TP
 .B EDITOR
 overrides default editor invoked by "\fBe\fR" command (\fBvi\fR)
@@ -1479,7 +1551,7 @@ If not specified, \fBded\fR assumes "SCCS".
 .
 .SH FILES					\"**************************
 .PP
-When executed, \fBded\fR determines (by inspecting the zero'th
+When executed, \fBded\fR determines (by inspecting the zeroth
 argument passed to it by the shell, as well as the contents of the
 \fBPATH\fR variable) where it was executed from.
 Its help file \fIded.hlp\fR
@@ -1500,11 +1572,6 @@ the current one.
 Provide more transparent use of symbolic links (in the directory tree),
 including storing and showing link text.
 .PP
-Add a directory-rename command to the directory-tree display.
-Note
-that this would be the only command in the directory-tree to actually
-alter the directory structure.
-.PP
 Enhance the treatment of multiple viewports.
 This would permit the
 user to group files in one file list and then move the cursor to another
@@ -1523,4 +1590,4 @@ rcsput, rcsget, sccsput, sccsget
 .
 .SH AUTHOR:					\"**************************
 .PP
-Thomas Dickey (Software Productivity Consortium).
+Thomas Dickey (dickey@clark.net).

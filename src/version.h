@@ -1,7 +1,15 @@
 /*
- * $Id: version.h,v 12.6 1994/07/24 01:01:24 tom Exp $
+ * $Id: version.h,v 12.7 1995/09/04 23:25:43 tom Exp $
  * Version-identifier for DED
  * $Log: version.h,v $
+ * Revision 12.7  1995/09/04 23:25:43  tom
+ * changes to support autoconf, /etc/DIR_COLOR.  Added "-b" and "-e" options
+ * (temporary!), and extended &-toggle to all dot-files.  Some bug-fixes for
+ * ring-maintainence.  Modified viewport handling to make toggling between
+ * lists more stable.  In td_lib, added module to support CmVision, and
+ * environment variables $DED_TREE, $DED_CM_LOOKUP.  Also in td_lib, mods
+ * for resizing support with ncurses, and using btree to speedup uid2s, gid2s.
+ *
  * Revision 12.6  1994/07/24 01:01:24  tom
  * Allow '*' to have repeat count.
  * Handle empty directories better (force '.').
@@ -295,4 +303,4 @@
  * 01 Dec 1987, added '*', '^' commands, made '%' refresh screen
  * 25 Nov 1987, added sccs-support (V,z,Z toggles, V,z,Z sorts)
  */
-static	char	version[] = "$Date: 1994/07/24 01:01:24 $";
+static	char	version[] = "$Date: 1995/09/04 23:25:43 $";

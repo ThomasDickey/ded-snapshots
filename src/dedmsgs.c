@@ -1,7 +1,3 @@
-#if	!defined(NO_IDENT)
-static	char	Id[] = "$Id: dedmsgs.c,v 12.8 1994/07/02 20:04:09 tom Exp $";
-#endif
-
 /*
  * Title:	dedmsgs.c (directory-editor messages)
  * Author:	T.E.Dickey
@@ -14,6 +10,8 @@ static	char	Id[] = "$Id: dedmsgs.c,v 12.8 1994/07/02 20:04:09 tom Exp $";
  */
 
 #include	"ded.h"
+
+MODULE_ID("$Id: dedmsgs.c,v 12.9 1994/07/02 20:04:09 tom Exp $")
 
 /*
  * Clear the message-line

@@ -1,7 +1,3 @@
-#if	!defined(NO_IDENT)
-static	char	Id[] = "$Id: dedsort.c,v 12.6 1994/07/12 23:38:01 tom Exp $";
-#endif
-
 /*
  * Title:	dedsort.c (ded-sort)
  * Author:	T.E.Dickey
@@ -43,6 +39,8 @@ static	char	Id[] = "$Id: dedsort.c,v 12.6 1994/07/12 23:38:01 tom Exp $";
 #define	QSORT_SRC	FLIST
 #include	"ded.h"
 #include	"td_qsort.h"
+
+MODULE_ID("$Id: dedsort.c,v 12.7 1994/07/12 23:38:01 tom Exp $")
 
 #ifdef	apollo_sr10
 #include	<acl.h>

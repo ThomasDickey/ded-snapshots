@@ -1,7 +1,3 @@
-#if	!defined(NO_IDENT)
-static	char	Id[] = "$Id: dedtags.c,v 12.3 1994/07/12 17:44:00 tom Exp $";
-#endif
-
 /*
  * Title:	dedtags.c (directory-editor tag-file procedures)
  * Author:	T.E.Dickey
@@ -13,6 +9,8 @@ static	char	Id[] = "$Id: dedtags.c,v 12.3 1994/07/12 17:44:00 tom Exp $";
  */
 
 #include	"ded.h"
+
+MODULE_ID("$Id: dedtags.c,v 12.4 1994/07/12 17:44:00 tom Exp $")
 
 /*
  * Initialize counters associated with tags

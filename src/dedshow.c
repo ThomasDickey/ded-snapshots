@@ -1,7 +1,3 @@
-#if	!defined(NO_IDENT)
-static	char	Id[] = "$Id: dedshow.c,v 12.6 1994/07/24 00:48:52 tom Exp $";
-#endif
-
 /*
  * Title:	dedshow.c (ded show-text)
  * Author:	T.E.Dickey
@@ -23,6 +19,8 @@ static	char	Id[] = "$Id: dedshow.c,v 12.6 1994/07/24 00:48:52 tom Exp $";
  */
 
 #include	"ded.h"
+
+MODULE_ID("$Id: dedshow.c,v 12.7 1994/07/24 00:48:52 tom Exp $")
 
 public	void	dedshow2 (
 	_AR1(char *,	arg))
