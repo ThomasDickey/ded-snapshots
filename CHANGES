@@ -1,3 +1,13 @@
+1991-07-24  dickey@software.org
+
+	* src/ded.h: moved MAXPATHLEN definition to "ptypes.h"
+
+	* src/version.h: added command-substitution codes u,g,v,y
+
+	* src/ded.hlp: added notes about u,g,v,y substitutions
+
+	* src/deddoit.c: added codes u,g,v,y for non-pathname substitution
+
 1991-07-22  dickey@software.org
 
 	* src/ded.c: quote filename before using it in 'forkfile()'

@@ -1,4 +1,4 @@
-$Id: ded.hlp,v 9.4 1991/07/17 07:34:16 dickey Exp $
+$Id: ded.hlp,v 9.5 1991/07/24 12:16:45 dickey Exp $
 
 DED (Directory EDitor)
 ======================
@@ -225,6 +225,11 @@ Shell commands:
   r		Remove a trailing ".xxx" component, leaving root
   e		Remove all but trailing ".xxx" component
   t		Remove all leading pathname components, leave tail
+
+  u		entry's user-name
+  g		entry's group-name
+  v		last sccs/rcs version number ("?" if none)
+  y		user who has file locked with sccs or rcs ("?" if none)
 
   An uppercase N, H, R, E or T will cause DED to perform the substitution
   using the full pathname; the lowercase letters use only the name shown

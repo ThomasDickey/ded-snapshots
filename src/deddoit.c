@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	Id[] = "$Id: deddoit.c,v 9.2 1991/07/11 12:43:26 dickey Exp $";
+static	char	Id[] = "$Id: deddoit.c,v 9.3 1991/07/24 12:05:05 dickey Exp $";
 #endif
 
 /*
@@ -7,6 +7,7 @@ static	char	Id[] = "$Id: deddoit.c,v 9.2 1991/07/11 12:43:26 dickey Exp $";
  * Author:	T.E.Dickey
  * Created:	17 Nov 1987
  * Modified:
+ *		24 Jul 1991, added codes u,g,v,y
  *		18 Apr 1991, modified interface of 'dedwait()'
  *		16 Apr 1991, absorb backslash only when it precedes "#" or "%",
  *			     to make typing commands with backslashes simpler
@@ -32,7 +33,9 @@ static	char	Id[] = "$Id: deddoit.c,v 9.2 1991/07/11 12:43:26 dickey Exp $";
 #include	"ded.h"
 extern	char	*fixname();
 extern	char	*dedrung();
+extern	char	*gid2s();
 extern	char	*pathcat();
+extern	char	*uid2s();
 
 /*
  * Return a pointer to a leaf of a given name
@@ -123,6 +126,16 @@ char	*b_subs;
 	case 't':	/* Remove all leading pathname components, leave tail */
 			from = subleaf(name);
 			break;
+
+			/* non-pathname attributes */
+	case 'u':	from = uid2s((int)(cSTAT.st_uid));	break;
+	case 'g':	from = gid2s((int)(cSTAT.st_gid));	break;
+#ifdef	Z_RCS_SCCS
+	case 'v':	if (!(from = flist[curfile].z_vers)) from = "?";
+			break;
+	case 'y':	if (!(from = flist[curfile].z_lock)) from = "?";
+			break;
+#endif
 	default:
 			from = "?";
 	}

@@ -1,10 +1,13 @@
 /*
- * $Id: version.h,v 9.5 1991/07/17 07:45:18 dickey Exp $
+ * $Id: version.h,v 9.6 1991/07/24 12:18:05 dickey Exp $
  * Version-identifier for DED
  * $Log: version.h,v $
- * Revision 9.5  1991/07/17 07:45:18  dickey
- * added @-sort and D-sort
+ * Revision 9.6  1991/07/24 12:18:05  dickey
+ * added command-substitution codes u,g,v,y
  *
+ *		Revision 9.5  91/07/17  07:45:18  dickey
+ *		added @-sort and D-sort
+ *		
  *		Revision 9.4  91/07/12  08:21:59  dickey
  *		added CTL/G command
  *		
@@ -203,4 +206,4 @@
  * 01 Dec 1987, added '*', '^' commands, made '%' refresh screen
  * 25 Nov 1987, added sccs-support (V,z,Z toggles, V,z,Z sorts)
  */
-static	char	version[] = "$Date: 1991/07/17 07:45:18 $";
+static	char	version[] = "$Date: 1991/07/24 12:18:05 $";
