@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	Id[] = "$Id: dedfind.c,v 11.4 1992/08/17 12:59:31 dickey Exp $";
+static	char	Id[] = "$Id: dedfind.c,v 11.5 1992/08/24 08:19:32 dickey Exp $";
 #endif
 
 /*
@@ -47,7 +47,8 @@ public	void	dedfind(
 		refresh();
 
 		dyn_init(&text, BUFSIZ);
-		s = dlog_string(&text,(DYN **)0, &History, EOS, 0);
+		if (!(s = dlog_string(&text,(DYN **)0, &History, EOS, 0)))
+			return;
 		if (key == '/')	order = 1;
 		if (key == '?') order = -1;
 		next = order;

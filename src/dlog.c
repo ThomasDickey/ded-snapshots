@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	what[] = "$Id: dlog.c,v 11.18 1992/08/20 10:02:35 dickey Exp $";
+static	char	what[] = "$Id: dlog.c,v 11.20 1992/08/24 08:13:04 dickey Exp $";
 #endif
 
 /*
@@ -34,12 +34,11 @@ static	char	what[] = "$Id: dlog.c,v 11.18 1992/08/20 10:02:35 dickey Exp $";
 #include	<varargs.h>
 
 #define	NOW		time((time_t *)0)
-#define	CMD_LIMIT	BUFSIZ
 
 /* state of command-file (input) */
 static	FILE	*cmd_fp;
-static	char	*cmd_bfr,		/* most recently-read buffer */
-		*cmd_ptr;		/* points into cmd_bfr[] */
+static	DYN	*cmd_bfr;		/* most recently-read buffer */
+static	char	*cmd_ptr;		/* points into cmd_bfr */
 
 /* state of log-file (output) */
 static	FILE	*log_fp;
@@ -81,26 +80,35 @@ private	void	flush_pending _ONE(int,newline)
  */
 private	int	read_script(_AR0)
 {
-	register char	*s;
-
 	if (cmd_fp != 0) {
-		while (!*cmd_bfr || (cmd_ptr != 0 && !*cmd_ptr)) {
-			if (fgets(cmd_bfr, CMD_LIMIT, cmd_fp)) {
-				cmd_ptr = cmd_bfr;
-				for (s = cmd_bfr; *s; s++)
+		register char	*s;
+		int	join	= FALSE;
+		char	temp[BUFSIZ];
+
+		if (cmd_ptr == 0 || !*cmd_ptr) {
+			dyn_init(&cmd_bfr, BUFSIZ);
+			cmd_ptr = dyn_string(cmd_bfr);
+		}
+		while (	!*cmd_ptr || join) {
+			if (fgets(temp, sizeof(temp), cmd_fp)) {
+				for (s = temp, join = FALSE; *s; s++)
 					if (!isprint(*s)) {
+						join = (*s == '\t');
 						*s = EOS;
 						break;
 					}
+
+				cmd_bfr = dyn_append(cmd_bfr, temp);
+				cmd_ptr = dyn_string(cmd_bfr);
 			} else {
 				FCLOSE(cmd_fp);
-				cmd_fp = 0;
-				return (FALSE);	/* forced-close */
+				cmd_fp = 0;	/* forced-close */
+				break;
 			}
 		}
-		return (TRUE);	/* have text to process */
+		return *cmd_ptr;	/* have text to process */
 	}
-	return (FALSE);		/* no command-script to read */
+	return (FALSE);			/* no command-script to read */
 }
 
 /*
@@ -175,9 +183,8 @@ public	void	dlog_read _ONE(char *,name)
 {
 	if (!(cmd_fp = fopen(name, "r")))
 		failed(name);
-	if (!cmd_bfr)
-		cmd_bfr = doalloc(0, CMD_LIMIT);
-	*(cmd_ptr = cmd_bfr) = EOS;
+	dyn_init(&cmd_bfr, BUFSIZ);
+	cmd_ptr = dyn_string(cmd_bfr);
 }
 
 /*
@@ -292,7 +299,7 @@ public	char *	dlog_string(
 
 	/* make sure we have enough space to write result; don't delete it! */
 	if (!len)
-		len = CMD_LIMIT;
+		len = BUFSIZ;
 	*result = dyn_alloc(*result, (size_t)len+1);
 	buffer  = dyn_string(*result);
 
@@ -318,7 +325,6 @@ public	char *	dlog_string(
 		if (inline
 		 && (prior = dyn_string(trace))
 		 && (*prior != EOS)) {
-			dlog_comment("replay:%s\n", prior);
 			(void)wrawgets((WINDOW *)0,
 				buffer,
 				prefix,
@@ -417,10 +423,11 @@ public	char *	dlog_string(
 
 	PENDING(string,TRUE);
 
-	if (done == TRUE)
+	if (done == TRUE) {
 		put_history(history, to_hist);
-
-	return buffer;
+		return buffer;
+	}
+	return 0;	/* if quit, return null */
 }
 
 /*

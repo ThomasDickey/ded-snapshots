@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	Id[] = "$Id: ftree.c,v 11.8 1992/08/20 10:27:44 dickey Exp $";
+static	char	Id[] = "$Id: ftree.c,v 11.10 1992/08/24 08:31:32 dickey Exp $";
 #endif
 
 /*
@@ -1287,12 +1287,13 @@ public	RING *	ft_view(
 			clrtoeol();
 
 			dyn_init(&my_text,1);
-			s = dlog_string(
-				&my_text,
-				(DYN **)0,
-				NO_HISTORY,
-				EOS,
-				MAXPATHLEN);
+			if (!(s = dlog_string(
+					&my_text,
+					(DYN **)0,
+					NO_HISTORY,
+					EOS,
+					MAXPATHLEN)))
+				break;
 
 			if (!strcmp(s, "$"))
 				c = FDlast;
@@ -1322,12 +1323,13 @@ public	RING *	ft_view(
 
 				my_text = dyn_copy(my_text,
 					(c == '~') ? "~" : cwdpath);
-				s = dlog_string(
-					&my_text,
-					(DYN **)0,
-					j ? &JumpHistory : &FindHistory,
-					EOS,
-					MAXPATHLEN);
+				if (!(s = dlog_string(
+						&my_text,
+						(DYN **)0,
+						j ? &JumpHistory : &FindHistory,
+						EOS,
+						MAXPATHLEN)))
+					s = "";
 
 				if (!*s && c != '@') {
 					c = -1;
@@ -1365,12 +1367,13 @@ public	RING *	ft_view(
 				move(node2row(row),node2col(row,MAXLVL));
 
 				my_text = dyn_copy(my_text, ftree[row].f_name);
-				s = dlog_string(
-					&my_text,
-					(DYN **)0,
-					NO_HISTORY,
-					'=',
-					MAXPATHLEN);
+				if (!(s = dlog_string(
+						&my_text,
+						(DYN **)0,
+						NO_HISTORY,
+						'=',
+						MAXPATHLEN)))
+					break;
 
 				abspath(strcpy(bfr,s));
 
