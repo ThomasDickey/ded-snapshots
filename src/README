@@ -85,3 +85,7 @@ To do:
 	should add a repeat-count (interruptable) to 'l' and 'W' commands,
 	which would cause a periodic refresh of the selected items (time
 	interval?).
+
+88/08/16:
+	In ftree, if I do a repeated 'q' or 'Q' command which exceeds the
+	number of actual ring-entries, I get a segment violation.
