@@ -1,3 +1,14 @@
+1992-01-16  dickey@software.org
+
+	* src/version.h:
+	corrected an error in 'dedmake()' which broke replay-logic.
+	make 'ded' able to treat argument which is a single file.
+
+	* src/dedmake.c:
+	corrected a "little" bug which caused this to screw up the
+	state of the replay-logic in 'dedline()' if a user-error
+	was found.
+
 1992-01-02  dickey@software.org
 
 	* src/dedscan.c: make this handle "?" and "*" in initial argument
