@@ -1,3 +1,33 @@
+1992-09-04  dickey@software.org
+
+	* test/test4.cmd, test/test3.cmd: erase/to_left
+
+1992-09-04  ste_cm@software.org
+
+	* test/test3.cmd:
+	BASELINE Thu May  6 14:26:47 1993 -- split from CM_TOOLS #11
+
+1992-09-04  dickey@software.org
+
+	* src/dlog.c: in 'dlog_comment()', ensure that we format "%s" with only
+	printing characters (no newlines or other stuff!)
+
+1992-09-04  ste_cm@software.org
+
+	* src/dlog.c:
+	BASELINE Thu May  6 14:26:47 1993 -- split from CM_TOOLS #11
+
+1992-09-04  dickey@software.org
+
+	* src/dlog.c:
+	split up 'dlog_comment()' so I can get at the "%s" substitution
+	(and protect against embedded newlines, etc).
+
+	* src/README: implemented non-printing chars edit in 'wrawgets()'
+
+	* src/dedline.c: allow direct editing of non-printing characters via
+	'rawgets()'
+
 1992-09-02  dickey@software.org
 
 	* test/test5.cmd: stifled some stuff I didn't want in stderr

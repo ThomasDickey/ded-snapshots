@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	Id[] = "$Id: dedline.c,v 11.6 1992/08/24 08:32:15 dickey Exp $";
+static	char	Id[] = "$Id: dedline.c,v 11.7 1992/09/04 13:18:40 dickey Exp $";
 #endif
 
 /*
@@ -66,21 +66,6 @@ static	char	Id[] = "$Id: dedline.c,v 11.6 1992/08/24 08:32:15 dickey Exp $";
 /************************************************************************
  *	local procedures						*
  ************************************************************************/
-
-/*
- * Construct an editable-string for 'editname()' and 'editlink()'.
- * All nonprinting characters will be shown as '?'.
- */
-private	char *	name2bfr(
-	_ARX(char *,	dst)
-	_AR1(char *,	src)
-		)
-	_DCL(char *,	dst)
-	_DCL(char *,	src)
-{
-	(void)name2s(dst, BUFSIZ, src, FALSE);
-	return (dst);
-}
 
 #ifdef	S_IFLNK
 /*
@@ -205,7 +190,7 @@ private	char *	link2bfr(
 	_DCL(char *,	dst)
 	_DCL(int,	x)
 {
-	(void)name2bfr(dst, gLTXT(x));
+	(void)strcpy(dst, gLTXT(x));
 	if (cmd_link) {
 		static	struct	{
 			char	*code;
@@ -659,7 +644,7 @@ public	void	editname _ONE(RING *,gbl)
 	register int	j;
 	auto	 char	bfr[BUFSIZ];
 
-#define	EDITNAME(n)	EDITTEXT('=', CCOL_NAME, sizeof(bfr), name2bfr(bfr, n))
+#define	EDITNAME(n)	EDITTEXT('=', CCOL_NAME, sizeof(bfr), strcpy(bfr, n))
 
 	if (EDITNAME(cNAME) && strcmp(cNAME, bfr)) {
 		if (dedname(gbl, gbl->curfile, bfr) >= 0) {

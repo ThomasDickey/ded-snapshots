@@ -1,4 +1,4 @@
-$Id: README,v 11.1 1992/08/27 11:22:09 dickey Exp $
+$Id: README,v 11.2 1992/09/04 13:25:58 dickey Exp $
 
 --(TO-DO)----------------------------------------------------------------------
 
@@ -9,9 +9,6 @@ $Id: README,v 11.1 1992/08/27 11:22:09 dickey Exp $
 	all pathnames via the name_$get_path, this solves that problem at
 	the expense of two others: links are resolved, and the code runs
 	slower.
-
-88/05/06:
-	Repeat count on search (e.g., "/") commands?
 
 88/05/10:
 	There is a hole: if I resize in ftree, the unsavewin() may
@@ -53,6 +50,3 @@ $Id: README,v 11.1 1992/08/27 11:22:09 dickey Exp $
 	shell-commands).
 
 	allow link to soft-link (actually to the link-target).
-
-1992/aug/20:
-	in 'wrawgets()', display unprintable chars as '?'.

@@ -56,7 +56,7 @@ q
 	# after  "test"
 	# rename "test" (name=junk_link)
 1<	# before "../junk_link"
-\F\b\b\b\b\b\b\b\F\t\b\b\b\b\b\b\b\b\btest\n
+\F\L\L\L\L\L\L\L\F\t\b\b\b\b\b\b\b\b\btest\n
 	# after  "../test"
 	# relink "../test" (link=test)
 1@
