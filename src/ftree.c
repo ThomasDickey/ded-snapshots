@@ -1,11 +1,12 @@
 #ifndef	NO_SCCS_ID
-static	char	sccs_id[] = "@(#)ftree.c	1.22 88/04/22 09:14:58";
+static	char	sccs_id[] = "@(#)ftree.c	1.23 88/04/26 10:43:23";
 #endif
 
 /*
  * Author:	T.E.Dickey
  * Created:	02 Sep 1987
  * Modified:
+ *		26 Apr 1988, adjusted 'p' command so we position before changes.
  *		24 Mar 1988, moved under 'ded' directory to begin changes for
  *			     bsd4.2
  *		09 Dec 1987, began recoding to provide for long (BSD-style)
@@ -874,6 +875,7 @@ register int j;
 			return(c);
 
 		/* Scan/delete nodes */
+		case 'R':
 		case 'i':	if (ftree[row].f_mark & LINKED)
 					beep();
 				else
@@ -892,7 +894,19 @@ register int j;
 		case '_':	for (j = 0; j <= FDlast; j++)
 					markit(j,MARKED,FALSE);
 				break;
-		case 'p':	ft_purge();			break;
+		case 'p':	row = - (row + 1);
+				for (j = FDlast; j > 0; j--)
+					if (ftree[j].f_mark & MARKED)
+						row = 0;
+					else if (row == 0)
+						row = j;
+				ft_purge();
+				if (row >= 0) {
+					lvl = fd_level(row);
+					scroll_to(row);
+				} else
+					row = - (row + 1);
+				break;
 
 		/* Screen refresh */
 		case 'w':	showdiff = -1;
