@@ -1,3 +1,10 @@
+1998-09-17  Thomas E. Dickey  <dickey@clark.net>
+
+	* src/ded.c:
+	fix so the -i option "works" even when I don't have color, and
+	check the length of the command-line sort-options so I don't accidentally
+	assume "-swb" is the same as "-bsw"
+
 1998-07-21  Thomas E. Dickey  <dickey@clark.net>
 
 	* src/dedline.c: oops: wrong ifdef for chown vs chgrp
