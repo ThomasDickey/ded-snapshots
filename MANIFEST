@@ -1,9 +1,10 @@
-MANIFEST for ded, version t20040916
+MANIFEST for ded, version t20050124
 --------------------------------------------------------------------------------
 MANIFEST                        this file
 COPYING                         copyright notice for DED
 README                          brief description of DED
 aclocal.m4                      macros for DED configure script
+configure                       configure-script
 configure.in                    template for DED configure script
 install-sh                      install script
 makefile.in                     template for ./makefile

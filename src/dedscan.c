@@ -94,7 +94,7 @@
 #include	<rcsdefs.h>
 #include	<sccsdefs.h>
 
-MODULE_ID("$Id: dedscan.c,v 12.41 2004/03/07 23:25:18 tom Exp $")
+MODULE_ID("$Id: dedscan.c,v 12.42 2005/01/25 01:45:18 tom Exp $")
 
 #define	N_UNKNOWN	-1	/* name does not exist */
 #define	N_FILE		0	/* a file (synonym for 'common==0') */
@@ -361,7 +361,7 @@ dedscan(RING * gbl)
      * everything if it is nonnull.
      */
     if (debug)
-	PRINTF("common=%d, numfiles=%d\r\n", common, gbl->numfiles);
+	PRINTF("common=%d, numfiles=%u\r\n", common, gbl->numfiles);
     if (common == 0 && gbl->numfiles != 0) {
 	unsigned comlen = strlen(strcpy(name, argv[0]));
 	for (j = 0; (j < argc) && (comlen != 0); j++) {

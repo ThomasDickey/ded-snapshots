@@ -61,7 +61,7 @@
 #include	"ded.h"
 #include	<rcsdefs.h>
 
-MODULE_ID("$Id: ded2s.c,v 12.28 2004/03/07 23:25:18 tom Exp $")
+MODULE_ID("$Id: ded2s.c,v 12.30 2005/01/25 01:44:51 tom Exp $")
 
 #if defined(MAJOR_IN_MKDEV)
 #  include	<sys/mkdev.h>
@@ -262,11 +262,11 @@ ded2s(RING * gbl, int inx, char *bfr, int len)
 	break;
     default:
 	if (gbl->S_opt >= 1) {
-	    FORMAT(bfr, "%5lu ", ded_blocks(s));
+	    FORMAT(bfr, "%5lu ", (unsigned long) ded_blocks(s));
 	    bfr += field(bfr, mj);
 	}
 	if (gbl->S_opt != 1) {
-	    FORMAT(bfr, "%7ld ", (unsigned long) s->st_size);
+	    FORMAT(bfr, "%7lu ", (unsigned long) s->st_size);
 	    bfr += field(bfr, mj);
 	}
     }
