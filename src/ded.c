@@ -3,6 +3,7 @@
  * Author:	T.E.Dickey
  * Created:	09 Nov 1987
  * Modified:
+ *		19 Oct 2000, add '-p' option to print selected pathnames.
  *		08 Apr 2000, remove unneeded call for ncurses' trace().
  *		16 Aug 1999, use ttyname() for BeOS port.
  *		10 Aug 1999, change -b to a toggle, allow curses to decide if
@@ -158,7 +159,7 @@
 #define	MAIN
 #include	"ded.h"
 
-MODULE_ID("$Header: /users/source/archives/ded.vcs/src/RCS/ded.c,v 12.65 2000/04/08 20:24:16 tom Exp $")
+MODULE_ID("$Header: /users/source/archives/ded.vcs/src/RCS/ded.c,v 12.66 2000/10/19 09:43:53 tom Exp $")
 
 #define	EDITOR	DEFAULT_EDITOR
 #define	BROWSE	DEFAULT_BROWSE
@@ -780,6 +781,9 @@ void	usage(_AR0)
 			"  -G       show group-name instead of user-name",
 			"  -I       show inode field",
 			"  -P       show protection in octal",
+#if HAVE_NEWTERM
+			"  -p       print selected filenames",
+#endif
 			"  -S       show file-size in blocks",
 			"  -T       show long date+time",
 #ifdef	apollo
@@ -888,6 +892,9 @@ _MAIN
 			dpath[MAXPATHLEN];
 
 	RING	*gbl = ring_alloc();
+#if HAVE_NEWTERM
+	int	do_select = FALSE;
+#endif
 
 	(void)sortset(gbl, 's', 'n');
 	(void)sscanf(version, "%*s %s %s", tpath, dpath);
@@ -899,7 +906,7 @@ _MAIN
 #ifdef ACS_PLUS
 	optBox = TRUE;
 #endif
-	while ((c = getopt(argc, argv, "abeGIiOPSTUZc:l:r:s:zdt:n")) != EOF)
+	while ((c = getopt(argc, argv, "abeGIiOPSTUZc:l:r:s:zdt:np")) != EOF)
 	switch (c) {
 	case 'a':	COMPLEMENT(gbl->A_opt);	break;
 	case 'b':	optBox = !optBox;	break;
@@ -931,6 +938,9 @@ _MAIN
 	case 'd':	debug++;		break;
 	case 't':	tree_opt = optarg;	break;
 	case 'n':	no_worry = TRUE;	break;
+#if HAVE_NEWTERM
+	case 'p':	do_select = TRUE;	break;
+#endif
 	default:	usage();
 			/*NOTREACHED*/
 	}
@@ -998,7 +1008,14 @@ _MAIN
 	(void)dedsigs(TRUE);
 	(void)dedsize((RING *)0);
 
-	if (!initscr())			failed("initscr");
+#if HAVE_NEWTERM
+	if (!newterm(getenv("TERM"), do_select ? stderr : stdout, stdin))
+		failed("newterm");
+#else
+	if (!initscr())
+		failed("initscr");
+#endif
+
 #if HAVE_WSCRL
 	(void)scrollok(stdscr, TRUE);
 #endif
@@ -1373,6 +1390,10 @@ _MAIN
 	}; lastc = c; }
 
 	to_exit(TRUE);
+#if HAVE_NEWTERM
+	if (do_select)
+		ring_tags();
+#endif
 	ft_write();
 	dlog_exit(SUCCESS);
 	/*NOTREACHED*/

@@ -1,4 +1,4 @@
-.\" $Id: ded.man,v 12.9 1998/02/15 21:10:11 tom Exp $
+.\" $Id: ded.man,v 12.11 2000/10/19 10:09:04 tom Exp $
 .if t .ds T \(tm
 .if n .ds T (tm)
 .
@@ -27,7 +27,7 @@
 .
 .SH USAGE					\"**************************
 .PP
-\fBded\fI [options] [file-specifications]
+.BI ded " [options] [file-specifications]"
 .
 .SH SYNOPSIS					\"**************************
 .PP
@@ -105,6 +105,9 @@ number of links for each file).
 .B \-P
 toggle file-protection display field (initially displays
 file protection in \fBls\fR-style).
+.TP
+.B \-p
+print full pathnames of tagged files on exit.
 .TP
 .B \-S
 toggle file size (in blocks) display field (normally
@@ -1540,4 +1543,4 @@ rcsput, rcsget, sccsput, sccsget
 .
 .SH AUTHOR:					\"**************************
 .PP
-Thomas Dickey (dickey@clark.net).
+Thomas Dickey (dickey@herndon4.his.com).

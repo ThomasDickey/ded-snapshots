@@ -61,7 +61,7 @@
 #include	<time.h>
 #include	<ctype.h>
 
-MODULE_ID("$Id: ded2s.c,v 12.23 1998/03/01 21:11:45 tom Exp $")
+MODULE_ID("$Id: ded2s.c,v 12.24 2000/10/19 01:40:20 tom Exp $")
 
 #if MAJOR_IN_MKDEV
 #  include	<sys/mkdev.h>
@@ -397,9 +397,9 @@ public	int	ded_access (
 		if (mask != S_IEXEC)
 			return TRUE;
 		return (s->st_mode & (mask | (mask >> 3) | (mask >> 6)));
-	} else if (uid == s->st_uid) {
+	} else if (uid == (int) s->st_uid) {
 		return (s->st_mode & mask);
-	} else if (gid == s->st_gid) {
+	} else if (gid == (int) s->st_gid) {
 		return (s->st_mode & (mask >> 3));
 	}
 	return (s->st_mode & (mask >> 6));

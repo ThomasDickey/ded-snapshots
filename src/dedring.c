@@ -3,6 +3,7 @@
  * Author:	T.E.Dickey
  * Created:	27 Apr 1988
  * Modified:
+ *		19 Oct 2000, add ring_tags()
  *		29 May 1998, compile with g++
  *		15 Feb 1998, remove special code for apollo sr10
  *		16 Mar 1996, memory-leak of 'scan_expr'.
@@ -55,7 +56,7 @@
 
 #include	"ded.h"
 
-MODULE_ID("$Id: dedring.c,v 12.18 1998/05/30 02:09:45 tom Exp $")
+MODULE_ID("$Id: dedring.c,v 12.19 2000/10/19 09:44:28 tom Exp $")
 
 #define	CMP_PATH(a,b)	pathcmp(a, b->new_wd)
 
@@ -649,4 +650,23 @@ public	void	ring_rename(
 		}
 	}
 	dump_ring((gbl, "after"))
+}
+
+/*
+ * Print all of the selected pathnames to stdout.
+ */
+public	void	ring_tags(_AR0)
+{
+	RING	*gbl;
+	unsigned inx;
+	char	tmp[MAXPATHLEN];
+
+	for (gbl = ring; (gbl != 0); gbl = gbl->_link) {
+		for_each_file(gbl,inx) {
+			if (gFLAG(inx)) {
+				abspath(pathcat2(tmp, gbl->new_wd, gNAME(inx)));
+				puts(tmp);
+			}
+		}
+	}
 }
