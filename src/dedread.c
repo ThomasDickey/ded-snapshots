@@ -1,5 +1,5 @@
 #if	!defined(NO_IDENT)
-static	char	Id[] = "$Id: dedread.c,v 12.3 1993/12/01 16:26:13 dickey Exp $";
+static	char	Id[] = "$Id: dedread.c,v 12.5 1994/06/30 23:41:45 tom Exp $";
 #endif
 
 /*
@@ -34,24 +34,19 @@ public	int	dedread(
 	_DCL(char **,	pattern_)
 	_DCL(int,	change_needed)
 {
-	register int	j,k;
 	register char	*s;
 	static	DYN	*text;
 	static	HIST	*History;
 	auto	REGEX_T	expr;
 
 	set_dedblip(gbl);
-	PRINTW("Pattern: ");
-	getyx(stdscr,j,k);
-	clrtobot();
-	move(j,k);
 
 	if (*pattern_)
 		text = dyn_copy(text, *pattern_);
 	else
 		dyn_init(&text, BUFSIZ);
 
-	if (!(s = dlog_string(&text,(DYN **)0, &History, EOS, 0)))
+	if (!(s = dlog_string(gbl, "Pattern: ", &text,(DYN **)0, &History, EOS, 0)))
 		s = "";
 	if ((*pattern_ != 0) && !strcmp(s, *pattern_)) {
 		showC(gbl);

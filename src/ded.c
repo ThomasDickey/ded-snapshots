@@ -1,5 +1,5 @@
 #if	!defined(NO_IDENT)
-static	char	Id[] = "$Header: /users/source/archives/ded.vcs/src/RCS/ded.c,v 12.18 1994/06/28 01:10:47 tom Exp $";
+static	char	Id[] = "$Header: /users/source/archives/ded.vcs/src/RCS/ded.c,v 12.20 1994/06/30 23:26:33 tom Exp $";
 #endif
 
 /*
@@ -305,17 +305,12 @@ public	int	user_says(
 	_DCL(int,	ok)
 {
 	register char	*s;
-	int	y,x;
 	static	DYN	*reply;
 
 	if (!ok) {
-		to_work(gbl,TRUE);
-		PRINTW("Are you sure (y/n)? ");
-		getyx(stdscr,y,x);
-		clrtobot();
-		move(y,x);
 		dyn_init(&reply, 8);
-		if ((s = dlog_string(&reply,(DYN **)0,NO_HISTORY,EOS,-8)) != NULL)
+		if ((s = dlog_string(gbl, "Are you sure (y/n)? ", &reply,
+				(DYN **)0, NO_HISTORY, EOS, -8)) != NULL)
 			ok = (*s == 'y' || *s == 'Y');
 		showC(gbl);
 	}

@@ -3,7 +3,7 @@
 
 #ifdef	MAIN
 #if	!defined(NO_IDENT)
-static	char	*ded_h = "$Id: ded.h,v 12.21 1994/06/28 01:09:40 tom Exp $";
+static	char	*ded_h = "$Id: ded.h,v 12.22 1994/06/29 00:35:08 tom Exp $";
 #endif
 #endif	/* MAIN */
 
@@ -590,6 +590,7 @@ extern	int	dlog_char(
 		_ar1(int,	begin));
 
 extern	char *	dlog_string(
+		_arx(RING *,	gbl)
 		_arx(DYN **,	result)
 		_arx(DYN **,	inflag)
 		_arx(HIST **,	history)

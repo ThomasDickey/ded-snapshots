@@ -1,5 +1,5 @@
 #if	!defined(NO_IDENT)
-static	char	Id[] = "$Id: ftree.c,v 12.14 1994/06/28 01:04:55 tom Exp $";
+static	char	Id[] = "$Id: ftree.c,v 12.16 1994/06/30 23:34:14 tom Exp $";
 #endif
 
 /*
@@ -1409,6 +1409,8 @@ public	RING *	ft_view(
 
 			dyn_init(&my_text,1);
 			if (!(s = dlog_string(
+					gbl,
+					(char *)0,
 					&my_text,
 					(DYN **)0,
 					NO_HISTORY,
@@ -1446,6 +1448,8 @@ public	RING *	ft_view(
 				my_text = dyn_copy(my_text,
 					(c == '~') ? "~" : cwdpath);
 				if (!(s = dlog_string(
+						gbl,
+						(char *)0,
 						&my_text,
 						(DYN **)0,
 						j ? &JumpHistory : &FindHistory,
@@ -1490,6 +1494,8 @@ public	RING *	ft_view(
 
 				my_text = dyn_copy(my_text, ftree[row].f_name);
 				if (!(s = dlog_string(
+						gbl,
+						(char *)0,
 						&my_text,
 						(DYN **)0,
 						NO_HISTORY,

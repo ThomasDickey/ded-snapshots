@@ -1,5 +1,5 @@
 #if	!defined(NO_IDENT)
-static	char	Id[] = "$Id: dedsize.c,v 12.4 1994/06/28 01:10:21 tom Exp $";
+static	char	Id[] = "$Id: dedsize.c,v 12.5 1994/06/30 23:59:13 tom Exp $";
 #endif
 
 /*
@@ -30,7 +30,9 @@ private	void	handle_resize (_AR0)
 	dlog_comment("resizewin LINES=%d, COLS=%d\n", LINES, COLS);
 	if (!ft_resize()) {
 		markset(save_gbl, mark_W);
-		showFILES(save_gbl, FALSE);
+		/*patch showFILES(save_gbl, FALSE); */
+		if (gets_active)
+			dlog_resize();
 	}
 }
 

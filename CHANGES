@@ -1,3 +1,23 @@
+1994-06-30  Thomas E. Dickey  <dickey@clark.net>
+
+	* certify/release.txt: more notes for 13.0
+
+	* src/README: current hot-list
+
+	* src/version.h: S-sort. Mods to make scrolling smoother.
+
+	* src/version.h:
+	HP/UX port. Linux port. Mods for autoconf. Mods for resizing (non-Sys5)
+	curses windows.
+
+	* src/dlog.c, src/ded.h, src/dedsize.c, src/dedtype.c, src/dedread.c, src/dedfind.c:
+	rawgets-resizing
+
+	* src/dedfind.c: use MODULE_ID
+
+	* src/deddoit.c, src/ftree.c, src/dedline.c, src/ded.c:
+	rawgets-resizing
+
 1994-06-28  Thomas E. Dickey  <dickey@clark.net>
 
 	* src/ftree.c, src/dlog.c, src/dedtype.c, src/dedread.c, src/dedline.c, src/dedfind.c, src/deddoit.c, src/ded.c, src/ded.h:

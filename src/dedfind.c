@@ -1,7 +1,3 @@
-#if	!defined(NO_IDENT)
-static	char	Id[] = "$Id: dedfind.c,v 12.5 1993/12/01 16:26:30 dickey Exp $";
-#endif
-
 /*
  * Title:	dedfind.c (find item in ded's file list)
  * Author:	T.E.Dickey
@@ -26,6 +22,8 @@ static	char	Id[] = "$Id: dedfind.c,v 12.5 1993/12/01 16:26:30 dickey Exp $";
  */
 #include	"ded.h"
 
+MODULE_ID("$Id: dedfind.c,v 12.8 1994/06/30 23:41:36 tom Exp $")
+
 public	void	dedfind(
 	_ARX(RING *,	gbl)
 	_AR1(int,	key)
@@ -34,7 +32,7 @@ public	void	dedfind(
 	_DCL(int,	key)
 {
 	register char	*s;
-	int	j,k,
+	int	j,
 		found,
 		next	= 0;
 	static	DYN	*text;
@@ -45,14 +43,8 @@ public	void	dedfind(
 
 	if (key == '/' || key == '?') {
 
-		to_work(gbl,TRUE);
-		PRINTW("Target: ");
-		getyx(stdscr,j,k);
-		clrtobot();
-		move(j,k);
-
 		dyn_init(&text, BUFSIZ);
-		if (!(s = dlog_string(&text,(DYN **)0, &History, EOS, 0)))
+		if (!(s = dlog_string(gbl, "Target: ", &text,(DYN **)0, &History, EOS, 0)))
 			return;
 		if (key == '/')	order = 1;
 		if (key == '?') order = -1;

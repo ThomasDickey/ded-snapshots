@@ -1,5 +1,5 @@
 #if	!defined(NO_IDENT)
-static	char	Id[] = "$Id: dedtype.c,v 12.10 1994/06/28 00:17:25 tom Exp $";
+static	char	Id[] = "$Id: dedtype.c,v 12.12 1994/06/30 23:53:56 tom Exp $";
 #endif
 
 /*
@@ -424,8 +424,7 @@ private	void	FindPattern(
 {
 	int	foo;
 	register char	*s;
-	auto	int	y,x,
-			next,
+	auto	int	next,
 			save	= *page;
 	static	DYN	*text;
 	static	HIST	*History;
@@ -434,14 +433,9 @@ private	void	FindPattern(
 
 	if (key == '/' || key == '?') {
 
-		to_work(gbl,TRUE);
-		PRINTW("Target: ");
-		getyx(stdscr,y,x);
-		clrtobot();
-		move(y,x);
-
 		dyn_init(&text, BUFSIZ);
-		if (!(s = dlog_string(&text,(DYN **)0, &History, EOS, 0)))
+		if (!(s = dlog_string(gbl, "Target: ", &text, (DYN **)0,
+				&History, EOS, 0)))
 			return;
 		if (key == '/')	order = 1;
 		if (key == '?') order = -1;
