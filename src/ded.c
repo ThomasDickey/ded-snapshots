@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	Id[] = "$Header: /users/source/archives/ded.vcs/src/RCS/ded.c,v 10.54 1992/04/08 16:11:26 dickey Exp $";
+static	char	Id[] = "$Header: /users/source/archives/ded.vcs/src/RCS/ded.c,v 10.56 1992/04/09 10:51:08 dickey Exp $";
 #endif
 
 /*
@@ -16,7 +16,7 @@ static	char	Id[] = "$Header: /users/source/archives/ded.vcs/src/RCS/ded.c,v 10.5
  *		22 Jul 1991, quote filename before using it in 'forkfile()'
  *		10 Jul 1991, added parm to 'markset()' to tell if we must clear
  *			     workspace
- *		16 Jul 1991, modified logic of 'edit_link()' to account for the
+ *		16 Jul 1991, modified logic of 'edithead()' to account for the
  *			     case in which the current entry contains '/'.
  *		12 Jul 1991, added CTL/G command to show tagged files
  *			     (+blocks/bytes).  Cleanup some message code.
@@ -43,10 +43,10 @@ static	char	Id[] = "$Header: /users/source/archives/ded.vcs/src/RCS/ded.c,v 10.5
  *		23 May 1990, Modified so that CTL(E) and CTL(V) on a directory
  *			     will cause a prompt for read-pattern a la CTL(R).
  *			     Allow CTL(E) command from directory-tree as well
- *		18 May 1990, modified 'edit_link()' so it does the "right" thing
+ *		18 May 1990, modified 'edithead()' so it does the "right" thing
  *			     when going to an Apollo DSEE revision.
  *		07 May 1990, make "-t" option inherit into subprocesses
- *		17 Apr 1990, simplified/corrected code for 'edit_link()'
+ *		17 Apr 1990, simplified/corrected code for 'edithead()'
  *		06 Mar 1990, test for sort-keys which assume RCS/SCCS scanning
  *			     is in effect and perform scanning if it has not
  *			     been done.
@@ -192,7 +192,7 @@ private	int	one_or_both(
 }
 
 #ifdef	S_IFLNK
-private	int	edit_link(
+private	int	edithead(
 	_ARX(RING *,	gbl)
 	_ARX(char *,	dst)	/* receives destination-directory */
 	_AR1(char *,	leaf)	/* receives destination-leaf */
@@ -201,12 +201,12 @@ private	int	edit_link(
 	_DCL(char *,	dst)
 	_DCL(char *,	leaf)
 {
-	auto	struct	stat	sb;
-	auto	char		*s;
+	auto	STAT	sb;
+	auto	char	*s;
 
 	if (cLTXT != 0) {
 		dlog_comment("try to edit link-head \"%s\"\n", cLTXT);
-		(void)pathcat(dst, pathhead(cNAME, &sb), cLTXT);
+		(void)pathcat(dst, gbl->new_wd, cLTXT);
 		(void)strcpy(dst, pathhead(dst, &sb));
 		dlog_comment("... becomes pathname  \"%s\"\n", dst);
 		(void)strcpy(leaf, cLTXT);
@@ -607,7 +607,7 @@ private	RING *	editfile(
 	_DCL(int,	readonly)
 	_DCL(int,	extended)
 {
-	struct	stat	sb;
+	STAT	sb;
 	char	*editor = (readonly ? ENV(BROWSE) : ENV(EDITOR));
 	char	tpath[BUFSIZ];
 
@@ -661,12 +661,12 @@ private	RING *	edit_directory _ONE(RING *,gbl)
 			return gbl;
 
 #ifdef	S_IFLNK		/* try to edit head-directory of symbolic-link */
-	} else if (edit_link(gbl, tpath, dpath)) {
+	} else if (edithead(gbl, tpath, dpath)) {
 		if (strcmp(tpath, gbl->new_wd)
 		&&  !(new = new_args(gbl, tpath, 'E', 1, 3, FALSE, (char *)0)))
 			return gbl;
 
-		scroll_to_file(gbl, findFILE(gbl, txtalloc(dpath)));
+		scroll_to_file(new, findFILE(new, txtalloc(dpath)));
 #endif	/* S_IFLNK */
 
 	} else
