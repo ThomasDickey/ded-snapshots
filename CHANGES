@@ -1,3 +1,7 @@
+1987-11-30  dickey@software.org
+
+	* src/ded.c: more error checking
+
 1987-11-25  dickey@software.org
 
 	* src/ded.c: added sccs-related commands.
