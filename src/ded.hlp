@@ -40,6 +40,7 @@ Cursor Movement:
   H		move cursor to first entry on screen
   M		move cursor to middle of screen
   L		move cursor to last entry on screen
+  ^		reposition screen with current line at top
 
   /		prompt & search for filename
   ?		prompt & search backwards for filename
@@ -139,16 +140,15 @@ Operations on Files:
   T		type the current binary file, in the workspace
 
   !		Prompt for, and execute a shell command.
+  %		Prompt for, and execute a shell command, refreshing
+		screen afterwards.
+  *		Display text of last !/% command.
+  .		Re-execute last !/% command.
 
 To do:
 -----
   Cleanup sorting, e.g., 's' command is not applicable to devices;
   should sort by major/minor pairs).
-
-  Make {group} applicable to invocation of 'e', 'v', 'm' commands.
-
-  Provide argument substitution (including for {group}) in '!'
-  command, add '%' to refresh screen.
 
   Provide help from within workarea pager.
 
@@ -176,3 +176,6 @@ To do:
 
   Correct apollo message about trying to open nil-files
   (they are not directories!)
+
+  Use SHELL environment variable & bldargs() so we needn't
+  go thru 'system()' call (which always goes thru /bin/sh).

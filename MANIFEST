@@ -1,4 +1,4 @@
-MANIFEST for ded, version t19871130
+MANIFEST for ded, version t19871201
 --------------------------------------------------------------------------------
 MANIFEST                        this file
 src                             subdirectory
@@ -10,7 +10,9 @@ src/ded2s.c                     convert file-entry to string
 src/deddoit.c                   execute shell commands
 src/dedfind.c                   search within file-list
 src/dedscan.c                   read file-list
+src/dedshow.c                   display file-list
 src/dedsort.c                   sorting operation for DED
 src/dedtype.c                   type/page a file
+src/dedwait.c                   prompt/wait-for-return
 src/ftree.c                     directory-tree for DED
 src/version.h                   version/release history for DED

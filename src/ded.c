@@ -1,5 +1,5 @@
 #ifndef	NO_SCCS_ID
-static	char	sccs_id[] = "@(#)ded.c	1.3 87/11/30 10:41:51";
+static	char	sccs_id[] = "@(#)ded.c	1.4 87/12/01 11:54:34";
 #endif	NO_SCCS_ID
 
 /*
@@ -119,37 +119,6 @@ markset(num)
 }
 
 /*
- * Read a command-character.  If 'repeats' is set true, permit a repeat-count
- * to be associated with the command.
- */
-command(repeats)
-{
-int	c,
-	done	= FALSE;
-
-	count	= 0;
-	while (!done) {
-		c = getch();
-		if (c == '\033') {	/* expect arrow-keys (patch) */
-			while ((c = getch()) != '[');
-			done	= TRUE;
-			switch(getch()) {
-			case 'A':	c = ARO_UP;	break;
-			case 'B':	c = ARO_DOWN;	break;
-			case 'C':	c = ARO_RIGHT;	break;
-			case 'D':	c = ARO_LEFT;	break;
-			default:	done = FALSE;
-			}
-		} else if (repeats && isdigit(c)) {
-			count = (count * 10) + (c - '0');
-		} else
-			done = TRUE;
-	}
-	if (!count) count = 1;
-	return(c);
-}
-
-/*
  * Determine if the given entry is a file, directory or none of these.
  */
 realstat(inx)
@@ -209,7 +178,7 @@ extern	char	*sys_errlist[];
 /*
  * Fatal-error exit from this process
  */
-fatal(msg)
+failed(msg)
 char	*msg;
 {
 	if (in_screen) {
@@ -477,7 +446,7 @@ int	y	= file2row(curfile),
 		showLINE(curfile);
 		move(y, x);
 		refresh();
-		switch (c = command(FALSE)) {
+		switch (c = cmdch((int *)0)) {
 		case P_cmd:
 			c = CHMOD(curfile);
 			for (x = 0; x < numfiles; x++) {
@@ -548,7 +517,7 @@ int	y	= file2row(curfile),
 		if (!insert)	standend();
 		move(y,x+col);
 		refresh();
-		switch (c = command(FALSE)) {
+		switch (c = cmdch((int *)0)) {
 		case ARO_LEFT:	if (x > 0)		x--;	break;
 		case ARO_RIGHT:	if (x < strlen(bfr))	x++;	break;
 		case ARO_UP:
@@ -711,6 +680,7 @@ extern	char	*optarg;
 
 register j;
 int	c,
+	count,
 	lastc	= '?',
 	quit	= FALSE;
 
@@ -740,19 +710,19 @@ int	c,
 			exit(1);
 	}
 
-	if (!initscr())			fatal("initscr");
+	if (!initscr())			failed("initscr");
 	in_screen = TRUE;
 	if (LINES > BUFSIZ || COLS > BUFSIZ) {
 	char	bfr[80];
 		sprintf(bfr, "screen too big: %d by %d\n", LINES, COLS);
-		fatal(bfr);
+		failed(bfr);
 	}
 	rawterm();
 
 	/* patch: should trim repeated items from arg-list */
 	argv += optind;
 	argc -= optind;
-	if (!dedscan(argc, argv))	fatal((char *)0);
+	if (!dedscan(argc, argv))	failed((char *)0);
 
 	mark_W = (LINES/2);
 	Xbase = Ybase = 0;
@@ -761,7 +731,7 @@ int	c,
 	curfile = 0;
 	showFILES();
 
-	while (!quit) { switch (c = command(TRUE)) {
+	while (!quit) { switch (c = cmdch(&count)) {
 			/* scrolling */
 	case ARO_UP:
 	case '\b':
@@ -802,6 +772,11 @@ int	c,
 	case 'H':	curfile = Ybase;		showC(); break;
 	case 'M':	curfile = (Ybase+Ylast)/2;	showC(); break;
 	case 'L':	curfile = Ylast;		showC(); break;
+	case '^':	if (Ybase != curfile) {
+				Ybase = curfile;
+				showFILES();
+			}
+			break;
 
 			/* display-toggles */
 	case 'G':	G_opt = !G_opt; showFILES(); break;
@@ -875,7 +850,7 @@ int	c,
 			break;
 
 	case 'r':
-	case 's':	if (sortset(c,command(FALSE))) {
+	case 's':	if (sortset(c,cmdch((int *)0))) {
 				dedsort();
 				(void)to_file();
 				showFILES();
@@ -961,6 +936,11 @@ int	c,
 			deddoit(c);
 			break;
 
+	case '*':	/* display last shell command */
+			dedshow("Command=", bfr_sh);
+			showC();
+			break;
+
 	case '/':
 	case '?':
 	case 'n':
@@ -970,7 +950,6 @@ int	c,
 
 			/* patch: not implemented */
 	case ':':	/* edit last shell command */
-	case '*':	/* display last shell command */
 	case 'X':	/* split/join screen (1 or 2 viewports) */
 	case 'D':	/* toggle directory/filelist mode */
 	case 'E':	/* enter new directory on ring */

@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	sccs_id[] = "@(#)dedtype.c	1.2 87/11/24 13:34:35";
+static	char	sccs_id[] = "@(#)dedtype.c	1.3 87/12/01 10:07:04";
 #endif	lint
 
 /*
@@ -119,6 +119,7 @@ char	*name;
 struct	stat	sb;
 FILE	*fp	= fopen(name, "r");
 int	c,			/* current character */
+	count,			/* ...and repeat-count */
 	y,			/* current line-in-screen */
 	blank,			/* flag to suppress blank lines */
 	shift	= COLS/3,	/* amount of left/right shift */
@@ -170,7 +171,7 @@ int	c,			/* current character */
 			clrtoeol();
 			refresh();
 
-			switch (command(TRUE)) {
+			switch (cmdch(&count)) {
 			case 'q':
 				done = TRUE;
 				break;
