@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	Id[] = "$Id: dedline.c,v 11.7 1992/09/04 13:18:40 dickey Exp $";
+static	char	Id[] = "$Id: dedline.c,v 12.0 1992/10/16 11:08:19 ste_cm Rel $";
 #endif
 
 /*
@@ -367,15 +367,15 @@ public	void	editprot _ONE(RING *,gbl)
 	int	y	= file2row(gbl->curfile),
 		x	= 0,
 		c;
+#ifdef	S_IFLNK
+	int	at_flag	= at_save(gbl);
+#endif
 	auto	int
 		opt	= gbl->P_opt,
 		changed	= FALSE,
 		done	= FALSE,
 		init	= TRUE,
 		oldmode	= sb->st_mode;
-#ifdef	S_IFLNK
-	int	at_flag	= at_save(gbl);
-#endif
 
 	(void)save_Xbase(gbl, gbl->cmdcol[CCOL_PROT]);
 
