@@ -1,5 +1,5 @@
 #ifndef	NO_SCCS_ID
-static	char	sccs_id[] = "@(#)ftree.c	1.3 87/09/10 16:20:07";
+static	char	sccs_id[] = "@(#)ftree.c	1.4 87/09/11 17:02:18";
 #endif
 
 /*
@@ -467,30 +467,35 @@ int	len = 0;
 }
 
 static
-forward()
+forward(num)
 {
-	if (showlast < FDlast) {
-		showbase = showlast;
-		showdiff = -1;
-		(void)limits(showbase,showbase);
+	while (num-- > 0) {
+		if (showlast < FDlast) {
+			showbase = showlast;
+			showdiff = -1;
+			(void)limits(showbase,showbase);
+		}
 	}
+	return(showlast);
 }
 
 static
-backward()
+backward(num)
 {
-register int j, len = 0, base = -1;
-	for (j = showbase; j >= 0; j--) {
-		if (fd_show(j)) {
-			base = j;
-			if (++len == TOSHOW) break;
+	while (num-- > 0) {
+	register int j, len = 0, base = -1;
+		for (j = showbase; j >= 0; j--) {
+			if (fd_show(j)) {
+				base = j;
+				if (++len == TOSHOW) break;
+			}
+		}
+		if (base >= 0) {
+			showbase = base;
+			showdiff = -1;
 		}
 	}
-	if (base >= 0) {
-		showbase = base;
-		showdiff = -1;
-	} else
-		beep();
+	return(showbase);
 }
 
 static
@@ -507,7 +512,7 @@ register int j, k = node;
 	}
 	if (k != node) {
 		while (k < showbase)
-			backward();
+			(void)backward(1);
 	} else
 		beep();
 	return(k);
@@ -527,7 +532,7 @@ register int j, k = node;
 	}
 	if (k != node) {
 		while (k > showlast)
-			forward();
+			(void)forward(1);
 	} else
 		beep();
 	return(k);
@@ -592,19 +597,23 @@ register int j;
 
 		/* scrolling */
 		case 'f':
-			if (row < showlast)
-				row = showlast;
-			else if (showlast < FDlast)
-				forward();
-			else
+			if (row < FDlast) {
+				if (row < showlast) {
+					row = showlast;
+					num--;
+				}
+				row = forward(num);
+			} else
 				beep();
 			break;
 		case 'b':
-			if (row > showbase)
-				row = showbase;
-			else if (showbase > 0)
-				backward();
-			else
+			if (row > 0) {
+				if (row > showbase) {
+					row = showbase;
+					num--;
+				}
+				row = backward(num);
+			} else
 				beep();
 			break;
 
