@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	Id[] = "$Header: /users/source/archives/ded.vcs/src/RCS/ded.c,v 10.49 1992/04/07 16:05:53 dickey Exp $";
+static	char	Id[] = "$Header: /users/source/archives/ded.vcs/src/RCS/ded.c,v 10.54 1992/04/08 16:11:26 dickey Exp $";
 #endif
 
 /*
@@ -16,7 +16,7 @@ static	char	Id[] = "$Header: /users/source/archives/ded.vcs/src/RCS/ded.c,v 10.4
  *		22 Jul 1991, quote filename before using it in 'forkfile()'
  *		10 Jul 1991, added parm to 'markset()' to tell if we must clear
  *			     workspace
- *		16 Jul 1991, modified logic of 'edithead()' to account for the
+ *		16 Jul 1991, modified logic of 'edit_link()' to account for the
  *			     case in which the current entry contains '/'.
  *		12 Jul 1991, added CTL/G command to show tagged files
  *			     (+blocks/bytes).  Cleanup some message code.
@@ -43,10 +43,10 @@ static	char	Id[] = "$Header: /users/source/archives/ded.vcs/src/RCS/ded.c,v 10.4
  *		23 May 1990, Modified so that CTL(E) and CTL(V) on a directory
  *			     will cause a prompt for read-pattern a la CTL(R).
  *			     Allow CTL(E) command from directory-tree as well
- *		18 May 1990, modified 'edithead()' so it does the "right" thing
+ *		18 May 1990, modified 'edit_link()' so it does the "right" thing
  *			     when going to an Apollo DSEE revision.
  *		07 May 1990, make "-t" option inherit into subprocesses
- *		17 Apr 1990, simplified/corrected code for 'edithead()'
+ *		17 Apr 1990, simplified/corrected code for 'edit_link()'
  *		06 Mar 1990, test for sort-keys which assume RCS/SCCS scanning
  *			     is in effect and perform scanning if it has not
  *			     been done.
@@ -192,7 +192,7 @@ private	int	one_or_both(
 }
 
 #ifdef	S_IFLNK
-private	int	edithead(
+private	int	edit_link(
 	_ARX(RING *,	gbl)
 	_ARX(char *,	dst)	/* receives destination-directory */
 	_AR1(char *,	leaf)	/* receives destination-leaf */
@@ -456,7 +456,7 @@ private	RING *	new_args(
 		markC(gbl,TRUE);
 	clear_work();
 	if (ok = dedring(gbl, path, cmd, count, set_pattern, pattern)) {
-		gbl = ok;
+		redoVIEW(gbl = ok);
 		(void)to_file(gbl);
 		count_tags(gbl);
 		showFILES(gbl,TRUE,TRUE);
@@ -480,10 +480,9 @@ private	RING *	old_args(
 	_DCL(int,	cmd)
 	_DCL(int,	count)
 {
-	auto	char	tpath[MAXPATHLEN];
-	auto	RING *	new = new_args(gbl,
-			strcpy(tpath, gbl->new_wd),
-			cmd, count, 0, FALSE, (char *)0);
+	auto	RING *	new;
+
+	new = new_args(gbl, gbl->new_wd, cmd, count, 0, FALSE, (char *)0);
 	if (new != 0)
 		gbl = new;
 	else
@@ -662,7 +661,7 @@ private	RING *	edit_directory _ONE(RING *,gbl)
 			return gbl;
 
 #ifdef	S_IFLNK		/* try to edit head-directory of symbolic-link */
-	} else if (edithead(gbl, tpath, dpath)) {
+	} else if (edit_link(gbl, tpath, dpath)) {
 		if (strcmp(tpath, gbl->new_wd)
 		&&  !(new = new_args(gbl, tpath, 'E', 1, 3, FALSE, (char *)0)))
 			return gbl;
@@ -801,8 +800,7 @@ _MAIN
 	auto	STAT	sb;
 	auto	int	c,
 			count,
-			lastc	= '?',
-			quit	= FALSE;
+			lastc	= '?';
 	auto	char	tree_bfr[BUFSIZ],
 			tpath[BUFSIZ],
 			dpath[BUFSIZ];
@@ -902,7 +900,7 @@ _MAIN
 	mark_W = (LINES/2);
 	openVIEW(gbl);
 
-	while (!quit) { switch (c = dlog_char(&count,1)) {
+	while (gbl != 0) { switch (c = dlog_char(&count,1)) {
 			/* scrolling */
 	case ARO_UP:
 	case '\b':
@@ -971,7 +969,7 @@ _MAIN
 
 			/* note that '.' and '..' may be the only files! */
 	case '&':	COMPLEMENT(gbl->A_opt); /* sorry about inconsistency */
-			quit = !(gbl = rescan(gbl, TRUE));
+			gbl = rescan(gbl, TRUE);
 			break;
 	case 'G':	gbl->G_opt = one_or_both(j = gbl->G_opt,count);
 			showFILES(gbl,(gbl->G_opt != 2) != (j != 2), FALSE);
@@ -980,7 +978,9 @@ _MAIN
 			showFILES(gbl,gbl->I_opt != j, FALSE);
 			break;
 #ifdef	apollo_sr10
-	case 'O':	COMPLEMENT(gbl->O_opt); showFILES(gbl,TRUE, FALSE); break;
+	case 'O':	COMPLEMENT(gbl->O_opt);
+			showFILES(gbl, TRUE, FALSE);
+			break;
 #endif
 	case 'P':	gbl->P_opt = one_or_both(j = gbl->P_opt,count);
 			showFILES(gbl,gbl->P_opt != j, FALSE);
@@ -992,7 +992,9 @@ _MAIN
 			showFILES(gbl,gbl->T_opt != j, FALSE);
 			break;
 #ifdef	apollo
-	case 'U':	COMPLEMENT(gbl->U_opt); showFILES(gbl,FALSE,FALSE);	break;
+	case 'U':	COMPLEMENT(gbl->U_opt);
+			showFILES(gbl, FALSE, FALSE);
+			break;
 #endif
 
 #ifdef	Z_RCS_SCCS
@@ -1029,7 +1031,7 @@ _MAIN
 			if (lastc == 't')
 				retouch(gbl, mark_W+1);
 			else if (user_says(gbl, no_worry))
-				quit = TRUE;
+				gbl = 0;
 			break;
 
 			/* move work-area marker */
@@ -1049,7 +1051,7 @@ _MAIN
 			break;
 
 	case 'R':	/* re-stat display-list */
-			quit = !(gbl = rescan(gbl, TRUE));
+			gbl = rescan(gbl, TRUE);
 			break;
 
 	case 'W':	/* re-stat window */
@@ -1100,7 +1102,6 @@ _MAIN
 			/* tag/untag specific files */
 	case '+':	while (count-- > 0) {
 				tag_entry(gbl,gbl->curfile);
-				if (gbl->tag_opt) showWHAT(gbl);
 				if (!showDOWN(gbl))
 					break;
 			}
@@ -1108,7 +1109,6 @@ _MAIN
 
 	case '-':	while (count-- > 0) {
 				untag_entry(gbl,gbl->curfile);
-				if (gbl->tag_opt) showWHAT(gbl);
 				if (!showDOWN(gbl))
 					break;
 			}
@@ -1235,11 +1235,11 @@ _MAIN
 			break;
 
 	case 'X':	/* split/join screen (1 or 2 viewports) */
-			splitVIEW(gbl);
+			gbl = splitVIEW(gbl);
 			break;
 
 	case '\t':	/* tab to next viewport */
-			tab2VIEW(gbl);
+			gbl = tab2VIEW(gbl);
 			break;
 
 	default:	beep();

@@ -1,3 +1,70 @@
+1992-04-08  dickey@software.org
+
+	* src/ded.c: renamed 'edithead()' to 'edit_link()'
+
+	* test/run_test.sh: typo
+
+	* src/version.h:
+	restructured so that there is not nearly as much global data.
+	This allowed me to complete the split-screen operations,
+	even making the two viewports have independent (nearly)
+	filelists.
+
+1992-04-08  ste_cm@software.org
+
+	* src/version.h: BASELINE Thu Jul 16 09:39:01 1992 -- EBPM4 support
+
+1992-04-08  dickey@software.org
+
+	* src/dedview.c:
+	reorganized 'showLINE()' so I can update other viewports,
+	e.g., when +/- operations
+
+1992-04-08  ste_cm@software.org
+
+	* src/dedview.c: BASELINE Thu Jul 16 09:39:01 1992 -- EBPM4 support
+
+1992-04-08  dickey@software.org
+
+	* src/dedview.c: new internal procedure 'ring_view()' to ensure that we
+	use actual-value of RING-struct/chdir when moving between
+	viewports
+
+	* src/ded.c: use null-value of 'gbl' to determine quit from main-prog
+
+	* src/dedview.c:
+	hacked 'splitVIEW()' & 'tab2VIEW()' to return RING-struct
+
+	* src/ded.h: return RING-struct from 'splitVIEW()' & 'tab2VIEW()'
+
+	* src/ded.c: use return-value from 'splitVIEW()' & 'tab2VIEW()'
+
+	* src/dedview.c:
+	split out guts of 'showWHAT()' so I can decouple it from
+	RING/VIEW relations
+
+	* src/ded.c: 'showWHAT()' is called as a side-effect of 'showDOWN()'
+
+	* src/dedview.c: mods to decouple viewports vs RING structures.
+	still have minor bugs in cursor-movement & highlighting.
+
+	* src/ded.h: added 'redoVIEW()'
+
+	* src/ded.c: invoke 'redoVIEW()' so I can make this decouple viewports.
+
+	* src/dedview.c: make 'last_file' a VIEW-member.
+
+	* src/dedview.c: rename Ylast to last_file
+	rename Ynext to last_row
+	make 'last_row' a VIEW-member rather than module-level variable
+
+	* src/dedview.c:
+	rename ".Yhead" to ".base_row" and ".Ybase" to "base_file"
+
+	* src/dedview.c: eradicated module-level 'Yhead'
+
+	* src/dedview.c: got rid of local variable Ybase
+
 1992-04-07  dickey@software.org
 
 	* src/dedview.c: saving curfile is better than cNAME

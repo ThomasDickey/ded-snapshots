@@ -1,5 +1,5 @@
 #!/bin/sh
-# $Id: run_test.sh,v 10.1 1992/02/28 10:57:53 dickey Exp $
+# $Id: run_test.sh,v 10.2 1992/04/08 13:53:58 dickey Exp $
 #
 # Perform regression tests for unix directory editor.  If we find any problems,
 # show it in the log.
@@ -14,7 +14,7 @@ fi
 if test -f /com/vt100
 then	TB=/com/tb
 else	rm -f core
-T	TB=./traceback.sh
+	TB=./traceback.sh
 fi
 #
 # run from test-versions:
