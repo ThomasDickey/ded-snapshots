@@ -64,9 +64,11 @@ u
 2#	# "Makefile"
 	# "RCS"
 	# "README"
+	# "dedrc"
 	# "ded.c"
 	# "ded2s.c"
 	# "dedblip.c"
+	# "dedcolor.c"
 	# "deddoit.c"
 	# "deddump.c"
 	# "dedfind.c"
@@ -80,6 +82,7 @@ u
 	# "dedscan.c"
 	# "dedshow.c"
 	# "dedsigs.c"
+	# "dedsize.c"
 	# "dedsort.c"
 	# "dedtags.c"
 	# "dedtype.c"
@@ -166,7 +169,7 @@ u
 1+	# "Makefile"
 1+	# "RCS"
 1+	# "README"
-1+	# "ded.a"
+1+	# "dedrc"
 1\t
 1H
 1w

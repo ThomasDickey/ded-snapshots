@@ -1,5 +1,5 @@
 #if	!defined(NO_IDENT)
-static	char	Id[] = "$Id: ftree.c,v 12.18 1994/07/02 20:29:51 tom Exp $";
+static	char	Id[] = "$Id: ftree.c,v 12.19 1994/07/12 15:22:52 tom Exp $";
 #endif
 
 /*
@@ -895,19 +895,15 @@ private	void	read_ftree (
  */
 public	void	ft_read(
 	_ARX(char *,	first)	/* => string defining the initial directory */
-	_AR1(char *,	home_dir)
+	_AR1(char *,	tree_name)
 		)
 	_DCL(char *,	first)
-	_DCL(char *,	home_dir)
+	_DCL(char *,	tree_name)
 {
 	register int	j;
 	register char	*s;
 
-	if ((s = getenv("DED_TREE")) != 0)
-		(void)strcpy(FDname, s);
-	else
-		(void)pathcat(FDname, home_dir, ".ftree");
-	read_ftree(FDname);
+	read_ftree(strcpy(FDname, tree_name));
 	FDdiff = 0;
 
 	/* append the current directory to the list */

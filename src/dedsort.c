@@ -1,12 +1,9 @@
-#if	!defined(NO_IDENT)
-static	char	Id[] = "$Id: dedsort.c,v 12.5 1994/07/02 20:08:44 tom Exp $";
-#endif
-
 /*
  * Title:	dedsort.c (ded-sort)
  * Author:	T.E.Dickey
  * Created:	11 Nov 1987
  * Modified:
+ *		12 Jul 1994, defined 'CMPF()' macro for 'ded_blocks()' hack.
  *		06 Dec 1993, added 'S' sort.
  *		29 Oct 1993, ifdef-ident
  *		28 Sep 1993, gcc warnings
@@ -43,12 +40,15 @@ static	char	Id[] = "$Id: dedsort.c,v 12.5 1994/07/02 20:08:44 tom Exp $";
 #include	"ded.h"
 #include	"td_qsort.h"
 
+MODULE_ID("$Id: dedsort.c,v 12.7 1994/07/12 23:38:01 tom Exp $")
+
 #ifdef	apollo_sr10
 #include	<acl.h>
 extern	char	*type_uid2s();
 #endif
 
 #define	CHECKED(p)	(p->z_time == p->s.st_mtime)
+#define	CMPF(f)	(f(&(p1->s)) > f(&(p2->s)) ? -1 : (f(&(p1->s)) < f(&(p2->s)) ? 1 : 0))
 #define	CMPX(m)		(p1->m > p2->m ? -1 : (p1->m < p2->m ? 1 : 0))
 #define	CMP(m)		CMPX(s.m)
 #define	CMP2S(f,m)	cmp = strcmp(strcpy(bfr, f((int)p1->s.m)),\
@@ -202,7 +202,7 @@ public	int	dedsort_cmp(
 				cmp = 1;
 			else
 				cmp = (gbl->sortopt == 'S')
-					? CMP(st_blocks)
+					? CMPF(ded_blocks)
 					: CMP(st_size);
 			break;
 

@@ -3,7 +3,7 @@
 
 #ifdef	MAIN
 #if	!defined(NO_IDENT)
-static	char	*ded_h = "$Id: ded.h,v 12.26 1994/07/11 00:15:30 tom Exp $";
+static	char	*ded_h = "$Id: ded.h,v 12.27 1994/07/12 23:33:13 tom Exp $";
 #endif
 #endif	/* MAIN */
 
@@ -417,12 +417,8 @@ extern	int	dedsigs(
 		_ar1(int,	flag));
 
 /* *** "dedsize.c" *** */
-#ifdef SIGWINCH
 extern	void	dedsize(
 		_ar1(RING *,	gbl));
-#else
-#define		dedsize(gbl)	/* nothing */
-#endif
 
 /* *** "dedsort.c" *** */
 extern	int	dedsort_cmp(
@@ -570,6 +566,13 @@ extern	int	ded2string(
 extern	int	ded_access(
 		_arx(Stat_t *,	sb)
 		_ar1(int,	mask));
+
+#if STAT_HAS_ST_BLOCKS
+#define ded_blocks(sb) (sb)->st_blocks
+#else
+extern	unsigned long ded_blocks(
+		_ar1(Stat_t *,	sb));
+#endif
 
 extern	char	*type_uid2s(
 		_ar1(Stat_t *,	s));

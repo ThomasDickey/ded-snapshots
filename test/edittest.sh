@@ -1,5 +1,5 @@
 #!/bin/sh
-# $Id: edittest.sh,v 12.1 1994/06/26 23:00:11 tom Exp $
+# $Id: edittest.sh,v 12.2 1994/07/12 01:04:14 tom Exp $
 #
 # Edit a test-log so that it will be simple to do regression tests on it.
 # We make all references to the current pathname (of the 'ded' directory)
@@ -7,7 +7,14 @@
 # comments to an innocuous form.
 #
 # run from test-versions:
-PATH=:`pwd`:`cd ../bin;pwd`:`cd ../../../bin;pwd`:/bin:/usr/bin:/usr/ucb
+PATH=/bin:/usr/bin:/usr/ucb
+for p in ../../../bin ../../bin ../bin .
+do
+	if test -d $p
+	then
+		PATH="`cd $p;pwd`:$PATH"
+	fi
+done
 export PATH
 #
 P=`cd ..;pwd`

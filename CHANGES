@@ -1,3 +1,38 @@
+1994-07-12  Thomas E. Dickey  <dickey@clark.net>
+
+	* src/ded2s.c: typo
+
+	* src/ded2s.c:
+	pasted in my original code from flist (Scope), but it needs to be
+	rewritten, since it simply counts the blocks!
+
+	* src/ded2s.c: CLIX has no stat.st_blocks
+
+	* src/dedsort.c: new macro CMPF used for block-size hiding
+
+	* src/dedsort.c: use MODULE_ID
+
+	* src/dedsize.c: bug fixes for SunOS, port fix for CLIX
+
+	* src/ded.h: mods for CLIX & IRIX
+
+	* src/dedcolor.c: IRIX has 'has_colors()' in it's curses
+
+	* src/Makefile: use RANLIB
+
+	* src/dedtags.c:
+	new macro 'ded_blocks()' to hide systems w/o stat.st_blocks
+
+	* src/dedtags.c: use MODULE_ID
+
+	* src/README: fixed a couple on SunOS
+
+	* src/ded.c: integrated -t option and DED_TREE environment variable
+
+	* src/ftree.c:
+	moved my environment-variable hack into the main program, so I can make
+	the -t option override it.
+
 1994-07-11  Thomas E. Dickey  <dickey@clark.net>
 
 	* test/test2.cmd, test/test1.cmd: added dedrc, dedcolor.c, dedsize.c

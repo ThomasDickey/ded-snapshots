@@ -1,4 +1,4 @@
-# $Id: Makefile,v 12.7 1994/07/10 14:50:47 tom Exp $
+# $Id: Makefile,v 12.8 1994/07/12 18:01:08 tom Exp $
 # MAKE-file for directory editor
 
 THIS	= ded
@@ -97,10 +97,10 @@ sources:	$(SOURCES)
 ####### (Details of Productions) ###############################################
 $B:				; mkdir $@
 $B/$(THIS):	$(MAIN_O) $(LIB_DEPS)	; $(LINK) -o $@ $(MAIN_O) $(LIB_ARGS)
-$B/$(THIS).hlp:	$(THIS).hlp	; $(PUT)
+$B/$(THIS).hlp:	$(THIS).hlp	; -$(PUT)
 
 $Z:	$(OBJS)
-	ranlib $@
+	$(RANLIB) $@
 
 $(THIS).o:	$(DED_H) $(THIS).c version.h
 $(OBJS):	$(DED_H)
