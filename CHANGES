@@ -1,3 +1,37 @@
+1991-04-18  dickey@software.org
+
+	* src/dedline.c:
+	fixed end-of-buffer code for 'edittext()' (caused spurious
+	data overwrites).
+
+	* src/version.h, src/ded.hlp: added ':' command to directory-tree
+
+1991-04-18  ste_cm@software.org
+
+	* src/ded.hlp: BASELINE Mon Jun 10 10:09:56 1991 -- apollo sr10.3
+
+1991-04-18  dickey@software.org
+
+	* src/ftree.c: added ':' command to simplify jumps to specific point
+	,
+
+	* src/ded.hlp: added note about hard-link
+
+	* src/version.h: added "cL" command to create hard links.
+
+	* src/dedmake.c:
+	added command "cL" to create hard link (implicitly to the
+	current entry).
+
+	* src/ded.c:
+	mods to 'dedwait()' and 'dedread()' to debug and guard against
+	user-pattern not finding files.
+
+	* src/dedread.c:
+	added flag to control whether identical pattern returns
+	true or false (so that if nothing is found, we can force
+	re-invocation of this procedure).
+
 1991-04-17  dickey@software.org
 
 	* src/dedscan.c: modified debug-trace to make it easier to watch

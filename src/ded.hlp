@@ -1,4 +1,4 @@
-$Id: ded.hlp,v 8.0 1990/05/23 11:35:14 ste_cm Rel $
+$Id: ded.hlp,v 9.0 1991/04/18 09:41:21 ste_cm Rel $
 
 DED (Directory EDitor)
 ======================
@@ -183,6 +183,7 @@ Operations on Files:
 		d	directory
 		f	file
 		l	symbolic link
+		L	hard link
 
 		The command completes by editing the name of the new
 		entry a la '='.
@@ -265,5 +266,6 @@ Directory Tree:
   -		Unmark directory name.
   _		Clear list of marked names.
   p		Purge marked names.
+  :		Jump to specified line.
   @		Jump to specified path.
   ~		Shortened version of '@', presets prompt to "~".

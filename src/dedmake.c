@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	Id[] = "$Id: dedmake.c,v 8.0 1989/10/05 17:02:20 ste_cm Rel $";
+static	char	Id[] = "$Id: dedmake.c,v 8.1 1991/04/18 08:58:58 dickey Exp $";
 #endif	lint
 
 /*
@@ -7,9 +7,13 @@ static	char	Id[] = "$Id: dedmake.c,v 8.0 1989/10/05 17:02:20 ste_cm Rel $";
  * Author:	T.E.Dickey
  * Created:	12 Sep 1988
  * $Log: dedmake.c,v $
- * Revision 8.0  1989/10/05 17:02:20  ste_cm
- * BASELINE Mon Aug 13 15:06:41 1990 -- LINCNT, ADA_TRANS
+ * Revision 8.1  1991/04/18 08:58:58  dickey
+ * added command "cL" to create hard link (implicitly to the
+ * current entry).
  *
+ *		Revision 8.0  89/10/05  17:02:20  ste_cm
+ *		BASELINE Mon Aug 13 15:06:41 1990 -- LINCNT, ADA_TRANS
+ *		
  *		Revision 7.0  89/10/05  17:02:20  ste_cm
  *		BASELINE Mon Apr 30 09:54:01 1990 -- (CPROTO)
  *		
@@ -47,10 +51,11 @@ extern	int	errno;
 extern	char	*sys_errlist[];
 
 static
-makeit(name, mode)
+makeit(name, mode, hard)
 char	*name;
 {
 	int	fid;
+
 	errno = 0;
 	if (mode == S_IFDIR) {
 		if (mkdir(name, 0777) < 0)
@@ -58,9 +63,14 @@ char	*name;
 		ft_insert(name);
 	}
 	if (mode == S_IFREG) {
-		if ((fid = creat(name, 0777)) < 0)
-			return (FALSE);
-		(void)close(fid);
+		if (hard >= 0) {
+			if (link(xNAME(hard), name) < 0)
+				return (FALSE);
+		} else {
+			if ((fid = creat(name, 0777)) < 0)
+				return (FALSE);
+			(void)close(fid);
+		}
 	}
 #ifdef	S_IFLNK
 	if (mode == S_IFLNK) {
@@ -69,8 +79,19 @@ char	*name;
 	}
 #endif	S_IFLNK
 	cNAME = txtalloc(name);
-	statLINE(curfile);
-	showLINE(curfile);
+	if (hard >= 0) {
+		register int j;
+		for (j = 0; j < numfiles; j++) {
+			if (j == curfile
+			 || xSTAT(j).st_ino == xSTAT(hard).st_ino) {
+				statLINE(j);
+				showLINE(j);
+			}
+		}
+	} else {
+		statLINE(curfile);
+		showLINE(curfile);
+	}
 	return (TRUE);
 }
 
@@ -78,6 +99,7 @@ dedmake()
 {
 	auto	struct	stat	sb;
 	auto	int	mode;
+	auto	int	hard	= -1;
 	auto	char	bfr[BUFSIZ];
 
 	/* make a dummy entry */
@@ -87,19 +109,23 @@ dedmake()
 #ifdef	S_IFLNK
 	case 'l':	mode = S_IFLNK;	break;
 #endif	S_IFLNK
+	case 'L':	if ((mode = (cSTAT.st_mode & S_IFMT)) == S_IFREG) {
+				hard = curfile + 1;
+				break;
+			}
 	default:	beep();
 			return;
 	}
 	statMAKE(mode);
 
 	/* loop until either the user gives up, or supplies a legal name */
-	(void)strcpy(bfr, cNAME);
+	(void)strcpy(bfr, (hard >= 0) ? xNAME(hard) : cNAME);
 	while (edittext('q', cmdcol[CCOL_NAME], sizeof(bfr), bfr)) {
 		errno = 0;
 		if (stat(bfr, &sb) >= 0)
 			errno = EEXIST;
 		else if (errno == ENOENT) {
-			if (!makeit(bfr, mode)) {
+			if (!makeit(bfr, mode, hard)) {
 				waitmsg(sys_errlist[errno]);
 				statMAKE(0);	/* undo it -- error */
 			}

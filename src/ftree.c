@@ -1,15 +1,19 @@
 #ifndef	lint
-static	char	Id[] = "$Id: ftree.c,v 8.1 1990/08/27 08:38:21 dickey Exp $";
+static	char	Id[] = "$Id: ftree.c,v 8.2 1991/04/18 09:18:15 dickey Exp $";
 #endif	lint
 
 /*
  * Author:	T.E.Dickey
  * Created:	02 Sep 1987
  * $Log: ftree.c,v $
- * Revision 8.1  1990/08/27 08:38:21  dickey
- * modified 'ft_read()' and 'ft_write()' to try to recover from
- * missing/corrupt ".ftree" file.
+ * Revision 8.2  1991/04/18 09:18:15  dickey
+ * added ':' command to simplify jumps to specific point
+ * ,
  *
+ *		Revision 8.1  90/08/27  09:33:49  dickey
+ *		modified 'ft_read()' and 'ft_write()' to try to recover from
+ *		missing/corrupt ".ftree" file.
+ *		
  *		Revision 8.0  90/05/23  10:51:18  ste_cm
  *		BASELINE Mon Aug 13 15:06:41 1990 -- LINCNT, ADA_TRANS
  *		
@@ -1180,6 +1184,24 @@ char	*path;
 					num--;
 				}
 				row = fd_bak(num);
+			} else
+				beep();
+			break;
+
+		case ':':	/* jump to absolute line */
+			move(PATH_ROW,0);
+			PRINTW("line: ");
+			clrtoeol();
+			*cwdpath = EOS;
+			dlog_string(cwdpath,sizeof(cwdpath),FALSE);
+			if (!strcmp(cwdpath, "$"))
+				c = FDlast;
+			else if (sscanf(cwdpath, "%d%c", &c, &num) != 1)
+				c = -1;
+			if (c >= 0 && c <= FDlast) {
+				row = c;
+				lvl = fd_level(row);
+				scroll_to(row);
 			} else
 				beep();
 			break;

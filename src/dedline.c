@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	what[] = "$Id: dedline.c,v 8.0 1990/03/06 08:26:44 ste_cm Rel $";
+static	char	what[] = "$Id: dedline.c,v 8.1 1991/04/18 10:42:26 dickey Exp $";
 #endif	lint
 
 /*
@@ -7,9 +7,13 @@ static	char	what[] = "$Id: dedline.c,v 8.0 1990/03/06 08:26:44 ste_cm Rel $";
  * Author:	T.E.Dickey
  * Created:	01 Aug 1988 (from 'ded.c')
  * $Log: dedline.c,v $
- * Revision 8.0  1990/03/06 08:26:44  ste_cm
- * BASELINE Mon Aug 13 15:06:41 1990 -- LINCNT, ADA_TRANS
+ * Revision 8.1  1991/04/18 10:42:26  dickey
+ * fixed end-of-buffer code for 'edittext()' (caused spurious
+ * data overwrites).
  *
+ *		Revision 8.0  90/03/06  08:26:44  ste_cm
+ *		BASELINE Mon Aug 13 15:06:41 1990 -- LINCNT, ADA_TRANS
+ *		
  *		Revision 7.0  90/03/06  08:26:44  ste_cm
  *		BASELINE Mon Apr 30 09:54:01 1990 -- (CPROTO)
  *		
@@ -470,8 +474,8 @@ int	at_flag	= ((endc == 'u') || (endc == 'g')) ? at_save() : FALSE;
 					d = c;
 					c = bfr[x+j];
 				} while (bfr[x+(j++)] = d);
-				bfr[len] = EOS;
-				if (x < len)	x++;
+				bfr[len-1] = EOS;
+				if (x < len-1)	x++;
 			} else if (c == ec) {
 				delete = x-1;
 			} else if (c == kc) {

@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	what[] = "$Id: ded.c,v 8.4 1991/04/16 08:54:12 dickey Exp $";
+static	char	what[] = "$Id: ded.c,v 8.5 1991/04/18 07:56:57 dickey Exp $";
 #endif	lint
 
 /*
@@ -7,9 +7,13 @@ static	char	what[] = "$Id: ded.c,v 8.4 1991/04/16 08:54:12 dickey Exp $";
  * Author:	T.E.Dickey
  * Created:	09 Nov 1987
  * $Log: ded.c,v $
- * Revision 8.4  1991/04/16 08:54:12  dickey
- * suppress empty-strings from argument list
+ * Revision 8.5  1991/04/18 07:56:57  dickey
+ * mods to 'dedwait()' and 'dedread()' to debug and guard against
+ * user-pattern not finding files.
  *
+ *		Revision 8.4  91/04/16  08:58:11  dickey
+ *		suppress empty-strings from argument list
+ *		
  *		Revision 8.3  91/04/16  08:18:19  dickey
  *		interpret "-" argument as read-from-standard-input
  *		
@@ -1048,7 +1052,7 @@ pattern_args(path)
 char	*path;
 {
 	char	*pattern = 0;
-	while (dedread(&pattern)) {
+	while (dedread(&pattern, FALSE)) {
 		if (new_args(path, 'E', 1, 3, TRUE, pattern))
 			return (TRUE);
 	}
@@ -1460,7 +1464,7 @@ char	*argv[];
 
 	case CTL(R):	/* modify read-expression */
 			(void)strcpy(tpath, cNAME);
-			while (dedread(&toscan))
+			while (dedread(&toscan, numfiles == 0))
 				if (rescan(FALSE, tpath))
 					break;
 			break;
@@ -1578,7 +1582,7 @@ char	*argv[];
 	case 'm':	to_work();
 			forkfile(ENV(PAGER), cNAME, TRUE);
 #ifndef	apollo
-			dedwait();
+			dedwait(TRUE);
 #endif	apollo
 			break;
 
