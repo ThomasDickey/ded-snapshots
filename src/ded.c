@@ -1,5 +1,5 @@
 #ifndef	NO_SCCS_ID
-static	char	sccs_id[] = "@(#)ded.c	1.17 88/05/03 11:26:12";
+static	char	sccs_id[] = "@(#)ded.c	1.18 88/05/06 15:46:39";
 #endif	NO_SCCS_ID
 
 /*
@@ -121,13 +121,21 @@ to_exit(last)
 /*
  * Clear the work-area, and move the cursor there.
  */
-to_work()
+clear_work()
 {
-	markC(TRUE);
 	move(mark_W + 1, 0);
 	clrtobot();
 	move(mark_W + 1, 0);
 	refresh();
+}
+
+/*
+ * Clear the work area, move the cursor there after setting marker
+ */
+to_work()
+{
+	markC(TRUE);
+	clear_work();
 }
 
 /*
@@ -421,7 +429,7 @@ char	*path;
 {
 register int j;
 
-	to_work();
+	clear_work();
 	if (dedring(path, cmd, count)) {
 		(void)to_file();
 		for (j = tag_count = 0; j < numfiles; j++)

@@ -1,5 +1,5 @@
 #ifndef	NO_SCCS_ID
-static	char	sccs_id[] = "@(#)ded2s.c	1.3 88/04/11 07:03:50";
+static	char	sccs_id[] = "@(#)ded2s.c	1.4 88/05/06 13:40:40";
 #endif	NO_SCCS_ID
 
 /*
@@ -125,7 +125,7 @@ char	*t,
 #ifdef	Z_SCCS
 	if (Z_opt && V_opt) {
 		sprintf(bfr, "%3d.%-3d ", f_->z_rels, f_->z_vers);
-		bfr += field(bfr, (f_->z_time != 0));
+		bfr += field(bfr, (unsigned)(f_->z_time != 0));
 	}
 #endif	Z_SCCS
 

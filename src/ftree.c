@@ -1,11 +1,14 @@
 #ifndef	NO_SCCS_ID
-static	char	sccs_id[] = "@(#)ftree.c	1.32 88/05/03 14:29:40";
+static	char	sccs_id[] = "@(#)ftree.c	1.37 88/05/06 15:39:36";
 #endif
 
 /*
  * Author:	T.E.Dickey
  * Created:	02 Sep 1987
  * Modified:
+ *		06 May 1988, added 'W' command.  Also, in cursor movement, make
+ *			     newline force cursor rightwards.  Portable regex.
+ *		05 May 1988, added 'Q' command.
  *		03 May 1988, broke out 'ft_stat()'. to use in '@' command.
  *			     Added 'J', 'K' level-independent up/down.
  *		02 May 1988, added '^' command to 'ft_view()'.  Adjusted 'q'
@@ -47,13 +50,8 @@ static	char	sccs_id[] = "@(#)ftree.c	1.32 88/05/03 14:29:40";
 #include	<sys/errno.h>
 extern	long	time();
 extern	int	errno;
-extern	char	*getenv(),
-		*regcmp(),
-		*regex(),
-		*stralloc(),
-		*strcat(),
-		*strchr(),
-		*strcpy();
+extern	char	*stralloc(),
+		*strchr();
 
 #ifndef	R_OK		/* should be in <sys/file.h>, but apollo has conflict */
 #define	R_OK	4
@@ -145,7 +143,7 @@ fd_alloc()
 	if (FDlast >= FDsize) {
 	register int	size = FDsize;
 		FDsize += FDlast + 2;
-		ftree = (FTREE *)doalloc((char *)ftree, FDsize * sizeof(FTREE));
+		ftree = DOALLOC(FTREE,ftree,FDsize);
 		while (size < FDsize) {
 			ftree[size].f_root =
 			ftree[size].f_mark = 0;
@@ -163,7 +161,8 @@ fd_find (buffer,cmd,old)
 char	*buffer, cmd;
 {
 static	int	next = 0;		/* last-direction		*/
-static	char	*expr;			/* 'regcmp()' output		*/
+static	char	pattern[MAXPATHLEN],
+		*expr;			/* regex-state/output		*/
 
 register int	step,
 	new = old,
@@ -172,29 +171,31 @@ register int	step,
 	if (cmd == '?' || cmd == '/') {
 		if (strchr(buffer, *gap))
 			return(-1);	/* we don't search full-paths */
-		if (*buffer) {
-			if (next) {	/* retain old pattern til new one */
-				next = 0;
-				free (expr);	/* Release old target */
-			}
-			expr = regcmp(buffer, 0);
-		}
-		if (expr)
-			step =
-			next = (cmd == '/') ? 1 : -1;
+		if (*buffer)
+			(void)strcpy(pattern,buffer);
+		step =
+		next = (cmd == '/') ? 1 : -1;
 	} else
 		step = (cmd == 'n') ? next : -next;
 
-	if (step && expr) {
+	OLD_REGEX(expr);
+	if (NEW_REGEX(expr,pattern)) {
 		do {
-			if (looped++ && (new == old))		return(-1);
+			if (looped++ && (new == old)) { beep();	return(-1); }
 			else if ((new += step) < 0)		new = FDlast;
 			else if (new > FDlast)			new = 0;
 		}
-		while (! regex(expr, ftree[new].f_name, 0));
+		while (! GOT_REGEX(expr, ftree[new].f_name));
 		return(new);
 	}
-	return(-1);
+#ifndef	TEST
+	BAD_REGEX(expr);
+	move(LINES-1,0);
+	beep();
+	refresh();
+	(void)cmdch((int *)0);	/* pause beside error message */
+#endif	TEST
+	return (-1);
 }
 
 /*
@@ -515,7 +516,7 @@ int	fid,
 
 		/* (3) string-heap */
 		if ((size -= vecsize) > 0) {
-		char	*heap = (char *)doalloc((char *)0, (unsigned)size);
+		char	*heap = DOALLOC(char,0,(unsigned)size);
 		register char *s = heap;
 			if (read(fid, heap, (int)size) != size)
 				failed("heap \".ftree\"");
@@ -794,9 +795,10 @@ register int j;
 				else
 					beep();
 				break;
-		case ARO_DOWN:
 		case '\r':
 		case '\n':
+				lvl = 999;
+		case ARO_DOWN:
 		case 'j':	row = downrow(row,num,lvl);	break;
 		case ARO_UP:
 		case 'k':	row = uprow(row,num,lvl);	break;
@@ -859,26 +861,29 @@ register int j;
 		case '@':
 			if (!isalpha(c)) {
 				move(0,0);
-				printw("find: ");
+				printw((c != '@') ? "find: " : "jump: ");
 				clrtoeol();
-				refresh();
 				rawgets(cwdpath,sizeof(cwdpath),FALSE);
 			}
 			if (c != '@')
 				c = fd_find(cwdpath,c,row);
-			else if ((c = do_find(cwdpath)) < 0) {
-				ft_stat(cwdpath,cwdpath);
-				c = do_find(cwdpath);
+			else {
+				if ((c = do_find(cwdpath)) < 0) {
+					ft_stat(cwdpath,cwdpath);
+					c = do_find(cwdpath);
+				}
+				if (c < 0)	beep();
 			}
 			if (c >= 0) {
 				row = c;
 				lvl = fd_level(row);
 				scroll_to(row);
-			} else	beep();
+			}
 			break;
 
 #ifndef	TEST
 		/* quit lists in directory-ring */
+		case 'Q':
 		case 'q':
 		/* scroll through the directory-ring */
 		case 'F':
@@ -893,7 +898,7 @@ register int j;
 			lvl = fd_level(row);
 			scroll_to(row);
 			(void)strcpy(path, cwdpath);
-			if (!num && c == 'q')
+			if (!num && (c == 'q' || c == 'Q'))
 				return('E');
 			break;
 
@@ -910,14 +915,14 @@ register int j;
 					break;
 				}
 				bfr[len] = EOS;
-				(void)strcpy(cwdpath, bfr);
+				abspath(strcpy(cwdpath, bfr));
 			}
 #endif	SYSTEM5
 			if (access(cwdpath, R_OK | X_OK) < 0) {
 				beep();
 				break;
 			}
-			abspath(strcpy(path, cwdpath));
+			(void)strcpy(path, cwdpath);
 			/* fall-thru to return */
 #endif	TEST
 		case 'D':
@@ -973,6 +978,11 @@ register int j;
 #endif	apollo
 				savewin();
 				unsavewin(TRUE,0);
+				break;
+
+		/* Force dump */
+		case 'W':
+				ft_write();
 				break;
 
 		/* toggle flag which controls whether we show dependents */

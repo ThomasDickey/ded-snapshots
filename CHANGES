@@ -1,3 +1,48 @@
+1988-05-06  dickey@software.org
+
+	* src/Makefile: port to gould
+
+	* src/README: bugs to resolve after first gould port.
+
+	* src/ded.c:
+	markC() caused segmentation violation on gould, from E in ftree!
+
+	* src/ftree.c:
+	corrected bug in link-resolution for 'E' command (gould port)
+
+	* src/dedscan.c: forgot to check for ".", ".." names (gould-port)
+
+	* src/ded2s.c: lint
+
+	* src/version.h: W,Q commands added to ftree.
+
+	* src/dedfind.c:
+	recoded use of regex-procedures to make this more portable.
+
+	* src/README: new notes.
+
+	* src/ftree.c: recoded use of regex to make it more portable.
+
+	* src/ded.h:
+	added macros to cover differences in regex between SYSTEM5/BSD4.x
+
+	* src/ded.h: added DOALLOC macro for lint.
+
+	* src/dedring.c: lint: DOALLOC.
+	Also, added code to coerce translation of pathnames in case a symbolic link was
+	not translated in the given argument (happens in '@' command of ftree).
+
+	* src/dedtype.c, src/ftree.c, src/dedscan.c: lint: DOALLOC
+
+	* src/ded.hlp: added 'W' command to directory-tree.
+
+	* src/ftree.c:
+	Added 'W' command, modified newline & return for cursor movement.
+
+	* src/ded.hlp: documents q/Q in directory tree.
+
+	* src/ftree.c: added 'Q' command.
+
 1988-05-05  dickey@software.org
 
 	* src/dedring.c: added 'Q' command.

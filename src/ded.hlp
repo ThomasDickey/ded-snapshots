@@ -177,6 +177,9 @@ Directory Tree:
   '?', 'n' and 'N' search works in the directory-tree (though it finds only
   leaf names, rather than full paths).
 
+  q		Quit the current file-list, move forward.
+  Q		Quit the current file-list, move backward.
+  W		Write directory-tree database (normally done on exit).
   D		Toggle between directory-tree and file-list display.
   E		Enter a new file-list at the indicated directory-name.
   e		Enter a new ded-process at the indicated directory-name.

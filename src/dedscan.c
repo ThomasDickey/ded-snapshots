@@ -1,5 +1,5 @@
 #ifndef	NO_SCCS_ID
-static	char	sccs_id[] = "@(#)dedscan.c	1.5 88/05/02 13:15:37";
+static	char	sccs_id[] = "@(#)dedscan.c	1.7 88/05/06 15:06:37";
 #endif	NO_SCCS_ID
 
 /*
@@ -52,11 +52,13 @@ char	name[BUFSIZ];
 				warn(new_wd);
 				return(0);
 			}
-			getcwd(new_wd, sizeof(new_wd)-2);
-			ft_remove(new_wd);	/* mark dep's for purge */
+				/* mark dep's for purge */
+			ft_remove(getcwd(new_wd, sizeof(new_wd)-2));
 			if (dp = opendir(".")) {
 			int	len = strlen(strcat(strcpy(name, new_wd), "/"));
 				while (de = readdir(dp)) {
+					if (dotname(de->d_name))
+						continue;
 					j = argstat(strcpy(name+len,
 							de->d_name), TRUE);
 					if (j > 0)
@@ -117,7 +119,7 @@ register int j = lookup(name);
 	}
 
 	/* append a new entry on the end of the list */
-	flist = (FLIST *)doalloc(flist, (numfiles+1) * sizeof(FLIST));
+	flist = DOALLOC(FLIST,flist,numfiles+1);
 
 	Zero(&flist[numfiles]);
 	flist[numfiles]      = *f_;
