@@ -3,7 +3,7 @@
 	# argv[1] = '-t/tmp'
 	# argv[2] = '-ctest4.cmd'
 	# argv[3] = '-ltest4.out'
-1%rm -rf junk*
+1%rm\s-rf\sjunk*\r
 	# execute rm -rf junk*
 \r	# Hit <RETURN> to continue
 	# ELAPSED TIME
@@ -16,7 +16,7 @@
 1cd	# before ""
 \tjunk/second\r
 	# after  "junk/second"
-1%touch #/file
+1%touch\s#/file\r
 	# execute touch junk/second/file
 \r	# Hit <RETURN> to continue
 	# ELAPSED TIME
@@ -35,7 +35,7 @@
 \R\R\R\R\R\R\R\R\R\R\R\R\R\L\L\t\b\b\b\b\b\bfirst\r
 	# after  "junk/first/file2"
 1cL	# before "junk/first/file2"
-\006\b\b\b\b\b\006\t\b\b\b\b\b\b\b\b\b\b\bfile3\r
+\F\b\b\b\b\b\F\t\b\b\b\b\b\b\b\b\b\b\bfile3\r
 	# after  "junk/file3"
 1p444p	# chmod 444 junk/file3
 1si
@@ -54,13 +54,15 @@
 1k
 1E	# chdir CM_TOOLS/test/junk/second
 1D	# path: CM_TOOLS/test/junk/second
-1N	# path: CM_TOOLS/test/junk/second
+1N
+\s	# (waitmsg) No previous regular expression
+	# path: CM_TOOLS/test/junk/second
 1B	# path: CM_TOOLS/test/junk/first
 1B	# path: CM_TOOLS/test/junk
 1B	# path: CM_TOOLS/test
 1B	# path: CM_TOOLS/test/junk/second
 1B	# path: CM_TOOLS/test/junk/first
-1=the_first
+1=\Bthe_\r
 	# rename "CM_TOOLS/test/junk/the_first" (name=CM_TOOLS/test/junk/first)
 	# RING-chdir CM_TOOLS/test/junk/the_first =>0
 	# path: CM_TOOLS/test/junk/the_first
@@ -74,9 +76,9 @@
 1Q	# path: CM_TOOLS/test/junk
 1Q	# path: CM_TOOLS/test
 1D	# chdir CM_TOOLS/test
-1%rm -rf junk
+1%rm\s-rf\sjunk\r
 	# execute rm -rf junk
 \r	# Hit <RETURN> to continue
 	# ELAPSED TIME
-1qy
+1qy\r
 	# PROCESS ENDED

@@ -7,7 +7,7 @@
 \tjunk_file\r
 	# after  "junk_file"
 1p444p	# chmod 444 junk_file
-1!rm -f #
+1!rm\s-f\s#\r
 	# execute rm -f junk_file
 	# ELAPSED TIME
 1l
@@ -28,7 +28,7 @@
 1k	# path: CM_TOOLS/test/junk_dir
 1k	# path: CM_TOOLS/test
 1D	# chdir CM_TOOLS/test
-1!rmdir #
+1!rmdir\s#\r
 	# execute rmdir junk_dir/junk
 	# ELAPSED TIME
 1j
@@ -52,24 +52,24 @@ q
 	# after  "../#"
 	# relink "../junk_link" (link=junk_link)
 1=	# before "junk_link"
-\006\t\b\b\b\b\b\b\b\b\b\btest\r
+\F\t\b\b\b\b\b\b\b\b\b\btest\r
 	# after  "test"
 	# rename "test" (name=junk_link)
 1<	# before "../junk_link"
-\006\b\b\b\b\b\b\b\006\t\b\b\b\b\b\b\b\b\btest\r
+\F\b\b\b\b\b\b\b\F\t\b\b\b\b\b\b\b\b\btest\r
 	# after  "../test"
 	# relink "../test" (link=test)
 1@
 1\s
-1%ls -l #
+1%ls\s-l\s#\r
 	# execute ls -l test
 \r	# Hit <RETURN> to continue
 	# ELAPSED TIME
-1:ls -ld #/*
+1:\F\t\L\L\td\F/*\r
 	# execute ls -ld test/*
 \r	# Hit <RETURN> to continue
 	# ELAPSED TIME
-1!rm #
+1!rm\s#\r
 	# execute rm test
 	# ELAPSED TIME
 1l
