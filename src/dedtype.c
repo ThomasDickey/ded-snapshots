@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	sccs_id[] = "@(#)dedtype.c	1.8 88/05/17 08:04:10";
+static	char	sccs_id[] = "@(#)dedtype.c	1.9 88/06/07 07:21:15";
 #endif	lint
 
 /*
@@ -7,6 +7,7 @@ static	char	sccs_id[] = "@(#)dedtype.c	1.8 88/05/17 08:04:10";
  * Author:	T.E.Dickey
  * Created:	16 Nov 1987
  * Modified:
+ *		07 Jun 1988, added CTL(K) command.
  *		02 May 1988, fixed repeat-count for forward-command.
  *			     Dynamically allocate 'infile[].'
  *
@@ -184,6 +185,10 @@ int	c,			/* current character */
 			}
 
 			switch (cmdch(&count)) {
+			case CTL(K):
+				deddump();
+				replay = 1;
+				break;
 			case 'w':
 				retouch(0);
 				replay = 1;

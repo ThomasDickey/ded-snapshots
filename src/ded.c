@@ -1,5 +1,5 @@
 #ifndef	NO_SCCS_ID
-static	char	sccs_id[] = "@(#)ded.c	1.30 88/06/06 12:24:40";
+static	char	sccs_id[] = "@(#)ded.c	1.31 88/06/07 06:37:14";
 #endif	NO_SCCS_ID
 
 /*
@@ -7,6 +7,7 @@ static	char	sccs_id[] = "@(#)ded.c	1.30 88/06/06 12:24:40";
  * Author:	T.E.Dickey
  * Created:	09 Nov 1987
  * Modified:
+ *		07 Jun 1988, added CTL(K) screen-dump
  *		06 Jun 1988, if 'R' finds nothing, do 'F' to recover before 'q'.
  *		01 Jun 1988, added 'Y' toggle, y-sort.
  *		25 May 1988, fix 'edittext()' for left/right scroll position.
@@ -1268,6 +1269,10 @@ char	tpath[BUFSIZ],
 	case 'B':	/* move backward in directory-ring */
 			(void)new_args(strcpy(tpath, new_wd), c, count);
 			showC();
+			break;
+
+	case CTL(K):	/* dump the current screen */
+			deddump();
 			break;
 
 			/* patch: not implemented */

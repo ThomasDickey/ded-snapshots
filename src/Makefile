@@ -1,4 +1,4 @@
-# @(#)Makefile	1.14 88/05/24 07:51:17
+# @(#)Makefile	1.15 88/06/07 06:38:20
 # MAKE-file for directory editor
 B	= ../../bin
 DED_H   = ded.h ../lib/cmdch.h
@@ -20,6 +20,7 @@ ftree:	ftree.c $(LIBS)
 	mv ftree.o- ftree.o
 #
 ded.a:	\
+        deddump.o\
         dedfind.o\
         dedfree.o\
         deddoit.o\
@@ -37,6 +38,7 @@ ded.a:	\
 #
 ded.o:	        $(DED_H) ded.c version.h
 deddoit.o:      $(DED_H) deddoit.c
+deddump.o:      $(DED_H) deddump.c
 dedfind.o:      $(DED_H) dedfind.c
 dedfree.o:      $(DED_H) dedfree.c
 dedname.o:      $(DED_H) dedname.c

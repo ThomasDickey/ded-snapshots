@@ -1,11 +1,12 @@
 #ifndef	NO_SCCS_ID
-static	char	sccs_id[] = "@(#)ftree.c	1.45 88/06/06 09:30:37";
+static	char	sccs_id[] = "@(#)ftree.c	1.46 88/06/07 06:36:57";
 #endif
 
 /*
  * Author:	T.E.Dickey
  * Created:	02 Sep 1987
  * Modified:
+ *		07 Jun 1988, added CTL(K) command.
  *		06 Jun 1988, use 'gethome()' for ".ftree" location.
  *		01 Jun 1988, added SCCS_DIR environment variable.
  *		16 May 1988, added 'U' command.
@@ -950,6 +951,11 @@ register int j;
 			break;
 
 #ifndef	TEST
+		/* dump the current screen */
+		case CTL(K):
+			deddump();
+			break;
+
 		/* quit lists in directory-ring */
 		case 'Q':
 		case 'q':
