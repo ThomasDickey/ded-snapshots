@@ -3,6 +3,8 @@
  * Author:	T.E.Dickey
  * Created:	09 Nov 1987
  * Modified:
+ *		10 Aug 1999, change -b to a toggle, allow curses to decide if
+ *			     box characters are available.
  *		29 May 1998, compile with g++
  *		15 Feb 1998, remove special code for apollo sr10.
  *			     working on signed/unsigned compiler warnings.
@@ -154,7 +156,7 @@
 #define	MAIN
 #include	"ded.h"
 
-MODULE_ID("$Header: /users/source/archives/ded.vcs/src/RCS/ded.c,v 12.61 1998/09/17 16:27:21 tom Exp $")
+MODULE_ID("$Header: /users/source/archives/ded.vcs/src/RCS/ded.c,v 12.62 1999/08/10 11:16:02 tom Exp $")
 
 #define	EDITOR	DEFAULT_EDITOR
 #define	BROWSE	DEFAULT_BROWSE
@@ -894,10 +896,14 @@ _MAIN
 	/* show when entering process */
 	(void)fflush(stdout);
 
+	/* if curses supports line-drawing characters, try to use them */
+#ifdef ACS_PLUS
+	optBox = TRUE;
+#endif
 	while ((c = getopt(argc, argv, "abeGIiOPSTUZc:l:r:s:zdt:n")) != EOF)
 	switch (c) {
 	case 'a':	COMPLEMENT(gbl->A_opt);	break;
-	case 'b':	optBox = TRUE;		break;
+	case 'b':	optBox = !optBox;	break;
 	case 'e':	optInprocess = FALSE;	break;
 	case 'G':	COMPLEMENT(gbl->G_opt);	break;
 	case 'I':	COMPLEMENT(gbl->I_opt);	break;
