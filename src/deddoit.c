@@ -1,5 +1,5 @@
 #if	!defined(NO_IDENT)
-static	char	Id[] = "$Id: deddoit.c,v 12.5 1993/12/01 16:26:52 dickey Exp $";
+static	char	Id[] = "$Id: deddoit.c,v 12.7 1994/06/30 23:37:23 tom Exp $";
 #endif
 
 /*
@@ -161,9 +161,10 @@ public	void	deddoit(
 	_DCL(int,	key)
 	_DCL(int,	sense)
 {
+	char	prompt[80];
 	static	DYN	*Subs;
 	static	HIST	*History;
-	register int	c, j, k;
+	register int	c, j;
 	register char	*s;
 
 	dyn_init(&Subs, BUFSIZ);
@@ -175,18 +176,15 @@ public	void	deddoit(
 	else if (sense > 1)
 		gbl->clr_sh = TRUE;
 
-	to_work(gbl,TRUE);
-	PRINTW("%c Command: ", gbl->clr_sh ? '%' : '!');
-	getyx(stdscr,j,k);
-	clrtobot();
-	move(j,k);
+	FORMAT(prompt, "%c Command: ", gbl->clr_sh ? '%' : '!');
 
 	if ((key != '.') || (*dyn_string(gbl->cmd_sh) == EOS)) {
 		if (key == ':')
 			APPEND(Subs, dyn_string(gbl->cmd_sh));
 
 		c = FALSE;
-		if (!(s = dlog_string(&Subs, (DYN **)0, &History, EOS, 0))) {
+		if (!(s = dlog_string(gbl, prompt, &Subs, (DYN **)0,
+				&History, EOS, 0))) {
 			showC(gbl);
 			return;
 		}
@@ -206,8 +204,10 @@ public	void	deddoit(
 			showC(gbl);
 			return;
 		}
-	} else
+	} else {
+		dlog_prompt(gbl, prompt);
 		PRINTW("(ditto)\n");
+	}
 
 	dyn_init(&Subs, BUFSIZ);
 	for (j = 0; *(s = dyn_string(gbl->cmd_sh) + j); j++) {

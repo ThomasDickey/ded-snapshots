@@ -1,5 +1,5 @@
 #if	!defined(NO_IDENT)
-static	char	Id[] = "$Id: dlog.c,v 12.7 1994/06/28 01:10:39 tom Exp $";
+static	char	Id[] = "$Id: dlog.c,v 12.8 1994/06/29 00:36:42 tom Exp $";
 #endif
 
 /*
@@ -327,12 +327,14 @@ public	int	dlog_char(
  * simply has no more characters in the current buffer).
  */
 public	char *	dlog_string(
+	_ARX(RING *,	gbl)
 	_ARX(DYN **,	result)
 	_ARX(DYN **,	inflag)
 	_ARX(HIST **,	history)
 	_ARX(int,	fast_q)
 	_AR1(int,	wrap_len)
 		)
+	_DCL(RING *,	gbl)
 	_DCL(DYN **,	result)
 	_DCL(DYN **,	inflag)
 	_DCL(HIST **,	history)
@@ -421,6 +423,7 @@ public	char *	dlog_string(
 		after  = dyn_copy(after,  buffer);
 
 		move(y,x);
+		dedsize(gbl);
 		c = wrawgets(stdscr,
 			buffer,
 			prefix,
@@ -432,6 +435,7 @@ public	char *	dlog_string(
 			fast_q,
 			use_script ? &script_ptr : (char **)0,
 			history || inflag || log_fp);
+		dedsize((RING *)0);
 
 		/* account for chars we read from command-file */
 		if (*cmd_ptr) {

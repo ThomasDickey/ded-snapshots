@@ -1,5 +1,5 @@
 #if	!defined(NO_IDENT)
-static	char	Id[] = "$Id: dedline.c,v 12.5 1993/11/23 17:48:02 dickey Exp $";
+static	char	Id[] = "$Id: dedline.c,v 12.7 1994/06/30 23:31:56 tom Exp $";
 #endif
 
 /*
@@ -515,6 +515,8 @@ public	int	edittext(
 	result = dyn_alloc(result, (size_t)len+1);
 	result = dyn_copy (result, bfr);
 	if ((s = dlog_string(
+			gbl,
+			(char *)0,
 			&result,
 			inline_text(),
 			inline_hist(),
