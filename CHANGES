@@ -1,3 +1,16 @@
+1992-06-18  dickey@software.org
+
+	* src/deddoit.c: ensure that we have a buffer allocated for 'cmd_sh'
+
+1992-06-18  ste_cm@software.org
+
+	* src/deddoit.c: BASELINE Thu Jul 16 09:39:01 1992 -- EBPM4 support
+
+1992-06-18  dickey@software.org
+
+	* src/ded.c: in 'rescan()' protect against reference to cNAME when we
+	last had no-files.
+
 1992-05-27  dickey@software.org
 
 	* user/ded.man: make '<' command recognize "%D" and "%d"

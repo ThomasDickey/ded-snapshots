@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	Id[] = "$Header: /users/source/archives/ded.vcs/src/RCS/ded.c,v 10.56 1992/04/09 10:51:08 dickey Exp $";
+static	char	Id[] = "$Header: /users/source/archives/ded.vcs/src/RCS/ded.c,v 10.57 1992/06/18 13:29:22 dickey Exp $";
 #endif
 
 /*
@@ -518,12 +518,12 @@ private	RING *	rescan(
 	_DCL(RING *,	gbl)
 	_DCL(int,	fwd)
 {
-	char	*cur_name = cNAME;
+	char	*cur_name = gbl->numfiles ? cNAME : 0;
 
 	to_work(gbl,TRUE);
 	init_tags(gbl);
 	if (dedscan(gbl)) {
-		gbl->curfile = findFILE(gbl, cur_name);
+		gbl->curfile = cur_name ? findFILE(gbl, cur_name) : 0;
 		(void)to_file(gbl);
 		showFILES(gbl,TRUE,TRUE);
 		return (gbl);
