@@ -1,3 +1,9 @@
+2000-12-26  Thomas E. Dickey  <dickey@clark.net>
+
+	* src/cnames.rc: sync'd with ccodes.rc
+
+	* src/ccodes.rc: trim blanks
+
 2000-12-23  Thomas E. Dickey  <dickey@clark.net>
 
 	* src/ccodes.rc: add qansi-m

@@ -3,7 +3,7 @@
 # You can copy this file to .dir_colors in your $HOME directory to override
 # the system defaults.
 
-# COLOR needs one of these arguments: 
+# COLOR needs one of these arguments:
 # 'tty' colorizes output to ttys, but not pipes (--color=auto),
 # 'all' adds color characters to all output (--color=always),
 # 'none' shuts colorization off (--color=never).
@@ -36,7 +36,7 @@ TERM qansi-m
 
 # Below are the color init strings for the basic file types. A color init
 # string consists of one or more of the following numeric codes:
-# Attribute codes: 
+# Attribute codes:
 # 00=none 01=bold 04=underscore 05=blink 07=reverse 08=concealed
 # Text color codes:
 # 30=black 31=red 32=green 33=yellow 34=blue 35=magenta 36=cyan 37=white
@@ -53,7 +53,7 @@ CHR 40;33;01 	# character device driver
 ORPHAN 40;31;01 # symlink to nonexistent file
 
 # This is for files with execute permission:
-EXEC 01;32 
+EXEC 01;32
 
 # List any file extensions like '.gz' or '.tar' that you would like ls
 # to colorize below. Put the extension, a space, and the color init string.

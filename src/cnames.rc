@@ -3,9 +3,10 @@
 # You can copy this file to .dir_colors in your $HOME directory to override
 # the system defaults.
 
-# COLOR needs one of these arguments: 'tty' colorizes output to ttys, but not
-# pipes. 'all' adds color characters to all output. 'none' shuts colorization
-# off.
+# COLOR needs one of these arguments:
+# 'tty' colorizes output to ttys, but not pipes (--color=auto),
+# 'all' adds color characters to all output (--color=always),
+# 'none' shuts colorization off (--color=never).
 COLOR tty
 
 # Extra command line options for ls go here.
@@ -30,29 +31,29 @@ TERM con80x50
 TERM con80x60
 TERM xterm
 TERM vt100
-
-# EIGHTBIT, followed by '1' for on, '0' for off. (8-bit output)
-EIGHTBIT 1
+TERM ansi
+TERM qansi-m
 
 # Below are the color init strings for the basic file types. A color init
 # string consists of one or more of the following numeric codes:
-# Attribute codes: 
+# Attribute codes:
 # 00=none 01=bold 04=underscore 05=blink 07=reverse 08=concealed
 # Text color codes:
 # 30=black 31=red 32=green 33=yellow 34=blue 35=magenta 36=cyan 37=white
 # Background color codes:
 # 40=black 41=red 42=green 43=yellow 44=blue 45=magenta 46=cyan 47=white
-NORMAL NONE	# global default, although everything should be something.
-FILE NONE 	# normal file
+NORMAL NONE		# global default, although everything should be something.
+FILE NONE 		# normal file
 DIR bold;f=blue 	# directory
 LINK BOLD;f=CYAN 	# symbolic link
 FIFO b=BLACK;f=YELLOW	# pipe
 SOCK BOLD;f=MAGENTA	# socket
 BLK b=BLACK;f=YELLOW;BOLD	# block device driver
 CHR b=BLACK;f=YELLOW;BOLD 	# character device driver
+ORPHAN b=BLACK;f=RED;BOLD	# symlink to nonexistent file
 
 # This is for files with execute permission:
-EXEC BOLD;f=GREEN 
+EXEC BOLD;f=GREEN
 
 # List any file extensions like '.gz' or '.tar' that you would like ls
 # to colorize below. Put the extension, a space, and the color init string.
@@ -62,18 +63,36 @@ EXEC BOLD;f=GREEN
 .com BOLD;f=GREEN
 .btm BOLD;f=GREEN
 .bat BOLD;f=GREEN
+
 .tar BOLD;f=RED # archives or compressed (bright red)
 .tgz BOLD;f=RED
 .arj BOLD;f=RED
 .taz BOLD;f=RED
+.tbz BOLD;f=RED
 .lzh BOLD;f=RED
 .zip BOLD;f=RED
+.bz2 BOLD;f=RED
+.rpm BOLD;f=RED
+.deb BOLD;f=RED
 .z   BOLD;f=RED
 .Z   BOLD;f=RED
 .gz  BOLD;f=RED
+.bz2 BOLD;f=RED
+
 .jpg BOLD;f=MAGENTA # image formats
 .gif BOLD;f=MAGENTA
 .bmp BOLD;f=MAGENTA
+.ppm BOLD;f=MAGENTA
+.tga BOLD;f=MAGENTA
+.png BOLD;f=MAGENTA
+.pdf BOLD;f=MAGENTA
 .xbm BOLD;f=MAGENTA
 .xpm BOLD;f=MAGENTA
 .tif BOLD;f=MAGENTA
+
+.mpg 01;37 # movie formats
+.avi 01;37
+.mov 01;37
+.gl  01;37
+.dl  01;37
+
