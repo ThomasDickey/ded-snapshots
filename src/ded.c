@@ -1,5 +1,5 @@
 #if	!defined(NO_IDENT)
-static	char	Id[] = "$Header: /users/source/archives/ded.vcs/src/RCS/ded.c,v 12.16 1994/06/27 23:29:32 tom Exp $";
+static	char	Id[] = "$Header: /users/source/archives/ded.vcs/src/RCS/ded.c,v 12.18 1994/06/28 01:10:47 tom Exp $";
 #endif
 
 /*
@@ -796,11 +796,15 @@ void	usage(_AR0)
 	dlog_exit(FAIL);
 }
 
-private	int	inline_nesting _ONE(int,c)
+private	int	inline_nesting (
+		_ARX(RING *,	gbl)
+		_AR1(int,	c))
+		_DCL(RING *,	gbl)
+		_DCL(int,	c)
 {
 	if (c == 'c') {
 		ReplayTopC(c);
-		c = dlog_char((int *)0,FALSE);
+		c = dlog_char(gbl, (int *)0, FALSE);
 	} else {
 		switch (c) {
 #ifdef	S_IFLNK
@@ -942,7 +946,7 @@ _MAIN
 
 	save_terminal();
 	(void)dedsigs(TRUE);
-	(void)dedsize((RING *)0, (int *)0);
+	(void)dedsize((RING *)0);
 	if (!initscr())			failed("initscr");
 	in_screen = TRUE;
 	if (LINES > BUFSIZ || COLS > BUFSIZ) {
@@ -959,9 +963,7 @@ _MAIN
 	mark_W = (LINES/2);
 	openVIEW(gbl);
 
-	while (gbl != 0) {
-	dedsize(gbl, (int *)0);
-	switch (c = dlog_char(&count,1)) {
+	while (gbl != 0) { switch (c = dlog_char(gbl, &count, 1)) {
 			/* scrolling */
 	case ARO_UP:
 	case '\b':
@@ -1147,9 +1149,9 @@ _MAIN
 			break;
 
 	case 'r':
-	case 's':	j = dlog_char((int *)0,0);
+	case 's':	j = dlog_char(gbl, (int *)0, 0);
 			if ((gbl->tagsort = (j == '+')) != 0)
-				j = dlog_char((int *)0,0);
+				j = dlog_char(gbl, (int *)0, 0);
 			if (!(j = sortget(gbl, j)))
 				;
 			else if (sortset(gbl, c,j)) {
@@ -1204,7 +1206,9 @@ _MAIN
 			break;
 
 			/* edit specific fields */
-	case '\'':	ReplayFind(inline_nesting(dlog_char((int *)0,FALSE)));
+	case '\'':	ReplayFind(
+				inline_nesting(gbl,
+					dlog_char(gbl, (int *)0, FALSE)));
 			ReplayTrim();	/* chop off endc */
 	case '"':	inline_command(gbl, edit_inline(TRUE));
 			break;
@@ -1215,7 +1219,7 @@ _MAIN
 	case '=':
 	case '<':
 	case '>':
-	case 'c':	inline_command(gbl, ReplayInit(inline_nesting(c)));
+	case 'c':	inline_command(gbl, ReplayInit(inline_nesting(gbl,c)));
 			break;
 
 	case CTL('e'):	/* pad-edit */
@@ -1261,7 +1265,9 @@ _MAIN
 			(void)strcpy(dpath, strcpy(tpath, gbl->new_wd) );
 			for (;;) {
 				RING *new;
+				tree_visible = TRUE;
 				gbl = ft_view(gbl, tpath, &c);
+				tree_visible = FALSE;
 				if (c == 'e')
 					new_process(gbl, tpath);
 				else if ((new = new_tree(gbl, tpath, c)) != NULL) {
@@ -1293,8 +1299,7 @@ _MAIN
 			break;
 
 	default:	beep();
-	}; lastc = c;
-	}
+	}; lastc = c; }
 
 	to_exit(TRUE);
 	ft_write();

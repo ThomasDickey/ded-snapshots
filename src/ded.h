@@ -3,7 +3,7 @@
 
 #ifdef	MAIN
 #if	!defined(NO_IDENT)
-static	char	*ded_h = "$Id: ded.h,v 12.19 1994/06/27 23:28:25 tom Exp $";
+static	char	*ded_h = "$Id: ded.h,v 12.21 1994/06/28 01:09:40 tom Exp $";
 #endif
 #endif	/* MAIN */
 
@@ -207,6 +207,7 @@ typedef	struct	_hist	{
  */
 MAIN	char	old_wd[MAXPATHLEN]; /* original working-directory */
 MAIN	int	mark_W;		/* row of work-area marker */
+MAIN	int	tree_visible;	/* denotes filelist vs directory-tree */
 
 /* *** "ded.c" *** */
 extern	int	debug;
@@ -336,7 +337,7 @@ extern	int	dedname(
 /* *** "dedread.c" *** */
 extern	int	dedread(
 		_arx(RING *,	gbl)
-		_arx(char *,	*pattern_)
+		_arx(char **,	pattern_)
 		_ar1(int,	change_needed));
 
 extern	void	init_scan(
@@ -412,10 +413,9 @@ extern	int	dedsigs(
 /* *** "dedsize.c" *** */
 #ifdef SIGWINCH
 extern	void	dedsize(
-		_arx(RING *,	gbl)
-		_ar1(int *,	row));
+		_ar1(RING *,	gbl));
 #else
-#define		dedsize(gbl,row)	/* nothing */
+#define		dedsize(gbl)	/* nothing */
 #endif
 
 /* *** "dedsort.c" *** */
@@ -585,7 +585,8 @@ extern	void	dlog_exit(
 		_ar1(int,	code));
 
 extern	int	dlog_char(
-		_arx(int,	*count_)
+		_arx(RING *,	gbl)
+		_arx(int *,	count_)
 		_ar1(int,	begin));
 
 extern	char *	dlog_string(
@@ -630,6 +631,9 @@ extern	void	ft_read(
 		_arx(char *,	first)
 		_ar1(char *,	home_dir));
 
+#ifdef	SIGWINCH
+extern	int	ft_resize(_ar0);
+#endif
 extern	RING *	ft_view(
 		_arx(RING *,	gbl)
 		_arx(char *,	path)
@@ -681,18 +685,19 @@ extern	int	up_inline(_ar0);
 extern	int	down_inline(_ar0);
 
 extern	int	get_inline(
+		_arx(RING *,	gbl)
 		_arx(int,	c)
 		_ar1(int,	cmd));
 
-#define	ReplayStart(chr)	(void)get_inline(chr,chr)
-#define	ReplayFinish()		(void)get_inline(EOS,C_DONE)
-#define	ReplayInit(chr)		      get_inline(chr,C_INIT)
-#define	ReplayTopC(chr)		(void)get_inline(chr,C_TOPC)
-#define	ReplayEndC()		      get_inline(EOS,C_ENDC)
-#define	ReplayFind(chr)		(void)get_inline(chr,C_FIND)
-#define	ReplayTrim()		(void)get_inline(EOS,C_TRIM)
-#define	ReplayQuit()		(void)get_inline(EOS,C_QUIT)
-#define	ReplayChar()		      get_inline(EOS,C_NEXT)
+#define	ReplayStart(chr)	(void)get_inline(gbl,chr,chr)
+#define	ReplayFinish()		(void)get_inline(gbl,EOS,C_DONE)
+#define	ReplayInit(chr)		      get_inline(gbl,chr,C_INIT)
+#define	ReplayTopC(chr)		(void)get_inline(gbl,chr,C_TOPC)
+#define	ReplayEndC()		      get_inline(gbl,EOS,C_ENDC)
+#define	ReplayFind(chr)		(void)get_inline(gbl,chr,C_FIND)
+#define	ReplayTrim()		(void)get_inline(gbl,EOS,C_TRIM)
+#define	ReplayQuit()		(void)get_inline(gbl,EOS,C_QUIT)
+#define	ReplayChar()		      get_inline(gbl,EOS,C_NEXT)
 
 extern	DYN **	inline_text(_ar0);
 extern	HIST **	inline_hist(_ar0);

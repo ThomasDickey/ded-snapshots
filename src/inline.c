@@ -1,5 +1,5 @@
 #if	!defined(NO_IDENT)
-static	char	Id[] = "$Id: inline.c,v 12.4 1993/10/29 20:26:56 dickey Exp $";
+static	char	Id[] = "$Id: inline.c,v 12.5 1994/06/28 00:22:13 tom Exp $";
 #endif
 
 /*
@@ -239,9 +239,11 @@ public	int	down_inline(_AR0)
  * is reserved to tell us what the command was.
  */
 public	int	get_inline (
+	_ARX(RING *,	gbl)
 	_ARX(int,	c)
 	_AR1(int,	cmd)
 		)
+	_DCL(RING *,	gbl)
 	_DCL(int,	c)
 	_DCL(int,	cmd)
 {
@@ -301,7 +303,7 @@ public	int	get_inline (
 				re_edit = FALSE;
 				refresh();
 			}
-			c = dlog_char((int *)0,0);
+			c = dlog_char(gbl, (int *)0, 0);
 			p->text = dyn_append_c(p->text, c);
 			p->play = dyn_length(p->text);
 		}

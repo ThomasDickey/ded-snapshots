@@ -1,5 +1,5 @@
 #if	!defined(NO_IDENT)
-static	char	Id[] = "$Id: dedsize.c,v 12.2 1994/06/27 23:32:56 tom Exp $";
+static	char	Id[] = "$Id: dedsize.c,v 12.4 1994/06/28 01:10:21 tom Exp $";
 #endif
 
 /*
@@ -24,29 +24,23 @@ static	char	Id[] = "$Id: dedsize.c,v 12.2 1994/06/27 23:32:56 tom Exp $";
 #ifdef	SIGWINCH
 
 static	RING	*save_gbl;
-static	int	*save_row;
 
-static
-void	handle_resize (_AR0)
+private	void	handle_resize (_AR0)
 {
-	dlog_comment("resizewin(%d,%d)\n", LINES, COLS);
-	if (save_gbl != 0) {
+	dlog_comment("resizewin LINES=%d, COLS=%d\n", LINES, COLS);
+	if (!ft_resize()) {
 		markset(save_gbl, mark_W);
 		showFILES(save_gbl, FALSE);
-	} else {
 	}
 }
 
-void	dedsize (
-	_ARX(RING *,	gbl)
-	_AR1(int *,	row)
-		)
-	_DCL(RING *,	gbl)
-	_DCL(int *,	row)
+public	void	dedsize (
+		_AR1(RING *,	gbl))
+		_DCL(RING *,	gbl)
 {
-	on_winch(0);
+	static	void	(*dummy)(_AR0);
+	on_winch(dummy);
 	save_gbl = gbl;
-	save_row = row;
 	on_winch(handle_resize);
 }
 #endif

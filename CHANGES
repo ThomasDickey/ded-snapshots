@@ -1,3 +1,8 @@
+1994-06-28  Thomas E. Dickey  <dickey@clark.net>
+
+	* src/ftree.c, src/dlog.c, src/dedtype.c, src/dedread.c, src/dedline.c, src/dedfind.c, src/deddoit.c, src/ded.c, src/ded.h:
+	dlog_string-args
+
 1994-06-27  Thomas E. Dickey  <dickey@clark.net>
 
 	* src/ded.c, src/dlog.c, src/dedsize.c, src/ded.h: unused-argument

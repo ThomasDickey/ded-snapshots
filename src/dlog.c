@@ -1,5 +1,5 @@
 #if	!defined(NO_IDENT)
-static	char	Id[] = "$Id: dlog.c,v 12.5 1994/05/27 22:17:49 tom Exp $";
+static	char	Id[] = "$Id: dlog.c,v 12.7 1994/06/28 01:10:39 tom Exp $";
 #endif
 
 /*
@@ -302,13 +302,19 @@ public	void	dlog_exit _ONE(int,code)
  * Read a single-character command, logging it appropriately.
  */
 public	int	dlog_char(
+	_ARX(RING *,	gbl)
 	_ARX(int *,	count_)
 	_AR1(int,	begin)
 		)
+	_DCL(RING *,	gbl)
 	_DCL(int *,	count_)
 	_DCL(int,	begin)
 {
-	return record_char(read_char(count_), count_, begin);
+	register int	c;
+	dedsize(gbl);
+	c = record_char(read_char(count_), count_, begin);
+	dedsize((RING *)0);
+	return c;
 }
 
 #define	IGNORE	{ beep(); s = to_hist; }
