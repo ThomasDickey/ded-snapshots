@@ -1,3 +1,8 @@
+1991-07-15  dickey@software.org
+
+	* src/ftree.c:
+	added guard in case 'ft_insert()' fails to insert current-dir
+
 1991-07-12  dickey@software.org
 
 	* src/ded.c: last change introduced errs in 'count_tags()'
