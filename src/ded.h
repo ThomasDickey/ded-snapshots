@@ -1,4 +1,4 @@
-/* @(#)ded.h	1.20 88/08/02 12:34:10 */
+/* @(#)ded.h	1.21 88/08/09 06:58:38 */
 
 /*
  * Created:	09 Nov 1987
@@ -91,14 +91,7 @@ extern	int	re_exec();	/* (return > 0): match */
 #define	BAD_REGEX(expr)		dedmsg(expr)
 #endif	SYSTEM5
 
-/*
- * system: Gould
- */
-#ifdef	gould
-#define	OFF_T	long
-#else	gould
-#define	OFF_T	off_t
-#endif	gould
+#define	OFF_T	long		/* lint libraries should have 'off_t' */
 
 /*
  * Conditional-compilation variables
