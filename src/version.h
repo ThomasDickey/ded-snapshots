@@ -1,5 +1,6 @@
 /*
  * Version-identifier for DED
+ * 18 Jan 1989, added '#' command
  * 12 Sep 1988, added 'c' command, changed '@'-toggle interaction with stat's.
  * 09 Sep 1988, misc bug fixes
  * 02 Sep 1988, added '>' link-edit command.
@@ -37,4 +38,4 @@
  * 01 Dec 1987, added '*', '^' commands, made '%' refresh screen
  * 25 Nov 1987, added sccs-support (V,z,Z toggles, V,z,Z sorts)
  */
-static	char	version[] = "@(#)DED Directory Editor (88/09/12 13:30:46)";
+static	char	version[] = "@(#)DED Directory Editor (89/01/18 11:00:16)";

@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	sccs_id[] = "@(#)dedsort.c	1.13 88/09/13 12:59:42";
+static	char	sccs_id[] = "@(#)dedsort.c	1.14 89/01/18 10:27:28";
 #endif	lint
 
 /*
@@ -7,6 +7,7 @@ static	char	sccs_id[] = "@(#)dedsort.c	1.13 88/09/13 12:59:42";
  * Author:	T.E.Dickey
  * Created:	11 Nov 1987
  * Modified:
+ *		18 Jan 1989, made 'dedsort_cmp()' public, for use by 'deduniq()'
  *		13 Sep 1988, use external 'ftype()', 'ftype2()'.
  *		27 Jul 1988, corrected 'y' sort, in case no RCS/SCCS file exists
  *		11 Jul 1988, use 'tagsort' variable to group tagged-files.
@@ -26,8 +27,11 @@ extern	char	*ftype2();
 #define	CMP2S(f,m)	cmp = strcmp(strcpy(bfr, f((int)p1->s.m)),\
 						 f((int)p2->s.m))
 
-static
-compare(p1, p2)
+/*
+ * Compare the specified file-list entries, returning 0 iff their sort-key is
+ * equivalent, +/- according to the direction of the inequality.
+ */
+dedsort_cmp(p1, p2)
 FLIST	*p1, *p2;
 {
 register int cmp = 0;
@@ -113,7 +117,20 @@ char	bfr[BUFSIZ];
 			/* compare uid/gid fields lexically */
 	case 'u':	cmp  = CMP2S(uid2s,st_uid);	break;
 	case 'g':	cmp  = CMP2S(gid2s,st_gid);	break;
+	default:	cmp  = strcmp(p1->name, p2->name);
 	}
+	return (cmp);
+}
+
+/*
+ * Always returns a reasonable qsort-value for sorting the file-list.  This is
+ * used only via 'dedsort()'.
+ */
+static
+compare(p1, p2)
+FLIST	*p1, *p2;
+{
+	int	cmp = dedsort_cmp(p1,p2);
 	if (!cmp)
 		cmp = strcmp(p1->name, p2->name);
 	return(sortord ? -cmp : cmp);

@@ -107,6 +107,7 @@ Operations on Files:
   +		Add the {count} entries to the {group}
   -		Remove the {count} entries from the {group}
   _		Remove all entries from the {group}
+  #		Tag all (and only) files whose current sort-key is not unique.
 
   p		Edit protection-code for {group} of entries.  The
 		code from the current entry is edited inline.  The
