@@ -1,15 +1,18 @@
 #ifndef	lint
-static	char	Id[] = "$Id: ftree.c,v 8.2 1991/04/18 09:18:15 dickey Exp $";
-#endif	lint
+static	char	Id[] = "$Id: ftree.c,v 8.3 1991/05/16 07:48:31 dickey Exp $";
+#endif
 
 /*
  * Author:	T.E.Dickey
  * Created:	02 Sep 1987
  * $Log: ftree.c,v $
- * Revision 8.2  1991/04/18 09:18:15  dickey
- * added ':' command to simplify jumps to specific point
- * ,
+ * Revision 8.3  1991/05/16 07:48:31  dickey
+ * mods to accommodate apollo sr10.3
  *
+ *		Revision 8.2  91/04/18  09:40:09  dickey
+ *		added ':' command to simplify jumps to specific point
+ *		,
+ *		
  *		Revision 8.1  90/08/27  09:33:49  dickey
  *		modified 'ft_read()' and 'ft_write()' to try to recover from
  *		missing/corrupt ".ftree" file.
@@ -134,7 +137,7 @@ static	char	Id[] = "$Id: ftree.c,v 8.2 1991/04/18 09:18:15 dickey Exp $";
 
 #ifdef	TEST
 #define	MAIN
-#endif	TEST
+#endif
 
 #define	ACC_PTYPES
 #define	DIR_PTYPES
@@ -300,7 +303,7 @@ register int	step,
 	}
 #ifndef	TEST
 	BAD_REGEX(expr);
-#endif	TEST
+#endif
 	return (-1);
 }
 
@@ -486,7 +489,7 @@ char	*path;
 			ftree[last].f_mark &= ~LINKED;
 		} else
 			break;
-#endif	S_IFLNK
+#endif	/* S_IFLNK */
 
 		if (next != 0) {
 			*next = *gap; /* restore the one we knocked out */
@@ -560,7 +563,7 @@ register int j;
 			if (f->f_root == last) {
 #ifdef	S_IFLNK
 				if (all || !(f->f_mark & LINKED))
-#endif	S_IFLNK
+#endif	/* S_IFLNK */
 					f->f_mark |= MARKED;
 			} else if (f->f_root < last)
 				break;
@@ -604,7 +607,7 @@ int	changed	= 0;
 				break;
 		}
 	}
-#endif	TEST
+#endif
 }
 
 /*
@@ -784,7 +787,7 @@ char	*the_file;
 		(void)close(fid);
 #ifdef	DEBUG
 		ft_dump("read");
-#endif	DEBUG
+#endif
 	}
 }
 
@@ -860,7 +863,7 @@ char	*path, *home;
 #ifndef	TEST
 			if (*marker == '.' && dedrang(bfr))
 				marker = "* ";
-#endif	TEST
+#endif
 			PRINTW("%4d%s", j, marker);
 			for (k = fd_level(j); k > 0; k--)
 				addstr(fd_line(k));
@@ -873,7 +876,7 @@ char	*path, *home;
 #ifdef	apollo
 			if (j == 0)
 				PRINTW("%s", zero+1);
-#endif	apollo
+#endif
 			if (ftree[j].f_mark & NOVIEW) PRINTW(" (V)");
 			if (ftree[j].f_mark & MARKED) PRINTW(" (+)");
 			clrtoeol();
@@ -1260,7 +1263,7 @@ char	*path;
 			break;
 #ifndef	TEST
 		/* dump the current screen */
-		case CTL(K):
+		case CTL('K'):
 			deddump();
 			break;
 
@@ -1288,7 +1291,7 @@ char	*path;
 			break;
 
 		/* Exit from this program (back to 'ded') */
-		case CTL(E):
+		case CTL('E'):
 		case 'E':
 		case 'e':
 			(void)fd_path(cwdpath, row);
@@ -1306,14 +1309,14 @@ char	*path;
 				abspath(strcpy(cwdpath, bfr));
 				(void)chdir(new_wd);
 			}
-#endif	S_IFLNK
+#endif	/* S_IFLNK */
 			if (access(cwdpath, R_OK | X_OK) < 0) {
 				beep();
 				break;
 			}
 			(void)strcpy(path, cwdpath);
 			/* fall-thru to return */
-#endif	TEST
+#endif	/* TEST */
 		case 'D':
 			return(c);	/* 'e', 'E' CTL(E) or 'D' -- only! */
 
@@ -1366,7 +1369,7 @@ char	*path;
 					row = showbase;
 					break;
 				}
-#endif	apollo
+#endif	/* apollo */
 				wrepaint(stdscr,0);
 				break;
 
@@ -1399,7 +1402,7 @@ char	*path;
 			U_opt = !U_opt;
 			showdiff = -1;
 			break;
-#endif	apollo
+#endif	/* apollo */
 
 		/* toggle flag which controls whether we show dependents */
 		case 'V':
@@ -1506,7 +1509,7 @@ char	*msg;
 	} else
 		perror("ftree.log");
 }
-#endif	DEBUG
+#endif	/* DEBUG */
 
 /*
  * Scan a given directory, inserting all entries which are themselves valid
@@ -1522,10 +1525,10 @@ char	bfr[MAXPATHLEN], *s_ = bfr;
 #ifdef	TEST
 char	old[MAXPATHLEN];
 	abspath(strcpy(old,"."));
-#else	TEST
+#else	/* !TEST */
 int	interrupted = 0;
 	(void)dedsigs(TRUE);		/* reset interrupt-counter */
-#endif	TEST
+#endif	/* TEST */
 
 	s_ += strlen(fd_path(bfr,node));
 
@@ -1543,7 +1546,7 @@ int	interrupted = 0;
 #ifndef	TEST
 			if (interrupted = dedsigs(TRUE))
 				break;	/* exit loop so we can cleanup */
-#endif	TEST
+#endif
 		}
 		ft_purge();
 		(void)closedir(dp);
@@ -1553,7 +1556,7 @@ int	interrupted = 0;
 			waitmsg(bfr);	/* show where we stopped */
 			return (-1);	/* ...and give up from there */
 		}
-#endif	TEST
+#endif
 
 		/* recur to lower levels if asked */
 		if (levels > 1) {
@@ -1566,9 +1569,9 @@ int	interrupted = 0;
 	}
 #ifdef	TEST
 	(void)chdir(old);
-#else	TEST
+#else
 	(void)chdir(new_wd);
-#endif	TEST
+#endif
 	return (0);
 }
 
@@ -1599,12 +1602,12 @@ ft_write()
 	register int j;
 #ifdef	DEBUG
 		ft_dump("write");
-#endif	DEBUG
+#endif
 		cant_W = TRUE;
 		if ((fid = open(FDname, O_WRONLY|O_CREAT|O_TRUNC, 0644)) >= 0) {
 #ifdef	DEBUG
 			PRINTF("writing file \"%s\" (%d)\n", FDname, FDlast);
-#endif	DEBUG
+#endif
 #define	WRT(s,n)	(void)write(fid,(char *)s,(LEN_READ)(n))
 			WRT(&FDlast, sizeof(FDlast));
 			WRT(ftree, ((FDlast+1) * sizeof(FTREE)));
@@ -1665,4 +1668,4 @@ char	cwdpath[MAXPATHLEN],
 	(void)exit(0);
 	/*NOTREACHED*/
 }
-#endif	TEST
+#endif

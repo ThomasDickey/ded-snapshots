@@ -1,15 +1,21 @@
 #ifndef	lint
-static	char	Id[] = "$Id: dedwait.c,v 8.2 1991/04/22 07:57:02 dickey Exp $";
-#endif	lint
+static	char	Id[] = "$Id: dedwait.c,v 9.0 1991/05/16 07:45:25 ste_cm Rel $";
+#endif
 
 /*
  * Title:	dedwait.c (ded wait-for-RETURN)
  * Author:	T.E.Dickey
  * Created:	01 Dec 1987
  * $Log: dedwait.c,v $
- * Revision 8.2  1991/04/22 07:57:02  dickey
- * lint
+ * Revision 9.0  1991/05/16 07:45:25  ste_cm
+ * BASELINE Mon Jun 10 10:09:56 1991 -- apollo sr10.3
  *
+ *		Revision 8.3  91/05/16  07:45:25  dickey
+ *		apollo sr10.3 cpp complains about tag on #endif
+ *		
+ *		Revision 8.2  91/04/22  08:25:24  dickey
+ *		lint
+ *		
  *		Revision 8.1  91/04/18  08:09:32  dickey
  *		added flag to allow this to be used for debugging (non-curses)
  *		

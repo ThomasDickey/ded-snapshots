@@ -1,3 +1,58 @@
+1991-05-16  dickey@software.org
+
+	* src/dedsigs.c: mods to accommodate apollo sr10.3
+
+	* src/showpath.c, src/sortset.c:
+	apollo sr10.3 cpp complains about tag on #endif
+
+1991-05-16  ste_cm@software.org
+
+	* src/sortset.c: BASELINE Mon Jun 10 10:09:56 1991 -- apollo sr10.3
+
+1991-05-16  dickey@software.org
+
+	* src/ftree.c: mods to accommodate apollo sr10.3
+
+	* src/dlog.c: apollo sr10.3 cpp complains about tag on #endif
+
+1991-05-16  ste_cm@software.org
+
+	* src/dlog.c: BASELINE Mon Jun 10 10:09:56 1991 -- apollo sr10.3
+
+1991-05-16  dickey@software.org
+
+	* src/ded2s.c: apollo sr10.3 cpp complains about tag on #endif
+
+1991-05-16  ste_cm@software.org
+
+	* src/ded2s.c: BASELINE Mon Jun 10 10:09:56 1991 -- apollo sr10.3
+
+1991-05-16  dickey@software.org
+
+	* src/dedwait.c: apollo sr10.3 cpp complains about tag on #endif
+
+1991-05-16  ste_cm@software.org
+
+	* src/dedwait.c: BASELINE Mon Jun 10 10:09:56 1991 -- apollo sr10.3
+
+1991-05-16  dickey@software.org
+
+	* src/deduniq.c: apollo sr10.3 cpp complains about tag on #endif
+
+1991-05-16  ste_cm@software.org
+
+	* src/deduniq.c: BASELINE Mon Jun 10 10:09:56 1991 -- apollo sr10.3
+
+1991-05-16  dickey@software.org
+
+	* src/dedtype.c: mods to accommodate apollo sr10.3
+
+	* src/dedsort.c: apollo sr10.3 cpp complains about tag on #endif
+
+1991-05-16  ste_cm@software.org
+
+	* src/dedsort.c: BASELINE Mon Jun 10 10:09:56 1991 -- apollo sr10.3
+
 1991-05-15  dickey@software.org
 
 	* src/dedname.c: apollo sr10.3 cpp complains about tag on #endif

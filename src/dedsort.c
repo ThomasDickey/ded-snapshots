@@ -1,15 +1,21 @@
 #ifndef	lint
-static	char	Id[] = "$Id: dedsort.c,v 8.0 1990/01/22 15:04:29 ste_cm Rel $";
-#endif	lint
+static	char	Id[] = "$Id: dedsort.c,v 9.0 1991/05/16 07:43:46 ste_cm Rel $";
+#endif
 
 /*
  * Title:	dedsort.c (ded-sort)
  * Author:	T.E.Dickey
  * Created:	11 Nov 1987
  * $Log: dedsort.c,v $
- * Revision 8.0  1990/01/22 15:04:29  ste_cm
- * BASELINE Mon Aug 13 15:06:41 1990 -- LINCNT, ADA_TRANS
+ * Revision 9.0  1991/05/16 07:43:46  ste_cm
+ * BASELINE Mon Jun 10 10:09:56 1991 -- apollo sr10.3
  *
+ *		Revision 8.1  91/05/16  07:43:46  dickey
+ *		apollo sr10.3 cpp complains about tag on #endif
+ *		
+ *		Revision 8.0  90/01/22  15:04:29  ste_cm
+ *		BASELINE Mon Aug 13 15:06:41 1990 -- LINCNT, ADA_TRANS
+ *		
  *		Revision 7.0  90/01/22  15:04:29  ste_cm
  *		BASELINE Mon Apr 30 09:54:01 1990 -- (CPROTO)
  *		
@@ -182,7 +188,7 @@ FLIST	*p1, *p2;
 			else if (p2->z_time)
 				cmp = 1;
 			break;
-#endif	Z_RCS_SCCS
+#endif	/* Z_RCS_SCCS */
 
 	case 's':
 			if (isDEV(p1->s.st_mode) && isDEV(p2->s.st_mode))

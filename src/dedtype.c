@@ -1,16 +1,19 @@
 #ifndef	lint
-static	char	Id[] = "$Id: dedtype.c,v 8.2 1991/04/22 08:19:23 dickey Exp $";
-#endif	lint
+static	char	Id[] = "$Id: dedtype.c,v 8.3 1991/05/16 07:44:08 dickey Exp $";
+#endif
 
 /*
  * Title:	dedtype.c (type files for ded)
  * Author:	T.E.Dickey
  * Created:	16 Nov 1987
  * $Log: dedtype.c,v $
- * Revision 8.2  1991/04/22 08:19:23  dickey
- * added stripped-mode to make looking at binary files easier on
- * my eyes.
+ * Revision 8.3  1991/05/16 07:44:08  dickey
+ * mods to accommodate apollo sr10.3
  *
+ *		Revision 8.2  91/04/22  08:19:23  dickey
+ *		added stripped-mode to make looking at binary files easier on
+ *		my eyes.
+ *		
  *		Revision 8.1  91/04/01  12:32:48  dickey
  *		added command (tab-character) to allow user to alter tab
  *		stops in the display.
@@ -321,7 +324,7 @@ int	c,			/* current character */
 			}
 
 			switch (dlog_char(&count,1)) {
-			case CTL(K):
+			case CTL('K'):
 				deddump();
 				replay = 1;
 				break;
