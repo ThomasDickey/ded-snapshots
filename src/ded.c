@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	sccs_id[] = "$Header: /users/source/archives/ded.vcs/src/RCS/ded.c,v 1.63 1989/03/15 09:12:02 dickey Exp $";
+static	char	sccs_id[] = "$Header: /users/source/archives/ded.vcs/src/RCS/ded.c,v 1.64 1989/03/24 08:36:36 dickey Exp $";
 #endif	lint
 
 /*
@@ -7,9 +7,13 @@ static	char	sccs_id[] = "$Header: /users/source/archives/ded.vcs/src/RCS/ded.c,v
  * Author:	T.E.Dickey
  * Created:	09 Nov 1987
  * $Log: ded.c,v $
- * Revision 1.63  1989/03/15 09:12:02  dickey
- * sccs2rcs keywords
+ * Revision 1.64  1989/03/24 08:36:36  dickey
+ * added "-c" (command-script) option, and changed version to RCS
+ * format using sscanf hack.
  *
+ *		Revision 1.63  89/03/15  09:12:02  dickey
+ *		sccs2rcs keywords
+ *		
  *		15 Mar 1989, if log-option is set, pass this to subprocess ded.
  *		14 Mar 1989, added '-l' option for logging.
  *		13 Mar 1989, added '<' command (short-form of '>')
@@ -839,10 +843,13 @@ char	tpath[BUFSIZ],
 	dpath[BUFSIZ];
 
 	(void)sortset('s', 'n');
-	FPRINTF(stderr, "%s\r\n", version+4);	/* show when entering process */
+	(void)sscanf(version, "%*s %s %s", tpath, dpath);
+	FPRINTF(stderr, "DED Directory Editor (%s %s)\r\n", tpath, dpath);
+	/* show when entering process */
 	(void)fflush(stdout);
 
-	while ((c = getopt(argc, argv, "GIPSUZl:r:s:zdt:")) != EOF) switch (c) {
+	while ((c = getopt(argc, argv, "GIPSUZc:l:r:s:zdt:")) != EOF)
+	switch (c) {
 	case 'G':	G_opt = !G_opt;	break;
 	case 'I':	I_opt = !I_opt;	break;
 	case 'P':	P_opt = !P_opt;	break;
@@ -852,6 +859,7 @@ char	tpath[BUFSIZ],
 	case 'Z':	Z_opt = 1;	break;
 	case 'z':	Z_opt = -1;	break;
 #endif	Z_RCS_SCCS
+	case 'c':	dlog_read(optarg);			break;
 	case 'l':	log_opt = dlog_open(optarg,argc,argv);	break;
 	case 's':
 	case 'r':	if (!sortset(c,*optarg))	usage();

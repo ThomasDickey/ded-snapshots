@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	sccs_id[] = "$Header: /users/source/archives/ded.vcs/src/RCS/dedscan.c,v 1.29 1989/03/15 07:55:45 dickey Exp $";
+static	char	sccs_id[] = "$Header: /users/source/archives/ded.vcs/src/RCS/dedscan.c,v 2.0 1989/03/24 08:37:17 ste_cm Exp $";
 #endif	lint
 
 /*
@@ -7,9 +7,15 @@ static	char	sccs_id[] = "$Header: /users/source/archives/ded.vcs/src/RCS/dedscan
  * Author:	T.E.Dickey
  * Created:	09 Nov 1987
  * $Log: dedscan.c,v $
- * Revision 1.29  1989/03/15 07:55:45  dickey
- * sccs2rcs keywords
+ * Revision 2.0  1989/03/24 08:37:17  ste_cm
+ * BASELINE Thu Apr  6 13:14:13 EDT 1989
  *
+ *		Revision 1.30  89/03/24  08:37:17  dickey
+ *		lint
+ *		
+ *		Revision 1.29  89/03/15  07:55:45  dickey
+ *		sccs2rcs keywords
+ *		
  *		14 Mar 1989, corrections to common-path algorithm
  *		28 Feb 1989, so that AT_opt will force 'ft_linkto()' call if ok.
  *		12 Sep 1988, don't force resolution of symbolic links unless
@@ -120,7 +126,7 @@ char	*argv[];
 	if (common == 0 && numfiles != 0) {
 		common = strlen(strcpy(name,argv[0]));
 		for (j = 0; (j < argc) && (common > 0); j++) {
-			register char	*s, *d = argv[j];
+			register char	*d = argv[j];
 			register int	slash = 0;
 
 			for (s = name, k = 0;
