@@ -1,3 +1,11 @@
+1989-10-11  dickey@software.org
+
+	* src/ded2s.c: recoded type-uid table with a pipe-call to 'lty'
+
+	* src/dedsort.c:
+	added apollo-only fix for t-sort for DSEE-directory names
+	(ending with "$.*.$").
+
 1989-10-06  dickey@software.org
 
 	* src/dedsort.c: modified 't' sort so that names beginning with '.' are
