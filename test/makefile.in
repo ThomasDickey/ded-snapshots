@@ -1,0 +1,29 @@
+# $Id: makefile.in,v 12.1 1997/09/12 01:28:36 tom Exp $
+# make-file for testing unix directory editor
+
+@make_include_left@@TD_LIB_rules@/td_lib.mk@make_include_right@
+
+####### (Standard Lists) #######################################################
+SCRIPTS	=\
+	edittest.sed\
+	edittest.sh\
+	run_test.sh\
+	walkback.sh
+CMD_FILES=\
+	test1.cmd\
+	test2.cmd\
+	test3.cmd\
+	test4.cmd\
+	test5.cmd
+
+SOURCES	= README $(SCRIPTS) $(CMD_FILES)
+
+####### (Standard Productions) #################################################
+all:		$(SOURCES)
+clean::				; -$(RM) $(CLEAN) *.tmp
+clean::				; -$(RM) -r junk*
+distclean:	clean
+sources:	$(SOURCES)
+lint.out:
+lincnt.out:
+run_test:	$(SOURCES)	; $(RUN_TESTS)
