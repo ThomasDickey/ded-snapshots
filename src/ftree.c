@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	sccs_id[] = "@(#)ftree.c	1.55 88/08/15 13:32:05";
+static	char	sccs_id[] = "@(#)ftree.c	1.56 88/08/18 14:41:56";
 #endif	lint
 
 /*
@@ -709,7 +709,7 @@ char	*marker,
 			for (k = fd_level(j); k > 0; k--)
 				addstr(fd_line(k));
 			if (ftree[j].f_mark & MARKED)	standout();
-			(void)name2s(bfr, ftree[j].f_name, sizeof(bfr), FALSE);
+			(void)ded2string(bfr, sizeof(bfr), ftree[j].f_name, FALSE);
 			printw("%s%s",
 				bfr,
 				(ftree[j].f_mark &LINKED) ? "@" : gap);

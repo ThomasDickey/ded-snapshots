@@ -1,12 +1,24 @@
 #ifndef	lint
-static	char	sccs_id[] = "@(#)ded2s.c	1.13 88/08/12 08:06:50";
+static	char	sccs_id[] = "$Header: /users/source/archives/ded.vcs/src/RCS/ded2s.c,v 4.0 1988/08/18 14:55:51 ste_cm Rel $";
 #endif	lint
 
 /*
  * Title:	ded2s.c (ded-stat to string)
  * Author:	T.E.Dickey
  * Created:	09 Nov 1987
- * Modified:
+ * $Log: ded2s.c,v $
+ * Revision 4.0  1988/08/18 14:55:51  ste_cm
+ * BASELINE Thu Aug 24 10:20:06 EDT 1989 -- support:navi_011(rel2)
+ *
+ *		Revision 3.0  88/08/18  14:55:51  ste_cm
+ *		BASELINE Mon Jun 19 14:21:57 EDT 1989
+ *		
+ *		Revision 2.0  88/08/18  14:55:51  ste_cm
+ *		BASELINE Thu Apr  6 13:14:13 EDT 1989
+ *		
+ *		Revision 1.15  88/08/18  14:55:51  dickey
+ *		sccs2rcs keywords
+ *		
  *		12 Aug 1988, apollo sys5 environment permits symbolic links.
  *		16 Jun 1988, added uppercase-code for AT_opt.
  *		01 Jun 1988, added 'Y_opt' field.
@@ -162,7 +174,7 @@ char	*t,
 	/* translate the filename */
 	cmdcol[3] = bfr - base;
 	len -= (bfr-base);
-	bfr += name2s(bfr, name, len, FALSE);
+	bfr += ded2string(bfr, len, name, FALSE);
 
 #ifdef	S_IFLNK
 	if ((t = f_->ltxt) != 0) {
@@ -171,7 +183,7 @@ char	*t,
 		*bfr++ = '>';
 		*bfr++ = ' ';
 		len -= (bfr-base);
-		bfr += name2s(bfr, t, len, FALSE);
+		bfr += ded2string(bfr, len, t, FALSE);
 	} else
 #endif	S_IFLNK
 		if (isDIR(mj)) {
@@ -241,54 +253,8 @@ char	*t	= ctime(&fdate);	/* 0123456789.123456789.123 */
 		(void)field(bfr,0);
 }
 
-/*
- * Convert a filename-string to printing form (for display)
- */
-name2s(bfr, name, len, esc)
+ded2string(bfr, len, name, flag)
 char	*bfr, *name;
-int	len;
-int	esc;		/* true if we escape dollar-signs, etc. */
 {
-char	*base = bfr;
-register int c;
-
-	while ((c = *name++) && len-- > 0) {
-#ifdef	apollo
-		if (U_opt) {	/* show underlying apollo filenames */
-			if (isascii(c) && isgraph(c)) {
-				if (isalpha(c) && isupper(c)) {
-					*bfr++ = ':';
-					c = _tolower(c);
-				} else if ((c == ':')
-				||	   (c == '.' && bfr == base))
-					*bfr++ = ':';
-				*bfr++ = c;
-			} else if (c == ' ') {
-				*bfr++ = ':';
-				*bfr++ = '_';
-			} else {
-				FORMAT(bfr, "%s#%02x", esc ? "\\" : "", c);
-				bfr += strlen(bfr);
-			}
-		} else
-#endif	apollo
-		if (esc) {
-			if(iscntrl(c)
-			|| isspace(c)
-			|| (c == '$')
-			|| (c == '\\')
-			|| (c == '>')
-			|| (c == '&')
-			|| (c == '#'))
-				*bfr++ = '\\';	/* escape the nasty thing */
-			*bfr++ = c;
-		} else {
-			if (isascii(c) && isgraph(c)) {
-				*bfr++ = c;
-			} else
-				*bfr++ = '?';
-		}
-	}
-	*bfr = '\0';
-	return (bfr-base);
+	return (name2s(bfr, len, name, flag | (U_opt ? 2 : 0)));
 }
