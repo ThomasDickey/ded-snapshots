@@ -1,4 +1,4 @@
-/* $Id: ded.h,v 4.1 1989/09/06 15:38:11 dickey Exp $ */
+/* $Id: ded.h,v 4.2 1989/10/04 15:11:28 dickey Exp $ */
 
 /*
  * Created:	09 Nov 1987
@@ -24,7 +24,7 @@ extern	char	*doalloc(),	/* (re)allocate memory		*/
 
 #ifndef	MAXPATHLEN
 #define	MAXPATHLEN	BUFSIZ
-#endif	MAXPATHLEN
+#endif	/* MAXPATHLEN */
 
 /*
  * SYSTEM5/BSD4.x differences between regular-expression handling:
@@ -43,7 +43,7 @@ extern	int	re_exec();	/* (return > 0): match */
 #define	NEW_REGEX(expr,pattern)	((expr = re_comp(pattern)) == 0)
 #define	GOT_REGEX(expr,string)	(re_exec(string) != 0)
 #define	BAD_REGEX(expr)		dedmsg(expr)
-#endif	SYSTEM5
+#endif	/* SYSTEM5 */
 
 #define	OFF_T	long		/* lint libraries should have 'off_t' */
 
@@ -58,6 +58,12 @@ extern	int	re_exec();	/* (return > 0): match */
 #else
 #ifdef	Z_RCS
 #define	Z_RCS_SCCS
+#endif
+#endif
+
+#ifdef	apollo
+#ifdef	__STDC__
+#define	apollo_sr10
 #endif
 #endif
 
@@ -79,7 +85,7 @@ extern	char	*dftenv();
 
 #ifndef	MAIN
 #define	MAIN	extern
-#endif	MAIN
+#endif	/* MAIN */
 
 /*
  * We store an array of FLIST structures to describe all files which can
@@ -95,7 +101,7 @@ typedef	struct	{
 	char	*z_vers;	/* last sccs-release, version		*/
 	char	*z_lock;	/* current locker (user-name)		*/
 	time_t	z_time;		/* last sccs delta-date			*/
-#endif	Z_RCS_SCCS
+#endif	/* Z_RCS_SCCS */
 	} FLIST;
 
 /*
@@ -139,9 +145,13 @@ MAIN	int	top_argc,
 		tagsort,	/* sort tagged files apart from others */
 #ifdef	S_IFLNK
 		AT_opt,		/* show symbolic link target */
-#endif	S_IFLNK
+#endif	/* S_IFLNK */
+		A_opt,		/* show "." and ".." */
 		G_opt,		/* show uid/gid field */
 		I_opt,		/* show link/inode field */
+#ifdef	apollo_sr10
+		O_opt,		/* show apollo object-types */
+#endif	/* apollo_sr10 */
 		P_opt,		/* show filemode in octal vs normal */
 		S_opt,		/* show filesize in blocks */
 		U_opt;		/* show underlying file-info */
@@ -149,6 +159,6 @@ MAIN	int	top_argc,
 MAIN	int	V_opt,		/* show sccs-versions */
 		Y_opt,		/* show sccs-locks */
 		Z_opt;		/* show sccs-information */
-#endif	Z_RCS_SCCS
+#endif	/* Z_RCS_SCCS */
 
 MAIN unsigned	numfiles;	/* total files in display-list */

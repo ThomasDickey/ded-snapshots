@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	sccs_id[] = "$Header: /users/source/archives/ded.vcs/src/RCS/dedscan.c,v 4.0 1989/06/06 09:01:28 ste_cm Rel $";
+static	char	Id[] = "$Id: dedscan.c,v 4.1 1989/10/04 15:21:15 dickey Exp $";
 #endif	lint
 
 /*
@@ -7,9 +7,12 @@ static	char	sccs_id[] = "$Header: /users/source/archives/ded.vcs/src/RCS/dedscan
  * Author:	T.E.Dickey
  * Created:	09 Nov 1987
  * $Log: dedscan.c,v $
- * Revision 4.0  1989/06/06 09:01:28  ste_cm
- * BASELINE Thu Aug 24 10:20:06 EDT 1989 -- support:navi_011(rel2)
+ * Revision 4.1  1989/10/04 15:21:15  dickey
+ * added A_opt code (permit dot-names)
  *
+ *		Revision 4.0  89/06/06  09:01:28  ste_cm
+ *		BASELINE Thu Aug 24 10:20:06 EDT 1989 -- support:navi_011(rel2)
+ *		
  *		Revision 3.0  89/06/06  09:01:28  ste_cm
  *		BASELINE Mon Jun 19 14:21:57 EDT 1989
  *		
@@ -118,7 +121,8 @@ char	*argv[];
 				}
 				while (de = readdir(dp)) {
 					if (dotname(s = de->d_name))
-						continue;
+						if (!A_opt)
+							continue;
 					if (!ok_scan(s))
 						continue;
 					if (debug)

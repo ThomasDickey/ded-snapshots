@@ -1,3 +1,40 @@
+1989-10-04  dickey@software.org
+
+	* src/version.h:
+	added code for apollo/sr10.1: show extended acls, added
+	options '-a' and '-O', with corresponding commands '&' and
+	'O', sorts 'o' and 'O'.
+
+	* src/ded2s.c: added code to support 'O' toggle (show object-types)
+
+	* src/ded.hlp: added -a, -O options
+	added '&', 'O' toggles, 'o', 'O' sorts
+
+	* src/dedsort.c: added o,O sorts
+
+	* src/ded.c: added -a, -O options
+	added &, O toggles
+	added o, O sorts
+
+	* src/dedscan.c: added A_opt code (permit dot-names)
+
+	* src/dedring.c: save/restore A_opt, O_opt
+
+	* src/ded.h: added apollo_sr10 definition, and A_opt, O_opt variables
+
+	* src/Makefile: added dependency on "acl.h" and "common.h"
+
+1989-10-04  ste_cm@software.org
+
+	* src/Makefile:
+	BASELINE Fri Oct 27 12:27:25 1989 -- apollo SR10.1 mods + ADA_PITS 4.0
+
+1989-10-04  dickey@software.org
+
+	* src/ded2s.c:
+	added code for apollo SR10.1 which shows a "+" after mode
+	like the 'ls' utility on that system.
+
 1989-09-06  dickey@software.org
 
 	* src/ftree.c: use ACC_PTYPES rather than inline def's

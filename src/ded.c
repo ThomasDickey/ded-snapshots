@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	what[] = "$Id: ded.c,v 4.2 1989/08/25 08:52:50 dickey Exp $";
+static	char	what[] = "$Id: ded.c,v 4.3 1989/10/04 16:46:48 dickey Exp $";
 #endif	lint
 
 /*
@@ -7,10 +7,15 @@ static	char	what[] = "$Id: ded.c,v 4.2 1989/08/25 08:52:50 dickey Exp $";
  * Author:	T.E.Dickey
  * Created:	09 Nov 1987
  * $Log: ded.c,v $
- * Revision 4.2  1989/08/25 08:52:50  dickey
- * added new procedures 'scroll_to_stat()' and 'scroll_to_file()'
- * so 'E'-command on link can go to link-target.
+ * Revision 4.3  1989/10/04 16:46:48  dickey
+ * added -a, -O options
+ * added &, O toggles
+ * added o, O sorts
  *
+ *		Revision 4.2  89/08/25  08:52:50  dickey
+ *		added new procedures 'scroll_to_stat()' and 'scroll_to_file()'
+ *		so 'E'-command on link can go to link-target.
+ *		
  *		Revision 4.1  89/08/25  08:22:15  dickey
  *		use 'wrepaint()' rather than savewin/unsavewin.  added
  *		arg to 'realstat()' for 'E'-enhancement.
@@ -159,7 +164,7 @@ static	char	whoami[BUFSIZ],		/* my execution-path */
 		*tree_opt,		/* my file-tree database */
 		howami[BUFSIZ];		/* my help-file */
 
-static	char	sortc[] = ".cdgGilnNprstTuUwyvzZ";/* valid sort-keys */
+static	char	sortc[] = ".cdgGilnNoOprstTuUwyvzZ";/* valid sort-keys */
 					/* (may correspond with cmds) */
 
 /************************************************************************
@@ -168,6 +173,10 @@ static	char	sortc[] = ".cdgGilnNprstTuUwyvzZ";/* valid sort-keys */
 static
 sortset(ord,opt)
 {
+#ifndef	apollo_sr10
+	if (strchr("oO", opt) != 0)
+		opt = '?';
+#endif
 #ifndef	Z_RCS_SCCS
 	if (strchr("vyzZ", opt) != 0)
 		opt = '?';
@@ -958,8 +967,12 @@ usage()
 			"usage: ded [options] [filespecs]",
 			"",
 			"Options which alter initial display fields:",
+			"  -A       show \".\" and \"..\" names",
 			"  -G       show group-name instead of user-name",
 			"  -I       show inode field",
+#ifdef	apollo_sr10
+			"  -O       show apollo object-types",
+#endif
 			"  -P       show protection in octal",
 			"  -S       show file-size in blocks",
 			"  -U       show AEGIS-style names",
@@ -1012,10 +1025,14 @@ char	*argv[];
 	/* show when entering process */
 	(void)fflush(stdout);
 
-	while ((c = getopt(argc, argv, "GIPSUZc:l:r:s:zdt:")) != EOF)
+	while ((c = getopt(argc, argv, "aGIOPSUZc:l:r:s:zdt:")) != EOF)
 	switch (c) {
+	case 'a':	A_opt = !A_opt;	break;
 	case 'G':	G_opt = !G_opt;	break;
 	case 'I':	I_opt = !I_opt;	break;
+#ifdef	apollo_sr10
+	case 'O':	O_opt = !O_opt;	break;
+#endif
 	case 'P':	P_opt = !P_opt;	break;
 	case 'S':	S_opt = !S_opt;	break;
 	case 'U':	U_opt = !U_opt;	break;
@@ -1150,8 +1167,16 @@ char	*argv[];
 				showC();
 			break;
 #endif	S_IFLNK
+
+			/* note that '.' and '..' may be the only files! */
+	case '&':	A_opt = !A_opt;	/* sorry about inconsistency */
+			quit = !rescan(TRUE, strcpy(tpath, cNAME));
+			break;
 	case 'G':	G_opt = !G_opt; showFILES(); break;
 	case 'I':	I_opt = !I_opt; showFILES(); break;
+#ifdef	apollo_sr10
+	case 'O':	O_opt = !O_opt; showFILES(); break;
+#endif
 	case 'P':	P_opt = !P_opt; showFILES(); break;
 	case 'S':	S_opt = !S_opt; showFILES(); break;
 	case 'U':	U_opt = !U_opt; showFILES(); break;

@@ -1,4 +1,4 @@
-$Header: /users/source/archives/ded.vcs/src/RCS/ded.hlp,v 4.0 1989/05/26 13:53:32 ste_cm Rel $
+$Id: ded.hlp,v 4.1 1989/10/04 16:56:20 dickey Exp $
 
 DED (Directory EDitor)
 ======================
@@ -12,10 +12,13 @@ Options:
   All options are the same as display-manipulation commands (except for
   being prefixed with '-').  These include
 
+  a		show '.' and '..' names (command is '&')
   G		toggle user/group display field
   I		toggle inode/links display field
+  O		(apollo) show object types
   P		toggle file-protection display field
   S		toggle filesize (in blocks) field
+  U		(apollo) show aegis-style names
   Z (or z)	toggle sccs-data display
   r{key}
   s{key}	provide initial sort (or reverse) by {key}.
@@ -51,9 +54,11 @@ Cursor Movement:
 
 Display-Adjustment:
 ------------------
+  &		toggle flag controlling display of '.' and '..'
   C		toggle date-field to display
   G		toggle user/group display field
   I		toggle inode/links display field
+  O		toggle flag showing object types
   P		toggle file protection-mode (octal/normal) display field
   S		toggle filesize (in blocks) field
   U		toggle filename display (unix vs apollo)
@@ -83,13 +88,15 @@ Display-Adjustment:
 
 		c	last-change date
 		d	order in directory-file (cf: 'find' utility)
+		g	group-id (lexically)
+		G	group-id (numerically)
 		i	inode
 		l	number of links
 		n	filename
 		N	leaf-name
+		o	object-types
+		O	object-types (numeric)
 		p	file-protection mask/mode.
-		g	group-id (lexically)
-		G	group-id (numerically)
 		r	last-access date
 		s	size
 		t	filetype (after first '.')

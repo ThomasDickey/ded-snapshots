@@ -1,10 +1,16 @@
-# $Id: Makefile,v 4.0 1989/08/22 09:19:34 ste_cm Rel $
+# $Id: Makefile,v 5.0 1989/10/04 11:16:19 ste_cm Rel $
 # MAKE-file for directory editor
 #
 # $Log: Makefile,v $
-# Revision 4.0  1989/08/22 09:19:34  ste_cm
-# BASELINE Thu Aug 24 10:20:06 EDT 1989 -- support:navi_011(rel2)
+# Revision 5.0  1989/10/04 11:16:19  ste_cm
+# BASELINE Fri Oct 27 12:27:25 1989 -- apollo SR10.1 mods + ADA_PITS 4.0
 #
+#        Revision 4.1  89/10/04  11:16:19  dickey
+#        added dependency on "acl.h" and "common.h"
+#        
+#        Revision 4.0  89/08/22  09:19:34  ste_cm
+#        BASELINE Thu Aug 24 10:20:06 EDT 1989 -- support:navi_011(rel2)
+#        
 #        Revision 3.1  89/08/22  09:19:34  dickey
 #        corrected 'destroy' rule
 #        
@@ -19,7 +25,7 @@ L	= ../../common/lib
 GET	= checkout
 #
 ####### (Command-line Options) #################################################
-DED_H	= ded.h $I/ptypes.h $I/cmdch.h
+DED_H	= ded.h $I/ptypes.h $I/common.h $I/cmdch.h
 INCLUDES= -I. -I$I
 CFLAGS	= $(DEFINES) $(INCLUDES) -O
 LIBS	= $L/lib.a
@@ -102,6 +108,7 @@ archive: $(OBJS)
 #
 ded.o:		$(DED_H) ded.c version.h
 $(OBJS):	$(DED_H)
+ded2s.o:	$I/acl.h
 #
 ####### (Development) ##########################################################
 $(SOURCES):			; $(GET) $@
