@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	sccs_id[] = "$Header: /users/source/archives/ded.vcs/src/RCS/dedread.c,v 2.2 1989/05/31 09:09:21 dickey Exp $";
+static	char	sccs_id[] = "$Header: /users/source/archives/ded.vcs/src/RCS/dedread.c,v 7.0 1989/06/12 13:11:55 ste_cm Rel $";
 #endif	lint
 
 /*
@@ -34,7 +34,7 @@ dedread()
 		*text = EOS;
 
 	dlog_string(text,sizeof(text),FALSE);
-	if (!strcmp(text, toscan)) {
+	if ((toscan != 0) && !strcmp(text, toscan)) {
 		showC();
 		return (FALSE);	/* no change */
 	} else if (!*text) {
