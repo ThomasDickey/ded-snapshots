@@ -1,3 +1,25 @@
+1990-02-07  dickey@software.org
+
+	* src/version.h:
+	added 'showpath()' procedure to handle display of very-long
+	paths.  modified '#' command to provide reset/set/all mode.
+
+	* src/deduniq.c:
+	rewrote, using 'level' argument to provide reset/set/all
+	modes of operation.
+
+	* src/ded.c:
+	modified '#' command (deduniq-proc) to 3 modes of operation.
+
+	* src/ded.hlp: modified '#' command to provide reset/set/all modes
+
+1990-02-07  ste_cm@software.org
+
+	* src/ded.hlp: BASELINE Mon Apr 30 09:54:01 1990 -- (CPROTO)
+
+	* src/ded.hlp:
+	BASELINE Thu Mar 29 07:37:55 1990 -- maintenance release (SYNTHESIS)
+
 1990-02-01  dickey@software.org
 
 	* src/showpath.c: RCS_BASE

@@ -1,4 +1,4 @@
-$Id: ded.hlp,v 5.3 1990/01/30 08:10:12 dickey Exp $
+$Id: ded.hlp,v 7.0 1990/02/07 08:15:53 ste_cm Rel $
 
 DED (Directory EDitor)
 ======================
@@ -123,7 +123,10 @@ Operations on Files:
   +		Add the {count} entries to the {group}
   -		Remove the {count} entries from the {group}
   _		Remove all entries from the {group}
-  #		Tag all (and only) files whose current sort-key is not unique.
+  #		Tag files whose current sort-key is not unique.
+		Use repeat count for variations: 0 to reset tag on files that
+		match current file's key, 1 to set tag, 2 to set tag on all
+		files that have non-unique sort-key.
 
   p		Edit protection-code for {group} of entries.  The
 		code from the current entry is edited inline.  The
