@@ -1,7 +1,3 @@
-#if	!defined(NO_IDENT)
-static	char	Id[] = "$Id: dlog.c,v 12.12 1995/07/30 18:01:50 tom Exp $";
-#endif
-
 /*
  * Title:	dlog.c
  * Author:	T.E.Dickey
@@ -34,6 +30,8 @@ static	char	Id[] = "$Id: dlog.c,v 12.12 1995/07/30 18:01:50 tom Exp $";
 
 #include	"ded.h"
 #include	<time.h>
+
+MODULE_ID("$Id: dlog.c,v 12.13 1995/07/30 18:01:50 tom Exp $")
 
 #define	NOW		time((time_t *)0)
 

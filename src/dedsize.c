@@ -1,7 +1,3 @@
-#if	!defined(NO_IDENT)
-static	char	Id[] = "$Id: dedsize.c,v 12.7 1995/04/02 00:35:30 tom Exp $";
-#endif
-
 /*
  * Title:	dedsize.c (ded resizing)
  * Author:	T.E.Dickey
@@ -24,6 +20,8 @@ static	char	Id[] = "$Id: dedsize.c,v 12.7 1995/04/02 00:35:30 tom Exp $";
  */
 
 #include "ded.h"
+
+MODULE_ID("$Id: dedsize.c,v 12.8 1995/04/02 00:35:30 tom Exp $")
 
 #ifdef	SIGWINCH
 

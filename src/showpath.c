@@ -1,12 +1,9 @@
-#ifndef	NO_IDENT
-static	char	Id[] = "$Id: showpath.c,v 12.4 1994/07/19 00:34:23 tom Exp $";
-#endif
-
 /*
  * Title:	showpath.c (show pathname)
  * Author:	T.E.Dickey
  * Created:	01 Feb 1990
  * Modified:
+ *		04 Sep 1995, mods for bsd4.4 curses
  *		17 Jul 1994, if base is -1, highlight the level-marker.
  *		29 Oct 1993, ifdef-ident
  *		28 Sep 1993, gcc warnings
@@ -20,6 +17,8 @@ static	char	Id[] = "$Id: showpath.c,v 12.4 1994/07/19 00:34:23 tom Exp $";
  */
 
 #include	"ded.h"
+
+MODULE_ID("$Id: showpath.c,v 12.6 1995/09/04 16:47:20 tom Exp $")
 
 #define	DOTLEN	(sizeof(ellipsis)-1)
 
@@ -37,12 +36,16 @@ public	void	showpath(
 	static	char	ellipsis[] = "...";
 	register char	*s	= path;
 	auto	int	marker	= (base == -1);
-	auto	int	cols	= COLS - ((stdscr->_curx) + 2 + margin);
+	auto	int	cols;
 	auto	int	len	= strlen(s);
 	auto	int	left	= 0;
 	auto	int	hilite	= FALSE;
 	auto	char	*d	= s + len;
 	auto	char	*t;
+	auto	int	y, x;
+
+	getyx(stdscr, y, x);
+	cols = COLS - (x + 2 + margin);
 
 	if (cols <= 0)
 		return;		/* give up (cannot print anything) */

@@ -1,7 +1,3 @@
-#if	!defined(NO_IDENT)
-static	char	Id[] = "$Id: deduniq.c,v 12.4 1993/11/23 16:42:55 dickey Exp $";
-#endif
-
 /*
  * Title:	deduniq.c (mark non-unique files)
  * Author:	T.E.Dickey
@@ -18,6 +14,8 @@ static	char	Id[] = "$Id: deduniq.c,v 12.4 1993/11/23 16:42:55 dickey Exp $";
  * Function:	Resets the file-tags to show files whose sort-key is not unique.
  */
 #include	"ded.h"
+
+MODULE_ID("$Id: deduniq.c,v 12.5 1993/11/23 16:42:55 tom Exp $")
 
 public	void	deduniq (
 	_ARX(RING *,	gbl)
