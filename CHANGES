@@ -1,3 +1,9 @@
+1994-07-04  Thomas E. Dickey  <dickey@clark.net>
+
+	* src/Makefile: new symbol for LIBS
+
+	* src/dedtype.c: plugged a hole that let non-ascii chars echo
+
 1994-07-02  Thomas E. Dickey  <dickey@clark.net>
 
 	* src/ded2s.c: removed redundant '_toupper'
