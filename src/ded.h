@@ -3,7 +3,7 @@
 
 #ifdef	MAIN
 #ifndef	lint
-static	char	*ded_h = "$Id: ded.h,v 10.1 1992/02/17 12:20:03 dickey Exp $";
+static	char	*ded_h = "$Id: ded.h,v 10.2 1992/02/28 09:28:03 dickey Exp $";
 #endif
 #endif	/* MAIN */
 
@@ -15,6 +15,7 @@ static	char	*ded_h = "$Id: ded.h,v 10.1 1992/02/17 12:20:03 dickey Exp $";
 #define		CUR_PTYPES	/* use "curses" */
 #define		STR_PTYPES	/* use "strrchr" */
 #include	<ptypes.h>
+#include	<dyn_string.h>
 #include	<ctype.h>
 #include	<errno.h>
 #include	<cmdch.h>
@@ -131,8 +132,8 @@ typedef	struct	_flist	{
 MAIN	char	old_wd[BUFSIZ],	/* original working-directory */
 		new_wd[BUFSIZ],	/* current working directory */
 		*toscan,	/* selects files in 'dedscan()'		*/
-		*scan_expr,	/* compiled version of 'toscan'		*/
-		bfr_sh[BUFSIZ];	/* last $SHELL-command			*/
+		*scan_expr;	/* compiled version of 'toscan'		*/
+MAIN	DYN	*cmd_sh;	/* last $SHELL-command			*/
 
 MAIN	FLIST	*flist;		/* pointer to display-list */
 

@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	Id[] = "$Header: /users/source/archives/ded.vcs/src/RCS/ded.c,v 10.0 1991/11/21 07:27:47 ste_cm Rel $";
+static	char	Id[] = "$Header: /users/source/archives/ded.vcs/src/RCS/ded.c,v 10.1 1992/02/28 09:28:53 dickey Exp $";
 #endif
 
 /*
@@ -7,6 +7,7 @@ static	char	Id[] = "$Header: /users/source/archives/ded.vcs/src/RCS/ded.c,v 10.0
  * Author:	T.E.Dickey
  * Created:	09 Nov 1987
  * Modified:
+ *		28 Feb 1992, convert shell-command to dynamic-string.
  *		21 Nov 1991, make 'tag_opt' public to use in dedring.
  *		15 Oct 1991, converted to ANSI. Allow replay of 'c' commands.
  *		16 Aug 1991, added interpretation of "2T"
@@ -1685,7 +1686,7 @@ _MAIN
 			break;
 
 	case '*':	/* display last shell command */
-			dedshow("Command=", bfr_sh);
+			dedshow("Command=", dyn_string(cmd_sh));
 			showC();
 			break;
 

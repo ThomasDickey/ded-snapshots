@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	Id[] = "$Id: deddoit.c,v 10.0 1991/10/18 08:49:23 ste_cm Rel $";
+static	char	Id[] = "$Id: deddoit.c,v 10.2 1992/02/28 13:24:30 dickey Exp $";
 #endif
 
 /*
@@ -7,6 +7,7 @@ static	char	Id[] = "$Id: deddoit.c,v 10.0 1991/10/18 08:49:23 ste_cm Rel $";
  * Author:	T.E.Dickey
  * Created:	17 Nov 1987
  * Modified:
+ *		28 Feb 1992, use dynamic-strings to remove buffer-length limits
  *		18 Oct 1991, converted to ANSI
  *		24 Jul 1991, added codes u,g,v,y
  *		18 Apr 1991, modified interface of 'dedwait()'
@@ -19,7 +20,7 @@ static	char	Id[] = "$Id: deddoit.c,v 10.0 1991/10/18 08:49:23 ste_cm Rel $";
  *		14 Mar 1989, interface to 'dlog' module.
  *		03 Aug 1988, Use 'dedsigs()' so we can fix signals at one point.
  *		02 Aug 1988, so that if nothing is read from 'rawgets()', we
- *			     don't overwrite the last contents of 'bfr_sh[]'.
+ *			     don't overwrite the last contents of 'cmd_sh[]'.
  *		17 May 1988, recoded '%'-substitution to work only on the
  *			     current entry, and to do a variety of subs for it.
  *		27 Apr 1988, modified 'rawgets()' to echo the non-tag string.
@@ -71,15 +72,13 @@ char	*root;
 static
 Expand(
 _ARX(int,	code)
-_ARX(char *,	b_subs)
-_AR1(int,	l_subs)
+_AR1(DYN *,	subs)
 	)
 _DCL(int,	code)
-_DCL(char *,	b_subs)
-_DCL(int,	l_subs)
+_DCL(DYN *,	subs)
 {
-	char	temp[BUFSIZ];
-	char	name[BUFSIZ],
+	char	temp[BUFSIZ],
+		name[BUFSIZ],
 		*from;
 
 	if (strchr("NHRET", code))
@@ -141,11 +140,7 @@ _DCL(int,	l_subs)
 	}
 
 	(void)ded2string(temp, sizeof(temp), from, TRUE);
-	if (strlen(b_subs) + strlen(temp) < l_subs - 1) {
-		(void)strcat(b_subs, temp);
-		return(strlen(b_subs));
-	} else
-		return(l_subs);
+	APPEND(subs, temp);
 }
 
 /*
@@ -158,9 +153,11 @@ _AR1(int,	sense)
 _DCL(int,	key)
 _DCL(int,	sense)
 {
+	static	DYN	*Subs;
 	register int	c, j, k;
 	register char	*s;
-	char	Subs[BUFSIZ];
+
+	dyn_init(&Subs, BUFSIZ);
 
 	if (sense == 0)
 		clr_sh = FALSE;
@@ -173,26 +170,24 @@ _DCL(int,	sense)
 	clrtobot();
 	move(j,k);
 
-	if ((key != '.') || (bfr_sh[0] == EOS)) {
-		if (key != ':')
-			*Subs = EOS;
-		else
-			(void)strcpy(Subs, bfr_sh);
+	if ((key != '.') || (*dyn_string(cmd_sh) == EOS)) {
+		if (key == ':')
+			APPEND(Subs, dyn_string(cmd_sh));
+
 		refresh();
-		dlog_string(s = Subs,sizeof(Subs),TRUE);
+		dlog_string(dyn_string(Subs), Subs->max_length, TRUE); /* patch */
+
 		c = FALSE;
-		while (*s) {	/* skip leading blanks */
+		for (s = dyn_string(Subs); *s; s++) { /* skip leading blanks */
 			if (!isspace(*s)) {
-				s = strcpy(bfr_sh, s);
+				dyn_init(&cmd_sh, BUFSIZ);
+				APPEND(cmd_sh, s);
 				c = TRUE;
 				break;
 			}
-			s++;
 		}
 		if (c) {	/* trim trailing blanks */
-			s += strlen(s);
-			while (--s > bfr_sh && isspace(*s))
-				*s = EOS;
+			(void)strtrim(dyn_string(cmd_sh));
 		} else {
 			PRINTW("(no command)");
 			showC();
@@ -201,54 +196,61 @@ _DCL(int,	sense)
 	} else
 		PRINTW("(ditto)\n");
 
-	Subs[k = 0] = EOS;
-	for (j = 0; bfr_sh[j]; j++) {
-		c = bfr_sh[j];
-		if (c == '\\'
-		 && (bfr_sh[j+1] == '#' || bfr_sh[j+1] == '%') ) {
-			Subs[k++] = bfr_sh[++j];
-			Subs[k] = EOS;
-		} else if (c == '#') {	/* substitute group */
-		int	first	= TRUE, x;
+	dyn_init(&Subs, BUFSIZ);
+	for (j = 0; *(s = dyn_string(cmd_sh) + j); j++) {
+		static	char	This[] = "?",
+				Next[] = "?";
+
+		This[0] = s[0];
+		Next[0] = s[1];
+
+		if (*This == '\\'
+		 && (*Next == '#' || *Next == '%') ) {
+			APPEND(Subs, Next);
+			j++;
+		} else if (*This == '#') {	/* substitute group */
+			int	ellipsis = 0,
+				others = FALSE,
+				len,
+				x;
+
 			for (x = 0; x < numfiles; x++) {
 				if (GROUPED(x)) {
-					s = fixname(x);
-					if (!first) {
-						(void)strcat(Subs, " ");
-						k++;
-					}
-					if (k + strlen(s) < sizeof(Subs)-1)
-						(void)strcat(Subs, s);
-					else {
-						k = sizeof(Subs);
-						break;
-					}
-					k += strlen(Subs + k);
-					first = FALSE;
+					len = strlen(s = fixname(x));
+					if (others++)
+						APPEND(Subs, " ");
+
+					if (!ellipsis
+					 && (dyn_length(Subs) + len) > 256)
+						ellipsis = dyn_length(Subs);
+					APPEND(Subs, s);
 				}
 			}
-		} else if (c == '%') {	/* substitute current file */
-			c = (bfr_sh[j+1] != EOS) ? bfr_sh[++j] : '?';
-			k = Expand(c, Subs, sizeof(Subs));
+			if (ellipsis) {
+				for (s = dyn_string(Subs) + ellipsis; *s; s++)
+					*s |= 0200;
+			}
+
+		} else if (*This == '%') {	/* substitute current file */
+			if (*Next != EOS)
+				j++;
+			Expand(*Next, Subs);
 		} else {
-			Subs[k++] = c;
-			Subs[k] = EOS;
-		}
-		if (k >= sizeof(Subs)-1) {
-			*Subs = EOS;
-			PRINTW("? command is too long\n");
-			beep();
-			break;
+			APPEND(Subs, This);
 		}
 	}
-	dedshow("> ", Subs);
+	dedshow("> ", dyn_string(Subs));
 	refresh();
 
-	if (*Subs) {
+	if (*dyn_string(Subs)) {
+		for (s = dyn_string(Subs); *s; s++)
+			if (!isascii(*s))
+				*s = toascii(*s);
+
 		resetty();
 		(void)dedsigs(FALSE);	/* prevent child from killing us */
-		dlog_comment("execute %s\n", Subs);
-		if (system(Subs) < 0)
+		dlog_comment("execute %s\n", dyn_string(Subs));
+		if (system(dyn_string(Subs)) < 0)
 			warn("system");
 		(void)dedsigs(TRUE);
 		rawterm();

@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	Id[] = "$Id: dedring.c,v 10.4 1992/02/20 13:27:36 dickey Exp $";
+static	char	Id[] = "$Id: dedring.c,v 10.7 1992/02/28 15:19:55 dickey Exp $";
 #endif
 
 /*
@@ -7,6 +7,7 @@ static	char	Id[] = "$Id: dedring.c,v 10.4 1992/02/20 13:27:36 dickey Exp $";
  * Author:	T.E.Dickey
  * Created:	27 Apr 1988
  * Modified:
+ *		28 Feb 1992, changed type of 'cmd_sh'.
  *		20 Feb 1992, correction to 'ring_bak()'
  *		17 Feb 1992, added 'dedrering()' to make renaming work ok.
  *		21 Nov 1991, added 'tag_opt'
@@ -56,8 +57,8 @@ typedef	struct	_ring	{
 	struct	_ring	*_link;
 	char		new_wd[BUFSIZ],
 			*toscan,	/* directory-scan expression	*/
-			*scan_expr,	/* compiled version of 'toscan'	*/
-			bfr_sh[BUFSIZ];	/* last shell-command		*/
+			*scan_expr;	/* compiled version of 'toscan'	*/
+	DYN		*cmd_sh;
 	FLIST		*flist;
 	char		**top_argv;
 	int		top_argc,
@@ -160,7 +161,7 @@ save _ONE(RING *,p)
 	(void) Toggle(p->new_wd, new_wd);
 	SAVE(toscan);
 	SAVE(scan_expr);
-	(void)strcpy(p->bfr_sh, bfr_sh);
+	dyn_init(&(p->cmd_sh), BUFSIZ); APPEND(p->cmd_sh, dyn_string(cmd_sh));
 	SAVE(flist);
 	SAVE(top_argc);
 	for (j = 0; j < CCOL_MAX; j++) SAVE(cmdcol[j]);
@@ -206,7 +207,7 @@ unsave _ONE(RING *,p)
 	(void) Toggle(new_wd, p->new_wd);
 	UNSAVE(toscan);
 	UNSAVE(scan_expr);
-	(void)strcpy(bfr_sh, p->bfr_sh);
+	dyn_init(&cmd_sh, BUFSIZ); APPEND(cmd_sh, dyn_string(p->cmd_sh));
 	UNSAVE(flist);
 	UNSAVE(top_argc);
 	for (j = 0; j < CCOL_MAX; j++) UNSAVE(cmdcol[j]);
@@ -257,9 +258,9 @@ _DCL(char *,	path)
 _DCL(int,	first)
 _DCL(char *,	pattern)
 {
-RING	*p	= ring,
-	*q	= 0;
-char	bfr[BUFSIZ];
+	RING	*p	= ring,
+		*q	= 0;
+	char	bfr[BUFSIZ];
 
 	(void) Toggle(bfr, path);
 	while (p) {
@@ -278,6 +279,7 @@ char	bfr[BUFSIZ];
 	 * the actual file-list
 	 */
 	p = ALLOC(RING,1);
+	p->cmd_sh = 0;
 	if (!rang)	rang = p;
 
 	save(p);
@@ -404,7 +406,6 @@ ring_bak _ONE(char *,path)
 	register RING *p, *q;
 
 	auto	char	tmp[BUFSIZ];
-	auto	char	bfr[MAXPATHLEN];
 
 	(void) Toggle(tmp, path);
 

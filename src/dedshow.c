@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	Id[] = "$Id: dedshow.c,v 10.0 1991/10/18 08:41:27 ste_cm Rel $";
+static	char	Id[] = "$Id: dedshow.c,v 10.2 1992/02/28 11:01:47 dickey Exp $";
 #endif
 
 /*
@@ -7,6 +7,7 @@ static	char	Id[] = "$Id: dedshow.c,v 10.0 1991/10/18 08:41:27 ste_cm Rel $";
  * Author:	T.E.Dickey
  * Created:	01 Dec 1987
  * Modified:
+ *		28 Feb 1992, corrected LINES-limit.
  *		18 Oct 1991, converted to ANSI
  *		11 Jul 1991, interface to 'to_work'
  *		12 Sep 1988, to handle continuation lines
@@ -21,6 +22,55 @@ static	char	Id[] = "$Id: dedshow.c,v 10.0 1991/10/18 08:41:27 ste_cm Rel $";
 
 #include	"ded.h"
 
+static
+void
+Show _ONE(char *,arg)
+{
+	register int	y, x, ch;
+	auto	int	max_Y	= LINES - 1,
+			max_X	= COLS  - 1;
+
+	if (arg == 0)
+		return;
+
+	getyx(stdscr, y, x);
+	if (y >= max_Y)
+		return;
+
+	while ((ch = *arg++) != EOS) {
+
+		if (isascii(ch)) {
+			if (ch == '\t')
+				ch = ' ';
+			if (!isprint(ch)) {
+				if (ch == '\n') {
+					x = 0;
+					if (++y > max_Y)
+						return;
+					move(y,x);
+				}
+				continue;
+			}
+			addch(ch);
+			if (++x > max_X) {
+				x = 0;
+				if (++y >= max_Y)
+					return;
+				move(y,x);
+			}
+		} else {
+			addch('{');
+			standout();
+			Show("...");
+			standend();
+			addch('}');
+			getyx(stdscr, y, x);
+			while ((*arg != EOS) && !isascii(*arg))
+				arg++;
+		}
+	}
+}
+
 dedshow(
 _ARX(char *,	tag)
 _AR1(char *,	arg)
@@ -28,9 +78,7 @@ _AR1(char *,	arg)
 _DCL(char *,	tag)
 _DCL(char *,	arg)
 {
-	auto	int	len	= strlen(arg),
-			base	= 0,
-			y,x;
+	register int	y,x;
 
 	getyx(stdscr,y,x);
 	if (y < mark_W) {
@@ -41,17 +89,10 @@ _DCL(char *,	arg)
 		move(y+1,0);
 	}
 
-	PRINTW("%s", tag);
-	while (arg[base] != EOS) {
-		if (len > (x = (COLS-1) - strlen(tag)))
-			len = x;
-		PRINTW("%.*s\n", len, arg + base);
-		if (++y >= LINES)
-			break;
-		base += len;
-		len   = strlen(&arg[base]);
-		tag   = "";
-	}
+	Show(tag);
+	Show(arg);
+	Show("\n");
+
 	clrtoeol();
 	refresh();
 }
