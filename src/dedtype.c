@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	Id[] = "$Id: dedtype.c,v 9.4 1991/07/11 12:43:13 dickey Exp $";
+static	char	Id[] = "$Id: dedtype.c,v 9.5 1991/07/16 08:02:37 dickey Exp $";
 #endif
 
 /*
@@ -192,7 +192,7 @@ int	c,			/* current character */
 #ifdef	apollo
 		char		*fmt = "%08x %s\n";
 #else
-		char		*fmt = "%5d %s\n";
+		char		*fmt = "%5u %s\n";
 #endif
 		FORMAT(tmp_name, "%s/ded%d", P_tmpdir, getpid());
 		(void)unlink(tmp_name);

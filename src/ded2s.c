@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	Id[] = "$Id: ded2s.c,v 9.2 1991/07/02 17:42:52 dickey Exp $";
+static	char	Id[] = "$Id: ded2s.c,v 9.3 1991/07/16 08:03:04 dickey Exp $";
 #endif
 
 /*
@@ -139,7 +139,7 @@ char	*t,
 #ifdef	apollo
 	if (I_opt)	FORMAT(bfr, "%08x ", s->st_ino);
 #else	/* unix */
-	if (I_opt)	FORMAT(bfr, "%5d ", s->st_ino);
+	if (I_opt)	FORMAT(bfr, "%5u ", s->st_ino);
 #endif	/* apollo/unix */
 	else		FORMAT(bfr, "%3d ", s->st_nlink);
 	bfr += field(bfr,mj);
@@ -183,7 +183,7 @@ char	*t,
 		break;
 	default:
 		if (S_opt >= 1) {
-			FORMAT(bfr, "%5d ",
+			FORMAT(bfr, "%5u ",
 #ifdef	SYSTEM5
 				s->st_size / 1024	/* patch */
 #else	/* bsd */

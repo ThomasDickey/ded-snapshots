@@ -1,3 +1,18 @@
+1991-07-16  dickey@software.org
+
+	* src/ded.c: modified logic of 'edithead()' to account for the case in
+	which the current entry contains '/'.
+
+	* src/ded2s.c: inode-value and number-of-blocks are unsigned
+
+	* src/dedtype.c: inode-value is unsigned
+
+	* src/ftree.c:
+	broke out guts of 'ft_insert()' to allow special call from
+	'ft_view()', allowing it to recover from bizarre case on
+	SunOS where real (mounted) directory was masked by a symbolic
+	link.
+
 1991-07-15  dickey@software.org
 
 	* src/ftree.c:
