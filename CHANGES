@@ -1,3 +1,9 @@
+1992-08-26  dickey@software.org
+
+	* src/dlog.c: corrected an instance of newline-splice/trim
+
+	* src/dlog.c: partial correction to inline-history's end-stops
+
 1992-08-25  dickey@software.org
 
 	* src/dlog.c: debug-trace
