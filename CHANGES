@@ -1,3 +1,7 @@
+1988-08-11  dickey@software.org
+
+	* src/ded.c: moved 'blip()' to common library
+
 1988-08-10  dickey@software.org
 
 	* src/ded.c:
