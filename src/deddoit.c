@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	sccs_id[] = "@(#)deddoit.c	1.10 88/08/02 16:17:14";
+static	char	sccs_id[] = "@(#)deddoit.c	1.11 88/08/03 08:25:22";
 #endif	lint
 
 /*
@@ -7,9 +7,9 @@ static	char	sccs_id[] = "@(#)deddoit.c	1.10 88/08/02 16:17:14";
  * Author:	T.E.Dickey
  * Created:	17 Nov 1987
  * Modified:
+ *		03 Aug 1988, Use 'dedsigs()' so we can fix signals at one point.
  *		02 Aug 1988, so that if nothing is read from 'rawgets()', we
  *			     don't overwrite the last contents of 'bfr_sh[]'.
- *			     Use 'execute()' so we can fix signals at one point.
  *		17 May 1988, recoded '%'-substitution to work only on the
  *			     current entry, and to do a variety of subs for it.
  *		27 Apr 1988, modified 'rawgets()' to echo the non-tag string.
@@ -194,7 +194,7 @@ deddoit(key)
 		int	first	= TRUE, x;
 			for (x = 0; x < numfiles; x++) {
 				if (GROUPED(x)) {
-				char	*s = fixname(x);
+					s = fixname(x);
 					if (!first) {
 						(void)strcat(subs, " ");
 						k++;
@@ -230,10 +230,10 @@ deddoit(key)
 
 	if (*subs) {
 		resetty();
-		*temp = EOS;
-		catarg(temp, subs);
-		if (execute("sh -c", temp) < 0)
-			beep();		/* assume 'sh' reports error */
+		(void)dedsigs(FALSE);	/* prevent child from killing us */
+		if (system(subs) < 0)
+			warn("system");
+		(void)dedsigs(TRUE);
 		rawterm();
 		if (clr_sh) dedwait();
 	}

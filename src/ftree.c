@@ -1,11 +1,12 @@
-#ifndef	NO_SCCS_ID
-static	char	sccs_id[] = "@(#)ftree.c	1.52 88/07/27 09:54:10";
-#endif
+#ifndef	lint
+static	char	sccs_id[] = "@(#)ftree.c	1.53 88/08/03 08:24:07";
+#endif	lint
 
 /*
  * Author:	T.E.Dickey
  * Created:	02 Sep 1987
  * Modified:
+ *		03 Aug 1988, use 'dedsigs()' in 'R' command to permit interrupt.
  *		27 Jul 1988, reversed initial sense of 'I'.  Corrected display
  *			     of 'W' in case file could not be written, etc.
  *		25 Jul 1988, use repeat-count on 'R' to recur that many levels.
@@ -1111,7 +1112,7 @@ register int j;
 		case 'R':	if (ftree[row].f_mark & LINKED)
 					beep();
 				else
-					ft_scan(row, num);
+					(void)ft_scan(row, num);
 				break;
 		case '+':	while (num-- > 0) {
 					markit(row,MARKED,TRUE);
@@ -1276,10 +1277,15 @@ DIR	*dp;
 struct	direct	*d;
 int	count	= 0;
 char	bfr[MAXPATHLEN], *s_ = bfr;
+
 #ifdef	TEST
 char	old[MAXPATHLEN];
 	abspath(strcpy(old,"."));
+#else	TEST
+int	interrupted = 0;
+	(void)dedsigs(TRUE);		/* reset interrupt-counter */
 #endif	TEST
+
 	s_ += strlen(fd_path(bfr,node));
 
 	if (chdir(bfr) < 0)
@@ -1293,16 +1299,28 @@ char	old[MAXPATHLEN];
 			FORMAT(s_, "%s", d->d_name);
 			if (dotname(s_))		continue;
 			ft_stat(bfr, s_);
+#ifndef	TEST
+			if (interrupted = dedsigs(TRUE))
+				break;	/* exit loop so we can cleanup */
+#endif	TEST
 		}
 		ft_purge();
 		(void)closedir(dp);
+
+#ifndef	TEST
+		if (interrupted) {
+			waitmsg(bfr);	/* show where we stopped */
+			return (-1);	/* ...and give up from there */
+		}
+#endif	TEST
 
 		/* recur to lower levels if asked */
 		if (levels > 1) {
 			register int j;
 			for (j = node+1; j <= FDlast; j++)
 				if ((zROOT(j) == node) && !zLINK(j))
-					ft_scan(j, levels-1);
+					if (ft_scan(j, levels-1) < 0)
+						return (-1);
 		}
 	}
 #ifdef	TEST
@@ -1310,6 +1328,7 @@ char	old[MAXPATHLEN];
 #else	TEST
 	(void)chdir(new_wd);
 #endif	TEST
+	return (0);
 }
 
 /*
