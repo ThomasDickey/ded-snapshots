@@ -1,5 +1,5 @@
 #if	!defined(NO_IDENT)
-static	char	Id[] = "$Header: /users/source/archives/ded.vcs/src/RCS/ded.c,v 12.6 1993/11/19 20:28:48 dickey Exp $";
+static	char	Id[] = "$Header: /users/source/archives/ded.vcs/src/RCS/ded.c,v 12.8 1993/11/23 17:50:07 dickey Exp $";
 #endif
 
 /*
@@ -7,6 +7,7 @@ static	char	Id[] = "$Header: /users/source/archives/ded.vcs/src/RCS/ded.c,v 12.6
  * Author:	T.E.Dickey
  * Created:	09 Nov 1987
  * Modified:
+ *		23 Nov 1993, new blip-code.
  *		19 Nov 1993, added xterm-mouse support.
  *		01 Nov 1993, port to HP/UX.
  *		29 Oct 1993, ifdef-ident
@@ -365,13 +366,13 @@ public	void	showSCCS _ONE(RING *,gbl)
 	register int j;
 
 	if (!gbl->Z_opt) {		/* catch up */
-		to_work(gbl,TRUE);
+		set_dedblip(gbl);
 		gbl->Z_opt = -1;
 		for (j = 0; j < gbl->numfiles; j++) {
 			register FLIST *f = &(gbl->flist[j]);
 			if (!f->z_time) {
 				statSCCS(gbl, gNAME(j), f);
-				blip((f->z_time != 0) ? '*' : '.');
+				put_dedblip((f->z_time != 0) ? '#' : '.');
 			}
 		}
 	}
@@ -392,8 +393,8 @@ int	y,x;
 #ifdef	apollo
 	if (resizewin()) {
 		dlog_comment("resizewin(%d,%d)\n", LINES, COLS);
-		markset(gbl, mark_W,FALSE);
-		showFILES(gbl,FALSE,TRUE);
+		markset(gbl, mark_W);
+		showFILES(gbl,FALSE);
 		return;
 	}
 #endif	/* apollo */
@@ -464,7 +465,7 @@ private	RING *	new_args(
 		redoVIEW(gbl = ok);
 		(void)to_file(gbl);
 		count_tags(gbl);
-		showFILES(gbl,TRUE,TRUE);
+		showFILES(gbl,TRUE);
 	}
 	(void)chdir(gbl->new_wd);
 	dlog_comment("chdir %s\n", gbl->new_wd);
@@ -525,12 +526,12 @@ private	RING *	rescan(
 {
 	char	*cur_name = gbl->numfiles ? cNAME : 0;
 
-	to_work(gbl,TRUE);
+	set_dedblip(gbl);
 	init_tags(gbl);
 	if (dedscan(gbl)) {
 		gbl->curfile = cur_name ? findFILE(gbl, cur_name) : 0;
 		(void)to_file(gbl);
-		showFILES(gbl,TRUE,TRUE);
+		showFILES(gbl,TRUE);
 		return (gbl);
 	} else if (fwd) {
 		return old_args(gbl, 'F', 1);
@@ -742,7 +743,7 @@ private	void	trace_pipe _ONE(char *,arg)
 			FPRINTF(stderr, "%s\n", arg);
 			(void)fflush(stderr);
 		} else
-			blip('#');
+			put_dedblip('#');
 	}
 }
 
@@ -999,14 +1000,14 @@ _MAIN
 	case ARO_LEFT:	if (gbl->Xbase > 0) {
 				if ((gbl->Xbase -= x_scroll() * count) < 0)
 					gbl->Xbase = 0;
-				showFILES(gbl,FALSE,FALSE);
+				showFILES(gbl,FALSE);
 			} else
 				dedmsg(gbl, "already at left margin");
 			break;
 
 	case ARO_RIGHT:	if ((j = (gbl->Xbase + (x_scroll() * count))) < 990) {
 				gbl->Xbase = j;
-				showFILES(gbl,FALSE,FALSE);
+				showFILES(gbl,FALSE);
 			} else
 				beep();
 			break;
@@ -1028,19 +1029,19 @@ _MAIN
 #ifdef	S_IFLNK
 	case '@':	COMPLEMENT(gbl->AT_opt);
 			count = 0;
-			to_work(gbl,TRUE);
+			set_dedblip(gbl);
 			PRINTW(" ");	/* cheat the optimizer */
 			refresh();
 			for (j = 0; j < gbl->numfiles; j++) {
 				if (gLTXT(j)) {
-					blip('@');
+					put_dedblip('@');
 					statLINE(gbl, j);
 					count++;
 				} else
-					blip('.');
+					put_dedblip('.');
 			}
 			if (count)
-				showFILES(gbl,TRUE,TRUE);
+				showFILES(gbl,TRUE);
 			else
 				showC(gbl);
 			break;
@@ -1051,57 +1052,54 @@ _MAIN
 			gbl = rescan(gbl, TRUE);
 			break;
 	case 'G':	gbl->G_opt = one_or_both(j = gbl->G_opt,count);
-			showFILES(gbl,(gbl->G_opt != 2) != (j != 2), FALSE);
+			showFILES(gbl,(gbl->G_opt != 2) != (j != 2));
 			break;
 	case 'I':	gbl->I_opt = one_or_both(j = gbl->I_opt,count);
-			showFILES(gbl,gbl->I_opt != j, FALSE);
+			showFILES(gbl,gbl->I_opt != j);
 			break;
 #ifdef	apollo_sr10
 	case 'O':	COMPLEMENT(gbl->O_opt);
-			showFILES(gbl, TRUE, FALSE);
+			showFILES(gbl, TRUE);
 			break;
 #endif
 	case 'P':	gbl->P_opt = one_or_both(j = gbl->P_opt,count);
-			showFILES(gbl,gbl->P_opt != j, FALSE);
+			showFILES(gbl,gbl->P_opt != j);
 			break;
 	case 'S':	gbl->S_opt = one_or_both(j = gbl->S_opt,count);
-			showFILES(gbl,gbl->S_opt != j, FALSE);
+			showFILES(gbl,gbl->S_opt != j);
 			break;
 	case 'T':	gbl->T_opt = one_or_both(j = gbl->T_opt,count);
-			showFILES(gbl,gbl->T_opt != j, FALSE);
+			showFILES(gbl,gbl->T_opt != j);
 			break;
 #ifdef	apollo
 	case 'U':	COMPLEMENT(gbl->U_opt);
-			showFILES(gbl, FALSE, FALSE);
+			showFILES(gbl, FALSE);
 			break;
 #endif
 
 #ifdef	Z_RCS_SCCS
 	case 'V':	/* toggle sccs-version display */
-			j = !gbl->Z_opt;
 			showSCCS(gbl);
 			gbl->V_opt = !gbl->V_opt;
-			showFILES(gbl,TRUE,j);
+			showFILES(gbl,TRUE);
 			break;
 
 	case 'Y':	/* show owner of file lock */
-			j = !gbl->Z_opt;
 			showSCCS(gbl);
 			gbl->Y_opt = !gbl->Y_opt;
-			showFILES(gbl,TRUE,j);
+			showFILES(gbl,TRUE);
 			break;
 
 	case 'Z':	/* toggle sccs-date display */
-			j = !gbl->Z_opt;
 			showSCCS(gbl);
 			gbl->Z_opt = -gbl->Z_opt;
-			showFILES(gbl,TRUE,j);
+			showFILES(gbl,TRUE);
 			break;
 
 	case 'z':	/* cancel sccs-display */
 			if (gbl->Z_opt) {
 				gbl->Z_opt = 0;
-				showFILES(gbl,TRUE,FALSE);
+				showFILES(gbl,TRUE);
 			}
 			break;
 #endif	/* Z_RCS_SCCS */
@@ -1116,7 +1114,7 @@ _MAIN
 			/* move work-area marker */
 	case 'A':	count = -count;
 	case 'a':
-			markset(gbl, mark_W + count,TRUE);
+			markset(gbl, mark_W + count);
 			break;
 
 	case CTL('R'):	/* modify read-expression */
@@ -1166,20 +1164,20 @@ _MAIN
 #endif	/* Z_RCS_SCCS */
 				dedsort(gbl);
 				(void)to_file(gbl);
-				showFILES(gbl,FALSE,FALSE);
+				showFILES(gbl,FALSE);
 			} else
 				dedmsg(gbl, "unknown sort-key");
 			break;
 
 	case 'C':	gbl->dateopt += 1;
 			if (gbl->dateopt > 2)	gbl->dateopt = 0;
-			showFILES(gbl,FALSE,FALSE);
+			showFILES(gbl,FALSE);
 			break;
 
 	case '#':	/* tag files with duplicated fields */
 			deduniq(gbl, count);
 			count_tags(gbl);
-			showFILES(gbl,FALSE,TRUE);
+			showFILES(gbl,FALSE);
 			break;
 
 			/* tag/untag specific files */
@@ -1200,7 +1198,7 @@ _MAIN
 	case '_':	for (j = 0; j < gbl->numfiles; j++)
 				untag_entry(gbl,j);
 			init_tags(gbl);
-			showFILES(gbl,FALSE,FALSE);
+			showFILES(gbl,FALSE);
 			break;
 
 	case CTL('G'):	gbl->tag_opt = one_or_both(j = gbl->tag_opt,count);

@@ -1,5 +1,5 @@
 #if	!defined(NO_IDENT)
-static	char	Id[] = "$Id: dedtype.c,v 12.3 1993/10/29 20:30:50 dickey Exp $";
+static	char	Id[] = "$Id: dedtype.c,v 12.4 1993/11/23 17:50:06 dickey Exp $";
 #endif
 
 /*
@@ -652,7 +652,7 @@ public	void	dedtype(
 				/* move work-area marker */
 			case 'A':	count = -count;
 			case 'a':
-				markset(gbl, mark_W + count,FALSE);
+				markset(gbl, mark_W + count);
 				break;
 
 			case '/':

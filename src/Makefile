@@ -1,4 +1,4 @@
-# $Id: Makefile,v 12.2 1993/11/05 18:36:14 dickey Exp $
+# $Id: Makefile,v 12.3 1993/11/23 14:45:24 dickey Exp $
 # MAKE-file for directory editor
 
 THIS	= ded
@@ -15,6 +15,7 @@ ALL	= $B/$(THIS) $B/$(THIS).hlp
 CSRC	=\
 	$(THIS).c \
 	ded2s.c \
+	dedblip.c \
 	deddoit.c \
 	deddump.c \
 	dedfind.c \
@@ -48,6 +49,7 @@ HSRC	= \
 Z	= $(THIS).a
 OBJS	= \
 	$Z(ded2s.o) \
+	$Z(dedblip.o) \
 	$Z(deddoit.o) \
 	$Z(deddump.o) \
 	$Z(dedfind.o) \

@@ -1,5 +1,5 @@
 #if	!defined(NO_IDENT)
-static	char	Id[] = "$Id: dedline.c,v 12.4 1993/10/29 20:27:00 dickey Exp $";
+static	char	Id[] = "$Id: dedline.c,v 12.5 1993/11/23 17:48:02 dickey Exp $";
 #endif
 
 /*
@@ -314,7 +314,7 @@ private	int	save_Xbase (
 	if (col > (gbl->Xbase + COLS - 1))
 		gbl->Xbase = col;
 	if (old != gbl->Xbase)
-		showFILES(gbl,FALSE,FALSE);
+		showFILES(gbl,FALSE);
 	return (col - gbl->Xbase);
 }
 
@@ -550,7 +550,7 @@ public	void	edit_uid _ONE(RING *,gbl)
 
 	if (gbl->G_opt == 1) {
 		gbl->G_opt = 0;
-		showFILES(gbl,FALSE,FALSE);
+		showFILES(gbl,FALSE);
 	}
 
 	if (EDITTEXT('u', CCOL_UID, UIDLEN, strcpy(bfr, uid2s(uid)))
@@ -590,7 +590,7 @@ public	void	edit_gid _ONE(RING *,gbl)
 
 	if (!gbl->G_opt) {
 		gbl->G_opt = 1;
-		showFILES(gbl,FALSE,FALSE);
+		showFILES(gbl,FALSE);
 	}
 
 	if (EDITTEXT('g', CCOL_GID, UIDLEN, strcpy(bfr, gid2s(gid)))
@@ -748,7 +748,7 @@ public	void	editlink(
 			}
 		}
 		if (restore && !changed)
-			showFILES(gbl,FALSE,FALSE);
+			showFILES(gbl,FALSE);
 	}
 	restat(gbl,changed);
 }

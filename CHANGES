@@ -1,3 +1,48 @@
+1993-11-23  dickey@software.org
+
+	* test/test1.cmd, test/test2.cmd: added:dedblip.c
+
+	* src/version.h: Ifdef'd idents (to simply testing with gcc warnings)
+	Ported to HP/UX.
+	Simulate scrolling for up/down line commands.
+	Made "^" command act as a toggle to top/bottom of screen.
+	Added mouse support for xterm.
+	Rewrote blip code, to show the counts rather than a lot of dots.
+	Corrected an infinite loop in the filelist search commands.
+
+	* src/dedblip.c: removed-traces
+
+1993-11-23  Thomas E. Dickey  <dickey@software.org>
+
+	* src/dedblip.c: use MODULE_ID
+
+1993-11-23  dickey@software.org
+
+	* src/dedblip.c, src/dedview.c, src/ded.c, src/dedtype.c, src/ded.h, src/dedline.c, src/dedscan.c:
+	showFILES-interface
+
+	* src/dedblip.c:
+	revised my original idea, using curses (which is faster than I thought)
+
+	* src/dedscan.c: added calls to 'set_dedblip()'
+
+	* src/ded.c, src/dedread.c, src/dedscan.c, src/deduniq.c:
+	use new blip-code
+
+1993-11-23  Thomas E. Dickey  <dickey@software.org>
+
+	* src/deduniq.c: use MODULE_ID
+
+1993-11-23  dickey@software.org
+
+	* src/dedblip.c: RCS_BASE
+
+	* src/ded.h, src/Makefile: added 'dedblip.c'
+
+	* src/ftree.c:
+	corrections to logic of 'row2node()' to make it work properly with hiddent
+	directories.
+
 1993-11-19  dickey@software.org
 
 	* src/README: did the mouse stuff

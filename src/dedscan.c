@@ -1,5 +1,5 @@
 #if	!defined(NO_IDENT)
-static	char	Id[] = "$Id: dedscan.c,v 12.3 1993/10/29 20:30:50 dickey Exp $";
+static	char	Id[] = "$Id: dedscan.c,v 12.6 1993/11/23 17:48:02 dickey Exp $";
 #endif
 
 /*
@@ -7,6 +7,7 @@ static	char	Id[] = "$Id: dedscan.c,v 12.3 1993/10/29 20:30:50 dickey Exp $";
  * Author:	T.E.Dickey
  * Created:	09 Nov 1987
  * Modified:
+ *		23 Nov 1993, new blip-code.
  *		29 Oct 1993, ifdef-ident, port to HP/UX.
  *		28 Sep 1993, gcc warnings
  *		01 Apr 1992, convert most global variables to RING-struct.
@@ -249,11 +250,11 @@ private	int	argstat(
 
 	Zero(&fb);
 	if ((code = dedstat(gbl, name, &fb)) != N_UNKNOWN) {
-		blip(code == N_LDIR ? '@' : '.');
+		put_dedblip(code == N_LDIR ? '@' : '.');
 		if (list)
 			append(gbl, name, &fb);
 	} else
-		blip('?');
+		put_dedblip('?');
 	return (code);
 }
 
@@ -275,6 +276,7 @@ public	int	dedscan _ONE(RING *,gbl)
 	char	name[BUFSIZ];
 	char	*s;
 
+	set_dedblip(gbl);
 	gbl->flist = dedfree(gbl->flist, gbl->numfiles);
 	dir_order = 0;
 	gbl->numfiles = 0;
@@ -298,6 +300,7 @@ public	int	dedscan _ONE(RING *,gbl)
 			else
 				init_scan(gbl);
 
+			set_dedblip(gbl);
 			if ((dp = opendir(".")) != NULL) {
 			int	len = strlen(strcpy(name, gbl->new_wd));
 				if (name[len-1] != '/') {
@@ -503,7 +506,7 @@ public	void	statMAKE (
 			gbl->numfiles--;
 		}
 	}
-	showFILES(gbl,FALSE,TRUE);
+	showFILES(gbl,FALSE);
 }
 
 /*

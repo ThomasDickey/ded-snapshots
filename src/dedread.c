@@ -1,5 +1,5 @@
 #if	!defined(NO_IDENT)
-static	char	Id[] = "$Id: dedread.c,v 12.1 1993/10/29 20:30:51 dickey Exp $";
+static	char	Id[] = "$Id: dedread.c,v 12.2 1993/11/23 16:42:55 dickey Exp $";
 #endif
 
 /*
@@ -7,6 +7,7 @@ static	char	Id[] = "$Id: dedread.c,v 12.1 1993/10/29 20:30:51 dickey Exp $";
  * Author:	T.E.Dickey
  * Created:	26 May 1989
  * Modified:
+ *		23 Nov 1993, new blip-code.
  *		29 Oct 1993, ifdef-ident, port to HP/UX.
  *		01 Apr 1992, convert most global variables to RING-struct.
  *		18 Oct 1991, converted to ANSI
@@ -39,7 +40,7 @@ public	int	dedread(
 	static	HIST	*History;
 	auto	REGEX_T	expr;
 
-	to_work(gbl,TRUE);
+	set_dedblip(gbl);
 	PRINTW("Pattern: ");
 	getyx(stdscr,j,k);
 	clrtobot();
