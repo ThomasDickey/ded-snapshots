@@ -1,3 +1,8 @@
+1987-11-20  dickey@software.org
+
+	* src/Makefile, src/ded.c, src/dedsort.c, src/ded2s.c, src/ded.h:
+	New file.
+
 1987-11-19  dickey@software.org
 
 	* src/dedtype.c, src/dedfind.c, src/deddoit.c: New file.

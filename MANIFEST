@@ -1,9 +1,14 @@
-MANIFEST for ded, version t19871119
+MANIFEST for ded, version t19871120
 --------------------------------------------------------------------------------
 MANIFEST                        this file
 src                             subdirectory
+src/Makefile                    makefile for src-directory
+src/ded.c                       main program of DED
+src/ded.h                       common definitions of DED
+src/ded2s.c                     convert file-entry to string
 src/deddoit.c                   execute shell commands
 src/dedfind.c                   search within file-list
 src/dedscan.c                   read file-list
+src/dedsort.c                   sorting operation for DED
 src/dedtype.c                   type/page a file
 src/ftree.c                     directory-tree for DED
