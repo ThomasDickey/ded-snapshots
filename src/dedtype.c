@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	Id[] = "$Id: dedtype.c,v 8.1 1991/04/01 12:28:48 dickey Exp $";
+static	char	Id[] = "$Id: dedtype.c,v 8.2 1991/04/22 08:19:23 dickey Exp $";
 #endif	lint
 
 /*
@@ -7,10 +7,14 @@ static	char	Id[] = "$Id: dedtype.c,v 8.1 1991/04/01 12:28:48 dickey Exp $";
  * Author:	T.E.Dickey
  * Created:	16 Nov 1987
  * $Log: dedtype.c,v $
- * Revision 8.1  1991/04/01 12:28:48  dickey
- * added command (tab-character) to allow user to alter tab
- * stops in the display.
+ * Revision 8.2  1991/04/22 08:19:23  dickey
+ * added stripped-mode to make looking at binary files easier on
+ * my eyes.
  *
+ *		Revision 8.1  91/04/01  12:32:48  dickey
+ *		added command (tab-character) to allow user to alter tab
+ *		stops in the display.
+ *		
  *		Revision 8.0  90/08/13  13:42:04  ste_cm
  *		BASELINE Mon Aug 13 15:06:41 1990 -- LINCNT, ADA_TRANS
  *		
@@ -131,19 +135,25 @@ register c;
 }
 
 static
-typeconv(c,binary)
+typeconv(c,binary,stripped)
 register c;
 {
+	char	dot	= stripped ? ' ' : '.';
+
 	if (Tcol < sizeof(text)-1) {
 		if (binary) {	/* highlight chars with parity */
 			if (!isascii(c)) {
 				c = toascii(c);
-				text[Tcol] = '_';
+				if (stripped) {
+					if (!isprint(c))
+						c = ' ';
+				} else
+					text[Tcol] = '_';
 			}
 		}
 		if (isascii(c)) {
 			if (binary && !isprint(c)) {
-				typeover('.');
+				typeover(dot);
 			} else if (c == '\b') {
 				if (Tcol > 0) Tcol--;
 			} else if (c == '\r') {
@@ -162,9 +172,9 @@ register c;
 						typeover(' ');
 				}
 			} else
-				typeover('.');
+				typeover(dot);
 		} else
-			typeover('.');
+			typeover(dot);
 	}
 	if (binary)
 		if (Tlen - Shift >= COLS-1)
@@ -184,7 +194,7 @@ FILE	*fp;
 	return (c);
 }
 
-dedtype(name,binary,isdir)
+dedtype(name,binary,stripped,isdir)
 char	*name;
 {
 static	char	tmp_name[L_tmpnam];
@@ -272,7 +282,7 @@ int	c,			/* current character */
 			}
 			infile[page++] = ftell(fp);
 			while ((c = GetC(fp)) != EOF) {
-				if (typeconv(c,binary)) {
+				if (typeconv(c,binary,stripped)) {
 					if ((Tlen == 0) && blank)
 						continue;
 					blank = (Tlen == 0);

@@ -1,3 +1,13 @@
+1991-04-22  dickey@software.org
+
+	* src/dedtype.c:
+	added stripped-mode to make looking at binary files easier on
+	my eyes.
+
+	* src/ded.c: re-open standard input if we were reading from a pipe.
+
+	* src/dedwait.c: lint
+
 1991-04-18  dickey@software.org
 
 	* src/dedline.c:
