@@ -1,5 +1,5 @@
 #ifndef	NO_SCCS_ID
-static	char	sccs_id[] = "@(#)dedscan.c	1.12 88/05/18 13:20:29";
+static	char	sccs_id[] = "@(#)dedscan.c	1.13 88/05/23 07:17:08";
 #endif	NO_SCCS_ID
 
 /*
@@ -7,6 +7,7 @@ static	char	sccs_id[] = "@(#)dedscan.c	1.12 88/05/18 13:20:29";
  * Author:	T.E.Dickey
  * Created:	09 Nov 1987
  * Modified:
+ *		23 May 1988, changed interface to 'rcslast()', 'sccslast()'.
  *		13 May 1988, put only links-to-directory via 'ft_linkto()'.
  *		09 May 1988, corrected full-name computation for ftree.
  *		22 Apr 1988, use external 'txtalloc()', integrated with ftree.
@@ -255,18 +256,21 @@ statSCCS(name, f_)
 char	*name;
 FLIST	*f_;
 {
-	if (Z_opt && isFILE(f_->s.st_mode)) {
+	if (Z_opt) {
+		if (isFILE(f_->s.st_mode)) {
 #ifdef	Z_RCS
-		rcslast(new_wd, name,
-			&(f_->z_rels), &(f_->z_vers), &(f_->z_time));
+			rcslast(new_wd, name, &(f_->z_vers), &(f_->z_time));
 #ifdef	Z_SCCS
-		if (f_->z_time == 0)
+			if (f_->z_time == 0)
 #endif	Z_SCCS
 #endif	Z_RCS
 #ifdef	Z_SCCS
-		sccslast(new_wd, name,
-			&(f_->z_rels), &(f_->z_vers), &(f_->z_time));
+			sccslast(new_wd, name, &(f_->z_vers), &(f_->z_time));
 #endif	Z_SCCS
+		} else {
+			f_->z_vers = "";
+			f_->z_time = 0;
+		}
 	}
 }
 #endif	Z_SCCS

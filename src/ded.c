@@ -1,5 +1,5 @@
 #ifndef	NO_SCCS_ID
-static	char	sccs_id[] = "@(#)ded.c	1.23 88/05/16 14:50:58";
+static	char	sccs_id[] = "@(#)ded.c	1.24 88/05/23 07:45:28";
 #endif	NO_SCCS_ID
 
 /*
@@ -7,6 +7,7 @@ static	char	sccs_id[] = "@(#)ded.c	1.23 88/05/16 14:50:58";
  * Author:	T.E.Dickey
  * Created:	09 Nov 1987
  * Modified:
+ *		23 May 1988, use 'setmtime()', corrected masking in 'replay()'.
  *		13 May 1988, provide walkback on Apollo after 'failed()'.
  *		11 May 1988, use 'rename()' if it is available.
  *		03 May 1988, added 'P', 's', 't' subcommands to editprot.
@@ -67,7 +68,7 @@ static	int	in_screen;		/* TRUE if we have successfully init'ed */
 static	char	whoami[BUFSIZ],		/* my execution-path */
 		howami[BUFSIZ];		/* my help-file */
 
-static	char	sortc[] = "cgilnprstuwGTUvzZ";/* valid sort-keys */
+static	char	sortc[] = ".cgilnprstuwGTUvzZ";/* valid sort-keys */
 					/* (may correspond with cmds) */
 
 static	int	re_edit;		/* flag for 'edittext()' */
@@ -496,23 +497,7 @@ static	char	nbfr[BUFSIZ];
 static
 fixtime(j)
 {
-#ifdef	apollo_9_5
-#define	FIXTIME	1
-#else	apollo_9_5
-#define	FIXTIME	0
-#endif	apollo_9_5
-
-#ifdef	SYSTEM5
-struct { time_t x, y; } tp;
-	tp.x = flist[j].s.st_atime + FIXTIME;
-	tp.y = flist[j].s.st_mtime + FIXTIME;
-	if (utime(flist[j].name, &tp) < 0)	warn("utime");
-#else	SYSTEM5
-time_t	tv[2];
-	tv[0] = flist[j].s.st_atime + FIXTIME;
-	tv[1] = flist[j].s.st_mtime + FIXTIME;
-	if (utime(flist[j].name, tv) < 0)	warn("utime");
-#endif	SYSTEM5
+	if (setmtime(flist[j].name, flist[j].s.st_mtime) < 0)	warn("utime");
 }
 
 /*
@@ -539,7 +524,7 @@ static	int	in_edit;
 			lastedit[in_edit]   = EOS;
 		}
 	}
-	return (c);
+	return (c & 0xff);
 }
 
 /*

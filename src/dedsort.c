@@ -1,5 +1,5 @@
 #ifndef	NO_SCCS_ID
-static	char	sccs_id[] = "@(#)dedsort.c	1.3 88/05/09 09:13:47";
+static	char	sccs_id[] = "@(#)dedsort.c	1.4 88/05/23 07:09:25";
 #endif	NO_SCCS_ID
 
 /*
@@ -7,6 +7,7 @@ static	char	sccs_id[] = "@(#)dedsort.c	1.3 88/05/09 09:13:47";
  * Author:	T.E.Dickey
  * Created:	11 Nov 1987
  * Modified:
+ *		23 May 1988, use 'dotcmp()' for version, '.'-sorts.
  *		09 May 1988, make devices sort-size separately from files.
  *
  * Function:	Perform display-list sorting for DED directory editor.
@@ -55,7 +56,11 @@ register int cmp = 0;
 char	bfr[BUFSIZ];
 
 	switch (sortopt) {
-			/* patch: N,X,x sort from 'fl' would be nice... */
+			/* patch: N sort from 'fl' would be nice... */
+
+			/* sort by '.'-separators in name */
+	case '.':	cmp = dotcmp(p1->name, p2->name);
+			break;
 
 			/* sort by file types (suffixes) */
 	case 't':	cmp = strcmp(ftype(p1->name), ftype(p2->name));
@@ -85,8 +90,12 @@ char	bfr[BUFSIZ];
 					cmp = -1;
 			}
 			break;
-	case 'v':	if (!(cmp = CMPX(z_rels)))
-				cmp = CMPX(z_vers);
+	case 'v':	if (p1->z_vers && p2->z_vers)
+				cmp = -dotcmp(p1->z_vers, p2->z_vers);
+			else if (p1->z_vers)
+				cmp = -1;
+			else if (p2->z_vers)
+				cmp = 1;
 			break;
 #endif	Z_SCCS
 

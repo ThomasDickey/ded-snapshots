@@ -89,6 +89,7 @@ Display-Adjustment:
 		w	last-modification date
 		z	sccs checkin-dates
                 Z       sccs checkin-dates over modification dates
+		.	sort with dotted components in increasing length.
 
 Operations on Files:
 -------------------

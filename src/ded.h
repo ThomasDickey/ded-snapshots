@@ -1,4 +1,4 @@
-/* @(#)ded.h	1.13 88/05/18 11:58:54 */
+/* @(#)ded.h	1.14 88/05/23 07:23:02 */
 
 /*
  * Created:	09 Nov 1987
@@ -60,7 +60,6 @@ static	struct	direct	dbfr;
 #ifdef	SYSTEM5
 extern	void	free(), qsort();
 #define	lstat	stat
-#define	utimes	utime
 #define	getwd(p)	getcwd(p,sizeof(p)-2)
 extern	char	*getcwd();
 typedef struct screen { char	dummy; };
@@ -141,8 +140,7 @@ typedef	struct	{
 	struct	stat	s;	/* stat()-block				*/
 	char		flag;	/* tag-flag				*/
 #ifdef	Z_SCCS
-	unsigned
-	char	z_rels, z_vers;	/* last sccs-release, version		*/
+	char	*z_vers;	/* last sccs-release, version		*/
 	time_t	z_time;		/* last sccs delta-date			*/
 #endif	Z_SCCS
 	} FLIST;

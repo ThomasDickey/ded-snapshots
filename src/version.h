@@ -1,5 +1,6 @@
 /*
  * Version-identifier for DED
+ * 23 May 1988, added '.'-sort, extended RCS/SCCS interface for versions.
  * 18 May 1988, extended '%'-substitution.  Added RCS date-scanning.
  * 16 May 1988, added I,U toggles to ftree.  RCS mods.  Fixed 'resizewin()'.
  * 11 May 1988, first cut at renaming directories.
@@ -19,4 +20,4 @@
  * 01 Dec 1987, added '*', '^' commands, made '%' refresh screen
  * 25 Nov 1987, added sccs-support (V,z,Z toggles, V,z,Z sorts)
  */
-static	char	version[] = "@(#)DED Directory Editor (88/05/18 14:05:54)";
+static	char	version[] = "@(#)DED Directory Editor (88/05/23 07:24:44)";
