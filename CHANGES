@@ -1,3 +1,9 @@
+1991-09-24  dickey@software.org
+
+	* user/ded.man: fixed the stuff that shows backslashes
+
+	* user/ded.man: RCS_BASE
+
 1991-09-09  dickey@software.org
 
 	* src/version.h:

@@ -1,0 +1,1390 @@
+.\" $Id: ded.man,v 9.2 1991/09/24 15:35:05 dickey Exp $
+.TH DED 1
+.SH NAME
+.PP
+\fBded\fR \- directory editor
+.SH USAGE
+.PP
+\fBded\fI [options] [file-specifications]
+.SH SYNOPSIS
+.PP
+The directory editor provides the user with a full-screen interface
+to UNIX\*R files and directories.
+Multiple lists of
+files may be displayed, sorted by various fields, and used in built-in
+or ordinary shell commands.
+Navigation among directories is either
+hierarchical, or by means of a directory tree screen.
+.SH DESCRIPTION
+.PP
+\fBDed\fR provides you with a \fBvi\fR-like interface to files
+and directories.
+Two types of displays are provided:
+.TP
+.B \-
+file list.
+One or more files are displayed, one per
+line.
+The current working directory is shown at the top of the screen.
+The bottom of the screen (marked with a dividing line) is a work area
+in which shell commands may be issued, and their results displayed.
+You may move the cursor forward or backward through a file list, sort
+the list, and apply various commands to the files shown.
+.TP
+.B \-
+directory tree.
+One or more lines are shown, each
+representing a directory (or symbolic link to a directory).
+You may
+move the cursor about the directory tree both by arrow keys, as well
+as by issuing commands to search for particular names.
+.PP
+\fBDed\fR manages multiple file lists; commands are provided for
+opening new lists from either a file list or from the directory tree.
+You may page between file lists, or back and forth to the directory
+tree.
+.PP
+Within a file list, you may mark groups of files on which subsequent
+commands will operate.
+Both built-in and shell commands operate upon
+the marked files, and may be repeated for different files.
+.PP
+\fBDed\fR uses the \fIcurses\ (3)\fR screen management package
+and runs in a UNIX environment.
+.SH OPTIONS
+.PP
+Most options are the same as display-manipulation commands.
+They
+include:
+.TP
+.B \-a
+show "." and ".." entries in each file
+list (see "\fB&\fR" toggle).
+.TP
+.B \-G
+toggle user/group display field (initially
+displays user-identifiers).
+.TP
+.B \-I
+toggle inode/links display field (initially displays
+number of links for each file).
+.TP
+.B \-O
+(apollo only) show object type-uids.
+.TP
+.B \-P
+toggle file-protection display field (initially displays
+file protection in \fBls\fR-style).
+.TP
+.B \-S
+toggle file size (in blocks) display field (normally
+displays only the size in bytes).
+.TP
+.B \-T
+toggle date-display to long format.
+.TP
+.BI \-c filename
+read user commands from the
+specified file.
+The commands are assumed to be in the same format
+as the logfile generated with the "\-\fBl\fR" option.
+Subprocesses
+do not (currently) inherit this option.
+.TP
+.BI \-l filename
+log user commands (and \fBded\fR
+messages) to the specified file.
+\fBDed\fR subprocesses invoked
+with the "e" command inherit this option.
+.TP
+.B \-n
+disable prompt on \fBded\fR quit command.
+.TP
+.BI \-t path
+read the directory tree file ".ftree"
+from the specified directory \fIpath\fR.
+This option is inherited
+in subsequent processes of \fBded\fR.
+.TP
+.B \-Z
+toggle rcs/sccs data display (normally inactive).
+.TP
+.B \-z
+toggle rcs/sccs data display
+.TP
+.BI \-r key
+provide initial reverse-sort by \fIkey\fR
+.TP
+.BI \-s key
+provide initial sort by \fIkey\fR
+.SH OPERATIONS
+.PP
+Most \fBded\fR commands are single-character, like those of \fBvi\fR.
+Where appropriate, \fBded\fR commands may be prefixed with a repeat \fIcount\fR.
+(When not specified, the repeat \fIcount\fR is always
+one).
+.SS Invoking DED
+.PP
+When you invoke \fBded\fR, it scans its argument list.
+Options
+must precede file specifications.
+Arguments which do not begin with
+"\-" are treated as file specifications.
+File specification arguments
+may begin with "~" (tilde) to denote C-shell style home-directory
+specifications.
+.PP
+If only one file specification is given, \fBded\fR checks to see
+if it is the name of a directory.
+If so, \fBded\fR changes its
+working directory to that, and shows all files which reside in the
+directory.
+If any files are found, \fBded\fR builds a display
+showing the files which it found, in an \fBls\fR-like scrollable
+display.
+If no arguments are given, \fBded\fR assumes the current
+working directory, ".".
+.PP
+If more than one file specification argument is given, \fBded\fR
+changes its working directory to the most common pathname among the
+arguments.
+Note that if you give \fBded\fR a wildcard argument such
+as "d*", then the \fBshell\fR performs wildcard expansion,
+not \fBded\fR.
+.PP
+Items from the argument list which are not found are not displayed
+(though they are retained in the argument list for subsequent rescans
+with the "\fBR\fR" command).
+Arguments may be given in absolute
+or path-relative names (i.e., beginning with "/" or some sort
+of ".." construct).
+.SS Exiting From DED
+.PP
+To exit from \fBded\fR, you must be in the file list display.
+If you are in the directory tree, typing "\fBq\fR" (for \fBqui\fRt)
+will release the current file list and move to the next file list
+(if any).
+Typing "\fBQ\fR" moves backward. When only one
+file list is left, \fBded\fR will toggle back to the file list
+display.
+If there are a lot of file lists, it is faster to toggle
+back directly with "\fBD\fR".
+(A repeat \fIcount\fR may
+be applied to the directory tree quit-command).
+.PP
+To exit from \fBded'\fRs file list display, type "\fBq\fR" (for \fBquit\fR).
+If you have entered any other file lists (or
+a subprocess of \fBded\fR), you will be prompted to ensure that
+you really intend to quit the current process.
+(If you specified the "\-\fBn\fR" option on invoking \fBded\fR, this prompt
+is bypassed).
+.SS Interrupting DED
+.PP
+You may also forcibly exit from \fBded\fR by typing your terminal's
+quit character.
+This causes \fBded\fR to exit without updating
+the ".ftree" file (the directory-tree database).
+.PP
+Some of \fBded\fR's commands may take a long while to execute.
+You may interrupt these commands by typing your terminal's interrupt
+character:
+.TP
+.B \-
+The directory-tree "\fBR\fR" command may be
+interrupted between individual files in the directory-scan.
+.TP
+.B \-
+inline changes which propagate to a tagged group of
+files (i.e., the "\fBp\fR", "\fBu\fR", "\fBg\fR"
+or "\fB=\fR" commands) may be interrupted between individual
+files in the group.
+.TP
+.B \-
+the "\fBt\fR" and "\fBT\fR" type-file
+command.
+.SS Cursor Movement and Scrolling
+.PP
+Cursor movement in \fBded\fR is styled after \fBvi\fR (i.e.,
+the h, j, k and l keys).
+However, since there are two types of displays, there are some differences:
+.TP
+.B \-
+In file list displays, you may normally move the cursor
+only up and down.
+This frees the left/right keys for other uses.
+As you move the cursor up and down in the display, it stays in the
+column immediately before the file names.
+The \fIleft-arrow\fR
+and \fIright-arrow\fR keys scroll the screen left and right, respectively.
+.TP
+.B \-
+Movement in the directory tree is two-dimensional.
+You may move the cursor left or right (up or down levels of the directory
+tree) or up or
+down (to different directory names).
+The screen display of
+the directory tree has markers (vertical bars or dashes) showing where
+you are allowed to put the cursor.
+Vertical movement is normally
+within items at the same directory level.
+You may move from one line
+to another irregardless of level by the "\fBJ\fR" and "\fBK\fR"
+commands.
+.PP
+Single-character cursor movement commands are:
+.TP
+.B h
+(directory): same as \fIleft-arrow\fR.
+.TP
+.B k
+move cursor up \fIcount\fR entries. (also: \fIbackspace\fR, \fIup-arrow\fR).
+.TP
+.B j
+move cursor down \fIcount\fR entries. (also: \fIreturn\fR, \fIdown-arrow\fR).
+.TP
+.B l
+(directory): same as \fIright-arrow\fR.
+.TP
+.B f
+scroll forward \fIcount\fR screen(s).
+.TP
+.B b
+scroll backward \fIcount\fR screen(s).
+.TP
+.I left-arrow
+(file list): scroll left \fIcount\fR/4
+screen(s).
+.br
+(directory): move up \fIcount\fR directory level(s).
+.TP
+.I right-arrow
+(file list): scroll right \fIcount\fR/4
+screens.
+.br
+(directory): move down \fIcount\fR directory level(s).
+The cursor
+is limited by the rightmost name on the current line.
+.TP
+.B J
+(directory): move down \fIcount\fR lines(s).
+.TP
+.B K
+(directory): move up \fIcount\fR line(s).
+.TP
+.B H
+moves cursor to the first entry on screen.
+.TP
+.B M
+moves cursor to the middle of screen.
+.TP
+.B L
+moves cursor to the last entry on screen.
+.TP
+.B ^
+repositions the screen with current line at the top.
+.PP
+Within either the file list or directory tree displays, you may scroll
+to different items in the ring of file lists.
+Within a file list,
+the ring-scrolling pages to a different file list display.
+Within
+the directory tree, the ring-scrolling simply moves the cursor (and
+changes the context marker) to the specified file list.
+.PP
+Ring-scrolling commands are:
+.TP
+.B F
+scroll forward (through the ring of file lists) \fIcount\fR entries.
+.TP
+.B B
+scroll backward (through the ring of file lists) \fIcount\fR entries.
+.SS Search Commands
+.PP
+You may move the cursor by searching for a particular string.
+The
+following search commands are provided a la \fBvi\fR:
+.TP
+.B /
+\fBDed\fR will prompt you for a regular
+expression.
+If you give it one, it will search forward (with wrap-around)
+for it.
+A return without text will cancel the search.
+.TP
+.B ?
+\fBDed\fR prompts you for a target and searches
+backwards (with wrap-around) for it.
+.TP
+.B n
+continue previous search (in the prevailing direction).
+.TP
+.B N
+continue the previous search, but in the reverse direction.
+.PP
+\fBDed\fR maintains a separate search context for the file list
+and the directory tree display.
+That is, the targets are maintained
+separately.
+Searches in the directory tree do not include the "/"
+marks which separate path names; you may search only for the leaf
+names.
+.SS Display-Adjustment
+.PP
+You may use the following file-list commands to alter the format of
+the display, to refresh it, or to re-stat specific lines:
+.TP
+.B &
+toggles display showing "." and ".." entries
+in each file list.
+.TP
+.B C
+toggle date-field to display.
+UNIX maintains three
+file dates (\fBc\fRhanged, \fBm\fRodified and \fBa\fRccessed).
+The current state of this toggle is shown in the screen heading (e.g,
+"\fB[mtime]\fR").
+.TP
+.B G
+toggle user/group display field.
+Type "2G" to
+show user and group names at the same time.
+.TP
+.B I
+toggle inode/links display field.
+Type "2I" to
+show inode and device code at the same time.
+.TP
+.B O
+(apollo only) toggles display showing object type-uids.
+.TP
+.B P
+toggle file protection-mode (octal/normal) display
+field.
+This is useful because occasionally the UNIX protection display
+is ambiguous.
+.TP
+.B S
+toggle the display of file size.
+When active, an
+additional column is shown, giving the file size in blocks.
+.TP
+T
+toggles the display of file-dates.
+Normally \fBded\fR displays
+the file-dates in a compact form based on the relative dates.
+The
+long form shows all information returned by \fIctime (2)\fR.
+.TP
+.B @
+toggle the display of symbolic links.
+When active, \fBded\fR displays
+the mode, owner and group of the target of the link,
+rather than the link itself.
+To make this simple to see, \fBded\fR
+displays the mode in uppercase.
+If you apply an inline command (i.e.,
+"\fBp\fR", "\fBu\fR" or "\fBg\fR") to a tagged
+group containing a symbolic link, \fBded\fR will automatically
+toggle the display to display the targets rather than the links.
+.TP
+.B X
+toggles the screen between one and two viewports.
+You may adjust the size of these viewports with the "\fBA\fR"
+and "\fBa\fR" commands.
+The two viewports share the same
+scrolling sense, but have an independent notion of the current file.
+.TP
+.I tab
+moves the cursor to the other viewport.
+.TP
+.B A
+move workspace marker up \fIcount\fR line(s).
+.TP
+.B a
+move workspace marker down \fIcount\fR line(s).
+.TP
+.I CTL/R
+causes \fBded\fR to prompt you for a regular
+expression (see \fIex(1)\fR) which will control the set of files
+subsequently shown in the current file-list.
+\fBDed\fR then rescans
+the current directory, adjusting the file-list.
+.TP
+.B R
+re-scan argument list (refresh).
+This clears file
+grouping, re-reads all of the directories specified in the argument
+list, re-sorts and repaints the screen.
+The cursor is moved to the
+first file in the list.
+(If nothing is found, \fBded\fR will
+exit).
+.TP
+Directory names which are encountered in the scan are added to
+the directory-tree.
+If the "\fB@\fR" toggle is set (see above),
+symbolic links which resolve to actual directories are also added.
+.TP
+.B W
+re-stat entries in the current screen.
+If a repeat
+count is given, this command is repeated at 3-second intervals (or
+until interrupted).
+.TP
+.B w
+refresh (i.e., repaint) the window.
+(Note: on Apollo,
+this command also checks to see if the terminal emulator window has
+changed size, and adjusts \fIcurses\fR state to match).
+.TP
+.B l
+re-stat the current entry, as well as files which
+are grouped.
+If a repeat count is given, this command is repeated
+at 3-second intervals (or until interrupted).
+.TP
+.I space
+clear workspace window.
+This command is particularly
+useful after executing a shell command, since \fIcurses\fR has
+no notion of what is shown in the workspace.
+.TP
+.I CTL/K
+causes a copy of your current screen (obtained
+from the curses window-state) to be appended to the file "ded.log"
+in your process's home directory.
+.SS Sorting the Display
+.PP
+You may issue commands for sorting the file-list.
+The cursor remains
+positioned at the same file after a sort.
+(The directory tree is
+always sorted alphabetically).
+.TP
+.BI r key
+reverse-sort entries.
+.TP
+.BI s key
+sort entries in the "normal" order (dates
+and other numeric fields in descending order, names in ascending order).
+.PP
+The \fIkey\fR suffix denotes the fields which are compared, and
+are always a single character:
+.TP
+.B c
+last-change date
+.TP
+.B d
+directory-order (i.e., order in which items
+were read from the directory)
+.TP
+.B g
+group-identifier (lexically)
+.TP
+.B G
+group-identifier (numerically)
+.TP
+.B i
+inode
+.TP
+.B l
+number of links
+.TP
+.B p
+file-protection mask/mode.
+.TP
+.B m
+last-modification date
+.TP
+.B n
+filename
+.TP
+.B N
+filename leaf (i.e., without directory names)
+.TP
+.B o
+(apollo only) object type-uids (numerically)
+.TP
+.B O
+(apollo only) object type-uids (numerically)
+.TP
+.B r
+last-access date
+.TP
+.B s
+file size
+.TP
+.B t
+file type (after first ".")
+.TP
+.B T
+file type (after last ".")
+.TP
+.B u
+user-identifier (lexically)
+.TP
+.B U
+user-identifier (numerically)
+.TP
+.B v
+rcs/sccs versions
+.TP
+.B y
+rcs/sccs lock-owner
+.TP
+.B z
+rcs/sccs check-in dates
+.TP
+.B Z
+rcs/sccs check-in dates over modification dates
+.TP
+.B .
+sort, using "." characters as column-separators.
+.PP
+You may sort tagged files separately from the remainder of the files
+by following the "\fBr\fR" or "\fBs\fR" character
+with a "\fB+\fR".
+For example, "s+w" sorts the file list
+into two parts, with the tagged files at the beginning, and untagged
+files following (both lists sorted by modification date).
+.PP
+To make sorting simpler (there are, after all, a lot of possibilities),
+ded recognizes the following special sort-keys:
+.TP
+.B ?
+directs \fBded\fR to show the current sort-key as
+a message.
+.TP
+.B :
+causes \fBded\fR to prompt you for the sort-key.
+In response to any legal sort-key, \fBded\fR immediately shows
+the message describing the sort.
+You may scroll through the list
+of possibilities using the up/down arrow keys.
+To complete the selection,
+press \fIreturn\fR (or \fInewline\fR).
+To quit without sorting
+the list, type "q".
+.TP
+.I newline
+(or \fIreturn\fR) directs \fBded\fR to
+resort the file list using the current direction (i.e., "s" or
+"r") specifier and the last sort-key.
+.SS Grouping Items in the Display
+.PP
+Both the file-list and directory tree support the notion of tagging
+or grouping items in the display.
+Groups in the file list mark files
+upon which commands can operate as a whole.
+Directory tree groups
+are used to mark entries for purging from the database. The following
+commands mark and unmark items for the group:
+.TP
+.B +
+Add the \fIcount\fR entries to the \fIgroup\fR.
+Grouped items are highlighted in the display.
+.TP
+.B \-
+Remove the \fIcount\fR entries from the \fIgroup\fR.
+.TP
+.B _
+Remove all entries from the \fIgroup\fR.
+.TP
+.B #
+Tags (or untags) all files which are currently sorted
+adjacent in the file list, which have the same sort-key.
+For instance,
+if the list is sorted by modification date, the "\fB#\fR" command
+tags all files which have the same modification date as the current
+entry.
+To tag all files having the same sort-key as a neighbor in
+the file list, use "2#".
+To untag files having the same sort-key
+as the current file, use "0#".
+.SS Inline Editing of the File List
+.PP
+\fBDed\fR provides you with several built-in commands to modify
+fields of the display.
+An inline editing command is initiated with
+a single character.
+Typing this character again (while in \fBcursor\fR
+mode!) toggles out of the inline editor.
+.PP
+Initially, the inline editor is in \fBcursor\fR mode.
+If you
+are editing a text field (i.e., user-identifier, group-identifier
+or file-name), then you may toggle to \fBinsert\fR mode type
+typing \fICTL/I\fR (\fItab\fR).
+.TP
+.B q
+(cursor) aborts the command.
+.TP
+.I command
+(cursor) completes the command.
+A \fInewline\fR
+or \fIreturn\fR in either mode will also complete it.
+.TP
+.I printing
+(insert) Typing a printing character while
+in \fBinsert\fR mode causes that character to be inserted into
+the field.
+.TP
+.I erase-char
+(insert) deletes the character to the left
+of the cursor.
+.TP
+.I kill-char
+(insert) deletes the character at the cursor
+position.
+.TP
+.I left-arrow
+(cursor) moves cursor left one column within
+the edited field.
+The \fIbackspace\fR key does the same operation.
+.TP
+.I right-arrow
+(cursor) moves cursor right one column within
+the edited field.
+The \fIform-feed\fR (\fICTL/L\fR) key does
+the same thing.
+.TP
+.I CTL/I
+toggles between \fBcursor\fR and \fBinsert\fR
+modes.
+While in \fBcursor\fR mode for text fields, the field
+is highlighted and prefixed with a "^" character.
+.TP
+.I CTL/B
+move cursor to beginning of field
+.TP
+.I CTL/F
+move cursor to end of field
+.SS Built-in Operations on Groups of Files
+.PP
+File-oriented commands operate on the current entry.
+Where appropriate,
+commands operate on a tagged \fIgroup\fR of entries as well.
+(If any files are grouped, the file list heading is highlighted).
+.TP
+.B p
+Edit protection-code for \fIgroup\fR of entries.
+The code from the current entry is edited inline.
+The result is used
+for all selected entries.
+Editing is done with single characters:
+.RS
+.TP
+.B p
+complete command
+.TP
+.B q
+abort command
+.TP
+.I \[0\-7\]
+set chmod-field
+.TP
+.I space
+move cursor right 3 columns (or the next octal
+digit if the "\fBP\fR" toggle is in effect).
+.TP
+.I backspace
+move cursor left 3 columns (or to the previous
+octal digit if the "\fBP\fR" toggle is in effect).
+.TP
+.B P
+toggles display mode (current line only) between octal
+and normal.
+.TP
+.B s
+toggles "set user id" or "set group id" bit,
+according to the position of the cursor.
+.TP
+.B t
+toggles "save swapped text" bit if cursor points
+to the last chmod field.
+.RE
+.TP
+.B u
+Edit user-identifier field.
+The current entry's \fIuid\fR
+is edited inline and the result used for all selected entries.
+.TP
+.B g
+Edit group-identifier field.
+The current entry's \fIgid\fR is edited inline,
+and the result used for all selected entries.
+.TP
+.B =
+Edit name of current file.
+Files which are grouped
+are renamed using the \fBtemplate\fR formed by your command.
+For example, you might rename files ending in ".o" to end in ".bin"
+by typing "\fB=\fR\ \fICTL/F\fR\ \fICTL/I\fR \fIerase\fR \fB.bin\fR".
+.TP
+.B >
+Edit link-text of the current symbolic link.
+Symbolic
+links which are grouped are renamed using the \fBtemplate\fR formed
+by your command.
+For example, you might edit links beginning with
+"/local/bin" to begin with "/usr/local/bin" by typing
+"\fB=\fR\ \fICTL/I\fR \fB/usr\fR".
+.TP
+.B <
+Like "\fB>\fR", except that the special substrings
+"\fB%F\fR" and "\fB%B\fR" are translated into the
+forward and backward directory paths in the ring of file lists, and
+"\fB#\fR" is translated into the current entry's name.
+.TP
+.B "
+Repeats the last "\fBp\fR", "\fBu\fR",
+"\fBg\fR" or "\fB=\fR" command.
+This uses the actual
+set of characters typed for the command, so an editing template may
+be made.
+(\fBDed\fR buffers the last set of editing keystrokes
+for inline editors).
+.SS Creating New Entries
+.PP
+You may add new entries to the display list by rescanning with the
+"\fBR\fR" command (to pick up new names which are added by
+programs other than \fBded\fR.
+You may also use \fBded\fR
+to create new entries using the "\fBc\fR" command:
+.TP
+.B cf
+create file
+.TP
+.B cd
+create directory
+.TP
+.B ch
+create hard-link (to the current file, whose name is the initial template).
+.TP
+.B cl
+create symbolic link (initially with "." for text).
+.PP
+Each "\fBc\fR" command opens the list at the current position.
+You must provide a name, using the same inline name-editing as the
+"\fB=\fR" command.
+When the name is complete (nonnull, and
+nonconflicting), \fBded\fR creates it.
+.SS Built-in Operations on the Current File
+.PP
+The following built-in operations operate only on the current file,
+because grouping operations would not be meaningful:
+.TP
+.B E
+If the current entry is a directory (or a symbolic
+link to a directory), open a new file list on it.
+The new list inherits
+the display options and sorting sense, as well as the last shell command
+from the current display.
+.RS
+.PP
+If the entry is a file, invoke the editor (e.g., \fBvi\fR)
+on it.
+.PP
+If the entry is a symbolic link to a file, \fBded\fR opens
+a file list in the directory containing that file, and positions to
+that file.
+.PP
+For Apollo, \fBded\fR also strips off trailing DSEE-style
+generation expressions from the symbolic link.
+.RE
+.TP
+.B e
+If the current entry is a directory, spawn a new \fBded\fR
+process with that as argument. If it is a file, invoke the editor
+(e.g., \fBvi\fR) on it.
+.TP
+.B v
+If the current entry is a directory, spawn a new \fBded\fR
+process with that as argument. If it is a file, invoke the browser
+(e.g, \fBview\fR).
+.TP
+.B m
+run the pager (e.g., \fBmore\fR) on the current
+file.
+\fBDed\fR will not let you page directories or other entries
+which are not regular files.
+.PP
+On return from the editor, browser and pager, \fBded\fR prompts
+you (for a \fIreturn\fR) and then repaints the screen.
+.PP
+\fBDed\fR provides you with a pager which operates in the workspace.
+For small files, or for just peeking at things, this works much faster
+than spawning a copy of \fBmore\fR.
+The workspace pager displays
+either text or binary files:
+.TP
+.B \-
+When displaying text files, \fBded\fR shows multiple
+blank lines as a single blank line, and shows overstruck or underlined
+text with highlighting.
+(\fBDed\fR interprets \fIbackspaces\fR
+and \fIreturns\fR in text files).
+You may scroll left or right
+in the pager to see very long lines.
+.TP
+.B \-
+When displaying binary files, \fBded\fR
+shows control characters as ".".
+Non-ASCII characters (i.e.,
+having the high-order bit set) are converted to ASCII (by stripping
+this bit) and shown highlighted.
+.PP
+As you scroll through the file, the pager shows the percentage which
+you have viewed a la \fBmore\fR.
+You may use the following subcommands
+within the workspace pager:
+.TP
+.B q
+quit the pager.
+To prevent accidentally quitting \fBded\fR,
+an immediately succeeding "\fBq\fR" command will clear the workspace.
+.TP
+.B w
+repaint the screen.
+.TP
+.I CTL/K
+causes a copy of your current screen (obtained
+from the curses window-state) to be appended to the file "ded.log"
+in your process's home directory.
+.TP
+.B A
+move the workspace marker up \fIcount\fR lines, redisplay.
+.TP
+.B a
+move the workspace marker down \fIcount\fR lines,
+redisplay.
+.TP
+.B f
+scroll forward \fIcount\fR subscreens
+(also, the \fIspace\fR and \fInewline\fR keys).
+.TP
+.B b
+scroll backward \fIcount\fR subscreens (also, the \fIbackspace\fR key).
+.TP
+.I left-arrow
+scroll left \fIcount\fR/4 screens.
+.TP
+.I right-arrow
+scroll right \fIcount\fR/4 screens.
+.PP
+The following commands use the workspace pager:
+.TP
+.B h
+type \fBded\fR's help-file in the workspace.
+.TP
+.B t
+type the current file, in the workspace.
+Sequences
+of blank lines are compressed to a single blank line, and overstruck
+text is highlighted.
+.RS
+.PP
+To type a binary-file, use "2t".
+This causes \fBded\fR to display non-ASCII bytes highlighted.
+.PP
+Directory-files are displayed by showing the inode and filename
+list via a temporary-file.
+.RE
+.SS Shell commands
+.PP
+Shell commands are executed in the work-area.
+\fBDed\fR invokes the Bourne shell via the \fIsystem\ (2)\fR call.
+.TP
+.B !
+Prompt for, and execute a shell command.
+.TP
+.B %
+Prompt for, and execute a shell command, prompting
+(for \fIreturn\fR) and repainting screen afterwards.
+.TP
+.B *
+Display text of last "\fB!\fR" or "\fB%\fR" command.
+.TP
+.B :
+Edit text of last "\fB!\fR" or "\fB%\fR" command, re-execute.
+.TP
+.B .
+Re-execute last "\fB!\fR" or "\fB%\fR" command.
+.PP
+To re-execute a command while changing the flag which directs ded
+to clear the screen, use a prefix-code:
+.TP
+.B 0
+resets the repaint-screen flag (so that \fBded\fR won't repaint the screen).
+.TP
+.B 2
+sets the repaint-screen flag.
+.SS Command Substitution
+.PP
+In any shell command which you issue via \fBded\fR, you may use
+the special character "\fB#\fR" to cause \fBded\fR to
+substitute the names of the current- and grouped-files.
+(A "\e" preceding a "\fB#\fR" overrides this).
+.PP
+You may do more elaborate substitution on the current file using a
+two-character sequence beginning with "%":
+.TP
+.B F
+substitutes the name of the following directory in
+the ring of file lists.
+.TP
+.B B
+substitutes the name of the directory before the current
+one, in the ring of file lists.
+.TP
+.B D
+substitutes the name of the original directory from
+which \fBded\fR was invoked.
+.TP
+.B d
+substitutes the name of the current directory.
+.TP
+\fBn\fR or \fBN\fR
+substitutes the name of the current file.
+(The \fBN\fR, \fBH\fR, \fBR\fR and \fBE\fR
+substitutions are performed after concatenating the current filename
+with the current directory, to make an absolute pathname.)
+.TP
+\fBh\fR or \fBH\fR
+substitutes the name of the current
+file, after removing the last component (i.e., "head").
+.TP
+\fBr\fR or \fBR\fR
+substitutes the name of the current
+file, removing "\fI.xxx\fR" part (i.e., "root").
+.TP
+.B e
+substitutes the current filename, removing all but
+the "\fI.xxx\fR" part (i.e., "extension").
+.TP
+.B t
+substitutes the current filename, removing all leading
+pathname components (i.e., "tail").
+.PP
+Dollar signs and other special characters in filenames which could
+cause problems in command substitution are escaped (prefixed with
+"\") by \fBded\fR as it substitutes filenames into the shell
+command.
+.SS Command Editing
+.PP
+You may edit any shell command which you issue to \fBded\fR, either
+before it is issued, or after, when using the ":" command.
+Command
+editing is done in either \fBinsert\fR or \fBcursor\fR modes.
+\fBDed\fR is initially in \fBinsert\fR mode.
+When it is in \fBcursor\fR
+mode, the character prefixing the command-entry is set to a "^".
+Command editing controls are similar to the inline editor, except:
+.TP
+.B \-
+A repeat \fIcount\fR may be prefixed to any subcommand
+in cursor mode.
+.TP
+.B \-
+Commands may be continued (with \fBded\fR controlling
+wraparound) as long as space remains in the workspace to enter new
+command text.
+.TP
+.B \-
+A \fIkill\fR character in \fBinsert\fR
+mode aborts the command.
+In \fBcursor\fR mode,
+it deletes the \fIcount\fR characters at the cursor position.
+.SS Directory Tree
+.PP
+\fBDed\fR maintains a database of directory names.
+You may scroll
+in this display, as well as enter a new \fBded\fR process from
+it.
+Cursor movement may be done not only up and down as in the file
+list, but also left and right.
+The "\fB/\fR", "\fB?\fR",
+"\fBn\fR" and "\fBN\fR" search commands work in the
+directory-tree (though they find only leaf names, rather than full
+paths).
+.PP
+Commands which manipulate \fBded\fR's file list state are:
+.TP
+.B D
+Toggle between directory-tree and file-list display.
+\fBDed\fR will show the most recently selected file list, which is marked
+with "\fB=>\fR".
+.TP
+.B E
+Enter a new file-list at the indicated directory-name.
+.TP
+.B e
+Enter a new \fBded\fR process with the indicated
+directory name.
+.TP
+.B F
+Move forward (with wraparound) in the ring of file
+lists.
+.TP
+.B B
+Move backward (with wraparound) in the ring of file
+lists.
+.TP
+.B W
+writes the database file (if changes have occurred).
+.PP
+Commands which modify the display characteristics are:
+.TP
+.B A
+Sets a flag which causes \fBded\fR to suppress
+names (and their dependents) which begin with "." or "$".
+.TP
+.B I
+Sets a runtime flag which disables searches into subtrees
+which are made invisible with "V".
+.TP
+.B V
+Sets a flag in the database for the current entry
+which directs \fBded\fR to suppress subdirectories from the display.
+.TP
+.B w
+Repaint the display.
+.TP
+.B Z
+Directs \fBded\fR to suppress from the display
+all RCS and SCCS directories.
+.PP
+Commands which operate upon the directory database are:
+.TP
+.B R
+Read directory names at the current position (also
+done automatically whenever a file list is constructed).
+If you supply
+a repeat-count, \fBded\fR recurs that many levels.
+.RS
+.PP
+Unlike the "R" command in the file-list display, this command
+always attempts to resolve symbolic links to directories.
+.RE
+.TP
+.B +
+Mark directory name for removal from database.
+.TP
+.B \-
+Unmark directory name.
+.TP
+.B _
+Clear list of marked names.
+.TP
+.B p
+Purge marked names from the database.
+.TP
+.B @
+\fBDed\fR moves your cursor to the header.
+You
+may edit the path name, causing \fBded\fR to jump to the newly
+specified path.
+The path name need not be present in the directory
+tree; if it is not, it will be entered into the tree.
+.TP
+.B ~
+Like the "\fB@\fR" command, this is used to
+reposition the cursor within the tree.
+Instead of editing the current
+path name, you are given the home directory token "~".
+.SS RCS and SCCS Commands
+.PP
+\fBDed\fR provides you with a visual interface to \fIrcs\fR
+(\fBr\fRevision \fBc\fRontrol \fBs\fRystem) and \fIsccs\fR
+(\fBs\fRource \fBc\fRode \fBc\fRontrol \fBs\fRystem)
+files.
+.TP
+.B \-
+For a given file, the corresponding \fIrcs\fR
+files (by convention) reside in a subdirectory called "RCS".
+The \fIrcs\fR file names are formed by suffixing the given file
+name with two characters (i.e., ",v").
+.TP
+.B \-
+For a given file, the corresponding \fIsccs\fR
+files (by convention) reside in a subdirectory called "SCCS".
+The sccs file names are formed by prefixing the given file name with
+two characters (e.g., "p." and "s.").
+.PP
+\fBDed\fR assumes that the \fIrcs\fR files are checked in
+using the script \fBrcsput\fR, and that the \fIsccs\fR files
+are checked in using the script \fBsccsput\fR.
+These scripts
+extend the basic \fIrcs\fR and \fIsccs\fR scheme by making
+the file's date and the archival check-in date the same.
+When directed
+to do so, \fBded\fR will scan the archived files to obtain and
+display the most recent check-in date and version.
+A special display
+column shows the result of the comparison between the file's modification
+and check-in dates:
+.TP
+.I blank
+no corresponding archive file was found.
+.TP
+.B =
+the check-in and modification dates match.
+.TP
+.B <
+the file's modification date is later than the check-in
+date.
+.TP
+.B >
+the file's modification date is earlier than the check-in
+date.
+.PP
+Using \fBded\fR, you can quickly verify which files have been
+checked into \fIrcs\fR or \fIsccs\fR.
+\fBDed\fR's sorting
+options (i.e., the "\fBv\fR", "\fBy\fR", "\fBz\fR",
+and "\fBZ\fR" keys) facilitate this also.
+.PP
+The following file list commands are used for archive display:
+.TP
+.B V
+toggle version display.
+.TP
+.B Y
+toggle display showing the owner of the current lock
+on the file.
+\fBDed\fR examines the \fIrcs\fR archive file
+to see if there are any locks on it.
+If so, it displays the name
+of the first lock-owner
+.TP
+.B Z
+toggle check-in date display.
+The date display has
+three states: off, invisible (except for the comparison column), and
+visible.
+If the archive display is initially off, \fBded\fR must
+scan all of the files in the current directory to see which have a
+corresponding \fIrcs\fR ",v" or \fIsccs\fR "s." file,
+and then to extract the check-in date and version number.
+.TP
+.B z
+clears archive display.
+Normally the archive display
+is inactive, since it does slow \fBded\fR.
+If you accidentally
+type "\fBz\fR", you can recover the data immediately with
+a "\fBZ\fR" command.
+\fBDed\fR does not reset the archive
+display data until directed to do so by a re-stat command (e.g., "\fBR
+\fR", "\fBW\fR" or "\fBl\fR").
+.PP
+Viewing the check-in date information from within an archive directory
+shows the comparison of the \fBarchived\fR file's modification
+date with the corresponding file modification date.
+This is mostly
+useful for showing archived files for which there is no corresponding
+checked-out file.
+.SS Logfile Format
+.PP
+The log file created with the "\-\fBl\fR" option logs all \fBded\fR
+commands.
+Logged commands begin with the repeat count in column one.
+Multi-character commands are logged on a single line, e.g.,
+.DS
+1st
+1%ls -l #
+.DE
+.PP
+Comments are inserted with a tab followed by a "#" character.
+\fBDed\fR's log comments indicate the names of files affected by commands,
+current working directory, etc., e.g.,
+.DS
+	# process 1417 begun at Thu Mar 16 09:51:11 1989
+	# argv[0] = 'ded'
+	# argv[1] = '-lz'
+1D	# path: //dickey/local/dickey
+1\\r	# path: //dickey/local/dickey/bin
+1E	# chdir //dickey/local/dickey/bin
+1/SCCS
+	# "SCCS"
+1e	# "SCCS"
+	# process 1631 begun at Thu Mar 16 09:51:43 1989
+	# argv[0] = '//dickey/local/dickey/bin/ded'
+	# argv[1] = '-l//dickey/local/dickey/z'
+	# argv[2] = 'SCCS'
+1+	# "s.Makefile"
+1+	# "s.args.c"
+1+	# "s.keycode.c"
+1%ls -l #
+	# execute ls -l s.Makefile s.args.c s.keycode.c
+\\r	# Hit <RETURN> to continue
+	# elapsed time = 9 seconds
+1q	# process 1631 ended at Thu Mar 16 09:52:24 1989
+	# process 1417 resuming
+1q	# process 1417 ended at Thu Mar 16 09:52:41 1989
+.DE
+.PP
+\fBDed\fR commands which are read in "raw" (single-character)
+mode are logged as backslash-codes, if necessary, to make them readable
+(e.g., "\fB\\t\fR" for tab).
+In addition to the standard backslash
+codes defined for the C language, \fBded\fR also uses
+.TP
+.B \e\&s
+for space (to make it visible in the log)
+.TP
+.B \e\&U
+up arrow
+.TP
+.B \e\&D
+down arrow
+.TP
+.B \e\&L
+left arrow
+.TP
+.B \e\&R
+right arrow
+.PP
+Other text (which is buffered) contains no nonprinting characters.
+.SS Apollo DOMAIN/IX Enhancements
+.PP
+\fBDed\fR runs under Apollo DOMAIN/IX SR9 or SR10.x within a VT100
+terminal emulator window.
+.PP
+You may use the Apollo display manager to change the size of the window
+(there is nothing sacred about 24 lines and 80 columns).
+The "\fBw\fR" repaint command of \fBded\fR is used to adjust the screen if you
+change the screen size.
+.PP
+Under Apollo SR9, there are two serious UNIX incompatibilities which
+\fBded\fR addresses: file modification dates and case-sensitivity in file
+names.
+When you use \fBded\fR's built-in commands (e.g., "\fBp\fR",
+"\fBu\fR" and "\fBg\fR"), \fBded\fR replaces the
+original file modification date since the Apollo \fIchmod\fR
+and \fIchown\fR system calls merge the change- and modification-dates.
+(Apollo SR10.x does this correctly).
+.PP
+Case-sensitivity in file names is a more interesting problem.
+DOMAIN/IX
+runs in conjunction with Apollo's AEGIS operating system.
+AEGIS file
+names are not case sensitive.
+Some AEGIS SR9 utilities do not work
+properly if given UNIX-style mixed-case names.
+\fBDed\fR can show file names in either AEGIS or UNIX form.
+When it shows names in AEGIS
+form, it will also convert names in shell commands (e.g., those substituted
+with "\fB#\fR") to AEGIS-style as well.
+.PP
+Apollo-specific \fBded\fR commands are:
+.TP
+.B U
+toggle filename display (UNIX versus AEGIS).
+In AEGIS
+mode, uppercase characters are shown with a ":" prefix.
+.TP
+.I CTL/E
+edit the current file with the pad-editor.
+\fBDed\fR
+waits until you have closed the pad before continuing.
+(Due to a bug in the Apollo \fIpad_$edit_wait\fR call,
+you cannot use the display manager RO command to toggle the edit pad
+from read/write to read-only and back again \- it works only in
+one direction.)
+.TP
+.I CTL/V
+view the current file with the pad-editor.
+\fBDed\fR does not wait for the pad to be closed; it will proceed to accept
+new commands.
+.SS X Windows Enhancments
+.PP
+If you are not running under the Apollo Display Manager, \fBded\fR
+tentatively assumes that you are running under X\ Windows\*R.
+In this case, if the program \fBxterm\fR is found in your execution
+path, \fBded\fR will permit the following commands:
+.TP
+.I CTL/E
+edit the current file (using the default editor
+invoked by the "\fBe\fR" command) in an \fBxterm\fR process.
+\fBDed\fR waits until you have exited from the process before continuing.
+.TP
+.I CTL/V
+view the current file (using the default browser
+invoked by the "\fBv\fR" command) in an \fBxterm\fR process.
+\fBDed\fR does not wait for you to exit from this process; it
+will proceed to accept new commands.
+.SH ENVIRONMENT
+.PP
+\fBDed\fR uses the following environment variables:
+.TP
+.B PATH
+used to establish where \fBded\fR is run from,
+so that the help file can be found.
+.TP
+.B EDITOR
+overrides default editor invoked by "\fBe\fR" command (\fBvi\fR)
+.TP
+.B BROWSE
+overrides default browser invoked by "\fBv \fR" command (view).
+.TP
+.B PAGER
+overrides default pager invoked by "\fBm\fR" command (more).
+.TP
+.B TERM
+used to determine control sequences for cursor keys
+on computer systems which do not support this in \fIcurses (3x)\fR.
+.TP
+.B RCS_DIR
+gives the name of the \fIrcs\fR directories \fBded\fR
+searches for the file list "\fBV\fR", "\fBY\fR" and "\fBZ\fR" commands.
+If not specified, \fBded\fR assumes "RCS".
+.TP
+.B SCCS_DIR
+gives the name of the \fIsccs\fR directories \fBded\fR
+searches for the file list "\fBV\fR", "\fBY\fR" and "\fBZ\fR" commands.
+If not specified, \fBded\fR assumes "SCCS".
+.SH FILES
+.PP
+When executed, \fBded\fR determines (by inspecting the zero'th
+argument passed to it by the shell, as well as the contents of the
+\fBPATH\fR variable) where it was executed from.
+Its help file \fIded.hlp\fR
+is assumed to reside in the same directory.
+.PP
+The directory tree manager maintains its database in your home directory
+(i.e., the path is derived from your process's uid).
+The name of the file is "\fI.ftree\fR".
+If changes have been made to
+the memory copy of the database, this file is updated whenever \fBded\fR
+spawns a copy of itself, or when exiting from \fBded\fR.
+.SH ANTICIPATED CHANGES
+.PP
+Make spawned \fBded\fR processes inherit display options from
+the current one.
+.PP
+Provide more transparent use of symbolic links (in the directory tree),
+including storing and showing link text.
+.PP
+Add a directory-rename command to the directory-tree display.
+Note
+that this would be the only command in the directory-tree to actually
+alter the directory structure.
+.PP
+Enhance the treatment of multiple viewports.
+This would permit the
+user to group files in one file list and then move the cursor to another
+file list to operate upon the group files (e.g., a bulk move without
+typing a path name).
+Additionally, the user would be able to sort
+the viewports independently, as well as operate upon different directories
+(from the directory-ring).
+.PP
+Use the \fBSHELL\fR environment variable, and parse arguments
+so that shell commands need not use the Bourne shell.
+.SH SEE ALSO
+.PP
+rcsput, rcsget, sccsput, sccsget
+.SH AUTHOR:
+.PP
+Thomas Dickey (Software Productivity Consortium).
