@@ -1,5 +1,5 @@
 #if	!defined(NO_IDENT)
-static	char	Id[] = "$Id: dedscan.c,v 12.10 1994/07/24 00:10:39 tom Exp $";
+static	char	Id[] = "$Id: dedscan.c,v 12.11 1994/08/02 19:50:02 tom Exp $";
 #endif
 
 /*
@@ -78,6 +78,7 @@ static	char	Id[] = "$Id: dedscan.c,v 12.10 1994/07/24 00:10:39 tom Exp $";
 
 #define		DIR_PTYPES	/* includes directory-stuff */
 #include	"ded.h"
+#include	"cmv_defs.h"
 #include	"rcsdefs.h"
 #include	"sccsdefs.h"
 
@@ -416,6 +417,44 @@ public	int	dedscan (
  ************************************************************************/
 
 /*
+ * This is driven by an environment variable, but ultimately should be done
+ * via ".dedrc"
+ */
+typedef	enum TrySCCS { DontTry, TrySccs, TryRcs, TryCmVision } TRY;
+
+private	TRY	try_order(
+	_AR1(int,	try))
+	_DCL(int,	try)
+{
+	static	int	 num_order;
+	static	TRY vec_order[10];
+
+	if (num_order == 0) {
+		char	*env = getenv("DED_CM_LOOKUP");
+		if (env != 0) {
+			char	temp[BUFSIZ];
+			char	*s;
+
+			env = strlcpy(temp, env);
+			while ((s = strtok(env, ",")) != 0) {
+				if (!strcmp(s, "rcs")) {
+					vec_order[num_order++] = TryRcs;
+				} else if (!strcmp(s, "sccs")) {
+					vec_order[num_order++] = TrySccs;
+				} else if (!strcmp(s, "cmv")) {
+					vec_order[num_order++] = TryCmVision;
+				}
+				env = 0;
+			}
+		}
+		vec_order[num_order++] = DontTry; /* end-marker */
+	}
+	if (try >= num_order)
+		try = num_order;
+	return vec_order[try];
+}
+
+/*
  * This entrypoint explicitly examines a file to see what sccs file relates
  * to it.  It is called both locally (within this module), and on-the-fly from
  * the main command-decoder when we set the Z_opt flag.
@@ -434,17 +473,29 @@ public	void	statSCCS(
 {
 	if (gbl->Z_opt) {
 		if (isFILE(f_->s.st_mode)) {
+			int	n;
+			TRY	try;
+			for (n = 0; (try = try_order(n)) != DontTry; n++) {
 #ifdef	Z_RCS
-			LAST(rcslast);
-#ifdef	Z_SCCS
-			if (f_->z_time == 0
-			&&  f_->z_vers[0] == '?'
-			&&  f_->z_lock[0] == '?')	/* fall-thru ? */
-#endif
+				if (try == TryRcs) {
+					LAST(rcslast);
+				}
 #endif
 #ifdef	Z_SCCS
-			LAST(sccslast);
+				if (try == TrySccs) {
+					LAST(sccslast);
+				}
 #endif
+#if defined(Z_RCS) || defined(Z_SCCS)
+				if (try == TryCmVision) {
+					LAST(cmv_last);
+				}
+#endif
+				if (f_->z_time != 0
+				 || f_->z_vers[0] != '?'
+				 || f_->z_lock[0] != '?')
+				 break;
+			}
 #ifdef	Z_RCS
 		} else if (isDIR(f_->s.st_mode)
 			&& sameleaf(name,rcs_dir())) {
