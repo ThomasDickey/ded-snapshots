@@ -1,5 +1,5 @@
 #if	!defined(NO_IDENT)
-static	char	Id[] = "$Id: dlog.c,v 12.3 1993/10/29 20:26:57 dickey Exp $";
+static	char	Id[] = "$Id: dlog.c,v 12.4 1993/12/01 16:53:08 dickey Exp $";
 #endif
 
 /*
@@ -7,6 +7,7 @@ static	char	Id[] = "$Id: dlog.c,v 12.3 1993/10/29 20:26:57 dickey Exp $";
  * Author:	T.E.Dickey
  * Created:	14 Mar 1989
  * Modified:
+ *		01 Dec 1993, moved most 'refresh()' calls under 'dlog_char()'
  *		29 Oct 1993, ifdef-ident
  *		28 Sep 1993, gcc warnings
  *		28 Aug 1992, implemented inline history in 'dlog_string()'. 
@@ -173,6 +174,7 @@ private	int	read_char _ONE(int *,count_)
 	auto	int	num;
 	register int	j;
 
+	refresh();
 	if (read_script())
 		num = decode_logch(&cmd_ptr, count_);
 

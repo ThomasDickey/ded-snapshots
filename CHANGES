@@ -1,3 +1,22 @@
+1993-12-01  dickey@software.org
+
+	* src/dedview.c: clear workspace if I adjust its size
+
+	* src/dlog.c: moved most 'refresh()' calls under 'dlog_char()'
+	This fixes a problem where repeated "+" commands would result in unnecessary
+	calls to refresh the screen (during simulated scrolling)
+
+	* src/dedtype.c: removed unnecessary 'refresh()'
+
+	* src/ded.c: removed unnecessary 'refresh()' calls
+
+	* src/ftree.c, src/sortset.c, src/deddoit.c, src/dedfind.c, src/dedmsgs.c, src/dedread.c, src/dedshow.c:
+	removed unnecessary 'refresh()'
+
+	* src/dedview.c: removed unnecessary 'refresh()' calls
+
+	* src/dedwait.c: removed unnecessary 'refresh()'
+
 1993-11-24  dickey@software.org
 
 	* src/ded.h: defined ANSI_VARARGS for sr10.2

@@ -1,5 +1,5 @@
 #if	!defined(NO_IDENT)
-static	char	Id[] = "$Id: ftree.c,v 12.7 1993/11/23 14:32:45 dickey Exp $";
+static	char	Id[] = "$Id: ftree.c,v 12.8 1993/12/01 16:31:00 dickey Exp $";
 #endif
 
 /*
@@ -966,7 +966,6 @@ private	int	ft_show(
 		clrtobot();
 	}
 	move(node2row(node), node2col(node,level));
-	refresh();
 	return(node);
 }
 

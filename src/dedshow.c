@@ -1,5 +1,5 @@
 #if	!defined(NO_IDENT)
-static	char	Id[] = "$Id: dedshow.c,v 12.3 1993/10/29 20:30:50 dickey Exp $";
+static	char	Id[] = "$Id: dedshow.c,v 12.4 1993/12/01 16:26:06 dickey Exp $";
 #endif
 
 /*
@@ -98,5 +98,4 @@ void	dedshow(
 	Show("\n");
 
 	clrtoeol();
-	refresh();
 }

@@ -1,5 +1,5 @@
 #if	!defined(NO_IDENT)
-static	char	Id[] = "$Id: deddoit.c,v 12.4 1993/11/18 20:32:17 dickey Exp $";
+static	char	Id[] = "$Id: deddoit.c,v 12.5 1993/12/01 16:26:52 dickey Exp $";
 #endif
 
 /*
@@ -253,7 +253,6 @@ public	void	deddoit(
 		}
 	}
 	dedshow(gbl, "> ", dyn_string(Subs));
-	refresh();
 
 	if (*dyn_string(Subs)) {
 		int	ok = TRUE;

@@ -1,5 +1,5 @@
 #if	!defined(NO_IDENT)
-static	char	Id[] = "$Id: dedwait.c,v 12.1 1993/10/29 20:26:58 dickey Exp $";
+static	char	Id[] = "$Id: dedwait.c,v 12.2 1993/12/01 16:25:44 dickey Exp $";
 #endif
 
 /*
@@ -37,7 +37,6 @@ public	void	dedwait(
 		standend();
 		PRINTW(" ");
 		clrtoeol();
-		refresh();
 	} else {
 		PRINTF("%s", msg);
 		(void)fflush(stdout);

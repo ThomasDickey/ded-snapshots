@@ -1,5 +1,5 @@
 #if	!defined(NO_IDENT)
-static	char	Id[] = "$Id: dedview.c,v 12.8 1993/11/23 17:50:23 dickey Exp $";
+static	char	Id[] = "$Id: dedview.c,v 12.10 1993/12/01 18:09:40 dickey Exp $";
 #endif
 
 /*
@@ -313,7 +313,6 @@ public	void	clear_work(_AR0)
 	move(mark_W + 1, 0);
 	clrtobot();
 	move(mark_W + 1, 0);
-	refresh();
 }
 
 /*
@@ -565,6 +564,7 @@ public	void	showFILES(
 		}
 	}
 	showMARK(gbl->Xbase);
+	clear_work();
 	showC(gbl);
 	TRACE(("...done showFILES\n"))
 }
@@ -681,7 +681,6 @@ public	void	showC _ONE(RING *,gbl)
 	showWHAT(gbl);
 	markC(gbl,FALSE);
 	(void)move2row(gbl->curfile, x);
-	refresh();
 }
 
 /*
