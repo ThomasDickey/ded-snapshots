@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	sccs_id[] = "$Header: /users/source/archives/ded.vcs/src/RCS/dedline.c,v 3.0 1989/06/12 13:12:51 ste_cm Rel $";
+static	char	what[] = "$Id: dedline.c,v 4.0 1989/08/11 14:26:07 ste_cm Rel $";
 #endif	lint
 
 /*
@@ -7,9 +7,17 @@ static	char	sccs_id[] = "$Header: /users/source/archives/ded.vcs/src/RCS/dedline
  * Author:	T.E.Dickey
  * Created:	01 Aug 1988 (from 'ded.c')
  * $Log: dedline.c,v $
- * Revision 3.0  1989/06/12 13:12:51  ste_cm
- * BASELINE Mon Jun 19 14:21:57 EDT 1989
+ * Revision 4.0  1989/08/11 14:26:07  ste_cm
+ * BASELINE Thu Aug 24 10:20:06 EDT 1989 -- support:navi_011(rel2)
  *
+ *		Revision 3.1  89/08/11  14:26:07  dickey
+ *		modified "<" command so that we show all intermediate
+ *		substitutions (i.e., "%F", "%B" and "#") which would be
+ *		applied to a tagged-group -- before we begin editing.
+ *		
+ *		Revision 3.0  89/06/12  13:12:51  ste_cm
+ *		BASELINE Mon Jun 19 14:21:57 EDT 1989
+ *		
  *		Revision 2.1  89/06/12  13:12:51  dickey
  *		corrected '<' command-substitution, which lost chars after
  *		the '#' substitution.
@@ -226,6 +234,23 @@ char	*bfr;
 }
 #endif	S_IFLNK
 
+/*
+ * Coerce Xbase (left/right scrolling) so we can display a given column
+ */
+static
+save_Xbase(col)
+int	col;			/* leftmost column we need to show */
+{
+	auto	int	old = Xbase;
+	if (col < Xbase)
+		Xbase = 0;
+	if (col > (Xbase + COLS - 1))
+		Xbase = col;
+	if (old != Xbase)
+		showFILES();
+	return (col - Xbase);
+}
+
 /************************************************************************
  *	public entrypoints						*
  ************************************************************************/
@@ -248,10 +273,7 @@ int	y	= file2row(curfile),
 int	at_flag	= at_save();
 #endif	S_IFLNK
 
-	if (Xbase > 0) {
-		Xbase = 0;
-		showFILES();
-	}
+	(void)save_Xbase(cmdcol[0]);
 
 	(void)replay('p');
 
@@ -371,13 +393,9 @@ int	at_flag	= ((endc == 'u') || (endc == 'g')) ? at_save() : FALSE;
 	dlog_comment("before \"%s\"\n", bfr);
 	if (len < strlen(bfr) + 2)
 		len = strlen(bfr) + 2;
-	if ((col -= Xbase) < 1) {	/* convert to absolute column */
-		col += Xbase;
-		Xbase = 0;
-		showFILES();
-	}
+	col = save_Xbase(col);
 #ifdef	S_IFLNK
-	else if (at_flag)
+	if (at_flag)
 		showLINE(curfile);
 #endif	S_IFLNK
 	(void)replay(endc);
@@ -604,7 +622,7 @@ editname()
  */
 editlink(cmd)
 {
-	auto	 int	col	= cmdcol[3] + 3,
+	auto	 int	col,
 			changed	= 0;
 	register int	j;
 	auto	 char	bfr[BUFSIZ];
@@ -615,8 +633,32 @@ editlink(cmd)
 	if (!cLTXT)
 		beep();
 	else {
-		move(file2row(curfile), cmdcol[3] - Xbase);
+		auto	int	restore = FALSE;
+		col = save_Xbase(cmdcol[3]);
+
+		/* test if we must show substitution */
+		if (cmd_link) {
+			for (j = 0; j < numfiles; j++) {
+				if (j == curfile)
+					continue;
+				if (xFLAG(j) && xLTXT(j)) {
+					if (move2row(j, col)) {
+						standout();
+						PRINTW("-> ");
+						standend();
+						PRINTW("%.*s",
+							COLS - col - 4,
+							link2bfr(bfr, j));
+						clrtoeol();
+						restore = TRUE;
+					}
+				}
+			}
+		}
+
+		(void)move2row(curfile, col);
 		PRINTW("=> ");
+		col += 3;
 		if (EDITLINK(curfile)
 		&&  strcmp(cLTXT, subslink(bfr,curfile))) {
 			if (relink(curfile, bfr)) {
@@ -641,6 +683,8 @@ editlink(cmd)
 				re_edit = FALSE;
 			}
 		}
+		if (restore && !changed)
+			showFILES();
 	}
 	restat(changed);
 }

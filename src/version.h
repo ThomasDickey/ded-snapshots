@@ -1,9 +1,13 @@
 /*
  * Version-identifier for DED
  * $Log: version.h,v $
- * Revision 3.0  1989/06/13 08:00:37  ste_cm
- * BASELINE Mon Jun 19 14:21:57 EDT 1989
+ * Revision 3.1  1989/08/11 14:30:33  dickey
+ * added a bit of error-recovery to 'read_char()'.
+ * enhanced '<' command by showing substitution for group.
  *
+ *		Revision 3.0  89/06/13  08:00:37  ste_cm
+ *		BASELINE Mon Jun 19 14:21:57 EDT 1989
+ *		
  *		Revision 2.4  89/06/13  08:00:37  dickey
  *		corrected pointer-bug which made CTL/R command fail on sun
  *		
@@ -75,4 +79,4 @@
  * 01 Dec 1987, added '*', '^' commands, made '%' refresh screen
  * 25 Nov 1987, added sccs-support (V,z,Z toggles, V,z,Z sorts)
  */
-static	char	version[] = "$Date: 1989/06/13 08:00:37 $";
+static	char	version[] = "$Date: 1989/08/11 14:30:33 $";
