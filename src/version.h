@@ -1,11 +1,20 @@
 /*
- * $Id: version.h,v 6.1 1990/04/18 07:43:41 dickey Exp $
+ * $Id: version.h,v 7.0 1990/04/27 16:38:43 ste_cm Rel $
  * Version-identifier for DED
  * $Log: version.h,v $
- * Revision 6.1  1990/04/18 07:43:41  dickey
- * correction to 'E' command (following symbolic link to file).
- * invoke 'rcslast()' to show "RCS,v" (permit-file) version.
+ * Revision 7.0  1990/04/27 16:38:43  ste_cm
+ * BASELINE Mon Apr 30 09:54:01 1990 -- (CPROTO)
  *
+ *		Revision 6.2  90/04/27  16:38:43  dickey
+ *		corrections/modifications to pathname resolution to try to
+ *		avoid confusion in ".." sequences with symbolic links vs bugs
+ *		found when invoking ded while su'ing.  To do this, reduced
+ *		usage of 'abspath()' in favor of 'abshome()'.
+ *		
+ *		Revision 6.1  90/04/18  07:43:41  dickey
+ *		correction to 'E' command (following symbolic link to file).
+ *		invoke 'rcslast()' to show "RCS,v" (permit-file) version.
+ *		
  *		Revision 6.0  90/03/02  08:59:28  ste_cm
  *		BASELINE Thu Mar 29 07:37:55 1990 -- maintenance release (SYNTHESIS)
  *		
@@ -137,4 +146,4 @@
  * 01 Dec 1987, added '*', '^' commands, made '%' refresh screen
  * 25 Nov 1987, added sccs-support (V,z,Z toggles, V,z,Z sorts)
  */
-static	char	version[] = "$Date: 1990/04/18 07:43:41 $";
+static	char	version[] = "$Date: 1990/04/27 16:38:43 $";
