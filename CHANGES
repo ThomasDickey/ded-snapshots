@@ -1,3 +1,10 @@
+2003-04-26  Thomas E. Dickey  <dickey@invisible-island.net>
+
+	* user/ded.man: add CVS to list of things DED_CM_LOOKUP covers
+
+	* aclocal.m4: use version-number/timestamp on individual macros.
+	extended/fixed CF_SUBDIR_PATH
+
 2002-12-21  Thomas E. Dickey  <dickey@invisible-island.net>
 
 	* src/ded.c: change to use CF_LOCALE

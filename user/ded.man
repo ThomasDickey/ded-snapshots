@@ -1,4 +1,4 @@
-.\" $Id: ded.man,v 12.13 2002/04/16 10:23:53 tom Exp $
+.\" $Id: ded.man,v 12.14 2003/04/26 11:28:21 tom Exp $
 .if t .ds T \(tm
 .if n .ds T (tm)
 .
@@ -1498,9 +1498,10 @@ so that the help file can be found.
 .TP
 .B DED_CM_LOOKUP
 specifies the order to use when looking for the last version of files
-in RCS, SCCS, CmVision.
+in RCS, SCCS, CmVision, CVS.
 If you do not specify it, the default order is "rcs,sccs".
 Specify CmVision with a "cmv" keyword.
+Specify CVS with a "cvs" keyword.
 .TP
 .B DED_TREE
 overrides the default location of the directory-tree database file.
