@@ -1,3 +1,11 @@
+1989-05-31  dickey@software.org
+
+	* src/dedread.c: added 'init_scan()' to fix regular-expression kludge.
+
+	* src/dedscan.c: added 'init_scan()' to fix regular-expression kludge
+
+	* src/ded.c: revised/updated 'usage()'
+
 1989-05-26  dickey@software.org
 
 	* src/dedscan.c: don't purge ftree if we are using read-expression

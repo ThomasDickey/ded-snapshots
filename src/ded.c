@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	sccs_id[] = "$Header: /users/source/archives/ded.vcs/src/RCS/ded.c,v 2.2 1989/05/26 14:05:00 dickey Exp $";
+static	char	sccs_id[] = "$Header: /users/source/archives/ded.vcs/src/RCS/ded.c,v 2.3 1989/05/31 08:21:11 dickey Exp $";
 #endif	lint
 
 /*
@@ -7,10 +7,13 @@ static	char	sccs_id[] = "$Header: /users/source/archives/ded.vcs/src/RCS/ded.c,v
  * Author:	T.E.Dickey
  * Created:	09 Nov 1987
  * $Log: ded.c,v $
- * Revision 2.2  1989/05/26 14:05:00  dickey
- * corrected last mod so failed-rescan keeps original
- * name to find in resulting list
+ * Revision 2.3  1989/05/31 08:21:11  dickey
+ * revised/updated 'usage()'
  *
+ *		Revision 2.2  89/05/26  14:05:00  dickey
+ *		corrected last mod so failed-rescan keeps original
+ *		name to find in resulting list
+ *		
  *		Revision 2.1  89/05/26  13:38:22  dickey
  *		added CTL/R command to control read-selection
  *		
@@ -864,7 +867,40 @@ editfile(readonly, pad)
 
 usage()
 {
-	FPRINTF(stderr, "usage: ded [-IGS] [-[s|r][%s]] [filespecs]\n", sortc);
+	auto	char	tmp[BUFSIZ];
+	static	char	*tbl[] = {
+			"usage: ded [options] [filespecs]",
+			"",
+			"Options which alter initial display fields:",
+			"  -G       show group-name instead of user-name",
+			"  -I       show inode field",
+			"  -P       show protection in octal",
+			"  -S       show file-size in blocks",
+			"  -U       show AEGIS-style names",
+#ifdef	Z_RCS_SCCS
+			"  -Z       read RCS/SCCS data, show date",
+			"  -z       read RCS/SCCS data, don't show date",
+#endif	Z_RCS_SCCS
+			"",
+			"Options controlling initial sort:",
+			"  -s KEY   set forward sort",
+			"  -r KEY   set reverse sort",
+			"",
+			"Options controlling environment:",
+			"  -c FILE  read DED commands from FILE",
+			"  -l FILE  write DED commands to log-FILE",
+			"  -d       (debug)",
+			"  -t DIR   read \".ftree\"-file from directory DIR",
+			(char *)0
+			};
+	register char	**p;
+
+	setbuf(stderr,tmp);
+	for (p = tbl; *p; p++)
+		FPRINTF(stderr, "%s\n", *p);
+	FPRINTF(stderr, "Sort KEY-options are: \"%s\"\n", sortc);
+
+	dlog_exit(FAIL);
 }
 
 main(argc, argv)
@@ -908,7 +944,7 @@ char	tpath[BUFSIZ],
 	case 'd':	debug = TRUE;	break;
 	case 't':	tree_opt = optarg;	break;
 	default:	usage();
-			dlog_exit(FAIL);
+			/*NOTREACHED*/
 	}
 
 	if (!tree_opt)	tree_opt = gethome();
