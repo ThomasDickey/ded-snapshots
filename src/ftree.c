@@ -1,14 +1,20 @@
 #ifndef	lint
-static	char	Id[] = "$Id: ftree.c,v 9.2 1991/07/15 15:12:31 dickey Exp $";
+static	char	Id[] = "$Id: ftree.c,v 9.3 1991/07/16 07:59:02 dickey Exp $";
 #endif
 
 /*
  * Author:	T.E.Dickey
  * Created:	02 Sep 1987
  * $Log: ftree.c,v $
- * Revision 9.2  1991/07/15 15:12:31  dickey
- * added guard in case 'ft_insert()' fails to insert current-dir
+ * Revision 9.3  1991/07/16 07:59:02  dickey
+ * broke out guts of 'ft_insert()' to allow special call from
+ * 'ft_view()', allowing it to recover from bizarre case on
+ * SunOS where real (mounted) directory was masked by a symbolic
+ * link.
  *
+ *		Revision 9.2  91/07/15  15:14:44  dickey
+ *		added guard in case 'ft_insert()' fails to insert current-dir
+ *		
  *		Revision 9.1  91/06/28  08:15:22  dickey
  *		lint (apollo sr10.3)
  *		
@@ -284,6 +290,130 @@ fd_alloc()
 }
 
 /*
+ * Returns true iff the 'tst' argument is a sub-path of 'ref'.
+ */
+static
+subpath(tst, ref)
+char	*tst, *ref;
+{
+	size_t	len_tst = strlen(tst),
+		len_ref = strlen(ref);
+	if (len_tst < len_ref)
+		return (ref[len_tst] == *gap && !strncmp(tst, ref, len_tst));
+	else if (len_tst == len_ref)
+		return (!strcmp(tst, ref));
+	return FALSE;
+}
+
+/*
+ * Add a path to the database.  As we add them, we insert in alphabetical
+ * order to make it simple to display the tree.
+ */
+static
+fd_add_path(path, validated)
+char	*path;
+char	*validated;
+{
+	auto	int		last = 0, /* assume we start from root level */
+				order,
+				sort,
+				this,
+				check;
+	auto	char		bfr[MAXPATHLEN];
+	auto	struct	stat	sb;
+	register int		j;
+	register FTREE		*f;
+
+	path = strcpy(bfr,path);
+	if (!strcmp(path, zero)) {
+		if (FDlast == 0) {	/* cwd is probably "/" */
+			FDdiff++;
+			FDlast++;
+			fd_alloc();
+		}
+		return;
+	}
+
+	/* put this into the database, if it is not already */
+	path += (TOP-1);
+	while (*path == *gap) {
+	char	*name = ++path,
+		*next = strchr(name, (*gap));
+
+		if (next != 0)
+			*next = EOS;
+
+		/* double-check link/directory here */
+		if (check = !subpath(bfr, validated)) {
+			if (lstat(bfr, &sb) < 0)
+				/* patch: remove this & all children */
+				break;
+		}
+
+		this = sort = 0;
+		for (j = last+1; j <= FDlast; j++) {
+			f = &ftree[j];
+			if (f->f_root == last) {
+				order = strcmp(f->f_name, name);
+				if (order == 0) {
+					this = j;
+					break;
+				} else if (order > 0) {
+					sort = j;
+					break;
+				}
+			} else if (f->f_root < last) {
+				sort = j;
+				break;
+			}
+		}
+
+		if (!this) {		/* add a new entry */
+			FDdiff++;
+			FDlast++;
+			fd_alloc();	/* make room for entry */
+			if (sort) {	/* insert into the list */
+				this = sort;
+				for (j = FDlast; j > this; j--) {
+					ftree[j] = ftree[j-1];
+					if (ftree[j].f_root >= this)
+						ftree[j].f_root++;
+				}
+			} else		/* append on the end */
+				this = FDlast;
+
+			ftree[this].f_root = last;
+			ftree[this].f_mark = NORMAL;
+			ftree[this].f_name = txtalloc(name);
+			if (!showsccs && is_sccs(this))
+				ftree[this].f_mark |= NOSCCS;
+		}
+
+		last = this;
+		ftree[last].f_mark &= ~(MARKED | LINKED);
+
+#ifdef	S_IFLNK
+		if (check) {
+			if (isLINK(sb.st_mode)) {
+				ftree[last].f_mark |= LINKED;
+				/* patch: store pointer to show 'readlink()' */
+				/* patch: remove all children */
+				break;
+			} else if (!isDIR(sb.st_mode)) {
+				break;
+			}
+		}
+#endif	/* S_IFLNK */
+
+		if (next != 0) {
+			*next = *gap; /* restore the one we knocked out */
+			path  = next;
+		} else
+			break;
+	}
+}
+
+/*
  * Perform a search through the database for a selected directory name.
  */
 static
@@ -424,98 +554,10 @@ fd_show(node)
 ft_insert(path)
 char	*path;
 {
-	auto	int		last = 0, /* assume we start from root level */
-				order,
-				sort,
-				this;
 	auto	char		bfr[MAXPATHLEN];
-	auto	struct	stat	sb;
-	register int		j;
-	register FTREE		*f;
 
 	abspath(path = strcpy(bfr,path));
-	if (!strcmp(path, zero)) {
-		if (FDlast == 0) {	/* cwd is probably "/" */
-			FDdiff++;
-			FDlast++;
-			fd_alloc();
-		}
-		return;
-	}
-
-	/* put this into the database, if it is not already */
-	path += (TOP-1);
-	while (*path == *gap) {
-	char	*name = ++path,
-		*next = strchr(name, (*gap));
-
-		if (next != 0)
-			*next = EOS;
-
-		/* double-check link/directory here */
-		if (lstat(bfr, &sb) < 0)
-			break;
-
-		this = sort = 0;
-		for (j = last+1; j <= FDlast; j++) {
-			f = &ftree[j];
-			if (f->f_root == last) {
-				order = strcmp(f->f_name, name);
-				if (order == 0) {
-					this = j;
-					break;
-				} else if (order > 0) {
-					sort = j;
-					break;
-				}
-			} else if (f->f_root < last) {
-				sort = j;
-				break;
-			}
-		}
-
-		if (!this) {		/* add a new entry */
-			FDdiff++;
-			FDlast++;
-			fd_alloc();	/* make room for entry */
-			if (sort) {	/* insert into the list */
-				this = sort;
-				for (j = FDlast; j > this; j--) {
-					ftree[j] = ftree[j-1];
-					if (ftree[j].f_root >= this)
-						ftree[j].f_root++;
-				}
-			} else		/* append on the end */
-				this = FDlast;
-
-			ftree[this].f_root = last;
-			ftree[this].f_mark = NORMAL;
-			ftree[this].f_name = txtalloc(name);
-			if (!showsccs && is_sccs(this))
-				ftree[this].f_mark |= NOSCCS;
-		}
-
-		last = this;
-		ftree[last].f_mark &= ~MARKED;
-
-#ifdef	S_IFLNK
-		if (isLINK(sb.st_mode)) {
-			ftree[last].f_mark |= LINKED;
-			/* patch: store pointer to show 'readlink()' */
-			break;
-		}
-		if (isDIR(sb.st_mode)) {
-			ftree[last].f_mark &= ~LINKED;
-		} else
-			break;
-#endif	/* S_IFLNK */
-
-		if (next != 0) {
-			*next = *gap; /* restore the one we knocked out */
-			path  = next;
-		} else
-			break;
-	}
+	fd_add_path(bfr, zero);
 }
 
 /*
@@ -1124,7 +1166,7 @@ scroll_to(node)
  *	  for e/E commands.
  */
 ft_view(path)
-char	*path;
+char	*path;	/* caller's current directory */
 {
 	auto	 int	row,
 			lvl,
@@ -1133,9 +1175,10 @@ char	*path;
 	auto	 char	cwdpath[MAXPATHLEN];
 	register int	j;
 
-	/* set initial position */
-	abspath(strcpy(cwdpath,path));
-	ft_insert(cwdpath);
+	/* Set initial position. This has to be done by assuming the 'path'
+	 * argument is a true result from 'getwd' since the mount-table may
+	 * be screwed up and a symbolic link may be hiding this path. */
+	fd_add_path(strcpy(cwdpath, path), path);
 	if ((row = do_find(cwdpath)) < 0) {
 		waitmsg(cwdpath);
 		return 'E';
@@ -1143,9 +1186,6 @@ char	*path;
 	lvl = fd_level(row);
 	scroll_to(row);
 	showdiff = -1;
-#ifndef	TEST
-	(void)strcpy(path, dedrung(0));	/* init for "=>" marker */
-#endif
 
 	/* process commands */
 	for (;;) {
@@ -1677,6 +1717,9 @@ int	j,
 char	cwdpath[MAXPATHLEN],
 	*s;
 
+	if (!getwd(cwdpath))
+		failed("getwd");
+
 	ft_read(".", gethome());
 	for (j = 1; j < argc; j++) {
 		s = argv[j];
@@ -1697,7 +1740,7 @@ char	cwdpath[MAXPATHLEN],
 		ft_purge();
 	if (!initscr())			failed("initscr");
 	rawterm();
-	(void)ft_view(".");
+	(void)ft_view(cwdpath);
 	move(LINES-1,0);
 	refresh();
 	PRINTF("\n");

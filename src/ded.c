@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	Id[] = "$Header: /users/source/archives/ded.vcs/src/RCS/ded.c,v 9.8 1991/07/12 08:44:30 dickey Exp $";
+static	char	Id[] = "$Header: /users/source/archives/ded.vcs/src/RCS/ded.c,v 9.9 1991/07/16 13:03:04 dickey Exp $";
 #endif
 
 /*
@@ -7,9 +7,13 @@ static	char	Id[] = "$Header: /users/source/archives/ded.vcs/src/RCS/ded.c,v 9.8 
  * Author:	T.E.Dickey
  * Created:	09 Nov 1987
  * $Log: ded.c,v $
- * Revision 9.8  1991/07/12 08:44:30  dickey
- * last change introduced errs in 'count_tags()'
+ * Revision 9.9  1991/07/16 13:03:04  dickey
+ * modified logic of 'edithead()' to account for the case in
+ * which the current entry contains '/'.
  *
+ *		Revision 9.8  91/07/12  08:46:37  dickey
+ *		last change introduced errs in 'count_tags()'
+ *		
  *		Revision 9.7  91/07/12  08:20:51  dickey
  *		added CTL/G command to show tagged files (+blocks/bytes).
  *		cleanup some message code.
@@ -342,23 +346,24 @@ viewset()
 
 #ifdef	S_IFLNK
 static
-edithead(dst, leaf, src)
-char	*dst,*leaf,*src;
+edithead(dst, leaf)
+char	*dst,*leaf;
 {
 	extern	char		*pathhead();
 	auto	struct	stat	sb;
 	auto	char		*s;
 
-	if (src != 0) {
-		dlog_comment("try to edit link-head \"%s\"\n", src);
-		abspath(strcpy(dst, pathhead(src, &sb)));
+	if (cLTXT != 0) {
+		dlog_comment("try to edit link-head \"%s\"\n", cLTXT);
+		(void)pathcat(dst, pathhead(cNAME, &sb), cLTXT);
+		(void)strcpy(dst, pathhead(dst, &sb));
 		dlog_comment("... becomes pathname  \"%s\"\n", dst);
-		(void)strcpy(leaf, src);
-		if (s = strrchr(src, '/')) {
+		(void)strcpy(leaf, cLTXT);
+		if (s = strrchr(cLTXT, '/')) {
 #ifdef	apollo
 			/* special hack for DSEE library */
 			if (s[1] == '[') {
-				leaf[s-src] = EOS;
+				leaf[s-cLTXT] = EOS;
 				if (s = strrchr(leaf, '/')) {
 					s++;
 					while (*leaf++ = *s++);
@@ -1745,7 +1750,7 @@ char	*argv[];
 					pathcat(tpath, new_wd, cNAME),
 					c, 1, 3, FALSE, (char *)0);
 #ifdef	S_IFLNK		/* try to edit head-directory of symbolic-link */
-			} else if (edithead(tpath, dpath, cLTXT)) {
+			} else if (edithead(tpath, dpath)) {
 				if (strcmp(tpath, new_wd)
 				&&  !new_args(tpath, c, 1, 3, FALSE, (char *)0))
 					break;
