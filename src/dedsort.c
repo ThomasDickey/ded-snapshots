@@ -3,6 +3,7 @@
  * Author:	T.E.Dickey
  * Created:	11 Nov 1987
  * Modified:
+ *		04 Mar 1998, rename 'y' sort to 'o'.
  *		15 Feb 1998, remove special code for apollo sr10
  *		12 Jul 1994, defined 'CMPF()' macro for 'ded_blocks()' hack.
  *		06 Dec 1993, added 'S' sort.
@@ -41,7 +42,7 @@
 #define	QSORT_SRC	const FLIST
 #include	<td_qsort.h>
 
-MODULE_ID("$Id: dedsort.c,v 12.9 1998/02/15 20:50:06 tom Exp $")
+MODULE_ID("$Id: dedsort.c,v 12.10 1998/03/04 23:50:19 tom Exp $")
 
 #define	CHECKED(p)	(p->z_time == p->s.st_mtime)
 #define	CMPF(f)	(f(&(p1->s)) > f(&(p2->s)) ? -1 : (f(&(p1->s)) < f(&(p2->s)) ? 1 : 0))
@@ -158,7 +159,7 @@ public	int	dedsort_cmp(
 			else if (*s2)
 				cmp = 1;
 			break;
-	case 'y':	if (p1->z_time && p2->z_time)
+	case 'o':	if (p1->z_time && p2->z_time)
 				cmp = strcmp(p1->z_lock, p2->z_lock);
 			else if (p1->z_time)
 				cmp = -1;
