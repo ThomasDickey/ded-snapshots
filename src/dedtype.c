@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	Id[] = "$Id: dedtype.c,v 10.2 1992/03/20 07:53:01 dickey Exp $";
+static	char	Id[] = "$Id: dedtype.c,v 10.3 1992/03/30 11:49:44 dickey Exp $";
 #endif
 
 /*
@@ -410,7 +410,7 @@ _DCL(int,	isdir)
 		}
 		FCLOSE(fp);
 		if (shown)
-			reshow(inlist);
+			(void)reshow(inlist);
 		showMARK(Xbase);
 		if (isdir && !binary)
 			(void)unlink(tmp_name);

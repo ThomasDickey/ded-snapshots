@@ -1,3 +1,18 @@
+1992-03-30  dickey@software.org
+
+	* src/dedtype.c, src/ftree.c: lint
+
+	* src/ftree.c:
+	buffer strings in 'ft_write()' before I/O to avoid making
+	lots of writes (which is slow in a network)
+
+	* test/test2.cmd, test/test1.cmd: new make-rules
+
+	* src/ded.c:
+	corrected a place where highlighting a shifted-line was not
+	always done right (I repeated the text if the beginning of
+	the field was shifted before the left margin).
+
 1992-03-20  dickey@software.org
 
 	* src/Makefile: typo

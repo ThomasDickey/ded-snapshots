@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	Id[] = "$Header: /users/source/archives/ded.vcs/src/RCS/ded.c,v 10.2 1992/03/12 12:51:46 dickey Exp $";
+static	char	Id[] = "$Header: /users/source/archives/ded.vcs/src/RCS/ded.c,v 10.3 1992/03/30 11:15:59 dickey Exp $";
 #endif
 
 /*
@@ -7,6 +7,7 @@ static	char	Id[] = "$Header: /users/source/archives/ded.vcs/src/RCS/ded.c,v 10.2
  * Author:	T.E.Dickey
  * Created:	09 Nov 1987
  * Modified:
+ *		30 Mar 1992, corrected highlighting of long, shifted lines.
  *		28 Feb 1992, convert shell-command to dynamic-string.
  *		21 Nov 1991, make 'tag_opt' public to use in dedring.
  *		15 Oct 1991, converted to ANSI. Allow replay of 'c' commands.
@@ -653,10 +654,15 @@ char	bfr[BUFSIZ];
 				col = cmdcol[CCOL_NAME] - Xbase;
 				len = (COLS-1) - col;
 				if (len > 0) {
+					int	adj = cmdcol[CCOL_NAME];
+					if (col < 0) {
+						adj -= col;
+						col  = 0;
+						len  = COLS-1;
+					}
 					(void)move2row(j, col);
 					standout();
-					PRINTW("%.*s", len,
-						&bfr[cmdcol[CCOL_NAME]]);
+					PRINTW("%.*s", len, &bfr[adj]);
 					standend();
 				}
 			}
