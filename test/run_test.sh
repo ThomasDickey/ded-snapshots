@@ -1,5 +1,5 @@
 #!/bin/sh
-# $Id: run_test.sh,v 11.0 1992/07/23 12:03:05 ste_cm Rel $
+# $Id: run_test.sh,v 12.0 1992/08/28 15:17:08 ste_cm Rel $
 #
 # Perform regression tests for unix directory editor.  If we find any problems,
 # show it in the log.
@@ -34,10 +34,10 @@ chmod 755 ../bin/ded
 for i in $*
 do
 	F=`basename $i .cmd`
-	trap "rm -f /tmp/.ftree $F.tmp $F.out" 0 1 2 5 15
+	R="/tmp/.ftree $F.tmp $F.out"
+	trap "rm -f $R" 0 1 2 5 15
 	echo '** running '$F
-	rm -f $F.tmp $F.out
-	rm -f /tmp/.ftree
+	rm -f $R
 	if test -f $F.cmd
 	then	OPTS="-c$F.cmd -l$F.out"
 	else	OPTS="-l$F.out"
@@ -61,4 +61,6 @@ do
 		mv $F.tmp $F.cmd
 	fi
 	rm -f $F.tmp $F.out
+#?	rm -f $F.out
+	trap "rm -f /tmp/.ftree" 0 1 2 5 15
 done

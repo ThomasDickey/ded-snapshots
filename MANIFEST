@@ -1,4 +1,4 @@
-MANIFEST for ded, version t19920827
+MANIFEST for ded, version t19920828
 --------------------------------------------------------------------------------
 MANIFEST                        this file
 Makefile                        top-level makefile for unix directory editor
@@ -47,6 +47,7 @@ test/test1.cmd                  test-script for unix directory-editor
 test/test2.cmd                  test-script for unix directory-editor
 test/test3.cmd                  test-script for unix directory-editor
 test/test4.cmd                  regression case for renaming directories
+test/test5.cmd                  test-case for inline/history stuff
 test/traceback.sh               does a traceback, in case we blew it.
 test/walkback.sh                uses debugger to get a walkback, if core'd
 user                            subdirectory

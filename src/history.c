@@ -1,15 +1,18 @@
 #ifndef	lint
-static	char	*Id = "$Id: history.c,v 11.3 1992/08/25 15:57:10 dickey Exp $";
+static	char	*Id = "$Id: history.c,v 12.0 1992/08/28 09:45:33 ste_cm Rel $";
 #endif
 
 /*
  * Title:	history.c
  * Author:	T.E.Dickey
  * Created:	07 Aug 1992
+ * Modified:
+ *		28 Aug 1992, if caller puts history item which is repeated,
+ *			     simply move it to the front of the list.
  *
  * Function:	save/restore strings used for history of various ded commands.
- *		A history table is a linked list of strings, with no consecutive
- *		duplicates.  The overall length of the list is limited.
+ *		A history table is a linked list of strings, with no duplicates.
+ *		The overall length of the list is limited.
  */
 
 #include "ded.h"
@@ -72,27 +75,46 @@ public	void	put_history(
 {
 	if (table != 0
 	 && text  != 0
-	 && *text != EOS
-	 && !same_history(*table, text) ) {
-		int	age = MAX_AGE;
-		HIST	*new = ALLOC(HIST,1),
-			*old = *table;
+	 && *text != EOS) {
+		register HIST *p, *q;
 
-		new->next = old;
-		new->text = stralloc(text);
-		*table = new;
+		for (p = *table, q = 0; p != 0; q = p, p = p->next)
+			if (same_history(p, text))
+				break;
 
-		/* don't let the table grow past maximum-age */
-		while ((--age > 0) && new->next)
-			new = new->next;
+		if (p != 0) {	/* relink the entry to make it first */
 
-		if (old = new->next) {
-			new->next = 0;
-			dofree(old->text);
-			dofree((char *)old);
+			if (q != 0) {
+				q->next = p->next;
+				p->next = *table;
+				*table  = p;
+			} else if (p != *table) {
+				p->next = *table;
+				*table  = p;
+			}
+
+		} else {	/* allocate a new entry */
+			int	age = MAX_AGE;
+
+			p = ALLOC(HIST,1);
+			q = *table;
+
+			p->next = q;
+			p->text = stralloc(text);
+			*table  = p;
+
+			/* don't let the table grow past maximum-age */
+			while ((--age > 0) && p->next)
+				p = p->next;
+
+			if (q = p->next) {
+				p->next = 0;
+				dofree(q->text);
+				dofree((char *)q);
+			}
 		}
+		SHOW_HISTORY(*table,"put");
 	}
-	SHOW_HISTORY(*table,"put");
 }
 
 

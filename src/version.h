@@ -1,12 +1,18 @@
 /*
- * $Id: version.h,v 11.2 1992/08/07 13:44:36 dickey Exp $
+ * $Id: version.h,v 12.0 1992/08/28 09:50:52 ste_cm Rel $
  * Version-identifier for DED
  * $Log: version.h,v $
- * Revision 11.2  1992/08/07 13:44:36  dickey
- * added command-history to the non-inline text commands
- * (e.g., filelist ':', '/', '?', pager '/', '?', and directory
- * tree '/', '?', '@', '~').
+ * Revision 12.0  1992/08/28 09:50:52  ste_cm
+ * BASELINE Thu May  6 14:26:47 1993 -- split from CM_TOOLS #11
  *
+ *		Revision 11.3  92/08/28  09:50:52  dickey
+ *		added '-command (repeat last of given inline command)
+ *		
+ *		Revision 11.2  92/08/07  13:44:36  dickey
+ *		added command-history to the non-inline text commands
+ *		(e.g., filelist ':', '/', '?', pager '/', '?', and directory
+ *		tree '/', '?', '@', '~').
+ *		
  *		Revision 11.1  92/08/05  09:18:55  dickey
  *		added '/', '?', 'n', 'N' search commands to workspace pager.
  *		also added '<' and '>' commands to workspace pager.
@@ -257,4 +263,4 @@
  * 01 Dec 1987, added '*', '^' commands, made '%' refresh screen
  * 25 Nov 1987, added sccs-support (V,z,Z toggles, V,z,Z sorts)
  */
-static	char	version[] = "$Date: 1992/08/07 13:44:36 $";
+static	char	version[] = "$Date: 1992/08/28 09:50:52 $";
