@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	Id[] = "$Header: /users/source/archives/ded.vcs/src/RCS/ded.c,v 12.0 1992/11/20 14:38:03 ste_cm Rel $";
+static	char	Id[] = "$Header: /users/source/archives/ded.vcs/src/RCS/ded.c,v 12.1 1993/09/21 17:14:25 dickey Exp $";
 #endif
 
 /*
@@ -211,7 +211,7 @@ private	int	edithead(
 		(void)strcpy(dst, pathhead(dst, &sb));
 		dlog_comment("... becomes pathname  \"%s\"\n", dst);
 		(void)strcpy(leaf, cLTXT);
-		if (s = strrchr(cLTXT, '/')) {
+		if ((s = strrchr(cLTXT, '/')) != NULL) {
 #ifdef	apollo
 			/* special hack for DSEE library */
 			if (s[1] == '[') {
@@ -280,7 +280,7 @@ public	int	realstat(
 /*
  * Fatal-error exit from this process
  */
-public	int	failed _ONE(char *,msg)
+public	void	failed _ONE(char *,msg)
 {
 	if (debug) {
 		FPRINTF(stderr, "failed?");
@@ -319,7 +319,7 @@ public	int	user_says(
 		move(y,x);
 		refresh();
 		dyn_init(&reply, 8);
-		if (s = dlog_string(&reply,(DYN **)0,NO_HISTORY,EOS,-8))
+		if ((s = dlog_string(&reply,(DYN **)0,NO_HISTORY,EOS,-8)) != NULL)
 			ok = (*s == 'y' || *s == 'Y');
 		showC(gbl);
 	}
@@ -421,7 +421,7 @@ public	void	resleep(
 		clrtoeol();
 		(*func)(gbl);
 		sleep(3);
-		if (interrupted = dedsigs(TRUE))
+		if ((interrupted = dedsigs(TRUE)) != 0)
 			break;
 	}
 	clearmsg();
@@ -456,7 +456,7 @@ private	RING *	new_args(
 	if (flags & 1)
 		markC(gbl,TRUE);
 	clear_work();
-	if (ok = dedring(gbl, path, cmd, count, set_pattern, pattern)) {
+	if ((ok = dedring(gbl, path, cmd, count, set_pattern, pattern)) != 0) {
 		redoVIEW(gbl = ok);
 		(void)to_file(gbl);
 		count_tags(gbl);
@@ -505,7 +505,7 @@ private	RING *	pattern_args(
 	RING	*new;
 
 	while (dedread(gbl, &pattern, FALSE)) {
-		if (new = new_args(gbl, path, 'E', 1, 3, TRUE, pattern))
+		if ((new = new_args(gbl, path, 'E', 1, 3, TRUE, pattern)) != NULL)
 			return (new);
 	}
 	return (0);
@@ -631,7 +631,7 @@ private	RING *	editfile(
 	case 1:	/* edit-directory */
 		if (extended) {
 			RING *new;
-			if (new = pattern_args(gbl, pathcat(tpath, gbl->new_wd, cNAME)))
+			if ((new = pattern_args(gbl, pathcat(tpath, gbl->new_wd, cNAME))) != NULL)
 				gbl = new;
 		} else {
 			to_work(gbl,TRUE);
@@ -750,7 +750,7 @@ private	int	x_scroll (_AR0)
  *	main program							*
  ************************************************************************/
 
-usage(_AR0)
+void	usage(_AR0)
 {
 	auto	char	tmp[BUFSIZ];
 	static	char	*tbl[] = {
@@ -1102,7 +1102,7 @@ _MAIN
 	case CTL('R'):	/* modify read-expression */
 			while (dedread(gbl, &gbl->toscan, gbl->numfiles == 0)) {
 				RING *new;
-				if (new = rescan(gbl, FALSE)) {
+				if ((new = rescan(gbl, FALSE)) != NULL) {
 					gbl = new;
 					break;
 				}
@@ -1131,7 +1131,7 @@ _MAIN
 
 	case 'r':
 	case 's':	j = dlog_char((int *)0,0);
-			if (gbl->tagsort = (j == '+'))
+			if ((gbl->tagsort = (j == '+')) != 0)
 				j = dlog_char((int *)0,0);
 			if (!(j = sortget(gbl, j)))
 				;
@@ -1247,7 +1247,7 @@ _MAIN
 				gbl = ft_view(gbl, tpath, &c);
 				if (c == 'e')
 					new_process(gbl, tpath);
-				else if (new = new_tree(gbl, tpath, c)) {
+				else if ((new = new_tree(gbl, tpath, c)) != NULL) {
 					gbl = new;
 					break;
 				}

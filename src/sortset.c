@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	what[] = "$Id: sortset.c,v 12.0 1992/08/12 09:27:50 ste_cm Rel $";
+static	char	Id[] = "$Id: sortset.c,v 12.1 1993/09/21 20:30:47 dickey Exp $";
 #endif
 
 /*

@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	Id[] = "$Id: dedscan.c,v 12.0 1992/12/02 08:51:20 ste_cm Rel $";
+static	char	Id[] = "$Id: dedscan.c,v 12.1 1993/09/21 17:34:56 dickey Exp $";
 #endif
 
 /*
@@ -294,13 +294,13 @@ public	int	dedscan _ONE(RING *,gbl)
 			else
 				init_scan(gbl);
 
-			if (dp = opendir(".")) {
+			if ((dp = opendir(".")) != NULL) {
 			int	len = strlen(strcpy(name, gbl->new_wd));
 				if (name[len-1] != '/') {
 					name[len++] = '/';
 					name[len]   = EOS;
 				}
-				while (de = readdir(dp)) {
+				while ((de = readdir(dp)) != NULL) {
 					if (dotname(s = de->d_name))
 						if (!gbl->A_opt)
 							continue;

@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	*Id = "$Id: history.c,v 12.0 1992/08/28 09:45:33 ste_cm Rel $";
+static	char	*Id = "$Id: history.c,v 12.1 1993/09/21 20:28:34 dickey Exp $";
 #endif
 
 /*
@@ -107,7 +107,7 @@ public	void	put_history(
 			while ((--age > 0) && p->next)
 				p = p->next;
 
-			if (q = p->next) {
+			if ((q = p->next) != 0) {
 				p->next = 0;
 				dofree(q->text);
 				dofree((char *)q);

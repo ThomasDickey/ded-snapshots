@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	Id[] = "$Id: ded2s.c,v 12.0 1992/11/23 10:34:02 ste_cm Rel $";
+static	char	Id[] = "$Id: ded2s.c,v 12.1 1993/09/21 17:31:27 dickey Exp $";
 #endif
 
 /*
@@ -228,7 +228,7 @@ public	void	ded2s(
 	/* show symbolic link target mode in uppercase */
 	if (gbl->AT_opt && f_->ltxt) {
 		for (t = base; *t; t++)
-			if (isalpha(*t))	*t = _toupper(*t);
+			UpperCase(*t);
 	}
 #endif
 	bfr += strlen(bfr);

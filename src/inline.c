@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	Id[] = "$Id: inline.c,v 12.0 1992/08/27 12:24:18 ste_cm Rel $";
+static	char	Id[] = "$Id: inline.c,v 12.1 1993/09/21 20:29:13 dickey Exp $";
 #endif
 
 /*
@@ -15,7 +15,7 @@ static	char	Id[] = "$Id: inline.c,v 12.0 1992/08/27 12:24:18 ste_cm Rel $";
 #include	"ded.h"
 
 #define	ITEM	struct	_item
-typedef	ITEM	{
+	ITEM	{
 	ITEM *	link;
 	int	topc,	/* top-character, if nested */
 		endc;	/* inline-edit toggle character */
@@ -199,10 +199,10 @@ public	int	up_inline(_AR0)
 	if (!the_age)
 		edited = dyn_copy(edited, t);
 
-	if (s = get_history(p->hist, the_age)) {
+	if ((s = get_history(p->hist, the_age)) != NULL) {
 		if (strcmp(s, t))
 			;	/* cannot skip */
-		else if (s = get_history(p->hist, the_age+1))
+		else if ((s = get_history(p->hist, the_age+1)) != NULL)
 			the_age++;
 		else IGNORE	/* last and only item */
 		the_age++;
@@ -220,7 +220,7 @@ public	int	down_inline(_AR0)
 
 	if (the_age <= 0) IGNORE
 
-	if (s = get_history(p->hist, the_age-2)) {
+	if ((s = get_history(p->hist, the_age-2)) != NULL) {
 		the_age--;
 		if (the_age == 1 && !strcmp(s, dyn_string(edited)))
 			the_age = 0;

@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	Id[] = "$Id: dedtype.c,v 12.0 1992/12/02 08:51:56 ste_cm Rel $";
+static	char	Id[] = "$Id: dedtype.c,v 12.1 1993/09/21 17:57:29 dickey Exp $";
 #endif
 
 /*
@@ -89,7 +89,7 @@ private	int	typeline(
 {
 	int	found;
 
-	if (found = (UsePattern && GOT_REGEX(ToFind, Text)))
+	if ((found = (UsePattern && GOT_REGEX(ToFind, Text))) != 0)
 		HadPattern = TRUE;
 
 	if (!skip) {
@@ -134,7 +134,7 @@ private	void	typeover _ONE(register int,c)
 		my_over = dyn_alloc(my_over, need);
 	}
 
-	if (Over[Tcol] = Text[Tcol]) {
+	if ((Over[Tcol] = Text[Tcol]) != EOS) {
 		if (ispunct(Text[Tcol]))
 			Text[Tcol] = c;
 	} else
@@ -241,7 +241,7 @@ private	void	MarkPage(
 /*
  * Reposition at a given top-of-page marker.
  */
-private	JumpBackwards(
+private	int	JumpBackwards(
 	_ARX(int *,	page)
 	_AR1(int,	jump)
 		)
@@ -482,7 +482,7 @@ private	void	FindPattern(
 /*
  * Recompute the left-margin of the workspace.
  */
-private	LeftOrRight(
+private	void	LeftOrRight(
 	_AR1(int,	count))
 	_DCL(int,	count)
 {
@@ -539,7 +539,7 @@ public	void	dedtype(
 			return;
 		}
 		if ((dp = opendir(name)) != 0) {
-			while (de = readdir(dp)) {
+			while ((de = readdir(dp)) != NULL) {
 				(void)ded2string(gbl, bfr,
 					(int)de->d_namlen,
 					de->d_name,
@@ -571,7 +571,7 @@ public	void	dedtype(
 		while (!done) {
 
 			if (jump) {
-				if (done = JumpBackwards(&page, jump))
+				if ((done = JumpBackwards(&page, jump)) != 0)
 					break;
 				jump = 0;
 			}

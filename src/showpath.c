@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	Id[] = "$Id: showpath.c,v 12.0 1991/10/18 09:58:07 ste_cm Rel $";
+static	char	Id[] = "$Id: showpath.c,v 12.1 1993/09/21 20:30:07 dickey Exp $";
 #endif
 
 /*
@@ -22,16 +22,16 @@ static	char	Id[] = "$Id: showpath.c,v 12.0 1991/10/18 09:58:07 ste_cm Rel $";
 #define	LEFT	4
 #define	RIGHT	3
 
-showpath(
-_ARX(char *,	path)		/* pathname to display */
-_ARX(int,	level)		/* level we must show */
-_ARX(int,	base)		/* first-level to highlight */
-_AR1(int,	margin)		/* space to allow on right */
-	)
-_DCL(char *,	path)
-_DCL(int,	level)
-_DCL(int,	base)
-_DCL(int,	margin)
+public	void	showpath(
+	_ARX(char *,	path)		/* pathname to display */
+	_ARX(int,	level)		/* level we must show */
+	_ARX(int,	base)		/* first-level to highlight */
+	_AR1(int,	margin)		/* space to allow on right */
+		)
+	_DCL(char *,	path)
+	_DCL(int,	level)
+	_DCL(int,	base)
+	_DCL(int,	margin)
 {
 	register char	*s	= path;
 	auto	int	cols	= COLS - ((stdscr->_curx) + 2 + margin);
@@ -54,7 +54,7 @@ _DCL(int,	margin)
 			break;	/* force this to show desired level */
 		while (*s == '/')
 			s++;
-		if (t = strchr(s, '/')) {
+		if ((t = strchr(s, '/')) != NULL) {
 			if (base-- == 0) {
 				hilite = TRUE;
 				standout();

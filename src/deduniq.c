@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	Id[] = "$Id: deduniq.c,v 12.0 1992/04/06 08:45:57 ste_cm Rel $";
+static	char	Id[] = "$Id: deduniq.c,v 12.1 1993/09/21 17:37:30 dickey Exp $";
 #endif
 
 /*
@@ -33,10 +33,10 @@ public	void	deduniq (
 
 		k = (level > 1) ? j-1 : gbl->curfile;
 
-		if (new = (k == j)) {
+		if ((new = (k == j)) != 0) {
 			blip('*');
 			dlog_name(gNAME(k));
-		} else if (new = (! dedsort_cmp(gbl, gbl->flist+k, gbl->flist+j)) ) {
+		} else if ((new = (! dedsort_cmp(gbl, gbl->flist+k, gbl->flist+j)) ) != 0) {
 			blip('#');
 			gFLAG(k) =
 			gFLAG(j) = (level > 0);

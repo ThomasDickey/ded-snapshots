@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	Id[] = "$Id: dedring.c,v 12.0 1992/12/18 15:04:39 ste_cm Rel $";
+static	char	Id[] = "$Id: dedring.c,v 12.1 1993/09/21 17:34:34 dickey Exp $";
 #endif
 
 /*
@@ -248,7 +248,7 @@ private	void	Remove _ONE(char *,path)
 {
 	RING	*p;
 
-	if (p = DeLink(path)) {
+	if ((p = DeLink(path)) != NULL) {
 		p->flist = dedfree(p->flist, p->numfiles);
 		if (p->top_argv) {
 			if (p->top_argv[0]) {
@@ -271,7 +271,7 @@ private	RING *	ring_fwd _ONE(char *,path)
 	for (p = ring; p; p = p->_link) {
 		int	cmp = CMP_PATH(path, p);
 		if (cmp == 0) {
-			if (p = p->_link)
+			if ((p = p->_link) != NULL)
 				return (p);
 			else
 				break;	/* force loop-around */
@@ -288,13 +288,13 @@ private	RING *	ring_bak _ONE(char *,path)
 {
 	register RING *p, *q;
 
-	if (p = ring) {
+	if ((p = ring) != NULL) {
 		if (CMP_PATH(path, p) <= 0) {
-			while (q = p->_link)
+			while ((q = p->_link) != NULL)
 				p = q;
 		} else {
 			while (p) {
-				if (q = p->_link) {
+				if ((q = p->_link) != NULL) {
 					if (CMP_PATH(path, q) <= 0)
 						break;
 					p = q;

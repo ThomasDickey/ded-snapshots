@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	what[] = "$Id: dlog.c,v 12.0 1992/09/04 15:05:50 ste_cm Rel $";
+static	char	Id[] = "$Id: dlog.c,v 12.1 1993/09/21 20:14:14 dickey Exp $";
 #endif
 
 /*
@@ -31,7 +31,6 @@ static	char	what[] = "$Id: dlog.c,v 12.0 1992/09/04 15:05:50 ste_cm Rel $";
 
 #include	"ded.h"
 #include	<time.h>
-#include	<varargs.h>
 
 #define	NOW		time((time_t *)0)
 
@@ -265,7 +264,7 @@ public	char *	dlog_open(
 public	void	dlog_reopen(_AR0)
 {
 	if (*log_name) {
-		if (log_fp = fopen(log_name, "a+"))
+		if ((log_fp = fopen(log_name, "a+")) != NULL)
 			dlog_comment("process %d resuming\n", getpid());
 	}
 }
@@ -319,13 +318,13 @@ public	int	dlog_char(
  */
 public	char *	dlog_string(
 	_ARX(DYN **,	result)
-	_ARX(DYN **,	inline)
+	_ARX(DYN **,	inflag)
 	_ARX(HIST **,	history)
 	_ARX(int,	fast_q)
 	_AR1(int,	wrap_len)
 		)
 	_DCL(DYN **,	result)
-	_DCL(DYN **,	inline)
+	_DCL(DYN **,	inflag)
 	_DCL(HIST **,	history)
 	_DCL(int,	fast_q)
 	_DCL(int,	wrap_len)
@@ -342,7 +341,7 @@ public	char *	dlog_string(
 		use_script;
 	int	y,x;
 	char	*buffer, *to_hist;
-	char	**prefix= inline ? i_pref : n_pref;
+	char	**prefix= inflag ? i_pref : n_pref;
 	char	*script_ptr;
 
 	register int	c;
@@ -361,10 +360,10 @@ public	char *	dlog_string(
 	 * end a buffer-edit.
 	 */
 	dyn_init(&script_bfr,1);
-	if (inline) {
+	if (inflag) {
 		original = dyn_copy(original, buffer);
 
-		if (s = dyn_string(*inline)) {
+		if ((s = dyn_string(*inflag)) != NULL) {
 			script_bfr = dyn_copy(script_bfr, s);
 			convert_newline(&script_bfr);
 		}
@@ -377,7 +376,7 @@ public	char *	dlog_string(
 		/*
 		 * Interleave inline-editing replay and command-file:
 		 */
-		if (inline) {
+		if (inflag) {
 #ifdef	DEBUG
 			dlog_comment("hidden:%d, length:%d\n",
 				inline_hidden(), dyn_length(script_bfr));
@@ -398,7 +397,7 @@ public	char *	dlog_string(
 		 * Now, 'script_bfr' is empty only if we are neither replaying
 		 * inline text, nor reading from a command-file:
 		 */
-		if (use_script = (dyn_length(script_bfr) != 0)) {
+		if ((use_script = (dyn_length(script_bfr) != 0)) != 0) {
 			script_ptr = dyn_string(script_bfr);
 #ifdef	DEBUG
 			dlog_comment("SCRIPT:%s\n", dyn_string(script_bfr));
@@ -417,12 +416,12 @@ public	char *	dlog_string(
 			prefix,
 			len,
 			len + 1,
-			(inline != 0) ? 0 : (int)strlen(buffer),
+			(inflag != 0) ? 0 : (int)strlen(buffer),
 			(fast_q == EOS),
 			wrap,
 			fast_q,
 			use_script ? &script_ptr : (char **)0,
-			history || inline || log_fp);
+			history || inflag || log_fp);
 
 		/* account for chars we read from command-file */
 		if (*cmd_ptr) {
@@ -448,7 +447,7 @@ public	char *	dlog_string(
 		 * newline/arrow) to 'script_bfr' so we can manipulate it in
 		 * the history-record.
 		 */
-		if (inline) {
+		if (inflag) {
 			script_bfr = dyn_copy(script_bfr, rawgets_log());
 			trim_ending(script_bfr);
 #ifdef	DEBUG
@@ -472,10 +471,10 @@ public	char *	dlog_string(
 			if (!history)
 				IGNORE
 
-			else if (s = get_history(*history, nnn)) {
+			else if ((s = get_history(*history, nnn)) != NULL) {
 				if (strcmp(s, to_hist))
 					;	/* cannot skip */
-				else if (s = get_history(*history, nnn+1))
+				else if ((s = get_history(*history, nnn+1)) != NULL)
 					nnn++;
 				else IGNORE	/* last and only item */
 				nnn++;
@@ -485,7 +484,7 @@ public	char *	dlog_string(
 			if (!history)
 				IGNORE
 
-			else if (s = get_history(*history, nnn-2)) {
+			else if ((s = get_history(*history, nnn-2)) != NULL) {
 				nnn--;
 				if (nnn == 1 && !strcmp(s, dyn_string(edited)))
 					nnn = 0;
@@ -502,7 +501,7 @@ public	char *	dlog_string(
 		/*
 		 * Reset the script+result for the next editing pass.
 		 */
-		if (inline) {
+		if (inflag) {
 			if (s != to_hist)
 				script_bfr = dyn_copy(script_bfr, s);
 			*result = dyn_copy(*result, dyn_string(original));
@@ -512,9 +511,9 @@ public	char *	dlog_string(
 		buffer = dyn_string(*result);
 	}
 
-	if (inline) {
+	if (inflag) {
 		supply_newline(&script_bfr);
-		*inline = dyn_copy(*inline, to_hist = dyn_string(script_bfr));
+		*inflag = dyn_copy(*inflag, to_hist = dyn_string(script_bfr));
 	}
 
 	PENDING(string,TRUE);
@@ -523,10 +522,10 @@ public	char *	dlog_string(
 	dlog_comment("%s:%s%c",
 		(done == TRUE) ? "done" : "quit",
 		to_hist,
-		inline ? EOS : '\n');
+		inflag ? EOS : '\n');
 #endif
 	if (done == TRUE) {
-		if (!inline)
+		if (!inflag)
 			put_history(history, to_hist);
 		return buffer;
 	}
@@ -566,6 +565,12 @@ public	void	dlog_name _ONE(char *,name)
 /*
  * Write a comment to the log-file (with trailing newline in 'fmt').
  */
+#if ANSI_VARARGS
+#define	args_VARARGS1	_ARX(char *,fmt) _DOTS
+#define	decl_VARARGS1	_DCL(char *,fmt) _DCL(va_list *,app)
+#else
+#define	args_VARARGS1	va_alist
+#define	decl_VARARGS1	va_dcl
 #ifdef	lint
 #undef	va_dcl
 #define	va_dcl		char	*va_alist;
@@ -574,14 +579,17 @@ public	void	dlog_name _ONE(char *,name)
 #undef	va_arg
 #define	va_arg(p,c)	(c)0
 #endif
+#endif	/* ANSI_VARARGS */
 
 /*VARARGS*/
-public	void	dlog_comment(va_alist)
-	va_dcl
+public	void	dlog_comment(args_VARARGS1)
+	decl_VARARGS1
 {
-	static	DYN	*msg, *tmp;
 	auto	va_list	args;
+#if !ANSI_VARARGS
 	auto	char	*fmt;
+#endif
+	static	DYN	*msg, *tmp;
 	auto	char	buffer[BUFSIZ],
 			Fmt[BUFSIZ];
 
@@ -590,8 +598,12 @@ public	void	dlog_comment(va_alist)
 
 	PENDING(comment,FALSE);
 	FPRINTF(log_fp, "\t# ");
+#if ANSI_VARARGS
+	va_start(args,fmt);
+#else
 	va_start(args);
 	fmt = va_arg(args, char *);
+#endif
 
 	dyn_init(&msg,1);
 
@@ -630,7 +642,7 @@ public	void	dlog_comment(va_alist)
 
 				if (!dst)
 					dst = "<null>";
-				while (c = *dst++) {
+				while ((c = *dst++) != EOS) {
 					c = toascii(c);
 					if (c == '\n' && *fmt == EOS)
 						;	/* fix for ctime */

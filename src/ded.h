@@ -3,7 +3,7 @@
 
 #ifdef	MAIN
 #ifndef	lint
-static	char	*ded_h = "$Id: ded.h,v 12.0 1993/04/27 11:03:18 ste_cm Rel $";
+static	char	*ded_h = "$Id: ded.h,v 12.1 1993/09/21 20:31:34 dickey Exp $";
 #endif
 #endif	/* MAIN */
 
@@ -12,13 +12,28 @@ static	char	*ded_h = "$Id: ded.h,v 12.0 1993/04/27 11:03:18 ste_cm Rel $";
  * Function:	Common definitions for 'ded' (directory editor)
  */
 
-#define		CUR_PTYPES	/* use "curses" */
-#define		STR_PTYPES	/* use "strrchr" */
+#define		CUR_PTYPES	/* use "td_curse.h" */
+#define		CHR_PTYPES	/* use <ctype.h> */
+#define		STR_PTYPES	/* use <string.h> */
 #include	<ptypes.h>
 #include	<dyn_str.h>
 #include	<ctype.h>
 #include	<errno.h>
 #include	<cmdch.h>
+
+#ifndef ANSI_VARARGS
+# if defined(__STDC__) || VMS || NEWDOSCC
+#  define ANSI_VARARGS 1	/* look in <stdarg.h> */
+# else
+#  define ANSI_VARARGS 0	/* look in <varargs.h> */
+# endif
+#endif
+
+#if ANSI_VARARGS
+#include	<stdarg.h>
+#else
+#include	<varargs.h>
+#endif
 extern	char	*sys_errlist[];
 
 #define	private	static
@@ -29,6 +44,7 @@ extern	char	*sys_errlist[];
  */
 #define	FREE(p)		dofree(p)
 #define	_ONE(t,a)	(_AR1(t,a)) _DCL(t,a)
+#define _one(t,a)	(_ar1(t,a))
 
 /*
  * SYSTEM5/BSD4.x differences between regular-expression handling:
@@ -41,8 +57,8 @@ extern	char	*regcmp(),
 #define	GOT_REGEX(expr,string)	(regex(expr, string, 0) != 0)
 #define	BAD_REGEX(expr)		dedmsg(gbl, "illegal expression")
 #else	/* SYSTEM5 */
-extern	char	*re_comp();	/* returns 0 or error message */
-extern	int	re_exec();	/* (return > 0): match */
+extern	char	*re_comp(_ar1(char *,s)); /* returns 0 or error message */
+extern	int	re_exec(_ar1(char *,s));  /* (return > 0): match */
 #define	OLD_REGEX(expr)
 #define	NEW_REGEX(expr,pattern)	((expr = re_comp(pattern)) == 0)
 #define	GOT_REGEX(expr,string)	(re_exec(string) != 0)
@@ -92,7 +108,7 @@ extern	int	re_exec();	/* (return > 0): match */
  * be displayed in a given viewport.  This is denoted the 'display list'.
  */
 #define	FLIST	struct	_flist
-typedef	FLIST	{
+	FLIST	{
 	FLIST	*next;
 	char	*name;		/* name (within working-directory)	*/
 	char	*ltxt;		/* what link resolves to		*/
@@ -148,7 +164,7 @@ typedef	FLIST	{
  * of a file-list (see "ded.h"):
  */
 #define	RING	struct	_ring
-typedef	RING {
+	RING {
 	RING	*_link;
 	char	new_wd[MAXPATHLEN];
 	char	*toscan,	/* directory-scan expression	*/
@@ -232,7 +248,7 @@ extern	int	realstat(
 		_arx(int,	inx)
 		_ar1(STAT *,	sb));
 
-extern	int	failed(
+extern	void	failed(
 		_ar1(char *,	msg));
 
 extern	int	user_says(
@@ -263,7 +279,7 @@ extern	void	fixtime(
 		_arx(RING *,	gbl)
 		_ar1(int,	j));
 
-extern	int	usage(_ar0);
+extern	void	usage(_ar0);
 
 /* *** "deddoit.c" *** */
 extern	void	deddoit(
@@ -287,7 +303,7 @@ extern	FLIST	*dedfree(
 
 /* *** "dedline.c" *** */
 extern	void	editprot(
-		_arx(RING *,	gbl));
+		_ar1(RING *,	gbl));
 
 extern	int	edittext(
 		_arx(RING *,	gbl)
@@ -325,10 +341,10 @@ extern	void	warn(
 		_arx(RING *,	gbl)
 		_ar1(char *,	msg));
 
-extern	int	waitmsg(
+extern	void	waitmsg(
 		_ar1(char *,	msg));
 
-extern	int	wait_warn(
+extern	void	wait_warn(
 		_ar1(char *,	msg));
 
 /* *** "dedname.c" *** */
@@ -404,7 +420,7 @@ extern	int	path_RESOLVE(
 		_ar1(char *,	path));
 
 /* *** "dedshow.c" *** */
-extern	int	dedshow(
+extern	void	dedshow(
 		_arx(RING *,	gbl)
 		_arx(char *,	tag)
 		_ar1(char *,	arg));
@@ -583,7 +599,7 @@ extern	int	dlog_char(
 
 extern	char *	dlog_string(
 		_arx(DYN **,	result)
-		_arx(DYN **,	inline)
+		_arx(DYN **,	inflag)
 		_arx(HIST **,	history)
 		_arx(int,	fast_q)
 		_ar1(int,	wrap_len));
@@ -596,8 +612,11 @@ extern	void	dlog_name(
 		_ar1(char *,	name));
 
 extern	void	dlog_comment(
-#ifdef	__STDC__
-		...
+#if PROTOTYPES
+# if ANSI_VARARGS
+			char * fmt,
+			...
+# endif
 #endif
 		);
 
@@ -658,6 +677,9 @@ extern	void	restat_W(
 		_ar1(RING *,	gbl));
 
 /* *** "inline.c" *** */
+extern	int	dyn_trim1(
+		_ar1(DYN *,	p));
+
 extern	void	hide_inline(
 		_ar1(int,	flag));
 
@@ -686,7 +708,7 @@ extern	HIST **	inline_hist(_ar0);
 extern	int	inline_hidden(_ar0);
 
 /* *** "showpath.c" *** */
-extern	int	showpath(
+extern	void	showpath(
 		_arx(char *,	path)
 		_arx(int,	level)
 		_arx(int,	base)

@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	Id[] = "$Id: dedmsgs.c,v 12.0 1992/04/07 07:41:26 ste_cm Rel $";
+static	char	Id[] = "$Id: dedmsgs.c,v 12.1 1993/09/21 17:33:30 dickey Exp $";
 #endif
 
 /*
@@ -87,5 +87,5 @@ public	void	warn(
  * used when we have put a message up and may be going back to the
  * directory tree display.
  */
-waitmsg		_ONE(char *,msg) { show_message((RING *)0, "waitmsg", msg); }
-wait_warn	_ONE(char *,msg) { waitmsg(err_msg(msg)); }
+void	waitmsg		_ONE(char *,msg) { show_message((RING *)0, "waitmsg", msg); }
+void	wait_warn	_ONE(char *,msg) { waitmsg(err_msg(msg)); }

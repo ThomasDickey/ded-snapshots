@@ -1,3 +1,12 @@
+1993-09-21  dickey@software.org
+
+	* src/Makefile: use LINK symbol
+	added tags rule
+	clobber ded.a
+
+	* src/ded.h, src/sortset.c, src/showpath.c, src/inline.c, src/history.c, src/ftree.c, src/dedsort.c, src/dlog.c, src/dedtype.c, src/deduniq.c, src/dedview.c, src/dedsigs.c, src/dedshow.c, src/dedscan.c, src/dedring.c, src/dedname.c, src/dedmsgs.c, src/dedline.c, src/dedfind.c, src/ded2s.c, src/deddoit.c, src/ded.c:
+	gcc-warnings
+
 1993-05-06  dickey@software.org
 
 	* test/test2.cmd: added ../certify
