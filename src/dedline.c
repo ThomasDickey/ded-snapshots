@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	Id[] = "$Id: dedline.c,v 11.3 1992/08/14 07:23:35 dickey Exp $";
+static	char	Id[] = "$Id: dedline.c,v 11.4 1992/08/20 09:59:13 dickey Exp $";
 #endif
 
 /*
@@ -59,6 +59,9 @@ static	char	Id[] = "$Id: dedline.c,v 11.3 1992/08/14 07:23:35 dickey Exp $";
 
 #define	TO_FIRST	CTL('b')
 #define	TO_LAST		CTL('f')
+
+#define	EDITTEXT(cmd,col,len,buffer)\
+	edittext(gbl, cmd, gbl->cmdcol[col], len, buffer)
 
 /************************************************************************
  *	local procedures						*
@@ -500,6 +503,11 @@ public	int	edittext(
 	_DCL(int,	len)
 	_DCL(char *,	bfr)
 {
+	static	DYN	*result;
+#ifdef	PATCH
+	int	y	= file2row(gbl->curfile),
+		code	= TRUE;
+#else
 	int	y	= file2row(gbl->curfile),
 		x	= 0,
 		c,
@@ -511,9 +519,12 @@ public	int	edittext(
 		insert	= FALSE,
 		delete;
 	register char *s;
+#endif
 
 #ifdef	S_IFLNK
-	int	at_flag	= ((endc == 'u') || (endc == 'g')) ? at_save(gbl) : FALSE;
+	int	at_flag	= ((endc == 'u') || (endc == 'g'))
+			? at_save(gbl)
+			: FALSE;
 #endif
 
 	dlog_comment("before \"%s\"\n", bfr);
@@ -526,6 +537,18 @@ public	int	edittext(
 #endif
 	ReplayStart(endc);
 
+#ifdef	PATCH
+	move(y,col);
+	result = dyn_alloc(result, (size_t)len+1);
+	result = dyn_copy (result, bfr);
+	(void) strcpy(bfr,
+		dlog_string(
+			&result,
+			inline_text(),
+			inline_hist(),
+			endc,
+			len));
+#else	/* !PATCH */
 	last = (COLS - 1 - col);
 	if (last > len) last = len;
 
@@ -598,6 +621,7 @@ public	int	edittext(
 			while (bfr[delete] = bfr[delete+1]) delete++;
 		}
 	}
+#endif	/* PATCH */
 
 #ifdef	S_IFLNK
 	if (at_flag) {		/* we had to toggle because of sym-link	*/
@@ -624,7 +648,8 @@ public	void	edit_uid _ONE(RING *,gbl)
 		gbl->G_opt = 0;
 		showFILES(gbl,FALSE,FALSE);
 	}
-	if (edittext(gbl, 'u', gbl->cmdcol[CCOL_UID], UIDLEN, strcpy(bfr, uid2s(uid)))
+
+	if (EDITTEXT('u', CCOL_UID, UIDLEN, strcpy(bfr, uid2s(uid)))
 	&&  (uid = s2uid(bfr)) >= 0) {
 		(void)dedsigs(TRUE);	/* reset interrupt-count */
 		for (j = 0; j < gbl->numfiles; j++) {
@@ -663,10 +688,11 @@ public	void	edit_gid _ONE(RING *,gbl)
 		gbl->G_opt = 1;
 		showFILES(gbl,FALSE,FALSE);
 	}
-	if (edittext(gbl, 'g', gbl->cmdcol[CCOL_GID], UIDLEN, strcpy(bfr, gid2s(gid)))
+
+	if (EDITTEXT('g', CCOL_GID, UIDLEN, strcpy(bfr, gid2s(gid)))
 	&&  (gid = s2gid(bfr)) >= 0) {
-	char	newgrp[BUFSIZ];
-	static	char	*fmt = "chgrp -f %s %s";
+		auto	char	newgrp[BUFSIZ];
+		static	char	*fmt = "chgrp -f %s %s";
 
 		(void)dedsigs(TRUE);	/* reset interrupt-count */
 		(void)strcpy(newgrp, gid2s(gid));
@@ -716,7 +742,8 @@ public	void	editname _ONE(RING *,gbl)
 	register int	j;
 	auto	 char	bfr[BUFSIZ];
 
-#define	EDITNAME(n)	edittext(gbl, '=', gbl->cmdcol[CCOL_NAME], sizeof(bfr), name2bfr(bfr, n))
+#define	EDITNAME(n)	EDITTEXT('=', CCOL_NAME, sizeof(bfr), name2bfr(bfr, n))
+
 	if (EDITNAME(cNAME) && strcmp(cNAME, bfr)) {
 		if (dedname(gbl, gbl->curfile, bfr) >= 0) {
 			(void)dedsigs(TRUE);	/* reset interrupt count */
@@ -760,7 +787,8 @@ public	void	editlink(
 
 	cmd_link = (cmd == '<');
 
-#define	EDITLINK(n)	edittext(gbl, cmd, col, sizeof(bfr), link2bfr(gbl, bfr, n))
+#define	EDITLINK(n) edittext(gbl, cmd, col, sizeof(bfr), link2bfr(gbl, bfr, n))
+
 	if (!cLTXT)
 		beep();
 	else {
