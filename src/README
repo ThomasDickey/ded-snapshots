@@ -1,4 +1,4 @@
-$Id: README,v 12.3 1994/07/01 00:33:42 tom Exp $
+$Id: README,v 12.4 1994/07/02 20:16:51 tom Exp $
 
 --(TO-DO)----------------------------------------------------------------------
 
@@ -66,8 +66,6 @@ DED:
 
 	"o" for options.
 
-	resize
-
 	sys_errlist
 
 	:-commands
@@ -104,3 +102,18 @@ DED:
 
 	make "o" command (in workspace viewer) for toggling options in
 	user-friendly manner.
+
+	make link-substitution allow "%r" and "%e", etc.
+
+	use colors on Linux.
+
+	make ^A toggle workspace completely on/off
+
+	make argument on '*' show items within stack.
+
+	make :cd, :version commands
+
+	make :set shell=FFF, so I can use 'execute()' rather than
+	'system()', maybe get rid of problems with signals.
+
+	make the top of the directory tree number 1.

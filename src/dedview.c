@@ -1,5 +1,5 @@
 #if	!defined(NO_IDENT)
-static	char	Id[] = "$Id: dedview.c,v 12.12 1994/03/09 15:57:35 dickey Exp $";
+static	char	Id[] = "$Id: dedview.c,v 12.13 1994/07/02 20:13:21 tom Exp $";
 #endif
 
 /*
@@ -59,7 +59,9 @@ static	int	curview,		/* 0..MAXVIEW			*/
 /*
  * Store parameters corresponding to the current viewport
  */
-private	void	save_view _ONE(RING *,gbl)
+private	void	save_view (
+	_AR1(RING *,	gbl))
+	_DCL(RING *,	gbl)
 {
 	register VIEW *p = &viewlist[curview];
 	p->curfile = gbl->curfile;
@@ -70,7 +72,9 @@ private	void	save_view _ONE(RING *,gbl)
  * Set 'last_file' as a function of the current viewport and our position in it.
  * Also, set 'last_row' to the row number of the first line after the viewport.
  */
-private	void	setup_view _ONE(RING *,gbl)
+private	void	setup_view (
+	_AR1(RING *,	gbl))
+	_DCL(RING *,	gbl)
 {
 	register int	j	= curview + 1;
 
@@ -133,7 +137,9 @@ private	RING *	ring_view (_AR0)
  * Close the current viewport, advance to the next one, if available, and show
  * the new screen contents.
  */
-private	RING *	quit_view _ONE(RING *,gbl)
+private	RING *	quit_view (
+	_AR1(RING *,	gbl))
+	_DCL(RING *,	gbl)
 {
 	register int j;
 
@@ -197,7 +203,9 @@ private	void	show_line(
 /*
  * Display all files in the current viewport
  */
-private	void	show_view _ONE(RING *,gbl)
+private	void	show_view (
+	_AR1(RING *,	gbl))
+	_DCL(RING *,	gbl)
 {
 	register int j;
 
@@ -214,7 +222,9 @@ private	void	show_view _ONE(RING *,gbl)
 /*
  * Update the number-of-files-tagged display in the given viewport header
  */
-private	void	show_what _ONE(VIEW *,vp)
+private	void	show_what (
+	_AR1(VIEW *,	vp))
+	_DCL(VIEW *,	vp)
 {
 	auto	RING *	gbl = vp->gbl;
 	static	char	datechr[] = "acm";
@@ -283,7 +293,9 @@ private	void	backward(
  * Translate an index into the file-list to a row-number in the screen for the
  * current viewport.
  */
-public	int	file2row _ONE(int,n)
+public	int	file2row (
+	_AR1(int,	n))
+	_DCL(int,	n)
 {
 	return FILE2ROW(vue,n);
 }
@@ -334,7 +346,9 @@ public	void	to_work(
 /*
  * Scroll, as needed, to put current-file in the window
  */
-public	int	to_file _ONE(RING *,gbl)
+public	int	to_file (
+	_AR1(RING *,	gbl))
+	_DCL(RING *,	gbl)
 {
 	register int	code;
 
@@ -460,7 +474,9 @@ public	void	downLINE(
 		showC(gbl);
 }
 
-public	int	showDOWN _ONE(RING *,gbl)
+public	int	showDOWN (
+	_AR1(RING *,	gbl))
+	_DCL(RING *,	gbl)
 {
 	showLINE(gbl, gbl->curfile);
 	dlog_name(cNAME);
@@ -478,7 +494,9 @@ public	int	showDOWN _ONE(RING *,gbl)
  * path) as well as the current setting of the 'C' command.  If any files are
  * tagged, show the heading highlighted.
  */
-public	void	showWHAT _ONE(RING *,gbl)
+public	void	showWHAT (
+	_AR1(RING *,	gbl))
+	_DCL(RING *,	gbl)
 {
 	auto	int	save = vue->curfile = gbl->curfile;
 	register int	j;
@@ -515,7 +533,9 @@ public	void	showLINE(
 /*
  * Display the marker which precedes the workspace
  */
-public	void	showMARK _ONE(int,col)
+public	void	showMARK (
+	_AR1(int,	col))
+	_DCL(int,	col)
 {
 	register int marks, units;
 	int	y, x;
@@ -576,7 +596,9 @@ public	void	showFILES(
 /*
  * Open a new viewport by splitting the current one after the current file.
  */
-public	void	openVIEW _ONE(RING *,gbl)
+public	void	openVIEW (
+	_AR1(RING *,	gbl))
+	_DCL(RING *,	gbl)
 {
 	if (maxview < MAXVIEW) {
 		int	adj,
@@ -610,7 +632,9 @@ public	void	openVIEW _ONE(RING *,gbl)
  * Record instance in which main program switches to a new RING-struct for the
  * current viewport.
  */
-public	void	redoVIEW _ONE(RING *,gbl)
+public	void	redoVIEW (
+	_AR1(RING *,	gbl))
+	_DCL(RING *,	gbl)
 {
 	TRACE(("redoVIEW %s => %s\n", vue->gbl->new_wd, gbl->new_wd))
 	save_view(gbl);
@@ -646,7 +670,9 @@ public	void	scrollVIEW(
 /*
  * Toggle between split- and full-view
  */
-public	RING *	splitVIEW _ONE(RING *,gbl)
+public	RING *	splitVIEW (
+	_AR1(RING *,	gbl))
+	_DCL(RING *,	gbl)
 {
 	if (maxview > 1)	gbl = quit_view(gbl);
 	else			openVIEW(gbl);
@@ -657,7 +683,9 @@ public	RING *	splitVIEW _ONE(RING *,gbl)
  * Adjust the viewport to put the current file at the top, or (if it is already
  * at the top) to the bottom of the viewport.
  */
-public	void	top2VIEW _ONE(RING *,gbl)
+public	void	top2VIEW (
+	_AR1(RING *,	gbl))
+	_DCL(RING *,	gbl)
 {
 	register int	inx = gbl->curfile;
 
@@ -675,7 +703,9 @@ public	void	top2VIEW _ONE(RING *,gbl)
 /*
  * Set the cursor to the current file, noting this in the viewport header.
  */
-public	void	showC _ONE(RING *,gbl)
+public	void	showC (
+	_AR1(RING *,	gbl))
+	_DCL(RING *,	gbl)
 {
 	register int	x = gbl->cmdcol[CCOL_CMD] - gbl->Xbase;
 
@@ -690,7 +720,9 @@ public	void	showC _ONE(RING *,gbl)
 /*
  * Move cursor to the "other" view.
  */
-public	RING *	tab2VIEW _ONE(RING *,gbl)
+public	RING *	tab2VIEW (
+	_AR1(RING *,	gbl))
+	_DCL(RING *,	gbl)
 {
 	save_view(gbl);
 	if (maxview > 1) {
@@ -733,7 +765,9 @@ public	void	markC(
 /*
  * Returns the index in file-list of the first item in the current view.
  */
-public	int	baseVIEW _ONE(RING *,gbl)
+public	int	baseVIEW (
+	_AR1(RING *,	gbl))
+	_DCL(RING *,	gbl)
 {
 	return vue->base_file;
 }
@@ -741,7 +775,9 @@ public	int	baseVIEW _ONE(RING *,gbl)
 /*
  * Returns the index in file-list of the last item in the current view.
  */
-public	int	lastVIEW _ONE(RING *,gbl)
+public	int	lastVIEW (
+	_AR1(RING *,	gbl))
+	_DCL(RING *,	gbl)
 {
 	return vue->last_file;
 }

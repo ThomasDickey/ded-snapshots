@@ -1,5 +1,5 @@
 #if	!defined(NO_IDENT)
-static	char	Id[] = "$Id: deddoit.c,v 12.7 1994/06/30 23:37:23 tom Exp $";
+static	char	Id[] = "$Id: deddoit.c,v 12.9 1994/07/02 20:29:26 tom Exp $";
 #endif
 
 /*
@@ -41,7 +41,9 @@ static	char	Id[] = "$Id: deddoit.c,v 12.7 1994/06/30 23:37:23 tom Exp $";
 /*
  * Return a pointer to a leaf of a given name
  */
-private	char *	subleaf _ONE(char *,name)
+private	char *	subleaf (
+	_AR1(char *,	name))
+	_DCL(char *,	name)
 {
 	char	*leaf	= name;
 
@@ -58,7 +60,9 @@ private	char *	subleaf _ONE(char *,name)
 /*
  * Return a pointer to the "." extension of a given name.
  */
-private	char *	subroot _ONE(char *,name)
+private	char *	subroot (
+	_AR1(char *,	name))
+	_DCL(char *,	name)
 {
 	char	*root;
 
@@ -81,7 +85,7 @@ private	void	Expand(
 	_DCL(DYN *,	subs)
 {
 	char *	cur_name =  cNAME;
-	STAT *	cur_stat = &cSTAT;
+	Stat_t *cur_stat = &cSTAT;
 	FLIST *	cur_item = &cENTRY;
 	char	temp[BUFSIZ],
 		name[BUFSIZ],

@@ -1,7 +1,3 @@
-#if	!defined(NO_IDENT)
-static	char	Id[] = "$Id: restat.c,v 12.1 1993/10/29 20:26:56 dickey Exp $";
-#endif
-
 /*
  * Title:	restat.c ('stat()' and display procedures)
  * Author:	T.E.Dickey
@@ -13,6 +9,8 @@ static	char	Id[] = "$Id: restat.c,v 12.1 1993/10/29 20:26:56 dickey Exp $";
  */
 
 #include	"ded.h"
+
+MODULE_ID("$Id: restat.c,v 12.3 1994/07/02 20:19:06 tom Exp $")
 
 /*
  * re-'stat()' the current line, and optionally group
@@ -40,12 +38,16 @@ public	void	restat(
 	showC(gbl);
 }
 
-public	void	restat_l _ONE(RING *,gbl)
+public	void	restat_l (
+	_AR1(RING *,	gbl))
+	_DCL(RING *,	gbl)
 {
 	restat(gbl,TRUE);
 }
 
-public	void	restat_W _ONE(RING *,gbl)
+public	void	restat_W (
+	_AR1(RING *,	gbl))
+	_DCL(RING *,	gbl)
 {
 	register int j;
 	auto	int	Ylast = lastVIEW(gbl);

@@ -1,5 +1,5 @@
 #if	!defined(NO_IDENT)
-static	char	Id[] = "$Id: dlog.c,v 12.9 1994/07/01 00:09:21 tom Exp $";
+static	char	Id[] = "$Id: dlog.c,v 12.10 1994/07/02 20:14:55 tom Exp $";
 #endif
 
 /*
@@ -48,7 +48,9 @@ static	char	log_name[MAXPATHLEN];
 static	time_t	mark_time;
 static	DYN	*pending;		/* buffers parts of raw-commands */
 
-private	void	show_time _ONE(char *,msg)
+private	void	show_time (
+	_AR1(char *,	msg))
+	_DCL(char *,	msg)
 {
 	auto	time_t	now = NOW;
 
@@ -59,7 +61,9 @@ private	void	show_time _ONE(char *,msg)
  * Find the last character (or escaped-character) in the given string.  Assumes
  * this is formatted by 'encode_logch()'.
  */
-private	char *	find_ending _ONE(char *,s)
+private	char *	find_ending (
+	_AR1(char *,	s))
+	_DCL(char *,	s)
 {
 	register char *mark = 0;
 	while (s != 0 && *s != EOS) {
@@ -73,7 +77,9 @@ private	char *	find_ending _ONE(char *,s)
  * Trims the last "character" in the given edit-string, assumed to be one of
  * "\n", "\U", "\D", quit or the end-character.
  */
-private	void	trim_ending _ONE(DYN *,p)
+private	void	trim_ending (
+	_AR1(DYN *,	p))
+	_DCL(DYN *,	p)
 {
 	register char	*s = find_ending(dyn_string(p));
 	register int	len;
@@ -87,7 +93,9 @@ private	void	trim_ending _ONE(DYN *,p)
 /*
  * Convert the newline-char on the end of the edit-string to an escape-sequence
  */
-private	void	convert_newline _ONE(DYN **,p)
+private	void	convert_newline (
+	_AR1(DYN **,	p))
+	_DCL(DYN **,	p)
 {
 	register char	*s = find_ending(dyn_string(*p));
 	if (s != 0 && *s == '\n') {
@@ -100,7 +108,9 @@ private	void	convert_newline _ONE(DYN **,p)
  * Force a newline-char on the end of the given string, used to finish an edit-
  * command in 'wrawgets()'.
  */
-private	void	supply_newline _ONE(DYN **,p)
+private	void	supply_newline (
+	_AR1(DYN **,	p))
+	_DCL(DYN **,	p)
 {
 	register char	*s = find_ending(dyn_string(*p));
 	if (s != 0 && strcmp(s, "\\n"))
@@ -116,7 +126,9 @@ private	void	supply_newline _ONE(DYN **,p)
  */
 #define	PENDING(s,flag)	flush_pending(flag)
 
-private	void	flush_pending _ONE(int,newline)
+private	void	flush_pending (
+	_AR1(int,	newline))
+	_DCL(int,	newline)
 {
 	if (log_fp) {
 		register char	*s = dyn_string(pending);
@@ -169,7 +181,9 @@ private	int	read_script(_AR0)
  * Read a single-letter command from either the command-file (if open), or
  * from the keyboard.
  */
-private	int	read_char _ONE(int *,count_)
+private	int	read_char (
+	_AR1(int *,	count_))
+	_DCL(int *,	count_)
 {
 	auto	int	num;
 	register int	j;
@@ -230,7 +244,9 @@ private	int	record_char(
  * work only within a single process, though logging is performed on multiple
  * processes.
  */
-public	void	dlog_read _ONE(char *,name)
+public	void	dlog_read (
+	_AR1(char *,	name))
+	_DCL(char *,	name)
 {
 	if (!(cmd_fp = fopen(name, "r")))
 		failed(name);
@@ -289,7 +305,9 @@ public	void	dlog_close(_AR0)
 /*
  * Exit from the current process, marking the final time on the log-file
  */
-public	void	dlog_exit _ONE(int,code)
+public	void	dlog_exit (
+	_AR1(int,	code))
+	_DCL(int,	code)
 {
 	if (log_fp) {
 		show_time("ended");
@@ -614,7 +632,9 @@ public	void	dlog_flush(_AR0)
 /*
  * Annotate the given command with the name of the current entry
  */
-public	void	dlog_name _ONE(char *,name)
+public	void	dlog_name (
+	_AR1(char *,	name))
+	_DCL(char *,	name)
 {
 	dlog_comment("\"%s\"\n", name);
 }

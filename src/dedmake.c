@@ -1,5 +1,5 @@
 #if	!defined(NO_IDENT)
-static	char	Id[] = "$Id: dedmake.c,v 12.2 1994/07/01 23:58:22 tom Exp $";
+static	char	Id[] = "$Id: dedmake.c,v 12.3 1994/07/02 20:29:40 tom Exp $";
 #endif
 
 /*
@@ -89,7 +89,7 @@ private	int	made_or_quit(
 	_DCL(int,	hard)
 	_DCL(char *,	to_edit)
 {
-	auto	STAT	sb;
+	auto	Stat_t	sb;
 	auto	int	ok;
 
 	ok = edittext(gbl, firstc, gbl->cmdcol[CCOL_NAME], BUFSIZ, to_edit);

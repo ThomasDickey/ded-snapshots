@@ -1,5 +1,5 @@
 #if	!defined(NO_IDENT)
-static	char	Id[] = "$Id: dedscan.c,v 12.8 1994/06/26 22:07:45 tom Exp $";
+static	char	Id[] = "$Id: dedscan.c,v 12.9 1994/07/02 20:06:50 tom Exp $";
 #endif
 
 /*
@@ -117,7 +117,9 @@ private	int	lookup (
 /*
  * Clear an FLIST data block.
  */
-private	void	Zero _ONE(FLIST *,	f_)
+private	void	Zero (
+	_AR1(FLIST *,	f_))
+	_DCL(FLIST *,	f_)
 {
 	register char *s = (char *)f_;
 	register int  len = sizeof(FLIST);
@@ -128,7 +130,9 @@ private	void	Zero _ONE(FLIST *,	f_)
  * Reset an FLIST data block.  Release storage used by symbolic link, but
  * retain the name-string.
  */
-private	void	ReZero _ONE(FLIST *,	f_)
+private	void	ReZero (
+	_AR1(FLIST *,	f_))
+	_DCL(FLIST *,	f_)
 {
 	char	*name = f_->name;
 	if (f_->ltxt)	txtfree(f_->ltxt);
@@ -265,7 +269,9 @@ private	int	argstat(
  * Arguments:   argc, argv passed down from the original invocation,	*
  *		with leading options parsed off.			*
  ************************************************************************/
-public	int	dedscan _ONE(RING *,gbl)
+public	int	dedscan (
+	_AR1(RING *,	gbl))
+	_DCL(RING *,	gbl)
 {
 	auto	int	argc	= gbl->top_argc;
 	auto	char **	argv	= gbl->top_argv;
@@ -513,7 +519,9 @@ public	void	statMAKE (
  * Form a regular expression to match the wildcard pattern which the user
  * gave for a filename.
  */
-private	char *	make_EXPR _ONE(char *,path)
+private	char *	make_EXPR (
+	_AR1(char *,	path))
+	_DCL(char *,	path)
 {
 	char	temp[BUFSIZ],
 		*s = path,

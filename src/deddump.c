@@ -1,7 +1,3 @@
-#if	!defined(NO_IDENT)
-static	char	Id[] = "$Id: deddump.c,v 12.1 1993/10/29 20:27:01 dickey Exp $";
-#endif
-
 /*
  * Title:	deddump.c (dump ded's screen)
  * Author:	T.E.Dickey
@@ -17,7 +13,11 @@ static	char	Id[] = "$Id: deddump.c,v 12.1 1993/10/29 20:27:01 dickey Exp $";
 
 #include	"ded.h"
 
-public	void	deddump _ONE(RING *,gbl)
+MODULE_ID("$Id: deddump.c,v 12.3 1994/07/02 20:01:12 tom Exp $")
+
+public	void	deddump (
+	_AR1(RING *,	gbl))
+	_DCL(RING *,	gbl)
 {
 	char	bfr[BUFSIZ];
 	if (win2file(stdscr, pathcat(bfr, gethome(), "ded.log")) < 0)

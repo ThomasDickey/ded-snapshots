@@ -1,5 +1,5 @@
 #if	!defined(NO_IDENT)
-static	char	Id[] = "$Id: dedsort.c,v 12.4 1993/12/06 17:21:44 dickey Exp $";
+static	char	Id[] = "$Id: dedsort.c,v 12.5 1994/07/02 20:08:44 tom Exp $";
 #endif
 
 /*
@@ -55,7 +55,9 @@ extern	char	*type_uid2s();
 						 f((int)p2->s.m))
 
 /* sort types so that names beginning with '.' are treated specially */
-private	char *	f_type _ONE(char *,s)
+private	char *	f_type (
+	_AR1(char *,	s))
+	_DCL(char *,	s)
 {
 	register char	*t = ftype(s);
 	if (t != s) {
@@ -266,7 +268,9 @@ private	QSORT_FUNC(compare)
  * perform the requested sort-operation, restoring current-file pointer
  * to point to the original name.
  */
-public	void	dedsort _ONE(RING *,gbl)
+public	void	dedsort (
+	_AR1(RING *,	gbl))
+	_DCL(RING *,	gbl)
 {
 	if (gbl->numfiles > 1) {
 		char	*name = cNAME;
