@@ -1,3 +1,19 @@
+1988-08-01  dickey@software.org
+
+	* src/dedline.c: New file.
+
+	* src/ded.c:
+	broke 'dedline.c' out of 'ded.c', since it was getting too big.
+
+	* src/Makefile:
+	added auto-get production; broke 'dedline.c' out of 'ded.c'
+
+	* src/ded.c: moved Xbase, Ybase to ring-structure.
+
+	* src/dedring.c: save/restore Xbase,Ybase
+
+	* src/ded.h: moved Xbase,Ybase to ring-structure.
+
 1988-07-28  dickey@software.org
 
 	* src/ded2s.c:

@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	sccs_id[] = "@(#)dedring.c	1.16 88/07/11 07:29:56";
+static	char	sccs_id[] = "@(#)dedring.c	1.17 88/08/01 11:16:13";
 #endif	lint
 
 /*
@@ -7,6 +7,7 @@ static	char	sccs_id[] = "@(#)dedring.c	1.16 88/07/11 07:29:56";
  * Author:	T.E.Dickey
  * Created:	27 Apr 1988
  * Modified:
+ *		01 Aug 1988, save/restore Xbase,Ybase
  *		11 Jul 1988, added 'tagsort'.
  *		08 Jul 1988, save/restore/clear Y_opt, AT_opt a la Z_opt.
  *		27 Jun 1988, made 'dedrung()' work ok with count.
@@ -41,6 +42,8 @@ typedef	struct	_ring	{
 	char		**top_argv;
 	int		top_argc,
 			clr_sh,
+			Xbase,
+			Ybase,
 			curfile,
 			dateopt,
 			sortord,
@@ -111,6 +114,8 @@ RING	*p;
 	SAVE(top_argc);
 	SAVE(top_argv);
 	SAVE(clr_sh);
+	SAVE(Xbase);
+	SAVE(Ybase);
 	SAVE(curfile);
 	SAVE(dateopt);
 	SAVE(sortord);
@@ -146,6 +151,8 @@ RING	*p;
 	UNSAVE(top_argc);
 	UNSAVE(top_argv);
 	UNSAVE(clr_sh);
+	UNSAVE(Xbase);
+	UNSAVE(Ybase);
 	UNSAVE(curfile);
 	UNSAVE(dateopt);
 	UNSAVE(sortord);

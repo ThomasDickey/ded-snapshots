@@ -1,11 +1,30 @@
-# @(#)Makefile	1.15 88/06/07 06:38:20
+# @(#)Makefile	1.16 88/08/01 13:40:46
 # MAKE-file for directory editor
 B	= ../../bin
+GET	= getdelta
+#
 DED_H   = ded.h ../lib/cmdch.h
 INCLUDES= -I. -I../lib
 CFLAGS  = $(DEFINES) $(INCLUDES) -O
 LIBS	=\
 	../lib/lib.a
+#
+SRCS	=\
+	ded.c \
+        deddump.c \
+        dedfind.c \
+        dedfree.c \
+        deddoit.c \
+        dedline.c \
+        dedname.c \
+        dedring.c \
+        dedscan.c \
+	dedshow.c \
+	dedsort.c \
+	dedtype.c \
+	dedwait.c \
+	ded2s.c \
+	ftree.c
 #
 all:	ded
 #
@@ -24,6 +43,7 @@ ded.a:	\
         dedfind.o\
         dedfree.o\
         deddoit.o\
+        dedline.o\
         dedname.o\
         dedring.o\
         dedscan.o\
@@ -41,6 +61,7 @@ deddoit.o:      $(DED_H) deddoit.c
 deddump.o:      $(DED_H) deddump.c
 dedfind.o:      $(DED_H) dedfind.c
 dedfree.o:      $(DED_H) dedfree.c
+dedline.o:      $(DED_H) dedline.c
 dedname.o:      $(DED_H) dedname.c
 dedring.o:      $(DED_H) dedring.c
 dedscan.o:      $(DED_H) dedscan.c
@@ -59,6 +80,11 @@ install:	$B/ded\
 #
 $B/ded:		ded	; rm -f $@;cp $? $@
 $B/ded.hlp:	ded.hlp	; rm -f $@;cp $? $@
+#
+ded.h\
+ded.hlp\
+$(SRCS):
+	$(GET) -s sccs/s.$@
 #
 lint.out:
 	tdlint -lcurses -ltd\

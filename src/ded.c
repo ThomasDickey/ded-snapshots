@@ -1,12 +1,13 @@
-#ifndef	NO_SCCS_ID
-static	char	sccs_id[] = "@(#)ded.c	1.38 88/07/27 15:42:14";
-#endif	NO_SCCS_ID
+#ifndef	lint
+static	char	sccs_id[] = "@(#)ded.c	1.40 88/08/01 13:46:28";
+#endif	lint
 
 /*
  * Title:	ded.c (directory-editor)
  * Author:	T.E.Dickey
  * Created:	09 Nov 1987
  * Modified:
+ *		01 Aug 1988, moved Xbase,Ybase to ring-structure.
  *		27 Jul 1988, use 'execute()' to parse args, etc., in forkfile.
  *			     modified 'padedit()' to support X-windows.
  *		11 Jul 1988, added '+' mode to sort.
@@ -53,9 +54,6 @@ extern	char	*strchr();
 #define	PAGER	"/usr/ucb/more"
 #endif	PAGER
 
-#define	P_cmd	'p'
-#define	file2row(n)	((n) - Ybase + Yhead + 1)
-
 #ifdef	lint
 #undef	putchar
 #ifndef	SYSTEM5
@@ -67,7 +65,7 @@ extern	char	*strchr();
  * Per-viewport main-module state:
  */
 static	int	Yhead = 0;		/* first line of viewport */
-static	int	Xbase, Ybase;		/* viewport (for scrolling) */
+static	int	is_split;		/* true if screen is split */
 static	int	Xscroll;		/* amount by which to left/right */
 static	int	Ylast;			/* last visible file on screen */
 static	int	tag_count;		/* number of tagged files */
@@ -81,9 +79,6 @@ static	char	whoami[BUFSIZ],		/* my execution-path */
 
 static	char	sortc[] = ".cgilnprstuwGTUyvzZ";/* valid sort-keys */
 					/* (may correspond with cmds) */
-
-static	int	re_edit;		/* flag for 'edittext()' */
-static	char	lastedit[BUFSIZ];	/* command-stream for 'edittext()' */
 
 /************************************************************************
  *	local procedures						*
@@ -111,9 +106,32 @@ viewset()
 	if (Ylast >= numfiles)	Ylast = numfiles-1;
 }
 
+static
+portset()
+{
+	if (is_split) {
+		/* Yhead = curfile */
+		/* recompute mark_W */
+	} else {
+		/* set us to use current port's working directory */
+		/* Yhead = 0 */
+		/* recompute mark_W */
+	}
+	/* redisplay screen (to get boundary of current viewport) */
+}
+
 /************************************************************************
  *	public procedures						*
  ************************************************************************/
+
+/*
+ * Translate an index into the file-list to a row-number in the screen.
+ */
+int
+file2row(n)
+{
+	return ((n) - Ybase + Yhead + 1);
+}
 
 /*
  * Exit from window mode
@@ -451,7 +469,6 @@ int	y,x;
 	unsavewin(TRUE,row);
 }
 
-static
 restat(group)		/* re-'stat()' the current line, and optionally group */
 {
 	if (group) {
@@ -525,379 +542,9 @@ static	char	nbfr[BUFSIZ];
  * Adjust mtime-field so that chmod, chown do not alter it.
  * This fixes Apollo kludges!
  */
-static
 fixtime(j)
 {
 	if (setmtime(flist[j].name, flist[j].s.st_mtime) < 0)	warn("utime");
-}
-
-/*
- * Store/retrieve field-editing commands.  The first character of the buffer
- * 'lastedit[]' is reserved to tell us what the command was.
- */
-static
-replay(cmd)
-{
-int	c;
-static	int	in_edit;
-
-	if (cmd) {
-		in_edit = 1;
-		lastedit[0] = cmd;
-	} else {
-		if (re_edit) {
-			c = lastedit[in_edit++];
-		}
-		if (!re_edit) {
-			c = cmdch((int *)0);
-			if (c == '\r') c = '\n';
-			lastedit[in_edit++] = c;
-			lastedit[in_edit]   = EOS;
-		}
-	}
-	return (c & 0xff);
-}
-
-/*
- * Save AT_opt mode when we are editing inline
- */
-#ifndef	SYSTEM5
-static
-at_save()
-{
-register int x;
-	if (!AT_opt) {	/* chmod applies only to target of symbolic link */
-		for (x = 0; x < numfiles; x++)
-			if (x == curfile || flist[x].flag)
-				if (flist[x].ltxt) {
-					AT_opt = TRUE;
-					statLINE(curfile);
-					return (TRUE);
-				}
-	}
-	return (FALSE);
-}
-#endif	SYSTEM5
-
-/*
- * edit protection-code for current & tagged files
- */
-#define	CHMOD(n)	(flist[n].s.st_mode & 07777)
-
-static
-editprot()
-{
-register
-int	y	= file2row(curfile),
-	x	= 0,
-	c,
-	opt	= P_opt,
-	changed	= FALSE,
-	done	= FALSE;
-#ifndef	SYSTEM5
-int	at_flag	= at_save();
-#endif	SYSTEM5
-
-	if (Xbase > 0) {
-		Xbase = 0;
-		showFILES();
-	}
-
-	(void)replay(P_cmd);
-
-	while (!done) {
-	int	rwx,
-		cols[3];
-
-		showLINE(curfile);
-
-		rwx	= (P_opt ? 1 : 3),
-		cols[0] = cmdcol[0];
-		cols[1] = cols[0] + rwx;
-		cols[2] = cols[1] + rwx;
-
-		move(y, cols[x]);
-		if (!re_edit) refresh();
-		switch (c = replay(0)) {
-		case P_cmd:
-			c = CHMOD(curfile);
-			for (x = 0; x < numfiles; x++) {
-				if (flist[x].flag || x == curfile) {
-					statLINE(x);
-					changed++;
-					if (c != CHMOD(x)) {
-						if (chmod(flist[x].name, c) < 0) {
-							warn(flist[x].name);
-							break;
-						}
-						fixtime(x);
-					}
-				}
-			}
-			done = TRUE;
-			break;
-		case 'q':
-			lastedit[0] = EOS;
-			done = TRUE;
-			break;
-		case ARO_RIGHT:
-		case ' ':
-			if (x < 2)	x++;
-			else		beep();
-			break;
-		case ARO_LEFT:
-		case '\b':
-			if (x > 0)	x--;
-			else		beep();
-			break;
-		default:
-			if (c >= '0' && c <= '7') {
-			int	shift = 6 - (x * rwx);
-				cSTAT.st_mode &= ~(7      << shift);
-				cSTAT.st_mode |= ((c-'0') << shift);
-				if (x < 2)
-					x++;
-			} else if (c == 'P') {
-				P_opt = !P_opt;
-			} else if (c == 's') {
-				if (x == 0)
-					cSTAT.st_mode ^= S_ISUID;
-				else if (x == 1)
-					cSTAT.st_mode ^= S_ISGID;
-				else
-					beep();
-			} else if (c == 't') {
-				if (x == 2)
-					cSTAT.st_mode ^= S_ISVTX;
-				else
-					beep();
-			} else
-				beep();
-		}
-	}
-#ifndef	SYSTEM5
-	if (at_flag) {		/* we had to toggle because of sym-link	*/
-		AT_opt = FALSE;	/* restore mode we toggled from		*/
-		changed = TRUE;	/* force restat on the files anyway	*/
-	}
-#endif	SYSTEM5
-	if (opt != P_opt) {
-		P_opt = opt;
-		showLINE(curfile);
-	}
-	restat(changed);
-}
-
-/*
- * Edit a text-field on the current display line.  Use the arrow keys for
- * moving within the line, and for setting/resetting insert mode.  Use
- * backspace to delete characters.
- */
-static
-edittext(endc, col, len, bfr)
-char	*bfr;
-{
-int	y	= file2row(curfile),
-	x	= 0,
-	c,
-	ec	= erasechar(),
-	kc	= killchar(),
-	insert	= FALSE,
-	delete;
-register char *s;
-
-	if ((col -= Xbase) < 1) {	/* convert to absolute column */
-		col += Xbase;
-		Xbase = 0;
-		showFILES();
-	}
-	(void)replay(endc);
-
-	for (;;) {
-		move(y,col-1);
-		printw("%c", insert ? ' ' : '^');	/* a la rawgets */
-		if (!insert)	standout();
-		for (s = bfr; *s; s++)
-			addch(isprint(*s) ? *s : '?');
-		while ((s++ - bfr) < len)
-			addch(' ');
-		if (!insert)	standend();
-		move(y,x+col);
-		if (!re_edit) refresh();
-
-		delete = -1;
-		c = replay(0);
-
-		if (c == '\n') {
-			return (TRUE);
-		} else if (c == '\t') {
-			insert = ! insert;
-		} else if (insert) {
-			if (isascii(c) && isprint(c)) {
-			int	d,j = 0;
-				do {
-					d = c;
-					c = bfr[x+j];
-				} while (bfr[x+(j++)] = d);
-				bfr[len] = EOS;
-				if (x < len)	x++;
-			} else if (c == ec) {
-				delete = x-1;
-			} else if (c == kc) {
-				delete = x;
-			} else if (c == ARO_LEFT) {
-				if (x > 0)	x--;
-			} else if (c == ARO_RIGHT) {
-				if (x < strlen(bfr))	x++;
-			} else if (c == CTL(b)) {
-				x = 0;
-			} else if (c == CTL(f)) {
-				x = strlen(bfr);
-			} else
-				beep();
-		} else {
-			if (c == 'q') {
-				lastedit[0] = EOS;
-				return (FALSE);
-			} else if (c == endc) {
-				return (TRUE);
-			} else if (c == '\b' || c == ARO_LEFT) {
-				if (x > 0)	x--;
-			} else if (c == '\f' || c == ARO_RIGHT) {
-				if (x < strlen(bfr))	x++;
-			} else if (c == CTL(b)) {
-				x = 0;
-			} else if (c == CTL(f)) {
-				x = strlen(bfr);
-			} else
-				beep();
-		}
-		if (delete >= 0) {
-			x = delete;
-			while (bfr[delete] = bfr[delete+1]) delete++;
-		}
-	}
-}
-
-/*
- * Change file's owner.
- */
-static
-edit_uid()
-{
-register int j;
-int	uid,
-	changed	= FALSE;
-char	bfr[UIDLEN+1];
-
-	if (G_opt) {
-		G_opt = FALSE;
-		showFILES();
-	}
-	if (edittext('u', cmdcol[1], UIDLEN, strcpy(bfr, uid2s(cSTAT.st_uid)))
-	&&  (uid = s2uid(bfr)) >= 0) {
-		for (j = 0; j < numfiles; j++) {
-			if (flist[j].s.st_uid == uid)	continue;
-			if (flist[j].flag || (j == curfile)) {
-				if (chown(flist[j].name,
-					uid, flist[j].s.st_gid) < 0) {
-					warn(flist[j].name);
-					return;
-				}
-				fixtime(j);
-				flist[j].s.st_uid = uid;
-				changed++;
-			}
-		}
-	}
-	restat(changed);
-}
-
-/*
- * Change file's group.
- */
-static
-edit_gid()
-{
-register int j;
-int	gid,
-	changed	= FALSE,
-	root	= (getuid() == 0);
-char	bfr[BUFSIZ];
-
-	if (!G_opt) {
-		G_opt = TRUE;
-		showFILES();
-	}
-	if (edittext('g', cmdcol[1], UIDLEN, strcpy(bfr, gid2s(cSTAT.st_gid)))
-	&&  (gid = s2gid(bfr)) >= 0) {
-	char	newgrp[BUFSIZ];
-	static	char	*fmt = "chgrp -f %s %s";
-
-		(void)strcpy(newgrp, gid2s(gid));
-		for (j = 0; j < numfiles; j++) {
-			if (flist[j].s.st_gid == gid)	continue;
-			if (flist[j].flag || (j == curfile)) {
-				if (root) {
-					if (chown(flist[j].name,
-						flist[j].s.st_uid, gid) < 0) {
-						warn(flist[j].name);
-						return;
-					}
-					flist[j].s.st_gid = gid;
-				} else {
-					FORMAT(bfr, fmt, newgrp, fixname(j));
-					(void)system(bfr);
-				}
-				fixtime(j);
-				if (!root) {
-					statLINE(j);
-					showLINE(j);
-					showC();
-				} else
-					changed++;
-				if (flist[j].s.st_gid != gid) {
-					FORMAT(bfr, fmt, newgrp, fixname(j));
-					dedmsg(bfr);
-					beep();
-					break;
-				}
-			}
-		}
-	}
-	restat(changed);
-}
-
-/*
- * Change file's name
- */
-static
-editname()
-{
-int	len	= COLS - (cmdcol[3] - Xbase) - 1,
-	changed	= 0;
-register int	j;
-char	bfr[BUFSIZ];
-
-#define	EDITNAME(n)	edittext('=', cmdcol[3], len, strcpy(bfr, n))
-	if (EDITNAME(cNAME)) {
-		if (dedname(curfile, bfr) >= 0) {
-			re_edit = TRUE;
-			for (j = 0; j < numfiles; j++) {
-				if (j == curfile)
-					continue;
-				if (flist[j].flag) {
-					(void)EDITNAME(flist[j].name);
-					if (dedname(j, bfr) >= 0)
-						changed++;
-					else
-						break;
-				}
-			}
-			re_edit = FALSE;
-		}
-	}
-	restat(changed);
 }
 
 /*
@@ -921,7 +568,6 @@ char	*arg0, *arg1;
 /*
  * Enter an editor (separate process) for the current-file/directory.
  */
-/*ARGSUSED*/
 static
 editfile(readonly, pad)
 {
@@ -1208,20 +854,19 @@ char	tpath[BUFSIZ],
 			break;
 
 			/* edit specific fields */
-	case P_cmd:	editprot();	break;
+	case 'p':	editprot();	break;
 	case 'u':	edit_uid();	break;
 	case 'g':	edit_gid();	break;
 	case '=':	editname();	break;
 
-	case '"':	re_edit = TRUE;
-			switch (*lastedit) {
-			case P_cmd:	editprot();	break;
+	case '"':	switch (dedline(TRUE)) {
+			case 'p':	editprot();	break;
 			case 'u':	edit_uid();	break;
 			case 'g':	edit_gid();	break;
 			case '=':	editname();	break;
 			default:	beep();
 			}
-			re_edit = FALSE;
+			(void)dedline(FALSE);
 			break;
 
 	case CTL(e):	/* pad-edit */
@@ -1314,6 +959,9 @@ char	tpath[BUFSIZ],
 
 			/* patch: not implemented */
 	case 'X':	/* split/join screen (1 or 2 viewports) */
+			is_split = !is_split;
+			portset();
+			break;
 
 	default:	beep();
 	}; lastc = c; }
