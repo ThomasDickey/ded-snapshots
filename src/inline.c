@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	Id[] = "$Id: inline.c,v 11.11 1992/08/13 14:35:05 dickey Exp $";
+static	char	Id[] = "$Id: inline.c,v 11.12 1992/08/14 07:24:11 dickey Exp $";
 #endif
 
 /*
@@ -28,7 +28,9 @@ typedef	ITEM	{
 	/*ARGSUSED*/
 	def_ALLOC(ITEM)
 
-static	int	re_edit;		/* flag for 'edittext()' */
+static	int	re_edit,	/* flag for replay/editing */
+		my_topc,	/* optional key for items */
+		my_endc;	/* required key for items */
 
 /************************************************************************
  *	local procedures						*
@@ -49,13 +51,14 @@ static	void	show_text(
 		*c2s;
 
 	switch (cmd) {
+	case C_ENDC:	c2s = "ENDC";	break;
+	case C_DONE:	c2s = "DONE";	break;
 	case C_FIND:	c2s = "FIND";	break;
 	case C_INIT:	c2s = "INIT";	break;
 	case C_NEXT:	c2s = "NEXT";	break;
-	case C_TRIM:	c2s = "TRIM";	break;
 	case C_QUIT:	c2s = "QUIT";	break;
 	case C_TOPC:	c2s = "TOPC";	break;
-	case C_ENDC:	c2s = "ENDC";	break;
+	case C_TRIM:	c2s = "TRIM";	break;
 	default:	c2s = isascii(cmd) ? "PLAY" : "?";
 	}
 	c2s = strcat(strcpy(temp_c, c2s), " ");
@@ -104,26 +107,24 @@ private	void	show_item(
 #endif
 
 static
-ITEM *	find_item(
-	_ARX(int,	topc)
-	_AR1(int,	endc)
-		)
-	_DCL(int,	topc)
-	_DCL(int,	endc)
+ITEM *	find_item(_AR0)
 {
 	static	ITEM	*items;
 	register ITEM	*p;
 
+	if (!my_endc)
+		failed("get_inline: no endc defined");
+
 	for (p = items; p != 0; p = p->link)
-		if (p->topc == topc
-		 && p->endc == endc)
+		if (p->topc == my_topc
+		 && p->endc == my_endc)
 			break;
 
 	if (p == 0) {
 		p = ALLOC(ITEM,1);
 		p->link = items;
-		p->topc = topc;
-		p->endc = endc;
+		p->topc = my_topc;
+		p->endc = my_endc;
 		p->play = 0;
 		p->text = dyn_alloc((DYN *)0, 1);
 		p->hist = 0;
@@ -156,6 +157,21 @@ public	int	edit_inline _ONE(int,flag)
 }
 
 /*
+ * Push/pop history for inline editing that cannot be done via 'dlog_string()'
+ */
+public	int	up_inline(_AR0)
+{
+	beep();
+	return FALSE;
+}
+
+public	int	down_inline(_AR0)
+{
+	beep();
+	return FALSE;
+}
+
+/*
  * Store/retrieve field-editing commands.  The first character of the buffer
  * is reserved to tell us what the command was.
  */
@@ -166,7 +182,6 @@ public	int	get_inline (
 	_DCL(int,	c)
 	_DCL(int,	cmd)
 {
-	static	int	my_topc, my_endc;
 	register ITEM *	p;
 
 	if (re_edit <= 0)
@@ -182,11 +197,7 @@ public	int	get_inline (
 		my_endc = c;
 	}
 
-	if (!my_endc && !isascii(cmd)) {
-		failed("get_inline: no endc defined");
-	}
-
-	p = find_item(my_topc, my_endc);
+	p = find_item();
 	p->text = dyn_alloc(p->text, p->play+2);
 
 	switch (cmd) {
@@ -195,6 +206,9 @@ public	int	get_inline (
 
 	case C_INIT:
 		dyn_init(&(p->text), 1);
+		break;
+
+	case C_DONE:	/* save buffer in history */
 		break;
 
 	case C_ENDC:	/* report the last end-character */
@@ -231,11 +245,13 @@ public	int	get_inline (
 		break;
 
 	default:	/* (re)start an editing-string */
-		if (my_endc != c)
-			p = find_item(my_topc, my_endc = c);
+		if (my_endc != c) {
+			my_endc = c;
+			p = find_item();
+		}
 		p->play = 0;
 	}
 
-	SHOW(c, cmd, find_item(my_topc, my_endc))
+	SHOW(c, cmd, find_item())
 	return (c & 0xff);
 }
