@@ -1,5 +1,6 @@
 /*
  * Version-identifier for DED
+ * 25 Jul 1988, added repeat (level) count to ftree's R-command.
  * 11 Jul 1988, added tagsort ("+" between r/s and key in sort).
  * 08 Jul 1988, corrections to @,Y toggles, testing ftree-rename.
  * 16 Jun 1988, added '@'-toggle.
@@ -28,4 +29,4 @@
  * 01 Dec 1987, added '*', '^' commands, made '%' refresh screen
  * 25 Nov 1987, added sccs-support (V,z,Z toggles, V,z,Z sorts)
  */
-static	char	version[] = "@(#)DED Directory Editor (88/07/11 07:42:41)";
+static	char	version[] = "@(#)DED Directory Editor (88/07/25 07:02:35)";

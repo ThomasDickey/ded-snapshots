@@ -1,11 +1,12 @@
 #ifndef	NO_SCCS_ID
-static	char	sccs_id[] = "@(#)ftree.c	1.49 88/07/06 07:31:44";
+static	char	sccs_id[] = "@(#)ftree.c	1.50 88/07/25 06:55:39";
 #endif
 
 /*
  * Author:	T.E.Dickey
  * Created:	02 Sep 1987
  * Modified:
+ *		25 Jul 1988, use repeat-count on 'R' to recur that many levels.
  *		05 Jul 1988, recoded 'ft_rename()' so children are moved too.
  *		29 Jun 1988, added temporary '=' command for testing rename.
  *		27 Jun 1988, recoded 'ft_purge()' so it isn't recursive.
@@ -93,6 +94,7 @@ extern	char	*txtalloc(),
 #define	MAXLVL	999
 
 #define	zMARK(j)	(ftree[j].f_mark & MARKED)
+#define	zLINK(j)	(ftree[j].f_mark & LINKED)
 #define	zROOT(j)	(ftree[j].f_root)
 
 /************************************************************************
@@ -132,17 +134,19 @@ static	FTREE	*ftree;			/* array of database entries	*/
  * Show count while doing things which may be time-consuming.
  */
 static
-fd_slow(count)
+fd_slow(count, pathname)
+char	*pathname;
 {
 static
 time_t	last;
 time_t	this	= time((time_t *)0);
 int	y,x;
 
-	if ((count != 0) && (last != this)) {
+	if ((count == 0) || (last != this)) {
 		getyx(stdscr,y,x);
 		move(0,0);
-		printw("%4d", count);	/* overwrite "path" */
+		printw("%4d: %s", count, pathname);
+		clrtoeol();
 		move(y,x);
 		refresh();
 	} else
@@ -1106,7 +1110,7 @@ register int j;
 		case 'R':	if (ftree[row].f_mark & LINKED)
 					beep();
 				else
-					ft_scan(row);
+					ft_scan(row, num);
 				break;
 		case '+':	while (num-- > 0) {
 					markit(row,MARKED,TRUE);
@@ -1265,32 +1269,46 @@ register int j, k;
  * Scan a given directory, inserting all entries which are themselves valid
  * directories
  */
-ft_scan(node)
+ft_scan(node, levels)
 {
 DIR	*dp;
 struct	direct	*d;
 int	count	= 0;
-char	old[MAXPATHLEN],
-	bfr[MAXPATHLEN], *s_ = bfr;
-
+char	bfr[MAXPATHLEN], *s_ = bfr;
+#ifdef	TEST
+char	old[MAXPATHLEN];
 	abspath(strcpy(old,"."));
+#endif	TEST
 	s_ += strlen(fd_path(bfr,node));
 
 	if (chdir(bfr) < 0)
-		perror(bfr);
+		waitmsg(bfr);
 	else if ((dp = opendir(bfr)) != 0) {
 		ft_remove(bfr);
 		if (strcmp(bfr,zero))	*s_++ = '/';
 		while (d = readdir(dp)) {
-			fd_slow(count++);
+			(void)strcpy(s_, "*");
+			fd_slow(count++, bfr);
 			FORMAT(s_, "%s", d->d_name);
 			if (dotname(s_))		continue;
 			ft_stat(bfr, s_);
 		}
 		ft_purge();
 		(void)closedir(dp);
+
+		/* recur to lower levels if asked */
+		if (levels > 1) {
+			register int j;
+			for (j = node+1; j <= FDlast; j++)
+				if ((zROOT(j) == node) && !zLINK(j))
+					ft_scan(j, levels-1);
+		}
 	}
+#ifdef	TEST
 	(void)chdir(old);
+#else	TEST
+	(void)chdir(new_wd);
+#endif	TEST
 }
 
 /*
