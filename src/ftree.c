@@ -1,5 +1,5 @@
 #ifndef	NO_SCCS_ID
-static	char	sccs_id[] = "@(#)ftree.c	1.42 88/05/16 09:46:45";
+static	char	sccs_id[] = "@(#)ftree.c	1.43 88/05/17 09:06:57";
 #endif
 
 /*
@@ -674,7 +674,7 @@ int	len = 0;
 }
 
 static
-forward(num)
+fd_fwd(num)
 {
 	while (num-- > 0) {
 		if (showlast < FDlast) {
@@ -687,7 +687,7 @@ forward(num)
 }
 
 static
-backward(num)
+fd_bak(num)
 {
 	while (num-- > 0) {
 	register int j, len = 0, base = -1;
@@ -719,7 +719,7 @@ register int j, k = node;
 	}
 	if (k != node) {
 		while (k < showbase)
-			(void)backward(1);
+			(void)fd_bak(1);
 	} else
 		beep();
 	return(k);
@@ -739,7 +739,7 @@ register int j, k = node;
 	}
 	if (k != node) {
 		while (k > showlast)
-			(void)forward(1);
+			(void)fd_fwd(1);
 	} else
 		beep();
 	return(k);
@@ -810,8 +810,8 @@ register int j = node;
 			toggle_sccs();
 	}
 	(void)limits(showbase,showbase);
-	while (node > showlast) (void)forward(1);
-	while (node < showbase) (void)backward(1);
+	while (node > showlast) (void)fd_fwd(1);
+	while (node < showbase) (void)fd_bak(1);
 }
 
 /*
@@ -900,7 +900,7 @@ register int j;
 					row = showlast;
 					num--;
 				}
-				row = forward(num);
+				row = fd_fwd(num);
 			} else
 				beep();
 			break;
@@ -910,7 +910,7 @@ register int j;
 					row = showbase;
 					num--;
 				}
-				row = backward(num);
+				row = fd_bak(num);
 			} else
 				beep();
 			break;
@@ -1202,7 +1202,7 @@ ft_write()
 			PRINTF("writing file \"%s\" (%d)\n", FDname, FDlast);
 #endif	DEBUG
 			(void)write(fid, (char *)&FDlast, sizeof(FDlast));
-			(void)write(fid, ftree, (int)((FDlast+1) * sizeof(FTREE)));
+			(void)write(fid, (char *)ftree, (int)((FDlast+1) * sizeof(FTREE)));
 			for (j = 0; j <= FDlast; j++)
 				(void)write(fid, ftree[j].f_name, strlen(ftree[j].f_name)+1);
 			(void)close(fid);
