@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	Id[] = "$Id: dedwait.c,v 8.1 1991/04/17 07:43:39 dickey Exp $";
+static	char	Id[] = "$Id: dedwait.c,v 8.2 1991/04/22 07:57:02 dickey Exp $";
 #endif	lint
 
 /*
@@ -7,9 +7,12 @@ static	char	Id[] = "$Id: dedwait.c,v 8.1 1991/04/17 07:43:39 dickey Exp $";
  * Author:	T.E.Dickey
  * Created:	01 Dec 1987
  * $Log: dedwait.c,v $
- * Revision 8.1  1991/04/17 07:43:39  dickey
- * added flag to allow this to be used for debugging (non-curses)
+ * Revision 8.2  1991/04/22 07:57:02  dickey
+ * lint
  *
+ *		Revision 8.1  91/04/18  08:09:32  dickey
+ *		added flag to allow this to be used for debugging (non-curses)
+ *		
  *		Revision 8.0  89/03/14  10:58:48  ste_cm
  *		BASELINE Mon Aug 13 15:06:41 1990 -- LINCNT, ADA_TRANS
  *		
@@ -56,7 +59,7 @@ dedwait(cursed)
 		refresh();
 	} else {
 		PRINTF("%s", msg);
-		fflush(stdout);
+		(void)fflush(stdout);
 	}
 
 	dlog_flush();

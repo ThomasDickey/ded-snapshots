@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	what[] = "$Id: ded.c,v 8.5 1991/04/18 07:56:57 dickey Exp $";
+static	char	what[] = "$Id: ded.c,v 8.6 1991/04/22 08:07:45 dickey Exp $";
 #endif	lint
 
 /*
@@ -7,10 +7,13 @@ static	char	what[] = "$Id: ded.c,v 8.5 1991/04/18 07:56:57 dickey Exp $";
  * Author:	T.E.Dickey
  * Created:	09 Nov 1987
  * $Log: ded.c,v $
- * Revision 8.5  1991/04/18 07:56:57  dickey
- * mods to 'dedwait()' and 'dedread()' to debug and guard against
- * user-pattern not finding files.
+ * Revision 8.6  1991/04/22 08:07:45  dickey
+ * re-open standard input if we were reading from a pipe.
  *
+ *		Revision 8.5  91/04/18  08:07:14  dickey
+ *		mods to 'dedwait()' and 'dedread()' to debug and guard against
+ *		user-pattern not finding files.
+ *		
  *		Revision 8.4  91/04/16  08:58:11  dickey
  *		suppress empty-strings from argument list
  *		
@@ -1297,6 +1300,10 @@ char	*argv[];
 		}
 	}
 
+	/* protect against pipes */
+	if (!isatty(fileno(stdin)))
+		*stdin = *freopen("/dev/tty", "r", stdin);
+
 	(void)dedsigs(TRUE);
 	if (!initscr())			failed("initscr");
 	in_screen = TRUE;
@@ -1587,11 +1594,11 @@ char	*argv[];
 			break;
 
 			/* page thru files in work area */
-	case 'h':	dedtype(howami,FALSE,FALSE);
+	case 'h':	dedtype(howami,FALSE,FALSE,FALSE);
 			c = 't';	/* force work-clear if 'q' */
 			break;
 	case 't':	if ((j = realstat(curfile, &sb)) >= 0)
-				dedtype(cNAME,(count != 1),j);
+				dedtype(cNAME,(count != 1),(count>2),j);
 			break;
 
 	case '%':	/* execute shell command with screen refresh */
