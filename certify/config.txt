@@ -1,4 +1,4 @@
-$Id: config.txt,v 12.0 1993/05/06 13:55:00 ste_cm Rel $
+$Id: config.txt,v 12.1 1993/09/24 15:23:05 dickey Exp $
 
 --------------------------------------------------------------------------------
 
@@ -13,4 +13,4 @@ This tool has been tested on the Apollo and Sun systems at the SPC
 
 It is built upon the following prototype libraries and tools:
 
-	TD_LIB (baseline 12+)
+	TD_LIB (baseline 13+)
