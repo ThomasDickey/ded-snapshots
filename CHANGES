@@ -1,3 +1,7 @@
+1987-11-23  dickey@software.org
+
+	* src/ded.hlp: New file.
+
 1987-11-20  dickey@software.org
 
 	* src/Makefile, src/ded.c, src/dedsort.c, src/ded2s.c, src/ded.h:

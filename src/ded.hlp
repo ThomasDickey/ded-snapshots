@@ -1,0 +1,171 @@
+DED (Directory EDitor)
+======================
+
+Syntax:
+------
+  ded [options] [file-specifications]
+
+Options:
+-------
+  All options are the same as display-manipulation commands (except for
+  being prefixed with '-').  These include
+
+  G		toggle user/group display field
+  I		toggle inode/links display field
+  P		toggle file-protection display field
+  S		toggle filesize (in blocks) field
+  r{key}
+  s{key}	provide initial sort (or reverse) by {key}.
+
+Commands:
+--------
+  Most commands are single-character.  Where appropriate, they may be prefixed
+  with a repeat {count} a la 'vi'.
+
+Cursor Movement:
+---------------
+  q		Quit a DED-process
+
+  k		move cursor up {count} lines
+		also: {backspace}, {up_arrow}
+  j		move cursor down {count} lines
+		also: {return}, {down_arrow}
+
+  f		scroll forward {count} screens
+  b		scroll backward {count} screens
+  {left_arrow}	scroll left {count}/3 screens
+  {right_arrow}	scroll right {count}/3 screens
+
+  H		move cursor to first entry on screen
+  M		move cursor to middle of screen
+  L		move cursor to last entry on screen
+
+  /		prompt & search for filename
+  ?		prompt & search backwards for filename
+  n		continue previous search for filename
+  N		do reverse of previous search for filename
+
+Display-Adjustment:
+------------------
+  D		toggle date-field to display
+  G		toggle user/group display field
+  I		toggle inode/links display field
+  P		toggle file protection-mode (octal/normal) display field
+  S		toggle filesize (in blocks) field
+
+  A		move workspace marker up {count} lines
+  a		move workspace marker down {count} lines
+
+  R		re-scan argument list (refresh)
+  W		re-stat entries in the current screen
+  w		refresh window
+  l		re-stat the current entry
+  {space}	clear workspace window
+
+  r{key}	reverse-sort entries
+  s{key}	sort entries.  The {key} suffix denotes the fields
+		which are compared:
+
+		n	filename
+		t	filetype (after first '.')
+		T	filetype (after last '.')
+		w	last-modification date
+		r	last-access date
+		c	last-change date
+		s	size
+		l	number of links
+		p	file-protection mask/mode.
+		i	inode
+		u	user-id (lexically)
+		g	group-id (lexically)
+		U	user-id (numerically)
+		G	group-id (numerically)
+
+Operations on Files:
+-------------------
+  File-oriented commands operate on the current entry.  Where appropriate,
+  commands operate on a tagged {group} of entries as well.
+
+  +		Add the {count} entries to the {group}
+  -		Remove the {count} entries from the {group}
+  _		Remove all entries from the {group}
+
+  p		Edit protection-code for {group} of entries.  The
+		code from the current entry is edited inline.  The
+		result is used for all selected entries.  Editing
+		is done with single characters:
+
+		p	complete command
+		q	abort command
+		[0-7]	set chmod-field
+		{space}	move cursor right 3 columns
+		{backspace} move cursor left 3 columns
+
+  u		Edit user-id field.  The current entry's uid
+		is edited inline and the result used for all
+		selected entries.  Editing is done with single
+		characters.  Toggle insert/cursor modes with
+		up or down arrows.
+
+		u	(cursor) complete command
+		q	(cursor) abort command
+		{backspace} deletes previous character
+		{delete} deletes current character
+		{newline} deletes remainder of field
+
+  g		Edit group-id field.  The current entry's gid
+		is edited inline, and the result used for all
+		selected entries.  Editing is done as in 'u'
+		command, except that 'g' completes command.
+
+  e		If the current entry is a directory, spawn
+		a new DED process with that as argument.
+		If it is a file, invoke the EDITOR (vi) on it.
+
+  v		If the current entry is a directory, spawn
+		a new DED process with that as argument.
+		If it is a file, invoke the BROWSER (view).
+
+  m		run the PAGER (more) on the current file.
+  h		type this help-file in the workspace.
+  t		type the current file, in the workspace
+  T		type the current binary file, in the workspace
+
+  !		Prompt for, and execute a shell command.
+
+To do:
+-----
+  Cleanup sorting, e.g., 's' command is not applicable to devices;
+  should sort by major/minor pairs).
+
+  Make {group} applicable to invocation of 'e', 'v', 'm' commands.
+
+  Provide argument substitution (including for {group}) in '!'
+  command, add '%' to refresh screen.
+
+  Provide help from within workarea pager.
+
+  Should recognize '~' explicitly in shell-commands,
+  and in dedscan-module.
+
+  Do better error diagnostics.
+
+  Make spawned processes inherit options from current one
+
+  Add directory-tree display
+
+  Should make resolution of links more rational (especially when
+  deciding to show/edit a single entry!)
+
+  Provide for 2-display lists/viewports.
+
+  Provide (apollo) for automatically resizing the
+  display if the window size changes.
+
+  Provide 'w' commands in work-area
+  pager, as well as repeat-count on 'f'.
+
+  Add '*' command to show last-command, ':' to edit.
+
+  Correct apollo message about trying to open nil-files
+  (they are not directories!)
