@@ -1,3 +1,22 @@
+1993-11-18  dickey@software.org
+
+	* src/deddoit.c: use entrypoint 'cookterm()'
+
+	* src/dedfind.c:
+	fixed an infinite-loop (happened when I had a symbolic-link at the current
+	file, so I didn't get to the check that found when I'd looped completely
+	around).
+
+	* certify/release.txt, certify/config.txt: recent-hacks
+
+	* src/dedview.c:
+	corrected a place where I didn't update the scale when tabbing between
+	viewports
+
+	* src/ftree.c:
+	mods to make directory tree scroll by single row, and to make "^" command
+	toggle top/bottom positions
+
 1993-11-17  dickey@software.org
 
 	* src/dedview.c:
