@@ -74,7 +74,9 @@ Display-Adjustment:
 
   r{key}	reverse-sort entries
   s{key}	sort entries.  The {key} suffix denotes the fields
-		which are compared:
+		which are compared.  A "+" character may precede the
+		sort-key, denoting that tagged files are sorted apart
+		from others.
 
 		c	last-change date
 		i	inode

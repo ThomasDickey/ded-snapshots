@@ -1,3 +1,20 @@
+1988-07-11  dickey@software.org
+
+	* src/version.h: added tagsort-capability.
+
+	* src/ded.hlp: added description of 'tagsort' capability.
+
+	* src/dedsort.c:
+	implement tagsort: if set, tagged files are sorted to the beginning of
+	the sorted list.
+
+	* src/dedring.c: save/restore 'tagsort'.
+
+	* src/ded.c:
+	if '+' follows 'r' or 's', set tagsort before obtaining sort-key.
+
+	* src/ded.h: added 'tagsort' global.
+
 1988-07-08  dickey@software.org
 
 	* src/version.h: ftree-rename not done, but harmless.
