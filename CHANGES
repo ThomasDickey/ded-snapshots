@@ -1,3 +1,10 @@
+1988-08-04  dickey@software.org
+
+	* src/dedscan.c:
+	use debug-option to show what we try to stat in 'dedscan()'.
+
+	* src/ded.c: added a debug-option.
+
 1988-08-03  dickey@software.org
 
 	* src/Makefile: rewrote into standard format.

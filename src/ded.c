@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	sccs_id[] = "@(#)ded.c	1.45 88/08/03 11:02:32";
+static	char	sccs_id[] = "@(#)ded.c	1.46 88/08/04 07:43:55";
 #endif	lint
 
 /*
@@ -7,6 +7,7 @@ static	char	sccs_id[] = "@(#)ded.c	1.45 88/08/03 11:02:32";
  * Author:	T.E.Dickey
  * Created:	09 Nov 1987
  * Modified:
+ *		04 Aug 1988, added debug-option.
  *		03 Aug 1988, added signal catch/ignore processing.
  *		02 Aug 1988, show column-scale on workspace marker, permit a
  *			     repeat-count for left/right scroll.
@@ -70,6 +71,8 @@ extern	char	*txtalloc();
 #define	MAXVIEW	2		/* number of viewports */
 #define	MINLIST	2		/* minimum length of file-list + header */
 #define	MINWORK	3		/* minimum size of work-area */
+
+int	debug	= FALSE;	/* generic debug-flag */
 
 /*
  * Per-viewport main-module state:
@@ -791,7 +794,7 @@ char	tpath[BUFSIZ],
 		failed("which-path");
 	FORMAT(howami, "%s.hlp", whoami);
 
-	while ((c = getopt(argc, argv, "GIPSUZr:s:z")) != EOF) switch (c) {
+	while ((c = getopt(argc, argv, "GIPSUZr:s:zd")) != EOF) switch (c) {
 	case 'G':	G_opt = !G_opt;	break;
 	case 'I':	I_opt = !I_opt;	break;
 	case 'P':	P_opt = !P_opt;	break;
@@ -804,6 +807,7 @@ char	tpath[BUFSIZ],
 	case 's':
 	case 'r':	if (!sortset(c,*optarg))	usage();
 			break;
+	case 'd':	debug = TRUE;	break;
 	default:	usage();
 			exit(1);
 	}
