@@ -1,5 +1,5 @@
 #if	!defined(NO_IDENT)
-static	char	Id[] = "$Id: deddoit.c,v 12.9 1994/07/02 20:29:26 tom Exp $";
+static	char	Id[] = "$Id: deddoit.c,v 12.10 1994/07/24 00:33:59 tom Exp $";
 #endif
 
 /*
@@ -167,7 +167,6 @@ public	void	deddoit(
 {
 	char	prompt[80];
 	static	DYN	*Subs;
-	static	HIST	*History;
 	register int	c, j;
 	register char	*s;
 
@@ -188,7 +187,7 @@ public	void	deddoit(
 
 		c = FALSE;
 		if (!(s = dlog_string(gbl, prompt, &Subs, (DYN **)0,
-				&History, EOS, 0))) {
+				&cmd_history, EOS, 0))) {
 			showC(gbl);
 			return;
 		}

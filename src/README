@@ -1,4 +1,4 @@
-$Id: README,v 12.11 1994/07/23 15:48:37 tom Exp $
+$Id: README,v 12.12 1994/07/24 01:00:15 tom Exp $
 
 --(TO-DO)----------------------------------------------------------------------
 
@@ -48,8 +48,6 @@ DED:
 
 	rationalize e/E commands
 
-	empty directories
-
 	&-command toggle _all_ hidden files
 
 	allow 'R' command to be interrupted (get partial-scan)
@@ -62,8 +60,6 @@ DED:
 
 	make "x" command split window horizontally, combine with commands
 	for setting displayable fields as in FLIST.
-
-	make ftree's rename-command have command/editing history.
 
 	fix pathname-parsing for things like (in ftree) "~foo/bar"
 
@@ -78,17 +74,12 @@ DED:
 
 	make ^A toggle workspace completely on/off
 
-	make argument on '*' show items within stack.
-
 	make :set shell=FFF, so I can use 'execute()' rather than
 	'system()', maybe get rid of problems with signals.
 
 	make a message-table instead of the beeping.
 
 	use nicer characters than "*" and "=>" in ftree
-
-	chown/chgrp should copy the current entry, not replay the editing
-	codes.
 
 	in directory-tree, allow 0, 1, 2, ..., $ to set the cursor to
 	the corresponding directory level.

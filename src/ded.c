@@ -1,5 +1,5 @@
 #if	!defined(NO_IDENT)
-static	char	Id[] = "$Header: /users/source/archives/ded.vcs/src/RCS/ded.c,v 12.28 1994/07/16 22:27:55 tom Exp $";
+static	char	Id[] = "$Header: /users/source/archives/ded.vcs/src/RCS/ded.c,v 12.30 1994/07/26 18:33:24 tom Exp $";
 #endif
 
 /*
@@ -860,6 +860,7 @@ _MAIN
 {
 #include	"version.h"
 
+	int	box = FALSE;
 	register int	j;
 	auto	Stat_t	sb;
 	auto	int	c,
@@ -877,8 +878,9 @@ _MAIN
 	/* show when entering process */
 	(void)fflush(stdout);
 
-	while ((c = getopt(argc, argv, "aGIOPSTUZc:l:r:s:zdt:n")) != EOF)
+	while ((c = getopt(argc, argv, "abGIOPSTUZc:l:r:s:zdt:n")) != EOF)
 	switch (c) {
+	case 'b':	box = TRUE;	break;
 	case 'a':	COMPLEMENT(gbl->A_opt);	break;
 	case 'G':	COMPLEMENT(gbl->G_opt);	break;
 	case 'I':	COMPLEMENT(gbl->I_opt);	break;
@@ -966,7 +968,7 @@ _MAIN
 #if HAVE_HAS_COLORS
 	(void)start_color();
 #endif
-	boxchars(TRUE);
+	boxchars(box);
 
 	in_screen = TRUE;
 	if (LINES > BUFSIZ || COLS > BUFSIZ) {
@@ -1269,9 +1271,8 @@ _MAIN
 			deddoit(gbl, c,count);
 			break;
 
-	case '*':	/* display last shell command */
-			dedshow(gbl, "Command=", dyn_string(gbl->cmd_sh));
-			showC(gbl);
+	case '*':	/* display last shell command(s) */
+			show_history(gbl, count);
 			break;
 
 	case '/':

@@ -1,5 +1,5 @@
 #ifndef	NO_IDENT
-static	char	Id[] = "$Id: boxchars.c,v 12.2 1994/07/16 23:35:04 tom Exp $";
+static	char	Id[] = "$Id: boxchars.c,v 12.3 1994/07/26 14:24:44 tom Exp $";
 #endif
 
 /*
@@ -11,6 +11,9 @@ static	char	Id[] = "$Id: boxchars.c,v 12.2 1994/07/16 23:35:04 tom Exp $";
  *		alternate characters.
  */
 #include	"ded.h"
+
+#undef	vline
+#undef	hline
 
 public	chtype	bar_space[BAR_WIDTH+1];
 public	chtype	bar_hline[BAR_WIDTH+1];

@@ -1,5 +1,5 @@
 #if	!defined(NO_IDENT)
-static	char	Id[] = "$Id: dedscan.c,v 12.9 1994/07/02 20:06:50 tom Exp $";
+static	char	Id[] = "$Id: dedscan.c,v 12.10 1994/07/24 00:10:39 tom Exp $";
 #endif
 
 /*
@@ -7,6 +7,7 @@ static	char	Id[] = "$Id: dedscan.c,v 12.9 1994/07/02 20:06:50 tom Exp $";
  * Author:	T.E.Dickey
  * Created:	09 Nov 1987
  * Modified:
+ *		23 Jul 1994, force "." into empty filelists.
  *		23 Nov 1993, new blip-code.
  *		29 Oct 1993, ifdef-ident, port to HP/UX.
  *		28 Sep 1993, gcc warnings
@@ -327,8 +328,14 @@ public	int	dedscan (
 					}
 				}
 				(void)closedir(dp);
-				if (!gbl->numfiles)
-					waitmsg("no files found");
+				/*
+				 * If nothing else, force "." to appear in the
+				 * list.  This greatly simplifies the handling
+				 * of empty directory lists!
+				 */
+				if (!gbl->numfiles) {
+					argstat(gbl, ".", TRUE);
+				}
 			} else {
 				waitmsg("cannot open directory");
 				return(0);

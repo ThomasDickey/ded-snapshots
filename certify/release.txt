@@ -1,4 +1,4 @@
-$Id: release.txt,v 12.5 1994/07/23 15:50:20 tom Exp $
+$Id: release.txt,v 12.6 1994/07/24 01:07:16 tom Exp $
 
 --------------------------------------------------------------------------------
 
@@ -37,6 +37,8 @@ New features:
 	+ implemented left/right scrolling in the directory-tree display.
 
 	+ highlight the current level of the directory tree for navigation.
+
+	+ repeat-count of '*' command shows command-stack.
 
 Version 12.0:
 ------------
