@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	Id[] = "$Id: dedview.c,v 10.6 1992/04/06 16:38:50 dickey Exp $";
+static	char	Id[] = "$Id: dedview.c,v 10.11 1992/04/07 16:46:43 dickey Exp $";
 #endif
 
 /*
@@ -23,13 +23,15 @@ static	char	Id[] = "$Id: dedview.c,v 10.6 1992/04/06 16:38:50 dickey Exp $";
 typedef	struct	{
 		int	Yhead;		/* beginning of viewport (row)	*/
 		int	Ybase;		/* beginning of viewport (file)	*/
-		char	*cname;		/* arg for 'findFILE()		*/
-		char	*path;		/* ...so dedring can identify	*/
+		int	curfile;	/* ...save for 'tab2VIEW()'	*/
+		RING	*gbl;		/* ...so dedring can identify	*/
 	} VIEW;
 
-static	VIEW	viewlist[MAXVIEW];
+static	VIEW	viewlist[MAXVIEW],
+		*vue = viewlist;
 
 static	int	Yhead = 0,		/* first line of viewport	*/
+		Ybase,			/* first visible file on screen	*/
 		Ylast,			/* last visible file on screen	*/
 		Ynext;			/* marks end of viewport	*/
 static	int	curview,		/* 0..MAXVIEW			*/
@@ -39,15 +41,23 @@ static	int	curview,		/* 0..MAXVIEW			*/
  *	local procedures						*
  ************************************************************************/
 
-/************************************************************************
- *	public	utility procedures					*
- ************************************************************************/
+/*
+ * Store parameters corresponding to the current viewport
+ */
+private	void	save_view _ONE(RING *,gbl)
+{
+	vue = &viewlist[curview];
+	vue->Yhead = Yhead;
+	vue->Ybase = Ybase;
+	vue->curfile = gbl->curfile;
+	vue->gbl   = gbl;
+}
 
 /*
  * Set 'Ylast' as a function of the current viewport and our position in it.
  * Also, set 'Ynext' to the row number of the first line after the viewport.
  */
-public	void	viewset _ONE(RING *,gbl)
+private	void	setup_view _ONE(RING *,gbl)
 {
 	register int	j	= curview + 1;
 
@@ -55,6 +65,105 @@ public	void	viewset _ONE(RING *,gbl)
 	Ylast	= Ynext + Ybase - (Yhead + MINLIST);
 	if (Ylast >= gbl->numfiles)	Ylast = gbl->numfiles - 1;
 }
+
+/*
+ * Switch to the next viewport (do not re-display, this is handled elsewhere)
+ */
+private	void	next_view(
+	_ARX(RING *,	gbl)
+	_AR1(int,	save)
+		)
+	_DCL(RING *,	gbl)
+	_DCL(int,	save)
+{
+	if (save)
+		save_view(gbl);
+	if (++curview >= maxview)
+		curview = 0;
+	vue = &viewlist[curview];
+	Yhead	= vue->Yhead;
+	Ybase	= vue->Ybase;
+	gbl->curfile = vue->curfile;
+	(void)to_file(gbl);
+}
+
+/*
+ * Close the current viewport, advance to the next one, if available, and show
+ * the new screen contents.
+ */
+private	void	quit_view _ONE(RING *,gbl)
+{
+	register int j;
+
+	if (maxview > 1) {
+		maxview--;
+		for (j = curview; j < maxview; j++)
+			viewlist[j] = viewlist[j+1];
+		viewlist[0].Yhead = 0;
+		vue = viewlist + --curview;
+		next_view(gbl,FALSE);	/* load current-viewport */
+		showFILES(gbl,FALSE,TRUE);
+	} else
+		dedmsg(gbl, "no more viewports to quit");
+}
+
+/*
+ * Display all files in the current viewport
+ */
+private	void	show_view _ONE(RING *,gbl)
+{
+	register int j;
+
+	setup_view(gbl);	/* set 'Ylast' as function of mark_W */
+
+	for (j = Ybase; j <= Ylast; j++)
+		showLINE(gbl, j);
+	for (j = file2row(Ylast+1); j < Ynext; j++) {
+		move(j,0);
+		clrtoeol();
+	}
+}
+
+/*
+ * Recompute viewport line-limits for forward/backward scrolling
+ */
+private	void	forward(
+	_ARX(RING *,	gbl)
+	_AR1(int,	n)
+		)
+	_DCL(RING *,	gbl)
+	_DCL(int,	n)
+{
+	while (n-- > 0) {
+		if (Ylast < (gbl->numfiles - 1)) {
+			Ybase = Ylast + 1;
+			setup_view(gbl);
+		} else
+			break;
+	}
+}
+
+private	void	backward(
+	_ARX(RING *,	gbl)
+	_AR1(int,	n)
+		)
+	_DCL(RING *,	gbl)
+	_DCL(int,	n)
+{
+	while (n-- > 0) {
+		if (Ybase > 0) {
+			Ybase -= (Ynext - Yhead - 1);
+			if (Ybase < 0)	Ybase = 0;
+			setup_view(gbl);
+		} else
+			break;
+
+	}
+}
+
+/************************************************************************
+ *	public	utility procedures					*
+ ************************************************************************/
 
 /*
  * Translate an index into the file-list to a row-number in the screen for the
@@ -115,7 +224,7 @@ public	void	to_work(
 public	int	to_file _ONE(RING *,gbl)
 {
 	register int	code;
-	viewset(gbl);		/* ensure that Ylast is up to date */
+	setup_view(gbl);		/* ensure that Ylast is up to date */
 	code	= ((gbl->curfile < Ybase)
 		|| (gbl->curfile > Ylast));
 	while (gbl->curfile > Ylast)	forward(gbl, 1);
@@ -231,42 +340,6 @@ public	int	showDOWN _ONE(RING *,gbl)
 }
 
 /*
- * Recompute viewport line-limits for forward/backward scrolling
- */
-public	void	forward(
-	_ARX(RING *,	gbl)
-	_AR1(int,	n)
-		)
-	_DCL(RING *,	gbl)
-	_DCL(int,	n)
-{
-	while (n-- > 0) {
-		if (Ylast < (gbl->numfiles - 1)) {
-			Ybase = Ylast + 1;
-			viewset(gbl);
-		} else
-			break;
-	}
-}
-
-public	void	backward(
-	_ARX(RING *,	gbl)
-	_AR1(int,	n)
-		)
-	_DCL(RING *,	gbl)
-	_DCL(int,	n)
-{
-	while (n-- > 0) {
-		if (Ybase > 0) {
-			Ybase -= (Ynext - Yhead - 1);
-			if (Ybase < 0)	Ybase = 0;
-			viewset(gbl);
-		} else
-			break;
-	}
-}
-
-/*
  * Show, in the viewport-header, where the cursor points (which file, which
  * path) as well as the current setting of the 'C' command.  If any files are
  * tagged, show the heading highlighted.
@@ -330,23 +403,6 @@ public	void	showLINE(
 }
 
 /*
- * Display all files in the current viewport
- */
-public	void	showVIEW _ONE(RING *,gbl)
-{
-	register int j;
-
-	viewset(gbl);		/* set 'Ylast' as function of mark_W */
-
-	for (j = Ybase; j <= Ylast; j++)
-		showLINE(gbl, j);
-	for (j = file2row(Ylast+1); j < Ynext; j++) {
-		move(j,0);
-		clrtoeol();
-	}
-}
-
-/*
  * Display the marker which precedes the workspace
  */
 public	void	showMARK _ONE(int,col)
@@ -383,10 +439,10 @@ public	void	showFILES(
 			gbl->cmdcol[j] = 0;
 
 	for (j = 0; j < maxview; j++) {
-		showVIEW(gbl);
+		show_view(gbl);
 		if (maxview > 1) {
 			if (j) showWHAT(gbl);
-			nextVIEW(gbl,TRUE);
+			next_view(gbl,TRUE);
 		}
 	}
 	showMARK(gbl->Xbase);
@@ -403,7 +459,7 @@ public	void	showFILES(
 public	void	openVIEW _ONE(RING *,gbl)
 {
 	if (maxview < MAXVIEW) {
-		saveVIEW(gbl);
+		save_view(gbl);
 		if (maxview) {
 			int	adj	= (Yhead = file2row(gbl->curfile) + 1)
 					- (mark_W - MINLIST);
@@ -416,41 +472,37 @@ public	void	openVIEW _ONE(RING *,gbl)
 		} else
 			Yhead = 0;
 		curview = maxview++;	/* patch: no insertion? */
-		saveVIEW(gbl);		/* current viewport */
+		save_view(gbl);		/* current viewport */
 		markset(gbl, mark_W,TRUE);	/* adjust marker, re-display */
 	} else
 		dedmsg(gbl, "too many viewports");
 }
 
 /*
- * Store parameters corresponding to the current viewport
+ * Scroll forward/backward in the current view.
  */
-public	void	saveVIEW _ONE(RING *,gbl)
+public	void	scrollVIEW(
+	_ARX(RING *,	gbl)
+	_AR1(int,	count)
+		)
+	_DCL(RING *,	gbl)
+	_DCL(int,	count)
 {
-	register VIEW *p = &viewlist[curview];
-	p->Yhead = Yhead;
-	p->Ybase = Ybase;
-	p->cname = cNAME;
-}
+	if (count >= 0) {
+		if (Ylast == (gbl->numfiles-1))
+			gbl->curfile = Ylast;
+		else {
+			forward(gbl, count);
+			gbl->curfile = Ybase;
+		}
+	} else {
+		if (gbl->curfile > Ybase)
+			count++;
+		backward(gbl, -count);
+		gbl->curfile = Ybase;
+	}
 
-/*
- * Close the current viewport, advance to the next one, if available, and show
- * the new screen contents.
- */
-public	void	quitVIEW _ONE(RING *,gbl)
-{
-	register int j;
-
-	if (maxview > 1) {
-		maxview--;
-		for (j = curview; j < maxview; j++)
-			viewlist[j] = viewlist[j+1];
-		viewlist[0].Yhead = 0;
-		curview--;
-		nextVIEW(gbl,FALSE);	/* load current-viewport */
-		showFILES(gbl,FALSE,TRUE);
-	} else
-		dedmsg(gbl, "no more viewports to quit");
+	showFILES(gbl,FALSE,FALSE);
 }
 
 /*
@@ -458,31 +510,19 @@ public	void	quitVIEW _ONE(RING *,gbl)
  */
 public	void	splitVIEW _ONE(RING *,gbl)
 {
-	if (maxview > 1)	quitVIEW(gbl);
+	if (maxview > 1)	quit_view(gbl);
 	else			openVIEW(gbl);
 }
 
 /*
- * Switch to the next viewport (do not re-display, this is handled elsewhere)
+ * Adjust the viewport to put the current file at the top.
  */
-public	void	nextVIEW(
-	_ARX(RING *,	gbl)
-	_AR1(int,	save)
-		)
-	_DCL(RING *,	gbl)
-	_DCL(int,	save)
+public	void	top2VIEW _ONE(RING *,gbl)
 {
-	register VIEW *p;
-
-	if (save)
-		saveVIEW(gbl);
-	if (++curview >= maxview)
-		curview = 0;
-	p = &viewlist[curview];
-	Yhead	= p->Yhead;
-	Ybase	= p->Ybase;
-	gbl->curfile = findFILE(gbl, p->cname);
-	(void)to_file(gbl);
+	if (baseVIEW(gbl) != gbl->curfile) {
+		Ybase = gbl->curfile;
+		showFILES(gbl,FALSE,FALSE);
+	}
 }
 
 /*
@@ -507,7 +547,7 @@ public	void	showC _ONE(RING *,gbl)
 public	void	tab2VIEW _ONE(RING *,gbl)
 {
 	if (maxview > 1) {
-		nextVIEW(gbl,TRUE);
+		next_view(gbl,TRUE);
 		showC(gbl);
 	} else
 		dedmsg(gbl, "no other viewport");
@@ -532,26 +572,17 @@ public	void	markC(
 	}
 }
 
-public	void	restat_l _ONE(RING *,gbl)
-{
-	restat(gbl,TRUE);
-}
-
-public	void	restat_W _ONE(RING *,gbl)
-{
-	register int j;
-	for (j = Ybase; j <= Ylast; j++) {
-		statLINE(gbl, j);
-		showLINE(gbl, j);
-	}
-	showC(gbl);
-}
-
+/*
+ * Returns the index in file-list of the first item in the current view.
+ */
 public	int	baseVIEW _ONE(RING *,gbl)
 {
 	return Ybase;
 }
 
+/*
+ * Returns the index in file-list of the last item in the current view.
+ */
 public	int	lastVIEW _ONE(RING *,gbl)
 {
 	return Ylast;

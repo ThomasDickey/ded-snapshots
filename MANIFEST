@@ -1,4 +1,4 @@
-MANIFEST for ded, version t19920406
+MANIFEST for ded, version t19920407
 --------------------------------------------------------------------------------
 MANIFEST                        this file
 Makefile                        top-level makefile for unix directory editor
@@ -15,6 +15,7 @@ src/dedfind.c                   search within file-list
 src/dedfree.c                   deallocate memory used in file-list
 src/dedline.c                   inline commands for file-list
 src/dedmake.c                   create file/directory/link for DED
+src/dedmsgs.c                   write to message/status line
 src/dedname.c                   rename files within file-list
 src/dedread.c                   module which encapsulates knowledge of read-selection expression
 src/dedring.c                   manage ring of file-lists
@@ -22,12 +23,14 @@ src/dedscan.c                   read file-list
 src/dedshow.c                   display file-list
 src/dedsigs.c                   signal-handlers for DED
 src/dedsort.c                   sorting operation for DED
+src/dedtags.c                   tags/grouping operations for DED
 src/dedtype.c                   type/page a file
 src/deduniq.c                   filter lists for uniqueness/key-matches
 src/dedview.c                   viewport functions for DED
 src/dedwait.c                   prompt/wait-for-return
 src/dlog.c                      logging functions
 src/ftree.c                     directory-tree for DED
+src/restat.c                    split off restat-stuff from 'ded.c'
 src/showpath.c                  encapsulates display of long pathnames for 'ded' and 'ftree', using
 src/sortset.c                   controls setting of sort-options & display/modification of preset option
 src/version.h                   version/release history for DED

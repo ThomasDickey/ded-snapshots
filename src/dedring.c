@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	Id[] = "$Id: dedring.c,v 10.19 1992/04/06 16:16:42 dickey Exp $";
+static	char	Id[] = "$Id: dedring.c,v 10.20 1992/04/07 10:28:53 dickey Exp $";
 #endif
 
 /*
@@ -298,9 +298,6 @@ private	RING *	ring_bak _ONE(char *,path)
 private	int	do_a_scan _ONE(RING *,newp)
 {
 	if (dedscan(newp)) {
-		newp->curfile = 0;
-		dedsort(newp);
-		newp->curfile = 0;	/* ensure consistent initial */
 		if (no_worry < 0)	/* start worrying! */
 			no_worry = FALSE;
 		return (TRUE);
@@ -338,6 +335,7 @@ public	void	ring_args(
 {
 	register int	j, k;
 	int	new_argc = 0;
+	int	save_worry = no_worry;
 
 	gbl->top_argv = vecalloc((unsigned)(argc + 2));
 	for (j = 0; j < argc; j++) {	/* already adjusted with 'optind' */
@@ -361,6 +359,10 @@ public	void	ring_args(
 	(void)strcpy(gbl->new_wd, old_wd);
 	MakeSortKey(gbl);
 	ring = gbl;	/* set initial linked-list */
+
+	if (!do_a_scan(gbl))
+		failed((char *)0);
+	no_worry = save_worry;
 }
 
 /*

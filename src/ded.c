@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	Id[] = "$Header: /users/source/archives/ded.vcs/src/RCS/ded.c,v 10.43 1992/04/06 16:36:59 dickey Exp $";
+static	char	Id[] = "$Header: /users/source/archives/ded.vcs/src/RCS/ded.c,v 10.49 1992/04/07 16:05:53 dickey Exp $";
 #endif
 
 /*
@@ -158,13 +158,11 @@ static	char	Id[] = "$Header: /users/source/archives/ded.vcs/src/RCS/ded.c,v 10.4
 
 public	int	debug	= FALSE;	/* generic debug-flag */
 public	int	no_worry = -1;		/* don't prompt on quit */
-
-static	int	Xscroll;		/* amount by which to left/right */
+public	int	in_screen;		/* TRUE if we have init'ed */
 
 /*
  * Other, private main-module state:
  */
-static	int	in_screen;		/* TRUE if we have init'ed */
 static	char	whoami[BUFSIZ],		/* my execution-path */
 		*log_opt,		/* log-file option */
 		*tree_opt,		/* my file-tree database */
@@ -232,61 +230,6 @@ private	int	edithead(
 }
 #endif	/* S_IFLNK */
 
-/*
- * Initialize counters associated with tags
- */
-private	void	init_tags _ONE(RING *,gbl)
-{
-	gbl->tag_count = 0;
-	gbl->tag_bytes = 0;
-	gbl->tag_blocks= 0;
-}
-
-private	void	tag_entry(
-	_ARX(RING *,	gbl)
-	_AR1(int,	inx)
-		)
-	_DCL(RING *,	gbl)
-	_DCL(int,	inx)
-{
-	if (!gFLAG(inx)) {
-		gFLAG(inx) = TRUE;
-		gbl->tag_count++;
-		gbl->tag_bytes += gSTAT(inx).st_size;
-		gbl->tag_blocks += gSTAT(inx).st_blocks;
-	}
-}
-
-private	void	untag_entry(
-	_ARX(RING *,	gbl)
-	_AR1(int,	inx)
-		)
-	_DCL(RING *,	gbl)
-	_DCL(int,	inx)
-{
-	if (gFLAG(inx)) {
-		gFLAG(inx) = FALSE;
-		gbl->tag_count--;
-		gbl->tag_bytes -= gSTAT(inx).st_size;
-		gbl->tag_blocks -= gSTAT(inx).st_blocks;
-	}
-}
-
-/*
- * Re-count the files which are tagged
- */
-private	void	count_tags _ONE(RING *,gbl)
-{
-	register int j;
-	init_tags(gbl);
-	for (j = 0; j < gbl->numfiles; j++) {
-		if (gFLAG(j)) {
-			gFLAG(j) = FALSE;
-			tag_entry(gbl,j);
-		}
-	}
-}
-
 /************************************************************************
  *	public	utility procedures					*
  ************************************************************************/
@@ -334,86 +277,9 @@ public	int	realstat(
 }
 
 /*
- * Clear the message-line
- */
-public	void	clearmsg(_AR0)
-{
-	move(LINES-1,0);
-	clrtoeol();		/* clear off the waiting-message */
-}
-
-/*
- * Print an error/warning message, optionally pausing
- */
-private	void	show_message(
-	_ARX(RING *,	gbl)
-	_ARX(char *,	tag)
-	_AR1(char *,	msg)
-		)
-	_DCL(RING *,	gbl)
-	_DCL(char *,	tag)
-	_DCL(char *,	msg)
-{
-	if (in_screen) {
-		move(LINES-1,0);
-		PRINTW("** %.*s", COLS-4, msg);
-		clrtoeol();
-		if (gbl == 0) {
-			/* pause beside error message */
-			/* ...and clear it after pause */
-			move(LINES-1,0);
-			refresh();
-			beep();
-			(void)dlog_char((int *)0,-1);
-			clrtoeol();
-		} else
-			showC(gbl);
-	} else {
-		FPRINTF(stderr, "?? %s\n", msg);
-	}
-	dlog_comment("(%s) %s\n", tag, msg);
-}
-
-private	char *	err_msg _ONE(char *,msg)
-{
-	static	char	bfr[BUFSIZ];
-	if (msg == 0)	msg = "?";
-	FORMAT(bfr, "%s: %s", msg, sys_errlist[errno]);
-	return (bfr);
-}
-
-public	void	dedmsg(
-	_ARX(RING *,	gbl)
-	_AR1(char *,	msg)
-		)
-	_DCL(RING *,	gbl)
-	_DCL(char *,	msg)
-{
-	show_message(gbl, "dedmsg", msg);
-}
-
-public	void	warn(
-	_ARX(RING *,	gbl)
-	_AR1(char *,	msg)
-		)
-	_DCL(RING *,	gbl)
-	_DCL(char *,	msg)
-{
-	show_message(gbl, "warn", err_msg(msg));
-}
-
-/*
- * Wait for the user to hit a key before the next screen is shown.  This is
- * used when we have put a message up and may be going back to the
- * directory tree display.
- */
-waitmsg		_ONE(char *,msg) { show_message((RING *)0, "waitmsg", msg); }
-wait_warn	_ONE(char *,msg) { waitmsg(err_msg(msg)); }
-
-/*
  * Fatal-error exit from this process
  */
-failed _ONE(char *,msg)
+public	int	failed _ONE(char *,msg)
 {
 	if (debug) {
 		FPRINTF(stderr, "failed?");
@@ -534,32 +400,6 @@ int	y,x;
 }
 
 /*
- * re-'stat()' the current line, and optionally group
- */
-public	void	restat(
-	_ARX(RING *,	gbl)
-	_AR1(int,	group)
-		)
-	_DCL(RING *,	gbl)
-	_DCL(int,	group)
-{
-	if (group) {
-	register int j;
-		for (j = 0; j < gbl->numfiles; j++) {
-			if (j != gbl->curfile) {
-				if (gFLAG(j)) {
-					statLINE(gbl, j);
-					showLINE(gbl, j);
-				}
-			}
-		}
-	}
-	statLINE(gbl, gbl->curfile);
-	showLINE(gbl, gbl->curfile);
-	showC(gbl);
-}
-
-/*
  * Process the given function in a repeat-loop which is interruptable.
  */
 public	void	resleep(
@@ -672,28 +512,19 @@ private	RING *	pattern_args(
 }
 
 	/* re-scan argument list */
-public	RING *	rescan(
+private	RING *	rescan(
 	_ARX(RING *,	gbl)
-	_ARX(int,	fwd)
-	_AR1(char *,	backto)		/* name to reset to, if possible */
+	_AR1(int,	fwd)
 		)
 	_DCL(RING *,	gbl)
 	_DCL(int,	fwd)
-	_DCL(char *,	backto)
 {
-	register int	j;
+	char	*cur_name = cNAME;
 
 	to_work(gbl,TRUE);
 	init_tags(gbl);
 	if (dedscan(gbl)) {
-		gbl->curfile = 0;	/* numfiles may be less now */
-		dedsort(gbl);
-		gbl->curfile = 0;
-		for (j = 0; j < gbl->numfiles; j++)
-			if (!strcmp(gNAME(j), backto)) {
-				gbl->curfile = j;
-				break;
-			}
+		gbl->curfile = findFILE(gbl, cur_name);
 		(void)to_file(gbl);
 		showFILES(gbl,TRUE,TRUE);
 		return (gbl);
@@ -905,6 +736,11 @@ private	void	trace_pipe _ONE(char *,arg)
 	}
 }
 
+private	int	x_scroll (_AR0)
+{
+	return ((1 + (COLS/4)/10) * 10);
+}
+
 /************************************************************************
  *	main program							*
  ************************************************************************/
@@ -1063,14 +899,7 @@ _MAIN
 	argv += optind;
 	ring_args(gbl, argc, argv);
 
-	if (!dedscan(gbl))
-		failed((char *)0);
-
 	mark_W = (LINES/2);
-	gbl->Xbase = Ybase = 0;
-	Xscroll = (1 + (COLS/4)/10) * 10;
-	dedsort(gbl);
-	gbl->curfile = 0;
 	openVIEW(gbl);
 
 	while (!quit) { switch (c = dlog_char(&count,1)) {
@@ -1086,26 +915,22 @@ _MAIN
 	case 'j':	downLINE(gbl, count);
 			break;
 
-	case 'f':	forward(gbl, count);
-			gbl->curfile = Ybase;
-			showFILES(gbl,FALSE,FALSE);
+	case 'f':	scrollVIEW(gbl, count);
 			break;
 
-	case 'b':	backward(gbl, count);
-			gbl->curfile = Ybase;
-			showFILES(gbl,FALSE,FALSE);
+	case 'b':	scrollVIEW(gbl, -count);
 			break;
 
 	case ARO_LEFT:	if (gbl->Xbase > 0) {
-				if ((gbl->Xbase -= Xscroll * count) < 0)
+				if ((gbl->Xbase -= x_scroll() * count) < 0)
 					gbl->Xbase = 0;
 				showFILES(gbl,FALSE,FALSE);
 			} else
 				dedmsg(gbl, "already at left margin");
 			break;
 
-	case ARO_RIGHT:	if (gbl->Xbase + (Xscroll * count) < 990) {
-				gbl->Xbase += Xscroll * count;
+	case ARO_RIGHT:	if ((j = (gbl->Xbase + (x_scroll() * count))) < 990) {
+				gbl->Xbase = j;
 				showFILES(gbl,FALSE,FALSE);
 			} else
 				beep();
@@ -1121,10 +946,7 @@ _MAIN
 	case 'L':	gbl->curfile = lastVIEW(gbl);
 			showC(gbl);
 			break;
-	case '^':	if (Ybase != gbl->curfile) {
-				Ybase = gbl->curfile;
-				showFILES(gbl,FALSE,FALSE);
-			}
+	case '^':	top2VIEW(gbl);
 			break;
 
 			/* display-toggles */
@@ -1149,7 +971,7 @@ _MAIN
 
 			/* note that '.' and '..' may be the only files! */
 	case '&':	COMPLEMENT(gbl->A_opt); /* sorry about inconsistency */
-			quit = !(gbl = rescan(gbl, TRUE, strcpy(tpath, cNAME)));
+			quit = !(gbl = rescan(gbl, TRUE));
 			break;
 	case 'G':	gbl->G_opt = one_or_both(j = gbl->G_opt,count);
 			showFILES(gbl,(gbl->G_opt != 2) != (j != 2), FALSE);
@@ -1217,10 +1039,9 @@ _MAIN
 			break;
 
 	case CTL('R'):	/* modify read-expression */
-			(void)strcpy(tpath, cNAME);
 			while (dedread(gbl, &gbl->toscan, gbl->numfiles == 0)) {
 				RING *new;
-				if (new = rescan(gbl, FALSE, tpath)) {
+				if (new = rescan(gbl, FALSE)) {
 					gbl = new;
 					break;
 				}
@@ -1228,7 +1049,7 @@ _MAIN
 			break;
 
 	case 'R':	/* re-stat display-list */
-			quit = !(gbl = rescan(gbl, TRUE, strcpy(tpath, cNAME)));
+			quit = !(gbl = rescan(gbl, TRUE));
 			break;
 
 	case 'W':	/* re-stat window */
