@@ -19,7 +19,7 @@
 
 #ifdef	MAIN
 #if	!defined(NO_IDENT)
-static const char ded_h[] = "$Id: ded.h,v 12.59 2000/10/19 09:33:00 tom Exp $";
+static const char ded_h[] = "$Id: ded.h,v 12.61 2001/01/30 01:49:45 tom Exp $";
 #endif
 #endif	/* MAIN */
 
@@ -85,18 +85,24 @@ static const char ded_h[] = "$Id: ded.h,v 12.59 2000/10/19 09:33:00 tom Exp $";
  */
 #define	FLIST	struct	_flist
 	FLIST	{
-	FLIST	*next;
-	char	*name;		/* name (within working-directory)	*/
-	char	*ltxt;		/* what link resolves to		*/
+	FLIST	*z_next;
+	char	*z_name;	/* name (within working-directory)	*/
+	char	*z_ltxt;	/* what link resolves to		*/
 	Stat_t	s;		/* stat()-block				*/
-	short	namlen;		/* length of 'name' field		*/
-	short	dord;		/* directory-order, for "d" sort	*/
-	char	flag;		/* tag-flag				*/
+	short	z_namlen;	/* length of 'z_name' field		*/
+	short	z_dord;		/* directory-order, for "d" sort	*/
+	char	z_flag;		/* tag-flag				*/
 #ifdef	Z_RCS_SCCS
 	char	*z_vers;	/* last sccs-release, version		*/
 	char	*z_lock;	/* current locker (user-name)		*/
 	time_t	z_time;		/* last sccs delta-date			*/
 #endif	/* Z_RCS_SCCS */
+#ifdef MIXEDCASE_FILENAMES
+#define z_real_name z_name
+#else
+#define z_real_name z_mono_name
+	char	*z_mono_name;	/* z_name, monocased for sorting	*/
+#endif
 	};
 
 /*
@@ -105,22 +111,22 @@ static const char ded_h[] = "$Id: ded.h,v 12.59 2000/10/19 09:33:00 tom Exp $";
 #define for_each_file(gbl,x) for (x = 0; x < gbl->numfiles; x++)
 
 #define	gENTRY(x)	gbl->flist[x]	/* passed-thru as argument */
-#define	gNAME(x)	gENTRY(x).name
+#define	gNAME(x)	gENTRY(x).z_name
 #define	gSTAT(x)	gENTRY(x).s
-#define	gLTXT(x)	gENTRY(x).ltxt
-#define	gFLAG(x)	gENTRY(x).flag
-#define	gDORD(x)	gENTRY(x).dord
+#define	gLTXT(x)	gENTRY(x).z_ltxt
+#define	gFLAG(x)	gENTRY(x).z_flag
+#define	gDORD(x)	gENTRY(x).z_dord
 
 #define	gVERS(x)	gENTRY(x).z_vers
 #define	gLOCK(x)	gENTRY(x).z_lock
 #define	gTIME(x)	gENTRY(x).z_time
 
 #define	cENTRY		gENTRY(gbl->curfile)
-#define	cNAME		cENTRY.name
+#define	cNAME		cENTRY.z_name
 #define	cSTAT		cENTRY.s
-#define	cLTXT		cENTRY.ltxt
-#define	cFLAG		cENTRY.flag
-#define	cDORD		cENTRY.dord
+#define	cLTXT		cENTRY.z_ltxt
+#define	cFLAG		cENTRY.z_flag
+#define	cDORD		cENTRY.z_dord
 
 #define	cVERS		cENTRY.z_vers
 #define	cLOCK		cENTRY.z_lock

@@ -3,6 +3,8 @@
  * Author:	T.E.Dickey
  * Created:	09 Nov 1987
  * Modified:
+ *		30 Jan 2001, avoid aborting on initscr failure (use -d option,
+ *			     or $DED_DEBUG variable to get this behavior).
  *		19 Oct 2000, add '-p' option to print selected pathnames.
  *		08 Apr 2000, remove unneeded call for ncurses' trace().
  *		16 Aug 1999, use ttyname() for BeOS port.
@@ -159,7 +161,7 @@
 #define	MAIN
 #include	"ded.h"
 
-MODULE_ID("$Header: /users/source/archives/ded.vcs/src/RCS/ded.c,v 12.66 2000/10/19 09:43:53 tom Exp $")
+MODULE_ID("$Header: /users/source/archives/ded.vcs/src/RCS/ded.c,v 12.68 2001/01/30 09:56:00 tom Exp $")
 
 #define	EDITOR	DEFAULT_EDITOR
 #define	BROWSE	DEFAULT_BROWSE
@@ -304,7 +306,8 @@ public	void	failed (
 		FPRINTF(stderr, "-------- \n?? %-79s\n-------- \n", msg);
 	if (msg) {
 		(void)fflush(stderr);
-		abort();
+		if (getenv("DED_DEBUG") != 0 || debug)
+			abort();
 	}
 
 	dlog_exit(FAIL);
@@ -1008,12 +1011,20 @@ _MAIN
 	(void)dedsigs(TRUE);
 	(void)dedsize((RING *)0);
 
+	if (getenv("TERM") == 0) {
+		FPRINTF(stderr, "$TERM is not set\n");
+		return(FAIL);
+	}
 #if HAVE_NEWTERM
-	if (!newterm(getenv("TERM"), do_select ? stderr : stdout, stdin))
-		failed("newterm");
+	if (!newterm(getenv("TERM"), do_select ? stderr : stdout, stdin)) {
+		FPRINTF(stderr, "newterm failed to initialize screen\n");
+		return(FAIL);
+	}
 #else
-	if (!initscr())
-		failed("initscr");
+	if (!initscr()) {
+		FPRINTF(stderr, "initscr failed to initialize screen\n");
+		return(FAIL);
+	}
 #endif
 
 #if HAVE_WSCRL

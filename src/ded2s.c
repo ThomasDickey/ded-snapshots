@@ -61,7 +61,7 @@
 #include	<time.h>
 #include	<ctype.h>
 
-MODULE_ID("$Id: ded2s.c,v 12.24 2000/10/19 01:40:20 tom Exp $")
+MODULE_ID("$Id: ded2s.c,v 12.25 2001/01/30 01:04:43 tom Exp $")
 
 #if MAJOR_IN_MKDEV
 #  include	<sys/mkdev.h>
@@ -189,7 +189,7 @@ public	void	ded2s(
 	register unsigned mj;
 	register int	c;
 	char	*t,
-		*name = f_->name,
+		*name = f_->z_name,
 		*base = bfr;
 
 	/* Translate the filemode (type+protection) */
@@ -216,7 +216,7 @@ public	void	ded2s(
 
 #ifdef	S_IFLNK
 	/* show symbolic link target mode in uppercase */
-	if (gbl->AT_opt && f_->ltxt) {
+	if (gbl->AT_opt && f_->z_ltxt) {
 		for (t = base; *t; t++)
 			UpperCase(*t);
 	}
@@ -344,11 +344,11 @@ public	void	ded2s(
 	/* translate the filename */
 	SETCOL(bfr, CCOL_NAME);
 	len -= (bfr-base);
-	f_->namlen = ded2string(gbl, bfr, len, name, FALSE);
-	bfr += f_->namlen;
+	f_->z_namlen = ded2string(gbl, bfr, len, name, FALSE);
+	bfr += f_->z_namlen;
 
 #ifdef	S_IFLNK
-	if ((t = f_->ltxt) != 0) {
+	if ((t = f_->z_ltxt) != 0) {
 		*bfr++ = ' ';
 		*bfr++ = '-';
 		*bfr++ = '>';

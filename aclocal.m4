@@ -1,4 +1,4 @@
-dnl $Id: aclocal.m4,v 12.9 2000/11/02 01:49:38 tom Exp $
+dnl $Id: aclocal.m4,v 12.10 2001/01/30 00:55:35 tom Exp $
 dnl Macros for DED configure script.
 dnl ---------------------------------------------------------------------------
 dnl ---------------------------------------------------------------------------
@@ -269,7 +269,7 @@ AC_DEFUN([CF_LIB_PREFIX],
 [
 	case $cf_cv_system_name in
 	OS/2*)	LIB_PREFIX=''     ;;
-	os2)	LIB_PREFIX=''     ;;
+	os2*)	LIB_PREFIX=''     ;;
 	*)	LIB_PREFIX='lib'  ;;
 	esac
 ifelse($1,,,[$1=$LIB_PREFIX])
@@ -392,7 +392,7 @@ dnl Provide a value for the $PATH and similar separator
 AC_DEFUN([CF_PATHSEP],
 [
 	case $cf_cv_system_name in
-	os2)	PATHSEP=';'  ;;
+	os2*)	PATHSEP=';'  ;;
 	*)	PATHSEP=':'  ;;
 	esac
 ifelse($1,,,[$1=$PATHSEP])
@@ -550,9 +550,7 @@ dnl Make an uppercase version of a variable
 dnl $1=uppercase($2)
 AC_DEFUN([CF_UPPER],
 [
-changequote(,)dnl
 $1=`echo "$2" | sed y%abcdefghijklmnopqrstuvwxyz./-%ABCDEFGHIJKLMNOPQRSTUVWXYZ___%`
-changequote([,])dnl
 ])dnl
 dnl ---------------------------------------------------------------------------
 dnl Use AC_VERBOSE w/o the warnings

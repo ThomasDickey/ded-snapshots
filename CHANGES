@@ -1,3 +1,23 @@
+2001-01-30  Thomas E. Dickey  <dickey@clark.net>
+
+	* src/dedscan.c: lookup based on z_real_name
+
+	* src/dedscan.c: check for null-pointer in alloc_name()
+
+	* src/ded.c: retain abort(), but make it optional
+
+2001-01-29  Thomas E. Dickey  <dickey@clark.net>
+
+	* src/dedfree.c, src/dedscan.c, src/dedsort.c, src/ded.h:
+	caseless-filenames
+
+	* src/ded.h, src/dedsort.c, src/dedscan.c, src/dedfree.c, src/dedcolor.c, src/ded2s.c, src/dedview.c:
+	renaming-FLIST-members
+
+	* src/ded.c: don't abort on newterm/initscr failure...
+
+	* aclocal.m4: workaround for autoconf 2.49c
+
 2000-12-26  Thomas E. Dickey  <dickey@clark.net>
 
 	* src/cnames.rc: sync'd with ccodes.rc
