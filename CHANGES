@@ -1,3 +1,9 @@
+1994-04-01  Thomas E. Dickey  <dickey@clark.net>
+
+	* COPYING: notice for alt.sources
+
+	* COPYING: standardized my language
+
 1994-03-09  dickey@software.org
 
 	* src/dedview.c:
