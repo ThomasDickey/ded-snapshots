@@ -1,3 +1,45 @@
+1992-02-28  dickey@software.org
+
+	* src/dedring.c: *** empty log message ***
+
+	* src/Makefile: use "dyn_string.h"
+
+	* src/dedring.c: corrected save/unsave for 'cmd_sh'
+
+	* src/deddoit.c: oops: cleared 'cmd_sh' in the wrong place
+
+	* src/dedshow.c:
+	rewrote so that I can handle arbitrarily long buffers, as
+	well as to recognize the special nonascii coding for ellipsis
+	used in 'deddoit.c'
+
+	* src/dedring.c:
+	changed type of 'cmd_sh' since it is now a dynamic-string
+
+	* test/run_test.sh: add/use 'traceback.sh'
+
+	* test/Makefile: added 'traceback.sh'
+
+	* src/version.h:
+	(except for 'dlog.c') modified so that shell commands &
+	substitution are done on dynamic-strings, allowing them to
+	be very long. show ellipsis if "#" substitution is longer
+	than 256-chars.
+
+	* src/deddoit.c: recoded to use dynamic strings.
+
+	* src/ded.c, src/ded.h: changed 'cmd_sh' to a dynamic-string
+
+	* src/dedshow.c:
+	gave this a very long command & broke it: fixed by limiting
+	the lines-shown.
+
+	* src/README: afterthoughts
+
+1992-02-28  ste_cm@software.org
+
+	* src/README: BASELINE Thu Jul 16 09:39:01 1992 -- EBPM4 support
+
 1992-02-27  dickey@software.org
 
 	* Makefile: -x option of checkout is obsolete

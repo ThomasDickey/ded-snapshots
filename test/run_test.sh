@@ -1,5 +1,5 @@
 #!/bin/sh
-# $Id: run_test.sh,v 10.0 1991/10/22 12:21:11 ste_cm Rel $
+# $Id: run_test.sh,v 10.1 1992/02/28 10:57:53 dickey Exp $
 #
 # Perform regression tests for unix directory editor.  If we find any problems,
 # show it in the log.
@@ -9,6 +9,12 @@ if ( date >>$TTY )
 then	echo >/dev/null
 else	echo '?? cannot run this script in batch-mode'
 	exit 1
+fi
+#
+if test -f /com/vt100
+then	TB=/com/tb
+else	rm -f core
+T	TB=./traceback.sh
 fi
 #
 # run from test-versions:
@@ -27,7 +33,10 @@ do
 	echo '** running '$F
 	rm -f $F.tmp $F.out $F.dif
 	rm -f /tmp/.ftree
-	ded -t/tmp -c$F.cmd -l$F.out >>$TTY
+	if ( ded -t/tmp -c$F.cmd -l$F.out >>$TTY )
+	then	echo '** normal completion'
+	else	eval $TB
+	fi
 	edit_test.sh $F.out
 	diff $F.cmd $F.tmp >$F.dif
 	if [ -s $F.dif ]

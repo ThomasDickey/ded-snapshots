@@ -1,4 +1,4 @@
-# $Id: Makefile,v 10.0 1991/10/18 10:41:39 ste_cm Rel $
+# $Id: Makefile,v 10.1 1992/02/28 10:57:22 dickey Exp $
 # make-file for testing unix directory editor
 #
 ####### (Development) ##########################################################
@@ -8,7 +8,8 @@ GET	= checkout
 SCRIPTS	=\
 	edit_test.sed\
 	edit_test.sh\
-	run_tests.sh
+	run_tests.sh\
+	traceback.sh
 CMD_FILES=\
 	test1.cmd\
 	test2.cmd\

@@ -1,4 +1,4 @@
-# $Id: Makefile,v 10.2 1992/02/04 10:40:16 dickey Exp $
+# $Id: Makefile,v 10.3 1992/02/28 14:46:43 dickey Exp $
 # MAKE-file for directory editor
 #
 ####### (Environment) ##########################################################
@@ -11,7 +11,7 @@ COPY	= cp -p
 PUT	= rm -f $@; $(COPY) $? $@
 #
 ####### (Command-line Options) #################################################
-DED_H	= ded.h $I/ptypes.h $I/common.h $I/cmdch.h
+DED_H	= ded.h $I/ptypes.h $I/common.h $I/cmdch.h $I/dyn_string.h
 
 INCLUDES= -I. -I$I
 CPP_OPTS= $(DEFINES) $(INCLUDES)

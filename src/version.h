@@ -1,11 +1,17 @@
 /*
- * $Id: version.h,v 10.3 1992/02/17 15:05:55 dickey Exp $
+ * $Id: version.h,v 10.4 1992/02/28 10:49:34 dickey Exp $
  * Version-identifier for DED
  * $Log: version.h,v $
- * Revision 10.3  1992/02/17 15:05:55  dickey
- * make directory-renaming work properly by renaming file-lists
- * as well.
+ * Revision 10.4  1992/02/28 10:49:34  dickey
+ * (except for 'dlog.c') modified so that shell commands &
+ * substitution are done on dynamic-strings, allowing them to
+ * be very long. show ellipsis if "#" substitution is longer
+ * than 256-chars.
  *
+ *		Revision 10.3  92/02/17  15:05:55  dickey
+ *		make directory-renaming work properly by renaming file-lists
+ *		as well.
+ *		
  *		Revision 10.2  92/02/06  10:43:06  dickey
  *		modified z/Z sort to make it easier to use. Now, 'Z' sorts
  *		by difference between checkin/modification times.  Also,
@@ -233,4 +239,4 @@
  * 01 Dec 1987, added '*', '^' commands, made '%' refresh screen
  * 25 Nov 1987, added sccs-support (V,z,Z toggles, V,z,Z sorts)
  */
-static	char	version[] = "$Date: 1992/02/17 15:05:55 $";
+static	char	version[] = "$Date: 1992/02/28 10:49:34 $";
