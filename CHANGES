@@ -1,3 +1,8 @@
+1994-04-26  Thomas E. Dickey  <dickey@clark.net>
+
+	* src/ded.h:
+	Linux has the same regex-code as hpux (maybe HP wasn't wrong...)
+
 1994-04-01  Thomas E. Dickey  <dickey@clark.net>
 
 	* COPYING: notice for alt.sources

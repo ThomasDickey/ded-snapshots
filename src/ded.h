@@ -3,7 +3,7 @@
 
 #ifdef	MAIN
 #if	!defined(NO_IDENT)
-static	char	*ded_h = "$Id: ded.h,v 12.9 1993/12/16 16:08:17 dickey Exp $";
+static	char	*ded_h = "$Id: ded.h,v 12.10 1994/04/26 22:51:20 tom Exp $";
 #endif
 #endif	/* MAIN */
 
@@ -56,7 +56,7 @@ extern	char	*sys_errlist[];
  * SYSTEM5/BSD4.x differences between regular-expression handling:
  */
 #if	defined(SYSTEM5) || defined(__hpux)
-#ifdef __hpux
+#if	defined(__hpux) || defined(linux)
 #include <regex.h>
 #define REGEX_T regex_t
 #define	OLD_REGEX(expr)		regfree(&expr)
