@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	Id[] = "$Id: dedsort.c,v 10.0 1991/10/18 09:53:06 ste_cm Rel $";
+static	char	Id[] = "$Id: dedsort.c,v 10.1 1992/02/06 10:41:25 dickey Exp $";
 #endif
 
 /*
@@ -7,6 +7,8 @@ static	char	Id[] = "$Id: dedsort.c,v 10.0 1991/10/18 09:53:06 ste_cm Rel $";
  * Author:	T.E.Dickey
  * Created:	11 Nov 1987
  * Modified:
+ *		06 Feb 1992, make 'Z' sort by difference between checkin-time
+ *			     and modification-time.
  *		18 Oct 1991, converted to ANSI
  *		17 Jul 1991, added '@' and 'D' sort.
  *		28 Jun 1991, added P-sort (same as p-sort, but keeps "+" for
@@ -155,14 +157,12 @@ _DCL(FLIST *,	p2)
 	case 'c':	cmp = CMP(st_ctime);	break;
 #ifdef	Z_RCS_SCCS
 	case 'Z':
+			cmp = (p1->z_time - p1->s.st_mtime)
+			    - (p2->z_time - p2->s.st_mtime);
+			break;
+
 	case 'z':	if (!(cmp = CMPX(z_time)))
 				cmp = CMP(st_mtime);
-			if (sortopt == 'Z') {
-				if (CHECKED(p1) && !CHECKED(p2))
-					cmp = 1;
-				else if (!CHECKED(p1) && CHECKED(p2))
-					cmp = -1;
-			}
 			break;
 	case 'v':	if (!(s1 = p1->z_vers))	s1 = "";
 			if (!(s2 = p2->z_vers))	s2 = "";
@@ -244,8 +244,13 @@ _DCL(FLIST *,	p1)
 _DCL(FLIST *,	p2)
 {
 	int	cmp = dedsort_cmp(p1,p2);
-	if (!cmp)
-		cmp = strcmp(p1->name, p2->name);
+
+	if (!cmp) {
+		if (sortopt == 'Z')
+			cmp = CMP(st_mtime);
+		else
+			cmp = strcmp(p1->name, p2->name);
+	}
 	return(sortord ? -cmp : cmp);
 }
 

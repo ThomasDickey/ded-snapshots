@@ -1,3 +1,16 @@
+1992-02-06  dickey@software.org
+
+	* src/version.h:
+	modified z/Z sort to make it easier to use. Now, 'Z' sorts
+	by difference between checkin/modification times.  Also,
+	rather than showing only '<' or '>', I show '-' and '+' if
+	only one second difference applies -- makes it simpler to
+	read when looking at apollo restores.
+
+	* src/dedsort.c:
+	modified 'Z' sort to difference between checkin/modification
+	dates.
+
 1992-02-04  dickey@software.org
 
 	* src/ded2s.c:
