@@ -56,7 +56,7 @@
 #define		DIR_PTYPES	/* includes directory-stuff */
 #include	"ded.h"
 
-MODULE_ID("$Id: dedtype.c,v 12.27 1998/02/16 02:09:59 tom Exp $")
+MODULE_ID("$Id: dedtype.c,v 12.28 1998/02/16 18:20:36 tom Exp $")
 
 typedef	struct	{
 	OFF_T	offset;
@@ -187,7 +187,7 @@ private	int	typeconv(
 			if (OptStripped) {
 				if (!isprint(c))
 					c = ' ';
-			} else if (Tcol < END_COL)
+			} else if (Tcol < (int)END_COL)
 				Text[Tcol] = '_';
 		}
 	}
@@ -275,7 +275,7 @@ private	void	MarkLine(
 	static	unsigned allocated_lines = 0;
 
 	*infile += 1;
-	if ((*infile)+2 > allocated_lines) {
+	if ((*infile)+2 > (int)allocated_lines) {
 		allocated_lines = ((*infile) + 100) * 2;
 		LineAt = DOALLOC(LineAt,OFFSETS,allocated_lines);
 	}

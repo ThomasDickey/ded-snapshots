@@ -54,7 +54,7 @@
 
 #include	"ded.h"
 
-MODULE_ID("$Id: dedring.c,v 12.16 1998/02/15 20:50:06 tom Exp $")
+MODULE_ID("$Id: dedring.c,v 12.17 1998/02/16 21:03:45 tom Exp $")
 
 #define	CMP_PATH(a,b)	pathcmp(a, b->new_wd)
 
@@ -147,7 +147,7 @@ private	void	ring_copy(
 	SAVE(U_opt);
 #ifdef	Z_RCS_SCCS
 	SAVE(V_opt);
-	SAVE(Y_opt);
+	SAVE(O_opt);
 	SAVE(Z_opt);
 #endif
 	SAVE(numfiles);
@@ -504,7 +504,7 @@ public	RING *	dedring(
 		if (newp->numfiles == 0) {
 #ifdef	Z_RCS_SCCS
 			newp->V_opt = 0;
-			newp->Y_opt = 0;
+			newp->O_opt = 0;
 			newp->Z_opt = 0;
 #endif
 #ifdef	S_IFLNK

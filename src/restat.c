@@ -11,7 +11,7 @@
 
 #include	"ded.h"
 
-MODULE_ID("$Id: restat.c,v 12.6 1998/02/15 23:42:09 tom Exp $")
+MODULE_ID("$Id: restat.c,v 12.7 1998/02/16 18:22:50 tom Exp $")
 
 /*
  * re-'stat()' the current line, and optionally group
@@ -52,9 +52,9 @@ public	void	restat_W (
 	_DCL(RING *,	gbl)
 {
 	register int j;
-	auto	int	Ylast = lastVIEW(gbl);
+	auto	int	Ylast = lastVIEW();
 
-	for (j = baseVIEW(gbl); j <= Ylast; j++) {
+	for (j = baseVIEW(); j <= Ylast; j++) {
 		statLINE(gbl, j);
 		showLINE(gbl, j);
 	}

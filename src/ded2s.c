@@ -61,7 +61,7 @@
 #include	<time.h>
 #include	<ctype.h>
 
-MODULE_ID("$Id: ded2s.c,v 12.21 1998/02/16 01:51:28 tom Exp $")
+MODULE_ID("$Id: ded2s.c,v 12.22 1998/02/16 21:12:21 tom Exp $")
 
 #if MAJOR_IN_MKDEV
 #  include	<sys/mkdev.h>
@@ -320,7 +320,7 @@ public	void	ded2s(
 			FORMAT(bfr, "%-7s ", t);
 			bfr += field(bfr, (unsigned)(OK_S(t)));
 		}
-		if (gbl->Y_opt) {	/* show current lock */
+		if (gbl->O_opt) {	/* show current lock */
 			if (!(t = f_->z_lock))	t = "";
 			FORMAT(bfr, "%-*.*s ", UIDLEN, UIDLEN, t);
 			bfr += field(bfr, (unsigned)(OK_S(t)));

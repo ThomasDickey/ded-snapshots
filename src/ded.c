@@ -153,7 +153,7 @@
 #define	MAIN
 #include	"ded.h"
 
-MODULE_ID("$Header: /users/source/archives/ded.vcs/src/RCS/ded.c,v 12.55 1998/02/16 02:07:35 tom Exp $")
+MODULE_ID("$Header: /users/source/archives/ded.vcs/src/RCS/ded.c,v 12.58 1998/02/16 21:03:58 tom Exp $")
 
 #define	EDITOR	DEFAULT_EDITOR
 #define	BROWSE	DEFAULT_BROWSE
@@ -1069,13 +1069,13 @@ _MAIN
 			break;
 
 			/* cursor-movement in-screen */
-	case 'H':	gbl->curfile = baseVIEW(gbl);
+	case 'H':	gbl->curfile = baseVIEW();
 			showC(gbl);
 			break;
-	case 'M':	gbl->curfile = (baseVIEW(gbl)+lastVIEW(gbl))/2;
+	case 'M':	gbl->curfile = (baseVIEW()+lastVIEW())/2;
 			showC(gbl);
 			break;
-	case 'L':	gbl->curfile = lastVIEW(gbl);
+	case 'L':	gbl->curfile = lastVIEW();
 			showC(gbl);
 			break;
 	case '^':	top2VIEW(gbl);
@@ -1133,9 +1133,9 @@ _MAIN
 			showFILES(gbl,TRUE);
 			break;
 
-	case 'Y':	/* show owner of file lock */
+	case 'O':	/* show owner of file lock */
 			showSCCS(gbl);
-			gbl->Y_opt = !gbl->Y_opt;
+			gbl->O_opt = !gbl->O_opt;
 			showFILES(gbl,TRUE);
 			break;
 
@@ -1340,6 +1340,10 @@ _MAIN
 
 	case CTL('K'):	/* dump the current screen */
 			deddump(gbl);
+			break;
+
+	case 'Y':	/* FIXME: reserve for vertical split */
+			beep();
 			break;
 
 	case 'X':	/* split/join screen (1 or 2 viewports) */

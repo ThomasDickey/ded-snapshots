@@ -3,6 +3,7 @@
  * Author:	T.E.Dickey
  * Created:	18 Jan 1989
  * Modified:
+ *		16 Feb 1998, compiler-warnings
  *		23 Nov 1993, new blip-code.
  *		29 Oct 1993, ifdef-ident
  *		28 Sep 1993, gcc warnings
@@ -15,7 +16,7 @@
  */
 #include	"ded.h"
 
-MODULE_ID("$Id: deduniq.c,v 12.5 1993/11/23 16:42:55 tom Exp $")
+MODULE_ID("$Id: deduniq.c,v 12.6 1998/02/16 16:37:01 tom Exp $")
 
 public	void	deduniq (
 	_ARX(RING *,	gbl)
@@ -24,7 +25,7 @@ public	void	deduniq (
 	_DCL(RING *,	gbl)
 	_DCL(int,	level)
 {
-	register int	j, k;
+	register unsigned j, k;
 	auto	 int	old, new;
 
 	set_dedblip(gbl);

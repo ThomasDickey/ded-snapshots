@@ -90,7 +90,7 @@
 #include	<rcsdefs.h>
 #include	<sccsdefs.h>
 
-MODULE_ID("$Id: dedscan.c,v 12.31 1998/02/16 02:16:30 tom Exp $")
+MODULE_ID("$Id: dedscan.c,v 12.32 1998/02/16 16:44:39 tom Exp $")
 
 #define	def_doalloc	FLIST_alloc
 	/*ARGSUSED*/
@@ -507,20 +507,24 @@ public	void	statMAKE (
 
 	if (mode) {
 		FLIST	dummy;
+		unsigned n;
+
 		memset(&dummy, 0, sizeof(FLIST));
 		dummy.s.st_mode = mode;
 		dummy.s.st_uid  = getuid();
 		dummy.s.st_gid  = getgid();
 		append(gbl, null, &dummy);
-		if ((x = lookup(gbl, null)) != gbl->curfile) {
+
+		if ((x = lookup(gbl, null)) >= 0
+		 && ((n = x) != gbl->curfile)) {
 			FLIST	save;
 			save = gENTRY(x);
-			if (x < gbl->curfile) {
-				while (x++ < gbl->curfile)
-					gENTRY(x-1) = gENTRY(x);
+			if (n < gbl->curfile) {
+				while (n++ < gbl->curfile)
+					gENTRY(n-1) = gENTRY(n);
 			} else {
-				while (x-- > gbl->curfile)
-					gENTRY(x+1) = gENTRY(x);
+				while (n-- > gbl->curfile)
+					gENTRY(n+1) = gENTRY(n);
 			}
 			cENTRY = save;
 		}
