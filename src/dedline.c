@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	Id[] = "$Id: dedline.c,v 10.16 1992/05/27 16:58:20 dickey Exp $";
+static	char	Id[] = "$Id: dedline.c,v 11.0 1992/06/19 10:02:13 ste_cm Rel $";
 #endif
 
 /*
@@ -258,6 +258,7 @@ private	char *	link2bfr(
 		ppp[0].path = ring_path(gbl, 1);
 		ppp[1].path = ring_path(gbl, -1);
 		ppp[2].path = ring_path(gbl, 0);
+		ppp[3].path = old_wd;
 
 		/* ignore duplicates */
 		if (!strcmp(ppp[0].path, ppp[2].path)) ppp[0].path = 0;

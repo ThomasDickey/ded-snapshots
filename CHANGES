@@ -1,3 +1,13 @@
+1992-06-19  dickey@software.org
+
+	* src/dedline.c:
+	correction to link2bfr: table entry for "%D" was getting
+	clobbered sometimes & I dumped core
+
+1992-06-19  ste_cm@software.org
+
+	* src/dedline.c: BASELINE Thu Jul 16 09:39:01 1992 -- EBPM4 support
+
 1992-06-18  dickey@software.org
 
 	* src/deddoit.c: ensure that we have a buffer allocated for 'cmd_sh'
