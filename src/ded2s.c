@@ -1,5 +1,5 @@
 #if	!defined(NO_IDENT)
-static	char	Id[] = "$Id: ded2s.c,v 12.6 1994/05/30 22:11:46 tom Exp $";
+static	char	Id[] = "$Id: ded2s.c,v 12.7 1994/05/31 00:25:38 tom Exp $";
 #endif
 
 /*
@@ -254,10 +254,10 @@ public	void	ded2s(
 #else	/* unix */
 	if (gbl->I_opt)	FORMAT(bfr, "%5lu ", (unsigned long)s->st_ino);
 #endif	/* apollo/unix */
-	else		FORMAT(bfr, "%3d ", s->st_nlink);
+	else		FORMAT(bfr, "%3ld ", (long)s->st_nlink);
 	bfr += field(bfr,mj);
 	if (gbl->I_opt == 2)	{
-		FORMAT(bfr, "%08x ", s->st_dev);
+		FORMAT(bfr, "%08lx ", (long)s->st_dev);
 		bfr += field(bfr,mj);
 	}
 
@@ -289,8 +289,9 @@ public	void	ded2s(
 		if (gbl->S_opt >= 1)
 			bfr += strlen(strcpy(bfr, "      "));
 		if (gbl->S_opt != 1) {
-			FORMAT(bfr, "%3d,%3d ",
-				major(s->st_rdev), minor(s->st_rdev));
+			FORMAT(bfr, "%3ld,%3ld ",
+				(long)major(s->st_rdev),
+				(long)minor(s->st_rdev));
 			bfr += field(bfr,mj);
 		}
 		break;
