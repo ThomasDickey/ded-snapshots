@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	Id[] = "$Id: dedscan.c,v 10.0 1991/10/18 16:39:16 ste_cm Rel $";
+static	char	Id[] = "$Id: dedscan.c,v 10.2 1992/01/02 09:10:03 dickey Exp $";
 #endif
 
 /*
@@ -7,6 +7,8 @@ static	char	Id[] = "$Id: dedscan.c,v 10.0 1991/10/18 16:39:16 ste_cm Rel $";
  * Author:	T.E.Dickey
  * Created:	09 Nov 1987
  * Modified:
+ *		02 Jan 1992, make this work properly if only a filename is
+ *			     specified.
  *		18 Oct 1991, converted to ANSI.
  *			     ** hack 'statLINE()' to avoid apollo cc 6.7 bug.
  *		11 Jul 1991, modified interface to 'showFILES()'
@@ -157,7 +159,8 @@ _DCL(char **,	argv)
 			}
 			if (toscan == 0)
 				ft_purge(); /* remove items not reinserted */
-		}
+		} else if (common == N_FILE)
+			numfiles = 1;
 	}
 
 	/*
@@ -480,6 +483,39 @@ statMAKE _ONE(int,mode)
 }
 
 /*
+ * Form a regular expression to match the wildcard pattern which the user
+ * gave for a filename.
+ */
+static
+make_EXPR _ONE(char *,path)
+{
+	char	temp[BUFSIZ],
+		*s = path,
+		*d = temp;
+	*d++ = '^';
+	while (*s) {
+		if (ispunct(*s)) {
+			if (*s == '?') {
+				*d++ = '.';
+				s++;
+				continue;
+			} else if (*s == '*') {
+				*d++ = '.';
+				*d++ = '*';
+				s++;
+				continue;
+			}
+			*d++ = '\\';
+		}
+		*d++ = *s++;
+	}
+	*d++ = '$';
+	*d   = EOS;
+	dlog_comment("force scan \"%s\"\n", path);
+	toscan = txtalloc(temp);
+}
+
+/*
  * Change to the given directory, and then (try to) get an absolute path by
  * using the 'getwd()' function.  Note that the latter may fail if we follow
  * a symbolic link into a directory in which we have execute, but no read-
@@ -488,8 +524,27 @@ statMAKE _ONE(int,mode)
 path_RESOLVE _ONE(char *,path)
 {
 	char	temp[BUFSIZ];
-	if (chdir(strcpy(temp, path)) < 0)
-		return(FALSE);
+	static	int	tried;
+
+	if (chdir(strcpy(temp, path)) < 0) {
+		if (errno == ENOTDIR
+		 || errno == ENOENT) {
+			char *s = strrchr(temp, '/');
+			if (s != 0) {
+				s[1] = EOS;
+#ifdef	apollo
+				if (strcmp(temp, "//"))
+#endif	/* apollo */
+				if (strcmp(temp, "/"))
+					s[0] = EOS;	/* trim trailing '/' */
+				if (chdir(temp) < 0)
+					return (FALSE);
+				if (!tried++)
+					make_EXPR(path + (s - temp) + 1);
+			}
+		} else
+			return(FALSE);
+	}
 
 	if (getwd(temp))
 		(void) strcpy(path, temp);
