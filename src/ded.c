@@ -3,6 +3,7 @@
  * Author:	T.E.Dickey
  * Created:	09 Nov 1987
  * Modified:
+ *		21 Dec 2002, use setlocale(), needed with ncursesw
  *		16 Apr 2002, make 'T' a 4-way toggle, showing seconds if T=3.
  *		30 Jan 2001, avoid aborting on initscr failure (use -d option,
  *			     or $DED_DEBUG variable to get this behavior).
@@ -162,7 +163,9 @@
 #define	MAIN
 #include	"ded.h"
 
-MODULE_ID("$Header: /users/source/archives/ded.vcs/src/RCS/ded.c,v 12.71 2002/07/05 13:55:00 tom Exp $")
+#include <locale.h>
+
+MODULE_ID("$Header: /users/source/archives/ded.vcs/src/RCS/ded.c,v 12.73 2002/12/21 20:31:16 tom Exp $")
 
 #define	EDITOR	DEFAULT_EDITOR
 #define	BROWSE	DEFAULT_BROWSE
@@ -900,6 +903,9 @@ _MAIN
 	int	do_select = FALSE;
 #endif
 
+#ifdef LOCALE
+	setlocale(LC_ALL, "");
+#endif
 	(void)sortset(gbl, 's', 'n');
 	(void)sscanf(version, "%*s %s %s", tpath, dpath);
 	FPRINTF(stderr, "DED Directory Editor (%s %s)\r\n", tpath, dpath);

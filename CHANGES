@@ -1,3 +1,14 @@
+2002-12-21  Thomas E. Dickey  <dickey@invisible-island.net>
+
+	* src/ded.c: change to use CF_LOCALE
+
+	* src/dedview.c, src/dedsort.c: gcc 3.2 warning
+
+	* src/ded.c:
+	finally needed setlocale(), since ncursesw won't draw lines w/o it.
+
+	* aclocal.m4, configure.in: resync with my-autoconf
+
 2002-07-05  Thomas E. Dickey  <dickey@invisible-island.net>
 
 	* src/ded.c, src/ded.h, src/dedcolor.c:

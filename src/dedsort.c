@@ -43,14 +43,14 @@
 #define	QSORT_SRC	FLIST
 #include	<td_qsort.h>
 
-MODULE_ID("$Id: dedsort.c,v 12.14 2002/04/16 10:13:25 tom Exp $")
+MODULE_ID("$Id: dedsort.c,v 12.15 2002/12/21 20:27:25 tom Exp $")
 
 #define	CHECKED(p)	(p->z_time == p->s.st_mtime)
 #define	CMPF(f)	(f(&(p1->s)) > f(&(p2->s)) ? -1 : (f(&(p1->s)) < f(&(p2->s)) ? 1 : 0))
 #define	CMPX(m)		(p1->m > p2->m ? -1 : (p1->m < p2->m ? 1 : 0))
 #define	CMP(m)		CMPX(s.m)
-#define	CMP2S(f,m)	cmp = strcmp(strcpy(bfr, f((int)p1->s.m)),\
-						 f((int)p2->s.m))
+#define	CMP2S(f,m)	strcmp(strcpy(bfr, f((int)p1->s.m)),\
+					   f((int)p2->s.m))
 
 /* sort types so that names beginning with '.' are treated specially */
 private	char *	f_type (

@@ -1,4 +1,4 @@
-dnl $Id: aclocal.m4,v 12.11 2001/07/15 16:09:38 tom Exp $
+dnl $Id: aclocal.m4,v 12.12 2002/12/21 19:25:13 tom Exp $
 dnl Macros for DED configure script.
 dnl ---------------------------------------------------------------------------
 dnl ---------------------------------------------------------------------------
@@ -49,7 +49,7 @@ test -n "$system_name" && AC_DEFINE_UNQUOTED(SYSTEM_NAME,"$system_name")
 AC_CACHE_VAL(cf_cv_system_name,[cf_cv_system_name="$system_name"])
 
 test -z "$system_name" && system_name="$cf_cv_system_name"
-test -n "$cf_cv_system_name" && AC_MSG_RESULT("Configuring for $cf_cv_system_name")
+test -n "$cf_cv_system_name" && AC_MSG_RESULT(Configuring for $cf_cv_system_name)
 
 if test ".$system_name" != ".$cf_cv_system_name" ; then
 	AC_MSG_RESULT(Cached system name ($system_name) does not agree with actual ($cf_cv_system_name))
@@ -201,67 +201,26 @@ AC_SUBST(TD_LIB_rules)
 dnl ---------------------------------------------------------------------------
 dnl Construct a search-list for a nonstandard header-file
 AC_DEFUN([CF_HEADER_PATH],
-[$1=""
-
+[CF_SUBDIR_PATH($1,$2,include)
 test "$includedir" != NONE && \
-test -d "$includedir" && \
-$1="[$]$1 $includedir $includedir/$2"
+test "$includedir" != "/usr/include" && \
+test -d "$includedir" && {
+	test -d $includedir &&    $1="[$]$1 $includedir"
+	test -d $includedir/$2 && $1="[$]$1 $includedir/$2"
+}
 
 test "$oldincludedir" != NONE && \
-test -d "$oldincludedir" && \
-$1="[$]$1 $oldincludedir $oldincludedir/$2"
+test "$oldincludedir" != "/usr/include" && \
+test -d "$oldincludedir" && {
+	test -d $oldincludedir    && $1="[$]$1 $oldincludedir"
+	test -d $oldincludedir/$2 && $1="[$]$1 $oldincludedir/$2"
+}
 
-test "$prefix" != NONE && \
-test -d "$prefix" && \
-$1="[$]$1 $prefix/include $prefix/include/$2 $prefix/$2/include"
-
-test "$prefix" != /usr/local && \
-test -d /usr/local && \
-$1="[$]$1 /usr/local/include /usr/local/include/$2 /usr/local/$2/include"
-
-test "$prefix" != /usr && \
-$1="[$]$1 /usr/include /usr/include/$2 /usr/$2/include"
-
-test "$prefix" != /opt && \
-test -d /opt && \
-$1="[$]$1 /opt/include /opt/include/$2 /opt/$2/include"
-
-$1="[$]$1 [$]HOME/lib [$]HOME/lib/$2 [$]HOME/$2/lib"
 ])dnl
 dnl ---------------------------------------------------------------------------
 dnl Construct a search-list for a nonstandard library-file
 AC_DEFUN([CF_LIBRARY_PATH],
-[$1=""
-
-test "$libdir" != NONE && \
-test -d $libdir && \
-$1="[$]$1 $libdir $libdir/$2"
-
-test "$exec_prefix" != NONE && \
-test -d $exec_prefix && \
-$1="[$]$1 $exec_prefix/lib $exec_prefix/lib/$2"
-
-test "$prefix" != NONE && \
-test "$prefix" != "$exec_prefix" && \
-test -d $prefix && \
-$1="[$]$1 $prefix/lib $prefix/lib/$2 $prefix/$2/lib"
-
-test "$prefix" != /usr/local && \
-test -d /usr/local && \
-$1="[$]$1 /usr/local/lib /usr/local/lib/$2 /usr/local/$2/lib"
-
-test "$prefix" != /usr && \
-$1="[$]$1 /usr/lib /usr/lib/$2 /usr/$2/lib"
-
-test "$prefix" != / && \
-$1="[$]$1 /lib /lib/$2 /$2/lib"
-
-test "$prefix" != /opt && \
-test -d /opt && \
-$1="[$]$1 /opt/lib /opt/lib/$2 /opt/$2/lib"
-
-$1="[$]$1 [$]HOME/lib [$]HOME/lib/$2 [$]HOME/$2/lib"
-])dnl
+[CF_SUBDIR_PATH($1,$2,lib)])dnl
 dnl ---------------------------------------------------------------------------
 dnl Compute the library-prefix for the given host system
 dnl $1 = variable to set
@@ -549,6 +508,60 @@ CF_EOF
 fi
 test -f $1/$2/makefile.end && \
     cat $1/$2/makefile.end >>$2/makefile
+])dnl
+dnl ---------------------------------------------------------------------------
+dnl Construct a search-list for a nonstandard header/lib-file
+dnl	$1 = the variable to return as result
+dnl	$2 = the package name
+dnl	$3 = the subdirectory, e.g., bin, include or lib
+AC_DEFUN([CF_SUBDIR_PATH],
+[$1=""
+
+test -d [$]HOME && {
+	test -n "$verbose" && echo "	... testing $3-directories under [$]HOME"
+	test -d [$]HOME/$3 &&    $1="[$]$1 [$]HOME/$3"
+	test -d [$]HOME/$3/$2 && $1="[$]$1 [$]HOME/$3/$2"
+}
+
+# For other stuff under the home directory, it should be sufficient to put
+# a symbolic link for $HOME/$2 to the actual package location:
+test -d [$]HOME/$2 && {
+	test -n "$verbose" && echo "	... testing $3-directories under [$]HOME/$2"
+	test -d [$]HOME/$2/$3 &&    $1="[$]$1 [$]HOME/$2/$3"
+	test -d [$]HOME/$2/$3/$2 && $1="[$]$1 [$]HOME/$2/$3/$2"
+}
+
+test "$prefix" != /usr/local && \
+test -d /usr/local && {
+	test -n "$verbose" && echo "	... testing $3-directories under /usr/local"
+	test -d /usr/local/$3 &&    $1="[$]$1 /usr/local/$3"
+	test -d /usr/local/$3/$2 && $1="[$]$1 /usr/local/$3/$2"
+	test -d /usr/local/$2/$3 && $1="[$]$1 /usr/local/$2/$3"
+}
+
+test "$prefix" != NONE && \
+test -d $prefix && {
+	test -n "$verbose" && echo "	... testing $3-directories under $prefix"
+	test -d $prefix/$3 &&    $1="[$]$1 $prefix/$3"
+	test -d $prefix/$3/$2 && $1="[$]$1 $prefix/$3/$2"
+	test -d $prefix/$2/$3 && $1="[$]$1 $prefix/$2/$3"
+}
+
+test "$prefix" != /opt && \
+test -d /opt && {
+	test -n "$verbose" && echo "	... testing $3-directories under /opt"
+	test -d /opt/$3 &&    $1="[$]$1 /opt/$3"
+	test -d /opt/$3/$2 && $1="[$]$1 /opt/$3/$2"
+	test -d /opt/$2/$3 && $1="[$]$1 /opt/$2/$3"
+}
+
+test "$prefix" != /usr && \
+test -d /usr && {
+	test -n "$verbose" && echo "	... testing $3-directories under /usr"
+	test -d /usr/$3 &&    $1="[$]$1 /usr/$3"
+	test -d /usr/$3/$2 && $1="[$]$1 /usr/$3/$2"
+	test -d /usr/$2/$3 && $1="[$]$1 /usr/$2/$3"
+}
 ])dnl
 dnl ---------------------------------------------------------------------------
 dnl Make an uppercase version of a variable
