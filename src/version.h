@@ -1,11 +1,16 @@
 /*
- * $Id: version.h,v 11.1 1992/08/05 09:18:55 dickey Exp $
+ * $Id: version.h,v 11.2 1992/08/07 13:44:36 dickey Exp $
  * Version-identifier for DED
  * $Log: version.h,v $
- * Revision 11.1  1992/08/05 09:18:55  dickey
- * added '/', '?', 'n', 'N' search commands to workspace pager.
- * also added '<' and '>' commands to workspace pager.
+ * Revision 11.2  1992/08/07 13:44:36  dickey
+ * added command-history to the non-inline text commands
+ * (e.g., filelist ':', '/', '?', pager '/', '?', and directory
+ * tree '/', '?', '@', '~').
  *
+ *		Revision 11.1  92/08/05  09:18:55  dickey
+ *		added '/', '?', 'n', 'N' search commands to workspace pager.
+ *		also added '<' and '>' commands to workspace pager.
+ *		
  *		Revision 11.0  92/04/08  13:17:04  ste_cm
  *		BASELINE Thu Jul 16 09:39:01 1992 -- EBPM4 support
  *		
@@ -252,4 +257,4 @@
  * 01 Dec 1987, added '*', '^' commands, made '%' refresh screen
  * 25 Nov 1987, added sccs-support (V,z,Z toggles, V,z,Z sorts)
  */
-static	char	version[] = "$Date: 1992/08/05 09:18:55 $";
+static	char	version[] = "$Date: 1992/08/07 13:44:36 $";

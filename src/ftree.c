@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	Id[] = "$Id: ftree.c,v 11.4 1992/08/06 13:53:01 dickey Exp $";
+static	char	Id[] = "$Id: ftree.c,v 11.5 1992/08/07 13:37:18 dickey Exp $";
 #endif
 
 /*
@@ -1182,6 +1182,7 @@ public	RING *	ft_view(
 	_DCL(int *,	cmdp)
 {
 	static	 DYN *	my_text;
+	static	 HIST 	*JumpHistory, *FindHistory;
 	auto	 RING *	tmp;
 	auto	 int	row,
 			lvl,
@@ -1308,21 +1309,25 @@ public	RING *	ft_view(
 			*cwdpath = EOS;
 		case '~':
 		case '@':
+			j = (c == '@' || c == '~');
 			if (!isalpha(c)) {
 				move(PATH_ROW,0);
-				PRINTW((c != '@') ? "find: " : "jump: ");
+				PRINTW(j ? "jump: " : "find: ");
 				clrtoeol();
 
 				my_text = dyn_copy(my_text,
 					(c == '~') ? "~" : cwdpath);
-				s = dlog_string(&my_text,(DYN **)0,NO_HISTORY,MAXPATHLEN);
+				s = dlog_string(&my_text,(DYN **)0,
+					j ? &JumpHistory : &FindHistory,
+					MAXPATHLEN);
 
 				if (!*s && c != '@') {
 					c = -1;
 					beep();
 				}
 			}
-			if (c != '@' && c != '~')
+
+			if (!j)
 				c = fd_find(s,c,row);
 			else if (!*s)
 				c = 0;
