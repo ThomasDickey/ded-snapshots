@@ -1,13 +1,17 @@
 #ifndef	NO_SCCS_ID
-static	char	sccs_id[] = "@(#)ftree.c	1.4 87/09/11 17:02:18";
+static	char	sccs_id[] = "@(#)ftree.c	1.5 87/09/15 11:59:21";
 #endif
 
 /*
+ * Author:	T.E.Dickey
  * Created:	02 Sep 1987
  * Modified:
  *
  * Function:	This module performs functions supporting a file-tree display.
  *		We show the names of directories in tree-form.
+ *
+ * Configure:	DEBUG	- dump a logfile in readable form at the end
+ *		TEST	- make a standalone program (otherwise, part of 'fl')
  */
 
 #include	<ptypes.h>
@@ -107,7 +111,7 @@ register int level = this ? 1 : 0;
  */
 static
 char *
-fd_line(this,height)
+fd_line(height)
 {
 	if (height != 1) {
 		return("|   ");
@@ -126,8 +130,8 @@ char	*bfr;
 char	tmp[MAXPATHLEN];
 	*bfr = '\0';
 	do {
-		strcpy(tmp, bfr);
-		strcat(strcat(strcpy(bfr, "/"), ftree[node].f_name), tmp);
+		(void)strcpy(tmp, bfr);
+		(void)strcat(strcat(strcpy(bfr, "/"), ftree[node].f_name), tmp);
 	}
 	while (node = ftree[node].f_root);
 	return(bfr);
@@ -147,7 +151,7 @@ register char *s, *d;
 	if (*path == '/')
 		;
 	else if (*path)
-		printf("relative...\n");
+		failed("relative path?");
 
 	/* trim out repeated '/' marks */
 	for (s = d = path; *s; s++) {
@@ -188,23 +192,6 @@ fd_show(node)
 			return(FALSE);
 	}
 	return(TRUE);
-}
-
-/*
- * Skip past the display, for exiting back to normal non-screen output
- */
-static
-fd_skip()
-{
-	if ((FDlast+2 - showbase) < LINES) {
-		move(FDlast+2, 0);
-		refresh();
-	} else {
-		move(LINES-1,0);
-		refresh();
-		(void)touchwin(curscr);
-		PRINTF("\n");
-	}
 }
 
 /************************************************************************
@@ -285,11 +272,9 @@ register FTREE *f;
 }
 
 /*
- * Mark nodes below a given path in the database for removal, unless they
- * are added back before the database is written out.  The pathname argument
- * is in absolute form.
+ * Locate the node corresponding to a particular path.
  */
-ft_remove(path)
+ft_find(path)
 char	*path;
 {
 register int j, this, last = 0;
@@ -315,10 +300,22 @@ register int j, this, last = 0;
 		if (this) {
 			last = this;
 		} else {
-			printf("not found: %s\n", path);
-			return;
+			failed(path);
+			/*NOTREACHED*/
 		}
 	}
+	return(last);
+}
+
+/*
+ * Mark nodes below a given path in the database for removal, unless they
+ * are added back before the database is written out.  The pathname argument
+ * is in absolute form.
+ */
+ft_remove(path)
+char	*path;
+{
+int	last = ft_find(path);
 	if (last) ftree[last].f_mark |= MARKED;
 }
 
@@ -365,7 +362,7 @@ char	cwdpath[MAXPATHLEN];
 			failed("stat \".ftree\"");
 		size = sb.st_size;
 		if (size % sizeof(FTREE))
-			printf("? size error\n");
+			failed("? size error");
 		else {
 			FDlast = (size / sizeof(FTREE)) - 1;
 			fd_alloc();
@@ -383,10 +380,11 @@ char	cwdpath[MAXPATHLEN];
 	/* inherit sense of 'Z' toggle from database */
 	for (j = 0; j <= FDlast; j++) {
 		if (ftree[j].f_mark & NOSCCS) {
-			savesccs = showsccs = FALSE;
+			showsccs = FALSE;
 			break;
 		}
 	}
+	savesccs = showsccs;
 }
 
 /*
@@ -395,23 +393,23 @@ char	cwdpath[MAXPATHLEN];
  * status line, moving to the common nodes only if the user directs so.
  */
 static
-ft_show(node, level)
+ft_show(path, node, level)
+char	*path;
 {
 register int j, k;
 int	row = 0;
 
 	move(row++,0);
 	node = limits(showbase, node);
-	printw("<<%03d..%03d>> ", showbase, showlast);
-	printw("row:%3d:%d  level:%3d  diff:%d\n",
-		node, FDlast, level, FDdiff + (savesccs != showsccs));
+	printw("path: %.*s", COLS-8, path);
+	clrtoeol();
 	if (showdiff != FDdiff) {
 		for (j = showbase; j <= showlast; j++) {
 			if (!fd_show(j)) continue;
 			move(row++,0);
 			printw("%4d. ", j);
 			for (k = fd_level(j); k > 0; k--)
-				printw(fd_line(j,k));
+				printw(fd_line(k));
 			printw("%.*s/%c",
 				DIRSIZ, ftree[j].f_name,
 				ftree[j].f_mark ? '*' : ' ');
@@ -547,36 +545,48 @@ markit(node,flag,on)
 }
 
 /*
- * Interactively display the directory tree and modify it
+ * Interactively display the directory tree and modify it.  The return value
+ * is used by the coroutine as the next command.
  */
 ft_view()
 {
-int	row	= 1,
-	level	= 0,
+static
+int	row,
+	lvl,
 	count	= 0,
 	c;
+char	cwdpath[MAXPATHLEN];
 register int j;
 
+	/* set initial position */
+	(void)limits(showbase,showbase);
+	row = ft_find(getcwd(cwdpath,sizeof(cwdpath)-2));
+	lvl = fd_level(row);
+	while (row > showlast) (void)forward(1);
+
+	/* process commands */
 	for (;;) {
 	int	num = count ? count : 1;
 
-		row = ft_show(row, level);
+		c = fd_level(row) + 1;
+		if (c < lvl) lvl = c;	/* loosely drag down level */
+		row = ft_show(fd_path(cwdpath,row), row, lvl);
 
 		switch(c = getch()) {
 		/* Ordinary cursor movement */
 		case '\b':
-		case 'h':	if (level > 0) {
-					level -= num;
-					if (level < 0) level = 0;
+		case 'h':	if (lvl > 0) {
+					lvl -= num;
+					if (lvl < 0) lvl = 0;
 				}
 				else
 					beep();
 				break;
 		case '\r':
 		case '\n':
-		case 'j':	row = downrow(row,num,level);	break;
-		case 'k':	row = uprow(row,num,level);	break;
-		case 'l':	level += num;			break;
+		case 'j':	row = downrow(row,num,lvl);	break;
+		case 'k':	row = uprow(row,num,lvl);	break;
+		case 'l':	lvl += num;			break;
 
 		case 'H':	row = showbase;			break;
 		case 'L':	row = showlast;			break;
@@ -617,11 +627,21 @@ register int j;
 				beep();
 			break;
 
-		/* Exit from this program */
-		case 'q':	fd_skip();			return;
+		/* Exit from this program (back to 'fl') */
+#ifndef	TEST
+		case 'E':
+		case 'e':
+			if (chdir(fd_path(cwdpath,row)) < 0) {
+				beep();
+				break;
+			}
+#endif	TEST
+		case 'D':
+		case 'q':
+			return(c);
 
 		/* Scan/delete nodes */
-		case 'e':	ft_scan(row);			break;
+		case 'i':	ft_scan(row);			break;
 		case 'd':	markit(row,MARKED,TRUE);	break;
 		case 'u':	markit(row,MARKED,FALSE);	break;
 		case 'p':	ft_purge();			break;
@@ -654,6 +674,9 @@ register int j;
 					showdiff = -1;
 				}
 			}
+			(void)limits(showbase,showbase);
+			while (row > showlast) (void)forward(1);
+			while (row < showbase) (void)backward(1);
 			break;
 
 		default:
@@ -666,6 +689,7 @@ register int j;
 	}
 }
 
+#ifdef	DEBUG
 ft_dump()
 {
 FILE	*fp = fopen("ftree.log", "w");
@@ -694,6 +718,7 @@ register int j, k;
 	} else
 		perror("ftree.log");
 }
+#endif	DEBUG
 
 /*
  * Scan a given directory, inserting all entries which are themselves valid
@@ -722,7 +747,7 @@ char	old[MAXPATHLEN],
 			if (!isDIR(sb.st_mode))		continue;
 			ft_insert(bfr);
 		}
-		close(fid);
+		(void)close(fid);
 	}
 	chdir(old);
 }
@@ -736,9 +761,13 @@ ft_done()
 {
 	if (FDdiff || (savesccs != showsccs)) {
 	int	fid;
+#ifdef	DEBUG
 		ft_dump();
+#endif	DEBUG
 		if ((fid = open(FDname, O_WRONLY|O_CREAT|O_TRUNC, 0644)) >= 0) {
+#ifdef	DEBUG
 			PRINTF("writing file \"%s\" (%d)\n", FDname, FDlast);
+#endif	DEBUG
 			(void)write(fid, ftree, (FDlast+1) * sizeof(FTREE));
 			(void)close(fid);
 		} else if (errno != EPERM)
@@ -746,6 +775,7 @@ ft_done()
 	}
 }
 
+#ifdef	TEST
 /*
  * Main program, for standalone applications
  */
@@ -778,9 +808,12 @@ char	*s;
 		ft_purge();
 	(void) initscr();
 	setterm (1,-1,-1,-1);	/* raw; noecho; nonl; nocbreak; */
-	ft_view();
-	ft_done();
+	(void)ft_view();
+	move(LINES-1,0);
+	refresh();
+	PRINTF("\n");
 	endwin();
+	ft_done();
 	(void)exit(0);
 	/*NOTREACHED*/
 }
@@ -791,3 +824,4 @@ char	*s;
 	perror(s);
 	exit(1);
 }
+#endif	TEST
