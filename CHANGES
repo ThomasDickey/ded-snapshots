@@ -1,3 +1,9 @@
+1989-03-07  dickey@software.org
+
+	* src/version.h: corrected some problems with null-strings in ftree
+
+	* src/ftree.c: corrections for null-string in ALL_SHOW and in fd_find
+
 1989-02-28  dickey@software.org
 
 	* src/version.h: *** empty log message ***

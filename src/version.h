@@ -1,5 +1,6 @@
 /*
  * Version-identifier for DED
+ * 07 Mar 1989, corrected ftree interaction between A/@ commands.
  * 28 Feb 1989, plugged a few holes in ft_insert/ft_linkto calls.
  * 23 Jan 1989, added 'N' sort, '-t' option, 'A'-ftree toggle.  Expand '%F' and
  *		'%B' in '>' command.  Added '~'-ftree command.
@@ -41,4 +42,4 @@
  * 01 Dec 1987, added '*', '^' commands, made '%' refresh screen
  * 25 Nov 1987, added sccs-support (V,z,Z toggles, V,z,Z sorts)
  */
-static	char	version[] = "@(#)DED Directory Editor (89/02/28 08:17:29)";
+static	char	version[] = "@(#)DED Directory Editor (89/03/07 10:11:47)";
