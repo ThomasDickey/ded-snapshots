@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	Id[] = "$Id: dedscan.c,v 6.1 1990/04/18 07:36:52 dickey Exp $";
+static	char	Id[] = "$Id: dedscan.c,v 6.2 1990/04/23 13:54:28 dickey Exp $";
 #endif	lint
 
 /*
@@ -7,10 +7,14 @@ static	char	Id[] = "$Id: dedscan.c,v 6.1 1990/04/18 07:36:52 dickey Exp $";
  * Author:	T.E.Dickey
  * Created:	09 Nov 1987
  * $Log: dedscan.c,v $
- * Revision 6.1  1990/04/18 07:36:52  dickey
- * invoke 'rcslast()' to pick up information about permit-file
- * (e.g., "RCS,v").
+ * Revision 6.2  1990/04/23 13:54:28  dickey
+ * modify initial 'chdir()' so we try to recover from unreadable
+ * directory (e.g., when invoking "su" from a protected directory)
  *
+ *		Revision 6.1  90/04/18  07:40:54  dickey
+ *		invoke 'rcslast()' to pick up information about permit-file
+ *		(e.g., "RCS,v").
+ *		
  *		Revision 6.0  89/10/16  08:28:32  ste_cm
  *		BASELINE Thu Mar 29 07:37:55 1990 -- maintenance release (SYNTHESIS)
  *		
@@ -81,6 +85,7 @@ static	char	Id[] = "$Id: dedscan.c,v 6.1 1990/04/18 07:36:52 dickey Exp $";
 #include	"ded.h"
 #include	"rcsdefs.h"
 extern	FLIST	*dedfree();
+extern	char	*pathcat();
 extern	char	*txtalloc();
 
 extern	int	debug;
@@ -110,18 +115,18 @@ char	*argv[];
 
 	flist = dedfree(flist, numfiles);
 	dir_order = 0;
-
 	numfiles = 0;
-	if (chdir(strcpy(new_wd,old_wd)) < 0)
-		failed(old_wd);
+
 	if (argc > 1) {
+		(void)chdir(strcpy(new_wd,old_wd));
 		for (j = 0; j < argc; j++)
 			if (ok_scan(argv[j])
 			&&  argstat(argv[j], TRUE) >= 0)
 				common = 0;
 	} else {
 		if ((common = argstat(argv[0], FALSE)) > 0) {
-			if (chdir(strcpy(new_wd, argv[0])) < 0) {
+			abspath(pathcat(new_wd, old_wd, argv[0]));
+			if (chdir(new_wd) < 0) {
 				warn(new_wd);
 				return(0);
 			}

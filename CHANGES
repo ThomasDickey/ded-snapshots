@@ -1,3 +1,9 @@
+1990-04-23  dickey@software.org
+
+	* src/dedscan.c:
+	modify initial 'chdir()' so we try to recover from unreadable
+	directory (e.g., when invoking "su" from a protected directory)
+
 1990-04-18  dickey@software.org
 
 	* src/version.h:
