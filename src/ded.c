@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	sccs_id[] = "@(#)ded.c	1.44 88/08/02 15:42:15";
+static	char	sccs_id[] = "@(#)ded.c	1.45 88/08/03 11:02:32";
 #endif	lint
 
 /*
@@ -7,6 +7,7 @@ static	char	sccs_id[] = "@(#)ded.c	1.44 88/08/02 15:42:15";
  * Author:	T.E.Dickey
  * Created:	09 Nov 1987
  * Modified:
+ *		03 Aug 1988, added signal catch/ignore processing.
  *		02 Aug 1988, show column-scale on workspace marker, permit a
  *			     repeat-count for left/right scroll.
  *		01 Aug 1988, moved Xbase,Ybase to ring-structure.  Broke out
@@ -43,7 +44,7 @@ static	char	sccs_id[] = "@(#)ded.c	1.44 88/08/02 15:42:15";
 
 #define	MAIN
 #include	"ded.h"
-#include	<sys/signal.h>
+#include	<signal.h>
 extern	char	*strchr();
 extern	char	*txtalloc();
 
@@ -67,6 +68,8 @@ extern	char	*txtalloc();
 #endif	lint
 
 #define	MAXVIEW	2		/* number of viewports */
+#define	MINLIST	2		/* minimum length of file-list + header */
+#define	MINWORK	3		/* minimum size of work-area */
 
 /*
  * Per-viewport main-module state:
@@ -128,7 +131,7 @@ viewset()
 	register int	j	= curview + 1;
 
 	Ynext	= (j >= maxview) ? mark_W : viewlist[j].Yhead;
-	Ylast	= Ynext + Ybase - (Yhead + 2);
+	Ylast	= Ynext + Ybase - (Yhead + MINLIST);
 	if (Ylast >= numfiles)	Ylast = numfiles-1;
 }
 
@@ -139,12 +142,7 @@ viewset()
 int
 file2row(n)
 {
-	n = ((n - Ybase) + Yhead + 1);
-	if (n < 0 || n >= LINES) {
-		n = 0;		/* patch */
-		beep();
-	}
-	return (n);
+	return ((n - Ybase) + Yhead + 1);
 }
 
 /*
@@ -203,16 +201,31 @@ to_file()
  */
 markset(num)
 {
-	int	adj,
-		lo = (maxview * 2),
-		hi = (LINES-2);
+	int	lo = (Yhead + MINLIST * (maxview - curview)),
+		hi = (LINES - MINWORK);
 
 	if (num < lo)	num = lo;
-	if (num > hi)	num = hi;
-	adj = mark_W - num;
-	if (curview < (maxview-1))
-		viewlist[curview+1].Yhead -= adj;
-	mark_W -= adj;
+
+	if (curview < (maxview-1)) {	/* not the last viewport */
+		int	next_W = viewlist[curview+1].Yhead;
+		if (num > hi) {		/* multiple-adjust */
+			mark_W = hi;
+			next_W += (num - hi);
+			if (curview < (maxview-2))
+				hi = viewlist[curview+2].Yhead;
+			hi -= MINLIST;
+			if (next_W > hi)
+				next_W = hi;
+		} else if (Yhead + MINLIST <= (hi = next_W + (num - mark_W))) {
+			next_W = hi;
+			mark_W = num;
+		}
+		viewlist[curview+1].Yhead = next_W;
+	} else {			/* in the last viewport */
+		if (num > hi)	num = hi;
+		mark_W = num;
+	}
+
 	(void)to_file();
 	showFILES();
 }
@@ -482,7 +495,17 @@ openVIEW()
 {
 	if (maxview < MAXVIEW) {
 		saveVIEW();
-		Yhead = maxview ? (file2row(curfile) + 1) : 0;
+		if (maxview) {
+			int	adj	= (Yhead = file2row(curfile) + 1)
+					- (mark_W - MINLIST);
+			if (adj > 0) {
+				if (mark_W + adj < (LINES - MINWORK))
+					mark_W += adj;
+				else
+					Yhead -= adj;
+			}
+		} else
+			Yhead = 0;
 		curview = maxview++;	/* patch: no insertion? */
 		saveVIEW();		/* current viewport */
 		markset(mark_W);	/* adjust marker, re-display */
@@ -785,6 +808,7 @@ char	tpath[BUFSIZ],
 			exit(1);
 	}
 
+	(void)dedsigs(TRUE);
 	if (!initscr())			failed("initscr");
 	in_screen = TRUE;
 	if (LINES > BUFSIZ || COLS > BUFSIZ) {

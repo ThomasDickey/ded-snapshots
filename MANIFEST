@@ -1,4 +1,4 @@
-MANIFEST for ded, version t19880802
+MANIFEST for ded, version t19880803
 --------------------------------------------------------------------------------
 MANIFEST                        this file
 src                             subdirectory
@@ -17,6 +17,7 @@ src/dedname.c                   rename files within file-list
 src/dedring.c                   manage ring of file-lists
 src/dedscan.c                   read file-list
 src/dedshow.c                   display file-list
+src/dedsigs.c                   signal-handlers for DED
 src/dedsort.c                   sorting operation for DED
 src/dedtype.c                   type/page a file
 src/dedwait.c                   prompt/wait-for-return

@@ -1,3 +1,33 @@
+1988-08-03  dickey@software.org
+
+	* src/Makefile: rewrote into standard format.
+
+	* src/Makefile: added 'destroy', 'sources' production.
+
+	* src/ded.c:
+	tinkering with 'markset()', 'openVIEW()' to avoid infinite loop when
+	we adjust viewport size, as well as to make the adjustment a bit smarter.
+	Also, added call on 'dedsigs()' so we activate the signal-catching.
+
+	* src/dedline.c:
+	lots of tinkering so that we can interrupt group-operations.
+	also, make u,g commands map-thru symbolic links like the p-command was.
+	(some cleanup of the map-thru logic).
+
+	* src/version.h:
+	added signal-handling, and first version of split-screen.
+
+	* src/dedsigs.c: New file.
+
+	* src/deddoit.c:
+	fix so that signals don't kill us from child's expiration
+
+	* src/ftree.c: added signal-catcher in 'ft_scan()'.
+
+	* src/README: fixed a bunch of bugs (trying to get rid of this list)
+
+	* src/Makefile: added 'dedsigs.c' module.
+
 1988-08-02  dickey@software.org
 
 	* src/deddoit.c:

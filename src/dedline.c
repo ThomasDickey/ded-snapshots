@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	sccs_id[] = "@(#)dedline.c	1.2 88/08/02 12:40:03";
+static	char	sccs_id[] = "@(#)dedline.c	1.3 88/08/03 11:02:07";
 #endif	lint
 
 /*
@@ -7,6 +7,9 @@ static	char	sccs_id[] = "@(#)dedline.c	1.2 88/08/02 12:40:03";
  * Author:	T.E.Dickey
  * Created:	01 Aug 1988 (from 'ded.c')
  * Modified:
+ *		03 Aug 1988, use 'dedsigs()' to permit interrupt of group-ops.
+ *			     For edit_uid, edit_gid, ensure that we map-thru
+ *			     with symbolic links.
  *
  * Function:	Procedures which perform in-line editing of particular fields
  *		of the file-list.
@@ -50,24 +53,38 @@ replay(cmd)
 }
 
 /*
- * Save AT_opt mode when we are editing inline
+ * Save AT_opt mode when we are editing inline, and show mapped-thru stat for
+ * symbolic links.
  */
 #ifndef	SYSTEM5
 static
 at_save()
 {
-	register int x;
-
 	if (!AT_opt) {	/* chmod applies only to target of symbolic link */
-		for (x = 0; x < numfiles; x++)
-			if (GROUPED(x))
-				if (xLTXT(x)) {
-					AT_opt = TRUE;
-					statLINE(curfile);
-					return (TRUE);
-				}
+		return (at_last(TRUE));
 	}
 	return (FALSE);
+}
+
+/*
+ * If any tagged files are symbolic links, set the AT_opt to the specified flag
+ * value and re-stat them.  Return a count of the number of links.
+ */
+static
+at_last(flag)
+{
+	register int x;
+	register int changed = 0;
+
+	for (x = 0; x < numfiles; x++)
+		if (GROUPED(x)
+		&& xLTXT(x)) {
+			AT_opt = flag;
+			statLINE(x);
+			showLINE(x);
+			changed++;
+		}
+	return (changed);
 }
 #endif	SYSTEM5
 
@@ -115,9 +132,15 @@ int	at_flag	= at_save();
 		if (!re_edit) refresh();
 		switch (c = replay(0)) {
 		case 'p':
+			(void)dedsigs(TRUE);	/* reset interrupt counter */
+			done = TRUE;
 			c = CHMOD(curfile);
 			for (x = 0; x < numfiles; x++) {
 				if (GROUPED(x)) {
+					if (dedsigs(TRUE)) {
+						waitmsg(xNAME(x));
+						break;
+					}
 					statLINE(x);
 					changed++;
 					if (c != CHMOD(x)) {
@@ -129,7 +152,6 @@ int	at_flag	= at_save();
 					}
 				}
 			}
-			done = TRUE;
 			break;
 		case 'q':
 			lastedit[0] = EOS;
@@ -172,8 +194,7 @@ int	at_flag	= at_save();
 	}
 #ifndef	SYSTEM5
 	if (at_flag) {		/* we had to toggle because of sym-link	*/
-		AT_opt = FALSE;	/* restore mode we toggled from		*/
-		changed = TRUE;	/* force restat on the files anyway	*/
+		(void)at_last(FALSE); /* force stat on the files, cleanup */
 	}
 #endif	SYSTEM5
 	if (opt != P_opt) {
@@ -194,17 +215,23 @@ char	*bfr;
 int	y	= file2row(curfile),
 	x	= 0,
 	c,
+	code	= TRUE,
 	ec	= erasechar(),
 	kc	= killchar(),
 	insert	= FALSE,
 	delete;
 register char *s;
 
+#ifndef	SYSTEM5
+int	at_flag	= ((endc == 'u') || (endc == 'g')) ? at_save() : FALSE;
+#endif	SYSTEM5
+
 	if ((col -= Xbase) < 1) {	/* convert to absolute column */
 		col += Xbase;
 		Xbase = 0;
 		showFILES();
-	}
+	} else if (at_flag)
+		showLINE(curfile);
 	(void)replay(endc);
 
 	for (;;) {
@@ -223,7 +250,7 @@ register char *s;
 		c = replay(0);
 
 		if (c == '\n') {
-			return (TRUE);
+			break;
 		} else if (c == '\t') {
 			insert = ! insert;
 		} else if (insert) {
@@ -252,9 +279,10 @@ register char *s;
 		} else {
 			if (c == 'q') {
 				lastedit[0] = EOS;
-				return (FALSE);
+				code = FALSE;
+				break;
 			} else if (c == endc) {
-				return (TRUE);
+				break;
 			} else if (c == '\b' || c == ARO_LEFT) {
 				if (x > 0)	x--;
 			} else if (c == '\f' || c == ARO_RIGHT) {
@@ -271,6 +299,13 @@ register char *s;
 			while (bfr[delete] = bfr[delete+1]) delete++;
 		}
 	}
+
+#ifndef	SYSTEM5
+	if (at_flag) {		/* we had to toggle because of sym-link	*/
+		(void)at_last(FALSE); /* force stat on the files to cleanup */
+	}
+#endif	SYSTEM5
+	return (code);
 }
 
 /*
@@ -289,13 +324,18 @@ char	bfr[BUFSIZ];
 	}
 	if (edittext('u', cmdcol[1], UIDLEN, strcpy(bfr, uid2s(cSTAT.st_uid)))
 	&&  (uid = s2uid(bfr)) >= 0) {
+		(void)dedsigs(TRUE);	/* reset interrupt-count */
 		for (j = 0; j < numfiles; j++) {
 			if (xSTAT(j).st_uid == uid)	continue;
+			if (dedsigs(TRUE)) {
+				waitmsg(xNAME(j));
+				break;
+			}
 			if (GROUPED(j)) {
 				if (chown(xNAME(j),
 					uid, xSTAT(j).st_gid) < 0) {
 					warn(xNAME(j));
-					return;
+					break;
 				}
 				fixtime(j);
 				xSTAT(j).st_uid = uid;
@@ -326,15 +366,20 @@ char	bfr[BUFSIZ];
 	char	newgrp[BUFSIZ];
 	static	char	*fmt = "chgrp -f %s %s";
 
+		(void)dedsigs(TRUE);	/* reset interrupt-count */
 		(void)strcpy(newgrp, gid2s(gid));
 		for (j = 0; j < numfiles; j++) {
 			if (xSTAT(j).st_gid == gid)	continue;
+			if (dedsigs(TRUE)) {
+				waitmsg(xNAME(j));
+				break;
+			}
 			if (GROUPED(j)) {
 				if (root) {
 					if (chown(xNAME(j),
 						xSTAT(j).st_uid, gid) < 0) {
 						warn(xNAME(j));
-						return;
+						break;
 					}
 					xSTAT(j).st_gid = gid;
 				} else {
@@ -373,10 +418,15 @@ char	bfr[BUFSIZ];
 #define	EDITNAME(n)	edittext('=', cmdcol[3], len, strcpy(bfr, n))
 	if (EDITNAME(cNAME)) {
 		if (dedname(curfile, bfr) >= 0) {
+			(void)dedsigs(TRUE);	/* reset interrupt count */
 			re_edit = TRUE;
 			for (j = 0; j < numfiles; j++) {
 				if (j == curfile)
 					continue;
+				if (dedsigs(TRUE)) {
+					waitmsg(xNAME(j));
+					break;
+				}
 				if (xFLAG(j)) {
 					(void)EDITNAME(xNAME(j));
 					if (dedname(j, bfr) >= 0)
@@ -396,7 +446,5 @@ char	bfr[BUFSIZ];
  */
 dedline(flag)
 {
-	if (re_edit = flag)
-		return (*lastedit);
-	return (0);
+	return ((re_edit = flag) ? *lastedit : 0);
 }

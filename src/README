@@ -6,17 +6,10 @@ To do:
 
   Make spawned processes inherit options from current one
 
-  Provide for 2-display lists/viewports.
-
-  Correct apollo message about trying to open nil-files
-  (they are not directories!)
-
   Use SHELL environment variable & bldargs() so we needn't
   go thru 'system()' call (which always goes thru /bin/sh).
 
   Integrate 'padedit()' error messages with 'ded'.
-
-	Add a logfile/script facility to try to flush out bugs in ftree.
 
 88/05/03:
 	ft_insert does not check for apollo links such as /usr/lib mapping
@@ -39,9 +32,6 @@ To do:
 	with a wildcard.
 
 88/05/11:
-	Running under 'xterm' on Apollo, the first use of '+' puts the
-	highlighting in the wrong place.
-
 	Should provide a rename-leaf command in ftree using '='
 
 	The 'E' command from directory-tree spits out a nasty message if the
@@ -76,10 +66,6 @@ To do:
 	np1-port, found that 'putchar()' usage in blip, beep causes warning
 	about comparison with an unsigned.
 
-88/06/06:
-	should move Xbase, Ybase to common so we can restore screen properly
-	when F/B scrolling.
-
 88/06/10:
 	should escape '[' in system-commands.
 
@@ -87,12 +73,5 @@ To do:
 	sometimes the '@' state in ftree is not cleared when we re-read and
 	it should now be a directory instead of a link.
 
-88/06/16:
-	The '@' toggle should be tested & set in the u,g commands since these
-	map through to the target rather than the link.
-
 88/06/27:
 	Should redo the ftree-rename so it renames the ring-entries too.
-
-88/07/28:
-	Should catch signals so I can stop long stuff (like 99R in ftree).
