@@ -3,7 +3,9 @@
  * Author:	T.E.Dickey
  * Created:	09 Nov 1987
  * Modified:
- *		15 Feb 1998, remove special code for apollo sr10
+ *		15 Feb 1998, remove special code for apollo sr10.
+ *			     Correct a missing 'else' in time2s that caused
+ *			     future dates to be formatted as in the past.
  *		05 Oct 1994, refined executable-access test with getgroups.
  *		29 Oct 1993, ifdef-ident
  *		28 Sep 1993, gcc warnings
@@ -59,7 +61,7 @@
 #include	<time.h>
 #include	<ctype.h>
 
-MODULE_ID("$Id: ded2s.c,v 12.20 1998/02/15 20:50:06 tom Exp $")
+MODULE_ID("$Id: ded2s.c,v 12.21 1998/02/16 01:51:28 tom Exp $")
 
 #if MAJOR_IN_MKDEV
 #  include	<sys/mkdev.h>
@@ -133,7 +135,7 @@ private	void	time2s(
 
 		if (midnite <= fdate) {			     /* future? */
 			FORMAT(bfr, "%.7s%.4s  ", t+4, t+20);
-		} if ((midnite - ONE_WEEK) <= fdate) {	     /* ddd HH:MM:SS */
+		} else if ((midnite - ONE_WEEK) <= fdate) {  /* ddd HH:MM:SS */
 			FORMAT(bfr, "%.4s%.8s ", t, t+11);
 		} else if ((midnite - SIXMONTHS) < fdate) {  /* mmm DD HH:MM */
 			FORMAT(bfr, "%.12s ", t+4);

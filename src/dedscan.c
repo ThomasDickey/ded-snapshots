@@ -3,7 +3,7 @@
  * Author:	T.E.Dickey
  * Created:	09 Nov 1987
  * Modified:
- *		15 Feb 1998, compiler warnings
+ *		15 Feb 1998, corrected ifdef'ing of realpath vs chdir.
  *		02 Feb 1997, add chdir's within path_RESOLVE to make it work
  *			     with relative path (e.g., "./src/") as an argument.
  *		12 Jan 1997, filename-only case still wasn't right, since it
@@ -90,7 +90,7 @@
 #include	<rcsdefs.h>
 #include	<sccsdefs.h>
 
-MODULE_ID("$Id: dedscan.c,v 12.28 1998/02/15 23:43:21 tom Exp $")
+MODULE_ID("$Id: dedscan.c,v 12.31 1998/02/16 02:16:30 tom Exp $")
 
 #define	def_doalloc	FLIST_alloc
 	/*ARGSUSED*/
@@ -476,10 +476,10 @@ public	void	statSCCS(
  */
 public	void	statLINE (
 	_ARX(RING *,	gbl)
-	_AR1(int,	j)
+	_AR1(unsigned,	j)
 		)
 	_DCL(RING *,	gbl)
-	_DCL(int,	j)
+	_DCL(unsigned,	j)
 {
 	char *	path = gNAME(j);
 	FLIST * blok = &gENTRY(j);
@@ -622,13 +622,12 @@ public	int	path_RESOLVE (
 			return(FALSE);
 		}
 	}
+#if HAVE_REALPATH
 	else
 	{
 		/* try to recover, just in case */
 		(void)chdir(old_wd);
 	}
-
-#if HAVE_REALPATH
 	s = realpath(path, temp);
 #else
 	s = getwd(temp);

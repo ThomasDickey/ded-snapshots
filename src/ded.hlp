@@ -1,4 +1,4 @@
-$Id: ded.hlp,v 12.3 1994/07/23 14:24:24 tom Exp $
+$Id: ded.hlp,v 12.4 1998/02/16 00:41:32 tom Exp $
 
 DED (Directory EDitor)
 ======================
@@ -15,7 +15,6 @@ Options:
   a		show '.' and '..' names (command is '&')
   G		toggle user/group display field
   I		toggle inode/links display field
-  O		(apollo) show object types
   P		toggle file-protection display field
   S		toggle filesize (in blocks) field
   T		toggle date+time length
@@ -60,14 +59,13 @@ Display-Adjustment:
   G		toggle user/group display field.  Use "2G" to show both.
   CTL/G		toggle summary of tagged files. Use "2CTL/G" to show bytes.
   I		toggle inode/links display field.  Use "2I" to show device too.
-  O		toggle flag showing object types
   P		toggle file protection-mode (octal/normal) display field.
 		Use "2P" to show uid/gid fields numerically.
+  O		toggle rcs/sccs lock-owner display
   S		toggle filesize (in blocks) field. Use "2S" to show both.
   T		toggle date+time length (Use "2T" to show numeric date)
   U		toggle filename display (unix vs apollo)
   V		toggle rcs/sccs version display
-  Y		toggle rcs/sccs lock-owner display
   Z		toggle rcs/sccs filedate display
   z		clear rcs/sccs display (reduces overhead)
   @		toggle symbolic-link display (uppercase=target)
@@ -102,8 +100,7 @@ Display-Adjustment:
 		l	number of links
 		n	filename
 		N	leaf-name
-		o	object-types
-		O	object-types (numeric)
+		o	rcs/sccs lock-owners
 		p	file-protection mask/mode.
 		P	file-protection mask/mode, with extended-acl flag.
 		r	last-access date
@@ -115,7 +112,6 @@ Display-Adjustment:
 		U	user-id (numerically)
 		v	rcs/sccs versions
 		w	last-modification date
-		y	rcs/sccs lock-owners
 		z	rcs/sccs checkin-dates
                 Z       rcs/sccs checkin-dates over modification dates
 		.	sort with dotted components in increasing length.
@@ -248,7 +244,7 @@ Shell commands:
   u		entry's user-name
   g		entry's group-name
   v		last sccs/rcs version number ("?" if none)
-  y		user who has file locked with sccs or rcs ("?" if none)
+  o		user who has file locked with sccs or rcs ("?" if none)
 
   An uppercase N, H, R, E or T will cause DED to perform the substitution
   using the full pathname; the lowercase letters use only the name shown

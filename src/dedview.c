@@ -3,6 +3,7 @@
  * Author:	T.E.Dickey
  * Created:	03 Apr 1992, from 'ded.c'
  * Modified:
+ *		15 Feb 1998, compiler warnings.
  *		16 Feb 1996, use 'freed' parm of redoVIEW (fixes memory bug).
  *		09 Jan 1996, mods for scrolling regions
  *		05 Nov 1995, use 80th column
@@ -22,7 +23,7 @@
 
 #include	"ded.h"
 
-MODULE_ID("$Id: dedview.c,v 12.35 1997/09/13 13:24:05 tom Exp $")
+MODULE_ID("$Id: dedview.c,v 12.37 1998/02/16 02:04:21 tom Exp $")
 
 #define	MINLIST	2		/* minimum length of file-list + header */
 #define	MINWORK	3		/* minimum size of work-area */
@@ -332,7 +333,7 @@ private	void	forward(
 	TRACE(("forward %d\n", n))
 	setup_view(gbl);
 	while (n-- > 0) {
-		if (vue->last_file < (gbl->numfiles - 1)) {
+		if ((vue->last_file + 1) < gbl->numfiles) {
 			vue->base_file = vue->last_file + 1;
 			setup_view(gbl);
 		} else
@@ -511,10 +512,10 @@ public	void	markset(
  */
 public	void	upLINE(
 	_ARX(RING *,	gbl)
-	_AR1(int,	n)
+	_AR1(unsigned,	n)
 		)
 	_DCL(RING *,	gbl)
-	_DCL(int,	n)
+	_DCL(unsigned,	n)
 {
 	gbl->curfile -= n;
 	if (gbl->curfile < 0)
@@ -542,10 +543,10 @@ public	void	upLINE(
 
 public	void	downLINE(
 	_ARX(RING *,	gbl)
-	_AR1(int,	n)
+	_AR1(unsigned,	n)
 		)
 	_DCL(RING *,	gbl)
-	_DCL(int,	n)
+	_DCL(unsigned,	n)
 {
 	gbl->curfile += n;
 
@@ -555,7 +556,7 @@ public	void	downLINE(
 	if (gbl->curfile > vue->last_file) {
 		int savebase = vue->base_file;
 		while (gbl->curfile > vue->last_file
-		 && vue->last_file < (gbl->numfiles - 1)) {
+		 && (vue->last_file + 1) < gbl->numfiles) {
 			vue->base_file += 1;
 			setup_view(gbl);
 		}
@@ -577,9 +578,9 @@ public	int	showDOWN (
 {
 	showLINE(gbl, gbl->curfile);
 	dlog_name(cNAME);
-	if (gbl->curfile < gbl->numfiles - 1)
+	if ((gbl->curfile + 1) < gbl->numfiles) {
 		downLINE(gbl, 1);
-	else {
+	} else {
 		showC(gbl);
 		return (FALSE);
 	}
@@ -611,10 +612,10 @@ public	void	showWHAT (
  */
 public	void	showLINE(
 	_ARX(RING *,	gbl)
-	_AR1(int,	inx)
+	_AR1(unsigned,	inx)
 		)
 	_DCL(RING *,	gbl)
-	_DCL(int,	inx)
+	_DCL(unsigned,	inx)
 {
 	auto	int	save = vue->curfile = gbl->curfile;
 	register int	j;
@@ -763,9 +764,9 @@ public	void	scrollVIEW(
 	_DCL(int,	count)
 {
 	if (count >= 0) {
-		if (vue->last_file == (gbl->numfiles-1))
+		if ((vue->last_file + 1) == gbl->numfiles) {
 			gbl->curfile = vue->last_file;
-		else {
+		} else {
 			forward(gbl, count);
 			gbl->curfile = vue->base_file;
 		}
