@@ -1,5 +1,5 @@
 #ifndef	NO_SCCS_ID
-static	char	sccs_id[] = "@(#)deddoit.c	1.3 87/12/01 11:08:30";
+static	char	sccs_id[] = "@(#)deddoit.c	1.4 88/02/01 10:26:18";
 #endif	NO_SCCS_ID
 
 /*
@@ -81,6 +81,6 @@ int	c, j, k;
 
 	if (*subs) system(subs);
 	rawterm();
-	if (clr_sh) dedwait();
+	if (clr_sh && *subs) dedwait();
 	showC();
 }

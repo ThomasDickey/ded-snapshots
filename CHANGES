@@ -1,3 +1,10 @@
+1988-02-01  dickey@software.org
+
+	* src/ded.c:
+	Make 'l' command refresh entire group, some cleanup of 'restat()' calls.
+
+	* src/deddoit.c: Don't refresh screen if we had a null command.
+
 1987-12-14  dickey@software.org
 
 	* src/ded.hlp: added pad-edit commands.
