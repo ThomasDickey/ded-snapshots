@@ -1,15 +1,19 @@
 /*
- * $Id: version.h,v 12.2 1993/11/23 18:51:42 dickey Exp $
+ * $Id: version.h,v 12.3 1993/12/06 17:23:59 dickey Exp $
  * Version-identifier for DED
  * $Log: version.h,v $
- * Revision 12.2  1993/11/23 18:51:42  dickey
- * Ifdef'd idents (to simply testing with gcc warnings)
- * Ported to HP/UX.
- * Simulate scrolling for up/down line commands.
- * Made "^" command act as a toggle to top/bottom of screen.
- * Added mouse support for xterm.
- * Rewrote blip code, to show the counts rather than a lot of dots.
- * Corrected an infinite loop in the filelist search commands.
+ * Revision 12.3  1993/12/06 17:23:59  dickey
+ * added 'S' sort
+ * optimized some of the screen refreshing
+ *
+ *		Revision 12.2  1993/11/23  18:51:42  dickey
+ *		Ifdef'd idents (to simply testing with gcc warnings)
+ *		Ported to HP/UX.
+ *		Simulate scrolling for up/down line commands.
+ *		Made "^" command act as a toggle to top/bottom of screen.
+ *		Added mouse support for xterm.
+ *		Rewrote blip code, to show the counts rather than a lot of dots.
+ *		Corrected an infinite loop in the filelist search commands.
  *
  *		Revision 12.1  1993/09/28  12:50:33  dickey
  *		gcc warnings
@@ -275,4 +279,4 @@
  * 01 Dec 1987, added '*', '^' commands, made '%' refresh screen
  * 25 Nov 1987, added sccs-support (V,z,Z toggles, V,z,Z sorts)
  */
-static	char	version[] = "$Date: 1993/11/23 18:51:42 $";
+static	char	version[] = "$Date: 1993/12/06 17:23:59 $";

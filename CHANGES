@@ -1,3 +1,11 @@
+1993-12-06  dickey@software.org
+
+	* src/version.h: added 'S' sort
+	optimized some of the screen refreshing
+
+	* src/dedsort.c, src/sortset.c, src/ded.hlp, src/ded2s.c:
+	added 'S' sort
+
 1993-12-02  dickey@software.org
 
 	* src/ftree.c: forgot to set 'showdiff' in 'uprow()'

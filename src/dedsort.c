@@ -1,5 +1,5 @@
 #if	!defined(NO_IDENT)
-static	char	Id[] = "$Id: dedsort.c,v 12.3 1993/10/29 20:26:59 dickey Exp $";
+static	char	Id[] = "$Id: dedsort.c,v 12.4 1993/12/06 17:21:44 dickey Exp $";
 #endif
 
 /*
@@ -7,6 +7,7 @@ static	char	Id[] = "$Id: dedsort.c,v 12.3 1993/10/29 20:26:59 dickey Exp $";
  * Author:	T.E.Dickey
  * Created:	11 Nov 1987
  * Modified:
+ *		06 Dec 1993, added 'S' sort.
  *		29 Oct 1993, ifdef-ident
  *		28 Sep 1993, gcc warnings
  *		20 Nov 1992, use 'cm_qsort.h' definitions.
@@ -189,6 +190,7 @@ public	int	dedsort_cmp(
 			break;
 #endif	/* Z_RCS_SCCS */
 
+	case 'S':
 	case 's':
 			if (isDEV(p1->s.st_mode) && isDEV(p2->s.st_mode))
 				cmp = CMP(st_rdev);
@@ -197,7 +199,9 @@ public	int	dedsort_cmp(
 			else if (isDEV(p2->s.st_mode))
 				cmp = 1;
 			else
-				cmp = CMP(st_size);
+				cmp = (gbl->sortopt == 'S')
+					? CMP(st_blocks)
+					: CMP(st_size);
 			break;
 
 	case 'l':	cmp = CMP(st_nlink);	break;

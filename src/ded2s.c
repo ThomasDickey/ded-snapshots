@@ -1,5 +1,5 @@
 #if	!defined(NO_IDENT)
-static	char	Id[] = "$Id: ded2s.c,v 12.3 1993/10/29 20:27:01 dickey Exp $";
+static	char	Id[] = "$Id: ded2s.c,v 12.4 1993/12/06 14:22:45 dickey Exp $";
 #endif
 
 /*
@@ -291,13 +291,7 @@ public	void	ded2s(
 		break;
 	default:
 		if (gbl->S_opt >= 1) {
-			FORMAT(bfr, "%5u ",
-#ifdef	SYSTEM5
-				s->st_size / 1024	/* patch */
-#else	/* bsd */
-				s->st_blocks
-#endif	/* SYSTEM5 */
-				);
+			FORMAT(bfr, "%5u ", s->st_blocks);
 			bfr += field(bfr,mj);
 		}
 		if (gbl->S_opt != 1) {
