@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	Id[] = "$Header: /users/source/archives/ded.vcs/src/RCS/ded.c,v 10.57 1992/06/18 13:29:22 dickey Exp $";
+static	char	Id[] = "$Header: /users/source/archives/ded.vcs/src/RCS/ded.c,v 11.0 1992/07/02 07:45:05 ste_cm Rel $";
 #endif
 
 /*
@@ -880,8 +880,11 @@ _MAIN
 	}
 
 	/* protect against pipes */
-	if (!isatty(fileno(stdin)))
-		*stdin = *freopen("/dev/tty", "r", stdin);
+	if (!isatty(fileno(stdin))) {
+		FILE	*p = freopen("/dev/tty", "r", stdin);
+		if (!p)	failed("reopen stdin");
+		*stdin = *p;
+	}
 
 	(void)dedsigs(TRUE);
 	if (!initscr())			failed("initscr");
