@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	sccs_id[] = "@(#)ftree.c	1.63 89/03/07 09:22:47";
+static	char	sccs_id[] = "@(#)ftree.c	1.64 89/03/13 10:48:35";
 #endif	lint
 
 /*
@@ -1076,7 +1076,7 @@ char	*path;
 				if (c == '~')
 					(void)strcpy(cwdpath, "~");
 				rawgets(cwdpath,sizeof(cwdpath),FALSE);
-				if (!*cwdpath) {
+				if (!*cwdpath && c != '@') {
 					c = -1;
 					beep();
 				}
