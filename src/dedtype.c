@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	Id[] = "$Id: dedtype.c,v 10.0 1991/10/18 10:14:53 ste_cm Rel $";
+static	char	Id[] = "$Id: dedtype.c,v 10.1 1992/03/12 13:03:54 dickey Exp $";
 #endif
 
 /*
@@ -7,6 +7,8 @@ static	char	Id[] = "$Id: dedtype.c,v 10.0 1991/10/18 10:14:53 ste_cm Rel $";
  * Author:	T.E.Dickey
  * Created:	16 Nov 1987
  * Modified:
+ *		12 Mar 1992, if typing a file from the filelist, update the
+ *			     stat in that place.
  *		18 Oct 1991, converted to ANSI
  *		19 Jul 1991, changed interface to 'markset()'
  *		01 Jul 1991, corrected column-limit logic
@@ -180,26 +182,28 @@ GetC _ONE(FILE *,fp)
 
 dedtype(
 _ARX(char *,	name)
+_ARX(int,	inlist)
 _ARX(int,	binary)
 _ARX(int,	stripped)
 _AR1(int,	isdir)
 	)
 _DCL(char *,	name)
+_DCL(int,	inlist)
 _DCL(int,	binary)
 _DCL(int,	stripped)
 _DCL(int,	isdir)
 {
-static	char	tmp_name[L_tmpnam];
-struct	stat	sb;
-FILE	*fp;
-int	c,			/* current character */
-	count,			/* ...and repeat-count */
-	y,			/* current line-in-screen */
-	blank,			/* flag to suppress blank lines */
-	shift	= COLS/3,	/* amount of left/right shift */
-	done	= FALSE,
-	skip	= 0,
-	page	= 0;		/* counter to show how many screens done */
+	static	char	tmp_name[L_tmpnam];
+	STAT	sb;
+	FILE	*fp;
+	int	c,			/* current character */
+		count,			/* ...and repeat-count */
+		y,			/* current line-in-screen */
+		blank,			/* flag to suppress blank lines */
+		shift	= COLS/3,	/* amount of left/right shift */
+		done	= FALSE,
+		skip	= 0,
+		page	= 0;		/* # of screens done */
 
 	tabstop = 8;
 	Shift	= 0;
@@ -288,18 +292,30 @@ int	c,			/* current character */
 			if (!feof(fp) && ferror(fp))	clearerr(fp);
 
 			if (!skip) {
+				off_t	length	= 0;
+
 				while (y < LINES-1)
 					y = typeline(y,FALSE);
 
 				move(LINES-1,0);
 				standout();
-				PRINTW("---page");
-				if ((fstat(fileno(fp), &sb) >= 0)
-				&&  sb.st_size > 0) {
-					PRINTW(" %d: %.1f%%",
-						page,
-						(ftell(fp) * 100.)/ sb.st_size);
+				PRINTW("---page %d", page);
+				if (inlist >= 0) {
+					int	oldy, oldx;
+					getyx(stdscr,oldy,oldx);
+					standend();
+					statLINE(inlist);
+					showLINE(inlist);
+					markC(TRUE);
+					length = cSTAT.st_size;
+					standout();
+					move(oldy,oldx);
+				} else if (fstat(fileno(fp), &sb) >= 0) {
+					length = sb.st_size;
 				}
+				if (length != 0)
+					PRINTW(": %.1f%%",
+						(ftell(fp) * 100.)/ length);
 				PRINTW("---");
 				standend();
 				PRINTW(" ");

@@ -1,3 +1,17 @@
+1992-03-12  dickey@software.org
+
+	* src/dedtype.c:
+	modified so that if user is typing the current-file (as
+	opposed to help-file), then we update the filelist-line
+	along with the page-size information.  do this to make it
+	work better when typing a log-file.
+
+	* src/ded.c: modified interface to 'dedtype()'
+
+	* src/ded.h: change interface of 'dedtype()'
+
+	* src/Makefile: use .c.a rule to avoid leaving ".o" files around
+
 1992-02-28  dickey@software.org
 
 	* src/dedring.c: *** empty log message ***
