@@ -25,7 +25,7 @@
 
 #include	"ded.h"
 
-MODULE_ID("$Id: dedview.c,v 12.40 1998/07/21 22:20:40 tom Exp $")
+MODULE_ID("$Id: dedview.c,v 12.41 2001/01/30 01:03:26 tom Exp $")
 
 #define	MINLIST	2		/* minimum length of file-list + header */
 #define	MINWORK	3		/* minimum size of work-area */
@@ -238,7 +238,7 @@ private	void	show_line(
 			int	col = adj - gbl->Xbase;
 			int	len = COLS - col;
 #if HAVE_HAS_COLORS
-			int	end = gbl->cmdcol[CCOL_NAME] + gENTRY(j).namlen;
+			int	end = gbl->cmdcol[CCOL_NAME] + gENTRY(j).z_namlen;
 #endif
 
 			if (col < 0) {

@@ -3,6 +3,7 @@
  * Author:	T.E.Dickey
  * Created:	11 Nov 1987
  * Modified:
+ *		29 Jan 2001, support caseless filenames.
  *		04 Mar 1998, rename 'y' sort to 'o'.
  *		15 Feb 1998, remove special code for apollo sr10
  *		12 Jul 1994, defined 'CMPF()' macro for 'ded_blocks()' hack.
@@ -42,7 +43,7 @@
 #define	QSORT_SRC	FLIST
 #include	<td_qsort.h>
 
-MODULE_ID("$Id: dedsort.c,v 12.11 1998/05/30 11:56:38 tom Exp $")
+MODULE_ID("$Id: dedsort.c,v 12.13 2001/01/30 01:59:11 tom Exp $")
 
 #define	CHECKED(p)	(p->z_time == p->s.st_mtime)
 #define	CMPF(f)	(f(&(p1->s)) > f(&(p2->s)) ? -1 : (f(&(p1->s)) < f(&(p2->s)) ? 1 : 0))
@@ -97,9 +98,9 @@ public	int	dedsort_cmp(
 	auto	 char	*s1, *s2;
 
 	if (gbl->tagsort) {
-		if (p1->flag && !p2->flag)
+		if (p1->z_flag && !p2->z_flag)
 			return (-1);
-		if (p2->flag && !p1->flag)
+		if (p2->z_flag && !p1->z_flag)
 			return (1);
 	}
 
@@ -107,26 +108,26 @@ public	int	dedsort_cmp(
 			/* patch: N sort from 'fl' would be nice... */
 
 			/* sort by '.'-separators in name */
-	case '.':	cmp = dotcmp(p1->name, p2->name);
+	case '.':	cmp = dotcmp(p1->z_real_name, p2->z_real_name);
 			break;
 
 #ifdef	S_IFLNK
 			/* sort by link-text */
 	case '@':
-			if (p1->ltxt != 0 && p2->ltxt != 0)
-				cmp = strcmp(p1->ltxt, p2->ltxt);
-			else if (p1->ltxt != 0)
+			if (p1->z_ltxt != 0 && p2->z_ltxt != 0)
+				cmp = strcmp(p1->z_ltxt, p2->z_ltxt);
+			else if (p1->z_ltxt != 0)
 				cmp = -1;
-			else if (p2->ltxt != 0)
+			else if (p2->z_ltxt != 0)
 				cmp = 1;
 			else
 				cmp = 0;
 			break;
 #endif
 			/* sort by file types (suffixes) */
-	case 't':	cmp = strcmp(f_type(p1->name), f_type(p2->name));
+	case 't':	cmp = strcmp(f_type(p1->z_real_name), f_type(p2->z_real_name));
 			break;
-	case 'T':	cmp = strcmp(ftype2(p1->name), ftype2(p2->name));
+	case 'T':	cmp = strcmp(ftype2(p1->z_real_name), ftype2(p2->z_real_name));
 			break;
 
 			/* sort filemodes within the mode-character */
@@ -190,7 +191,7 @@ public	int	dedsort_cmp(
 			} else
 				cmp = CMP(st_ino);
 			break;
-	case 'd':	cmp = p1->dord - p2->dord;	break;
+	case 'd':	cmp = p1->z_dord - p2->z_dord;	break;
 	case 'D':	cmp = CMP(st_dev);		break;
 
 			/* compare uid/gid fields numerically */
@@ -213,9 +214,9 @@ public	int	dedsort_cmp(
 				cmp  = CMP2S(gid2s,st_uid);
 			break;
 
-	case 'N':	(void)strcpy(bfr, pathleaf(p2->name));
-			cmp  = strcmp(pathleaf(p1->name), bfr);	break;
-	default:	cmp  = strcmp(p1->name, p2->name);
+	case 'N':	(void)strcpy(bfr, pathleaf(p2->z_real_name));
+			cmp  = strcmp(pathleaf(p1->z_real_name), bfr);	break;
+	default:	cmp  = strcmp(p1->z_real_name, p2->z_real_name);
 	}
 	return (cmp);
 }
@@ -235,7 +236,7 @@ private	QSORT_FUNC(compare)
 		if (local->sortopt == 'Z')
 			cmp = CMP(st_mtime);
 		else
-			cmp = strcmp(p1->name, p2->name);
+			cmp = strcmp(p1->z_real_name, p2->z_real_name);
 	}
 	return (local->sortord ? -cmp : cmp);
 }

@@ -3,6 +3,7 @@
  * Author:	T.E.Dickey
  * Created:	09 Nov 1987
  * Modified:
+ *		29 Jan 2001, support caseless filenames.
  *		15 Feb 1998, corrected ifdef'ing of realpath vs chdir.
  *		02 Feb 1997, add chdir's within path_RESOLVE to make it work
  *			     with relative path (e.g., "./src/") as an argument.
@@ -90,7 +91,7 @@
 #include	<rcsdefs.h>
 #include	<sccsdefs.h>
 
-MODULE_ID("$Id: dedscan.c,v 12.32 1998/02/16 16:44:39 tom Exp $")
+MODULE_ID("$Id: dedscan.c,v 12.36 2001/01/30 10:09:13 tom Exp $")
 
 #define	def_doalloc	FLIST_alloc
 	/*ARGSUSED*/
@@ -120,7 +121,7 @@ private	int	lookup (
 	register unsigned j;
 
 	for_each_file(gbl,j) {
-		if (!strcmp(gNAME(j), name))
+		if (!strcmp(gENTRY(j).z_real_name, name))
 			return (j);
 	}
 	return (-1);
@@ -131,6 +132,23 @@ private	int	lookup (
  */
 #define	Zero(p)	(void)memset(p, 0, sizeof(FLIST))
 
+private	void	alloc_name(
+	_ARX(FLIST *,	f_)
+	_AR1(char *,	name)
+		)
+	_DCL(FLIST *,	f_)
+	_DCL(char *,	name)
+{
+	if (name != 0) {
+#ifndef MIXEDCASE_FILENAMES
+		char bfr[MAXPATHLEN];
+		strlwrcpy(bfr, name);
+		f_->z_mono_name = txtalloc(bfr);
+#endif
+		f_->z_name = txtalloc(name);
+	}
+}
+
 /*
  * Reset an FLIST data block.  Release storage used by symbolic link, but
  * retain the name-string.
@@ -139,10 +157,9 @@ private	void	ReZero (
 	_AR1(FLIST *,	f_))
 	_DCL(FLIST *,	f_)
 {
-	char	*name = f_->name;
-	if (f_->ltxt)	txtfree(f_->ltxt);
+	char	*name = f_->z_name;
 	Zero(f_);
-	f_->name = name;
+	alloc_name(f_, name);
 }
 
 /*
@@ -160,9 +177,8 @@ private	void	append(
 	register int j = lookup(gbl, name);
 
 	if (j >= 0) {
-		name     = gNAME(j);
 		gENTRY(j) = *f_;
-		gNAME(j) = name;
+		alloc_name(&gENTRY(j), name);
 		return;
 	}
 
@@ -172,7 +188,7 @@ private	void	append(
 
 	Zero(&gENTRY(gbl->numfiles));
 	gENTRY(gbl->numfiles) = *f_;
-	gNAME(gbl->numfiles) = txtalloc(name);
+	alloc_name(&gENTRY(gbl->numfiles), name);
 	gDORD(gbl->numfiles) = dir_order++;
 	gbl->numfiles++;
 }
@@ -184,7 +200,7 @@ private	void	append(
  * (We will worry about that when we have to do something with it.)
  *
  * If the flag AT_opt is set, we obtain the stat for the target, and will use
- * the presence of the 'ltxt' to do basic testing on whether the file was a
+ * the presence of the 'z_ltxt' to do basic testing on whether the file was a
  * symbolic link.
  */
 private	int	dedstat (
@@ -214,8 +230,8 @@ private	int	dedstat (
 		len = readlink(name, bfr, sizeof(bfr));
 		if (len > 0) {
 			bfr[len] = EOS;
-			if (f_->ltxt)	txtfree(f_->ltxt);
-			f_->ltxt = txtalloc(bfr);
+			if (f_->z_ltxt)	txtfree(f_->z_ltxt);
+			f_->z_ltxt = txtalloc(bfr);
 			if (gbl->AT_opt
 			&&  (stat(name, &f_->s) >= 0)
 			&&  isDIR(f_->s.st_mode)) {
@@ -315,19 +331,27 @@ public	int	dedscan (
 				init_scan(gbl);
 
 			set_dedblip(gbl);
+
 			if ((dp = opendir(".")) != NULL) {
-			int	len = strlen(strcpy(name, gbl->new_wd));
-				if (name[len-1] != '/') {
-					name[len++] = '/';
-					name[len]   = EOS;
+				unsigned len1;
+				unsigned len2;
+
+				len1 = strlen(strcpy(name, gbl->new_wd));
+
+				if (name[len1-1] != '/') {
+					name[len1++] = '/';
+					name[len1]   = EOS;
 				}
 				while ((de = readdir(dp)) != NULL) {
 					s = de->d_name;
+					len2 = strlen(s);
+					if (len1 + len2 + 1 >= sizeof(name))
+						continue;
 					if (*s == '.' && !gbl->A_opt)
 						continue;
 					if (!ok_scan(gbl, s))
 						continue;
-					j = argstat(gbl, strcpy(name+len, s), TRUE, FALSE);
+					j = argstat(gbl, strcpy(name+len1, s), TRUE, FALSE);
 					if (!dotname(s)
 					&&  j > 0
 					&&  (k = lookup(gbl, s)) >= 0) {
@@ -404,14 +428,14 @@ public	int	dedscan (
 			if (!path_RESOLVE(gbl, gbl->new_wd))
 				failed(gbl->new_wd);
 			for_each_file(gbl,n)
-				gNAME(n) = txtalloc(gNAME(n) + comlen);
+				alloc_name(&gENTRY(n), gNAME(n) + comlen);
 		} else {
 			size_t	len = strlen(gbl->new_wd);
 			for (j = 0; j < argc; j++) {
 				if (strlen(s = argv[j]) > len
 				&&  s[len] == '/'
 				&&  !strncmp(gbl->new_wd,s,len))
-					gNAME(j) = txtalloc(gNAME(j) + len + 1);
+					alloc_name(&gENTRY(j), gNAME(j) + len + 1);
 			}
 		}
 	}
@@ -646,7 +670,7 @@ public	int	path_RESOLVE (
 		code	= dedstat(gbl, path, &fb);
 		gbl->AT_opt = save;
 		if (code == N_LDIR)
-			(void)strcpy (path, fb.ltxt);
+			(void)strcpy (path, fb.z_ltxt);
 	}
 	return (TRUE);
 }

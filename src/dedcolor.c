@@ -16,7 +16,7 @@
  */
 #include "ded.h"
 
-MODULE_ID("$Id: dedcolor.c,v 12.14 2000/12/02 18:05:39 tom Exp $")
+MODULE_ID("$Id: dedcolor.c,v 12.15 2001/01/30 01:04:52 tom Exp $")
 
 #if HAVE_HAS_COLORS
 
@@ -331,7 +331,7 @@ private	int	AttributesOf(
 {
 	KEYATTR	*p;
 	Stat_t	*sb	= &(entry->s);
-	char	*suffix = ftype2(entry->name);
+	char	*suffix = ftype2(entry->z_name);
 	int	attr	= A_NORMAL;
 
 	for (p = keypairs; p != 0; p = p->next) {
