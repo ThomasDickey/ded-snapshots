@@ -1,5 +1,5 @@
 #ifndef	NO_SCCS_ID
-static	char	sccs_id[] = "@(#)ded.c	1.16 88/05/02 15:17:23";
+static	char	sccs_id[] = "@(#)ded.c	1.17 88/05/03 11:26:12";
 #endif	NO_SCCS_ID
 
 /*
@@ -7,6 +7,7 @@ static	char	sccs_id[] = "@(#)ded.c	1.16 88/05/02 15:17:23";
  * Author:	T.E.Dickey
  * Created:	09 Nov 1987
  * Modified:
+ *		03 May 1988, added 'P', 's', 't' subcommands to editprot.
  *		02 May 1988, forgot to allow arrow keys in insert-mode of
  *			     'edittext()'.
  *		28 Apr 1988, added 'new_args()' to integrate with ftree module.
@@ -507,9 +508,9 @@ static
 editprot()
 {
 int	y	= file2row(curfile),
-	x	= cmdcol[0],
+	x	= 0,
 	c,
-	rwx	= (P_opt ? 1 : 3),
+	opt	= P_opt,
 	changed	= FALSE,
 	done	= FALSE;
 
@@ -521,8 +522,17 @@ int	y	= file2row(curfile),
 	(void)replay(P_cmd);
 
 	while (!done) {
+	int	rwx,
+		cols[3];
+
 		showLINE(curfile);
-		move(y, x);
+
+		rwx	= (P_opt ? 1 : 3),
+		cols[0] = cmdcol[0];
+		cols[1] = cols[0] + rwx;
+		cols[2] = cols[1] + rwx;
+
+		move(y, cols[x]);
 		if (!re_edit) refresh();
 		switch (c = replay(0)) {
 		case P_cmd:
@@ -548,28 +558,42 @@ int	y	= file2row(curfile),
 			break;
 		case ARO_RIGHT:
 		case ' ':
-			if (x < (cmdcol[0] + (rwx+rwx)))
-				x += rwx;
-			else
-				beep();
+			if (x < 2)	x++;
+			else		beep();
 			break;
 		case ARO_LEFT:
 		case '\b':
-			if (x > cmdcol[0]) {
-				x -= rwx;
-			} else
-				beep();
+			if (x > 0)	x--;
+			else		beep();
 			break;
 		default:
 			if (c >= '0' && c <= '7') {
-			int	shift = 6 - (x-cmdcol[0]) * (P_opt ? 3 : 1);
+			int	shift = 6 - (x * rwx);
 				cSTAT.st_mode &= ~(7      << shift);
 				cSTAT.st_mode |= ((c-'0') << shift);
-				if (x < cmdcol[0] + (rwx+rwx))
-					x += rwx;
+				if (x < 2)
+					x++;
+			} else if (c == 'P') {
+				P_opt = !P_opt;
+			} else if (c == 's') {
+				if (x == 0)
+					cSTAT.st_mode ^= S_ISUID;
+				else if (x == 1)
+					cSTAT.st_mode ^= S_ISGID;
+				else
+					beep();
+			} else if (c == 't') {
+				if (x == 2)
+					cSTAT.st_mode ^= S_ISVTX;
+				else
+					beep();
 			} else
 				beep();
 		}
+	}
+	if (opt != P_opt) {
+		P_opt = opt;
+		showLINE(curfile);
 	}
 	restat(changed);
 }
