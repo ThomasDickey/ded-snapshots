@@ -1,15 +1,18 @@
 #ifndef	lint
-static	char	Id[] = "$Id: ftree.c,v 5.1 1989/11/13 14:18:07 dickey Exp $";
+static	char	Id[] = "$Id: ftree.c,v 5.2 1990/02/01 13:25:15 dickey Exp $";
 #endif	lint
 
 /*
  * Author:	T.E.Dickey
  * Created:	02 Sep 1987
  * $Log: ftree.c,v $
- * Revision 5.1  1989/11/13 14:18:07  dickey
- * added some error recovery in 'ft_read()' against corrupted
- * ".ftree" file (i.e., missing string-heap).
+ * Revision 5.2  1990/02/01 13:25:15  dickey
+ * use 'showpath()' to handle long pathname-display
  *
+ *		Revision 5.1  89/11/13  14:19:15  dickey
+ *		added some error recovery in 'ft_read()' against corrupted
+ *		".ftree" file (i.e., missing string-heap).
+ *		
  *		Revision 5.0  89/10/16  09:19:21  ste_cm
  *		BASELINE Fri Oct 27 12:27:25 1989 -- apollo SR10.1 mods + ADA_PITS 4.0
  *		
@@ -200,7 +203,8 @@ int	y,x;
 	if ((count == 0) || (last != this)) {
 		getyx(stdscr,y,x);
 		move(PATH_ROW,0);
-		PRINTW("%4d: %.*s", count, COLS-8, pathname);
+		PRINTW("%4d: ", count);
+		showpath(pathname, 999, 0);
 		clrtoeol();
 		refresh();
 		move(y,x);
@@ -759,7 +763,8 @@ char	*path, *home;
 	row = LOSHOW;
 	node = limits(showbase, node);
 	k = FDdiff || (savesccs != showsccs);
-	PRINTW("path: %.*s", COLS-8, path);
+	PRINTW("path: ");
+	showpath(path, level, k ? 5 : 0);
 	dlog_comment("path: %s\n", path);
 	clrtoeol();
 	if (k) {	/* show W-command if we have pending diffs */

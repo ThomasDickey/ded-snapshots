@@ -1,4 +1,4 @@
-MANIFEST for ded, version t19900130
+MANIFEST for ded, version t19900201
 --------------------------------------------------------------------------------
 MANIFEST                        this file
 Makefile                        top-level makefile for unix directory editor
@@ -27,6 +27,7 @@ src/deduniq.c                   filter lists for uniqueness/key-matches
 src/dedwait.c                   prompt/wait-for-return
 src/dlog.c                      logging functions
 src/ftree.c                     directory-tree for DED
+src/showpath.c                  encapsulates display of long pathnames for 'ded' and 'ftree', using
 src/sortset.c                   controls setting of sort-options & display/modification of preset option
 src/version.h                   version/release history for DED
 test                            subdirectory

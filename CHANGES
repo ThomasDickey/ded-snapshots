@@ -1,3 +1,24 @@
+1990-02-01  dickey@software.org
+
+	* src/showpath.c: RCS_BASE
+
+1990-02-01  ste_cm@software.org
+
+	* src/showpath.c: BASELINE Mon Apr 30 09:54:01 1990 -- (CPROTO)
+
+	* src/showpath.c:
+	BASELINE Mon Aug 13 15:06:41 1990 -- LINCNT, ADA_TRANS
+
+	* src/showpath.c:
+	BASELINE Thu Mar 29 07:37:55 1990 -- maintenance release (SYNTHESIS)
+
+1990-02-01  dickey@software.org
+
+	* src/ftree.c, src/ded.c:
+	use 'showpath()' to handle long pathname-display
+
+	* src/Makefile: added module 'showpath.c'
+
 1990-01-30  dickey@software.org
 
 	* src/version.h: added '-T' (and 'T' toggle) to show long date+time.
