@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	what[] = "$Id: ded.c,v 6.0 1990/03/06 08:31:03 ste_cm Rel $";
+static	char	what[] = "$Id: ded.c,v 7.0 1990/04/17 09:09:56 ste_cm Rel $";
 #endif	lint
 
 /*
@@ -7,9 +7,16 @@ static	char	what[] = "$Id: ded.c,v 6.0 1990/03/06 08:31:03 ste_cm Rel $";
  * Author:	T.E.Dickey
  * Created:	09 Nov 1987
  * $Log: ded.c,v $
- * Revision 6.0  1990/03/06 08:31:03  ste_cm
- * BASELINE Thu Mar 29 07:37:55 1990 -- maintenance release (SYNTHESIS)
+ * Revision 7.0  1990/04/17 09:09:56  ste_cm
+ * BASELINE Mon Apr 30 09:54:01 1990 -- (CPROTO)
  *
+ *		Revision 6.1  90/04/17  09:09:56  dickey
+ *		simplified/corrected code for 'edithead()'
+ *		
+ *		Revision 6.0  90/03/06  08:31:03  ste_cm
+ *		BASELINE Thu Mar 29 07:37:55 1990
+ *		-- maintenance release (SYNTHESIS)
+ *		
  *		Revision 5.10  90/03/06  08:31:03  dickey
  *		lint
  *		
@@ -48,7 +55,8 @@ static	char	what[] = "$Id: ded.c,v 6.0 1990/03/06 08:31:03 ste_cm Rel $";
  *		broke out 'sortset()' module
  *		
  *		Revision 5.0  89/10/12  15:36:54  ste_cm
- *		BASELINE Fri Oct 27 12:27:25 1989 -- apollo SR10.1 mods + ADA_PITS 4.0
+ *		BASELINE Fri Oct 27 12:27:25 1989
+ *		-- apollo SR10.1 mods + ADA_PITS 4.0
  *		
  *		Revision 4.5  89/10/12  15:36:54  dickey
  *		converted 'I', 'G' commands to three-state toggles
@@ -63,7 +71,7 @@ static	char	what[] = "$Id: ded.c,v 6.0 1990/03/06 08:31:03 ste_cm Rel $";
  *		added o, O sorts
  *		
  *		Revision 4.2  89/08/25  08:52:50  dickey
- *		added new procedures 'scroll_to_stat()' and 'scroll_to_file()'
+ *		added new procedure 'scroll_to_file()'
  *		so 'E'-command on link can go to link-target.
  *		
  *		Revision 4.1  89/08/25  08:22:15  dickey
@@ -261,25 +269,9 @@ char	*dst,*src;
 	if (src != 0) {
 		dlog_comment("try to edit link-head \"%s\"\n", src);
 		abspath(strcpy(dst, pathhead(src, &sb)));
-		if (strcmp(dst, new_wd))
-			return (TRUE);
+		return (TRUE);
 	}
 	return (FALSE);		/* head would duplicate current directory */
-}
-
-/* after we edit the head-directory, try to find the link-target. */
-static
-scroll_to_stat(sb)
-struct	stat	*sb;
-{
-	register int	j;
-	for (j = 0; j < numfiles; j++) {
-		if (xSTAT(j).st_dev == sb->st_dev
-		&&  xSTAT(j).st_ino == sb->st_ino) {
-			scroll_to_file(j);
-			return;
-		}
-	}
 }
 #endif	S_IFLNK
 
@@ -1510,11 +1502,16 @@ char	*argv[];
 				}
 #ifdef	S_IFLNK		/* try to edit head-directory of symbolic-link */
 			} else if (edithead(tpath, cLTXT)) {
-				markC(TRUE);
-				if (!new_args(tpath, c, 1))
-					showC();
-				else
-					scroll_to_stat(&sb);
+				char	*s = strrchr(cLTXT,'/');
+				char	*d = txtalloc((s != 0) ? s+1 : cLTXT);
+				if (strcmp(tpath, new_wd)) {
+					markC(TRUE);
+					if (!new_args(tpath, c, 1)) {
+						showC();
+						break;
+					}
+				}
+				scroll_to_file(findFILE(d));
 #endif	S_IFLNK
 			} else
 				dedmsg("not a directory");
