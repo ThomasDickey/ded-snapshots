@@ -3,7 +3,7 @@
 
 #ifdef	MAIN
 #if	!defined(NO_IDENT)
-static	char	*ded_h = "$Id: ded.h,v 12.37 1995/09/03 23:08:07 tom Exp $";
+static const char ded_h[] = "$Id: ded.h,v 12.38 1995/11/05 21:36:30 tom Exp $";
 #endif
 #endif	/* MAIN */
 

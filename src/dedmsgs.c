@@ -11,7 +11,7 @@
 
 #include	"ded.h"
 
-MODULE_ID("$Id: dedmsgs.c,v 12.9 1994/07/02 20:04:09 tom Exp $")
+MODULE_ID("$Id: dedmsgs.c,v 12.10 1995/11/05 21:39:26 tom Exp $")
 
 /*
  * Clear the message-line
@@ -57,9 +57,13 @@ private	char *	err_msg (
 	_AR1(char *,	msg))
 	_DCL(char *,	msg)
 {
-	static	char	bfr[BUFSIZ];
+	static	char	*bfr;
 	char	*text	= strerror(errno);
 
+	if (bfr == 0)
+		bfr = malloc(BUFSIZ);
+	if (bfr == 0)
+		abort();
 	if (msg == 0)	msg = "?";
 	FORMAT(bfr, "%s: %s", msg, text);
 	return (bfr);

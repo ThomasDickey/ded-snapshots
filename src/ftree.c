@@ -127,7 +127,7 @@
 
 #include	<fcntl.h>
 
-MODULE_ID("$Id: ftree.c,v 12.44 1995/10/29 12:36:29 tom Exp $")
+MODULE_ID("$Id: ftree.c,v 12.45 1995/11/05 22:12:05 tom Exp $")
 
 #define	Null	(char *)0	/* some NULL's are simply 0 */
 
@@ -191,7 +191,7 @@ private	int	limits(
 			_arx(int,	base)
 			_ar1(int,	row));
 
-static	char	FDname[MAXPATHLEN];	/* name of user's database	*/
+static	DYN	*FDname;		/* name of user's database	*/
 static	time_t	FDtime;			/* time: last modified ".ftree"	*/
 static	unsigned FDsize;		/* current sizeof(ftree[])	*/
 static	int	FDdiff,			/* number of changes made	*/
@@ -205,11 +205,12 @@ static	int	FDdiff,			/* number of changes made	*/
 		out_of_sight = TRUE,	/* TRUE to suppress search	*/
 		savesccs,		/* original state of 'showsccs'	*/
 		showsccs = TRUE;	/* control display of 'sccs'	*/
-static	char	zero[] = ROOT,
-		*caller_top,		/* caller's current directory	*/
-		*viewer_top,		/* viewer's current directory	*/
-		*gap = zero + (TOP-1);
+static	char	*caller_top,		/* caller's current directory	*/
+		*viewer_top;		/* viewer's current directory	*/
 static	FTREE	*ftree;			/* array of database entries	*/
+
+static	const	char	zero[] = ROOT,
+			*gap = zero + (TOP-1);
 
 /************************************************************************
  *	Database Manipulation						*
@@ -255,10 +256,9 @@ private	void	fd_slow(
 	_DCL(int,	base)
 	_DCL(char *,	pathname)
 {
-	static
-		time_t	last;
-		time_t	this	= time((time_t *)0);
-	int	y,x;
+	static	time_t	last;
+	auto	time_t	this	= time((time_t *)0);
+	auto	int	y,x;
 
 	if ((count == 0) || (last != this)) {
 		getyx(stdscr,y,x);
@@ -414,7 +414,7 @@ private	int	fd_find (
 {
 	static	RING *	gbl;		/* dummy for REGEX stuff	*/
 	static	int	next = 0;	/* last-direction		*/
-	static	char	pattern[MAXPATHLEN];
+	static	DYN *	pattern;
 	static	REGEX_T	expr;		/* regex-state/output		*/
 	static	int	ok_expr;
 
@@ -429,20 +429,23 @@ private	int	fd_find (
 			return(-1);	/* we don't search full-paths */
 		}
 		if (*buffer)
-			(void)strcpy(pattern,buffer);
+			pattern = dyn_copy(pattern,buffer);
 		snxt =
 		next = (cmd == '/') ? 1 : -1;
 	} else
 		snxt = (cmd == 'n') ? next : -next;
 
-	if (!*pattern && strchr("?/nN", cmd)) {
-		waitmsg("No previous regular expression");
-		return(-1);
+	if (!dyn_length(pattern)) {
+		if (strchr("?/nN", cmd)) {
+			waitmsg("No previous regular expression");
+			return(-1);
+		}
+		pattern = dyn_copy(pattern, "");
 	}
 
 	if (ok_expr)
 		OLD_REGEX(expr);
-	if ((ok_expr = NEW_REGEX(expr,pattern)) != 0) {
+	if ((ok_expr = NEW_REGEX(expr,dyn_string(pattern))) != 0) {
 		do {
 			if (looped++ && (new == old)) { beep();	return(-1); }
 			else if ((new += snxt) < 0)		new = FDlast;
@@ -588,7 +591,7 @@ public	void	ft_insert (
 	auto	char	bfr[MAXPATHLEN];
 
 	abspath(path = strcpy(bfr,path));
-	fd_add_path(bfr, zero);
+	fd_add_path(bfr, (char *)zero);
 }
 
 /*
@@ -826,7 +829,7 @@ private	int	ok_read(
 	if (got != ask) {
 		char	bfr[MAXPATHLEN];
 		dlog_comment("%s (got %d, asked %d)", msg, got, ask);
-		FORMAT(bfr, "%s \"%s\"", msg, FDname);
+		FORMAT(bfr, "%s \"%s\"", msg, dyn_string(FDname));
 		return (ft_init(msg));
 	}
 	return (TRUE);
@@ -919,7 +922,8 @@ public	void	ft_read(
 {
 	register int	j;
 
-	read_ftree(strcpy(FDname, tree_name));
+	FDname = dyn_copy(FDname, tree_name);
+	read_ftree(dyn_string(FDname));
 	FDdiff = 0;
 
 	/* append the current directory to the list */
@@ -975,7 +979,7 @@ private	int	ft_show(
 	_DCL(int,	node)
 	_DCL(int,	level)
 {
-	static	char	*fmt = "%.*s";
+	static	const	char	*fmt = "%.*s";
 	register int j, k;
 	auto	int	row,
 			count,
@@ -2082,10 +2086,13 @@ public	void	ft_write(_AR0)
 		ft_dump("write");
 #endif
 		cant_W = TRUE;
-		if ((fid = open(FDname, O_WRONLY|O_CREAT|O_TRUNC, 0644)) >= 0) {
+		if ((fid = open(dyn_string(FDname),
+				O_WRONLY|O_CREAT|O_TRUNC,
+				0644)) >= 0) {
 			char *heap;
 #ifdef	DEBUG
-			PRINTF("writing file \"%s\" (%d)\n", FDname, FDlast);
+			PRINTF("writing file \"%s\" (%d)\n",
+				dyn_string(FDname), FDlast);
 #endif
 #define	WRT(s,n)	(void)write(fid,(char *)s,(LEN_READ)(n))
 			WRT(&FDlast, sizeof(FDlast));
@@ -2107,6 +2114,6 @@ public	void	ft_write(_AR0)
 		} else if (errno != EPERM
 			&& errno != ENOENT
 			&& errno != EACCES)
-			wait_warn(FDname);
+			wait_warn(dyn_string(FDname));
 	}
 }

@@ -31,7 +31,7 @@
 #include	"ded.h"
 #include	<time.h>
 
-MODULE_ID("$Id: dlog.c,v 12.13 1995/07/30 18:01:50 tom Exp $")
+MODULE_ID("$Id: dlog.c,v 12.14 1995/11/05 21:56:23 tom Exp $")
 
 #define	NOW		time((time_t *)0)
 
@@ -42,7 +42,7 @@ static	char	*cmd_ptr;		/* points into cmd_bfr */
 
 /* state of log-file (output) */
 static	FILE	*log_fp;
-static	char	log_name[MAXPATHLEN];
+static	DYN	*log_name;
 static	time_t	mark_time;
 static	DYN	*pending;		/* buffers parts of raw-commands */
 
@@ -267,22 +267,25 @@ public	char *	dlog_open(
 	register int	j;
 
 	if (name != 0 && *name != EOS) {
+		char temp[MAXPATHLEN];
+		abspath(name = strcpy(temp, name));
 		if (!(log_fp = fopen(name, "a+")))
 			failed(name);
 
-		abspath(strcpy(log_name, name));
+		log_name = dyn_copy(log_name, name);
+
 		show_time("begun");
 		for (j = 0; j < argc; j++)
 			dlog_comment("argv[%d] = '%s'\n", j, argv[j]);
-		return (log_name);
+		return dyn_string(log_name);
 	}
 	return ((char *)0);
 }
 
 public	void	dlog_reopen(_AR0)
 {
-	if (*log_name) {
-		if ((log_fp = fopen(log_name, "a+")) != NULL)
+	if (dyn_string(log_name)) {
+		if ((log_fp = fopen(dyn_string(log_name), "a+")) != NULL)
 			dlog_comment("process %d resuming\n", getpid());
 	}
 }

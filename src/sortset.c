@@ -20,11 +20,11 @@
 
 #include	"ded.h"
 
-MODULE_ID("$Id: sortset.c,v 12.9 1995/07/30 18:02:42 tom Exp $")
+MODULE_ID("$Id: sortset.c,v 12.10 1995/11/05 21:36:26 tom Exp $")
 
 public	char	sortc[128];
 
-static	char	*sort_msg[] = {
+static	const	char	*sort_msg[] = {
 	 ". - lengths of dot-separated items"
 #ifdef	S_IFLNK
 	,"@ - symbolic-link targets"

@@ -34,7 +34,7 @@
  */
 #include	"ded.h"
 
-MODULE_ID("$Id: deddoit.c,v 12.12 1995/09/03 20:08:15 tom Exp $")
+MODULE_ID("$Id: deddoit.c,v 12.13 1995/11/05 23:06:49 tom Exp $")
 
 /*
  * Return a pointer to a leaf of a given name
@@ -90,7 +90,7 @@ private	void	Expand(
 		*from;
 
 	if (strchr("NHRET", code))
-		abspath(pathcat(name, gbl->new_wd, cur_name));
+		abspath(pathcat2(name, gbl->new_wd, cur_name));
 	else
 		(void)strcpy(name, cur_name);
 

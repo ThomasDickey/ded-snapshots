@@ -1,23 +1,35 @@
 /*
- * $Id: version.h,v 12.7 1995/09/04 23:25:43 tom Exp $
+ * $Id: version.h,v 12.9 1995/11/05 23:29:47 tom Exp $
  * Version-identifier for DED
- * $Log: version.h,v $
- * Revision 12.7  1995/09/04 23:25:43  tom
- * changes to support autoconf, /etc/DIR_COLOR.  Added "-b" and "-e" options
- * (temporary!), and extended &-toggle to all dot-files.  Some bug-fixes for
- * ring-maintainence.  Modified viewport handling to make toggling between
- * lists more stable.  In td_lib, added module to support CmVision, and
- * environment variables $DED_TREE, $DED_CM_LOOKUP.  Also in td_lib, mods
- * for resizing support with ncurses, and using btree to speedup uid2s, gid2s.
  *
- * Revision 12.6  1994/07/24 01:01:24  tom
- * Allow '*' to have repeat count.
- * Handle empty directories better (force '.').
- * Mods for $DED_TREE.
- * Revised ftree display; do left/right scroll; renamed 'A' to '&'.
- * Support for auxiliary character set/ncurses.
- * Added color support.
- * Allow resizing (if curses supports it).
+ *		$Log: version.h,v $
+ *		Revision 12.9  1995/11/05 23:29:47  tom
+ *		mods to prevent tilde-expansion in list-entries
+ *
+ *		Revision 12.8  1995/11/05 22:28:43  tom
+ *		mods to handle/display control characters better in shell
+ *		commands. mods to make workspace pager scroll by single
+ *		lines. mods to display in 80th column. mods to use 'const',
+ *		and dyn_string() to cut down on data+bss sections.
+ *
+ *		Revision 12.7  1995/09/04 23:25:43  tom
+ *		changes to support autoconf, /etc/DIR_COLOR.  Added "-b" and
+ *		"-e" options (temporary!), and extended &-toggle to all
+ *		dot-files.  Some bug-fixes for ring-maintainence.  Modified
+ *		viewport handling to make toggling between lists more stable. 
+ *		In td_lib, added module to support CmVision, and environment
+ *		variables $DED_TREE, $DED_CM_LOOKUP.  Also in td_lib, mods for
+ *		resizing support with ncurses, and using btree to speedup
+ *		uid2s, gid2s.
+ *
+ *		Revision 12.6  1994/07/24 01:01:24  tom
+ *		Allow '*' to have repeat count.
+ *		Handle empty directories better (force '.').
+ *		Mods for $DED_TREE.
+ *		Revised ftree display; do left/right scroll; renamed 'A' to '&'.
+ *		Support for auxiliary character set/ncurses.
+ *		Added color support.
+ *		Allow resizing (if curses supports it).
  *
  *		Revision 12.5  1994/07/01  00:21:51  tom
  *		S-sort. Mods to make scrolling smoother.
@@ -303,4 +315,4 @@
  * 01 Dec 1987, added '*', '^' commands, made '%' refresh screen
  * 25 Nov 1987, added sccs-support (V,z,Z toggles, V,z,Z sorts)
  */
-static	char	version[] = "$Date: 1995/09/04 23:25:43 $";
+static	const	char	version[] = "$Date: 1995/11/05 23:29:47 $";

@@ -3,6 +3,7 @@
  * Author:	T.E.Dickey
  * Created:	09 Nov 1987
  * Modified:
+ *		05 Nov 1995, prevent tilde-expansion on names read via readdir.
  *		03 Sep 1995, modify path_RESOLVE to ensure that parent isn't
  *			     already in ring (if so, return failure).
  *		30 Aug 1995, make A_opt apply to all dot-files
@@ -82,7 +83,7 @@
 #include	"rcsdefs.h"
 #include	"sccsdefs.h"
 
-MODULE_ID("$Id: dedscan.c,v 12.22 1995/09/03 20:14:00 tom Exp $")
+MODULE_ID("$Id: dedscan.c,v 12.24 1995/11/05 22:49:45 tom Exp $")
 
 #define	def_doalloc	FLIST_alloc
 	/*ARGSUSED*/
@@ -121,14 +122,7 @@ private	int	lookup (
 /*
  * Clear an FLIST data block.
  */
-private	void	Zero (
-	_AR1(FLIST *,	f_))
-	_DCL(FLIST *,	f_)
-{
-	register char *s = (char *)f_;
-	register int  len = sizeof(FLIST);
-	while (len-- > 0) *s++ = 0;
-}
+#define	Zero(p)	(void)memset(p, 0, sizeof(FLIST))
 
 /*
  * Reset an FLIST data block.  Release storage used by symbolic link, but
@@ -231,18 +225,20 @@ private	int	dedstat (
 }
 
 /*
- * Get statistics for a name which is in the original argument list.
- * We handle a special case: if a single argument is given (!list),
- * links are tested to see if they resolve to a directory.
+ * Get statistics for a name which is in the original argument list.  We handle
+ * a special case: if a single argument is given (!list), links are tested to
+ * see if they resolve to a directory.
  */
 private	int	argstat(
 	_ARX(RING *,	gbl)
 	_ARX(char *,	name)
-	_AR1(int,	list)
+	_ARX(int,	list)
+	_AR1(int,	tilde)
 		)
 	_DCL(RING *,	gbl)
 	_DCL(char *,	name)
 	_DCL(int,	list)
+	_DCL(int,	tilde)
 {
 	FLIST	fb;
 	char	full[MAXPATHLEN];
@@ -253,7 +249,7 @@ private	int	argstat(
 		FFLUSH(stdout);
 	}
 
-	if (*name == '~')	/* permit "~" from Bourne-shell */
+	if (tilde && (*name == '~'))	/* permit "~" from Bourne-shell */
 		abshome(name = strcpy(full, name));
 
 	Zero(&fb);
@@ -295,7 +291,7 @@ public	int	dedscan (
 		(void)chdir(strcpy(gbl->new_wd,old_wd));
 		for (j = 0; j < argc; j++)
 			if (ok_scan(gbl, argv[j])
-			&&  argstat(gbl, argv[j], TRUE) >= 0)
+			&&  argstat(gbl, argv[j], TRUE, TRUE) >= 0)
 				common = 0;
 	} else {
 		abshome(pathcat(gbl->new_wd, old_wd, argv[0]));
@@ -303,7 +299,7 @@ public	int	dedscan (
 			return(0);
 		}
 
-		if ((common = argstat(gbl, gbl->new_wd, FALSE)) > 0) {
+		if ((common = argstat(gbl, gbl->new_wd, FALSE, FALSE)) > 0) {
 				/* mark dep's for purge */
 			if (gbl->toscan == 0)
 				ft_remove(gbl->new_wd, gbl->AT_opt, gbl->A_opt);
@@ -323,7 +319,7 @@ public	int	dedscan (
 						continue;
 					if (!ok_scan(gbl, s))
 						continue;
-					j = argstat(gbl, strcpy(name+len, s), TRUE);
+					j = argstat(gbl, strcpy(name+len, s), TRUE, FALSE);
 					if (!dotname(s)
 					&&  j > 0
 					&&  (k = lookup(gbl, s)) >= 0) {
@@ -337,7 +333,7 @@ public	int	dedscan (
 				 * of empty directory lists!
 				 */
 				if (!gbl->numfiles) {
-					(void)argstat(gbl, ".", TRUE);
+					(void)argstat(gbl, ".", TRUE, FALSE);
 				}
 			} else {
 				waitmsg("cannot open directory");
@@ -492,10 +488,11 @@ public	void	statMAKE (
 	_DCL(int,	mode)
 {
 	static	char	*null = "";
-	static	FLIST	dummy;
 	register int	x;
 
 	if (mode) {
+		FLIST	dummy;
+		memset(&dummy, 0, sizeof(FLIST));
 		dummy.s.st_mode = mode;
 		dummy.s.st_uid  = getuid();
 		dummy.s.st_gid  = getgid();

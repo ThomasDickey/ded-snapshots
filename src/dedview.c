@@ -3,7 +3,7 @@
  * Author:	T.E.Dickey
  * Created:	03 Apr 1992, from 'ded.c'
  * Modified:
- *		02 Nov 1995, use 80th column
+ *		05 Nov 1995, use 80th column
  *		03 Sep 1995, mods to keep base_file, curfile more stable when
  *			     switching viewports.
  *		19 Oct 1994, mods for color
@@ -20,7 +20,7 @@
 
 #include	"ded.h"
 
-MODULE_ID("$Id: dedview.c,v 12.25 1995/11/03 01:00:00 tom Exp $")
+MODULE_ID("$Id: dedview.c,v 12.26 1995/11/05 23:59:55 tom Exp $")
 
 #define	MINLIST	2		/* minimum length of file-list + header */
 #define	MINWORK	3		/* minimum size of work-area */
@@ -204,6 +204,7 @@ private	void	show_line(
 	if (FILE_VISIBLE(vp,j)) {
 		int	line = FILE2ROW(vp,j);
 		int	trimmed = FALSE;
+		int	y, x;
 
 		move(line,0);
 		ded2s(gbl, j, bfr, sizeof(bfr));
@@ -248,7 +249,8 @@ private	void	show_line(
 #endif /* HAVE_HAS_COLORS */
 			}
 		}
-		if (!trimmed)
+		getyx(stdscr, y, x);
+		if (!trimmed && line == y)
 			clrtoeol();
 	}
 }
