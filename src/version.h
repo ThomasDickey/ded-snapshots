@@ -1,10 +1,16 @@
 /*
- * $Id: version.h,v 5.2 1989/12/08 10:27:43 dickey Exp $
+ * $Id: version.h,v 5.3 1990/01/30 08:50:49 dickey Exp $
  * Version-identifier for DED
  * $Log: version.h,v $
- * Revision 5.2  1989/12/08 10:27:43  dickey
- * added ":"-prompt scrolling for sort-commands
+ * Revision 5.3  1990/01/30 08:50:49  dickey
+ * added '-T' (and 'T' toggle) to show long date+time.
+ * added 0/2 repeat-count for ':' and '.' commands so we can
+ * reset/set clear-screen state from '!' or '%' commands.
+ * new 'T' toggle obsoletes 'T'-command, so this is changed to "2t"
  *
+ *		Revision 5.2  89/12/08  10:27:43  dickey
+ *		added ":"-prompt scrolling for sort-commands
+ *		
  *		Revision 5.1  89/12/01  15:00:11  dickey
  *		added special sort-keys '?' and newline.
  *		
@@ -114,4 +120,4 @@
  * 01 Dec 1987, added '*', '^' commands, made '%' refresh screen
  * 25 Nov 1987, added sccs-support (V,z,Z toggles, V,z,Z sorts)
  */
-static	char	version[] = "$Date: 1989/12/08 10:27:43 $";
+static	char	version[] = "$Date: 1990/01/30 08:50:49 $";

@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	Id[] = "$Id: dedring.c,v 5.0 1989/10/05 16:58:38 ste_cm Rel $";
+static	char	Id[] = "$Id: dedring.c,v 5.1 1990/01/30 07:53:10 dickey Exp $";
 #endif	lint
 
 /*
@@ -7,9 +7,12 @@ static	char	Id[] = "$Id: dedring.c,v 5.0 1989/10/05 16:58:38 ste_cm Rel $";
  * Author:	T.E.Dickey
  * Created:	27 Apr 1988
  * $Log: dedring.c,v $
- * Revision 5.0  1989/10/05 16:58:38  ste_cm
- * BASELINE Fri Oct 27 12:27:25 1989 -- apollo SR10.1 mods + ADA_PITS 4.0
+ * Revision 5.1  1990/01/30 07:53:10  dickey
+ * save/restore T_opt
  *
+ *		Revision 5.0  89/10/05  16:58:38  ste_cm
+ *		BASELINE Fri Oct 27 12:27:25 1989 -- apollo SR10.1 mods + ADA_PITS 4.0
+ *		
  *		Revision 4.2  89/10/05  16:58:38  dickey
  *		save/restore 'cmdcol[]' per-list
  *		
@@ -93,6 +96,7 @@ typedef	struct	_ring	{
 #endif
 			P_opt,
 			S_opt,
+			T_opt,
 			U_opt,
 #ifdef	Z_RCS_SCCS
 			V_opt,
@@ -177,6 +181,7 @@ RING	*p;
 #endif
 	SAVE(P_opt);
 	SAVE(S_opt);
+	SAVE(T_opt);
 	SAVE(U_opt);
 #ifdef	Z_RCS_SCCS
 	SAVE(V_opt);
@@ -222,6 +227,7 @@ RING	*p;
 #endif
 	UNSAVE(P_opt);
 	UNSAVE(S_opt);
+	UNSAVE(T_opt);
 	UNSAVE(U_opt);
 #ifdef	Z_RCS_SCCS
 	UNSAVE(V_opt);
