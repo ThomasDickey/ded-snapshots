@@ -1,48 +1,67 @@
-# $Id: Makefile,v 11.4 1993/04/27 10:49:35 dickey Exp $
-# Top-level makefile for unix directory-editor
+# $Id: Makefile,v 12.0 1993/05/06 13:52:44 ste_cm Rel $
+# Top-level make-file for DED
 
-####### (Development) ##########################################################
-top	= ../..
-TOP	= $(top)/..
+THIS	= ded
+TOP	= ..
 include $(TOP)/td_lib/support/td_lib.mk
 
-B	= $(top)/bin
-
 ####### (Standard Lists) #######################################################
-THIS	= ded
-ALL	=\
-	$B/$(THIS)\
-	$B/$(THIS).hlp
+SOURCES	=\
+	Makefile\
+	COPYING\
+	README
+
 MFILES	=\
+	certify/Makefile\
 	src/Makefile\
-	test/Makefile
+	test/Makefile\
+	user/Makefile
+
+DIRS	=\
+	bin
 
 ####### (Standard Productions) #################################################
-all\
-run_test::	$L/$(TD_LIB).a bin
+all::		$(DIRS) $(SOURCES)
+sources::	$(SOURCES)
 
 all\
 clean\
 clobber\
 destroy\
-sources\
 run_test\
-lincnt.out\
-lint.out::	$(MFILES)
+sources::	$(MFILES)
+	cd certify;	$(MAKE) $@
 	cd src;		$(MAKE) $@
 	cd test;	$(MAKE) $@
+	cd user;	$(MAKE) $@
+
+lint.out\
+lincnt.out:	$(MFILES)
+	cd src;		$(MAKE) $@
 
 clean\
 clobber::			; rm -f $(CLEAN)
+
 clobber\
-destroy::			; rm -rf bin
+destroy::			; rm -rf $(DIRS)
+
 destroy::			; $(DESTROY)
 
-install:	all $(ALL)
-deinstall:			; rm -f $(ALL)
+IT	= $(INSTALL_BIN)/$(THIS)
+
+install::	all
+install::	$(IT)
+deinstall::			; rm -f $(IT)
+
+install\
+deinstall::
+	cd user;	$(MAKE) $@ INSTALL_MAN=`cd ..;cd $(INSTALL_MAN);pwd`
 
 ####### (Details of Productions) ###############################################
-bin:				; mkdir $@
+$(SOURCES)\
 $(MFILES):			; $(GET) $@
-$B/$(THIS):	bin/$(THIS)	; $(PUT)
-$B/$(THIS).hlp:	bin/$(THIS).hlp	; $(PUT)
+
+$(DIRS):			; mkdir $@
+bin/$(THIS):	all
+
+$(INSTALL_BIN)/$(THIS):		bin/$(THIS)	; $(COPY) bin/$(THIS) $@

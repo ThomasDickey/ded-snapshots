@@ -9,6 +9,7 @@
 1Z	# path: CM_TOOLS
 1F	# path: CM_TOOLS/test
 1k	# path: CM_TOOLS/src
+1k	# path: CM_TOOLS/certify
 1k	# path: CM_TOOLS/bin
 1E	# chdir CM_TOOLS/bin
 1%ls\s-l\n
@@ -24,6 +25,7 @@
 1h	# type "CM_TOOLS/bin/ded.hlp" (text file)
 1q
 1D	# path: CM_TOOLS/bin
+1j	# path: CM_TOOLS/certify
 1j	# path: CM_TOOLS/src
 1E	# chdir CM_TOOLS/src
 1\s

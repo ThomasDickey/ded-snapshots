@@ -1,8 +1,8 @@
-# $Id: Makefile,v 11.4 1993/04/27 10:37:09 dickey Exp $
+# $Id: Makefile,v 12.0 1993/05/06 13:23:22 ste_cm Rel $
 # make-file for testing unix directory editor
 #
 ####### (Development) ##########################################################
-TOP	= ../../../..
+TOP	= ../..
 include $(TOP)/td_lib/support/td_lib.mk
 
 ####### (Standard Lists) #######################################################

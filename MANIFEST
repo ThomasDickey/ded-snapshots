@@ -1,7 +1,14 @@
-MANIFEST for ded, version t19930427
+MANIFEST for ded, version t19930506
 --------------------------------------------------------------------------------
 MANIFEST                        this file
+COPYING                         copyright notice for DED
 Makefile                        top-level makefile for unix directory editor
+README                          brief description of DED
+certify                         subdirectory
+certify/Makefile                makefile for certify directory
+certify/README                  brief description of DED
+certify/config.txt              configuration requirements for DED
+certify/release.txt             release history for DED
 src                             subdirectory
 src/Makefile                    makefile for src-directory
 src/README                      to-do list for DED
@@ -51,4 +58,5 @@ test/test5.cmd                  test-case for inline/history stuff
 test/traceback.sh               does a traceback, in case we blew it.
 test/walkback.sh                uses debugger to get a walkback, if core'd
 user                            subdirectory
+user/Makefile                   makefile for user-directory
 user/ded.man                    user manual for DED

@@ -1,0 +1,8 @@
+$Id: README,v 12.0 1993/05/06 13:40:24 ste_cm Rel $
+
+DED
+
+-------------------------------------------------------------------------------
+
+A directory editor for UNIX systems, DED has special functions to manage RCS
+and SCCS files.

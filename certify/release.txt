@@ -1,0 +1,20 @@
+$Id: release.txt,v 12.0 1993/05/06 13:36:24 ste_cm Rel $
+
+--------------------------------------------------------------------------------
+
+Version 12.0:
+------------
+Split off from CM_TOOLS #11, since it is not purely an RCS/SCCS application.
+
+New features in 'ded':
+
+	* integrated inline and line editing (e.g., '=', '%' commands).
+	* added erase-word to inline/line editing.
+	* added search commands to workspace pager
+	* added '-commands to repeat specific inline-commands
+	* added history to inline- and workspace-commands.
+	* command-editing allows ctl/V (to insert any ASCII character)
+
+Version 11.0:
+------------
+See release notes for CM_TOOLS.

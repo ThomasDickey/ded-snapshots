@@ -10,7 +10,7 @@
 1W	# path: CM_TOOLS
 1F	# path: CM_TOOLS/test
 1k	# path: CM_TOOLS/src
-1k	# path: CM_TOOLS/bin
+2k	# path: CM_TOOLS/bin
 1E	# chdir CM_TOOLS/bin
 1p444p	# chmod 444 ded
 1p555p	# chmod 555 ded
@@ -53,7 +53,7 @@ u
 1D	# path: CM_TOOLS/bin
 1\L	# path: CM_TOOLS/bin
 1\L	# path: CM_TOOLS/bin
-1J	# path: CM_TOOLS/src
+2J	# path: CM_TOOLS/src
 1J	# path: CM_TOOLS/test
 1\R	# path: CM_TOOLS/test
 1K	# path: CM_TOOLS/src
