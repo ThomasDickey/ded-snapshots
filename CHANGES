@@ -1,3 +1,23 @@
+1988-07-27  dickey@software.org
+
+	* src/ded.c:
+	modified 'editfile()' to support X-window, so we call it even on non-Apollo systems.
+
+	* src/ded.c:
+	use 'execute()' as the guts of 'forkfile()', since it works faster and
+	also parses arguments.
+
+	* src/dedsort.c:
+	correction to 'v', 'y' sorting -- only 'z_time' is guaranteed to be set.
+
+	* src/ded.hlp: added level-count to ftree's R-command.
+
+	* src/ftree.c: reversed sense of 'I' command.
+	correctly show need for 'W' after ft_purge is invoked; also show "?" in header
+	if ft_write fails.
+
+	* src/ftree.c: optimized 'fd_slow()'
+
 1988-07-25  dickey@software.org
 
 	* src/ded.c: lint

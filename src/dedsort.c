@@ -1,5 +1,5 @@
 #ifndef	NO_SCCS_ID
-static	char	sccs_id[] = "@(#)dedsort.c	1.6 88/07/11 07:38:36";
+static	char	sccs_id[] = "@(#)dedsort.c	1.7 88/07/27 11:27:19";
 #endif	NO_SCCS_ID
 
 /*
@@ -7,6 +7,7 @@ static	char	sccs_id[] = "@(#)dedsort.c	1.6 88/07/11 07:38:36";
  * Author:	T.E.Dickey
  * Created:	11 Nov 1987
  * Modified:
+ *		27 Jul 1988, corrected 'y' sort, in case no RCS/SCCS file exists
  *		11 Jul 1988, use 'tagsort' variable to group tagged-files.
  *		01 Jun 1988, added 'y' sort.
  *		23 May 1988, use 'dotcmp()' for version, '.'-sorts.
@@ -99,14 +100,19 @@ char	bfr[BUFSIZ];
 					cmp = -1;
 			}
 			break;
-	case 'v':	if (p1->z_vers && p2->z_vers)
+	case 'v':	if (p1->z_time && p2->z_time)
 				cmp = -dotcmp(p1->z_vers, p2->z_vers);
-			else if (p1->z_vers)
+			else if (p1->z_time)
 				cmp = -1;
-			else if (p2->z_vers)
+			else if (p2->z_time)
 				cmp = 1;
 			break;
-	case 'y':	cmp = strcmp(p1->z_lock, p2->z_lock);
+	case 'y':	if (p1->z_time && p2->z_time)
+				cmp = strcmp(p1->z_lock, p2->z_lock);
+			else if (p1->z_time)
+				cmp = -1;
+			else if (p2->z_time)
+				cmp = 1;
 			break;
 #endif	Z_RCS_SCCS
 
@@ -148,7 +154,7 @@ char	bfr[BUFSIZ];
 dedsort()
 {
 char	*name = flist[curfile].name;
-	qsort(flist, numfiles, sizeof(FLIST), compare);
+	qsort(flist, (int)numfiles, sizeof(FLIST), compare);
 	for (curfile = 0; curfile < numfiles; curfile++)
 		if (!strcmp(flist[curfile].name, name))
 			return;

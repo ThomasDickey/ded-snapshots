@@ -1,11 +1,13 @@
 #ifndef	NO_SCCS_ID
-static	char	sccs_id[] = "@(#)ftree.c	1.50 88/07/25 06:55:39";
+static	char	sccs_id[] = "@(#)ftree.c	1.52 88/07/27 09:54:10";
 #endif
 
 /*
  * Author:	T.E.Dickey
  * Created:	02 Sep 1987
  * Modified:
+ *		27 Jul 1988, reversed initial sense of 'I'.  Corrected display
+ *			     of 'W' in case file could not be written, etc.
  *		25 Jul 1988, use repeat-count on 'R' to recur that many levels.
  *		05 Jul 1988, recoded 'ft_rename()' so children are moved too.
  *		29 Jun 1988, added temporary '=' command for testing rename.
@@ -116,10 +118,11 @@ static	time_t	FDtime;			/* time: last modified ".ftree"	*/
 static	int	FDdiff,			/* number of changes made	*/
 		FDlast,			/* last used-entry in ftree[]	*/
 		FDsize,			/* current sizeof(ftree[])	*/
+		cant_W,			/* TRUE if last ft_write failed	*/
 		showbase,		/* base of current display	*/
 		showlast,		/* last line in current display	*/
 		showdiff = -1,		/* controls re-display		*/
-		out_of_sight,		/* TRUE to suppress search	*/
+		out_of_sight = TRUE,	/* TRUE to suppress search	*/
 		savesccs,		/* original state of 'showsccs'	*/
 		showsccs = TRUE;	/* control display of 'sccs'	*/
 static	char	zero[] = ROOT,
@@ -145,10 +148,10 @@ int	y,x;
 	if ((count == 0) || (last != this)) {
 		getyx(stdscr,y,x);
 		move(0,0);
-		printw("%4d: %s", count, pathname);
+		printw("%4d: %.*s", count, COLS-8, pathname);
 		clrtoeol();
-		move(y,x);
 		refresh();
+		move(y,x);
 	} else
 		last = this;
 }
@@ -488,6 +491,7 @@ int	changed	= 0;
 		changed++;
 		j--;			/* re-start scan */
 	}
+	FDdiff += changed;
 
 #ifndef	TEST
 	if (changed) {			/* re-insert ring */
@@ -679,15 +683,12 @@ char	*marker,
 
 	move(row++,0);
 	node = limits(showbase, node);
-	j = COLS-8;
 	k = FDdiff || (savesccs != showsccs);
-	if (k)
-		j -= 4;
-	printw("path: %.*s", j, path);
+	printw("path: %.*s", COLS-8, path);
 	clrtoeol();
 	if (k) {	/* show W-command if we have pending diffs */
 		move(0, COLS-5);
-		printw(" (W)");
+		printw(" (W%s)", cant_W ? "?" : "");
 	}
 	if (showdiff != FDdiff) {
 		for (j = showbase; j <= showlast; j++) {
@@ -1347,6 +1348,7 @@ ft_write()
 #ifdef	DEBUG
 		ft_dump("write");
 #endif	DEBUG
+		cant_W = TRUE;
 		if ((fid = open(FDname, O_WRONLY|O_CREAT|O_TRUNC, 0644)) >= 0) {
 #ifdef	DEBUG
 			PRINTF("writing file \"%s\" (%d)\n", FDname, FDlast);
@@ -1356,12 +1358,13 @@ ft_write()
 			for (j = 0; j <= FDlast; j++)
 				(void)write(fid, ftree[j].f_name, strlen(ftree[j].f_name)+1);
 			(void)close(fid);
+			cant_W   = FALSE;
+			showdiff = FDdiff = 0;
+			savesccs = showsccs;
+			(void)time(&FDtime);
 		} else if (errno != EPERM && errno != EACCES)
 			failed(FDname);
 	}
-	(void)time(&FDtime);
-	showdiff = FDdiff = 0;
-	savesccs = showsccs;
 }
 
 #ifdef	TEST

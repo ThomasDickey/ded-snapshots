@@ -210,6 +210,7 @@ Directory Tree:
   Q		Quit the current file-list, move backward.
   R		Read directory names at the current position (also done
 		automatically whenever a file-list is constructed).
+		A repeat-count specifies the number of levels to recur to.
   U		toggle filename display (unix vs apollo)
   V		Toggle visibility of lower-level directories.
   w		Refresh the screen.
