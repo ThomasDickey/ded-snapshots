@@ -1,3 +1,17 @@
+1992-08-17  dickey@software.org
+
+	* src/ftree.c, src/dlog.c, src/dedfind.c, src/dedread.c, src/deddoit.c, src/dedtype.c, src/ded.c, src/ded.h:
+	added fast_q-arg to dlog_string() for edittext()
+
+	* src/ded.h: lint
+
+	* src/inline.c: lint
+	use 'trim_one()' in C_TRIM case also.
+
+	* src/inline.c:
+	use logic from 'dlog_string()' to implement history (i.e.,
+	for 'p' command)
+
 1992-08-14  dickey@software.org
 
 	* src/inline.c: make args to 'find_item()' module-level, so I can add

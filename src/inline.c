@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	Id[] = "$Id: inline.c,v 11.12 1992/08/14 07:24:11 dickey Exp $";
+static	char	Id[] = "$Id: inline.c,v 11.14 1992/08/17 09:17:19 dickey Exp $";
 #endif
 
 /*
@@ -28,15 +28,32 @@ typedef	ITEM	{
 	/*ARGSUSED*/
 	def_ALLOC(ITEM)
 
+static	DYN *	edited;
 static	int	re_edit,	/* flag for replay/editing */
+		the_age,	/* index into history */
 		my_topc,	/* optional key for items */
 		my_endc;	/* required key for items */
 
 /************************************************************************
  *	local procedures						*
  ************************************************************************/
+private	int	trim_one(
+	_AR1(DYN *,	p))
+	_DCL(DYN *,	p)
+{
+	register int	c;
+	if (dyn_length(p)) {
+		register char *temp = dyn_string(p);
+		p->cur_length -= 1;
+		c = temp[p->cur_length];
+		temp[p->cur_length] = EOS;
+	} else
+		c = EOS;
+	return c;
+}
+
 #ifdef	DEBUG
-static	void	show_text(
+private	void	show_text(
 	_ARX(int,	c)
 	_ARX(int,	cmd)
 	_ARX(int,	play)
@@ -106,8 +123,7 @@ private	void	show_item(
 #define	SHOW2(c,cmd)
 #endif
 
-static
-ITEM *	find_item(_AR0)
+private	ITEM *	find_item(_AR0)
 {
 	static	ITEM	*items;
 	register ITEM	*p;
@@ -133,6 +149,17 @@ ITEM *	find_item(_AR0)
 	return p;
 }
 
+private	int	redo_item(
+	_AR1(char *,	s))
+	_DCL(char *,	s)
+{
+	register ITEM	*p = find_item();
+	p->text = dyn_copy(p->text, s);
+	p->play = 0;
+	re_edit = TRUE;
+	return TRUE;
+}
+
 /************************************************************************
  *	public procedures						*
  ************************************************************************/
@@ -153,22 +180,56 @@ public	void	hide_inline(
  */
 public	int	edit_inline _ONE(int,flag)
 {
-	return ((re_edit = flag) ? ReplayEndC() : 0);
+	return ((re_edit = flag) ? my_endc : 0);
 }
 
 /*
  * Push/pop history for inline editing that cannot be done via 'dlog_string()'
  */
+#define	IGNORE	{ beep(); return FALSE; }
+
 public	int	up_inline(_AR0)
 {
-	beep();
-	return FALSE;
+	register ITEM	*p = find_item();
+	register char	*s,
+			*t = dyn_string(p->text);
+
+	(void)trim_one(p->text);
+
+	if (!the_age)
+		edited = dyn_copy(edited, t);
+
+	if (s = get_history(p->hist, the_age)) {
+		if (strcmp(s, t))
+			;	/* cannot skip */
+		else if (s = get_history(p->hist, the_age+1))
+			the_age++;
+		else IGNORE	/* last and only item */
+		the_age++;
+	} else IGNORE
+
+	return redo_item(s);
 }
 
 public	int	down_inline(_AR0)
 {
-	beep();
-	return FALSE;
+	register ITEM	*p = find_item();
+	register char	*s;
+
+	(void)trim_one(p->text);
+
+	if (the_age <= 0) IGNORE
+
+	if (s = get_history(p->hist, the_age-2)) {
+		the_age--;
+		if (the_age == 1 && !strcmp(s, dyn_string(edited)))
+			the_age = 0;
+	} else if (the_age == 1) {
+		the_age = 0;
+		s = dyn_string(edited);
+	} else IGNORE
+
+	return redo_item(s);
 }
 
 /*
@@ -191,10 +252,11 @@ public	int	get_inline (
 	case C_TOPC:
 		SHOW2(c,cmd)
 		my_topc = c;
-		return;
+		return EOS;
 	case C_FIND:
 	case C_INIT:
 		my_endc = c;
+		the_age = 0;
 	}
 
 	p = find_item();
@@ -209,6 +271,9 @@ public	int	get_inline (
 		break;
 
 	case C_DONE:	/* save buffer in history */
+		edited = dyn_copy(edited, dyn_string(p->text));
+		(void)trim_one(edited);
+		put_history(&(p->hist), dyn_string(edited));
 		break;
 
 	case C_ENDC:	/* report the last end-character */
@@ -220,12 +285,8 @@ public	int	get_inline (
 		/* fall-thru */
 
 	case C_TRIM:	/* remove prior-data (e.g., for retry/append) */
-		if (p->play != 0)
-			p->play -= 1;
-
-		p->text->cur_length = p->play;
-		c  = dyn_string(p->text)[p->play];
-		dyn_string(p->text)[p->play] = EOS;
+		c = trim_one(p->text);
+		p->play = dyn_length(p->text);
 		break;
 
 	case C_NEXT:

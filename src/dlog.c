@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	what[] = "$Id: dlog.c,v 11.16 1992/08/12 09:29:10 dickey Exp $";
+static	char	what[] = "$Id: dlog.c,v 11.17 1992/08/17 13:04:03 dickey Exp $";
 #endif
 
 /*
@@ -266,11 +266,13 @@ public	char *	dlog_string(
 	_ARX(DYN **,	result)
 	_ARX(DYN **,	inline)
 	_ARX(HIST **,	history)
+	_ARX(int,	fast_q)
 	_AR1(int,	wrap_len)
 		)
 	_DCL(DYN **,	result)
 	_DCL(DYN **,	inline)
 	_DCL(HIST **,	history)
+	_DCL(int,	fast_q)
 	_DCL(int,	wrap_len)
 {
 	static	DYN	*original, *before, *after, *trace, *edited;
@@ -284,7 +286,6 @@ public	char *	dlog_string(
 	int	y,x;
 	char	*buffer, *to_hist, *prior;
 	char	**prefix= inline ? i_pref : n_pref;
-	int	fast_q	= wrap ? EOS : 'q';
 
 	register int	c;
 	register char	*s;
