@@ -1,4 +1,4 @@
-MANIFEST for ded, version t19940626
+MANIFEST for ded, version t19940627
 --------------------------------------------------------------------------------
 MANIFEST                        this file
 COPYING                         copyright notice for DED
@@ -30,6 +30,7 @@ src/dedring.c                   manage ring of file-lists
 src/dedscan.c                   read file-list
 src/dedshow.c                   display file-list
 src/dedsigs.c                   signal-handlers for DED
+src/dedsize.c                   code to manage ded's resize
 src/dedsort.c                   sorting operation for DED
 src/dedtags.c                   tags/grouping operations for DED
 src/dedtype.c                   type/page a file

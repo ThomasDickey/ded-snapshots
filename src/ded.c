@@ -1,5 +1,5 @@
 #if	!defined(NO_IDENT)
-static	char	Id[] = "$Header: /users/source/archives/ded.vcs/src/RCS/ded.c,v 12.14 1994/06/26 22:44:07 tom Exp $";
+static	char	Id[] = "$Header: /users/source/archives/ded.vcs/src/RCS/ded.c,v 12.16 1994/06/27 23:29:32 tom Exp $";
 #endif
 
 /*
@@ -381,7 +381,7 @@ public	void	retouch(
 	_DCL(int,	row)
 {
 int	y,x;
-#ifdef	apollo
+#if	defined(apollo) || defined(SIGWINCH)
 	if (resizewin()) {
 		dlog_comment("resizewin(%d,%d)\n", LINES, COLS);
 		markset(gbl, mark_W);
@@ -942,6 +942,7 @@ _MAIN
 
 	save_terminal();
 	(void)dedsigs(TRUE);
+	(void)dedsize((RING *)0, (int *)0);
 	if (!initscr())			failed("initscr");
 	in_screen = TRUE;
 	if (LINES > BUFSIZ || COLS > BUFSIZ) {
@@ -958,7 +959,9 @@ _MAIN
 	mark_W = (LINES/2);
 	openVIEW(gbl);
 
-	while (gbl != 0) { switch (c = dlog_char(&count,1)) {
+	while (gbl != 0) {
+	dedsize(gbl, (int *)0);
+	switch (c = dlog_char(&count,1)) {
 			/* scrolling */
 	case ARO_UP:
 	case '\b':
@@ -1290,7 +1293,8 @@ _MAIN
 			break;
 
 	default:	beep();
-	}; lastc = c; }
+	}; lastc = c;
+	}
 
 	to_exit(TRUE);
 	ft_write();
