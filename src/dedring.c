@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	Id[] = "$Id: dedring.c,v 4.1 1989/10/04 15:20:09 dickey Exp $";
+static	char	Id[] = "$Id: dedring.c,v 5.0 1989/10/05 16:58:38 ste_cm Rel $";
 #endif	lint
 
 /*
@@ -7,9 +7,15 @@ static	char	Id[] = "$Id: dedring.c,v 4.1 1989/10/04 15:20:09 dickey Exp $";
  * Author:	T.E.Dickey
  * Created:	27 Apr 1988
  * $Log: dedring.c,v $
- * Revision 4.1  1989/10/04 15:20:09  dickey
- * save/restore A_opt, O_opt
+ * Revision 5.0  1989/10/05 16:58:38  ste_cm
+ * BASELINE Fri Oct 27 12:27:25 1989 -- apollo SR10.1 mods + ADA_PITS 4.0
  *
+ *		Revision 4.2  89/10/05  16:58:38  dickey
+ *		save/restore 'cmdcol[]' per-list
+ *		
+ *		Revision 4.1  89/10/04  15:20:09  dickey
+ *		save/restore A_opt, O_opt
+ *		
  *		Revision 4.0  89/05/26  14:15:32  ste_cm
  *		BASELINE Thu Aug 24 10:20:06 EDT 1989 -- support:navi_011(rel2)
  *		
@@ -67,6 +73,7 @@ typedef	struct	_ring	{
 	FLIST		*flist;
 	char		**top_argv;
 	int		top_argc,
+			cmdcol[CCOL_MAX],
 			clr_sh,
 			Xbase,
 			Ybase,
@@ -142,12 +149,14 @@ static
 save(p)
 RING	*p;
 {
+	register int	j;
 	trans(p->new_wd, new_wd);
 	SAVE(toscan);
 	SAVE(scan_expr);
 	(void)strcpy(p->bfr_sh, bfr_sh);
 	SAVE(flist);
 	SAVE(top_argc);
+	for (j = 0; j < CCOL_MAX; j++) SAVE(cmdcol[j]);
 	SAVE(top_argv);
 	SAVE(clr_sh);
 	SAVE(Xbase);
@@ -185,12 +194,14 @@ static
 unsave(p)
 RING	*p;
 {
+	register int	j;
 	untrans(new_wd, p->new_wd);
 	UNSAVE(toscan);
 	UNSAVE(scan_expr);
 	(void)strcpy(bfr_sh, p->bfr_sh);
 	UNSAVE(flist);
 	UNSAVE(top_argc);
+	for (j = 0; j < CCOL_MAX; j++) UNSAVE(cmdcol[j]);
 	UNSAVE(top_argv);
 	UNSAVE(clr_sh);
 	UNSAVE(Xbase);

@@ -1,3 +1,34 @@
+1989-10-05  dickey@software.org
+
+	* src/dedmake.c: modified treatment of 'cmdcol[]' (cf: showFILES)
+
+1989-10-05  ste_cm@software.org
+
+	* src/dedmake.c:
+	BASELINE Fri Oct 27 12:27:25 1989 -- apollo SR10.1 mods + ADA_PITS 4.0
+
+	* src/dedmake.c: BASELINE Mon Apr 30 09:54:01 1990 -- (CPROTO)
+
+	* src/dedmake.c: BASELINE Mon Aug 13 15:06:41 1990 -- LINCNT, ADA_TRANS
+
+	* src/dedmake.c:
+	BASELINE Thu Mar 29 07:37:55 1990 -- maintenance release (SYNTHESIS)
+
+1989-10-05  dickey@software.org
+
+	* src/dedring.c: save/restore 'cmdcol[]' per-list
+
+1989-10-05  ste_cm@software.org
+
+	* src/dedring.c:
+	BASELINE Fri Oct 27 12:27:25 1989 -- apollo SR10.1 mods + ADA_PITS 4.0
+
+1989-10-05  dickey@software.org
+
+	* src/ded2s.c: corrected treatment of nil-objects
+
+	* src/ded2s.c: don't show deleted-files as having extended acls
+
 1989-10-04  dickey@software.org
 
 	* src/version.h:

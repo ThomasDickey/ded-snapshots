@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	Id[] = "$Id: ded2s.c,v 4.2 1989/10/04 17:01:06 dickey Exp $";
+static	char	Id[] = "$Id: ded2s.c,v 4.4 1989/10/05 14:32:44 dickey Exp $";
 #endif	lint
 
 /*
@@ -7,9 +7,15 @@ static	char	Id[] = "$Id: ded2s.c,v 4.2 1989/10/04 17:01:06 dickey Exp $";
  * Author:	T.E.Dickey
  * Created:	09 Nov 1987
  * $Log: ded2s.c,v $
- * Revision 4.2  1989/10/04 17:01:06  dickey
- * added code to support 'O' toggle (show object-types)
+ * Revision 4.4  1989/10/05 14:32:44  dickey
+ * corrected treatment of nil-objects
  *
+ *		Revision 4.3  89/10/05  07:57:37  dickey
+ *		don't show deleted-files as having extended acls
+ *		
+ *		Revision 4.2  89/10/04  17:01:06  dickey
+ *		added code to support 'O' toggle (show object-types)
+ *		
  *		Revision 4.1  89/10/04  10:25:08  dickey
  *		added code for apollo SR10.1 which shows a "+" after mode
  *		like the 'ls' utility on that system.
@@ -107,7 +113,7 @@ char	*t,
 #endif	S_IFLNK
 	bfr += strlen(bfr);
 #ifdef	apollo_sr10
-	*bfr++ = is_EXTENDED_ACL(s->st_rfu4) ? '+' : ' ';
+	*bfr++ = ((mj != 0) && is_EXTENDED_ACL(s->st_rfu4)) ? '+' : ' ';
 	if (O_opt) {
 		FORMAT(bfr, " %-9.9s ", type_uid2s(s));
 		bfr += field(bfr,mj);
@@ -297,6 +303,7 @@ struct	stat *s;
 		uid_$t	*id;
 		char	*name;
 	} list[] = {
+		&uid_$nil,		"nil",
 		&case_hm_$uid,		"case_hm",
 		&cmpexe_$uid,		"cmpexe",
 		&coff_$uid,		"coff",
@@ -319,10 +326,7 @@ struct	stat *s;
 		&uasc_$uid,		"uasc",
 		&unstruct_$uid,		"unstruct"
 	};
-	t = " ";
-	if (isDIR(s->st_mode))
-		t = "nil";
-	else if (isFILE(s->st_mode) || isDEV(s->st_mode)) {
+	if (s->st_mode != 0) {
 		t = "?";
 		for (c = 0; c < sizeof(list)/sizeof(list[0]); c++) {
 			if (list[c].id->high == s->st_rfu4[0]
@@ -331,7 +335,8 @@ struct	stat *s;
 				break;
 			}
 		}
-	}
+	} else
+		t = " ";
 	return (t);
 }
 #endif
