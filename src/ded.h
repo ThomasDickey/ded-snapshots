@@ -3,7 +3,7 @@
 
 #ifdef	MAIN
 #if	!defined(NO_IDENT)
-static	char	*ded_h = "$Id: ded.h,v 12.29 1994/07/16 22:41:26 tom Exp $";
+static	char	*ded_h = "$Id: ded.h,v 12.30 1994/07/18 01:05:24 tom Exp $";
 #endif
 #endif	/* MAIN */
 
@@ -575,12 +575,7 @@ extern	int	ded_access(
 		_arx(Stat_t *,	sb)
 		_ar1(int,	mask));
 
-#if STAT_HAS_ST_BLOCKS
-#define ded_blocks(sb) (sb)->st_blocks
-#else
-extern	unsigned long ded_blocks(
-		_ar1(Stat_t *,	sb));
-#endif
+#define ded_blocks(sb) fileblocks(sb)
 
 extern	char	*type_uid2s(
 		_ar1(Stat_t *,	s));

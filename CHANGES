@@ -1,3 +1,11 @@
+1994-07-18  Thomas E. Dickey  <dickey@clark.net>
+
+	* src/README: fix some, break some
+
+	* src/showpath.c:
+	modified so that I can highlight the directory-tree's display of the pathname,
+	so I can see where the navigation bar lies in the path.
+
 1994-07-17  Thomas E. Dickey  <dickey@clark.net>
 
 	* src/ded2s.c: split out 'dblks()' as library function 'fileblocks()'
