@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	sccs_id[] = "@(#)dedname.c	1.2 88/08/02 12:41:25";
+static	char	sccs_id[] = "@(#)dedname.c	1.3 88/09/12 15:18:42";
 #endif	lint
 
 /*
@@ -7,6 +7,7 @@ static	char	sccs_id[] = "@(#)dedname.c	1.2 88/08/02 12:41:25";
  * Author:	T.E.Dickey
  * Created:	11 May 1988
  * Modified:
+ *		12 Sep 1988, use 'pathcat()'
  *
  * Function:	Rename a file in the file-list, then perform cleanup of the
  *		directory tree and display-ring.
@@ -19,18 +20,15 @@ static	char	sccs_id[] = "@(#)dedname.c	1.2 88/08/02 12:41:25";
  */
 
 #include	"ded.h"
+extern	char	*pathcat();
 extern	char	*txtalloc();
 
 static
 fullname(leaf)
 char	*leaf;
 {
-char	path[BUFSIZ];
-int	len	= strlen(strcpy(path, new_wd));
-	if (path[len-1] != '/')
-		(void)strcat(path, "/");
-	(void)strcat(path, leaf);
-	(void)strcpy(leaf, path);
+	char	path[BUFSIZ];
+	(void)strcpy(leaf, pathcat(path, new_wd, leaf));
 }
 
 static

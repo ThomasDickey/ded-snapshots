@@ -1,3 +1,96 @@
+1988-09-12  dickey@software.org
+
+	* src/dedring.c:
+	removed redundant loop in 'dedring()' for counting q/Q commands (see: 'ftree.c').
+
+	* src/dedring.c: sccs2rcs keywords
+
+1988-09-12  ste_cm@software.org
+
+	* src/dedring.c: BASELINE Thu Apr  6 13:14:13 EDT 1989
+
+1988-09-12  dickey@software.org
+
+	* src/README: cleaned up the easy (< 1day) bugs.
+
+	* src/deddoit.c: use 'pathcat()'.
+
+	* src/deddump.c: sccs2rcs keywords
+
+	* src/deddump.c: use 'pathcat()'.
+
+1988-09-12  ste_cm@software.org
+
+	* src/deddump.c:
+	BASELINE Fri Oct 27 12:27:25 1989 -- apollo SR10.1 mods + ADA_PITS 4.0
+
+	* src/deddump.c: BASELINE Mon Apr 30 09:54:01 1990 -- (CPROTO)
+
+	* src/deddump.c: BASELINE Mon Aug 13 15:06:41 1990 -- LINCNT, ADA_TRANS
+
+	* src/deddump.c: BASELINE Mon Jun 19 14:21:57 EDT 1989
+
+	* src/deddump.c: BASELINE Thu Apr  6 13:14:13 EDT 1989
+
+	* src/deddump.c:
+	BASELINE Thu Aug 24 10:20:06 EDT 1989 -- support:navi_011(rel2)
+
+	* src/deddump.c:
+	BASELINE Thu Mar 29 07:37:55 1990 -- maintenance release (SYNTHESIS)
+
+1988-09-12  dickey@software.org
+
+	* src/dedname.c, src/ded.c: use 'pathcat()'.
+
+	* src/version.h: new version, 'c' command.
+
+	* src/ded.hlp: added 'c' (create) command.
+
+	* src/ded.c: show blip in '@'-toggle; added 'c'-command.
+
+	* src/dedmake.c: New file.
+
+	* src/dedscan.c:
+	recoded handling of 'ft_linkto()' versus 'ft_insert()' so that we do
+	fewer stats.  The 'ft_linkto()' is invoked only if '@'-toggle is set.
+	Also, added 'statMAKE()' to support 'dedmake()'.
+
+	* src/Makefile: added 'dedmake.c' module.
+
+	* src/ftree.c:
+	added arg to 'ft_remove()' so we can keep links around til user does a
+	scan with '@'-toggle set, or uses 'R' command in ftree.
+
+	* src/README: fix some, find some
+
+	* src/dedtype.c:
+	suppress screen-operations during skip, to make this faster (~2).
+
+	* src/dedfind.c, src/dedwait.c: lint
+
+	* src/dedshow.c: sccs2rcs keywords
+
+	* src/dedshow.c: show very long lines via continuation
+
+1988-09-12  ste_cm@software.org
+
+	* src/dedshow.c:
+	BASELINE Fri Oct 27 12:27:25 1989 -- apollo SR10.1 mods + ADA_PITS 4.0
+
+	* src/dedshow.c: BASELINE Mon Apr 30 09:54:01 1990 -- (CPROTO)
+
+	* src/dedshow.c: BASELINE Mon Aug 13 15:06:41 1990 -- LINCNT, ADA_TRANS
+
+	* src/dedshow.c: BASELINE Mon Jun 19 14:21:57 EDT 1989
+
+	* src/dedshow.c: BASELINE Thu Apr  6 13:14:13 EDT 1989
+
+	* src/dedshow.c:
+	BASELINE Thu Aug 24 10:20:06 EDT 1989 -- support:navi_011(rel2)
+
+	* src/dedshow.c:
+	BASELINE Thu Mar 29 07:37:55 1990 -- maintenance release (SYNTHESIS)
+
 1988-09-09  dickey@software.org
 
 	* src/version.h: bug fixes

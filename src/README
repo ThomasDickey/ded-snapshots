@@ -1,10 +1,5 @@
 To do:
 -----
-	Provide help from within workarea pager.
-	Provide help from the directory tree.
-
-  Make spawned processes inherit options from current one
-
   Use SHELL environment variable & bldargs() so we needn't
   go thru 'system()' call (which always goes thru /bin/sh).
 
@@ -30,8 +25,6 @@ To do:
 	Should provide a rename-leaf command in ftree using '='
 
 88/05/16:
-	Should do better margin trimming in 'ft_show' and 'ded2s()'.
-
 	Don't think that csh-like symbolic links are processed correctly
 	(e.g., "~/src").  Probably should modify linkstat (and corresponding
 	inline code in ftree) to do a readlink/abspath/stat (on apollo at
@@ -41,14 +34,6 @@ To do:
 	Encountered bug (maybe apollo system) which caused vsize-call in
 	'resizewin()' to get strange values after toggling +/- commands
 	several times, then invoking 'w'.
-
-88/05/26:
-	Should add an 'o'/'O' command to create new files in the list so we
-	don't have to do a rescan to get them.
-
-88/06/13:
-	sometimes the '@' state in ftree is not cleared when we re-read and
-	it should now be a directory instead of a link.
 
 88/06/27:
 	Should redo the ftree-rename so it renames the ring-entries too.
@@ -66,15 +51,6 @@ To do:
 	For SYSTEM5, should use 'wrefresh(curscr)' to forcibly refresh the
 	screen.
 
-88/09/02:
-	In 'dedtype()', should be more efficient about skipping (i.e., suppress
-	the curses actions).  This should be simple, since we need only count
-	line-feeds.
-
-	ft_rename() does not handle properly the "//" or "/" level stuff.
-
-	If '@'-toggle is active, stat-info sent to 'ft_insert()' will be wrong.
-
 88/09/06:
 	Consider another toggle in ftree to suppress names beginning with
 	'.' (e.g., 'A' or '.').
@@ -82,16 +58,12 @@ To do:
 	In '>' command (also, '=') don't try to perform change if none
 	occurred!
 
-	Should consider making the 'ft_linkto()' call from 'dedscan()'
-	only if we are running with '@' mode.  This would make ded run faster,
-	since we could dispense with the 'stat()' call.  First, optimize this
-	out by modifying calls/interface of 'ft_linkto()'
-
-88/09/07:
-	dedring's q/Q loop doesn't need repeat-count anymore.
-
 88/09/08:
 	should add sort-by-leafname (for when using long argument format).
 
 	should consider processing '~'-style stuff in '@'-toggle, even tho
 	the 'stat()' command would need 'abspath()' processing.
+
+88/09/09:
+	in editlink, should permit '%' expressions such as that used in
+	'deddoit()'.

@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	sccs_id[] = "@(#)dedwait.c	1.3 88/04/22 06:54:07";
+static	char	sccs_id[] = "@(#)dedwait.c	1.4 88/09/12 08:23:02";
 #endif	lint
 
 /*
@@ -20,9 +20,9 @@ int	c;
 
 	/* assume we are already in raw-mode */
 	standout();
-	printw("%.*s", COLS-1, "Hit <RETURN> to continue");
+	PRINTW("%.*s", COLS-1, "Hit <RETURN> to continue");
 	standend();
-	printw(" ");
+	PRINTW(" ");
 	clrtoeol();
 	refresh();
 

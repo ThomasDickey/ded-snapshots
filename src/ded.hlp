@@ -153,6 +153,16 @@ Operations on Files:
 		set of characters typed for the command, so an editing
 		template may be made.
 
+  c		Create a new entry in the display list.  The type is
+		given by the second character of the command:
+
+		d	directory
+		f	file
+		l	symbolic link
+
+		The command completes by editing the name of the new
+		entry a la '='.
+
   e		If the current entry is a directory, spawn
 		a new DED process with that as argument.
 		If it is a file, invoke the EDITOR (vi) on it.
