@@ -1,3 +1,20 @@
+1990-04-24  dickey@software.org
+
+	* src/ded2s.c:
+	corrected 'time2s()' to handle dates past coming midnight
+
+1990-04-24  ste_cm@software.org
+
+	* src/ded2s.c: BASELINE Mon Apr 30 09:54:01 1990 -- (CPROTO)
+
+	* src/ded2s.c: BASELINE Mon Aug 13 15:06:41 1990 -- LINCNT, ADA_TRANS
+
+1990-04-24  dickey@software.org
+
+	* src/dedscan.c:
+	modified 'argstat()' so that if shell (e.g., Bourne) passes
+	a "~" argument, we expand it properly.
+
 1990-04-23  dickey@software.org
 
 	* src/dedscan.c:
