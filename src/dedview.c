@@ -1,5 +1,5 @@
 #if	!defined(NO_IDENT)
-static	char	Id[] = "$Id: dedview.c,v 12.18 1994/08/12 21:10:52 tom Exp $";
+static	char	Id[] = "$Id: dedview.c,v 12.19 1994/10/19 23:17:11 tom Exp $";
 #endif
 
 /*
@@ -7,6 +7,7 @@ static	char	Id[] = "$Id: dedview.c,v 12.18 1994/08/12 21:10:52 tom Exp $";
  * Author:	T.E.Dickey
  * Created:	03 Apr 1992, from 'ded.c'
  * Modified:
+ *		19 Oct 1994, mods for color
  *		16 Dec 1993, added 'mrkfile' flag to cleanup 'markC()' logic.
  *		19 Nov 1993, added 'row2VIEW()' for mouse-support.
  *		17 Nov 1993, modify 'top2VIEW()' to make "^" command a toggle.
@@ -188,6 +189,10 @@ private	void	show_line(
 				col  = 0;
 				len  = COLS-1;
 			}
+#if HAVE_HAS_COLORS
+			if (end >= COLS + gbl->Xbase)
+				end = COLS + gbl->Xbase;
+#endif
 
 			PRINTW("%.*s", COLS-1, &bfr[gbl->Xbase]);
 			if (len > 0) { /* filename is visible */

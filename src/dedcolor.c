@@ -1,7 +1,3 @@
-#ifndef	NO_IDENT
-static	char	Id[] = "$Id: dedcolor.c,v 12.5 1994/07/16 22:08:13 tom Exp $";
-#endif
-
 /*
  * Title:	dedcolor.c (ded color support)
  * Author:	T.E.Dickey
@@ -16,6 +12,8 @@ static	char	Id[] = "$Id: dedcolor.c,v 12.5 1994/07/16 22:08:13 tom Exp $";
  * Note:	This was written/debugged on a Linux system using ncurses.
  */
 #include "ded.h"
+
+MODULE_ID("$Id: dedcolor.c,v 12.7 1994/10/18 00:31:35 tom Exp $")
 
 #if HAVE_HAS_COLORS
 
@@ -110,7 +108,7 @@ private	void	SaveColor(
 	int	attr	= A_NORMAL,
 		forg	= FORG_DEFAULT,
 		bakg	= BAKG_DEFAULT;
-	int	n, found;
+	int	n, found = FALSE;
 	char	*temp;
 
 	/* patch: how can I get the values for color-pair #0? */
@@ -153,7 +151,7 @@ private	void	SaveColor(
 			}
 		} else	/* non-number: keywords */
 #endif	/* linux */
-		for (found = FALSE, n = 0; n < SIZEOF(attr_names); n++) {
+		for (n = 0; n < SIZEOF(attr_names); n++) {
 			if (!strcmp(spec, attr_names[n].name)) {
 				attr |= attr_names[n].code;
 				found = TRUE;
