@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	sccs_id[] = "$Header: /users/source/archives/ded.vcs/src/RCS/dedwait.c,v 8.0 1989/03/14 10:58:48 ste_cm Rel $";
+static	char	Id[] = "$Id: dedwait.c,v 8.1 1991/04/17 07:43:39 dickey Exp $";
 #endif	lint
 
 /*
@@ -7,9 +7,12 @@ static	char	sccs_id[] = "$Header: /users/source/archives/ded.vcs/src/RCS/dedwait
  * Author:	T.E.Dickey
  * Created:	01 Dec 1987
  * $Log: dedwait.c,v $
- * Revision 8.0  1989/03/14 10:58:48  ste_cm
- * BASELINE Mon Aug 13 15:06:41 1990 -- LINCNT, ADA_TRANS
+ * Revision 8.1  1991/04/17 07:43:39  dickey
+ * added flag to allow this to be used for debugging (non-curses)
  *
+ *		Revision 8.0  89/03/14  10:58:48  ste_cm
+ *		BASELINE Mon Aug 13 15:06:41 1990 -- LINCNT, ADA_TRANS
+ *		
  *		Revision 7.0  89/03/14  10:58:48  ste_cm
  *		BASELINE Mon Apr 30 09:54:01 1990 -- (CPROTO)
  *		
@@ -39,18 +42,22 @@ static	char	sccs_id[] = "$Header: /users/source/archives/ded.vcs/src/RCS/dedwait
 
 #include	"ded.h"
 
-dedwait()
+dedwait(cursed)
 {
 	register int	c;
 	static	 char	*msg = "Hit <RETURN> to continue";
 
-	/* assume we are already in raw-mode */
-	standout();
-	PRINTW("%.*s", COLS-1, msg);
-	standend();
-	PRINTW(" ");
-	clrtoeol();
-	refresh();
+	if (cursed) {	/* assume we are already in raw-mode */
+		standout();
+		PRINTW("%.*s", COLS-1, msg);
+		standend();
+		PRINTW(" ");
+		clrtoeol();
+		refresh();
+	} else {
+		PRINTF("%s", msg);
+		fflush(stdout);
+	}
 
 	dlog_flush();
 	do	c = dlog_char((int *)0,0);
