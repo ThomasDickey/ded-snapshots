@@ -1,5 +1,5 @@
 #if	!defined(NO_IDENT)
-static	char	Id[] = "$Header: /users/source/archives/ded.vcs/src/RCS/ded.c,v 12.36 1995/04/22 21:14:19 tom Exp $";
+static	char	Id[] = "$Header: /users/source/archives/ded.vcs/src/RCS/ded.c,v 12.37 1995/07/04 16:28:37 tom Exp $";
 #endif
 
 /*
@@ -1017,7 +1017,7 @@ _MAIN
 					gbl = row2VIEW(gbl, xt_mouse.row);
 					if (xt_mouse.dbl_clik) {
 						j = (realstat(gbl, gbl->curfile, &sb)) ? 'E' : CTL('v');
-						(void)ungetc(j,stdin);
+						(void)ungetch(j);
 					}
 				} else {
 					beep();

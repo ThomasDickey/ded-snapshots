@@ -1,5 +1,5 @@
 #ifndef	NO_IDENT
-static	char	Id[] = "$Id: ftree.c,v 12.36 1995/01/28 19:19:51 tom Exp $";
+static	char	Id[] = "$Id: ftree.c,v 12.37 1995/07/04 16:28:35 tom Exp $";
 #endif
 
 /*
@@ -1487,7 +1487,7 @@ public	RING *	ft_view(
 					if (lvl < 0)
 						lvl = 0;
 					if (xt_mouse.dbl_clik) {
-						(void)ungetc('E',stdin);
+						(void)ungetch('E');
 					}
 				} else {
 					beep();
