@@ -1,5 +1,5 @@
 #ifndef	NO_SCCS_ID
-static	char	sccs_id[] = "@(#)ftree.c	1.9 87/09/17 13:28:38";
+static	char	sccs_id[] = "@(#)ftree.c	1.10 87/09/28 15:01:26";
 #endif
 
 /*
@@ -33,8 +33,7 @@ static	char	sccs_id[] = "@(#)ftree.c	1.9 87/09/17 13:28:38";
 #include	<sys/stat.h>
 extern	long	time();
 extern	int	errno;
-extern	char	*getcwd(),
-		*getenv(),
+extern	char	*getenv(),
 		*strcat(),
 		*strchr(),
 		*strcpy();
@@ -356,7 +355,8 @@ register int j, k;
  * Initialize this module, by reading the file-tree database from the user's
  * home directory.
  */
-ft_read()
+ft_read(first)
+char	*first;		/* => string defining the initial directory */
 {
 struct	stat sb;
 register int j;
@@ -390,7 +390,7 @@ unsigned size;
 	FDdiff = 0;
 
 	/* append the current directory to the list */
-	ft_insert(".");
+	ft_insert(first ? first : ".");
 
 	/* inherit sense of 'Z' toggle from database */
 	for (j = 0; j <= FDlast; j++) {
@@ -577,8 +577,10 @@ register int j = node;
 }
 
 /*
- * Interactively display the directory tree and modify it.  The return value
- * is used by the coroutine as the next command.
+ * Interactively display the directory tree and modify it:
+ *	* The return value is used by the coroutine as the next command.
+ *	* The argument is overwritten with the name of the new directory
+ *	  for e/E commands.
  */
 ft_view(path)
 char	*path;
@@ -593,6 +595,7 @@ extern	char	*fr_find();
 int	ring	= 1;
 #endif	TEST
 char	cwdpath[MAXPATHLEN];
+char	*newpath;
 register int j;
 
 	/* set initial position */
@@ -678,10 +681,12 @@ register int j;
 		/* Exit from this program (back to 'fl') */
 		case 'E':
 		case 'e':
-			if (chdir(fd_path(cwdpath,row)) < 0) {
+			if (chdir(newpath = fd_path(cwdpath,row)) < 0) {
 				beep();
 				break;
 			}
+			(void)strcpy(path, newpath);
+			/* fall-thru to return */
 #endif	TEST
 		case 'D':
 		case 'q':
@@ -779,7 +784,7 @@ int	fid;
 char	old[MAXPATHLEN],
 	bfr[MAXPATHLEN], *s = bfr;
 
-	(void)getcwd(old,sizeof(old)-2);
+	abspath(strcpy(old,"."));
 	s += strlen(fd_path(bfr,node));
 
 	if (chdir(bfr) < 0)
@@ -839,7 +844,7 @@ int	j,
 char	cwdpath[MAXPATHLEN],
 	*s;
 
-	ft_read();
+	ft_read(".");
 	for (j = 1; j < argc; j++) {
 		s = argv[j];
 		if (*s == '-') {
@@ -859,7 +864,7 @@ char	cwdpath[MAXPATHLEN],
 		ft_purge();
 	(void) initscr();
 	setterm (1,-1,-1,-1);	/* raw; noecho; nonl; nocbreak; */
-	(void)ft_view(getcwd(cwdpath,sizeof(cwdpath)-2));
+	(void)ft_view(".");
 	move(LINES-1,0);
 	refresh();
 	PRINTF("\n");

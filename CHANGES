@@ -1,3 +1,7 @@
+1987-09-28  Thomas E. Dickey
+
+	* src/ftree.c: mods to reduce calls on 'getcwd()'.
+
 1987-09-17  Thomas E. Dickey
 
 	* src/ftree.c:
