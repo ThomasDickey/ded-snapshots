@@ -1,3 +1,16 @@
+1991-07-02  dickey@software.org
+
+	* src/ded.hlp: updated notes for S,P commands (now 3-way)
+
+	* src/version.h: made file-list 'S' and 'P' commands 3-way.
+
+	* src/ded2s.c:
+	made S_opt, P_opt 3-way toggles. S_opt is 3-way so I can show
+	either blocks/bytes or both. P_opt is 3-way to show as a
+	side-effect uid/gid numerically as well as protection.
+
+	* src/ded.c: made S_opt, P_opt 3-way toggles.
+
 1991-07-01  dickey@software.org
 
 	* src/dedtype.c:

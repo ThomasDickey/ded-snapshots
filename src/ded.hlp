@@ -1,4 +1,4 @@
-$Id: ded.hlp,v 9.1 1991/06/28 07:52:28 dickey Exp $
+$Id: ded.hlp,v 9.2 1991/07/02 17:51:32 dickey Exp $
 
 DED (Directory EDitor)
 ======================
@@ -60,8 +60,9 @@ Display-Adjustment:
   G		toggle user/group display field.  Use "2G" to show both.
   I		toggle inode/links display field.  Use "2I" to show device too.
   O		toggle flag showing object types
-  P		toggle file protection-mode (octal/normal) display field
-  S		toggle filesize (in blocks) field
+  P		toggle file protection-mode (octal/normal) display field.
+		Use "2P" to show uid/gid fields numerically.
+  S		toggle filesize (in blocks) field. Use "2S" to show both.
   T		toggle date+time length
   U		toggle filename display (unix vs apollo)
   V		toggle rcs/sccs version display
