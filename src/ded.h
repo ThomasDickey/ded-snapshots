@@ -1,4 +1,4 @@
-/* @(#)ded.h	1.14 88/05/23 07:23:02 */
+/* @(#)ded.h	1.15 88/06/01 07:33:19 */
 
 /*
  * Created:	09 Nov 1987
@@ -105,6 +105,10 @@ extern	int	re_exec();	/* (return > 0): match */
 #define	Z_SCCS			/* compile-in '-z' sccs support */
 #define	Z_RCS			/* compile-in '-z' rcs support */
 
+#if	defined(Z_SCCS) || defined(Z_RCS)
+#define	Z_RCS_SCCS		/* compile-in common sccs/rcs support */
+#endif
+
 /*
  * Miscellaneous definitions
  */
@@ -139,10 +143,11 @@ typedef	struct	{
 	char		*ltxt;	/* what link resolves to		*/
 	struct	stat	s;	/* stat()-block				*/
 	char		flag;	/* tag-flag				*/
-#ifdef	Z_SCCS
+#ifdef	Z_RCS_SCCS
 	char	*z_vers;	/* last sccs-release, version		*/
+	char	*z_lock;	/* current locker (user-name)		*/
 	time_t	z_time;		/* last sccs delta-date			*/
-#endif	Z_SCCS
+#endif	Z_RCS_SCCS
 	} FLIST;
 
 #define	cNAME	flist[curfile].name
@@ -170,9 +175,10 @@ MAIN	int	top_argc,
 		P_opt,		/* show filemode in octal vs normal */
 		S_opt,		/* show filesize in blocks */
 		U_opt;		/* show underlying file-info */
-#ifdef	Z_SCCS
+#ifdef	Z_RCS_SCCS
 MAIN	int	V_opt,		/* show sccs-versions */
+		Y_opt,		/* show sccs-locks */
 		Z_opt;		/* show sccs-information */
-#endif	Z_SCCS
+#endif	Z_RCS_SCCS
 
 MAIN unsigned	numfiles;	/* total files in display-list */

@@ -1,5 +1,5 @@
 #ifndef	NO_SCCS_ID
-static	char	sccs_id[] = "@(#)dedscan.c	1.14 88/05/26 07:32:27";
+static	char	sccs_id[] = "@(#)dedscan.c	1.15 88/06/01 10:26:17";
 #endif	NO_SCCS_ID
 
 /*
@@ -7,6 +7,7 @@ static	char	sccs_id[] = "@(#)dedscan.c	1.14 88/05/26 07:32:27";
  * Author:	T.E.Dickey
  * Created:	09 Nov 1987
  * Modified:
+ *		01 Jun 1988, added 'z_lock'.
  *		26 May 1988, made 'flist[]' allocation in chunks.
  *		23 May 1988, changed interface to 'rcslast()', 'sccslast()'.
  *		13 May 1988, put only links-to-directory via 'ft_linkto()'.
@@ -194,9 +195,9 @@ char	bfr[BUFSIZ];
 		}
 	}
 #endif	SYSTEM5
-#if	defined(Z_SCCS) || defined(Z_RCS)
+#ifdef	Z_RCS_SCCS
 	statSCCS(name, f_);
-#endif	Z_SCCS
+#endif	Z_RCS_SCCS
 	return (0);
 }
 
@@ -253,7 +254,8 @@ struct	stat	sb;
  * to it.  It is called both locally (within this module), and on-the-fly from
  * the main command-decoder when we set the Z_opt flag.
  */
-#if	defined(Z_SCCS) || defined(Z_RCS)
+#ifdef	Z_RCS_SCCS
+#define	LAST(p)	p(new_wd, name, &(f_->z_vers), &(f_->z_time), &(f_->z_lock))
 statSCCS(name, f_)
 char	*name;
 FLIST	*f_;
@@ -261,21 +263,22 @@ FLIST	*f_;
 	if (Z_opt) {
 		if (isFILE(f_->s.st_mode)) {
 #ifdef	Z_RCS
-			rcslast(new_wd, name, &(f_->z_vers), &(f_->z_time));
+			LAST(rcslast);
 #ifdef	Z_SCCS
 			if (f_->z_time == 0)
 #endif	Z_SCCS
 #endif	Z_RCS
 #ifdef	Z_SCCS
-			sccslast(new_wd, name, &(f_->z_vers), &(f_->z_time));
+			LAST(sccslast);
 #endif	Z_SCCS
 		} else {
+			f_->z_lock =
 			f_->z_vers = "";
 			f_->z_time = 0;
 		}
 	}
 }
-#endif	Z_SCCS
+#endif	Z_RCS_SCCS
 
 /*
  * This entrypoint is called to re-stat entries which already have been put

@@ -1,11 +1,12 @@
 #ifndef	NO_SCCS_ID
-static	char	sccs_id[] = "@(#)ftree.c	1.43 88/05/17 09:06:57";
+static	char	sccs_id[] = "@(#)ftree.c	1.44 88/06/01 10:31:27";
 #endif
 
 /*
  * Author:	T.E.Dickey
  * Created:	02 Sep 1987
  * Modified:
+ *		01 Jun 1988, added SCCS_DIR environment variable.
  *		16 May 1988, added 'U' command.
  *		13 May 1988, use 'txtalloc()' in 'ft_read()' -- should be
  *			     eventually cheaper: less memory.  Treat RCS
@@ -763,8 +764,11 @@ static
 is_sccs(node)
 {
 register FTREE *f = &ftree[node];
-	if (!strcmp(f->f_name, "sccs"))	return (TRUE);
-	if (!strcmp(f->f_name, "RCS"))	return (TRUE);
+static	char	*sccs_dir;
+	if (!sccs_dir)				sccs_dir = getenv("SCCS_DIR");
+	if (!sccs_dir)				sccs_dir = "sccs";
+	if (!strcmp(f->f_name, sccs_dir))	return (TRUE);
+	if (!strcmp(f->f_name, "RCS"))		return (TRUE);
 	return (FALSE);
 }
 

@@ -1,5 +1,5 @@
 #ifndef	NO_SCCS_ID
-static	char	sccs_id[] = "@(#)dedsort.c	1.4 88/05/23 07:09:25";
+static	char	sccs_id[] = "@(#)dedsort.c	1.5 88/06/01 07:43:51";
 #endif	NO_SCCS_ID
 
 /*
@@ -7,6 +7,7 @@ static	char	sccs_id[] = "@(#)dedsort.c	1.4 88/05/23 07:09:25";
  * Author:	T.E.Dickey
  * Created:	11 Nov 1987
  * Modified:
+ *		01 Jun 1988, added 'y' sort.
  *		23 May 1988, use 'dotcmp()' for version, '.'-sorts.
  *		09 May 1988, make devices sort-size separately from files.
  *
@@ -79,7 +80,7 @@ char	bfr[BUFSIZ];
 	case 'w':	cmp = CMP(st_mtime);	break;
 	case 'r':	cmp = CMP(st_atime);	break;
 	case 'c':	cmp = CMP(st_ctime);	break;
-#ifdef	Z_SCCS
+#ifdef	Z_RCS_SCCS
 	case 'Z':
 	case 'z':	if (!(cmp = CMPX(z_time)))
 				cmp = CMP(st_mtime);
@@ -97,7 +98,9 @@ char	bfr[BUFSIZ];
 			else if (p2->z_vers)
 				cmp = 1;
 			break;
-#endif	Z_SCCS
+	case 'y':	cmp = strcmp(p1->z_lock, p2->z_lock);
+			break;
+#endif	Z_RCS_SCCS
 
 	case 's':
 			if (isDEV(p1->s.st_mode) && isDEV(p2->s.st_mode))

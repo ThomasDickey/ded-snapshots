@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	sccs_id[] = "@(#)dedring.c	1.11 88/05/25 14:48:50";
+static	char	sccs_id[] = "@(#)dedring.c	1.12 88/06/01 10:06:33";
 #endif	lint
 
 /*
@@ -46,10 +46,10 @@ typedef	struct	_ring	{
 			P_opt,
 			S_opt,
 			U_opt,
-#ifdef	Z_SCCS
+#ifdef	Z_RCS_SCCS
 			V_opt,
 			Z_opt;
-#endif	Z_SCCS
+#endif	Z_RCS_SCCS
 	unsigned	numfiles;
 	} RING;
 
@@ -111,10 +111,10 @@ RING	*p;
 	SAVE(P_opt);
 	SAVE(S_opt);
 	SAVE(U_opt);
-#ifdef	Z_SCCS
+#ifdef	Z_RCS_SCCS
 	SAVE(V_opt);
 	SAVE(Z_opt);
-#endif	Z_SCCS
+#endif	Z_RCS_SCCS
 	SAVE(numfiles);
 }
 
@@ -141,10 +141,10 @@ RING	*p;
 	UNSAVE(P_opt);
 	UNSAVE(S_opt);
 	UNSAVE(U_opt);
-#ifdef	Z_SCCS
+#ifdef	Z_RCS_SCCS
 	UNSAVE(V_opt);
 	UNSAVE(Z_opt);
-#endif	Z_SCCS
+#endif	Z_RCS_SCCS
 	UNSAVE(numfiles);
 }
 
@@ -383,10 +383,11 @@ char	tmp[BUFSIZ];
 	if (newp != oldp) {
 		unsave(newp);
 		if (numfiles == 0) {
-#ifdef	Z_SCCS
+#ifdef	Z_RCS_SCCS
 			V_opt = 0;
+			Y_opt = 0;
 			Z_opt = 0;
-#endif	Z_SCCS
+#endif	Z_RCS_SCCS
 #ifndef	SYSTEM5
 			/*
 			 * Coerce translation of pathnames in case part of the
