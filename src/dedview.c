@@ -1,5 +1,5 @@
 #if	!defined(NO_IDENT)
-static	char	Id[] = "$Id: dedview.c,v 12.6 1993/11/18 19:19:22 dickey Exp $";
+static	char	Id[] = "$Id: dedview.c,v 12.7 1993/11/19 19:42:09 dickey Exp $";
 #endif
 
 /*
@@ -7,6 +7,7 @@ static	char	Id[] = "$Id: dedview.c,v 12.6 1993/11/18 19:19:22 dickey Exp $";
  * Author:	T.E.Dickey
  * Created:	03 Apr 1992, from 'ded.c'
  * Modified:
+ *		19 Nov 1993, added 'row2VIEW()' for mouse-support.
  *		17 Nov 1993, modify 'top2VIEW()' to make "^" command a toggle.
  *			     Modified up/down line code to simulate scrolling.
  *		29 Oct 1993, ifdef-ident, port to HP/UX.
@@ -22,6 +23,7 @@ static	char	Id[] = "$Id: dedview.c,v 12.6 1993/11/18 19:19:22 dickey Exp $";
 #define	MINLIST	2		/* minimum length of file-list + header */
 #define	MINWORK	3		/* minimum size of work-area */
 
+#define	ROW2FILE(v,n)		(((n) - (v)->base_row) + (v)->base_file - 1)
 #define	FILE2ROW(v,n)		(((n) - (v)->base_file) + (v)->base_row + 1)
 #define	FILE_VISIBLE(v,n)	((n) >= (v)->base_file && (n) <= (v)->last_file)
 
@@ -90,15 +92,23 @@ private	void	setup_view _ONE(RING *,gbl)
 }
 
 /*
+ * Initialize pointer 'vue' for the current viewport
+ */
+private	void	init_view (_AR0)
+{
+	vue = &viewlist[curview];
+	vue->gbl->curfile = vue->curfile;
+	(void)to_file(vue->gbl);
+}
+
+/*
  * Switch to the next viewport (do not re-display, this is handled elsewhere)
  */
 private	void	next_view (_AR0)
 {
 	if (++curview >= maxview)
 		curview = 0;
-	vue = &viewlist[curview];
-	vue->gbl->curfile = vue->curfile;
-	(void)to_file(vue->gbl);
+	init_view();
 }
 
 /*
@@ -735,3 +745,34 @@ public	int	lastVIEW _ONE(RING *,gbl)
 {
 	return vue->last_file;
 }
+
+/*
+ * Finds the view containing a given row, and sets the current file to that
+ * position. This is used for mouse-positioning within the file-lists.
+ */
+#ifndef	NO_XTERM_MOUSE
+public	RING *	row2VIEW (
+		_ARX(RING *,	gbl)
+		_AR1(int,	row)
+			)
+		_DCL(RING *,	gbl)
+		_DCL(int,	row)
+{
+	register VIEW *vp;
+	register int n, nn;
+
+	for (n = 0; n < maxview; n++) {
+		vp = viewlist + n;
+		nn = ROW2FILE(vp, row);
+		if (FILE_VISIBLE(vp, nn)) {
+			curview = n;
+			vp->curfile = nn;
+			init_view();
+			gbl = vue->gbl;
+			showC(gbl);
+			break;
+		}
+	}
+	return gbl;
+}
+#endif

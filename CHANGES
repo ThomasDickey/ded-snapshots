@@ -1,3 +1,20 @@
+1993-11-19  dickey@software.org
+
+	* src/README: did the mouse stuff
+
+	* src/ftree.c: added logic for mouse positioning
+
+	* src/ded.c:
+	make double-clicking on an item bring up a view-file or edit-directory.
+
+	* src/dedview.c:
+	added entrypoint 'row2VIEW()' to use in translating mouse-selection to
+	file-position.
+
+	* src/ded.c: first cut of using mouse to position to a file
+
+	* src/ded.h: added entrypoint 'row2VIEW()' to dedview.c
+
 1993-11-18  dickey@software.org
 
 	* src/deddoit.c: use entrypoint 'cookterm()'

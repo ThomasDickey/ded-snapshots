@@ -3,7 +3,7 @@
 
 #ifdef	MAIN
 #if	!defined(NO_IDENT)
-static	char	*ded_h = "$Id: ded.h,v 12.4 1993/11/05 18:26:17 dickey Exp $";
+static	char	*ded_h = "$Id: ded.h,v 12.5 1993/11/19 19:12:41 dickey Exp $";
 #endif
 #endif	/* MAIN */
 
@@ -559,6 +559,10 @@ extern	int	baseVIEW(
 
 extern	int	lastVIEW(
 		_ar1(RING *,	gbl));
+
+extern	RING *	row2VIEW(
+		_arx(RING *,	gbl)
+		_ar1(int,	row));
 
 /* *** "dedwait.c" *** */
 extern	void	dedwait(
