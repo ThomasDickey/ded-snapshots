@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	Id[] = "$Id: dedring.c,v 11.0 1992/07/23 11:58:39 ste_cm Rel $";
+static	char	Id[] = "$Id: dedring.c,v 12.0 1992/12/18 15:04:39 ste_cm Rel $";
 #endif
 
 /*
@@ -512,7 +512,7 @@ public	RING *	ring_pointer(
 {
 	auto	char	*path	= gbl->new_wd;
 	auto	RING	*oldp	= gbl,
-			*newp;
+			*newp	= gbl;
 
 	while (count != 0) {
 		if (count > 0) {
