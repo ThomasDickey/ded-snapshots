@@ -1,3 +1,7 @@
+1999-08-07  Thomas E. Dickey  <dickey@clark.net>
+
+	* src/ccodes.rc: updates from Slackware 3.6
+
 1998-12-09  Thomas E. Dickey  <dickey@clark.net>
 
 	* install-sh: resync with my-autoconf (copyright)
