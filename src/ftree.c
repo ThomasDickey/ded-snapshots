@@ -1,14 +1,17 @@
 #ifndef	lint
-static	char	Id[] = "$Id: ftree.c,v 4.1 1989/08/25 07:44:50 dickey Exp $";
+static	char	Id[] = "$Id: ftree.c,v 4.2 1989/09/06 15:40:10 dickey Exp $";
 #endif	lint
 
 /*
  * Author:	T.E.Dickey
  * Created:	02 Sep 1987
  * $Log: ftree.c,v $
- * Revision 4.1  1989/08/25 07:44:50  dickey
- * use 'wrepaint()' rather than savewin/unsavewin
+ * Revision 4.2  1989/09/06 15:40:10  dickey
+ * use ACC_PTYPES rather than inline def's
  *
+ *		Revision 4.1  89/08/25  07:44:50  dickey
+ *		use 'wrepaint()' rather than savewin/unsavewin
+ *		
  *		Revision 4.0  89/06/05  15:44:44  ste_cm
  *		BASELINE Thu Aug 24 10:20:06 EDT 1989 -- support:navi_011(rel2)
  *		
@@ -86,6 +89,8 @@ static	char	Id[] = "$Id: ftree.c,v 4.1 1989/08/25 07:44:50 dickey Exp $";
 #ifdef	TEST
 #define	MAIN
 #endif	TEST
+
+#define	ACC_PTYPES
 #define	DIR_PTYPES
 #include	"ded.h"
 
@@ -98,10 +103,6 @@ extern	char	*rcs_dir(),
 		*txtalloc();
 
 #define	dedmsg	waitmsg	/* ...so we don't call 'showC' from this module */
-#ifndef	R_OK		/* should be in <sys/file.h>, but apollo has conflict */
-#define	R_OK	4
-#define	X_OK	1
-#endif	R_OK
 
 #ifdef	apollo
 #define	TOP	2
