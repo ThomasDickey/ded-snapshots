@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	sccs_id[] = "@(#)dedscan.c	1.25 88/09/12 12:35:01";
+static	char	sccs_id[] = "@(#)dedscan.c	1.26 89/02/28 08:09:05";
 #endif	lint
 
 /*
@@ -7,6 +7,7 @@ static	char	sccs_id[] = "@(#)dedscan.c	1.25 88/09/12 12:35:01";
  * Author:	T.E.Dickey
  * Created:	09 Nov 1987
  * Modified:
+ *		28 Feb 1989, so that AT_opt will force 'ft_linkto()' call if ok.
  *		12 Sep 1988, don't force resolution of symbolic links unless
  *			     AT_opt is set.  Added 'statMAKE()'.
  *		01 Sep 1988, look for, and reduce common leading pathname.
@@ -265,8 +266,11 @@ char	bfr[BUFSIZ];
 			bfr[len] = EOS;
 			if (f_->ltxt)	txtfree(f_->ltxt);
 			f_->ltxt = txtalloc(bfr);
-			if (AT_opt)
-				(void)stat(name, &f_->s);
+			if (AT_opt) {
+				if ((stat(name, &f_->s) >= 0)
+				&&  isDIR(f_->s.st_mode))
+					ft_linkto(name);
+			}
 		}
 	}
 #endif	S_IFLNK

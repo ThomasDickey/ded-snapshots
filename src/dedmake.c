@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	sccs_id[] = "@(#)dedmake.c	1.2 88/09/13 16:20:58";
+static	char	sccs_id[] = "@(#)dedmake.c	1.3 89/02/28 08:07:02";
 #endif	lint
 
 /*
@@ -7,6 +7,7 @@ static	char	sccs_id[] = "@(#)dedmake.c	1.2 88/09/13 16:20:58";
  * Author:	T.E.Dickey
  * Created:	12 Sep 1988
  * Modified:
+ *		28 Feb 1989, invoke 'ft_insert()' for new directories
  *
  * Function:	Create a new directory/file/link
  */
@@ -26,6 +27,7 @@ char	*name;
 	if (mode == S_IFDIR) {
 		if (mkdir(name, 0777) < 0)
 			return (FALSE);
+		ft_insert(name);
 	}
 	if (mode == S_IFREG) {
 		if ((fid = creat(name, 0777)) < 0)
