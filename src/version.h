@@ -1,8 +1,11 @@
 /*
- * $Id: version.h,v 12.11 1996/02/10 01:32:48 tom Exp $
+ * $Id: version.h,v 12.12 1996/03/16 19:36:50 tom Exp $
  * Version-identifier for DED
  *
  *		$Log: version.h,v $
+ *		Revision 12.12  1996/03/16 19:36:50  tom
+ *		memory leaks, mod to redoVIEW interface.
+ *
  *		Revision 12.11  1996/02/10 01:32:48  tom
  *		mods to support scrolling regions
  *
@@ -324,4 +327,8 @@
  * 01 Dec 1987, added '*', '^' commands, made '%' refresh screen
  * 25 Nov 1987, added sccs-support (V,z,Z toggles, V,z,Z sorts)
  */
-static	const	char	version[] = "$Date: 1996/02/10 01:32:48 $";
+static
+#ifndef __hpux	/* scanf is broken on HP/UX 9 */
+const
+#endif
+char	version[] = "$Date: 1996/03/16 19:36:50 $";
