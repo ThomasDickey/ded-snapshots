@@ -1,3 +1,10 @@
+1991-07-01  dickey@software.org
+
+	* src/dedtype.c:
+	corrected column-limit logic (very long lines, longer than
+	BUFSIZ would never get a newline, causing following lines
+	to not be displayed).
+
 1991-06-28  dickey@software.org
 
 	* src/ded.c, src/deddoit.c, src/ftree.c, src/sortset.c:

@@ -1,68 +1,25 @@
 #ifndef	lint
-static	char	Id[] = "$Id: dedtype.c,v 9.0 1991/06/04 09:03:08 ste_cm Rel $";
+static	char	Id[] = "$Id: dedtype.c,v 9.1 1991/07/01 13:00:15 dickey Exp $";
 #endif
 
 /*
  * Title:	dedtype.c (type files for ded)
  * Author:	T.E.Dickey
  * Created:	16 Nov 1987
- * $Log: dedtype.c,v $
- * Revision 9.0  1991/06/04 09:03:08  ste_cm
- * BASELINE Mon Jun 10 10:09:56 1991 -- apollo sr10.3
- *
- *		Revision 8.4  91/06/04  09:03:08  dickey
- *		forgot to reset column on successive blank-lines that are
- *		suppressed.
- *		
- *		Revision 8.3  91/05/16  07:44:08  dickey
- *		mods to accommodate apollo sr10.3
- *		
- *		Revision 8.2  91/04/22  08:19:23  dickey
- *		added stripped-mode to make looking at binary files easier on
- *		my eyes.
- *		
- *		Revision 8.1  91/04/01  12:32:48  dickey
- *		added command (tab-character) to allow user to alter tab
- *		stops in the display.
- *		
- *		Revision 8.0  90/08/13  13:42:04  ste_cm
- *		BASELINE Mon Aug 13 15:06:41 1990 -- LINCNT, ADA_TRANS
- *		
- *		Revision 7.1  90/08/13  13:42:04  dickey
- *		lint
- *		
- *		Revision 7.0  90/03/05  10:42:09  ste_cm
- *		BASELINE Mon Apr 30 09:54:01 1990 -- (CPROTO)
- *		
- *		Revision 6.0  90/03/05  10:42:09  ste_cm
- *		BASELINE Thu Mar 29 07:37:55 1990 -- maintenance release (SYNTHESIS)
- *		
- *		Revision 5.2  90/03/05  10:42:09  dickey
- *		port to sun3 (os3.4)
- *		
- *		Revision 5.1  90/03/02  08:19:22  dickey
- *		for the special case of a directory-file, create a temporary
- *		file with the inode-values and names of the files.  Display
- *		this instead of the raw contents of the directory.
- *		
- *		Revision 5.0  89/10/13  13:43:28  ste_cm
- *		BASELINE Fri Oct 27 12:27:25 1989 -- apollo SR10.1 mods + ADA_PITS 4.0
- *		
- *		Revision 4.1  89/10/13  13:43:28  dickey
- *		trim lines containing blanks so we don't display extra gaps
- *		
- *		Revision 4.0  89/03/14  10:32:36  ste_cm
- *		BASELINE Thu Aug 24 10:20:06 EDT 1989 -- support:navi_011(rel2)
- *		
- *		Revision 3.0  89/03/14  10:32:36  ste_cm
- *		BASELINE Mon Jun 19 14:21:57 EDT 1989
- *		
- *		Revision 2.0  89/03/14  10:32:36  ste_cm
- *		BASELINE Thu Apr  6 13:14:13 EDT 1989
- *		
- *		Revision 1.17  89/03/14  10:32:36  dickey
- *		sccs2rcs keywords
- *		
+ * Modified:
+ *		01 Jul 1991, corrected column-limit logic
+ *		04 Jun 1991, forgot to reset column on successive blank-lines
+ *			     that are suppressed.
+ *		22 Apr 1991, added stripped-mode to make looking at binary
+ *			     files easier on my eyes.
+ *		01 Apr 1991, added command (tab-character) to allow user to
+ *			     alter tab stops in the display.
+ *		03 Mar 1990, for the special case of a directory-file, create
+ *			     a temporary file with the inode-values and names
+ *			     of the files.  Display this instead of the raw
+ *			     contents of the directory.
+ *		13 Oct 1989, trim lines containing blanks so we don't display
+ *			     extra gaps
  *		14 Mar 1989, interface to 'dlog'.
  *		12 Sep 1988, suppress screen-operations during 'skip' -- faster.
  *		01 Sep 1988, break out of 'get' loop if interrupted or error.
@@ -89,6 +46,7 @@ static	char	Id[] = "$Id: dedtype.c,v 9.0 1991/06/04 09:03:08 ste_cm Rel $";
 	/*ARGSUSED*/
 	def_DOALLOC(OFF_T)
 
+#define	END_COL	(sizeof(text)-1)
 static	char	text[BUFSIZ],		/* converted display-text */
 		over[BUFSIZ];		/* overstrike/underline flags */
 static	int	Shift,			/* left/right shift-column */
@@ -135,13 +93,20 @@ static
 typeover(c)
 register c;
 {
-	if (over[Tcol] = text[Tcol]) {
-		if (ispunct(text[Tcol]))
+	if (Tcol <= END_COL) {
+		if (over[Tcol] = text[Tcol]) {
+			if (ispunct(text[Tcol]))
+				text[Tcol] = c;
+		} else
 			text[Tcol] = c;
-	} else
-		text[Tcol] = c;
+	}
 	Tcol++;
-	if (Tcol > Tlen)	text[Tlen = Tcol] = EOS;
+	if (Tcol > Tlen) {
+		Tlen = Tcol;
+		if ((Tlen = Tcol) > END_COL)
+			Tlen = END_COL;
+		text[Tlen] = EOS;
+	}
 }
 
 static
@@ -150,42 +115,40 @@ register c;
 {
 	char	dot	= stripped ? ' ' : '.';
 
-	if (Tcol < sizeof(text)-1) {
-		if (binary) {	/* highlight chars with parity */
-			if (!isascii(c)) {
-				c = toascii(c);
-				if (stripped) {
-					if (!isprint(c))
-						c = ' ';
-				} else
-					text[Tcol] = '_';
-			}
+	if (binary) {	/* highlight chars with parity */
+		if (!isascii(c)) {
+			c = toascii(c);
+			if (stripped) {
+				if (!isprint(c))
+					c = ' ';
+			} else if (Tcol <= END_COL)
+				text[Tcol] = '_';
 		}
-		if (isascii(c)) {
-			if (binary && !isprint(c)) {
-				typeover(dot);
-			} else if (c == '\b') {
-				if (Tcol > 0) Tcol--;
-			} else if (c == '\r') {
-				Tcol = 0;
-			} else if (isprint(c)) {
-				typeover(c);
-			} else if (isspace(c)) {
-				if (c == '\n') {
-					while (Tlen > 0
-					&& isspace(text[Tlen-1]))
-						Tlen--;
-					return (TRUE);
-				} else if (c == '\t') {
+	}
+	if (isascii(c)) {
+		if (binary && !isprint(c)) {
+			typeover(dot);
+		} else if (c == '\b') {
+			if (Tcol > 0) Tcol--;
+		} else if (c == '\r') {
+			Tcol = 0;
+		} else if (isprint(c)) {
+			typeover(c);
+		} else if (isspace(c)) {
+			if (c == '\n') {
+				while (Tlen > 0
+				&& isspace(text[Tlen-1]))
+					Tlen--;
+				return (TRUE);
+			} else if (c == '\t') {
+				typeover(' ');
+				while (Tcol % tabstop) 
 					typeover(' ');
-					while (Tcol % tabstop) 
-						typeover(' ');
-				}
-			} else
-				typeover(dot);
+			}
 		} else
 			typeover(dot);
-	}
+	} else
+		typeover(dot);
 	if (binary)
 		if (Tlen - Shift >= COLS-1)
 			return(TRUE);
