@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	sccs_id[] = "$Header: /users/source/archives/ded.vcs/src/RCS/dedname.c,v 3.0 1989/03/14 10:03:08 ste_cm Rel $";
+static	char	sccs_id[] = "$Header: /users/source/archives/ded.vcs/src/RCS/dedname.c,v 7.0 1989/07/25 10:50:39 ste_cm Rel $";
 #endif	lint
 
 /*
@@ -7,9 +7,25 @@ static	char	sccs_id[] = "$Header: /users/source/archives/ded.vcs/src/RCS/dedname
  * Author:	T.E.Dickey
  * Created:	11 May 1988
  * $Log: dedname.c,v $
- * Revision 3.0  1989/03/14 10:03:08  ste_cm
- * BASELINE Mon Jun 19 14:21:57 EDT 1989
+ * Revision 7.0  1989/07/25 10:50:39  ste_cm
+ * BASELINE Mon Apr 30 09:54:01 1990 -- (CPROTO)
  *
+ *		Revision 6.0  89/07/25  10:50:39  ste_cm
+ *		BASELINE Thu Mar 29 07:37:55 1990 -- maintenance release (SYNTHESIS)
+ *		
+ *		Revision 5.0  89/07/25  10:50:39  ste_cm
+ *		BASELINE Fri Oct 27 12:27:25 1989 -- apollo SR10.1 mods + ADA_PITS 4.0
+ *		
+ *		Revision 4.0  89/07/25  10:50:39  ste_cm
+ *		BASELINE Thu Aug 24 10:20:06 EDT 1989 -- support:navi_011(rel2)
+ *		
+ *		Revision 3.1  89/07/25  10:50:39  dickey
+ *		renamed 'fullname()' to 'expand_name()' to avoid conflict with curses-function
+ *		when recompiling this under apollo SR10.1
+ *		
+ *		Revision 3.0  89/03/14  10:03:08  ste_cm
+ *		BASELINE Mon Jun 19 14:21:57 EDT 1989
+ *		
  *		Revision 2.0  89/03/14  10:03:08  ste_cm
  *		BASELINE Thu Apr  6 13:14:13 EDT 1989
  *		
@@ -33,7 +49,7 @@ extern	char	*pathcat();
 extern	char	*txtalloc();
 
 static
-fullname(leaf)
+expand_name(leaf)
 char	*leaf;
 {
 	char	path[BUFSIZ];
@@ -87,7 +103,7 @@ char	oldname[BUFSIZ],
 		 * If we renamed a directory, update ftree.
 		 */
 		if (isDIR(xSTAT(x).st_mode)) {
-			fullname(oldname);	/* ...for dedring */
+			expand_name(oldname);	/* ...for dedring */
 
 			/* Rename it in the directory-tree */
 			ft_rename(oldname, newname);
