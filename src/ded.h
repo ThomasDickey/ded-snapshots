@@ -1,6 +1,6 @@
 #ifdef	MAIN
 #ifndef	lint
-static	char	*ded_h = "$Id: ded.h,v 9.1 1991/06/28 08:09:19 dickey Exp $";
+static	char	*ded_h = "$Id: ded.h,v 9.2 1991/07/24 12:18:41 dickey Exp $";
 #endif	/* lint */
 #endif
 
@@ -27,10 +27,6 @@ extern	char	*gethome(),	/* find home-directory		*/
  * Definitions to make linting easier
  */
 #define	FREE(p)		dofree(p)
-
-#ifndef	MAXPATHLEN
-#define	MAXPATHLEN	BUFSIZ
-#endif	/* MAXPATHLEN */
 
 /*
  * SYSTEM5/BSD4.x differences between regular-expression handling:
