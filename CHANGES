@@ -1,3 +1,14 @@
+1991-07-12  dickey@software.org
+
+	* src/ded.c: last change introduced errs in 'count_tags()'
+
+	* src/ded.hlp: note about CTL/G
+
+	* src/version.h: added CTL/G command
+
+	* src/ded.c: added CTL/G command to show tagged files (+blocks/bytes).
+	cleanup some message code.
+
 1991-07-11  dickey@software.org
 
 	* src/dedfind.c, src/dedread.c, src/dedshow.c, src/deduniq.c, src/sortset.c, src/deddoit.c, src/dedtype.c, src/ded.c:
