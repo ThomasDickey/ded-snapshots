@@ -1,3 +1,7 @@
+1990-05-07  dickey@software.org
+
+	* src/ded.c: make "-t" option inherit into subprocesses
+
 1990-04-27  dickey@software.org
 
 	* src/version.h:

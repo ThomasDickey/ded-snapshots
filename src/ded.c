@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	what[] = "$Id: ded.c,v 7.0 1990/04/17 09:09:56 ste_cm Rel $";
+static	char	what[] = "$Id: ded.c,v 7.1 1990/05/07 07:37:52 dickey Exp $";
 #endif	lint
 
 /*
@@ -7,9 +7,12 @@ static	char	what[] = "$Id: ded.c,v 7.0 1990/04/17 09:09:56 ste_cm Rel $";
  * Author:	T.E.Dickey
  * Created:	09 Nov 1987
  * $Log: ded.c,v $
- * Revision 7.0  1990/04/17 09:09:56  ste_cm
- * BASELINE Mon Apr 30 09:54:01 1990 -- (CPROTO)
+ * Revision 7.1  1990/05/07 07:37:52  dickey
+ * make "-t" option inherit into subprocesses
  *
+ *		Revision 7.0  90/04/17  09:09:56  ste_cm
+ *		BASELINE Mon Apr 30 09:54:01 1990 -- (CPROTO)
+ *		
  *		Revision 6.1  90/04/17  09:09:56  dickey
  *		simplified/corrected code for 'edithead()'
  *		
@@ -1097,7 +1100,8 @@ char	*argv[];
 				count,
 				lastc	= '?',
 				quit	= FALSE;
-	auto	char		tpath[BUFSIZ],
+	auto	char		tree_bfr[BUFSIZ],
+				tpath[BUFSIZ],
 				dpath[BUFSIZ];
 
 	(void)sortset('s', 'n');
@@ -1141,6 +1145,7 @@ char	*argv[];
 	}
 
 	if (!tree_opt)	tree_opt = gethome();
+	else		abspath(tree_opt = strcpy(tree_bfr, tree_opt));
 	ft_read(getwd(old_wd), tree_opt);
 
 	/* find which copy I am executing from, for future use */
@@ -1151,6 +1156,7 @@ char	*argv[];
 	FORMAT(howami, "%s.hlp", whoami);
 
 	/* pass options to lower-level processes of ded */
+	(void)strcat(strcat(whoami, " -t"), tree_opt);
 	if (log_opt)
 		(void)strcat(strcat(whoami, " -l"), log_opt);
 	(void)strcat(whoami, " -n");
