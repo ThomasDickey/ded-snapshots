@@ -3,6 +3,7 @@
  * Author:	T.E.Dickey
  * Created:	09 Nov 1987
  * Modified:
+ *		15 Feb 1998, remove special code for apollo sr10
  *		05 Oct 1994, refined executable-access test with getgroups.
  *		29 Oct 1993, ifdef-ident
  *		28 Sep 1993, gcc warnings
@@ -58,13 +59,7 @@
 #include	<time.h>
 #include	<ctype.h>
 
-MODULE_ID("$Id: ded2s.c,v 12.19 1994/11/13 20:37:33 tom Exp $")
-
-#ifdef	apollo_sr10
-#include	<acl.h>
-#include	<apollo/base.h>
-char	*type_uid2s _ar1(Stat_t *,s);
-#endif
+MODULE_ID("$Id: ded2s.c,v 12.20 1998/02/15 20:50:06 tom Exp $")
 
 #if MAJOR_IN_MKDEV
 #  include	<sys/mkdev.h>
@@ -218,13 +213,6 @@ public	void	ded2s(
 	}
 #endif
 	bfr += strlen(bfr);
-#ifdef	apollo_sr10
-	*bfr++ = ((mj != 0) && has_extended_acl(gbl, inx)) ? '+' : ' ';
-	if (gbl->O_opt) {
-		FORMAT(bfr, " %-9.9s ", type_uid2s(s));
-		bfr += field(bfr,mj);
-	}
-#endif
 	*bfr++ = ' ';
 
 	/* translate the number of links, or the inode value */
@@ -405,69 +393,3 @@ public	int	ded_access (
 	}
 	return (s->st_mode & (mask >> 6));
 }
-
-#ifdef	apollo_sr10
-std_$call	type_$get_name();
-
-typedef	struct	_lty {
-	struct	_lty	*link;
-	uid_$t		uid;
-	char		*name;
-	} LTY;
-
-	/*ARGSUSED*/
-	def_ALLOC(LTY)
-
-/*
- * return the string corresponding to apollo type-uid stored in the stat-block.
- */
-public	char *	type_uid2s (
-	_AR1(Stat_t *,	s))
-	_DCL(Stat_t *,	s)
-{
-	static	LTY	*list;
-	register LTY	*p;
-	auto	char	*t;
-	auto	uid_$t	type_uid;
-	auto	name_$name_t	typename;
-	auto	short		namelen;
-	auto	status_$t	status;
-
-	if (s->st_mode != 0) {
-		type_uid.high = s->st_rfu4[0];
-		type_uid.low  = s->st_rfu4[1];
-		t = 0;
-		for (p = list; p != 0; p = p->link) {
-			if (p->uid.high == type_uid.high
-			&&  p->uid.low  == type_uid.low) {
-				t = p->name;
-				break;
-			}
-		}
-		if (t == 0) {
-			type_$get_name(uid_$nil, type_uid,
-				typename, namelen, status);  
-			if (status.all != status_$ok)
-				namelen = 0;
-      			typename[namelen] = EOS;
-			p = ALLOC(LTY,1);
-			p->link = list;
-			p->uid  = type_uid;
-			p->name = t = txtalloc(typename);
-			list    = p;
-		}
-	} else
-		t = " ";
-	return (t);
-}
-
-public	int	has_extended_acl (
-	_ARX(RING *,	gbl)
-	_AR1(int,	x)
-		)
-	_DCL(RING *,	gbl)
-	_DCL(int,	x)
-{
-	return (is_EXTENDED_ACL(gSTAT(x).st_rfu4));
-}
-#endif

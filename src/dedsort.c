@@ -3,6 +3,7 @@
  * Author:	T.E.Dickey
  * Created:	11 Nov 1987
  * Modified:
+ *		15 Feb 1998, remove special code for apollo sr10
  *		12 Jul 1994, defined 'CMPF()' macro for 'ded_blocks()' hack.
  *		06 Dec 1993, added 'S' sort.
  *		29 Oct 1993, ifdef-ident
@@ -40,12 +41,7 @@
 #define	QSORT_SRC	const FLIST
 #include	<td_qsort.h>
 
-MODULE_ID("$Id: dedsort.c,v 12.8 1997/09/13 13:33:20 tom Exp $")
-
-#ifdef	apollo_sr10
-#include	<acl.h>
-extern	char	*type_uid2s();
-#endif
+MODULE_ID("$Id: dedsort.c,v 12.9 1998/02/15 20:50:06 tom Exp $")
 
 #define	CHECKED(p)	(p->z_time == p->s.st_mtime)
 #define	CMPF(f)	(f(&(p1->s)) > f(&(p2->s)) ? -1 : (f(&(p1->s)) < f(&(p2->s)) ? 1 : 0))
@@ -109,15 +105,6 @@ public	int	dedsort_cmp(
 	switch (gbl->sortopt) {
 			/* patch: N sort from 'fl' would be nice... */
 
-#ifdef	apollo_sr10
-			/* sort by object-types (numeric) */
-	case 'o':	cmp = strcmp(type_uid2s(&p1->s), type_uid2s(&p2->s));
-			break;
-
-	case 'O':	if (!(cmp = p1->s.st_rfu4[0] - p2->s.st_rfu4[0]))
-				cmp = p1->s.st_rfu4[1] - p2->s.st_rfu4[1];
-			break;
-#endif
 			/* sort by '.'-separators in name */
 	case '.':	cmp = dotcmp(p1->name, p2->name);
 			break;
@@ -142,22 +129,10 @@ public	int	dedsort_cmp(
 			break;
 
 			/* sort filemodes within the mode-character */
-#ifdef	apollo_sr10
-	case 'P':
-#endif
 	case 'p':	cmp	= modechar((unsigned)(p1->s.st_mode))
 				- modechar((unsigned)(p2->s.st_mode));
 			if (!cmp) {
 				cmp = CMP(st_mode);
-#ifdef	apollo_sr10
-				if (!cmp && gbl->sortopt == 'P') {
-				int	x1 = (is_EXTENDED_ACL(p1->s.st_rfu4)),
-					x2 = (is_EXTENDED_ACL(p2->s.st_rfu4));
-					cmp = (x1 && !x2)
-						? -1
-						: (!x1 && x2) ? 1 : 0;
-				}
-#endif
 			}
 			break;
 

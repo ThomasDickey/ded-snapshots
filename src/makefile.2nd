@@ -1,5 +1,5 @@
 
-# $Id: makefile.2nd,v 12.1 1997/09/13 11:22:07 tom Exp $
+# $Id: makefile.2nd,v 12.2 1998/02/15 18:31:37 tom Exp $
 # second part of MAKE-file for directory editor
 
 MAIN_C	= $(THIS).c $(CSRC)
@@ -23,7 +23,7 @@ $B:				; mkdir $@
 
 $B/$(THIS):	$(MAIN_O) $(LIB_DEPS)
 	@echo linking $@
-	@$(LINK) -o $@ $(MAIN_O) $(LIB_ARGS)
+	@$(LINK) -o $@ $(MAIN_O) $(CURSES_LIBS)
 
 $B/$(THIS).hlp:	$(THIS).hlp
 	$(RM) $@

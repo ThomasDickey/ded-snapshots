@@ -3,6 +3,7 @@
  * Author:	T.E.Dickey
  * Created:	07 Apr 1992, from 'ded.c'
  * Modified:
+ *		15 Feb 1998, compiler warnings
  *		29 Oct 1993, ifdef-ident
  *
  * Function:	reinvokes 'stat()' for the specified files; redisplays.
@@ -10,7 +11,7 @@
 
 #include	"ded.h"
 
-MODULE_ID("$Id: restat.c,v 12.4 1997/09/13 12:54:48 tom Exp $")
+MODULE_ID("$Id: restat.c,v 12.6 1998/02/15 23:42:09 tom Exp $")
 
 /*
  * re-'stat()' the current line, and optionally group
@@ -23,9 +24,9 @@ public	void	restat(
 	_DCL(int,	group)
 {
 	if (group) {
-		register size_t j;
+		register unsigned j;
 
-		for (j = 0; j < gbl->numfiles; j++) {
+		for_each_file(gbl,j) {
 			if (j != gbl->curfile) {
 				if (gFLAG(j)) {
 					statLINE(gbl, j);

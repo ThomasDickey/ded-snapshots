@@ -3,6 +3,7 @@
  * Author:	T.E.Dickey
  * Created:	01 Aug 1988 (from 'ded.c')
  * Modified:
+ *		15 Feb 1998, remove special code for apollo sr10
  *		05 Nov 1995, use 80th column
  *		23 Jul 1994, removed apollo chgrp hack (spawning commands).
  *		29 Oct 1993, ifdef-ident
@@ -53,7 +54,7 @@
 
 #include	"ded.h"
 
-MODULE_ID("$Id: dedline.c,v 12.18 1996/01/13 14:48:50 tom Exp $")
+MODULE_ID("$Id: dedline.c,v 12.20 1998/02/15 23:40:39 tom Exp $")
 
 #define	CHMOD(n)	(gSTAT(n).st_mode & 07777)
 #define	OWNER(n)	((geteuid() == 0) || (gSTAT(x).st_uid == geteuid()))
@@ -80,10 +81,10 @@ private	int	at_last(
 	_DCL(RING *,	gbl)
 	_DCL(int,	flag)
 {
-	register int x;
+	register unsigned x;
 	register int changed = 0;
 
-	for (x = 0; x < gbl->numfiles; x++)
+	for_each_file(gbl,x)
 		if (GROUPED(x)
 		&& gLTXT(x)) {
 			gbl->AT_opt = flag;
@@ -325,11 +326,12 @@ private	int	change_protection (
 	_DCL(RING *,	gbl)
 {
 	int	changed = FALSE;
-	register int	c, x;
+	register int	c;
+	register unsigned x;
 
 	(void)dedsigs(TRUE);	/* reset interrupt counter */
 	c = CHMOD(gbl->curfile);
-	for (x = 0; x < gbl->numfiles; x++) {
+	for_each_file(gbl,x) {
 		if (GROUPED(x)) {
 			if (dedsigs(TRUE)) {
 				waitmsg(gNAME(x));
@@ -340,14 +342,6 @@ private	int	change_protection (
 			if (c != CHMOD(x)) {
 				dlog_comment("chmod %o %s\n",
 					c, gNAME(x));
-#ifdef	apollo_sr10
-				if (has_extended_acl(gbl, x)
-					&& !OWNER(x)) {
-					errno = EPERM;
-					warn(gbl, gNAME(x));
-					break;
-				}
-#endif
 				if (chmod(gNAME(x), (mode_t)c) < 0) {
 					warn(gbl, gNAME(x));
 					break;
@@ -554,7 +548,7 @@ public	void	edit_uid (
 	_AR1(RING *,	gbl))
 	_DCL(RING *,	gbl)
 {
-	register int j;
+	register unsigned j;
 	int	uid	= cSTAT.st_uid,
 		changed	= FALSE;
 	char	bfr[BUFSIZ];
@@ -567,7 +561,7 @@ public	void	edit_uid (
 	if (EDITTEXT('u', CCOL_UID, UIDLEN, strcpy(bfr, uid2s(uid)))
 	&&  (uid = s2uid(bfr)) >= 0) {
 		(void)dedsigs(TRUE);	/* reset interrupt-count */
-		for (j = 0; j < gbl->numfiles; j++) {
+		for_each_file(gbl,j) {
 			if (gSTAT(j).st_uid == uid)	continue;
 			if (dedsigs(TRUE)) {
 				waitmsg(gNAME(j));
@@ -595,7 +589,7 @@ public	void	edit_gid (
 	_AR1(RING *,	gbl))
 	_DCL(RING *,	gbl)
 {
-	register int j;
+	register unsigned j;
 	int	gid	= cSTAT.st_gid,
 		changed	= FALSE;
 	char	bfr[BUFSIZ];
@@ -609,7 +603,7 @@ public	void	edit_gid (
 	&&  (gid = s2gid(bfr)) >= 0) {
 
 		(void)dedsigs(TRUE);	/* reset interrupt-count */
-		for (j = 0; j < gbl->numfiles; j++) {
+		for_each_file(gbl,j) {
 			if (gSTAT(j).st_gid == gid)
 				continue;
 			if (dedsigs(TRUE)) {
@@ -639,7 +633,7 @@ public	void	editname (
 	_DCL(RING *,	gbl)
 {
 	auto	 int	changed	= 0;
-	register int	j;
+	register unsigned j;
 	auto	 char	bfr[MAXPATHLEN];
 
 #define	EDITNAME(n)	EDITTEXT('=', CCOL_NAME, sizeof(bfr), strcpy(bfr, n))
@@ -648,7 +642,7 @@ public	void	editname (
 		if (dedname(gbl, gbl->curfile, bfr) >= 0) {
 			(void)dedsigs(TRUE);	/* reset interrupt count */
 			hide_inline(TRUE);
-			for (j = 0; j < gbl->numfiles; j++) {
+			for_each_file(gbl,j) {
 				if (j == gbl->curfile)
 					continue;
 				if (dedsigs(TRUE)) {
@@ -682,7 +676,7 @@ public	void	editlink(
 {
 	auto	 int	col,
 			changed	= 0;
-	register int	j;
+	register unsigned j;
 	auto	 char	bfr[MAXPATHLEN];
 
 	cmd_link = (cmd == '<');
@@ -697,7 +691,7 @@ public	void	editlink(
 
 		/* test if we must show substitution */
 		if (cmd_link) {
-			for (j = 0; j < gbl->numfiles; j++) {
+			for_each_file(gbl,j) {
 				if (j == gbl->curfile)
 					continue;
 				if (gFLAG(j) && gLTXT(j)
@@ -730,7 +724,7 @@ public	void	editlink(
 				(void)dedsigs(TRUE);
 					/* reset interrupt count */
 				hide_inline(TRUE);
-				for (j = 0; j < gbl->numfiles; j++) {
+				for_each_file(gbl,j) {
 					if (j == gbl->curfile)
 						continue;
 					if (dedsigs(TRUE)) {
