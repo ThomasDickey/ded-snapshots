@@ -1,3 +1,9 @@
+1988-04-26  dickey@software.org
+
+	* src/ftree.c:
+	After 'p' (purge), move above changes to simplify repositioning to a
+	legal row.  Also, make 'R' do scan a la file-list.
+
 1988-04-22  dickey@software.org
 
 	* src/ded.hlp: began documenting directory-tree
