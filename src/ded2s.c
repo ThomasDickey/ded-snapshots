@@ -1,5 +1,5 @@
 #if	!defined(NO_IDENT)
-static	char	Id[] = "$Id: ded2s.c,v 12.13 1994/07/12 23:38:51 tom Exp $";
+static	char	Id[] = "$Id: ded2s.c,v 12.15 1994/07/13 01:29:40 tom Exp $";
 #endif
 
 /*
@@ -403,12 +403,57 @@ public	int	ded_access (
 	return (s->st_mode & (mask >> 6));
 }
 
+/*
+ * The algorithm for computing the number of blocks of a SYS5 file is derived
+ * from the discussion on pages 64-72 of "The Design of the UNIX Operating
+ * System", by Maurice J. Bach, Prentice-Hall 1986.
+ */
 #if !STAT_HAS_ST_BLOCKS
+#define	BSIZE		1024	/* size of indirect-block, in bytes */
+#define	ISIZE		(BSIZE/sizeof(long))
+#define NDIR		10	/* # of direct-block addresses in inode */
+
+private	long	dblks (
+		_AR1(long,	bytes))
+		_DCL(long,	bytes)
+{
+	register long	blocks = ((bytes+BSIZE-1)/BSIZE);
+	register long	c;
+	register int	j,k;
+
+	if (blocks > NDIR) {
+	    c = blocks - NDIR;
+	    blocks++;		/* first indirection */
+	    if (c > ISIZE) {
+		c -= ISIZE;
+		blocks++;	/* 2nd indirection: header */
+		for (j = 0; j < ISIZE; j++) {
+		    c -= ISIZE;
+		    blocks++;	/* count 2nd-level indirects */
+		    if (c <= 0) break;
+		}
+		if (c > 0) {
+		    blocks++;	/* 3rd indirection: header of headers */
+		    for (j = 0; j < ISIZE; j++) {
+			blocks++;
+			for (k = 0; k < ISIZE; k++) {
+			    c -= ISIZE;
+	 		    blocks++;
+			    if (c <= 0) break;
+			}
+			if (c <= 0) break;
+		    }
+		}
+	    }
+	}
+	return (blocks);
+}
+
 public	unsigned long	ded_blocks(
 		_AR1(Stat_t *,	sb))
 		_DCL(Stat_t *,	sb)
 {
-	return ((sb->st_size + 1023)/1024);	/* patch */
+	return dblks(sb->st_size);
 }
 #endif	/* !STAT_HAS_ST_BLOCKS */
 
