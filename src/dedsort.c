@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	Id[] = "$Id: dedsort.c,v 4.2 1989/10/06 11:40:05 dickey Exp $";
+static	char	Id[] = "$Id: dedsort.c,v 4.3 1989/10/11 16:29:49 dickey Exp $";
 #endif	lint
 
 /*
@@ -7,10 +7,14 @@ static	char	Id[] = "$Id: dedsort.c,v 4.2 1989/10/06 11:40:05 dickey Exp $";
  * Author:	T.E.Dickey
  * Created:	11 Nov 1987
  * $Log: dedsort.c,v $
- * Revision 4.2  1989/10/06 11:40:05  dickey
- * modified 't' sort so that names beginning with '.' are
- * sorted in a more natural manner
+ * Revision 4.3  1989/10/11 16:29:49  dickey
+ * added apollo-only fix for t-sort for DSEE-directory names
+ * (ending with "$.*.$").
  *
+ *		Revision 4.2  89/10/06  11:40:05  dickey
+ *		modified 't' sort so that names beginning with '.' are
+ *		sorted in a more natural manner
+ *		
  *		Revision 4.1  89/10/04  16:48:36  dickey
  *		added o,O sorts
  *		
@@ -62,6 +66,16 @@ char	*s;
 	if (t != s) {
 		if (t[-1] == '/')
 			t = f_type(t);
+#ifdef	apollo
+		/* dsee directories ? */
+		else if (t[-1] == '$') {
+			if ((t-1) == s || t[-2] == '/') {
+				auto	int	len = strlen(t);
+				if (len > 2 && !strncmp(t+len-2, ".$", 2))
+					t += strlen(t);
+			}
+		}
+#endif	/* apollo */
 	} else {
 		if (dotname(t))
 			t += strlen(t);

@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	Id[] = "$Id: ded2s.c,v 4.5 1989/10/06 08:08:58 dickey Exp $";
+static	char	Id[] = "$Id: ded2s.c,v 4.6 1989/10/11 16:43:49 dickey Exp $";
 #endif	lint
 
 /*
@@ -7,11 +7,14 @@ static	char	Id[] = "$Id: ded2s.c,v 4.5 1989/10/06 08:08:58 dickey Exp $";
  * Author:	T.E.Dickey
  * Created:	09 Nov 1987
  * $Log: ded2s.c,v $
- * Revision 4.5  1989/10/06 08:08:58  dickey
- * modified computation of 'cmdcol[]' so that it is not reset
- * per-line, but accumulated in a file-list.  added column
- * after size-field, since sr10.1 has some long dev-ids!
+ * Revision 4.6  1989/10/11 16:43:49  dickey
+ * recoded type-uid table with a pipe-call to 'lty'
  *
+ *		Revision 4.5  89/10/06  08:08:58  dickey
+ *		modified computation of 'cmdcol[]' so that it is not reset
+ *		per-line, but accumulated in a file-list.  added column
+ *		after size-field, since sr10.1 has some long dev-ids!
+ *		
  *		Revision 4.4  89/10/05  14:32:44  dickey
  *		corrected treatment of nil-objects
  *		
@@ -58,7 +61,6 @@ static	char	Id[] = "$Id: ded2s.c,v 4.5 1989/10/06 08:08:58 dickey Exp $";
 #ifdef	apollo_sr10
 #include	"acl.h"
 #include	<apollo/base.h>
-#include	<apollo/type_uids.h>
 char	*type_uid2s();
 #endif
 
@@ -308,6 +310,15 @@ char	*bfr, *name;
 }
 
 #ifdef	apollo_sr10
+typedef	struct	_lty {
+	struct	_lty	*link;
+	uid_$t		uid;
+	char		*name;
+	} LTY;
+
+	/*ARGSUSED*/
+	def_ALLOC(LTY)
+
 /*
  * patch: the trait/type manager of sr10 is not documented (yet).  return the
  * known/fixed types
@@ -316,41 +327,40 @@ char	*
 type_uid2s(s)
 struct	stat *s;
 {
-	register int	c;
-	register char	*t;
-	static	struct	{
-		uid_$t	*id;
-		char	*name;
-	} list[] = {
-		&uid_$nil,		"nil",
-		&case_hm_$uid,		"case_hm",
-		&cmpexe_$uid,		"cmpexe",
-		&coff_$uid,		"coff",
-		&d3m_area_$uid,		"d3m_area",
-		&d3m_sch_$uid,		"d3m_sch",
-		&directory_$uid,	"directory",
-		&dm_edit_$uid,		"dm_edit",
-		&hdr_undef_$uid,	"hdr_undef",
-		&input_pad_$uid,	"ipad",
-		&mbx_$uid,		"mbx",
-		&mt_$uid,		"mt",
-		&nulldev_$uid,		"null",
-		&object_file_$uid,	"obj",
-		&pad_$uid,		"pad",
-		&pty_$slave_uid,	"pty_slave",
-		&pty_$uid,		"pty",
-		&records_$uid,		"records",
-		&sio_$uid,		"sio",
-		&tcp_$uid,		"tcp",
-		&uasc_$uid,		"uasc",
-		&unstruct_$uid,		"unstruct"
-	};
+	static	LTY	*list;
+	register LTY	*p;
+	auto	char	*t;
+
 	if (s->st_mode != 0) {
+		if (list == 0) {
+			extern	FILE	*popen();
+			extern	char	*txtalloc();
+			static	char	*fmt = "%x.%x  %s\n";
+			auto	FILE	*ip;
+			auto	char	bfr[BUFSIZ];
+			auto	char	name[BUFSIZ];
+			auto	long	lo, hi;
+	
+			if (ip = popen("/com/lty -u", "r")) {
+				while (fgets(bfr, sizeof(bfr), ip)) {
+					if (sscanf(bfr, fmt, &hi, &lo, name)
+					== 3) {
+						p = ALLOC(LTY,1);
+						p->link     = list;
+						p->uid.high = hi;
+						p->uid.low  = lo;
+						p->name     = txtalloc(name);
+						list        = p;
+					}
+				}
+				(void)pclose(ip);
+			}
+		}
 		t = "?";
-		for (c = 0; c < sizeof(list)/sizeof(list[0]); c++) {
-			if (list[c].id->high == s->st_rfu4[0]
-			&&  list[c].id->low  == s->st_rfu4[1]) {
-				t = list[c].name;
+		for (p = list; p != 0; p = p->link) {
+			if (p->uid.high == s->st_rfu4[0]
+			&&  p->uid.low  == s->st_rfu4[1]) {
+				t = p->name;
 				break;
 			}
 		}
