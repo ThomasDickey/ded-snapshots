@@ -1,8 +1,22 @@
 /*
- * $Id: version.h,v 12.13 1997/02/11 09:36:50 tom Exp $
+ * $Id: version.h,v 12.14 1998/02/16 02:18:59 tom Exp $
  * Version-identifier for DED
  *
  *		$Log: version.h,v $
+ *		Revision 12.14  1998/02/16 02:18:59  tom
+ *		generate all makefiles, making this portable to systems having 'make'
+ *		programs w/o archive rules.
+ *		remove apollo_sr10 code (because it's obsolete, and because I want to be
+ *		able to re-use some of the command-codes).  This frees up o/O, to which I
+ *		renamed y/Y (was lock owner).  That lets me reserve y/Y for vertical split.
+ *		Started working on compiler warnings (gcc's signed/unsigned).
+ *		Add home/end/ppage/npage keys where appropriate.
+ *		Make the tag/untag operations faster by moving repaint out of repeat-loop.
+ *		Correct a missing 'else' that caused future-dates to be formatted as if they
+ *		were in the current week.
+ *		Correct an ifdef for systems that have no 'realpath()'; was invoking chdir
+ *		and this caused incorrect result in path_RESOLVE().
+ *
  *		Revision 12.13  1997/02/11 09:36:50  tom
  *		fixes to dedscan's handling of common-prefix trimming (97/1, 97/2).
  *		restructured initialization of dedcolor to use ncurses 'use_default_colors()'.
@@ -337,4 +351,4 @@ static
 #ifndef __hpux	/* scanf is broken on HP/UX 9 */
 const
 #endif
-char	version[] = "$Date: 1997/02/11 09:36:50 $";
+char	version[] = "$Date: 1998/02/16 02:18:59 $";

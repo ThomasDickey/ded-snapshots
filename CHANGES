@@ -1,3 +1,29 @@
+1998-02-16  Thomas E. Dickey  <dickey@clark.net>
+
+	* src/ded2s.c, src/ded.c, src/ded.h, src/dedring.c: rename:O_opt
+
+	* src/showpath.c: gcc signed/unsigned
+
+	* src/ded.c, src/restat.c, src/dedview.c, src/ded.h: unused params
+
+	* src/dedtype.c: gcc warnings (signed/unsigned)
+
+	* src/ded.h: make curfile unsigned, fix warnings
+
+	* src/dedview.c, src/dedscan.c: gcc warnings (signed/unsigned)
+
+	* src/deduniq.c: signed/unsigned nits
+
+	* src/dedline.c: more compiler warnings (signed/unsigned)
+
+	* src/dedfind.c:
+	make this handle unsigned gbl->curfile, as well as make it a little more
+	robust wrt empty search strings.
+
+	* src/dedfind.c: workaround so we can make curfile unsigned
+
+	* src/ded.c: missed 'O' to 'Y' change when I rolled back a test-change
+
 1998-02-15  Thomas E. Dickey  <dickey@clark.net>
 
 	* src/version.h:

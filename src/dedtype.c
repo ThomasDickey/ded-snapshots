@@ -3,6 +3,7 @@
  * Author:	T.E.Dickey
  * Created:	16 Nov 1987
  * Modified:
+ *		15 Feb 1998, add home/end/ppage/npage keys.
  *		13 Jan 1996, mods for scrolling regions.  Move search prompt
  *			     to bottom of work area.
  *		15 Dec 1995, allow for missing newline in file-ending.
@@ -55,7 +56,7 @@
 #define		DIR_PTYPES	/* includes directory-stuff */
 #include	"ded.h"
 
-MODULE_ID("$Id: dedtype.c,v 12.25 1996/02/02 01:19:42 tom Exp $")
+MODULE_ID("$Id: dedtype.c,v 12.27 1998/02/16 02:09:59 tom Exp $")
 
 typedef	struct	{
 	OFF_T	offset;
@@ -242,10 +243,10 @@ private	int	GetC (_AR0)
 
 private	int	reshow(
 	_ARX(RING *,	gbl)
-	_AR1(int,	inlist)
+	_AR1(unsigned,	inlist)
 		)
 	_DCL(RING *,	gbl)
-	_DCL(int,	inlist)
+	_DCL(unsigned,	inlist)
 {
 	statLINE(gbl, inlist);
 	showLINE(gbl, inlist);
@@ -490,7 +491,7 @@ private	int	FinishPage(
 		getyx(stdscr,oldy,oldx);
 		standend();
 		gbl->AT_opt = TRUE;
-		shown  = reshow(gbl, inlist);
+		shown  = reshow(gbl, (unsigned)inlist);
 		gbl->AT_opt = save;
 		length = gSTAT(inlist).st_size;
 		gbl->mrkfile = -1;
@@ -814,14 +815,18 @@ public	void	dedtype(
 				done = TRUE;
 				break;
 
+			case KEY_HOME:
 			case '^':
 				jump = infile;
 				break;
+
+			case KEY_END:
 			case '$':
 				infile = max_lines;
 				skip = MaxP();
 				break;
 
+			case KEY_PPAGE:
 			case '\b':
 			case 'b':
 				if (AtTop(infile)) {
@@ -830,6 +835,7 @@ public	void	dedtype(
 					jump += NumP(count);
 				}
 				break;
+			case KEY_NPAGE:
 			case '\n':
 			case ' ':
 			case 'f':
@@ -892,7 +898,7 @@ public	void	dedtype(
 		}
 		FCLOSE(InFile);
 		if (shown)
-			(void)reshow(gbl, inlist);
+			(void)reshow(gbl, (unsigned)inlist);
 		showMARK(gbl->Xbase);
 
 		showC(gbl);

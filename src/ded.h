@@ -19,7 +19,7 @@
 
 #ifdef	MAIN
 #if	!defined(NO_IDENT)
-static const char ded_h[] = "$Id: ded.h,v 12.49 1998/02/15 23:46:39 tom Exp $";
+static const char ded_h[] = "$Id: ded.h,v 12.52 1998/02/16 02:07:43 tom Exp $";
 #endif
 #endif	/* MAIN */
 
@@ -265,7 +265,7 @@ extern	char	*fixname(
 
 extern	void	fixtime(
 		_arx(RING *,	gbl)
-		_ar1(int,	j));
+		_ar1(unsigned,	j));
 
 extern	void	usage(_ar0);
 
@@ -412,7 +412,7 @@ extern	void	statSCCS(
 
 extern	void	statLINE(
 		_arx(RING *,	gbl)
-		_ar1(int,	j));
+		_ar1(unsigned,	j));
 
 extern	void	statMAKE(
 		_arx(RING *,	gbl)
@@ -454,11 +454,13 @@ extern	void	init_tags(
 
 extern	void	tag_entry(
 		_arx(RING *,	gbl)
-		_ar1(int,	inx));
+		_arx(unsigned,	inx)
+		_ar1(unsigned,	count));
 
 extern	void	untag_entry(
 		_arx(RING *,	gbl)
-		_ar1(int,	inx));
+		_arx(unsigned,	inx)
+		_ar1(unsigned,	count));
 
 extern	void	count_tags(
 		_ar1(RING *,	gbl));
@@ -505,11 +507,11 @@ extern	void	markset(
 
 extern	void	upLINE(
 		_arx(RING *,	gbl)
-		_ar1(int,	n));
+		_ar1(unsigned,	n));
 
 extern	void	downLINE(
 		_arx(RING *,	gbl)
-		_ar1(int,	n));
+		_ar1(unsigned,	n));
 
 extern	int	showDOWN(
 		_ar1(RING *,	gbl));
@@ -519,7 +521,7 @@ extern	void	showWHAT(
 
 extern	void	showLINE(
 		_arx(RING *,	gbl)
-		_ar1(int,	j));
+		_ar1(unsigned,	j));
 
 extern	void	showMARK(
 		_ar1(int,	col));

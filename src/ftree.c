@@ -2,6 +2,7 @@
  * Author:	T.E.Dickey
  * Created:	02 Sep 1987
  * Modified:
+ *		15 Feb 1998, add home/end/ppage/npage keys.
  *		10 Jan 1996, mods to scrolling-regions
  *		29 Oct 1995, guard 'do_find()' against getwd failure
  *		03 Sep 1995, mods to make '&'-toggle correspond better with
@@ -128,7 +129,7 @@
 
 #include	<fcntl.h>
 
-MODULE_ID("$Id: ftree.c,v 12.50 1996/02/16 20:04:10 tom Exp $")
+MODULE_ID("$Id: ftree.c,v 12.51 1998/02/16 01:10:01 tom Exp $")
 
 #define	Null	(char *)0	/* some NULL's are simply 0 */
 
@@ -286,7 +287,7 @@ private	void	fd_slow(
 private	void	fd_alloc(_AR0)
 {
 	if (FDlast >= FDsize) {
-	register int	size = FDsize;
+	register unsigned size = FDsize;
 		FDsize += FDlast + 2;
 		ftree = DOALLOC(ftree,FTREE,FDsize);
 		while (size < FDsize) {
@@ -835,15 +836,15 @@ private	int	ft_init (
 private	int	ok_read(
 	_ARX(int,	fid)
 	_ARX(char *,	s)
-	_ARX(LEN_READ,	ask)
+	_ARX(size_t,	ask)
 	_AR1(char *,	msg)
 		)
 	_DCL(int,	fid)
 	_DCL(char *,	s)
-	_DCL(LEN_READ,	ask)
+	_DCL(size_t,	ask)
 	_DCL(char *,	msg)
 {
-	LEN_READ	got = read(fid,s,ask);
+	size_t	got = read(fid,s,ask);
 	if (got != ask) {
 		char	bfr[MAXPATHLEN];
 		dlog_comment("%s (got %d, asked %d)", msg, got, ask);
@@ -859,9 +860,9 @@ private	void	read_ftree (
 {
 	Stat_t		sb;
 	register int	j;
-	LEN_READ	vecsize;
-	int		fid,
-			size;
+	size_t		vecsize;
+	int		fid;
+	size_t		size;
 
 	/* read the current database */
 	if ((fid = open(the_file, O_RDONLY, 0)) != 0) {
@@ -892,18 +893,14 @@ private	void	read_ftree (
 		fd_alloc();
 		vecsize++;		/* account for 0'th node */
 		vecsize *= sizeof(FTREE);
-		if (!ok_read(fid,
-				(char *)ftree, (LEN_READ)vecsize,
-				"read"))
+		if (!ok_read(fid, (char *)ftree, vecsize, "read"))
 			return;
 
 		/* (3) string-heap */
 		if ((size -= vecsize) > 0) {
 		char	*heap = doalloc(Null, (unsigned)(size+1));
 		register char *s = heap;
-			if (!ok_read(fid,
-					heap, (LEN_READ)size,
-					"heap"))
+			if (!ok_read(fid, heap, size, "heap"))
 				return;
 			s[size] = EOS;
 			for (j = 0; j <= FDlast; j++) {
@@ -1027,7 +1024,7 @@ private	int	ft_show(
 	if (!showsccs) 		PRINTW(" Z (SCCS/RCS)");
 	clrtoeol();
 	FORMAT(bfr, "  node: %d of %d ", node+1, FDlast+1);
-	if (strlen(bfr) < COLS) {
+	if ((int)strlen(bfr) < COLS) {
 		move(FLAG_ROW, (int)(COLS - strlen(bfr)));
 		addstr(bfr);
 	}
@@ -1110,7 +1107,7 @@ private	int	ft_show(
 				(void)ded2string(gbl, bfr, sizeof(bfr), ftree[j].f_name, FALSE);
 				fd_annotate(j, end);
 
-				if (strlen(bfr) > count) {
+				if ((int)strlen(bfr) > count) {
 					if (zMARK(j))
 						standout();
 					PRINTW(fmt, limit, bfr + count);
@@ -1123,7 +1120,7 @@ private	int	ft_show(
 				}
 
 				if (limit > 0
-				 && strlen(end) > count) {
+				 && (int)strlen(end) > count) {
 					PRINTW(fmt, limit, end + count);
 				}
 			}
@@ -1593,7 +1590,16 @@ public	RING *	ft_view(
 			row = j;
 			break;
 
+		case KEY_HOME:
+			scroll_to(row = 0);
+			break;
+
+		case KEY_END:
+			scroll_to(row = FDlast);
+			break;
+
 		/* scrolling */
+		case KEY_NPAGE:
 		case 'f':
 			if (row < FDlast) {
 				if (row < showlast) {
@@ -1604,6 +1610,7 @@ public	RING *	ft_view(
 			} else
 				beep();
 			break;
+		case KEY_PPAGE:
 		case 'b':
 			if (row > 0) {
 				if (row > showbase) {
@@ -2143,7 +2150,7 @@ public	void	ft_write(_AR0)
 			PRINTF("writing file \"%s\" (%d)\n",
 				dyn_string(FDname), FDlast);
 #endif
-#define	WRT(s,n)	(void)write(fid,(char *)s,(LEN_READ)(n))
+#define	WRT(s,n)	(void)write(fid,(char *)s,(size_t)(n))
 			WRT(&FDlast, sizeof(FDlast));
 			WRT(ftree, ((FDlast+1) * sizeof(FTREE)));
 
@@ -2152,7 +2159,7 @@ public	void	ft_write(_AR0)
 			heap = doalloc(Null, k);
 			for (j = k = 0; j <= FDlast; j++)
 				k += strlen(strcpy(heap+k, ftree[j].f_name)) + 1;
-			(void)write(fid, heap, (LEN_READ)k);
+			(void)write(fid, heap, (size_t)k);
 			free(heap);
 
 			(void)close(fid);

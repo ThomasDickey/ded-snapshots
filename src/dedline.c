@@ -54,7 +54,7 @@
 
 #include	"ded.h"
 
-MODULE_ID("$Id: dedline.c,v 12.20 1998/02/15 23:40:39 tom Exp $")
+MODULE_ID("$Id: dedline.c,v 12.21 1998/02/16 02:02:02 tom Exp $")
 
 #define	CHMOD(n)	(gSTAT(n).st_mode & 07777)
 #define	OWNER(n)	((geteuid() == 0) || (gSTAT(x).st_uid == geteuid()))
@@ -115,11 +115,11 @@ private	int	at_save (
  */
 private	int	relink(
 	_ARX(RING *,	gbl)
-	_ARX(int,	x)
+	_ARX(unsigned,	x)
 	_AR1(char *,	name)
 		)
 	_DCL(RING *,	gbl)
-	_DCL(int,	x)
+	_DCL(unsigned,	x)
 	_DCL(char *,	name)
 {
 	dlog_comment("relink \"%s\" (link=%s)\n", name, gNAME(x));
@@ -188,11 +188,11 @@ private	void	subs_leaf(
 private	char *	link2bfr(
 	_ARX(RING *,	gbl)
 	_ARX(char *,	dst)
-	_AR1(int,	x)
+	_AR1(unsigned,	x)
 		)
 	_DCL(RING *,	gbl)
 	_DCL(char *,	dst)
-	_DCL(int,	x)
+	_DCL(unsigned,	x)
 {
 	(void)strcpy(dst, gLTXT(x));
 	if (cmd_link) {
@@ -260,11 +260,11 @@ private	char *	link2bfr(
 private	char *	subslink(
 	_ARX(RING *,	gbl)
 	_ARX(char *,	bfr)
-	_AR1(int,	x)
+	_AR1(unsigned,	x)
 		)
 	_DCL(RING *,	gbl)
 	_DCL(char *,	bfr)
-	_DCL(int,	x)
+	_DCL(unsigned,	x)
 {
 	auto	char	tmp[MAXPATHLEN];
 	register char	*s = strcpy(tmp, bfr);

@@ -5,6 +5,8 @@
  * Modified:
  *		15 Feb 1998, remove special code for apollo sr10.
  *			     working on signed/unsigned compiler warnings.
+ *			     add home/end/ppage/npage cases.
+ *			     change tag/untag to repaint faster.
  *		09 Jan 1996, mods for scrolling-regions
  *		16 Dec 1995, added '-i' option.
  *		05 Nov 1995, mods to prevent tilde-expansion in cNAME
@@ -151,7 +153,7 @@
 #define	MAIN
 #include	"ded.h"
 
-MODULE_ID("$Header: /users/source/archives/ded.vcs/src/RCS/ded.c,v 12.52 1998/02/15 23:48:03 tom Exp $")
+MODULE_ID("$Header: /users/source/archives/ded.vcs/src/RCS/ded.c,v 12.55 1998/02/16 02:07:35 tom Exp $")
 
 #define	EDITOR	DEFAULT_EDITOR
 #define	BROWSE	DEFAULT_BROWSE
@@ -559,10 +561,10 @@ public	char *	fixname(
  */
 public	void	fixtime(
 	_ARX(RING *,	gbl)
-	_AR1(int,	j)
+	_AR1(unsigned,	j)
 		)
 	_DCL(RING *,	gbl)
-	_DCL(int,	j)
+	_DCL(unsigned,	j)
 {
 	if (setmtime(gNAME(j), gSTAT(j).st_mtime, gSTAT(j).st_atime) < 0)
 		warn(gbl, "utime");
@@ -1022,9 +1024,17 @@ _MAIN
 	case 'j':	downLINE(gbl, count);
 			break;
 
+	case KEY_HOME:	upLINE(gbl, gbl->curfile);
+			break;
+
+	case KEY_END:	downLINE(gbl, gbl->numfiles - gbl->curfile);
+			break;
+
+	case KEY_NPAGE:
 	case 'f':	scrollVIEW(gbl, count);
 			break;
 
+	case KEY_PPAGE:
 	case 'b':	scrollVIEW(gbl, -count);
 			break;
 
@@ -1220,22 +1230,18 @@ _MAIN
 			break;
 
 			/* tag/untag specific files */
-	case '+':	while (count-- > 0) {
-				tag_entry(gbl,gbl->curfile);
-				if (!showDOWN(gbl))
-					break;
-			}
+	case '+':	tag_entry(gbl, gbl->curfile, count);
+			downLINE(gbl, count);
+			showFILES(gbl,FALSE);
 			break;
 
-	case '-':	while (count-- > 0) {
-				untag_entry(gbl,gbl->curfile);
-				if (!showDOWN(gbl))
-					break;
-			}
+	case '-':	untag_entry(gbl, gbl->curfile, count);
+			downLINE(gbl, count);
+			showFILES(gbl,FALSE);
 			break;
 
 	case '_':	for_each_file(gbl,k)
-				untag_entry(gbl,k);
+				untag_entry(gbl,k,1);
 			init_tags(gbl);
 			showFILES(gbl,FALSE);
 			break;
