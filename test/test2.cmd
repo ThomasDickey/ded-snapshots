@@ -63,6 +63,7 @@ u
 1\s
 1#	# "Makefile"
 	# "RCS"
+	# "README"
 	# "ded.c"
 	# "ded2s.c"
 	# "deddoit.c"
@@ -72,6 +73,7 @@ u
 	# "dedline.c"
 	# "dedmake.c"
 	# "dedname.c"
+	# "dedread.c"
 	# "dedring.c"
 	# "dedscan.c"
 	# "dedshow.c"
@@ -93,6 +95,7 @@ u
 	# "dedline.o"
 	# "dedmake.o"
 	# "dedname.o"
+	# "dedread.o"
 	# "dedring.o"
 	# "dedscan.o"
 	# "dedshow.o"
@@ -150,7 +153,7 @@ u
 99b
 1+	# "Makefile"
 1+	# "RCS"
-1+	# "ded.a"
+1+	# "README"
 1_
 1/\.h$
 	# "ded.h"
@@ -173,8 +176,8 @@ u
 99b
 1+	# "Makefile"
 1+	# "RCS"
+1+	# "README"
 1+	# "ded.a"
-1+	# "ded.c"
 1\t
 1H
 1w
