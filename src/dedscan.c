@@ -1,5 +1,5 @@
 #ifndef	NO_SCCS_ID
-static	char	sccs_id[] = "@(#)dedscan.c	1.7 88/05/06 15:06:37";
+static	char	sccs_id[] = "@(#)dedscan.c	1.8 88/05/09 07:25:28";
 #endif	NO_SCCS_ID
 
 /*
@@ -7,6 +7,7 @@ static	char	sccs_id[] = "@(#)dedscan.c	1.7 88/05/06 15:06:37";
  * Author:	T.E.Dickey
  * Created:	09 Nov 1987
  * Modified:
+ *		09 May 1988, corrected full-name computation for ftree.
  *		22 Apr 1988, use external 'stralloc()', integrated with ftree.
  *
  * Function:	Scan a list of arguments, to make up a display list.
@@ -55,7 +56,11 @@ char	name[BUFSIZ];
 				/* mark dep's for purge */
 			ft_remove(getcwd(new_wd, sizeof(new_wd)-2));
 			if (dp = opendir(".")) {
-			int	len = strlen(strcat(strcpy(name, new_wd), "/"));
+			int	len = strlen(strcpy(name, new_wd));
+				if (name[len-1] != '/') {
+					name[len++] = '/';
+					name[len]   = '\0';
+				}
 				while (de = readdir(dp)) {
 					if (dotname(de->d_name))
 						continue;

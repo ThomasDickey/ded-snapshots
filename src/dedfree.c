@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	sccs_id[] = "@(#)dedfree.c	1.1 88/05/02 13:16:01";
+static	char	sccs_id[] = "@(#)dedfree.c	1.2 88/05/09 10:47:17";
 #endif	lint
 
 /*
@@ -26,7 +26,7 @@ register int j;
 			if (fp[j].name)	free(fp[j].name);
 			if (fp[j].ltxt)	free(fp[j].ltxt);
 		}
-		free(fp);
+		free((char *)fp);
 	}
 	return (0);
 }

@@ -1,5 +1,5 @@
 #ifndef	NO_SCCS_ID
-static	char	sccs_id[] = "@(#)dedsort.c	1.2 87/11/25 08:42:56";
+static	char	sccs_id[] = "@(#)dedsort.c	1.3 88/05/09 09:13:47";
 #endif	NO_SCCS_ID
 
 /*
@@ -7,6 +7,7 @@ static	char	sccs_id[] = "@(#)dedsort.c	1.2 87/11/25 08:42:56";
  * Author:	T.E.Dickey
  * Created:	11 Nov 1987
  * Modified:
+ *		09 May 1988, make devices sort-size separately from files.
  *
  * Function:	Perform display-list sorting for DED directory editor.
  */
@@ -89,7 +90,17 @@ char	bfr[BUFSIZ];
 			break;
 #endif	Z_SCCS
 
-	case 's':	cmp = CMP(st_size);	break;
+	case 's':
+			if (isDEV(p1->s.st_mode) && isDEV(p2->s.st_mode))
+				cmp = CMP(st_rdev);
+			else if (isDEV(p1->s.st_mode))
+				cmp = -1;
+			else if (isDEV(p2->s.st_mode))
+				cmp = 1;
+			else
+				cmp = CMP(st_size);
+			break;
+
 	case 'l':	cmp = CMP(st_nlink);	break;
 	case 'i':	cmp = CMP(st_ino);	break;
 

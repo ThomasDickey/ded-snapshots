@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	sccs_id[] = "@(#)dedring.c	1.6 88/05/06 11:04:11";
+static	char	sccs_id[] = "@(#)dedring.c	1.7 88/05/09 11:01:06";
 #endif	lint
 
 /*
@@ -206,7 +206,7 @@ char	bfr[BUFSIZ];
  */
 static
 RING *
-lookup(path)
+ring_get(path)
 char	*path;
 {
 RING	*p;
@@ -226,7 +226,7 @@ static
 remove (path)
 char	*path;
 {
-RING	*p	= lookup(path),
+RING	*p	= ring_get(path),
 	*q	= ring;
 
 	if (p) {
@@ -248,7 +248,7 @@ RING	*p	= lookup(path),
 				}
 			}
 		}
-		free (p);
+		free ((char *)p);
 	}
 }
 
@@ -257,7 +257,7 @@ RING	*p	= lookup(path),
  */
 static
 RING *
-forward(path)
+ring_fwd(path)
 char	*path;
 {
 register RING *p;
@@ -282,7 +282,7 @@ char	tmp[BUFSIZ];
  */
 static
 RING *
-backward(path)
+ring_bak(path)
 char	*path;
 {
 register RING *p, *q;
@@ -332,19 +332,19 @@ char	tmp[BUFSIZ];
 	 */
 	switch (cmd) {
 	case 'E':
-		if ((newp = lookup(path)) == 0)
+		if ((newp = ring_get(path)) == 0)
 			newp = insert(path, TRUE);
 		break;
 	case 'F':
 		while (count-- > 0) {
-			if ((newp = forward(path)) == oldp)
+			if ((newp = ring_fwd(path)) == oldp)
 				return (FALSE);
 			path = newp->new_wd;
 		}
 		break;
 	case 'B':
 		while (count-- > 0) {
-			if ((newp = backward(path)) == oldp)
+			if ((newp = ring_bak(path)) == oldp)
 				return (FALSE);
 			path = newp->new_wd;
 		}
@@ -352,7 +352,7 @@ char	tmp[BUFSIZ];
 	case 'q':		/* release & move forward */
 		path = new_wd;
 		while (count-- > 0) {
-			if ((newp = forward(path)) == oldp)
+			if ((newp = ring_fwd(path)) == oldp)
 				return(FALSE);
 			remove(path);
 			path = strcpy (tmp, newp->new_wd);
@@ -361,7 +361,7 @@ char	tmp[BUFSIZ];
 	case 'Q':		/* release & move backward */
 		path = new_wd;
 		while (count-- > 0) {
-			if ((newp = backward(path)) == oldp)
+			if ((newp = ring_bak(path)) == oldp)
 				return(FALSE);
 			remove(path);
 			path = strcpy (tmp, newp->new_wd);
@@ -391,7 +391,7 @@ char	tmp[BUFSIZ];
 				if (strcmp(getcwd(new_wd, sizeof(new_wd)-2),
 						path)) {
 					remove (path);
-					if (!(newp = lookup(new_wd)))
+					if (!(newp = ring_get(new_wd)))
 						newp = insert(new_wd, TRUE);
 					unsave(newp);
 				}
@@ -411,8 +411,7 @@ char	tmp[BUFSIZ];
 			if (!success) {
 				remove (path);
 				unsave(oldp);
-				errno = ENOENT;
-				warn(path);
+				(void)chdir(new_wd);
 			}
 		}
 	}
@@ -425,5 +424,5 @@ char	tmp[BUFSIZ];
 dedrang(path)
 char	*path;
 {
-	return (lookup(path) != 0);
+	return (ring_get(path) != 0);
 }

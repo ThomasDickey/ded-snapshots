@@ -1,3 +1,27 @@
+1988-05-09  dickey@software.org
+
+	* src/version.h: ironed out differences between Apollo/Sun versions.
+
+	* src/ftree.c:
+	adjusted 'E' command on gould port so that we chdir to the parent
+	directory before interpreting a link -- needed this case for gould port.
+
+	* src/README: resolved some stuff in Gould port.
+
+	* src/ded.c:
+	tinkering with screen-refresh between directory/file lists.
+
+	* src/dedring.c: lint, for gould port.
+
+	* src/ded2s.c: gould port: sockets do not have major/minor numbers
+
+	* src/dedfree.c: lint
+
+	* src/dedsort.c:
+	fixed (from gould port) the s-field sorting for devices.
+
+	* src/dedscan.c: corrected pathname for ftree (gould port)
+
 1988-05-06  dickey@software.org
 
 	* src/Makefile: port to gould
