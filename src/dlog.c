@@ -1,15 +1,21 @@
 #ifndef	lint
-static	char	what[] = "$Id: dlog.c,v 8.0 1990/03/06 07:28:42 ste_cm Rel $";
-#endif	lint
+static	char	what[] = "$Id: dlog.c,v 9.0 1991/05/16 07:46:51 ste_cm Rel $";
+#endif
 
 /*
  * Title:	dlog.c
  * Author:	T.E.Dickey
  * Created:	14 Mar 1989
  * $Log: dlog.c,v $
- * Revision 8.0  1990/03/06 07:28:42  ste_cm
- * BASELINE Mon Aug 13 15:06:41 1990 -- LINCNT, ADA_TRANS
+ * Revision 9.0  1991/05/16 07:46:51  ste_cm
+ * BASELINE Mon Jun 10 10:09:56 1991 -- apollo sr10.3
  *
+ *		Revision 8.1  91/05/16  07:46:51  dickey
+ *		apollo sr10.3 cpp complains about tag on #endif
+ *		
+ *		Revision 8.0  90/03/06  07:28:42  ste_cm
+ *		BASELINE Mon Aug 13 15:06:41 1990 -- LINCNT, ADA_TRANS
+ *		
  *		Revision 7.0  90/03/06  07:28:42  ste_cm
  *		BASELINE Mon Apr 30 09:54:01 1990 -- (CPROTO)
  *		
@@ -397,7 +403,7 @@ char	*name;
 #define	va_dcl		char	*va_alist;
 #undef	va_arg
 #define	va_arg(p,c)	(c)0
-#endif	lint
+#endif
 
 /*VARARGS*/
 dlog_comment(va_alist)
@@ -422,9 +428,9 @@ va_dcl
 				v[j++] = va_arg(args, long);
 			FPRINTF(log_fp, fmt, v[1], v[2], v[3], v[4]);
 		}
-#else	VFPRINTF
+#else	/* VFPRINTF */
 		(void)vfprintf(log_fp, fmt, args);
-#endif	VFPRINTF
+#endif	/* !VFPRINTF/VFPRINTF */
 		va_end(args);
 	}
 }

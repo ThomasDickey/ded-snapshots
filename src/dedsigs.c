@@ -1,15 +1,18 @@
 #ifndef	lint
-static	char	Id[] = "$Id: dedsigs.c,v 8.0 1989/10/31 09:00:55 ste_cm Rel $";
-#endif	lint
+static	char	Id[] = "$Id: dedsigs.c,v 8.1 1991/05/16 07:58:48 dickey Exp $";
+#endif
 
 /*
  * Title:	dedsigs.c (catch/ignore signals)
  * Author:	T.E.Dickey
  * Created:	03 Aug 1988
  * $Log: dedsigs.c,v $
- * Revision 8.0  1989/10/31 09:00:55  ste_cm
- * BASELINE Mon Aug 13 15:06:41 1990 -- LINCNT, ADA_TRANS
+ * Revision 8.1  1991/05/16 07:58:48  dickey
+ * mods to accommodate apollo sr10.3
  *
+ *		Revision 8.0  89/10/31  09:00:55  ste_cm
+ *		BASELINE Mon Aug 13 15:06:41 1990 -- LINCNT, ADA_TRANS
+ *		
  *		Revision 7.0  89/10/31  09:00:55  ste_cm
  *		BASELINE Mon Apr 30 09:54:01 1990 -- (CPROTO)
  *		
@@ -41,6 +44,7 @@ static	char	Id[] = "$Id: dedsigs.c,v 8.0 1989/10/31 09:00:55 ste_cm Rel $";
  * Function:	Process signals for 'ded'.
  */
 
+#define	SIG_PTYPES
 #include	"ded.h"
 #include	<signal.h>
 
@@ -51,8 +55,7 @@ static	int	init	= -1;	/* last-flag, to prevent redundant 'signal()' */
  * Catch "intr" signals.
  */
 static
-SIGS_T
-catch(sig)
+void	catch(sig)
 {
 	(void)signal (sig,  catch);
 	beep();
@@ -60,8 +63,7 @@ catch(sig)
 }
 
 static
-SIGS_T
-dedquit()
+void	dedquit()
 {
 	static	char	msg[] = "** quit **\n";
 	to_exit(1);

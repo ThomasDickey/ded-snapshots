@@ -1,15 +1,21 @@
 #ifndef	lint
-static	char	Id[] = "$Id: ded2s.c,v 8.0 1990/04/24 16:27:56 ste_cm Rel $";
-#endif	lint
+static	char	Id[] = "$Id: ded2s.c,v 9.0 1991/05/16 07:46:18 ste_cm Rel $";
+#endif
 
 /*
  * Title:	ded2s.c (ded-stat to string)
  * Author:	T.E.Dickey
  * Created:	09 Nov 1987
  * $Log: ded2s.c,v $
- * Revision 8.0  1990/04/24 16:27:56  ste_cm
- * BASELINE Mon Aug 13 15:06:41 1990 -- LINCNT, ADA_TRANS
+ * Revision 9.0  1991/05/16 07:46:18  ste_cm
+ * BASELINE Mon Jun 10 10:09:56 1991 -- apollo sr10.3
  *
+ *		Revision 8.1  91/05/16  07:46:18  dickey
+ *		apollo sr10.3 cpp complains about tag on #endif
+ *		
+ *		Revision 8.0  90/04/24  16:27:56  ste_cm
+ *		BASELINE Mon Aug 13 15:06:41 1990 -- LINCNT, ADA_TRANS
+ *		
  *		Revision 7.0  90/04/24  16:27:56  ste_cm
  *		BASELINE Mon Apr 30 09:54:01 1990 -- (CPROTO)
  *		
@@ -102,7 +108,7 @@ char	*type_uid2s();
 
 #ifdef	SYSTEM5
 #include	<sys/sysmacros.h>
-#endif	SYSTEM5
+#endif
 extern  time_t  time();
 extern  char	*ctime();
 
@@ -110,7 +116,7 @@ extern	char	*uid2s(),
 		*gid2s();
 #ifndef	_toupper
 #define	_toupper	toupper
-#endif	_toupper
+#endif
 
 #define ONE_WEEK	(7 * 24 * HOUR)
 #define SIXMONTHS	(26 * ONE_WEEK)
@@ -168,7 +174,7 @@ char	*t,
 		for (t = base; *t; t++)
 			if (isalpha(*t))	*t = _toupper(*t);
 	}
-#endif	S_IFLNK
+#endif
 	bfr += strlen(bfr);
 #ifdef	apollo_sr10
 	*bfr++ = ((mj != 0) && has_extended_acl(inx)) ? '+' : ' ';
@@ -182,9 +188,9 @@ char	*t,
 	/* translate the number of links, or the inode value */
 #ifdef	apollo
 	if (I_opt)	FORMAT(bfr, "%08x ", s->st_ino);
-#else	unix
+#else	/* unix */
 	if (I_opt)	FORMAT(bfr, "%5d ", s->st_ino);
-#endif	apollo/unix
+#endif	/* apollo/unix */
 	else		FORMAT(bfr, "%3d ", s->st_nlink);
 	bfr += field(bfr,mj);
 	if (I_opt == 2)	{
@@ -218,9 +224,9 @@ char	*t,
 			FORMAT(bfr, "%5d ",
 #ifdef	SYSTEM5
 				s->st_size / 1024	/* patch */
-#else
+#else	/* bsd */
 				s->st_blocks
-#endif	SYSTEM5
+#endif	/* SYSTEM5 */
 				);
 			bfr += field(bfr,mj);
 		}
@@ -243,7 +249,7 @@ char	*t,
 			*bfr++ = ' ';
 		*bfr++ = ' ';
 	}
-#endif	Z_RCS_SCCS
+#endif	/* Z_RCS_SCCS */
 
 	/* show the appropriate-date */
 	fdate =	(dateopt == 1)  ? s->st_ctime
@@ -265,7 +271,7 @@ char	*t,
 			bfr += field(bfr, (unsigned)(OK_S(t)));
 		}
 	}
-#endif	Z_RCS_SCCS
+#endif	/* Z_RCS_SCCS */
 
 	bfr = setcol(bfr, CCOL_CMD, bfr - base);
 	*bfr++ = ' ';
@@ -285,7 +291,7 @@ char	*t,
 		len -= (bfr-base);
 		bfr += ded2string(bfr, len, t, FALSE);
 	} else
-#endif	S_IFLNK
+#endif	/* S_IFLNK */
 		if (isDIR(mj)) {
 		*bfr++ = '/';
 	} else if (executable(s))	*bfr++ = '*';

@@ -1,15 +1,18 @@
 #ifndef	lint
-static	char	Id[] = "$Id: showpath.c,v 8.0 1990/02/01 15:22:29 ste_cm Rel $";
-#endif	lint
+static	char	Id[] = "$Id: showpath.c,v 8.1 1991/05/16 07:55:20 dickey Exp $";
+#endif
 
 /*
  * Title:	showpath.c (show pathname)
  * Author:	T.E.Dickey
  * Created:	01 Feb 1990
  * $Log: showpath.c,v $
- * Revision 8.0  1990/02/01 15:22:29  ste_cm
- * BASELINE Mon Aug 13 15:06:41 1990 -- LINCNT, ADA_TRANS
+ * Revision 8.1  1991/05/16 07:55:20  dickey
+ * apollo sr10.3 cpp complains about tag on #endif
  *
+ *		Revision 8.0  90/02/01  15:22:29  ste_cm
+ *		BASELINE Mon Aug 13 15:06:41 1990 -- LINCNT, ADA_TRANS
+ *		
  *		Revision 7.0  90/02/01  15:22:29  ste_cm
  *		BASELINE Mon Apr 30 09:54:01 1990 -- (CPROTO)
  *		
