@@ -1,3 +1,22 @@
+1996-01-09  Thomas E. Dickey  <dickey@clark.net>
+
+	* src/dedtype.c: mods to support scrolling regions
+
+	* src/dedview.c: tweaks for scrolling in dedtype.c
+
+	* src/ded.h:
+	added flag 'in_dedtype' to prevent clearing workspace area when using A/a
+	commands (faster)
+
+	* src/dedview.c: mods for scrolling regions in upLINE and downLINE
+
+	* src/ftree.c:
+	in uprow(), downrow(), use 'scrl()' to make the window scroll in the
+	right direction, to make refresh faster.
+
+	* src/ded.c:
+	turn on 'scrollok()' so 'scrl()' and 'setscrreg()' will work...
+
 1995-12-16  Thomas E. Dickey  <dickey@clark.net>
 
 	* src/boxchars.c:

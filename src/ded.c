@@ -3,6 +3,7 @@
  * Author:	T.E.Dickey
  * Created:	09 Nov 1987
  * Modified:
+ *		09 Jan 1996, mods for scrolling-regions
  *		16 Dec 1995, added '-i' option.
  *		05 Nov 1995, mods to prevent tilde-expansion in cNAME
  *		30 Aug 1995, added "-e" option.
@@ -148,7 +149,7 @@
 #define	MAIN
 #include	"ded.h"
 
-MODULE_ID("$Header: /users/source/archives/ded.vcs/src/RCS/ded.c,v 12.44 1995/12/16 14:42:14 tom Exp $")
+MODULE_ID("$Header: /users/source/archives/ded.vcs/src/RCS/ded.c,v 12.45 1996/01/09 22:46:01 tom Exp $")
 
 #define	EDITOR	DEFAULT_EDITOR
 #define	BROWSE	DEFAULT_BROWSE
@@ -981,6 +982,9 @@ _MAIN
 	(void)dedsize((RING *)0);
 
 	if (!initscr())			failed("initscr");
+#if HAVE_WSCRL
+	(void)scrollok(stdscr, TRUE);
+#endif
 #if HAVE_HAS_COLORS
 	(void)start_color();
 #endif
