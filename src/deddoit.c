@@ -3,6 +3,7 @@
  * Author:	T.E.Dickey
  * Created:	17 Nov 1987
  * Modified:
+ *		15 Feb 1998, compiler-warnings
  *		29 Oct 1993, ifdef-ident
  *		28 Sep 1993, gcc warnings
  *		13 May 1992, corrected handling of errors in 'system()'
@@ -34,7 +35,7 @@
  */
 #include	"ded.h"
 
-MODULE_ID("$Id: deddoit.c,v 12.14 1996/01/13 14:48:27 tom Exp $")
+MODULE_ID("$Id: deddoit.c,v 12.16 1998/02/15 23:45:34 tom Exp $")
 
 /*
  * Return a pointer to a leaf of a given name
@@ -225,10 +226,10 @@ public	void	deddoit(
 		} else if (*This == '#') {	/* substitute group */
 			int	ellipsis = 0,
 				others = FALSE,
-				len,
-				x;
+				len;
+			unsigned x;
 
-			for (x = 0; x < gbl->numfiles; x++) {
+			for_each_file(gbl,x) {
 				if (GROUPED(x)) {
 					len = strlen(s = fixname(gbl, x));
 					if (others++)

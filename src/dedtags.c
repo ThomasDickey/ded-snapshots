@@ -10,7 +10,7 @@
 
 #include	"ded.h"
 
-MODULE_ID("$Id: dedtags.c,v 12.5 1997/09/13 12:42:59 tom Exp $")
+MODULE_ID("$Id: dedtags.c,v 12.6 1998/02/15 23:14:21 tom Exp $")
 
 /*
  * Initialize counters associated with tags
@@ -61,10 +61,10 @@ public	void	count_tags (
 	_AR1(RING *,	gbl))
 	_DCL(RING *,	gbl)
 {
-	register size_t j;
+	register unsigned j;
 
 	init_tags(gbl);
-	for (j = 0; j < gbl->numfiles; j++) {
+	for_each_file(gbl,j) {
 		if (gFLAG(j)) {
 			gFLAG(j) = FALSE;
 			tag_entry(gbl,j);

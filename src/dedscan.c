@@ -3,6 +3,7 @@
  * Author:	T.E.Dickey
  * Created:	09 Nov 1987
  * Modified:
+ *		15 Feb 1998, compiler warnings
  *		02 Feb 1997, add chdir's within path_RESOLVE to make it work
  *			     with relative path (e.g., "./src/") as an argument.
  *		12 Jan 1997, filename-only case still wasn't right, since it
@@ -84,12 +85,12 @@
  */
 
 #define		DIR_PTYPES	/* includes directory-stuff */
-#include	"ded.h"
-#include	"cmv_defs.h"
-#include	"rcsdefs.h"
-#include	"sccsdefs.h"
+#include	<ded.h>
+#include	<cmv_defs.h>
+#include	<rcsdefs.h>
+#include	<sccsdefs.h>
 
-MODULE_ID("$Id: dedscan.c,v 12.27 1997/02/02 21:45:30 tom Exp $")
+MODULE_ID("$Id: dedscan.c,v 12.28 1998/02/15 23:43:21 tom Exp $")
 
 #define	def_doalloc	FLIST_alloc
 	/*ARGSUSED*/
@@ -116,9 +117,9 @@ private	int	lookup (
 	_DCL(RING *,	gbl)
 	_DCL(char *,	name)
 {
-	register int j;
+	register unsigned j;
 
-	for (j = 0; j < gbl->numfiles; j++) {
+	for_each_file(gbl,j) {
 		if (!strcmp(gNAME(j), name))
 			return (j);
 	}
@@ -284,6 +285,7 @@ public	int	dedscan (
 	auto	DIR	*dp;
 	auto	DirentT *de;
 	register int	j, k;
+	register unsigned n;
 	auto	 int	common = -1;
 	char	name[MAXPATHLEN];
 	char	*s;
@@ -367,10 +369,10 @@ public	int	dedscan (
 	if (debug)
 		PRINTF("common=%d, numfiles=%d\r\n", common, gbl->numfiles);
 	if (common == 0 && gbl->numfiles != 0) {
-		common = strlen(strcpy(name,argv[0]));
-		for (j = 0; (j < argc) && (common > 0); j++) {
+		unsigned comlen = strlen(strcpy(name,argv[0]));
+		for (j = 0; (j < argc) && (comlen != 0); j++) {
 			register char	*d = argv[j];
-			register int	slash = 0;
+			register unsigned slash = 0;
 
 			for (s = name, k = 0;
 				(d[k] == s[k]) && (d[k] != EOS);) {
@@ -378,7 +380,7 @@ public	int	dedscan (
 				&&  (d[k]   != EOS))	/* need a leaf */
 					slash = k;	/* ...common-length */
 			}
-			if (slash < common) {
+			if (slash < comlen) {
 #ifdef	apollo
 				if ((slash == 1)
 				&&  (name[0] == '/')) {
@@ -387,22 +389,22 @@ public	int	dedscan (
 						slash = 0; /* fix truncation */
 				}
 #endif
-				common = slash;
+				comlen = slash;
 			}
-			dlog_comment("common '%.*s' (%d:%s)\n", common, name, slash, d);
+			dlog_comment("common '%.*s' (%d:%s)\n", comlen, name, slash, d);
 		}
-		name[common] = EOS;
+		name[comlen] = EOS;
 
-		if (common > 0) {
+		if (comlen != 0) {
 			dlog_comment("common path = \"%s\" (len=%d)\n",
-				name, common);
+				name, comlen);
 			if (chdir(strcpy(gbl->new_wd,old_wd)) < 0)
 				failed(old_wd);
 			abshome(strcpy(gbl->new_wd, name));
 			if (!path_RESOLVE(gbl, gbl->new_wd))
 				failed(gbl->new_wd);
-			for (j = 0; j < gbl->numfiles; j++)
-				gNAME(j) = txtalloc(gNAME(j) + common);
+			for_each_file(gbl,n)
+				gNAME(n) = txtalloc(gNAME(n) + comlen);
 		} else {
 			size_t	len = strlen(gbl->new_wd);
 			for (j = 0; j < argc; j++) {
@@ -524,8 +526,9 @@ public	void	statMAKE (
 		}
 	} else {	/* remove entry */
 		if ((x = lookup(gbl, null)) >= 0) {
-			while (x++ < gbl->numfiles)
-				gENTRY(x-1) = gENTRY(x);
+			unsigned n = x;
+			while (n++ < gbl->numfiles)
+				gENTRY(n-1) = gENTRY(n);
 			gbl->numfiles--;
 		}
 	}

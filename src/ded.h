@@ -19,7 +19,7 @@
 
 #ifdef	MAIN
 #if	!defined(NO_IDENT)
-static const char ded_h[] = "$Id: ded.h,v 12.45 1997/09/13 13:33:45 tom Exp $";
+static const char ded_h[] = "$Id: ded.h,v 12.49 1998/02/15 23:46:39 tom Exp $";
 #endif
 #endif	/* MAIN */
 
@@ -94,6 +94,8 @@ static const char ded_h[] = "$Id: ded.h,v 12.45 1997/09/13 13:33:45 tom Exp $";
 /*
  * Short-hand expressions:
  */
+#define for_each_file(gbl,x) for (x = 0; x < gbl->numfiles; x++)
+
 #define	gENTRY(x)	gbl->flist[x]	/* passed-thru as argument */
 #define	gNAME(x)	gENTRY(x).name
 #define	gSTAT(x)	gENTRY(x).s
@@ -166,9 +168,6 @@ static const char ded_h[] = "$Id: ded.h,v 12.45 1997/09/13 13:33:45 tom Exp $";
 		A_opt,		/* show "." and ".." */
 		G_opt,		/* show uid/gid field */
 		I_opt,		/* show link/inode field */
-#ifdef	apollo_sr10
-		O_opt,		/* show apollo object-types */
-#endif
 		P_opt,		/* show filemode in octal vs normal */
 		S_opt,		/* show filesize in blocks */
 		T_opt,		/* show long date+time */
@@ -262,7 +261,7 @@ extern	void	resleep(
 
 extern	char	*fixname(
 		_arx(RING *,	gbl)
-		_ar1(int,	j));
+		_ar1(unsigned,	j));
 
 extern	void	fixtime(
 		_arx(RING *,	gbl)

@@ -3,6 +3,8 @@
  * Author:	T.E.Dickey
  * Created:	09 Nov 1987
  * Modified:
+ *		15 Feb 1998, remove special code for apollo sr10.
+ *			     working on signed/unsigned compiler warnings.
  *		09 Jan 1996, mods for scrolling-regions
  *		16 Dec 1995, added '-i' option.
  *		05 Nov 1995, mods to prevent tilde-expansion in cNAME
@@ -149,7 +151,7 @@
 #define	MAIN
 #include	"ded.h"
 
-MODULE_ID("$Header: /users/source/archives/ded.vcs/src/RCS/ded.c,v 12.49 1997/01/19 03:50:21 tom Exp $")
+MODULE_ID("$Header: /users/source/archives/ded.vcs/src/RCS/ded.c,v 12.52 1998/02/15 23:48:03 tom Exp $")
 
 #define	EDITOR	DEFAULT_EDITOR
 #define	BROWSE	DEFAULT_BROWSE
@@ -335,8 +337,8 @@ public	int	findFILE(
 	_DCL(RING *,	gbl)
 	_DCL(char *,	name)
 {
-	register int j;
-	for (j = 0; j < gbl->numfiles; j++)
+	register unsigned j;
+	for_each_file(gbl,j)
 		if (name == gNAME(j))
 			return (j);
 	return (0);			/* give up, set to beginning of list */
@@ -357,12 +359,12 @@ public	void	showSCCS (
 	_AR1(RING *,	gbl))
 	_DCL(RING *,	gbl)
 {
-	register int j;
+	register unsigned j;
 
 	if (!gbl->Z_opt) {		/* catch up */
 		set_dedblip(gbl);
 		gbl->Z_opt = -1;
-		for (j = 0; j < gbl->numfiles; j++) {
+		for_each_file(gbl,j) {
 			register FLIST *f = &(gbl->flist[j]);
 			if (!f->z_time) {
 				statSCCS(gbl, gNAME(j), f);
@@ -541,10 +543,10 @@ private	RING *	rescan(
  */
 public	char *	fixname(
 	_ARX(RING *,	gbl)
-	_AR1(int,	j)
+	_AR1(unsigned,	j)
 		)
 	_DCL(RING *,	gbl)
-	_DCL(int,	j)
+	_DCL(unsigned,	j)
 {
 	static	char	nbfr[MAXPATHLEN];
 	(void)ded2string(gbl, nbfr, sizeof(nbfr), gNAME(j), TRUE);
@@ -770,9 +772,6 @@ void	usage(_AR0)
 			"  -A       show \".\" and \"..\" names",
 			"  -G       show group-name instead of user-name",
 			"  -I       show inode field",
-#ifdef	apollo_sr10
-			"  -O       show apollo object-types",
-#endif
 			"  -P       show protection in octal",
 			"  -S       show file-size in blocks",
 			"  -T       show long date+time",
@@ -872,6 +871,7 @@ _MAIN
 	int	optBox = FALSE;
 	int	optInprocess = TRUE;
 	register int	j;
+	register unsigned k;
 	auto	Stat_t	sb;
 	auto	int	c,
 			count,
@@ -900,9 +900,6 @@ _MAIN
 	case 'I':	COMPLEMENT(gbl->I_opt);	break;
 #if HAVE_HAS_COLORS
 	case 'i':	invert_colors = TRUE;	break;
-#endif
-#ifdef	apollo_sr10
-	case 'O':	COMPLEMENT(gbl->O_opt);	break;
 #endif
 	case 'P':	COMPLEMENT(gbl->P_opt);	break;
 	case 'S':	COMPLEMENT(gbl->S_opt);	break;
@@ -1079,10 +1076,10 @@ _MAIN
 	case '@':	COMPLEMENT(gbl->AT_opt);
 			count = 0;
 			set_dedblip(gbl);
-			for (j = 0; j < gbl->numfiles; j++) {
-				if (gLTXT(j)) {
+			for_each_file(gbl,k) {
+				if (gLTXT(k)) {
 					put_dedblip('@');
-					statLINE(gbl, j);
+					statLINE(gbl, k);
 					count++;
 				} else
 					put_dedblip('.');
@@ -1104,11 +1101,6 @@ _MAIN
 	case 'I':	gbl->I_opt = one_or_both(j = gbl->I_opt,count);
 			showFILES(gbl,gbl->I_opt != j);
 			break;
-#ifdef	apollo_sr10
-	case 'O':	COMPLEMENT(gbl->O_opt);
-			showFILES(gbl, TRUE);
-			break;
-#endif
 	case 'P':	gbl->P_opt = one_or_both(j = gbl->P_opt,count);
 			showFILES(gbl,gbl->P_opt != j);
 			break;
@@ -1242,8 +1234,8 @@ _MAIN
 			}
 			break;
 
-	case '_':	for (j = 0; j < gbl->numfiles; j++)
-				untag_entry(gbl,j);
+	case '_':	for_each_file(gbl,k)
+				untag_entry(gbl,k);
 			init_tags(gbl);
 			showFILES(gbl,FALSE);
 			break;

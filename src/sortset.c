@@ -3,6 +3,8 @@
  * Author:	T.E.Dickey
  * Created:	01 Dec 1989 (from ded.c)
  * Modified:
+ *		15 Feb 1998, remove special code for apollo sr10.
+ *			     change 'y' (lock owner) to 'o'.
  *		06 Dec 1993, added 'S' sort.
  *		29 Oct 1993, ifdef-ident
  *		28 Sep 1993, gcc warnings
@@ -20,7 +22,7 @@
 
 #include	"ded.h"
 
-MODULE_ID("$Id: sortset.c,v 12.10 1995/11/05 21:36:26 tom Exp $")
+MODULE_ID("$Id: sortset.c,v 12.12 1998/02/15 21:21:46 tom Exp $")
 
 public	char	sortc[128];
 
@@ -38,14 +40,10 @@ static	const	char	*sort_msg[] = {
 	,"l - number of links"
 	,"n - name"
 	,"N - name (excluding path, if any)"
-#ifdef	apollo_sr10
-	,"o - object type-uid (symbolic)"
-	,"O - object type-uid (numeric)"
-#endif	/* apollo_sr10 */
-	,"p - protection code"
-#ifdef	apollo_sr10
-	,"P - protection code, with extended-acl flag"
+#ifdef	Z_RCS_SCCS
+	,"o - RCS/SCCS lock-owner"
 #endif
+	,"p - protection code"
 	,"r - atime (access time)"
 	,"s - size (bytes)"
 	,"S - size (blocks)"
@@ -53,10 +51,11 @@ static	const	char	*sort_msg[] = {
 	,"T - suffix/type (after last '.')"
 	,"u - user"
 	,"U - user (numeric)"
+#ifdef	Z_RCS_SCCS
+	,"v - RCS/SCCS tip-version"
+#endif
 	,"w - by mtime (modification)"
 #ifdef	Z_RCS_SCCS
-	,"y - RCS/SCCS lock-owner"
-	,"v - RCS/SCCS tip-version"
 	,"z - RCS/SCCS checkin date"
 	,"Z - RCS/SCCS checkin date over modification dates"
 #endif	/* Z_RCS_SCCS */
@@ -74,7 +73,7 @@ public	int	sortset(
 	_DCL(int,	opt)
 {
 	if (*sortc == EOS) {
-		register int	j, k = 0;
+		register unsigned j, k = 0;
 		LOOP(j)
 			sortc[k++] = *sort_msg[j];
 		sortc[k] = EOS;
@@ -102,11 +101,12 @@ public	int	sortget(
 {
 	auto	char	bfr[80];
 	register int	j, k;
+	register unsigned m;
 
 	if (c == '?') {
-		LOOP(j)
-			if (*sort_msg[j] == gbl->sortopt) {
-				FORMAT(bfr, "sort option: %s", sort_msg[j]);
+		LOOP(m)
+			if (*sort_msg[m] == gbl->sortopt) {
+				FORMAT(bfr, "sort option: %s", sort_msg[m]);
 				dedmsg(gbl, bfr);
 				break;
 			}
@@ -125,15 +125,15 @@ public	int	sortget(
 		j = 0;
 		while (!done) {
 			found = FALSE;
-			LOOP(k) {
-				if (*sort_msg[k] == find) {
-					c = *strcpy(bfr, sort_msg[k]);
+			LOOP(m) {
+				if (*sort_msg[m] == find) {
+					c = *strcpy(bfr, sort_msg[m]);
 					found = TRUE;
 					break;
 				}
 			}
 			if (found) {
-				j = k;
+				j = m;
 				move(y,x);
 				PRINTW("%s", bfr);
 				clrtobot();

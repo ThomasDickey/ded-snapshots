@@ -3,6 +3,7 @@
  * Author:	T.E.Dickey
  * Created:	12 Sep 1988
  * Modified:
+ *		15 Feb 1998, compiler-warnings
  *		29 Oct 1993, ifdef-ident
  *		01 Apr 1992, convert most global variables to RING-struct.
  *		16 Jan 1992, force 'dedline()' off on exit.
@@ -20,7 +21,7 @@
 
 #include	"ded.h"
 
-MODULE_ID("$Id: dedmake.c,v 12.6 1996/02/26 11:32:35 tom Exp $")
+MODULE_ID("$Id: dedmake.c,v 12.7 1998/02/15 23:43:56 tom Exp $")
 
 private	int	makeit(
 	_ARX(RING *,	gbl)
@@ -59,8 +60,8 @@ private	int	makeit(
 #endif
 	cNAME = txtalloc(name);
 	if (hard >= 0) {
-		register int j;
-		for (j = 0; j < gbl->numfiles; j++) {
+		register unsigned j;
+		for_each_file(gbl,j) {
 			if (j == gbl->curfile
 			 || gSTAT(j).st_ino == gSTAT(hard).st_ino) {
 				statLINE(gbl, j);

@@ -1,3 +1,102 @@
+1998-02-15  Thomas E. Dickey  <dickey@clark.net>
+
+	* src/version.h:
+	generate all makefiles, making this portable to systems having 'make'
+	programs w/o archive rules.
+	remove apollo_sr10 code (because it's obsolete, and because I want to be
+	able to re-use some of the command-codes).  This frees up o/O, to which I
+	renamed y/Y (was lock owner).  That lets me reserve y/Y for vertical split.
+	Started working on compiler warnings (gcc's signed/unsigned).
+	Add home/end/ppage/npage keys where appropriate.
+	Make the tag/untag operations faster by moving repaint out of repeat-loop.
+	Correct a missing 'else' that caused future-dates to be formatted as if they
+	were in the current week.
+	Correct an ifdef for systems that have no 'realpath()'; was invoking chdir
+	and this caused incorrect result in path_RESOLVE().
+
+	* src/dedscan.c: comment
+
+	* src/dedtype.c: signed/unsigned nits
+
+	* src/ded.h, src/ded.c: more signed/unsigned nits
+
+	* src/dedview.c: signed/unsigned nits
+
+	* src/dedscan.c:
+	corrected ifdef'ing for HAVE_REALPATH, which incorrectly did a chdir(old_wd)
+	when I didn't have 'realpath()'.
+
+	* src/dedline.c: more signed/unsigned nits
+
+	* src/ded2s.c:
+	oops: missed an 'else' in time2s, so all future dates were formatted as if
+	they were in the current week.
+
+	* src/dedtags.c:
+	pass 'count' arg to tag/untag functions, letting the caller repaint the
+	screen at the end, rather than doing it a line at a time (duh).
+
+	* src/ded.c:
+	rewrote '+' and '-' operations so I do repaint at the END of the command,
+	rather than putting a lot of non-refresh'ed operations.
+
+	* src/ded.h:
+	change interface to tag/untag functions so I can do refresh at the end
+	of operation (makes it faster)
+
+	* src/dedscan.c: more compiler warnings
+
+	* src/ftree.c: add home/end/ppage/npage keys
+	fix some compiler warnings
+
+	* src/ded.hlp:
+	renamed y/Y to o/O, so I can use 'y' as mnemonic for vertical-split
+
+	* src/dedtype.c: add home/end/ppage/npage keys
+
+	* src/dedview.c: more fixes for signed/unsigned
+
+	* src/ded.h: upLINE, downLINE param (unsigned)
+
+	* src/ded.c: add home/end/npage/ppage keys
+
+	* src/ded.c, src/ded.h: fixname param (unsigned)
+
+	* src/deddoit.c: for_each_file() index (unsigned)
+
+	* src/deddoit.c, src/dedmake.c: use for_each_file()
+
+	* src/dedscan.c: compiler warnings
+
+	* src/restat.c: working on signed/unsigned warnings.
+
+	* src/dedline.c: working on compiler-warnings.
+
+	* src/dedtags.c, src/restat.c: use 'for_each_file()'
+
+	* src/ded.c: fix some unsigned/signed compares (no object change)
+
+	* src/ded.h: bad idea...
+
+	* src/ded.h: add macro 'for_each_file()"
+	change len param in edittext to unsigned.
+
+	* src/sortset.c: change 'y' (lock owner) to 'o'.
+	fix some compiler warnings.
+
+	* user/ded.man: remove apollo stuff
+	change y/Y lock-owner stuff to o/O (a little more mnemonic, and will also
+	let me reserve y/Y for vertical-split - also mnemonic)
+
+	* src/ded.c, src/ded2s.c, src/dedline.c, src/dedring.c, src/dedsort.c, src/sortset.c:
+	remove apollo_sr10 code
+
+	* user/ded.man: remove the o/O/P special cases for apollo_sr10
+
+	* src/ded.h: remove support for apollo sr10
+
+	* src/makefile.2nd: use CURSES_LIBS rather than LIB_ARGS
+
 1998-02-02  Thomas E. Dickey  <dickey@clark.net>
 
 	* mkdirs.sh: current autoconf

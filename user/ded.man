@@ -1,4 +1,4 @@
-.\" $Id: ded.man,v 12.7 1995/11/02 01:26:59 tom Exp $
+.\" $Id: ded.man,v 12.9 1998/02/15 21:10:11 tom Exp $
 .if t .ds T \(tm
 .if n .ds T (tm)
 .
@@ -101,9 +101,6 @@ displays user-identifiers).
 .B \-I
 toggle inode/links display field (initially displays
 number of links for each file).
-.TP
-.B \-O
-(apollo only) show object type-uids.
 .TP
 .B \-P
 toggle file-protection display field (initially displays
@@ -413,9 +410,6 @@ show user and group names at the same time.
 toggle inode/links display field.
 Type "2I" to show inode and device code at the same time.
 .TP
-.B O
-(apollo only) toggles display showing object type-uids.
-.TP
 .B P
 toggle file protection-mode (octal/normal) display field.
 This is useful because occasionally the UNIX protection display is ambiguous.
@@ -481,9 +475,6 @@ until interrupted).
 .TP
 .B w
 refresh (i.e., repaint) the window.
-(Note: on Apollo,
-this command also checks to see if the terminal emulator window has
-changed size, and adjusts \fIcurses\fR state to match).
 .TP
 .B l
 re-stat the current entry, as well as files which
@@ -554,16 +545,10 @@ filename
 filename leaf (i.e., without directory names)
 .TP
 .B o
-(apollo only) object type-uids (numerically)
-.TP
-.B O
-(apollo only) object type-uids (numerically)
+rcs/sccs lock-owner
 .TP
 .B p
 file-protection mask/mode.
-.TP
-.B P
-(apollo only) file-protection mask/mode, together with the extended-acl flag.
 .TP
 .B r
 last-access (read) date
@@ -591,9 +576,6 @@ rcs/sccs versions
 .TP
 .B w
 last-modification (write) date
-.TP
-.B y
-rcs/sccs lock-owner
 .TP
 .B z
 rcs/sccs check-in dates
@@ -884,9 +866,6 @@ on it.
 If the entry is a symbolic link to a file, \fBded\fR opens
 a file list in the directory containing that file, and positions to
 that file.
-.PP
-For Apollo, \fBded\fR also strips off trailing DSEE-style
-generation expressions from the symbolic link.
 .RE
 .TP
 .B e
@@ -1084,6 +1063,10 @@ file, after removing the last component (i.e., "head").
 \fB%n\fR or \fB%N\fR
 substitutes the name of the current file.
 .TP
+.B %o
+substitutes the name (if any) of the user who has reserved the current
+file with RCS or SCCS.
+.TP
 \fB%r\fR or \fB%R\fR
 substitutes the name of the current
 file, removing "\fI.xxx\fR" part (i.e., "root").
@@ -1097,10 +1080,6 @@ substitutes the name of the user (who owns) the current file.
 .TP
 .B %v
 substitutes the highest RCS/SCCS version of the current file, if known.
-.TP
-.B %y
-substitutes the name (if any) of the user who has reserved the current
-file with RCS or SCCS.
 .PP
 The \fB%N\fR, \fB%H\fR, \fB%R\fR and \fB%E\fR
 substitutions are performed after concatenating the current filename
@@ -1300,16 +1279,16 @@ and "\fBZ\fR" keys) facilitate this also.
 .PP
 The following file list commands are used for archive display:
 .TP
-.B V
-toggle version display.
-.TP
-.B Y
+.B O
 toggle display showing the owner of the current lock
 on the file.
 \fBDed\fR examines the \fIrcs\fR archive file
 to see if there are any locks on it.
 If so, it displays the name
 of the first lock-owner
+.TP
+.B V
+toggle version display.
 .TP
 .B Z
 toggle check-in date display.
@@ -1412,58 +1391,6 @@ control/W \- usually word-erase
 .PP
 Other text (which is buffered) contains no non-printing characters.
 .
-.SS Apollo DOMAIN/IX Enhancements		\"**************************
-.PP
-\fBDed\fR runs under Apollo DOMAIN/IX SR9 or SR10.x within a VT100
-terminal emulator window.
-.PP
-You may use the Apollo display manager to change the size of the window
-(there is nothing sacred about 24 lines and 80 columns).
-The "\fBw\fR" repaint command of \fBded\fR is used to adjust the screen if you
-change the screen size.
-.PP
-Under Apollo SR9, there are two serious UNIX incompatibilities which
-\fBded\fR addresses: file modification dates and case-sensitivity in file
-names.
-When you use \fBded\fR's built-in commands (e.g., "\fBp\fR",
-"\fBu\fR" and "\fBg\fR"), \fBded\fR replaces the
-original file modification date since the Apollo \fIchmod\fR
-and \fIchown\fR system calls merge the change- and modification-dates.
-(Apollo SR10.x does this correctly).
-.PP
-Case-sensitivity in file names is a more interesting problem.
-DOMAIN/IX
-runs in conjunction with Apollo's AEGIS operating system.
-AEGIS file
-names are not case sensitive.
-Some AEGIS SR9 utilities do not work
-properly if given UNIX-style mixed-case names.
-\fBDed\fR can show file names in either AEGIS or UNIX form.
-When it shows names in AEGIS
-form, it will also convert names in shell commands (e.g., those substituted
-with "\fB#\fR") to AEGIS-style as well.
-.PP
-Apollo-specific \fBded\fR commands are:
-.TP
-.B U
-toggle filename display (UNIX versus AEGIS).
-In AEGIS
-mode, uppercase characters are shown with a ":" prefix.
-.TP
-.I CTL/E
-edit the current file with the pad-editor.
-\fBDed\fR
-waits until you have closed the pad before continuing.
-(Due to a bug in the Apollo \fIpad_$edit_wait\fR call,
-you cannot use the display manager RO command to toggle the edit pad
-from read/write to read-only and back again \- it works only in
-one direction.)
-.TP
-.I CTL/V
-view the current file with the pad-editor.
-\fBDed\fR does not wait for the pad to be closed; it will proceed to accept
-new commands.
-.
 .SS X Windows Enhancements			\"**************************
 .PP
 \fBDed\fR assumes that you are running under X\ Windows\*R.
@@ -1542,6 +1469,7 @@ so that the help file can be found.
 specifies the order to use when looking for the last version of files
 in RCS, SCCS, CmVision.
 If you do not specify it, the default order is "rcs,sccs".
+Specify CmVision with a "cmv" keyword.
 .TP
 .B DED_TREE
 overrides the default location of the directory-tree database file.
