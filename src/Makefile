@@ -1,4 +1,4 @@
-# $Id: Makefile,v 12.6 1994/07/05 01:04:46 tom Exp $
+# $Id: Makefile,v 12.7 1994/07/10 14:50:47 tom Exp $
 # MAKE-file for directory editor
 
 THIS	= ded
@@ -16,6 +16,7 @@ CSRC	=\
 	$(THIS).c \
 	ded2s.c \
 	dedblip.c \
+	dedcolor.c \
 	deddoit.c \
 	deddump.c \
 	dedfind.c \
@@ -51,6 +52,7 @@ Z	= $(THIS).a
 OBJS	= \
 	$Z(ded2s.o) \
 	$Z(dedblip.o) \
+	$Z(dedcolor.o) \
 	$Z(deddoit.o) \
 	$Z(deddump.o) \
 	$Z(dedfind.o) \
@@ -111,7 +113,4 @@ $Z(ftree.o):	$(RCSDEFS_H) $(SCCSDEFS_H)
 $(SOURCES):			; $(GET) $@
 lint.out:	$(CSRC)		; $(DATE); tdlint $(LINTOPTS) $(CSRC) >>$@
 lincnt.out:	$(CSRC)		; $(DATE); lincnt $(CSRC) >>$@
-
-.PRECIOUS:	proto.h
-proto.h:	$(CSRC)		; $(CPROTO) $(CPP_OPTS) $? >$@
 tags:		$(CSRC)		; dotags $(CSRC)

@@ -1,4 +1,4 @@
-MANIFEST for ded, version t19940709
+MANIFEST for ded, version t19940710
 --------------------------------------------------------------------------------
 MANIFEST                        this file
 COPYING                         copyright notice for DED
@@ -17,6 +17,7 @@ src/ded.h                       common definitions of DED
 src/ded.hlp                     help-file for DED
 src/ded2s.c                     convert file-entry to string
 src/dedblip.c                   consolidates blip-logic to show a number, not simply a character.
+src/dedcolor.c                  first cut of module to cache color information
 src/deddoit.c                   execute shell commands
 src/deddump.c                   dump screen
 src/dedfind.c                   search within file-list

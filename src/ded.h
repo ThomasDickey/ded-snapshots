@@ -3,7 +3,7 @@
 
 #ifdef	MAIN
 #if	!defined(NO_IDENT)
-static	char	*ded_h = "$Id: ded.h,v 12.24 1994/07/01 23:58:24 tom Exp $";
+static	char	*ded_h = "$Id: ded.h,v 12.25 1994/07/10 19:20:52 tom Exp $";
 #endif
 #endif	/* MAIN */
 
@@ -260,6 +260,12 @@ extern	void	set_dedblip (
 
 extern	void	put_dedblip (
 		_ar1(int,	code));
+
+/* *** "dedcolor.c" *** */
+#if HAVE_HAS_COLORS
+extern	void	dedcolor(
+		_ar1(FLIST *,	entry));
+#endif
 
 /* *** "deddoit.c" *** */
 extern	void	deddoit(
@@ -559,6 +565,10 @@ extern	int	ded2string(
 		_arx(int,	len)
 		_arx(char *,	name)
 		_ar1(int,	flag));
+
+extern	int	ded_access(
+		_arx(Stat_t *,	sb)
+		_ar1(int,	mask));
 
 extern	char	*type_uid2s(
 		_ar1(Stat_t *,	s));
