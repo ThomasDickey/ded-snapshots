@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	Id[] = "$Id: ded2s.c,v 6.0 1990/01/30 08:38:15 ste_cm Rel $";
+static	char	Id[] = "$Id: ded2s.c,v 8.0 1990/04/24 16:27:56 ste_cm Rel $";
 #endif	lint
 
 /*
@@ -7,9 +7,18 @@ static	char	Id[] = "$Id: ded2s.c,v 6.0 1990/01/30 08:38:15 ste_cm Rel $";
  * Author:	T.E.Dickey
  * Created:	09 Nov 1987
  * $Log: ded2s.c,v $
- * Revision 6.0  1990/01/30 08:38:15  ste_cm
- * BASELINE Thu Mar 29 07:37:55 1990 -- maintenance release (SYNTHESIS)
+ * Revision 8.0  1990/04/24 16:27:56  ste_cm
+ * BASELINE Mon Aug 13 15:06:41 1990 -- LINCNT, ADA_TRANS
  *
+ *		Revision 7.0  90/04/24  16:27:56  ste_cm
+ *		BASELINE Mon Apr 30 09:54:01 1990 -- (CPROTO)
+ *		
+ *		Revision 6.1  90/04/24  16:27:56  dickey
+ *		corrected 'time2s()' to handle dates past coming midnight
+ *		
+ *		Revision 6.0  90/01/30  08:38:15  ste_cm
+ *		BASELINE Thu Mar 29 07:37:55 1990 -- maintenance release (SYNTHESIS)
+ *		
  *		Revision 5.1  90/01/30  08:38:15  dickey
  *		if 'T_opt' is set, display all date+time fields in long form,
  *		as returned by 'ctime()'
@@ -349,7 +358,9 @@ time_t  fdate;
 		if (now >= midnite)	/* bump if we ran past midnite */
 			midnite += (24 * HOUR);
 
-		if ((midnite - ONE_WEEK) <= fdate) {	     /* ddd HH:MM:SS */
+		if (midnite <= fdate) {			     /* future? */
+			FORMAT(bfr, "%.7s%.4s  ", t+4, t+20);
+		} if ((midnite - ONE_WEEK) <= fdate) {	     /* ddd HH:MM:SS */
 			FORMAT(bfr, "%.4s%.8s ", t, t+11);
 		} else if ((midnite - SIXMONTHS) < fdate) {  /* mmm DD HH:MM */
 			FORMAT(bfr, "%.12s ", t+4);

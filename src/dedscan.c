@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	Id[] = "$Id: dedscan.c,v 6.2 1990/04/23 13:54:28 dickey Exp $";
+static	char	Id[] = "$Id: dedscan.c,v 6.3 1990/04/24 11:28:50 dickey Exp $";
 #endif	lint
 
 /*
@@ -7,10 +7,14 @@ static	char	Id[] = "$Id: dedscan.c,v 6.2 1990/04/23 13:54:28 dickey Exp $";
  * Author:	T.E.Dickey
  * Created:	09 Nov 1987
  * $Log: dedscan.c,v $
- * Revision 6.2  1990/04/23 13:54:28  dickey
- * modify initial 'chdir()' so we try to recover from unreadable
- * directory (e.g., when invoking "su" from a protected directory)
+ * Revision 6.3  1990/04/24 11:28:50  dickey
+ * modified 'argstat()' so that if shell (e.g., Bourne) passes
+ * a "~" argument, we expand it properly.
  *
+ *		Revision 6.2  90/04/23  13:55:06  dickey
+ *		modify initial 'chdir()' so we try to recover from unreadable
+ *		directory (e.g., when invoking "su" from a protected directory)
+ *		
  *		Revision 6.1  90/04/18  07:40:54  dickey
  *		invoke 'rcslast()' to pick up information about permit-file
  *		(e.g., "RCS,v").
@@ -350,6 +354,10 @@ argstat(name, list)
 char	*name;
 {
 	FLIST	fb;
+	char	full[BUFSIZ];
+
+	if (*name == '~')	/* permit "~" from Bourne-shell */
+		abspath(name = strcpy(full, name));
 
 	Zero(&fb);
 	if (dedstat(name, &fb) >= 0) {
