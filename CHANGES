@@ -1,3 +1,18 @@
+1992-05-27  dickey@software.org
+
+	* user/ded.man: make '<' command recognize "%D" and "%d"
+
+1992-05-27  ste_cm@software.org
+
+	* user/ded.man: BASELINE Thu Jul 16 09:39:01 1992 -- EBPM4 support
+
+1992-05-27  dickey@software.org
+
+	* src/dedline.c: make '<' command recognize "%D" and "%d" expansion
+
+	* src/dedring.c:
+	'ring_path()' does not need to write in a static-buffer
+
 1992-05-13  dickey@software.org
 
 	* src/deddoit.c: 'system()' may set errno w/o returning a -1 code.

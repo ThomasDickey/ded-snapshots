@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	Id[] = "$Id: dedring.c,v 10.22 1992/05/12 15:04:13 dickey Exp $";
+static	char	Id[] = "$Id: dedring.c,v 10.23 1992/05/27 16:55:32 dickey Exp $";
 #endif
 
 /*
@@ -518,9 +518,7 @@ public	char *	ring_path(
 	_DCL(RING *,	gbl)
 	_DCL(int,	count)
 {
-	static	char	show[BUFSIZ];
-
-	return (strcpy(show, ring_pointer(gbl, count)->new_wd));
+	return ring_pointer(gbl, count)->new_wd;
 }
 
 /*
