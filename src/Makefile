@@ -1,10 +1,13 @@
-# $Id: Makefile,v 5.0 1989/10/04 11:16:19 ste_cm Rel $
+# $Id: Makefile,v 5.1 1989/12/01 13:39:32 dickey Exp $
 # MAKE-file for directory editor
 #
 # $Log: Makefile,v $
-# Revision 5.0  1989/10/04 11:16:19  ste_cm
-# BASELINE Fri Oct 27 12:27:25 1989 -- apollo SR10.1 mods + ADA_PITS 4.0
+# Revision 5.1  1989/12/01 13:39:32  dickey
+# broke 'sortset.c' out of 'ded.c'
 #
+#        Revision 5.0  89/10/04  11:16:19  ste_cm
+#        BASELINE Fri Oct 27 12:27:25 1989 -- apollo SR10.1 mods + ADA_PITS 4.0
+#        
 #        Revision 4.1  89/10/04  11:16:19  dickey
 #        added dependency on "acl.h" and "common.h"
 #        
@@ -55,7 +58,8 @@ CSRC	=\
 	dedwait.c \
 	ded2s.c \
 	dlog.c \
-	ftree.c
+	ftree.c \
+	sortset.c
 HSRC	= \
 	ded.h \
 	version.h
@@ -79,7 +83,8 @@ OBJS	= \
 	dedwait.o \
 	ded2s.o \
 	dlog.o \
-	ftree.o
+	ftree.o \
+	sortset.o
 #
 SOURCES	= Makefile README $(CSRC) $(HSRC) ded.hlp
 MAIN_O	= ded.o $A $(LIBS)

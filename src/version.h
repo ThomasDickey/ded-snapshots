@@ -1,9 +1,12 @@
 /*
  * Version-identifier for DED
  * $Log: version.h,v $
- * Revision 5.0  1989/10/12 16:13:59  ste_cm
- * BASELINE Fri Oct 27 12:27:25 1989 -- apollo SR10.1 mods + ADA_PITS 4.0
+ * Revision 5.1  1989/12/01 15:00:11  dickey
+ * added special sort-keys '?' and newline.
  *
+ *		Revision 5.0  89/10/12  16:13:59  ste_cm
+ *		BASELINE Fri Oct 27 12:27:25 1989 -- apollo SR10.1 mods + ADA_PITS 4.0
+ *		
  *		Revision 4.3  89/10/12  16:13:59  dickey
  *		tuned apollo sr10.1 code (type-uid display).
  *		make "2G" and "2I" commands show double-columns of info.
@@ -107,4 +110,4 @@
  * 01 Dec 1987, added '*', '^' commands, made '%' refresh screen
  * 25 Nov 1987, added sccs-support (V,z,Z toggles, V,z,Z sorts)
  */
-static	char	version[] = "$Date: 1989/10/12 16:13:59 $";
+static	char	version[] = "$Date: 1989/12/01 15:00:11 $";

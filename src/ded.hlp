@@ -1,4 +1,4 @@
-$Id: ded.hlp,v 5.0 1989/10/12 16:01:33 ste_cm Rel $
+$Id: ded.hlp,v 5.1 1989/12/01 15:06:38 dickey Exp $
 
 DED (Directory EDitor)
 ======================
@@ -84,7 +84,9 @@ Display-Adjustment:
   s{key}	sort entries.  The {key} suffix denotes the fields
 		which are compared.  A "+" character may precede the
 		sort-key, denoting that tagged files are sorted apart
-		from others.
+		from others.  If {key} is '?', the current sort-option
+		is displayed.  If {key} is newline or return, the last
+		sort-key is re-executed with the current 'r' or 's'.
 
 		c	last-change date
 		d	order in directory-file (cf: 'find' utility)

@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	what[] = "$Id: ded.c,v 5.0 1989/10/12 15:36:54 ste_cm Rel $";
+static	char	what[] = "$Id: ded.c,v 5.1 1989/12/01 14:36:00 dickey Exp $";
 #endif	lint
 
 /*
@@ -7,9 +7,12 @@ static	char	what[] = "$Id: ded.c,v 5.0 1989/10/12 15:36:54 ste_cm Rel $";
  * Author:	T.E.Dickey
  * Created:	09 Nov 1987
  * $Log: ded.c,v $
- * Revision 5.0  1989/10/12 15:36:54  ste_cm
- * BASELINE Fri Oct 27 12:27:25 1989 -- apollo SR10.1 mods + ADA_PITS 4.0
+ * Revision 5.1  1989/12/01 14:36:00  dickey
+ * broke out 'sortset()' module
  *
+ *		Revision 5.0  89/10/12  15:36:54  ste_cm
+ *		BASELINE Fri Oct 27 12:27:25 1989 -- apollo SR10.1 mods + ADA_PITS 4.0
+ *		
  *		Revision 4.5  89/10/12  15:36:54  dickey
  *		converted 'I', 'G' commands to three-state toggles
  *		
@@ -174,9 +177,6 @@ static	char	whoami[BUFSIZ],		/* my execution-path */
 		*tree_opt,		/* my file-tree database */
 		howami[BUFSIZ];		/* my help-file */
 
-static	char	sortc[] = ".cdgGilnNoOprstTuUwyvzZ";/* valid sort-keys */
-					/* (may correspond with cmds) */
-
 /************************************************************************
  *	local procedures						*
  ************************************************************************/
@@ -194,26 +194,6 @@ one_or_both(opt,val)
 	else
 		opt = 2;
 	return (opt);
-}
-
-static
-sortset(ord,opt)
-{
-#ifndef	apollo_sr10
-	if (strchr("oO", opt) != 0)
-		opt = '?';
-#endif
-#ifndef	Z_RCS_SCCS
-	if (strchr("vyzZ", opt) != 0)
-		opt = '?';
-#endif	Z_RCS_SCCS
-	if (strchr(sortc, opt) != 0) {
-		dateopt = opt == 'c'  ? 1 : (opt == 'r' ? 0 : 2);
-		sortopt = opt;
-		sortord = (ord == 'r');
-		return(TRUE);
-	}
-	return(FALSE);
 }
 
 /*
@@ -240,8 +220,7 @@ char	*dst,*src;
 
 	if (src != 0) {
 		dlog_comment("try to edit link-head \"%s\"\n", src);
-		(void)strcpy(dst, pathhead(strcpy(dst, src), &sb));
-		abspath(dst);
+		abspath(strcpy(dst, pathhead(src, &sb)));
 		if (strcmp(dst, new_wd))
 			return (TRUE);
 	}
@@ -993,6 +972,7 @@ editfile(readonly, pad)
 
 usage()
 {
+	extern	char	sortc[];
 	auto	char	tmp[BUFSIZ];
 	static	char	*tbl[] = {
 			"usage: ded [options] [filespecs]",
@@ -1287,7 +1267,9 @@ char	*argv[];
 	case 's':	j = dlog_char((int *)0,0);
 			if (tagsort = (j == '+'))
 				j = dlog_char((int *)0,0);
-			if (sortset(c,j)) {
+			if (!(j = sortget(j)))
+				;
+			else if (sortset(c,j)) {
 				dedsort();
 				(void)to_file();
 				showFILES(FALSE);
