@@ -1,5 +1,5 @@
 #if	!defined(NO_IDENT)
-static	char	Id[] = "$Id: dedview.c,v 12.20 1994/11/22 23:35:02 tom Exp $";
+static	char	Id[] = "$Id: dedview.c,v 12.21 1994/12/16 13:35:58 tom Exp $";
 #endif
 
 /*
@@ -574,7 +574,7 @@ public	void	showMARK (
 		if (limit <= 0)
 			break;
 		getyx(stdscr, ys, xs);
-#if SYS5_CURSES
+#if HAVE_ADDCHNSTR
 		addchnstr(bar_ruler + units, limit);
 #else
 		PRINTW("%.*s", limit, bar_ruler + units);

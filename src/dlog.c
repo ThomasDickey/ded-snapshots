@@ -1,5 +1,5 @@
 #if	!defined(NO_IDENT)
-static	char	Id[] = "$Id: dlog.c,v 12.10 1994/07/02 20:14:55 tom Exp $";
+static	char	Id[] = "$Id: dlog.c,v 12.11 1994/12/16 20:36:09 tom Exp $";
 #endif
 
 /*
@@ -642,7 +642,13 @@ public	void	dlog_name (
 /*
  * Write a comment to the log-file (with trailing newline in 'fmt').
  */
-#if HAVE_STDARG_H
+#if HAVE_STDARG_H && PROTOTYPES
+#define ANSI_VARARGS 1
+#else
+#define ANSI_VARARGS 0
+#endif
+
+#if ANSI_VARARGS
 #define	args_VARARGS1	_ARX(char *,fmt) _DOTS
 #define	decl_VARARGS1	_DCL(char *,fmt) _DCL(va_list *,app)
 #else
@@ -656,14 +662,14 @@ public	void	dlog_name (
 #undef	va_arg
 #define	va_arg(p,c)	(c)0
 #endif
-#endif	/* HAVE_STDARG_H */
+#endif	/* ANSI_VARARGS */
 
 /*VARARGS*/
 public	void	dlog_comment(args_VARARGS1)
 	decl_VARARGS1
 {
 	auto	va_list	args;
-#if !HAVE_STDARG_H
+#if !ANSI_VARARGS
 	auto	char	*fmt;
 #endif
 	static	DYN	*msg, *tmp;
@@ -675,7 +681,7 @@ public	void	dlog_comment(args_VARARGS1)
 
 	PENDING(comment,FALSE);
 	FPRINTF(log_fp, "\t# ");
-#if HAVE_STDARG_H
+#if ANSI_VARARGS
 	va_start(args,fmt);
 #else
 	va_start(args);
