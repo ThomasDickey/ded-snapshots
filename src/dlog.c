@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	what[] = "$Id: dlog.c,v 11.22 1992/08/25 16:16:05 dickey Exp $";
+static	char	what[] = "$Id: dlog.c,v 11.24 1992/08/26 11:58:30 dickey Exp $";
 #endif
 
 /*
@@ -64,10 +64,25 @@ private	void	show_text _ONE(char *,text)
 			encode_logch(text2s, (int *)0, *text++);
 			text2s += strlen(text2s);
 		}
+		*text2s = EOS;
 		FPRINTF(log_fp, "%s\n", temp_t);
 	}
 }
 #endif	/* DEBUG */
+
+/*
+ * Force a newline on the end of the given string, used to finish an edit-
+ * command in 'wrawgets()'.
+ */
+private	void	supply_newline _ONE(DYN **,p)
+{
+	register int	len;
+
+	if (len = dyn_length(*p))
+		if (dyn_string(*p)[len-1] == '\n')
+			return;
+	*p = dyn_append_c(*p, '\n');
+}
 
 /*
  * Flush pending text from raw commands so that it is logged without a
@@ -276,14 +291,17 @@ public	int	dlog_char(
 	return record_char(read_char(count_), count_, begin);
 }
 
-#define	IGNORE	{ beep(); continue; }
+#define	IGNORE	{ beep(); if (inline) goto ResetResult; else continue; }
 
 /*
  * Obtain a string from the user and log it if logging is active.
  *
- * Note that all line-buffer text in DED is written after one or more single-
+ * Note: all line-buffer text in DED is written after one or more single-
  * character commands, so we can test easily for the case of a null-buffer (it
  * simply has no more characters in the current buffer).
+ *
+ * Note: we don't log the up/down arrows used for history retrieval for
+ * simplification.  Ultimately, this could be done.
  */
 public	char *	dlog_string(
 	_ARX(DYN **,	result)
@@ -329,6 +347,10 @@ public	char *	dlog_string(
 			trace = dyn_copy(trace, s);
 		else
 			dyn_init(&trace,1);
+#ifdef	DEBUG
+		dlog_comment("INLINE:");
+		show_text(dyn_string(trace));
+#endif
 	}
 
 	getyx(stdscr,y,x);
@@ -344,7 +366,7 @@ public	char *	dlog_string(
 			if ((s = dyn_string(trace))
 			 && (*s != EOS)) {
 				*inline = dyn_copy(*inline, s);
-				trace = dyn_append_c(trace, '\n');
+				supply_newline(&trace);
 				prior = dyn_string(trace);
 				(void)wrawgets(stdscr,
 					buffer,
@@ -358,7 +380,7 @@ public	char *	dlog_string(
 					&prior,
 					TRUE);
 #ifdef	DEBUG
-				dlog_comment("PLAY:");
+				dlog_comment("PLAY  :");
 				show_text(rawgets_log());
 #endif
 				first_col = strlen(buffer);
@@ -395,9 +417,20 @@ public	char *	dlog_string(
 		/*
 		 * Record the inline-editing keystrokes
 		 */
-		if (history && inline) {
+		if (inline) {
+#ifdef	DEBUG
+			dlog_comment("BEFORE:");
+			show_text(dyn_string(trace));
+			dlog_comment("EDITED:");
+			show_text(rawgets_log());
+#endif
 			(void)dyn_trim1(trace);
 			trace = dyn_append(trace, rawgets_log());
+			(void)dyn_trim1(trace);
+#ifdef	DEBUG
+			dlog_comment("AFTER :");
+			show_text(dyn_string(trace));
+#endif
 		}
 
 		to_hist = inline ? dyn_string(trace) : buffer;
@@ -447,15 +480,17 @@ public	char *	dlog_string(
 			break;
 		}
 
-		*result = dyn_copy(*result, inline ? dyn_string(original) : s);
-		buffer = dyn_string(*result);
-
 		if (inline)
 			trace = dyn_copy(trace, s);
+ResetResult:
+		*result = dyn_copy(*result, inline ? dyn_string(original) : s);
+		buffer = dyn_string(*result);
 	}
 
-	if (inline)
+	if (inline) {
+		supply_newline(&trace);
 		*inline = dyn_copy(*inline, to_hist);
+	}
 
 	PENDING(string,TRUE);
 
