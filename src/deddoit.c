@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	sccs_id[] = "@(#)deddoit.c	1.13 88/09/09 06:52:38";
+static	char	sccs_id[] = "@(#)deddoit.c	1.14 88/09/12 15:36:13";
 #endif	lint
 
 /*
@@ -24,6 +24,7 @@ static	char	sccs_id[] = "@(#)deddoit.c	1.13 88/09/09 06:52:38";
 #include	"ded.h"
 extern	char	*fixname();
 extern	char	*dedrung();
+extern	char	*pathcat();
 extern	char	*strchr();
 extern	char	*strrchr();
 
@@ -74,13 +75,7 @@ expand(code)
 	*from	= 0;
 
 	if (strchr("NHRET", code))
-		abspath(
-			strcat(
-				strcat(
-					strcpy(name, new_wd),
-					"/"),
-				cNAME)
-			);
+		abspath(pathcat(name, new_wd, cNAME));
 	else
 		(void)strcpy(name, cNAME);
 

@@ -1,4 +1,4 @@
-# @(#)Makefile	1.21 88/08/17 08:39:29
+# @(#)Makefile	1.22 88/09/12 11:21:07
 # MAKE-file for directory editor
 #
 ####### (Environment) ##########################################################
@@ -24,6 +24,7 @@ CSRC	=\
 	dedfind.c \
 	dedfree.c \
 	dedline.c \
+	dedmake.c \
 	dedname.c \
 	dedring.c \
 	dedscan.c \
@@ -44,6 +45,7 @@ OBJS	= \
 	dedfind.o \
 	dedfree.o \
 	dedline.o \
+	dedmake.o \
 	dedname.o \
 	dedring.o \
 	dedscan.o \

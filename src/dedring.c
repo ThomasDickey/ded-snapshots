@@ -1,12 +1,18 @@
 #ifndef	lint
-static	char	sccs_id[] = "@(#)dedring.c	1.18 88/08/12 07:28:33";
+static	char	sccs_id[] = "$Header: /users/source/archives/ded.vcs/src/RCS/dedring.c,v 2.0 1988/09/12 15:52:31 ste_cm Exp $";
 #endif	lint
 
 /*
  * Title:	dedring.c (ded: ring of directories)
  * Author:	T.E.Dickey
  * Created:	27 Apr 1988
- * Modified:
+ * $Log: dedring.c,v $
+ * Revision 2.0  1988/09/12 15:52:31  ste_cm
+ * BASELINE Thu Apr  6 13:14:13 EDT 1989
+ *
+ *		Revision 1.20  88/09/12  15:52:31  dickey
+ *		sccs2rcs keywords
+ *		
  *		01 Aug 1988, save/restore Xbase,Ybase
  *		11 Jul 1988, added 'tagsort'.
  *		08 Jul 1988, save/restore/clear Y_opt, AT_opt a la Z_opt.
@@ -384,21 +390,17 @@ char	tmp[BUFSIZ];
 		break;
 	case 'q':		/* release & move forward */
 		path = new_wd;
-		while (count-- > 0) {
-			if ((newp = ring_fwd(path)) == oldp)
-				return(FALSE);
-			remove(path);
-			path = strcpy (tmp, newp->new_wd);
-		}
+		if ((newp = ring_fwd(path)) == oldp)
+			return(FALSE);
+		remove(path);
+		path = strcpy (tmp, newp->new_wd);
 		break;
 	case 'Q':		/* release & move backward */
 		path = new_wd;
-		while (count-- > 0) {
-			if ((newp = ring_bak(path)) == oldp)
-				return(FALSE);
-			remove(path);
-			path = strcpy (tmp, newp->new_wd);
-		}
+		if ((newp = ring_bak(path)) == oldp)
+			return(FALSE);
+		remove(path);
+		path = strcpy (tmp, newp->new_wd);
 	}
 
 	/*

@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	sccs_id[] = "@(#)dedtype.c	1.14 88/09/02 08:30:54";
+static	char	sccs_id[] = "@(#)dedtype.c	1.15 88/09/12 08:25:12";
 #endif	lint
 
 /*
@@ -7,6 +7,7 @@ static	char	sccs_id[] = "@(#)dedtype.c	1.14 88/09/02 08:30:54";
  * Author:	T.E.Dickey
  * Created:	16 Nov 1987
  * Modified:
+ *		12 Sep 1988, suppress screen-operations during 'skip' -- faster.
  *		01 Sep 1988, break out of 'get' loop if interrupted or error.
  *		17 Aug 1988, test for error return from 'fseek()'.
  *		07 Jun 1988, added CTL(K) command.
@@ -42,34 +43,37 @@ typeinit()
 }
 
 static
-typeline(y)
+typeline(y,skip)
 {
-	move(y,0);
-	if (Tlen > Shift) {
-	int	now	= Shift,
-		j;
+	if (!skip) {
+		move(y,0);
+		if (Tlen > Shift) {
+		int	now	= Shift,
+			j;
 
-		Tlen	-= Shift;
-		if (Tlen > COLS-1)
-			Tlen = COLS-1;
-		while (Tlen > 0) {
-			for (j = now; j < now+Tlen; j++) {
-				if (over[j] != over[now])	break;
+			Tlen	-= Shift;
+			if (Tlen > COLS-1)
+				Tlen = COLS-1;
+			while (Tlen > 0) {
+				for (j = now; j < now+Tlen; j++) {
+					if (over[j] != over[now])	break;
+				}
+				if (over[now])	standout();
+				PRINTW("%.*s", (j - now), &text[now]);
+				if (over[now])	standend();
+				Tlen -= (j - now);
+				now = j;
 			}
-			if (over[now])	standout();
-			PRINTW("%.*s", (j - now), &text[now]);
-			if (over[now])	standend();
-			Tlen -= (j - now);
-			now = j;
 		}
+		clrtoeol();
 	}
-	clrtoeol();
 	typeinit();
 	return (++y);
 }
 
 static
 typeover(c)
+register c;
 {
 	if (over[Tcol] = text[Tcol]) {
 		if (ispunct(text[Tcol]))
@@ -82,6 +86,7 @@ typeover(c)
 
 static
 typeconv(c,binary)
+register c;
 {
 	if (Tcol < sizeof(text)-1) {
 		if (binary) {	/* highlight chars with parity */
@@ -147,11 +152,21 @@ int	c,			/* current character */
 	Shift	= 0;
 
 	if (fp) {
-		to_work();
-		while (!done) {
 		static	OFF_T	*infile;
 		static	unsigned maxpage = 0;
-		int	replay	= 0;
+		auto	int	replay	= 0;
+		to_work();
+		while (!done) {
+
+			if (replay) {
+				page -= replay;
+				if (page < 0) page = 0;
+				if (fseek(fp, infile[page], 0) < 0) {
+					done = -1;
+					break;
+				}
+				replay = 0;
+			}
 
 			y	= mark_W + 1;
 			blank	= TRUE;
@@ -171,35 +186,36 @@ int	c,			/* current character */
 					if ((Tlen == 0) && blank)
 						continue;
 					blank = (Tlen == 0);
-					y = typeline(y);
+					y = typeline(y,skip);
 					if (y >= LINES-1)
 						break;
 				}
 			}
 			if (!feof(fp) && ferror(fp))	clearerr(fp);
 
-			while (y < LINES-1)
-				y = typeline(y);
+			if (!skip) {
+				while (y < LINES-1)
+					y = typeline(y,FALSE);
 
-			move(LINES-1,0);
-			standout();
-			PRINTW("---page");
-			if ((stat(name, &sb) >= 0) && sb.st_size > 0) {
-				PRINTW(" %d: %ld%%",
-					page,
-					(ftell(fp) * 100) / sb.st_size);
-			}
-			PRINTW("---");
-			standend();
-			PRINTW(" ");
-			clrtoeol();
-
-			if (feof(fp))
-				skip = 0;
-			if (!skip)
+				move(LINES-1,0);
+				standout();
+				PRINTW("---page");
+				if ((stat(name, &sb) >= 0) && sb.st_size > 0) {
+					PRINTW(" %d: %.1f%%",
+						page,
+						(ftell(fp) * 100.)/ sb.st_size);
+				}
+				PRINTW("---");
+				standend();
+				PRINTW(" ");
+				clrtoeol();
 				refresh();
-			else {
-				skip--;
+			} else {
+				if (feof(fp)) {
+					skip = 0;
+					replay = 1;
+				} else
+					skip--;
 				continue;
 			}
 
@@ -255,13 +271,6 @@ int	c,			/* current character */
 			default:
 				replay = 1;
 				beep();
-			}
-
-			if (replay) {
-				page -= replay;
-				if (page < 0) page = 0;
-				if (fseek(fp, infile[page], 0) < 0)
-					done = -1;
 			}
 		}
 		FCLOSE(fp);

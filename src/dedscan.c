@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	sccs_id[] = "@(#)dedscan.c	1.24 88/09/02 07:46:09";
+static	char	sccs_id[] = "@(#)dedscan.c	1.25 88/09/12 12:35:01";
 #endif	lint
 
 /*
@@ -7,6 +7,8 @@ static	char	sccs_id[] = "@(#)dedscan.c	1.24 88/09/02 07:46:09";
  * Author:	T.E.Dickey
  * Created:	09 Nov 1987
  * Modified:
+ *		12 Sep 1988, don't force resolution of symbolic links unless
+ *			     AT_opt is set.  Added 'statMAKE()'.
  *		01 Sep 1988, look for, and reduce common leading pathname.
  *		17 Aug 1988, don't use 'dedmsg()', which assumes cursor position
  *		12 Aug 1988, added 'dir_order' to support sort into the order
@@ -75,12 +77,12 @@ char	*argv[];
 				return(0);
 			}
 				/* mark dep's for purge */
-			ft_remove(getwd(new_wd));
+			ft_remove(getwd(new_wd),AT_opt);
 			if (dp = opendir(".")) {
 			int	len = strlen(strcpy(name, new_wd));
 				if (name[len-1] != '/') {
 					name[len++] = '/';
-					name[len]   = '\0';
+					name[len]   = EOS;
 				}
 				while (de = readdir(dp)) {
 					if (dotname(s = de->d_name))
@@ -88,14 +90,15 @@ char	*argv[];
 					if (debug)
 						PRINTF(" file \"%s\"\r\n", s);
 					j = argstat(strcpy(name+len, s), TRUE);
-					if (j > 0)
-						ft_insert(name);
+					if (j > 0
+					&&  (k = lookup(s)) >= 0) {
 #ifdef	S_IFLNK
-					if ((j == 0)
-					&&  ((j = lookup(s)) >= 0)
-					&&  (linkstat(name,flist+j)) )
-						ft_linkto(name);
+						if (xLTXT(k))
+							ft_linkto(name);
+						else
 #endif	S_IFLNK
+							ft_insert(name);
+					}
 				}
 				closedir(dp);
 				if (!numfiles)
@@ -183,7 +186,6 @@ FLIST	*f_;
 {
 register int j = lookup(name);
 
-	blip('.');
 	if (j >= 0) {
 		name     = xNAME(j);
 		flist[j] = *f_;
@@ -283,40 +285,26 @@ static
 argstat(name, list)
 char	*name;
 {
-FLIST	fb;
+	FLIST	fb;
 
 	Zero(&fb);
 	if (dedstat(name, &fb) >= 0) {
 #ifdef	S_IFLNK
-		if (!list && linkstat(name, &fb))
-			return(2);			/* link to directory */
+		if (!list && (fb.ltxt != 0)) {
+			struct	stat	sb;
+			if ((stat(name, &sb) >= 0)
+			&&  isDIR(sb.st_mode))
+				return(2);		/* link to directory */
+		}
 #endif	S_IFLNK
-		if (!(fb.ltxt || isDIR(fb.s.st_mode)) || list)
+		if (!(fb.ltxt || isDIR(fb.s.st_mode)) || list) {
+			blip('.');
 			append(name, &fb);
+		}
 		return(isDIR(fb.s.st_mode) ? 1 : 0);	/* directory ? */
 	}
 	return(-1);					/* not found */
 }
-
-/*
- * Test a name to see if it is a symbolic link to a directory.
- */
-#ifdef	S_IFLNK
-static
-linkstat(name, f)
-char	*name;
-FLIST	*f;
-{
-struct	stat	sb;
-	if (f->ltxt) {	/* we already decided this is a link */
-		if (stat(name, &sb) >= 0) {
-			if (isDIR(sb.st_mode))
-				return(TRUE);	/* link to directory */
-		}
-	}
-	return (FALSE);
-}
-#endif	S_IFLNK
 
 /************************************************************************
  *	alternate entrypoints						*
@@ -365,4 +353,41 @@ statLINE(j)
 	(void)dedstat(xNAME(j), &flist[j]);
 	xFLAG(j) = flag;
 	xDORD(j) = dord;
+}
+
+/*
+ * For 'dedmake()', this adds a temporary entry, moving the former current
+ * entry down, so the user can edit the name in-place.
+ */
+statMAKE(mode)
+{
+	static	char	*null = "";
+	static	FLIST	dummy;
+	register int	x;
+
+	if (mode) {
+		dummy.s.st_mode = mode;
+		dummy.s.st_uid  = getuid();
+		dummy.s.st_gid  = getgid();
+		append(null, &dummy);
+		if ((x = lookup(null)) != curfile) {
+			FLIST	save;
+			save = flist[x];
+			if (x < curfile) {
+				while (x++ < curfile)
+					flist[x-1] = flist[x];
+			} else {
+				while (x-- > curfile)
+					flist[x+1] = flist[x];
+			}
+			flist[curfile] = save;
+		}
+	} else {	/* remove entry */
+		if ((x = lookup(null)) >= 0) {
+			while (x++ < numfiles)
+				flist[x-1] = flist[x];
+			numfiles--;
+		}
+	}
+	showFILES();
 }

@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	sccs_id[] = "@(#)ded.c	1.55 88/09/02 06:28:26";
+static	char	sccs_id[] = "@(#)ded.c	1.57 88/09/12 15:13:27";
 #endif	lint
 
 /*
@@ -7,6 +7,7 @@ static	char	sccs_id[] = "@(#)ded.c	1.55 88/09/02 06:28:26";
  * Author:	T.E.Dickey
  * Created:	09 Nov 1987
  * Modified:
+ *		12 Sep 1988, show blip during '@'.  Added 'c' command.
  *		02 Sep 1988, added '>' command.
  *		01 Sep 1988, trim repeats in 'argv[]'.
  *		17 Aug 1988, added repeat (sleep) count to 'W', 'l'.
@@ -51,6 +52,7 @@ static	char	sccs_id[] = "@(#)ded.c	1.55 88/09/02 06:28:26";
 #define	MAIN
 #include	"ded.h"
 #include	<signal.h>
+extern	char	*pathcat();
 extern	char	*strchr();
 extern	char	*txtalloc();
 extern	char	**vecalloc();
@@ -929,13 +931,19 @@ char	tpath[BUFSIZ],
 #ifdef	S_IFLNK
 	case '@':	AT_opt= !AT_opt;
 			count = 0;
+			to_work();
 			for (j = 0; j < numfiles; j++) {
-				if (xLTXT(j))
+				if (xLTXT(j)) {
+					blip('@');
 					statLINE(j);
 					count++;
+				} else
+					blip('.');
 			}
 			if (count)
 				showFILES();
+			else
+				showC();
 			break;
 #endif	S_IFLNK
 	case 'G':	G_opt = !G_opt; showFILES(); break;
@@ -1084,6 +1092,10 @@ char	tpath[BUFSIZ],
 			(void)dedline(FALSE);
 			break;
 
+	case 'c':	/* create an entry */
+			dedmake();
+			break;
+
 	case CTL(e):	/* pad-edit */
 	case CTL(v):	/* pad-view */
 	case 'e':
@@ -1151,11 +1163,8 @@ char	tpath[BUFSIZ],
 	case 'E':	/* enter new directory on ring */
 			if (realstat(curfile) == 1) {
 				markC(TRUE);
-				if (!new_args(strcat(
-						strcat(
-							strcpy(tpath, new_wd),
-							"/"),
-						cNAME),
+				if (!new_args(
+					pathcat(tpath, new_wd, cNAME),
 					c, 1)) {
 					showC();
 				}

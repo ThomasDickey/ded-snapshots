@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	sccs_id[] = "@(#)dedfind.c	1.6 88/08/02 12:37:42";
+static	char	sccs_id[] = "@(#)dedfind.c	1.7 88/09/12 08:23:23";
 #endif	lint
 
 /*
@@ -27,7 +27,7 @@ static	int	order;		/* saves last legal search order */
 	if (key == '/' || key == '?') {
 
 		to_work();
-		printw("Target: ");
+		PRINTW("Target: ");
 		getyx(stdscr,j,k);
 		clrtobot();
 		move(j,k);

@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	sccs_id[] = "@(#)ftree.c	1.59 88/09/09 08:54:31";
+static	char	sccs_id[] = "@(#)ftree.c	1.60 88/09/12 10:34:42";
 #endif	lint
 
 /*
@@ -58,7 +58,7 @@ static	char	sccs_id[] = "@(#)ftree.c	1.59 88/09/09 08:54:31";
  *
  * Configure:	DEBUG	- dump a logfile in readable form at the end
  *			  (i.e., when calling 'ft_read()' or 'ft_write()').
- *		TEST	- make a standalone program (otherwise, part of 'fl')
+ *		TEST	- make a standalone program (otherwise, part of 'ded')
  */
 
 #ifdef	TEST
@@ -458,10 +458,14 @@ int	row;
 /*
  * Mark nodes below a given path in the database for removal, unless they
  * are added back before the database is written out.  This is used to update
- * the database from 'fl' when (re)reading a directory.  The argument must
+ * the database from 'ded' when (re)reading a directory.  The argument must
  * be a directory name.
+ *
+ * The 'all' argument is used so that we needn't resolve symbolic links to
+ * retain them in a directory-scan.  If 'all' is true, then we will purge
+ * symbolic links as well.
  */
-ft_remove(path)
+ft_remove(path,all)
 char	*path;
 {
 int	last = do_find(path);
@@ -470,9 +474,12 @@ register int j;
 	if (last >= 0) {
 		for (j = last+1; j <= FDlast; j++) {
 		register FTREE *f = &ftree[j];
-			if (f->f_root == last)
-				f->f_mark |= MARKED;
-			else if (f->f_root < last)
+			if (f->f_root == last) {
+#ifdef	S_IFLNK
+				if (all || !(f->f_mark & LINKED))
+#endif	S_IFLNK
+					f->f_mark |= MARKED;
+			} else if (f->f_root < last)
 				break;
 		}
 	}
@@ -1105,7 +1112,7 @@ char	*path;
 			fd_ring(path, &row, &lvl);
 			break;
 
-		/* Exit from this program (back to 'fl') */
+		/* Exit from this program (back to 'ded') */
 		case 'E':
 		case 'e':
 			(void)fd_path(cwdpath, row);
@@ -1339,7 +1346,7 @@ int	interrupted = 0;
 	if (chdir(bfr) < 0)
 		waitmsg(bfr);
 	else if ((dp = opendir(bfr)) != 0) {
-		ft_remove(bfr);
+		ft_remove(bfr,TRUE);
 		if (strcmp(bfr,zero))	*s_++ = '/';
 		while (d = readdir(dp)) {
 			(void)strcpy(s_, "*");
