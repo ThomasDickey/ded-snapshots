@@ -1,4 +1,4 @@
-# $Id: Makefile,v 10.0 1991/12/05 15:12:38 ste_cm Rel $
+# $Id: Makefile,v 10.2 1992/02/04 10:40:16 dickey Exp $
 # MAKE-file for directory editor
 #
 ####### (Environment) ##########################################################
@@ -6,8 +6,9 @@ B	= ../bin
 I	= ../../common/interface
 L	= ../../common/lib
 
-COPY	= cp -p
 GET	= checkout
+COPY	= cp -p
+PUT	= rm -f $@; $(COPY) $? $@
 #
 ####### (Command-line Options) #################################################
 DED_H	= ded.h $I/ptypes.h $I/common.h $I/cmdch.h
@@ -87,7 +88,7 @@ sources:	$(SOURCES)
 
 ####### (Details of Productions) ###############################################
 $B/ded:	$(MAIN_O)		; $(CC) -o $@ $(MAIN_O) -lcurses -ltermcap
-$B/ded.hlp:	ded.hlp		; $(COPY) $? $@
+$B/ded.hlp:	ded.hlp		; $(PUT)
 #
 $A:	$(OBJS)
 	ar rv $@ $?

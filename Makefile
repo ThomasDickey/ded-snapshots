@@ -1,11 +1,13 @@
-# $Id: Makefile,v 10.0 1991/10/18 12:29:52 ste_cm Rel $
+# $Id: Makefile,v 10.2 1992/02/04 10:38:54 dickey Exp $
 # Top-level makefile for unix directory-editor
 
 ####### (Development) ##########################################################
 B	= ../../bin
 L	= ../common/lib
 
+GET	= checkout
 COPY	= cp -p
+PUT	= rm -f $@; $(COPY) $? $@
 MAKE	= make $(MFLAGS) -k$(MAKEFLAGS)	CFLAGS="$(CFLAGS)" COPY="$(COPY)"
 
 ####### (Standard Lists) #######################################################
@@ -42,6 +44,6 @@ deinstall:		; rm -f $(ALL)
 
 ####### (Details of Productions) ###############################################
 bin:				; mkdir $@
-$(MFILES):			; checkout -x $@
-$B/$(PROG):	bin/$(PROG)	; $(COPY) $? $@
-$B/$(PROG).hlp:	bin/$(PROG).hlp	; $(COPY) $? $@
+$(MFILES):			; $(GET) -x $@
+$B/$(PROG):	bin/$(PROG)	; $(PUT)
+$B/$(PROG).hlp:	bin/$(PROG).hlp	; $(PUT)
