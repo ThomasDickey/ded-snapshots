@@ -1,6 +1,6 @@
-# @(#)Makefile	1.12 88/05/11 11:40:19
+# @(#)Makefile	1.13 88/05/13 06:24:48
 # MAKE-file for directory editor
-B	= ~/bin
+B	= ../../bin
 DED_H   = ded.h ../lib/cmdch.h
 INCLUDES= -I. -I../lib
 CFLAGS  = $(DEFINES) $(INCLUDES) -O

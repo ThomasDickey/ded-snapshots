@@ -1,3 +1,7 @@
+1988-05-13  dickey@software.org
+
+	* src/Makefile: make this portable to Gould.
+
 1988-05-11  dickey@software.org
 
 	* src/dedname.c: New file.
