@@ -1,3 +1,11 @@
+1993-11-01  dickey@software.org
+
+	* src/README: to-do list from HP/UX port
+
+	* src/dedname.c: allow directory-rename for HP/UX (Sys5.4)
+
+	* src/ded.c: hacks to cleanup repainting on HP/UX
+
 1993-10-29  dickey@software.org
 
 	* src/dedfind.c, src/dedread.c, src/dedring.c, src/dedscan.c, src/dedshow.c, src/dedtype.c, src/dedview.c, src/ftree.c:

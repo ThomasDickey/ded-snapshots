@@ -1,5 +1,5 @@
 #if	!defined(NO_IDENT)
-static	char	Id[] = "$Header: /users/source/archives/ded.vcs/src/RCS/ded.c,v 12.3 1993/10/29 20:26:55 dickey Exp $";
+static	char	Id[] = "$Header: /users/source/archives/ded.vcs/src/RCS/ded.c,v 12.4 1993/11/01 18:11:31 dickey Exp $";
 #endif
 
 /*
@@ -7,6 +7,7 @@ static	char	Id[] = "$Header: /users/source/archives/ded.vcs/src/RCS/ded.c,v 12.3
  * Author:	T.E.Dickey
  * Created:	09 Nov 1987
  * Modified:
+ *		01 Nov 1993, port to HP/UX.
  *		29 Oct 1993, ifdef-ident
  *		28 Sep 1993, gcc warnings
  *		12 Aug 1992, added '-command.
@@ -596,7 +597,8 @@ private	void	forkfile(
 	switch (option) {
 	case TRUE+1:
 		dedwait(gbl, TRUE);
-		/* fall-thru */
+		restat(gbl,FALSE);
+		break;
 	case TRUE:
 		retouch(gbl, 0);
 		restat(gbl,FALSE);
@@ -728,7 +730,7 @@ private	void	new_process(
 	dlog_close();
 	forkfile(gbl, whoami, path, FALSE);
 	dlog_reopen();
-	wrepaint(stdscr,0);
+	/*wrepaint(stdscr,0);*/
 	ft_read(gbl->new_wd, tree_opt);
 }
 
@@ -1128,6 +1130,10 @@ _MAIN
 			break;
 
 	case ' ':	/* clear workspace */
+#ifdef	SYSTEM5
+			if (lastc == c)
+				clearok(stdscr, TRUE);
+#endif
 			retouch(gbl, mark_W+1);
 			break;
 
