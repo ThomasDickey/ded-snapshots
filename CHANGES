@@ -1,3 +1,29 @@
+1997-09-13  Thomas E. Dickey  <dickey@clark.net>
+
+	* aclocal.m4: add search for <td/ptypes.h>
+
+	* certify/makefile.in: fix warning on distclean rule
+
+	* user/makefile.in: ?
+
+	* user/makefile.in: update install-rule
+
+	* src/ded.h: use 'const' in qsort-comparison
+
+	* src/dedsort.c: use 'const' in qsort comparison
+
+	* src/dedview.c: %ld vs %d
+
+	* src/dedfree.c: int vs unsigned
+
+	* src/restat.c, src/dedtags.c, src/dedcolor.c: int vs size_t
+
+	* src/makefile.2nd: RCS_BASE
+
+	* src/makefile.in: first cut of restructuring
+
+	* src/modules: moved dependency info here
+
 1997-09-12  Thomas E. Dickey  <dickey@clark.net>
 
 	* aclocal.m4: initial cut of CF_SRC_MAKEFILES

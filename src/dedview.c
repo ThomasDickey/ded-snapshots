@@ -22,7 +22,7 @@
 
 #include	"ded.h"
 
-MODULE_ID("$Id: dedview.c,v 12.34 1997/06/16 00:39:49 tom Exp $")
+MODULE_ID("$Id: dedview.c,v 12.35 1997/09/13 13:24:05 tom Exp $")
 
 #define	MINLIST	2		/* minimum length of file-list + header */
 #define	MINWORK	3		/* minimum size of work-area */
@@ -310,7 +310,7 @@ private	void	show_what (
 		gbl->numfiles,
 		datechr[gbl->dateopt]);
 	if (gbl->tag_opt)
-		PRINTW("(%d files, %d %s) ",
+		PRINTW("(%d files, %ld %s) ",
 			gbl->tag_count,
 			(gbl->tag_opt > 1) ? gbl->tag_bytes : gbl->tag_blocks,
 			(gbl->tag_opt > 1) ? "bytes"   : "blocks");

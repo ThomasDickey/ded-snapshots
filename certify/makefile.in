@@ -1,4 +1,4 @@
-# $Id: makefile.in,v 12.1 1997/09/12 01:31:55 tom Exp $
+# $Id: makefile.in,v 12.2 1997/09/13 14:27:42 tom Exp $
 
 @make_include_left@@TD_LIB_rules@/td_lib.mk@make_include_right@
 
@@ -11,13 +11,10 @@ SOURCES	=\
 ####### (Standard Productions) #################################################
 all:		$(SOURCES) $(ALL)
 clean:				; -$(RM) $(CLEAN)
-distclean:	clean		; -$(RM) $(ALL)
+distclean:	clean		; -$(RM) $(ALL) *.out
 sources:	$(SOURCES)
 lint.out\
 lintlib\
 run_test\
 install\
 deinstall:
-
-####### (Details of Productions) ###############################################
-$(SOURCES):			; $(GET) $@

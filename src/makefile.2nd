@@ -1,0 +1,33 @@
+
+# $Id: makefile.2nd,v 12.1 1997/09/13 11:22:07 tom Exp $
+# second part of MAKE-file for directory editor
+
+MAIN_C	= $(THIS).c $(CSRC)
+MAIN_O	= $(THIS).o $Z
+SOURCES	= makefile.in README $(MAIN_C) $(HSRC) $(THIS).hlp $(THIS)rc
+
+####### (Standard Productions) #################################################
+all\
+install:	$B $(SOURCES) $(ALL)
+
+clean:				; -$(RM) $(CLEAN) $Z
+distclean:	clean		; -$(RM) $(ALL)
+run_test:
+sources:	$(SOURCES)
+
+lint.out:	$(MAIN_C)	; $(DATE); $(LINT) $(LINTOPTS) $(MAIN_C) >>$@
+tags:		$(MAIN_C)	; $(CTAGS) $(MAIN_C)
+
+####### (Details of Productions) ###############################################
+$B:				; mkdir $@
+
+$B/$(THIS):	$(MAIN_O) $(LIB_DEPS)
+	@echo linking $@
+	@$(LINK) -o $@ $(MAIN_O) $(LIB_ARGS)
+
+$B/$(THIS).hlp:	$(THIS).hlp
+	$(RM) $@
+	cp $? $@
+
+$(THIS).o:	$(DED_H) $(THIS).c version.h
+$(OBJS):	$(DED_H)

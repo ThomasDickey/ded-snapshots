@@ -10,7 +10,7 @@
 
 #include	"ded.h"
 
-MODULE_ID("$Id: restat.c,v 12.3 1994/07/02 20:19:06 tom Exp $")
+MODULE_ID("$Id: restat.c,v 12.4 1997/09/13 12:54:48 tom Exp $")
 
 /*
  * re-'stat()' the current line, and optionally group
@@ -23,7 +23,8 @@ public	void	restat(
 	_DCL(int,	group)
 {
 	if (group) {
-	register int j;
+		register size_t j;
+
 		for (j = 0; j < gbl->numfiles; j++) {
 			if (j != gbl->curfile) {
 				if (gFLAG(j)) {
