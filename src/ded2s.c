@@ -1,5 +1,5 @@
 #ifndef	NO_SCCS_ID
-static	char	sccs_id[] = "@(#)ded2s.c	1.7 88/05/18 08:06:56";
+static	char	sccs_id[] = "@(#)ded2s.c	1.8 88/05/23 06:57:48";
 #endif	NO_SCCS_ID
 
 /*
@@ -7,6 +7,7 @@ static	char	sccs_id[] = "@(#)ded2s.c	1.7 88/05/18 08:06:56";
  * Author:	T.E.Dickey
  * Created:	09 Nov 1987
  * Modified:
+ *		23 May 1988, absorbed 'z_rels' into 'z_vers'.
  *		18 May 1988, show Apollo inodes in hex.
  *		09 May 1988, sockets do not have major/minor numbers.
  *
@@ -129,7 +130,7 @@ char	*t,
 
 #ifdef	Z_SCCS
 	if (Z_opt && V_opt) {
-		FORMAT(bfr, "%3d.%-3d ", f_->z_rels, f_->z_vers);
+		FORMAT(bfr, "%-7s ", f_->z_vers);
 		bfr += field(bfr, (unsigned)(f_->z_time != 0));
 	}
 #endif	Z_SCCS

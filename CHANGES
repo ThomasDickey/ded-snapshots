@@ -1,3 +1,17 @@
+1988-05-23  dickey@software.org
+
+	* src/ded.c: use 'setmtime()', corrected masking in 'replay()'.
+
+	* src/ded.hlp: added '.' sort-key.
+
+	* src/version.h: Use 'dotcmp()', 'setmtime()'.
+
+	* src/ded.h, src/dedscan.c: absorbed 'z_rels' into 'z_vers'.
+
+	* src/dedsort.c: use 'dotcmp()' for RCS/SCCS version & '.' sorts.
+
+	* src/ded2s.c: absorbed 'z_rels' into 'z_vers'.
+
 1988-05-18  dickey@software.org
 
 	* src/ded.hlp: Documented extended ''-substitution.
