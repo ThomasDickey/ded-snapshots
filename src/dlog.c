@@ -1,12 +1,17 @@
 #ifndef	lint
-static	char	sccs_id[] = "@(#)dlog.c	1.1 89/03/14 13:00:02";
+static	char	sccs_id[] = "$Header: /users/source/archives/ded.vcs/src/RCS/dlog.c,v 1.4 1989/03/15 11:34:19 dickey Exp $";
 #endif	lint
 
 /*
  * Title:	dlog.c
  * Author:	T.E.Dickey
  * Created:	14 Mar 1989
- * Modified:
+ * $Log: dlog.c,v $
+ * Revision 1.4  1989/03/15 11:34:19  dickey
+ * sccs2rcs keywords
+ *
+ *		15 Mar 1989, added 'dlog_exit()', mods to make this work with
+ *			     subprocesses.
  *
  * Function:	Writes a log-file for 'ded' in consistent format so that the
  *		session can easily be analyzed.
@@ -27,23 +32,73 @@ extern	time_t	time();
 
 
 static	FILE	*log_fp;
+static	char	log_name[BUFSIZ];
 static	time_t	mark_time;
 static	char	pending[BUFSIZ];
 
+static
+show_time(msg)
+char	*msg;
+{
+	auto	time_t	now = NOW;
+
+	dlog_comment("process %d %s at %s", getpid(), msg, ctime(&now));
+}
+
+/*
+ * Open/append to log-file
+ */
+char *
 dlog_open(name, argc, argv)
 char	*name;
 char	*argv[];
 {
-	auto	time_t	now = NOW;
 	register int	j;
 
-	if (!(log_fp = fopen(name, "a+")))
-		failed(name);
+	if (name != 0 && *name != EOS) {
+		if (!(log_fp = fopen(name, "a+")))
+			failed(name);
 
-	dlog_comment("session begun at %s", ctime(&now));
-	for (j = 0; j < argc; j++)
-		dlog_comment("argv[%d] = '%s'\n", j, argv[j]);
-	*pending = EOS;
+		abspath(strcpy(log_name, name));
+		show_time("begun");
+		for (j = 0; j < argc; j++)
+			dlog_comment("argv[%d] = '%s'\n", j, argv[j]);
+		return (log_name);
+	}
+	return ((char *)0);
+}
+
+dlog_reopen()
+{
+	if (*log_name) {
+		if (log_fp = fopen(log_name, "a+"))
+			dlog_comment("process %d resuming\n", getpid());
+	}
+}
+
+/*
+ * Close the log-file (i.e., while spawning a subprocess which will append
+ * to the log).
+ */
+dlog_close()
+{
+	if (log_fp) {
+		dlog_flush();
+		FCLOSE(log_fp);
+		log_fp = 0;
+	}
+}
+
+/*
+ * Exit from the current process, marking the final time on the log-file
+ */
+dlog_exit(code)
+{
+	if (log_fp) {
+		show_time("ended");
+		dlog_close();
+	}
+	(void)exit(code);
 }
 
 /*
@@ -98,10 +153,10 @@ char	*s;
 	rawgets(s, len, wrap);
 	if (log_fp) {
 		if (*pending) {
-			fprintf(log_fp, "%s", pending);
+			FPRINTF(log_fp, "%s", pending);
 			*pending = EOS;
 		}
-		fprintf(log_fp, "%s\n", s);
+		FPRINTF(log_fp, "%s\n", s);
 	}
 }
 
@@ -123,8 +178,8 @@ dlog_flush()
 {
 	if (log_fp)
 		if (*pending) {
-			fprintf(log_fp, "%s\n", pending);
-			fflush(log_fp);
+			FPRINTF(log_fp, "%s\n", pending);
+			(void)fflush(log_fp);
 			*pending = EOS;
 		}
 }
@@ -141,6 +196,11 @@ char	*name;
 /*
  * Write a comment to the log-file (with trailing newline in 'fmt').
  */
+#ifdef	lint
+#undef	va_dcl
+#define	va_dcl	char	*va_alist;
+#endif	lint
+
 /*VARARGS*/
 dlog_comment(va_alist)
 va_dcl
@@ -150,13 +210,26 @@ va_dcl
 
 	if (log_fp) {
 		if (*pending) {
-			fprintf(log_fp, "%s", pending);
+			FPRINTF(log_fp, "%s", pending);
 			*pending = EOS;
 		}
-		(void)fprintf(log_fp, "\t# ");
+		FPRINTF(log_fp, "\t# ");
 		va_start(args);
 		fmt = va_arg(args, char *);
+#if	defined(gould) || defined(GOULD_PN)
+		{
+#define	MAXARG	10
+			register int	n = nargs(),
+					j = 1;
+			auto	 long	v[MAXARG];
+
+			while (j < n)
+				v[j++] = va_arg(args, long);
+			FPRINTF(log_fp, fmt, v[1], v[2], v[3], v[4]);
+		}
+#else	VFPRINTF
 		(void)vfprintf(log_fp, fmt, args);
+#endif	VFPRINTF
 		va_end(args);
 	}
 }

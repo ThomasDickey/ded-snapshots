@@ -1,12 +1,24 @@
 #ifndef	lint
-static	char	sccs_id[] = "@(#)dedmake.c	1.4 89/03/14 10:33:55";
+static	char	sccs_id[] = "$Header: /users/source/archives/ded.vcs/src/RCS/dedmake.c,v 4.0 1989/03/15 08:41:59 ste_cm Rel $";
 #endif	lint
 
 /*
  * Title:	dedmake.c (make entry for ded)
  * Author:	T.E.Dickey
  * Created:	12 Sep 1988
- * Modified:
+ * $Log: dedmake.c,v $
+ * Revision 4.0  1989/03/15 08:41:59  ste_cm
+ * BASELINE Thu Aug 24 10:20:06 EDT 1989 -- support:navi_011(rel2)
+ *
+ *		Revision 3.0  89/03/15  08:41:59  ste_cm
+ *		BASELINE Mon Jun 19 14:21:57 EDT 1989
+ *		
+ *		Revision 2.0  89/03/15  08:41:59  ste_cm
+ *		BASELINE Thu Apr  6 13:14:13 EDT 1989
+ *		
+ *		Revision 1.6  89/03/15  08:41:59  dickey
+ *		sccs2rcs keywords
+ *		
  *		14 Mar 1989, interface to 'dlog'
  *		28 Feb 1989, invoke 'ft_insert()' for new directories
  *
@@ -54,7 +66,7 @@ dedmake()
 	auto	char	bfr[BUFSIZ];
 
 	/* make a dummy entry */
-	switch (dlog_char((int *)0,1)) {
+	switch (dlog_char((int *)0,0)) {
 	case 'd':	mode = S_IFDIR;	break;
 	case 'f':	mode = S_IFREG;	break;
 #ifdef	S_IFLNK

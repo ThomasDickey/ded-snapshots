@@ -1,3 +1,49 @@
+1989-03-15  dickey@software.org
+
+	* src/dlog.c: hacked varargs stuff to work properly on gould
+
+	* src/dlog.c, src/version.h: sccs2rcs keywords
+
+	* src/version.h: second pass of baseline, ready for porting-tests
+
+	* src/ded.c: made logging work with subprocess.
+	avoid writing to standard output
+
+	* src/ded.c: sccs2rcs keywords
+
+	* src/dlog.c:
+	mods to work with subprocess-logging, and for port to gould
+
+	* src/dedmake.c: corrected call on 'dlog_char()'
+
+	* src/dedmake.c: sccs2rcs keywords
+
+1989-03-15  ste_cm@software.org
+
+	* src/dedmake.c: BASELINE Mon Jun 19 14:21:57 EDT 1989
+
+	* src/dedmake.c: BASELINE Thu Apr  6 13:14:13 EDT 1989
+
+	* src/dedmake.c:
+	BASELINE Thu Aug 24 10:20:06 EDT 1989 -- support:navi_011(rel2)
+
+1989-03-15  dickey@software.org
+
+	* src/dedsigs.c: integrated with 'dlog' module
+
+	* src/dedsigs.c: sccs2rcs keywords
+
+1989-03-15  ste_cm@software.org
+
+	* src/dedsigs.c: BASELINE Thu Apr  6 13:14:13 EDT 1989
+
+1989-03-15  dickey@software.org
+
+	* src/dedscan.c:
+	rewrote code which handles common-path (should work properly for relative paths)
+
+	* src/dedscan.c: sccs2rcs keywords
+
 1989-03-14  dickey@software.org
 
 	* src/version.h: first pass of cleanup for baseline

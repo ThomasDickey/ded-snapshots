@@ -1,12 +1,16 @@
 #ifndef	lint
-static	char	sccs_id[] = "@(#)dedscan.c	1.27 89/03/14 13:23:53";
+static	char	sccs_id[] = "$Header: /users/source/archives/ded.vcs/src/RCS/dedscan.c,v 1.29 1989/03/15 07:55:45 dickey Exp $";
 #endif	lint
 
 /*
  * Title:	dedscan.c (stat & scan argument lists)
  * Author:	T.E.Dickey
  * Created:	09 Nov 1987
- * Modified:
+ * $Log: dedscan.c,v $
+ * Revision 1.29  1989/03/15 07:55:45  dickey
+ * sccs2rcs keywords
+ *
+ *		14 Mar 1989, corrections to common-path algorithm
  *		28 Feb 1989, so that AT_opt will force 'ft_linkto()' call if ok.
  *		12 Sep 1988, don't force resolution of symbolic links unless
  *			     AT_opt is set.  Added 'statMAKE()'.
@@ -115,41 +119,39 @@ char	*argv[];
 	 */
 	if (common == 0 && numfiles != 0) {
 		common = strlen(strcpy(name,argv[0]));
-		for (j = 0; j < argc; j++) {
-			auto	char	*z = argv[j];
+		for (j = 0; (j < argc) && (common > 0); j++) {
+			register char	*s, *d = argv[j];
+			register int	slash = 0;
 
-			dlog_comment("scan(%d) \"%s\"\n", j, z);
-			if ((k = strlen(z)) > common
-			&&  !strncmp(z, name, common))
-				continue;
-			else {
-				char	*t = 0;
-				if ((k > common)
-				&&  (t = strchr(z+common, '/')))
-					*t = EOS;
-				s = strrchr(z, '/');
-				if (t != 0)
-					*t = '/';
-#ifdef	apollo
-				if (!strcmp(name, "//"))
-					s = 0;	/* truncating to "/" is err */
-#endif	apollo
-				if (s != 0) {
-					if ((k = (s + 1 - z)) < common) {
-						common = k;
-						strcpy(name, z)[k] = EOS;
-					}
-				} else {	/* give up */
-					name[common = 0] = EOS;
-					break;
-				}
+			for (s = name, k = 0;
+				(d[k] == s[k]) && (d[k] != EOS);) {
+				if ((d[k++] == '/')
+				&&  (d[k]   != EOS))	/* need a leaf */
+					slash = k;	/* ...common-length */
 			}
+			if (slash < common) {
+#ifdef	apollo
+				if ((slash == 1)
+				&&  (name[0] == '/')) {
+					if ((s[1] == '/')
+					||  (d[1] == '/'))
+						slash = 0; /* fix truncation */
+				}
+#endif	apollo
+				common = slash;
+			}
+			dlog_comment("common '%.*s' (%d:%s)\n", common, name, slash, d);
 		}
+		name[common] = EOS;
 
-		if (common > 0 && chdir(name) >= 0) {
+		if (common > 0) {
 			dlog_comment("common path = \"%s\" (len=%d)\n",
 				name, common);
+			if (chdir(strcpy(new_wd,old_wd)) < 0)
+				failed(old_wd);
 			abspath(strcpy(new_wd, name));
+			if (chdir(new_wd) < 0)
+				failed(new_wd);
 			for (j = 0; j < numfiles; j++)
 				xNAME(j) = txtalloc(xNAME(j) + common);
 		}
