@@ -1,11 +1,12 @@
 #ifndef	NO_SCCS_ID
-static	char	sccs_id[] = "@(#)ftree.c	1.47 88/06/27 08:40:06";
+static	char	sccs_id[] = "@(#)ftree.c	1.48 88/06/29 07:27:19";
 #endif
 
 /*
  * Author:	T.E.Dickey
  * Created:	02 Sep 1987
  * Modified:
+ *		29 Jun 1988, added temporary '=' command for testing rename.
  *		27 Jun 1988, recoded 'ft_purge()' so it isn't recursive.
  *		07 Jun 1988, added CTL(K) command.
  *		06 Jun 1988, use 'gethome()' for ".ftree" location.
@@ -65,6 +66,7 @@ extern	int	errno;
 extern	char	*txtalloc(),
 		*strchr();
 
+#define	dedmsg	waitmsg	/* ...so we don't call 'showC' from this module */
 #ifndef	R_OK		/* should be in <sys/file.h>, but apollo has conflict */
 #define	R_OK	4
 #define	X_OK	1
@@ -86,6 +88,8 @@ extern	char	*txtalloc(),
 #define	NOSCCS	4	/* set to disable viewing sccs-directories */
 #define	NOVIEW	8	/* set to disable viewing of a tree */
 #define	LINKED	16	/* set to show link-to-directory */
+
+#define	MAXLVL	999
 
 #define	zMARK(j)	(ftree[j].f_mark & MARKED)
 #define	zROOT(j)	(ftree[j].f_root)
@@ -202,8 +206,6 @@ register int	step,
 	}
 #ifndef	TEST
 	BAD_REGEX(expr);
-	waitmsg();
-	beep();
 #endif	TEST
 	return (-1);
 }
@@ -217,6 +219,27 @@ fd_level(this)
 register int level = this ? 1 : 0;
 	while (this = ftree[this].f_root) level++;
 	return(level);
+}
+
+static
+node2col(node, level)
+{
+	register int k = fd_level(node);
+
+	if (level < k) k = level;
+	return ((k * 4) + 6);
+}
+
+static
+node2row(node)
+{
+	register int j, row;
+
+	for (j = showbase, row = 0; j <= showlast; j++) {
+		if (fd_show(j))	row++;
+		if (j == node)	break;
+	}
+	return (row);
 }
 
 /*
@@ -657,13 +680,7 @@ char	*marker,
 		}
 		clrtobot();
 	}
-	k = fd_level(node);
-	if (level < k) k = level;
-	for (j = showbase, row = 0; j <= showlast; j++) {
-		if (fd_show(j))	row++;
-		if (j == node)	break;
-	}
-	move(row, (k * 4) + 6);
+	move(node2row(node), node2col(node,level));
 	refresh();
 	return(node);
 }
@@ -893,7 +910,7 @@ register int j;
 				break;
 		case '\r':
 		case '\n':
-				lvl = 999;
+				lvl = MAXLVL;
 		case ARO_DOWN:
 		case 'j':	row = downrow(row,num,lvl);	break;
 		case ARO_UP:
@@ -901,8 +918,8 @@ register int j;
 		case ARO_RIGHT:
 		case 'l':	lvl += num;			break;
 
-		case 'J':	row = downrow(row,num,999);	break;
-		case 'K':	row = uprow(row,num,999);	break;
+		case 'J':	row = downrow(row,num,MAXLVL);	break;
+		case 'K':	row = uprow(row,num,MAXLVL);	break;
 
 		case '^':	if (showbase != row) {
 					showbase = row;
@@ -978,6 +995,24 @@ register int j;
 			}
 			break;
 
+		case '=':	/* patch: test rename-function */
+			{
+			char	bfr[BUFSIZ];
+				move(node2row(row),node2col(row,MAXLVL));
+				(void)strcpy(bfr, ftree[row].f_name);
+				rawgets(bfr,sizeof(bfr),FALSE);
+				if (*bfr == '/')
+					*cwdpath = EOS;
+				else
+					(void)strcat(fd_path(cwdpath,zROOT(row)), "/");
+				abspath(strcat(cwdpath, bfr));
+				fd_path(bfr,row);
+				if (strcmp(cwdpath, bfr)) {
+					ft_rename(bfr, cwdpath);
+					row = do_find(cwdpath);
+				}
+			}
+			break;
 #ifndef	TEST
 		/* dump the current screen */
 		case CTL(K):
