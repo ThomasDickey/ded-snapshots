@@ -1,6 +1,6 @@
 #ifdef	MAIN
 #ifndef	lint
-static	char	*ded_h = "$Id: ded.h,v 5.1 1989/12/08 08:10:40 dickey Exp $";
+static	char	*ded_h = "$Id: ded.h,v 8.0 1990/01/30 07:52:28 ste_cm Rel $";
 #endif	/* lint */
 #endif
 
@@ -163,6 +163,7 @@ MAIN	int	top_argc,
 #endif	/* apollo_sr10 */
 		P_opt,		/* show filemode in octal vs normal */
 		S_opt,		/* show filesize in blocks */
+		T_opt;		/* show long date+time */
 		U_opt;		/* show underlying file-info */
 #ifdef	Z_RCS_SCCS
 MAIN	int	V_opt,		/* show sccs-versions */

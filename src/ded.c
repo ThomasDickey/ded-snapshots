@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	what[] = "$Id: ded.c,v 5.1 1989/12/01 14:36:00 dickey Exp $";
+static	char	what[] = "$Id: ded.c,v 5.2 1990/01/30 08:09:49 dickey Exp $";
 #endif	lint
 
 /*
@@ -7,9 +7,15 @@ static	char	what[] = "$Id: ded.c,v 5.1 1989/12/01 14:36:00 dickey Exp $";
  * Author:	T.E.Dickey
  * Created:	09 Nov 1987
  * $Log: ded.c,v $
- * Revision 5.1  1989/12/01 14:36:00  dickey
- * broke out 'sortset()' module
+ * Revision 5.2  1990/01/30 08:09:49  dickey
+ * added 'T' (date+time) toggle and command-option to match.
+ * altered 't' command so "2t" types binary-file.
+ * modified shell-command stuff so 0/2 repeat-count on ':' or
+ * '.' can reset/set the clear-screen flag of '!'/'%' commands
  *
+ *		Revision 5.1  89/12/01  14:36:00  dickey
+ *		broke out 'sortset()' module
+ *		
  *		Revision 5.0  89/10/12  15:36:54  ste_cm
  *		BASELINE Fri Oct 27 12:27:25 1989 -- apollo SR10.1 mods + ADA_PITS 4.0
  *		
@@ -986,7 +992,10 @@ usage()
 #endif
 			"  -P       show protection in octal",
 			"  -S       show file-size in blocks",
+			"  -T       show long date+time",
+#ifdef	apollo
 			"  -U       show AEGIS-style names",
+#endif
 #ifdef	Z_RCS_SCCS
 			"  -Z       read RCS/SCCS data, show date",
 			"  -z       read RCS/SCCS data, don't show date",
@@ -1036,7 +1045,7 @@ char	*argv[];
 	/* show when entering process */
 	(void)fflush(stdout);
 
-	while ((c = getopt(argc, argv, "aGIOPSUZc:l:r:s:zdt:")) != EOF)
+	while ((c = getopt(argc, argv, "aGIOPSTUZc:l:r:s:zdt:")) != EOF)
 	switch (c) {
 	case 'a':	A_opt = !A_opt;	break;
 	case 'G':	G_opt = !G_opt;	break;
@@ -1046,7 +1055,10 @@ char	*argv[];
 #endif
 	case 'P':	P_opt = !P_opt;	break;
 	case 'S':	S_opt = !S_opt;	break;
+	case 'T':	T_opt = !T_opt;	break;
+#ifdef	apollo
 	case 'U':	U_opt = !U_opt;	break;
+#endif
 #ifdef	Z_RCS_SCCS
 	case 'Z':	Z_opt = 1;	break;
 	case 'z':	Z_opt = -1;	break;
@@ -1194,7 +1206,10 @@ char	*argv[];
 #endif
 	case 'P':	P_opt = !P_opt; showFILES(TRUE); break;
 	case 'S':	S_opt = !S_opt; showFILES(TRUE); break;
+	case 'T':	T_opt = !T_opt; showFILES(TRUE); break;
+#ifdef	apollo
 	case 'U':	U_opt = !U_opt; showFILES(FALSE);break;
+#endif
 
 #ifdef	Z_RCS_SCCS
 	case 'V':	/* toggle sccs-version display */
@@ -1362,17 +1377,16 @@ char	*argv[];
 	case 'h':	dedtype(howami,FALSE);
 			c = 't';	/* force work-clear if 'q' */
 			break;
-	case 't':
-	case 'T':	if (realstat(curfile, &sb) >= 0)
-				dedtype(cNAME,(c == 'T'));
-			c = 't';	/* force work-clear if 'q' */
+	case 't':	if (realstat(curfile, &sb) >= 0)
+				dedtype(cNAME,(count != 1));
 			break;
 
 	case '%':	/* execute shell command with screen refresh */
 	case '!':	/* execute shell command w/o screen refresh */
+			count = (c == '!') ? 0 : 2; /* force refresh-sense */
 	case '.':	/* re-execute last shell command */
 	case ':':	/* edit last shell command */
-			deddoit(c);
+			deddoit(c,count);
 			break;
 
 	case '*':	/* display last shell command */

@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	Id[] = "$Id: ded2s.c,v 5.0 1989/10/13 13:39:40 ste_cm Rel $";
+static	char	Id[] = "$Id: ded2s.c,v 6.0 1990/01/30 08:38:15 ste_cm Rel $";
 #endif	lint
 
 /*
@@ -7,9 +7,16 @@ static	char	Id[] = "$Id: ded2s.c,v 5.0 1989/10/13 13:39:40 ste_cm Rel $";
  * Author:	T.E.Dickey
  * Created:	09 Nov 1987
  * $Log: ded2s.c,v $
- * Revision 5.0  1989/10/13 13:39:40  ste_cm
- * BASELINE Fri Oct 27 12:27:25 1989 -- apollo SR10.1 mods + ADA_PITS 4.0
+ * Revision 6.0  1990/01/30 08:38:15  ste_cm
+ * BASELINE Thu Mar 29 07:37:55 1990 -- maintenance release (SYNTHESIS)
  *
+ *		Revision 5.1  90/01/30  08:38:15  dickey
+ *		if 'T_opt' is set, display all date+time fields in long form,
+ *		as returned by 'ctime()'
+ *		
+ *		Revision 5.0  89/10/13  13:39:40  ste_cm
+ *		BASELINE Fri Oct 27 12:27:25 1989 -- apollo SR10.1 mods + ADA_PITS 4.0
+ *		
  *		Revision 4.11  89/10/13  13:39:40  dickey
  *		gave up on function-prototype for type_$get_name(), since
  *		ref-variables only work for input-args.
@@ -324,25 +331,31 @@ time_t  fdate;
 {
 	static	time_t	midnite;
 	auto	time_t  now	= time((time_t *)0);
-	auto	char	*t	= ctime(&fdate);/* 0123456789.123456789.123 */
-			t[24]	= 0;		/* ddd mmm DD HH:MM:SS YYYY */
+	auto	char	*t	= ctime(&fdate);
 
-	if (midnite == 0) {
-		struct	tm	*p = localtime(&now);
-		midnite	= now	/* compute next 00:00:00 time */
-			+ (23 - p->tm_hour) * HOUR
-			+ (59 - p->tm_min) * 60
-			+ (60 - p->tm_sec);
-	}
-	if (now >= midnite)	/* bump if program is run past midnite */
-		midnite += (24 * HOUR);
+						/* 0123456789.123456789.123 */
+	t[24]	= ' ';				/* ddd mmm DD HH:MM:SS YYYY */
 
-	if ((midnite - ONE_WEEK) <= fdate) {		/* ddd HH:MM:SS */
-		FORMAT(bfr, "%.4s%.8s ", t, t+11);
-	} else if ((midnite - SIXMONTHS) < fdate) {	/* mmm DD HH:MM */
-		FORMAT(bfr, "%.12s ", t+4);
-	} else {					/* mmm DD YYYY  */
-		FORMAT(bfr, "%.7s%.4s  ", t+4, t+20);
+	if (T_opt) {
+		(void)strcpy(bfr, t);
+	} else {
+		if (midnite == 0) {
+			struct	tm	*p = localtime(&now);
+			midnite	= now	/* compute next 00:00:00 time */
+				+ (23 - p->tm_hour) * HOUR
+				+ (59 - p->tm_min) * 60
+				+ (60 - p->tm_sec);
+		}
+		if (now >= midnite)	/* bump if we ran past midnite */
+			midnite += (24 * HOUR);
+
+		if ((midnite - ONE_WEEK) <= fdate) {	     /* ddd HH:MM:SS */
+			FORMAT(bfr, "%.4s%.8s ", t, t+11);
+		} else if ((midnite - SIXMONTHS) < fdate) {  /* mmm DD HH:MM */
+			FORMAT(bfr, "%.12s ", t+4);
+		} else {				     /* mmm DD YYYY  */
+			FORMAT(bfr, "%.7s%.4s  ", t+4, t+20);
+		}
 	}
 	if (fdate == 0L)
 		(void)field(bfr,0);

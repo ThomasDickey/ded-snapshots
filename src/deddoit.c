@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	sccs_id[] = "$Header: /users/source/archives/ded.vcs/src/RCS/deddoit.c,v 5.0 1989/03/14 13:19:15 ste_cm Rel $";
+static	char	Id[] = "$Id: deddoit.c,v 5.1 1990/01/30 08:16:10 dickey Exp $";
 #endif	lint
 
 /*
@@ -7,9 +7,13 @@ static	char	sccs_id[] = "$Header: /users/source/archives/ded.vcs/src/RCS/deddoit
  * Author:	T.E.Dickey
  * Created:	17 Nov 1987
  * $Log: deddoit.c,v $
- * Revision 5.0  1989/03/14 13:19:15  ste_cm
- * BASELINE Fri Oct 27 12:27:25 1989 -- apollo SR10.1 mods + ADA_PITS 4.0
+ * Revision 5.1  1990/01/30 08:16:10  dickey
+ * pass 'sense' as argument to 'deddoit()' so user can alter the
+ * 'clr_sh' flag explicitly.
  *
+ *		Revision 5.0  89/03/14  13:19:15  ste_cm
+ *		BASELINE Fri Oct 27 12:27:25 1989 -- apollo SR10.1 mods + ADA_PITS 4.0
+ *		
  *		Revision 4.0  89/03/14  13:19:15  ste_cm
  *		BASELINE Thu Aug 24 10:20:06 EDT 1989 -- support:navi_011(rel2)
  *		
@@ -147,21 +151,21 @@ expand(code)
 /*
  * Prompt for, substitute and execute a shell command.
  */
-deddoit(key)
+deddoit(key,sense)
 {
 	register int	c, j, k;
 	register char	*s;
 
+	if (sense == 0)
+		clr_sh = FALSE;
+	else if (sense > 1)
+		clr_sh = TRUE;
+
 	to_work();
-	PRINTW("Command: ");
+	PRINTW("%c Command: ", clr_sh ? '%' : '!');
 	getyx(stdscr,j,k);
 	clrtobot();
 	move(j,k);
-
-	if (key == '!')
-		clr_sh = FALSE;
-	else if (key == '%')
-		clr_sh = TRUE;
 
 	if ((key != '.') || (bfr_sh[0] == EOS)) {
 		if (key != ':')
