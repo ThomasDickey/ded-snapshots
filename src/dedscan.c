@@ -93,7 +93,7 @@
 #include	<rcsdefs.h>
 #include	<sccsdefs.h>
 
-MODULE_ID("$Id: dedscan.c,v 12.37 2001/07/15 16:08:11 tom Exp $")
+MODULE_ID("$Id: dedscan.c,v 12.38 2001/12/11 14:09:28 tom Exp $")
 
 #define	def_doalloc	FLIST_alloc
 	/*ARGSUSED*/
@@ -484,7 +484,7 @@ public	void	statSCCS(
 				&(f_->z_lock));
 #ifdef	Z_RCS
 		} else if (isDIR(f_->s.st_mode)
-			&& sameleaf(name,rcs_dir())) {
+			&& sameleaf(name,rcs_dir(NULL,NULL))) {
 			LAST(rcslast);
 #endif	/* Z_RCS */
 		} else {

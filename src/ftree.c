@@ -2,6 +2,7 @@
  * Author:	T.E.Dickey
  * Created:	02 Sep 1987
  * Modified:
+ *		07 Dec 2001, add special case /cygdrive for Cygwin.
  *		01 Nov 2000, fix uninitialized caller_top when SIGWINCH is not
  *			     defined.
  *		24 Jan 2000, open in binary-mode for OS/2 EMX and Cygwin.
@@ -136,7 +137,7 @@
 
 #include	<fcntl.h>
 
-MODULE_ID("$Id: ftree.c,v 12.57 2000/11/02 01:10:47 tom Exp $")
+MODULE_ID("$Id: ftree.c,v 12.59 2001/12/11 14:10:01 tom Exp $")
 
 #define	Null	(char *)0	/* some NULL's are simply 0 */
 
@@ -690,7 +691,15 @@ public	void	ft_remove(
 	int	last = do_find(path);
 	register int j;
 
-	if (last >= 0) {
+	dlog_comment("ft_remove path=%s, links=%d, dots=%d\n", path, links, dots);
+#ifdef __CYGWIN__
+	/* this does not show up in a scan of "/", but we want to keep from removing
+	 * it, since we would lose the cache below that point otherwise.
+	 */
+	if (!strcmp(path, "/cygdrive"))
+		last = 0;
+#endif
+	if (last > 0) {
 		for (j = last+1; j <= FDlast; j++) {
 		register FTREE *f = &ftree[j];
 			if (f->f_root == last) {
@@ -1423,7 +1432,7 @@ private	int	is_sccs (
 	int	code = FALSE;
 
 	if (!strcmp(f->f_name, sccs_dir(Null,Null)))	code = TRUE;
-	else if (!strcmp(f->f_name, rcs_dir()))		code = TRUE;
+	else if (!strcmp(f->f_name, rcs_dir(Null,Null)))code = TRUE;
 #ifdef CVS_PATH
 	else if (!strcmp(f->f_name, "CVS"))		code = TRUE;
 #endif

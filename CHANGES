@@ -1,3 +1,17 @@
+2001-12-11  Thomas E. Dickey  <dickey@invisible-island.net>
+
+	* src/dlog.c: nit
+
+	* src/ftree.c, src/dedscan.c: change interface to rcs_dir()
+
+2001-12-07  Thomas E. Dickey  <dickey@invisible-island.net>
+
+	* src/ftree.c:
+	Cygwin implements a /cygdrive which does not appear when scanning "/".
+	But we have to assume it's there, otherwise rescanning "/" causes the
+	"/cygdrive" entry to be removed.  Also prevent "/" from being purged,
+	for the same reason.
+
 2001-07-15  Thomas E. Dickey  <dickey@clark.net>
 
 	* aclocal.m4: overrides for SHELL and CDPATH
