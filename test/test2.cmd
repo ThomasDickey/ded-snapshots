@@ -88,6 +88,7 @@ u
 	# "dlog.c"
 	# "ftree.c"
 	# "history.c"
+	# "inline.c"
 	# "restat.c"
 	# "showpath.c"
 	# "sortset.c"

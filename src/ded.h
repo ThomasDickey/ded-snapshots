@@ -3,7 +3,7 @@
 
 #ifdef	MAIN
 #ifndef	lint
-static	char	*ded_h = "$Id: ded.h,v 11.3 1992/08/07 08:29:00 dickey Exp $";
+static	char	*ded_h = "$Id: ded.h,v 11.5 1992/08/11 17:01:59 dickey Exp $";
 #endif
 #endif	/* MAIN */
 
@@ -273,10 +273,23 @@ extern	FLIST	*dedfree(
 		_arx(FLIST *,	fp)
 		_ar1(unsigned,	num));
 
-/* *** "dedline.c" *** */
-extern	int	replay(
+/* *** "inline.c" *** */
+extern	void	hide_inline(
+		_ar1(int,	flag));
+
+extern	int	edit_inline(
+		_ar1(int,	flag));
+
+extern	int	get_inline(
 		_ar1(int,	cmd));
 
+#define	ReplayStart(endc)	(void)get_inline(endc)
+#define	ReplayEndC()		      get_inline(-3)
+#define	ReplayTrim()		(void)get_inline(-1)
+#define	ReplayQuit()		(void)get_inline(-2)
+#define	ReplayChar()		      get_inline(EOS)
+
+/* *** "dedline.c" *** */
 extern	void	editprot(
 		_arx(RING *,	gbl));
 
@@ -299,9 +312,6 @@ extern	void	editname(
 extern	void	editlink(
 		_arx(RING *,	gbl)
 		_ar1(int,	cmd));
-
-extern	int	dedline(
-		_ar1(int,	flag));
 
 /* *** "dedmake.c" *** */
 extern	void	dedmake(

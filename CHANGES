@@ -1,3 +1,36 @@
+1992-08-11  dickey@software.org
+
+	* src/Makefile: split-out:inline.c
+
+	* src/inline.c: RCS_BASE
+
+	* src/dedmake.c: split-out:inline.c
+
+1992-08-11  ste_cm@software.org
+
+	* src/dedmake.c:
+	BASELINE Thu May  6 14:26:47 1993 -- split from CM_TOOLS #11
+
+1992-08-11  dickey@software.org
+
+	* src/ded.h, src/ded.c, src/dedline.c, src/Makefile: split-out:inline.c
+
+	* test/test2.cmd, test/test1.cmd: added 'inline.c'
+
+	* src/dedmake.c: use macro ReplayTrim
+
+	* src/ded.c: use macros ReplayStart and ReplayChar
+
+	* src/dedline.c: use macros to hide kludgy argument of 'get_inline()'
+
+	* src/ded.h: renamed 'replay()' to 'get_inline()'
+	use macros to hide the kludgy-arguments on it.
+
+	* src/dlog.c: 'inline' arg to 'dlog_string()' may contain a script.
+
+	* src/dlog.c: implemented some logic that *ought* to work for inline
+	edits of 'dlog_string()'
+
 1992-08-10  dickey@software.org
 
 	* src/dlog.c: added 'prefix' arg to 'wrawgets()'
