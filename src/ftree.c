@@ -1,7 +1,3 @@
-#ifndef	NO_IDENT
-static	char	Id[] = "$Id: ftree.c,v 12.41 1995/09/03 19:56:26 tom Exp $";
-#endif
-
 /*
  * Author:	T.E.Dickey
  * Created:	02 Sep 1987
@@ -129,6 +125,8 @@ static	char	Id[] = "$Id: ftree.c,v 12.41 1995/09/03 19:56:26 tom Exp $";
 #include	"sccsdefs.h"
 
 #include	<fcntl.h>
+
+MODULE_ID("$Id: ftree.c,v 12.43 1995/09/05 23:17:47 tom Exp $")
 
 #define	Null	(char *)0	/* some NULL's are simply 0 */
 
@@ -1448,7 +1446,6 @@ public	RING *	ft_view(
 #endif
 	viewer_top = cwdpath;
 	*cmdp = 'E';	/* the most common return-value */
-	all_show = gbl->A_opt;
 
 	/* Set initial position. This has to be done by assuming the 'path'
 	 * argument is a true result from 'getwd' since the mount-table may
@@ -1458,6 +1455,14 @@ public	RING *	ft_view(
 		waitmsg(cwdpath);
 		return gbl;
 	}
+
+	/*
+	 * Try to inherit the "&" flag from the file-list, but override if the
+	 * first node isn't visible.
+	 */
+	all_show = gbl->A_opt;
+	all_show |= !fd_show(row);
+
 	lvl = fd_level(row);
 	scroll_to(row);
 	showdiff = -1;

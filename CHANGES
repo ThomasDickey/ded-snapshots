@@ -1,3 +1,9 @@
+1995-09-05  Thomas E. Dickey  <dickey@clark.net>
+
+	* src/ftree.c: tweaked interaction between '&' and all_show
+
+	* src/ftree.c: use MODULE_ID
+
 1995-09-04  Thomas E. Dickey  <dickey@clark.net>
 
 	* user/ded.man: updated
