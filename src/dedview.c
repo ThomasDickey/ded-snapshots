@@ -3,6 +3,7 @@
  * Author:	T.E.Dickey
  * Created:	03 Apr 1992, from 'ded.c'
  * Modified:
+ *		02 Nov 1995, use 80th column
  *		03 Sep 1995, mods to keep base_file, curfile more stable when
  *			     switching viewports.
  *		19 Oct 1994, mods for color
@@ -19,7 +20,7 @@
 
 #include	"ded.h"
 
-MODULE_ID("$Id: dedview.c,v 12.24 1995/09/03 23:48:42 tom Exp $")
+MODULE_ID("$Id: dedview.c,v 12.25 1995/11/03 01:00:00 tom Exp $")
 
 #define	MINLIST	2		/* minimum length of file-list + header */
 #define	MINWORK	3		/* minimum size of work-area */
@@ -202,13 +203,14 @@ private	void	show_line(
 
 	if (FILE_VISIBLE(vp,j)) {
 		int	line = FILE2ROW(vp,j);
+		int	trimmed = FALSE;
 
 		move(line,0);
 		ded2s(gbl, j, bfr, sizeof(bfr));
 		if (gbl->Xbase < strlen(bfr)) {
 			int	adj = gbl->cmdcol[CCOL_NAME];
 			int	col = adj - gbl->Xbase;
-			int	len = (COLS-1) - col;
+			int	len = COLS - col;
 #if HAVE_HAS_COLORS
 			int	end = gbl->cmdcol[CCOL_NAME] + gENTRY(j).namlen;
 #endif
@@ -216,16 +218,18 @@ private	void	show_line(
 			if (col < 0) {
 				adj -= col;
 				col  = 0;
-				len  = COLS-1;
+				len  = COLS;
 			}
 #if HAVE_HAS_COLORS
-			if (end >= COLS + gbl->Xbase)
+			if (end > COLS + gbl->Xbase)
 				end = COLS + gbl->Xbase;
 #endif
 
-			PRINTW("%.*s", COLS-1, &bfr[gbl->Xbase]);
+			PRINTW("%.*s", COLS, &bfr[gbl->Xbase]);
 			if (len > 0) { /* filename is visible */
 				if (gFLAG(j)) {
+					clrtoeol();
+					trimmed = TRUE;
 					move(line, col);
 					standout();
 					PRINTW("%.*s", len, &bfr[adj]);
@@ -234,18 +238,18 @@ private	void	show_line(
 #if HAVE_HAS_COLORS
 				else if (has_colors()
 				 && end > adj) {
-					int y, x;
-					getyx(stdscr, y, x);
+					clrtoeol();
+					trimmed = TRUE;
 					move(line, col);
 					dedcolor(&(gENTRY(j)));
 					PRINTW("%.*s", end-adj, &bfr[adj]);
 					dedcolor((FLIST *)0);
-					move(y, x);
 				}
 #endif /* HAVE_HAS_COLORS */
 			}
 		}
-		clrtoeol();
+		if (!trimmed)
+			clrtoeol();
 	}
 }
 
@@ -594,7 +598,7 @@ public	void	showMARK (
 
 	getyx(stdscr, y, x);
 	move(mark_W,0);
-	marks = COLS - 1;
+	marks = COLS;
 	units = (col % 10);
 	col  /= 10;
 	while (marks > 0) {
@@ -793,7 +797,7 @@ public	void	showC (
 	register int	x = gbl->cmdcol[CCOL_CMD] - gbl->Xbase;
 
 	if (x < 0)		x = 0;
-	if (x > COLS-1)		x = COLS-1;
+	if (x > COLS)		x = COLS;
 
 	showWHAT(gbl);
 	markC(gbl,FALSE);
