@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	sccs_id[] = "$Header: /users/source/archives/ded.vcs/src/RCS/dedscan.c,v 2.3 1989/05/31 09:03:58 dickey Exp $";
+static	char	sccs_id[] = "$Header: /users/source/archives/ded.vcs/src/RCS/dedscan.c,v 2.4 1989/06/05 15:40:48 dickey Exp $";
 #endif	lint
 
 /*
@@ -7,9 +7,12 @@ static	char	sccs_id[] = "$Header: /users/source/archives/ded.vcs/src/RCS/dedscan
  * Author:	T.E.Dickey
  * Created:	09 Nov 1987
  * $Log: dedscan.c,v $
- * Revision 2.3  1989/05/31 09:03:58  dickey
- * added 'init_scan()' to fix regular-expression kludge
+ * Revision 2.4  1989/06/05 15:40:48  dickey
+ * simplified interface to ftree-module
  *
+ *		Revision 2.3  89/05/31  09:03:58  dickey
+ *		added 'init_scan()' to fix regular-expression kludge
+ *		
  *		Revision 2.2  89/05/26  14:20:57  dickey
  *		don't purge ftree if we are using read-expression
  *		
@@ -20,7 +23,6 @@ static	char	sccs_id[] = "$Header: /users/source/archives/ded.vcs/src/RCS/dedscan
  *		BASELINE Thu Apr  6 13:14:13 EDT 1989
  *		
  *		14 Mar 1989, corrections to common-path algorithm
- *		28 Feb 1989, so that AT_opt will force 'ft_linkto()' call if ok.
  *		12 Sep 1988, don't force resolution of symbolic links unless
  *			     AT_opt is set.  Added 'statMAKE()'.
  *		01 Sep 1988, look for, and reduce common leading pathname.
@@ -33,7 +35,6 @@ static	char	sccs_id[] = "$Header: /users/source/archives/ded.vcs/src/RCS/dedscan
  *		01 Jun 1988, added 'z_lock'.
  *		26 May 1988, made 'flist[]' allocation in chunks.
  *		23 May 1988, changed interface to 'rcslast()', 'sccslast()'.
- *		13 May 1988, put only links-to-directory via 'ft_linkto()'.
  *		09 May 1988, corrected full-name computation for ftree.
  *		22 Apr 1988, use external 'txtalloc()', integrated with ftree.
  *
@@ -112,12 +113,7 @@ char	*argv[];
 					j = argstat(strcpy(name+len, s), TRUE);
 					if (j > 0
 					&&  (k = lookup(s)) >= 0) {
-#ifdef	S_IFLNK
-						if (xLTXT(k))
-							ft_linkto(name);
-						else
-#endif	S_IFLNK
-							ft_insert(name);
+						ft_insert(name);
 					}
 				}
 				closedir(dp);
@@ -288,11 +284,8 @@ char	bfr[BUFSIZ];
 			bfr[len] = EOS;
 			if (f_->ltxt)	txtfree(f_->ltxt);
 			f_->ltxt = txtalloc(bfr);
-			if (AT_opt) {
-				if ((stat(name, &f_->s) >= 0)
-				&&  isDIR(f_->s.st_mode))
-					ft_linkto(name);
-			}
+			if (AT_opt)
+				ft_insert(name);
 		}
 	}
 #endif	S_IFLNK
