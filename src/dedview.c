@@ -1,5 +1,5 @@
 #if	!defined(NO_IDENT)
-static	char	Id[] = "$Id: dedview.c,v 12.11 1993/12/16 16:24:58 dickey Exp $";
+static	char	Id[] = "$Id: dedview.c,v 12.12 1994/03/09 15:57:35 dickey Exp $";
 #endif
 
 /*
@@ -518,9 +518,11 @@ public	void	showLINE(
 public	void	showMARK _ONE(int,col)
 {
 	register int marks, units;
+	int	y, x;
 	char	scale[20],
 		value[20];
 
+	getyx(stdscr, y, x);
 	move(mark_W,0);
 	marks = COLS - 1;
 	units = (col % 10);
@@ -533,6 +535,7 @@ public	void	showMARK _ONE(int,col)
 		marks -= (10 - units);
 		units = 0;
 	}
+	move(y,x);
 }
 
 /*
