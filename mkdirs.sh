@@ -5,11 +5,12 @@
 # Last modified: 1994-03-25
 # Public domain
 #
+# $Id: mkdirs.sh,v 12.1 1997/09/08 00:23:11 tom Exp $
+#
 
 errstatus=0
-umask 022
 
-for file in ${1+"$@"} ; do
+for file in ${1+"$@"} ; do 
    set fnord `echo ":$file" | sed -ne 's/^:\//#/;s/^://;s/\// /g;s/^#/\//;p'`
    shift
 
