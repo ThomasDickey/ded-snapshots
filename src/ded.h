@@ -19,7 +19,7 @@
 
 #ifdef	MAIN
 #if	!defined(NO_IDENT)
-static const char ded_h[] = "$Id: ded.h,v 12.56 1998/03/01 21:04:28 tom Exp $";
+static const char ded_h[] = "$Id: ded.h,v 12.57 1998/05/30 01:38:20 tom Exp $";
 #endif
 #endif	/* MAIN */
 
@@ -671,8 +671,8 @@ extern	void	ft_purge(
 		_ar1(RING *,	gbl));
 
 extern	void	ft_rename(
-		_arx(char *,	old)
-		_ar1(char *,	new));
+		_arx(char *,	oldname)
+		_ar1(char *,	newname));
 
 extern	void	ft_read(
 		_arx(char *,	first)

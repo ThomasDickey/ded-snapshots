@@ -3,6 +3,7 @@
  * Author:	T.E.Dickey
  * Created:	03 Aug 1988
  * Modified:
+ *		29 May 1998, compile with g++
  *		26 Jun 1994, catch INTR only when flag argument is TRUE.
  *		29 Oct 1993, ifdef-ident
  *		28 Sep 1993, gcc warnings
@@ -20,7 +21,7 @@
 
 #include	"ded.h"
 
-MODULE_ID("$Id: dedsigs.c,v 12.11 1995/07/04 14:07:26 tom Exp $")
+MODULE_ID("$Id: dedsigs.c,v 12.12 1998/05/30 02:08:52 tom Exp $")
 
 static	int	caught;		/* counts number of interrupts */
 static	int	init	= -1;	/* last-flag, to prevent redundant 'signal()' */
@@ -28,9 +29,9 @@ static	int	init	= -1;	/* last-flag, to prevent redundant 'signal()' */
 /*
  * Catch "intr" signals.
  */
-private	SIGNAL_FUNC(catch)
+private	SIGNAL_FUNC(intr_catcher)
 {
-	(void)signal (sig,  catch);
+	(void)signal (sig,  intr_catcher);
 	beep();
 	caught++;
 }
@@ -70,7 +71,7 @@ public	int	dedsigs (
 		}
 		init = flag;
 		if (flag) {
-			(void)signal(SIGINT,  catch);
+			(void)signal(SIGINT,  intr_catcher);
 			(void)signal(SIGQUIT, dedquit);
 		} else {
 			(void)signal(SIGINT,  SIG_DFL);
