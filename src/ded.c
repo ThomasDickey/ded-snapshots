@@ -1,5 +1,5 @@
 #if	!defined(NO_IDENT)
-static	char	Id[] = "$Header: /users/source/archives/ded.vcs/src/RCS/ded.c,v 12.9 1993/12/01 16:31:02 dickey Exp $";
+static	char	Id[] = "$Header: /users/source/archives/ded.vcs/src/RCS/ded.c,v 12.10 1993/12/02 17:16:28 dickey Exp $";
 #endif
 
 /*
@@ -424,6 +424,7 @@ public	void	resleep(
 		PRINTW("...waiting (%d of %d) ...", last-count, last);
 		clrtoeol();
 		(*func)(gbl);
+		refresh();
 		sleep(3);
 		if ((interrupted = dedsigs(TRUE)) != 0)
 			break;

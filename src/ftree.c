@@ -1,5 +1,5 @@
 #if	!defined(NO_IDENT)
-static	char	Id[] = "$Id: ftree.c,v 12.8 1993/12/01 16:31:00 dickey Exp $";
+static	char	Id[] = "$Id: ftree.c,v 12.9 1993/12/02 18:25:16 dickey Exp $";
 #endif
 
 /*
@@ -1163,6 +1163,7 @@ private	int	uprow(
 		while (showbase > k
 		   &&  showbase > 0) {
 			showbase--;
+			showdiff = -1;
 		}
 	} else
 		beep();
