@@ -1,3 +1,8 @@
+1994-07-29  Thomas E. Dickey  <dickey@clark.net>
+
+	* src/ftree.c, src/dedview.c:
+	addchnstr may be a function in SYS5_CURSES
+
 1994-07-26  Thomas E. Dickey  <dickey@clark.net>
 
 	* src/ded.c:
