@@ -1,11 +1,13 @@
-#if	!defined(NO_IDENT)
-static	char	Id[] = "$Id: ftree.c,v 12.22 1994/07/16 22:47:59 tom Exp $";
+#ifndef	NO_IDENT
+static	char	Id[] = "$Id: ftree.c,v 12.24 1994/07/17 21:35:12 tom Exp $";
 #endif
 
 /*
  * Author:	T.E.Dickey
  * Created:	02 Sep 1987
  * Modified:
+ *		17 Jul 1994, implemented left/right scrolling.
+ *		16 Jul 1994, redesign display, taking advantage of Sys5-curses
  *		02 Jun 1994, allow environment variable DED_TREE to set full
  *			     ".ftree" path.
  *		24 May 1994, allow leaves with non-printing characters.
@@ -58,7 +60,7 @@ static	char	Id[] = "$Id: ftree.c,v 12.22 1994/07/16 22:47:59 tom Exp $";
  *			     by making this part of 'ft_insert()'
  *		14 Mar 1989, interface to 'dlog'.
  *		07 Mar 1989, forgot that 'strchr()' will also search for a null.
- *		23 Jan 1989, to support 'A' toggle and '~' home-command
+ *		23 Jan 1989, to support '&' toggle and '~' home-command
  *		20 Jan 1989, to support "-t" option of DED.
  *		09 Sep 1988, adjusted '=' to permit "~" expressions.
  *		07 Sep 1988, fixes to q/Q.
@@ -123,6 +125,9 @@ static	char	Id[] = "$Id: ftree.c,v 12.22 1994/07/16 22:47:59 tom Exp $";
 
 #define	Null	(char *)0	/* some NULL's are simply 0 */
 
+#define	min(a,b) ((a) < (b) ? (a) : (b)) /* patch */
+#define	max(a,b) ((a) > (b) ? (a) : (b)) /* patch */
+
 #ifdef	apollo
 #define	TOP	2
 #define	ROOT	"//"
@@ -131,9 +136,11 @@ static	char	Id[] = "$Id: ftree.c,v 12.22 1994/07/16 22:47:59 tom Exp $";
 #define	ROOT	"/"
 #endif
 
+#define LEN_MARK	2	/* length of mark at beginning of line */
 #define	PATH_ROW	0	/* line to show "path:" on */
 #define	FLAG_ROW	1	/* line to show "flags:" on */
-#define	LOSHOW	(2)		/* first line to show directory name on */
+#define	CMDS_ROW	2	/* line to prompt for commands on */
+#define	LOSHOW	(4)		/* first line to show directory name on */
 #define	TOSHOW	(LINES-LOSHOW)	/* lines to show on a screen */
 
 #define	NORMAL	0
@@ -182,6 +189,7 @@ static	int	FDdiff,			/* number of changes made	*/
 		FDlast,			/* last used-entry in ftree[]	*/
 		cant_W,			/* TRUE if last ft_write failed	*/
 		showbase,		/* base of current display	*/
+		shifted,		/* amount of right-shifting	*/
 		showlast,		/* last line in current display	*/
 		showdiff = -1,		/* controls re-display		*/
 		all_show = TRUE,	/* TRUE to suppress '.' files	*/
@@ -460,7 +468,8 @@ private	int	node2col(
 	register int k = fd_level(node);
 
 	if (level < k) k = level;
-	return ((k * 4) + 7);
+	k = (((k-shifted) * BAR_WIDTH) + LEN_MARK);
+	return min(k, COLS-1);
 }
 
 private	int	node2row (
@@ -909,6 +918,29 @@ public	void	ft_read(
 }
 
 /*
+ * For a given node, compute the strings that are appended in 'ft_show()'
+ */
+private	void	fd_annotate(
+	_ARX(RING *,	gbl)
+	_ARX(int,	node)
+	_AR1(char *,	buffer)
+		)
+	_DCL(RING *,	gbl)
+	_DCL(int,	node)
+	_DCL(char *,	buffer)
+{
+	(void)strcpy(buffer, (ftree[node].f_mark & LINKED) ? "@" : gap);
+#ifdef	apollo
+	if (node == 0)
+		(void)strcat(buffer, zero+1);
+#endif
+	if (ftree[node].f_mark & NOVIEW)
+		(void)strcat(buffer, " ...");
+	if (ftree[node].f_mark & MARKED)
+		(void)strcat(buffer, " (Purge)");
+}
+
+/*
  * Display the file-tree.  To help keep paths from growing arbitrarily, show
  * the common (at least to the current screen) part of the path in the
  * status line, moving to the common nodes only if the user directs so.
@@ -926,10 +958,14 @@ private	int	ft_show(
 	_DCL(int,	node)
 	_DCL(int,	level)
 {
+	static	char	*fmt = "%.*s";
 	register int j, k;
-	auto	int	row;
+	auto	int	row,
+			count,
+			limit;
 	auto	char	*marker,
-	bfr[BUFSIZ];
+			bfr[BUFSIZ],
+			end[BUFSIZ];
 
 	move(PATH_ROW,0);
 	row = LOSHOW;
@@ -937,48 +973,123 @@ private	int	ft_show(
 	k = FDdiff || (savesccs != showsccs);
 	PRINTW("path: ");
 	showpath(path, level, -1, k ? 5 : 0);
-	dlog_comment("path: %s\n", path);
 	clrtoeol();
 	if (k) {	/* show W-command if we have pending diffs */
 		move(PATH_ROW, COLS-5);
 		PRINTW(" (W%s)", cant_W ? "?" : "");
 	}
+
+	/* This normally fits into 80 columns! */
 	move(FLAG_ROW,0);
 	PRINTW("flags:");
-	if (!all_show)		PRINTW(" A (hide '.' names)");
-	if (out_of_sight) 	PRINTW(" I (inhibit search in V)");
-	if (!showsccs) 		PRINTW(" Z (hide SCCS/RCS)");
+	if (!all_show)		PRINTW(" & ('.' names)");
+	if (out_of_sight) 	PRINTW(" I (inhibit search)");
+	if (!showsccs) 		PRINTW(" Z (SCCS/RCS)");
 	clrtoeol();
+	FORMAT(bfr, "  node: %d of %d ", node+1, FDlast+1);
+	if (strlen(bfr) < COLS) {
+		move(FLAG_ROW, (int)(COLS - strlen(bfr)));
+		addstr(bfr);
+	}
+
+	/* clear the command-line when we aren't using it */
+	move(CMDS_ROW,0);
+	clrtoeol();
+
+	/* make a line between the command-section and the tree-display */
+	move(LOSHOW-1,0);
+	for (j = 0; j < COLS; j++) {
+		addch(bar_hline[1]);
+	}
+
+	/* Adjust left/right shift to keep the cursor visible.  If we're at
+	 * rightmost position, try to make the filename visible.  If the node
+	 * name is itself too long, limit it to allow the navigation bars to
+	 * show.  In all cases, we show the 2-column prefix that indicates to
+	 * which filelist the node corresponds, if any.
+	 */
+	(void)ded2string(gbl, bfr, sizeof(bfr), ftree[node].f_name, FALSE);
+	fd_annotate(gbl, node, end);
+	k = strlen(bfr) + strlen(end);
+	j = k + (level * BAR_WIDTH) + LEN_MARK;
+	if (j >= COLS) {	/* not all of the line will be visible */
+		int	value;
+
+		limit  = (COLS - 1 - LEN_MARK);
+
+		if (level+1 >= fd_level(node)) { /* make the name visible */
+			k     = min(k, limit);
+			value = fd_level(node) - ((limit - k) / BAR_WIDTH);
+		} else {			/* center the cursor */
+			value = level - (limit + BAR_WIDTH - 1)
+					/ (2 * BAR_WIDTH);
+		}
+		value = max(0, value);
+
+		if (value != shifted) {
+			showdiff = -1;
+			shifted  = value;
+		}
+	} else if (shifted) {
+		showdiff = -1;
+		shifted  = 0;
+	}
+
+	/* update the tree display if we've moved */
 	if (showdiff != FDdiff) {
+
 		for (j = showbase; j <= showlast; j++) {
-			if (!fd_show(j)) continue;
+			if (!fd_show(j))
+				continue;
 			move(row++,0);
-			marker = strcmp(fd_path(bfr, j), home) ? ". " : "=>";
-			if (*marker == '.' && (ring_get(bfr) != 0))
+
+			marker = strcmp(fd_path(bfr, j), home) ? "  " : "=>";
+			if (*marker == ' ' && (ring_get(bfr) != 0))
 				marker = "* ";
-			PRINTW("%5d%s", j, marker);
-			for (k = fd_level(j); k > 0; k--) {
-				chtype	*fill = (k != 1)
-						? bar_space
-						: bar_hline;
+			PRINTW("%s", marker);
+
+			limit = COLS - 1 - LEN_MARK;
+			count = fd_level(j) - shifted;
+			if (count > 0) {
+				for (k = count; k > 0; k--) {
+					int	len   = min(BAR_WIDTH, limit);
+					chtype	*fill = (k != 1)
+							? bar_space
+							: bar_hline;
 #ifdef addchnstr
-				addchnstr(fill, BAR_WIDTH);
+					addchnstr(fill, len);
 #else
-				addstr(fill);
+					PRINTW(fmt, len, fill);
 #endif
+					limit -= len;
+				}
+				count = 0;
+			} else {
+				count *= (-BAR_WIDTH);
 			}
-			if (ftree[j].f_mark & MARKED)	standout();
-			(void)ded2string(gbl, bfr, sizeof(bfr), ftree[j].f_name, FALSE);
-			PRINTW("%s%s",
-				bfr,
-				(ftree[j].f_mark &LINKED) ? "@" : gap);
-			if (ftree[j].f_mark & MARKED)	standend();
-#ifdef	apollo
-			if (j == 0)
-				PRINTW("%s", zero+1);
-#endif
-			if (ftree[j].f_mark & NOVIEW) PRINTW(" (V)");
-			if (ftree[j].f_mark & MARKED) PRINTW(" (+)");
+
+			if (limit > 0) {
+
+				(void)ded2string(gbl, bfr, sizeof(bfr), ftree[j].f_name, FALSE);
+				fd_annotate(gbl, j, end);
+
+				if (strlen(bfr) > count) {
+					if (ftree[j].f_mark & MARKED)
+						standout();
+					PRINTW(fmt, limit, bfr + count);
+					if (ftree[j].f_mark & MARKED)
+						standend();
+					limit -= (strlen(bfr) - count);
+					count = 0;
+				} else {
+					count -= strlen(bfr);
+				}
+
+				if (limit > 0
+				 && strlen(end) > count) {
+					PRINTW(fmt, limit, end + count);
+				}
+			}
 			clrtoeol();
 		}
 		clrtobot();
@@ -1362,7 +1473,7 @@ public	RING *	ft_view(
 				 && xt_mouse.row >= LOSHOW-1) {
 					j = BAR_WIDTH;
 					row = row2node(xt_mouse.row);
-					lvl = (xt_mouse.col - 7 + (j/2)) / j;
+					lvl = (xt_mouse.col - LEN_MARK + (j/2)) / j;
 					if (lvl < 0)
 						lvl = 0;
 					if (xt_mouse.dbl_clik) {
@@ -1426,7 +1537,7 @@ public	RING *	ft_view(
 			break;
 
 		case ':':	/* jump to absolute line */
-			move(PATH_ROW,0);
+			move(CMDS_ROW,0);
 			PRINTW("line: ");
 			clrtoeol();
 
@@ -1441,17 +1552,22 @@ public	RING *	ft_view(
 					MAXPATHLEN)))
 				break;
 
+			if (!strclean(s))
+				break;
 			if (!strcmp(s, "$"))
-				c = FDlast;
+				c = FDlast+1;
 			else if (sscanf(s, "%d%c", &c, &ignore) != 1)
 				c = -1;
 
-			if (c >= 0 && c <= FDlast) {
+			if (c >= 0 && c <= FDlast+1) {
+				if (c > 0)
+					c--;
 				row = c;
 				lvl = fd_level(row);
 				scroll_to(row);
-			} else
-				beep();
+			} else {
+				dedmsg(gbl, "illegal line number");
+			}
 			break;
 
 		case '/':
@@ -1464,7 +1580,7 @@ public	RING *	ft_view(
 			j = (c == '@' || c == '~');
 			s = "";
 			if (!isalpha(c)) {
-				move(PATH_ROW,0);
+				move(CMDS_ROW,0);
 				PRINTW(j ? "jump: " : "find: ");
 				clrtoeol();
 
@@ -1673,7 +1789,7 @@ public	RING *	ft_view(
 		 * toggle flag which controls whether names beginning with
 		 * '.' are shown
 		 */
-		case 'A':
+		case '&':
 			all_show = !all_show;
 			showdiff = -1;
 			break;

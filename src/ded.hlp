@@ -1,4 +1,4 @@
-$Id: ded.hlp,v 12.1 1993/12/06 14:25:18 dickey Exp $
+$Id: ded.hlp,v 12.2 1994/07/17 00:49:52 tom Exp $
 
 DED (Directory EDitor)
 ======================
@@ -272,7 +272,7 @@ Directory Tree:
   '?', 'n' and 'N' search works in the directory-tree (though it finds only
   leaf names, rather than full paths).
 
-  A		Toggle visibility of names beginning with '.' or '$'.
+  &		Toggle visibility of names beginning with '.' or '$'.
   B		Move backward (with wraparound) in the list of directories.
   D		Toggle between directory-tree and file-list display.
   E		Enter a new file-list at the indicated directory-name.

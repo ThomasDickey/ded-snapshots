@@ -1,14 +1,6 @@
-$Id: README,v 12.8 1994/07/16 22:04:18 tom Exp $
+$Id: README,v 12.9 1994/07/17 01:07:50 tom Exp $
 
 --(TO-DO)----------------------------------------------------------------------
-
-88/05/03:
-	ft_insert does not check for apollo links such as /usr/lib mapping
-	to /bsd4.2/usr/lib, since only the /usr part is a link.  This causes
-	confusion also in the F,B,E commands.  If I make 'abspath()' translate
-	all pathnames via the name_$get_path, this solves that problem at
-	the expense of two others: links are resolved, and the code runs
-	slower.
 
 88/05/10:
 	There is a hole: if I resize in ftree, the unsavewin() may
@@ -19,11 +11,6 @@ $Id: README,v 12.8 1994/07/16 22:04:18 tom Exp $
 	(e.g., "~/src").  Probably should modify linkstat (and corresponding
 	inline code in ftree) to do a readlink/abspath/stat (on apollo at
 	least).
-
-88/08/09:
-	'beep()' and 'blip()' write to stderr, which is not necessarily good.
-	Should try to use 'curses' internal routine to send characters.
-	I saw beep clobber an escape sequence on the gould.
 
 88/09/1:
 	For SYSTEM5, should use 'wrefresh(curscr)' to forcibly refresh the
@@ -64,7 +51,7 @@ DED:
 
 	"o" for options.
 
-	:-commands
+	:-commands (cd, version, edit, up/down)
 
 	make all keys rebindable.
 	config-file to control edit-keys
@@ -72,8 +59,6 @@ DED:
 	e/E commands
 
 	empty directories
-
-	sys5 curses/vt100 character set
 
 	&-command toggle _all_ hidden files
 
@@ -105,9 +90,7 @@ DED:
 
 	make argument on '*' show items within stack.
 
-	make :cd, :version commands
-
 	make :set shell=FFF, so I can use 'execute()' rather than
 	'system()', maybe get rid of problems with signals.
 
-	make the top of the directory tree number 1.
+	make a message-table instead of the beeping.
