@@ -1,11 +1,12 @@
 #ifndef	lint
-static	char	sccs_id[] = "@(#)ftree.c	1.56 88/08/18 14:41:56";
+static	char	sccs_id[] = "@(#)ftree.c	1.57 88/09/02 10:28:35";
 #endif	lint
 
 /*
  * Author:	T.E.Dickey
  * Created:	02 Sep 1987
  * Modified:
+ *		02 Sep 1988, use 'rcs_dir()' and 'sccs_dir()'
  *		03 Aug 1988, use 'dedsigs()' in 'R' command to permit interrupt.
  *		27 Jul 1988, reversed initial sense of 'I'.  Corrected display
  *			     of 'W' in case file could not be written, etc.
@@ -68,7 +69,9 @@ static	char	sccs_id[] = "@(#)ftree.c	1.56 88/08/18 14:41:56";
 #include	<sys/errno.h>
 extern	time_t	time();
 extern	int	errno;
-extern	char	*txtalloc(),
+extern	char	*rcs_dir(),
+		*sccs_dir(),
+		*txtalloc(),
 		*strchr();
 
 #define	dedmsg	waitmsg	/* ...so we don't call 'showC' from this module */
@@ -153,7 +156,7 @@ int	y,x;
 	if ((count == 0) || (last != this)) {
 		getyx(stdscr,y,x);
 		move(0,0);
-		printw("%4d: %.*s", count, COLS-8, pathname);
+		PRINTW("%4d: %.*s", count, COLS-8, pathname);
 		clrtoeol();
 		refresh();
 		move(y,x);
@@ -690,11 +693,11 @@ char	*marker,
 	move(row++,0);
 	node = limits(showbase, node);
 	k = FDdiff || (savesccs != showsccs);
-	printw("path: %.*s", COLS-8, path);
+	PRINTW("path: %.*s", COLS-8, path);
 	clrtoeol();
 	if (k) {	/* show W-command if we have pending diffs */
 		move(0, COLS-5);
-		printw(" (W%s)", cant_W ? "?" : "");
+		PRINTW(" (W%s)", cant_W ? "?" : "");
 	}
 	if (showdiff != FDdiff) {
 		for (j = showbase; j <= showlast; j++) {
@@ -705,22 +708,22 @@ char	*marker,
 			if (*marker == '.' && dedrang(bfr))
 				marker = "* ";
 #endif	TEST
-			printw("%4d%s", j, marker);
+			PRINTW("%4d%s", j, marker);
 			for (k = fd_level(j); k > 0; k--)
 				addstr(fd_line(k));
 			if (ftree[j].f_mark & MARKED)	standout();
 			(void)ded2string(bfr, sizeof(bfr), ftree[j].f_name, FALSE);
-			printw("%s%s",
+			PRINTW("%s%s",
 				bfr,
 				(ftree[j].f_mark &LINKED) ? "@" : gap);
 			if (ftree[j].f_mark & MARKED)	standend();
 #ifdef	apollo
 			if (j == 0)
-				printw("%s", zero+1);
+				PRINTW("%s", zero+1);
 #endif	apollo
 			if (ftree[j].f_mark & NOVIEW)
-				printw(out_of_sight ? " (I/V)": " (V)");
-			if (ftree[j].f_mark & MARKED) printw(" (+)");
+				PRINTW(out_of_sight ? " (I/V)": " (V)");
+			if (ftree[j].f_mark & MARKED) PRINTW(" (+)");
 			clrtoeol();
 		}
 		clrtobot();
@@ -856,11 +859,8 @@ static
 is_sccs(node)
 {
 register FTREE *f = &ftree[node];
-static	char	*sccs_dir;
-	if (!sccs_dir)				sccs_dir = getenv("SCCS_DIR");
-	if (!sccs_dir)				sccs_dir = "sccs";
-	if (!strcmp(f->f_name, sccs_dir))	return (TRUE);
-	if (!strcmp(f->f_name, "RCS"))		return (TRUE);
+	if (!strcmp(f->f_name, sccs_dir()))	return (TRUE);
+	if (!strcmp(f->f_name, rcs_dir()))	return (TRUE);
 	return (FALSE);
 }
 
@@ -1019,7 +1019,7 @@ register int j;
 		case '@':
 			if (!isalpha(c)) {
 				move(0,0);
-				printw((c != '@') ? "find: " : "jump: ");
+				PRINTW((c != '@') ? "find: " : "jump: ");
 				clrtoeol();
 				rawgets(cwdpath,sizeof(cwdpath),FALSE);
 			}

@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	sccs_id[] = "@(#)dedscan.c	1.23 88/09/01 09:09:39";
+static	char	sccs_id[] = "@(#)dedscan.c	1.24 88/09/02 07:46:09";
 #endif	lint
 
 /*
@@ -142,14 +142,10 @@ char	*argv[];
 			}
 		}
 
-		/*
-		 * Readjustment relies on never 'free()'ing the strings in the
-		 * 'flist[]' array!
-		 */
 		if (common > 0 && chdir(name) >= 0) {
 			abspath(strcpy(new_wd, name));
 			for (j = 0; j < numfiles; j++)
-				xNAME(j) += common;
+				xNAME(j) = txtalloc(xNAME(j) + common);
 		}
 	}
 	if (debug)
