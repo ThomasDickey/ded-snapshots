@@ -1,3 +1,27 @@
+1998-03-01  Thomas E. Dickey  <dickey@clark.net>
+
+	* src/dedmake.c: missed an if-then-else in the last change
+
+	* src/makefile.2nd: add @PROG_EXT@
+
+	* src/dedmake.c: comment
+
+	* src/dedline.c: build on OS/2 EMX
+
+	* src/dedmake.c: OS/2 EMX doesn't have 'link()'
+
+	* src/ded2s.c:
+	mods to build on EMX, which has no S_ISVTX, S_IFBLK or major/minor macros
+
+	* src/ded.h:
+	mods to build on EMX, which has no link/symlink, nor S_IFBLK
+
+	* configure.in: pass '$AWK' to config.status
+
+1998-02-20  Thomas E. Dickey  <dickey@clark.net>
+
+	* aclocal.m4: minor nits, from other scripts
+
 1998-02-19  Thomas E. Dickey  <dickey@clark.net>
 
 	* src/ftree.c:

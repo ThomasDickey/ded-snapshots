@@ -19,7 +19,7 @@
 
 #ifdef	MAIN
 #if	!defined(NO_IDENT)
-static const char ded_h[] = "$Id: ded.h,v 12.55 1998/02/16 21:03:56 tom Exp $";
+static const char ded_h[] = "$Id: ded.h,v 12.56 1998/03/01 21:04:28 tom Exp $";
 #endif
 #endif	/* MAIN */
 
@@ -64,8 +64,12 @@ static const char ded_h[] = "$Id: ded.h,v 12.55 1998/02/16 21:03:56 tom Exp $";
 
 #define	UIDLEN	9		/* length of uid/gid field */
 
+#ifdef S_IFBLK
 #define	isDEV(mode)	(	(mode & S_IFMT) == S_IFBLK\
 			||	(mode & S_IFMT) == S_IFCHR)
+#else
+#define	isDEV(mode)	(	(mode & S_IFMT) == S_IFCHR)
+#endif
 
 #ifndef	MAIN
 #  define MAIN extern
@@ -161,9 +165,7 @@ static const char ded_h[] = "$Id: ded.h,v 12.55 1998/02/16 21:03:56 tom Exp $";
 		sortopt,	/* sort-option (a character) */
 		tagsort,	/* sort tagged files apart from others */
 		tag_opt,	/* show totals for tagged files */
-#ifdef	S_IFLNK
 		AT_opt,		/* show symbolic link target */
-#endif
 		A_opt,		/* show "." and ".." */
 		G_opt,		/* show uid/gid field */
 		I_opt,		/* show link/inode field */

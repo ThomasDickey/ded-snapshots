@@ -3,6 +3,7 @@
  * Author:	T.E.Dickey
  * Created:	12 Sep 1988
  * Modified:
+ *		01 Mar 1998, mods to build on OS/2 EMX 0.9b
  *		15 Feb 1998, compiler-warnings
  *		29 Oct 1993, ifdef-ident
  *		01 Apr 1992, convert most global variables to RING-struct.
@@ -21,7 +22,7 @@
 
 #include	"ded.h"
 
-MODULE_ID("$Id: dedmake.c,v 12.7 1998/02/15 23:43:56 tom Exp $")
+MODULE_ID("$Id: dedmake.c,v 12.9 1998/03/01 23:55:23 tom Exp $")
 
 private	int	makeit(
 	_ARX(RING *,	gbl)
@@ -43,14 +44,15 @@ private	int	makeit(
 		ft_insert(name);
 	}
 	if (mode == S_IFREG) {
+#if HAVE_LINK
 		if (hard >= 0) {
 			if (link(gNAME(hard), name) < 0)
 				return (FALSE);
-		} else {
-			if ((fid = creat(name, 0777)) < 0)
-				return (FALSE);
-			(void)close(fid);
 		}
+#endif
+		if ((fid = creat(name, 0777)) < 0)
+			return (FALSE);
+		(void)close(fid);
 	}
 #ifdef	S_IFLNK
 	if (mode == S_IFLNK) {

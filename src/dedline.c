@@ -3,6 +3,7 @@
  * Author:	T.E.Dickey
  * Created:	01 Aug 1988 (from 'ded.c')
  * Modified:
+ *		01 Mar 1998, mods to build with OS/2 EMX 0.9b
  *		15 Feb 1998, remove special code for apollo sr10
  *			     fix compiler warnings.
  *		05 Nov 1995, use 80th column
@@ -55,7 +56,7 @@
 
 #include	"ded.h"
 
-MODULE_ID("$Id: dedline.c,v 12.22 1998/02/16 13:29:31 tom Exp $")
+MODULE_ID("$Id: dedline.c,v 12.23 1998/03/01 23:54:59 tom Exp $")
 
 #define	CHMOD(n)	(gSTAT(n).st_mode & 07777)
 #define	OWNER(n)	((geteuid() == 0) || (gSTAT(x).st_uid == geteuid()))
@@ -451,11 +452,13 @@ public	void	editprot (
 					sb->st_mode ^= S_ISGID;
 				else
 					beep();
+#ifdef S_ISVTX
 			} else if (c == 't') {
 				if (x == 2)
 					sb->st_mode ^= S_ISVTX;
 				else
 					beep();
+#endif
 			} else
 				beep();
 		}
@@ -550,6 +553,7 @@ public	void	edit_uid (
 	_AR1(RING *,	gbl))
 	_DCL(RING *,	gbl)
 {
+#if HAVE_CHOWN
 	register unsigned j;
 	int	uid	= cSTAT.st_uid,
 		changed	= FALSE;
@@ -582,6 +586,9 @@ public	void	edit_uid (
 		}
 	}
 	restat(gbl,changed);
+#else
+	beep();
+#endif
 }
 
 /*
@@ -591,6 +598,7 @@ public	void	edit_gid (
 	_AR1(RING *,	gbl))
 	_DCL(RING *,	gbl)
 {
+#if HAVE_CHGRP
 	register unsigned j;
 	int	gid	= cSTAT.st_gid,
 		changed	= FALSE;
@@ -625,6 +633,9 @@ public	void	edit_gid (
 		}
 	}
 	restat(gbl,changed);
+#else
+	beep();
+#endif
 }
 
 /*
