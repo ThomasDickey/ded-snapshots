@@ -1,15 +1,21 @@
 #ifndef	lint
-static	char	Id[] = "$Id: dedfind.c,v 8.0 1989/08/25 08:53:40 ste_cm Rel $";
-#endif	lint
+static	char	Id[] = "$Id: dedfind.c,v 9.0 1991/05/15 13:39:04 ste_cm Rel $";
+#endif
 
 /*
  * Title:	dedfind.c (find item in ded's file list)
  * Author:	T.E.Dickey
  * Created:	18 Nov 1987
  * $Log: dedfind.c,v $
- * Revision 8.0  1989/08/25 08:53:40  ste_cm
- * BASELINE Mon Aug 13 15:06:41 1990 -- LINCNT, ADA_TRANS
+ * Revision 9.0  1991/05/15 13:39:04  ste_cm
+ * BASELINE Mon Jun 10 10:09:56 1991 -- apollo sr10.3
  *
+ *		Revision 8.1  91/05/15  13:39:04  dickey
+ *		apollo sr10.3 cpp complains about tag on #endif
+ *		
+ *		Revision 8.0  89/08/25  08:53:40  ste_cm
+ *		BASELINE Mon Aug 13 15:06:41 1990 -- LINCNT, ADA_TRANS
+ *		
  *		Revision 7.0  89/08/25  08:53:40  ste_cm
  *		BASELINE Mon Apr 30 09:54:01 1990 -- (CPROTO)
  *		

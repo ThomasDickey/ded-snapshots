@@ -1,16 +1,22 @@
 #ifndef	lint
-static	char	what[] = "$Id: dedline.c,v 8.1 1991/04/18 10:42:26 dickey Exp $";
-#endif	lint
+static	char	Id[] = "$Id: dedline.c,v 9.0 1991/05/15 13:40:16 ste_cm Rel $";
+#endif
 
 /*
  * Title:	dedline.c (directory-editor inline editing)
  * Author:	T.E.Dickey
  * Created:	01 Aug 1988 (from 'ded.c')
  * $Log: dedline.c,v $
- * Revision 8.1  1991/04/18 10:42:26  dickey
- * fixed end-of-buffer code for 'edittext()' (caused spurious
- * data overwrites).
+ * Revision 9.0  1991/05/15 13:40:16  ste_cm
+ * BASELINE Mon Jun 10 10:09:56 1991 -- apollo sr10.3
  *
+ *		Revision 8.2  91/05/15  13:40:16  dickey
+ *		mods to accommodate apollo sr10.3
+ *		
+ *		Revision 8.1  91/04/18  10:43:16  dickey
+ *		fixed end-of-buffer code for 'edittext()' (caused spurious
+ *		data overwrites).
+ *		
  *		Revision 8.0  90/03/06  08:26:44  ste_cm
  *		BASELINE Mon Aug 13 15:06:41 1990 -- LINCNT, ADA_TRANS
  *		
@@ -263,7 +269,7 @@ char	*bfr;
 	}
 	return (bfr);
 }
-#endif	S_IFLNK
+#endif	/* S_IFLNK */
 
 /*
  * Coerce Xbase (left/right scrolling) so we can display a given column
@@ -303,7 +309,7 @@ auto	int
 	done	= FALSE;
 #ifdef	S_IFLNK
 int	at_flag	= at_save();
-#endif	S_IFLNK
+#endif
 
 	(void)save_Xbase(cmdcol[CCOL_PROT]);
 
@@ -398,7 +404,7 @@ int	at_flag	= at_save();
 	if (at_flag) {		/* we had to toggle because of sym-link	*/
 		(void)at_last(FALSE); /* force stat on the files, cleanup */
 	}
-#endif	S_IFLNK
+#endif
 	if (opt != P_opt) {
 		P_opt = opt;
 		showLINE(curfile);
@@ -428,7 +434,7 @@ register char *s;
 
 #ifdef	S_IFLNK
 int	at_flag	= ((endc == 'u') || (endc == 'g')) ? at_save() : FALSE;
-#endif	S_IFLNK
+#endif
 
 	dlog_comment("before \"%s\"\n", bfr);
 	if (len < strlen(bfr) + 2)
@@ -437,7 +443,7 @@ int	at_flag	= ((endc == 'u') || (endc == 'g')) ? at_save() : FALSE;
 #ifdef	S_IFLNK
 	if (at_flag)
 		showLINE(curfile);
-#endif	S_IFLNK
+#endif
 	(void)replay(endc);
 
 	last = (COLS - 1 - col);
@@ -484,9 +490,9 @@ int	at_flag	= ((endc == 'u') || (endc == 'g')) ? at_save() : FALSE;
 				if (x > 0)	x--;
 			} else if (c == ARO_RIGHT) {
 				if (x < strlen(bfr))	x++;
-			} else if (c == CTL(b)) {
+			} else if (c == CTL('b')) {
 				x = 0;
-			} else if (c == CTL(f)) {
+			} else if (c == CTL('f')) {
 				x = strlen(bfr);
 			} else
 				beep();
@@ -501,9 +507,9 @@ int	at_flag	= ((endc == 'u') || (endc == 'g')) ? at_save() : FALSE;
 				if (x > 0)	x--;
 			} else if (c == '\f' || c == ARO_RIGHT) {
 				if (x < strlen(bfr))	x++;
-			} else if (c == CTL(b)) {
+			} else if (c == CTL('b')) {
 				x = 0;
-			} else if (c == CTL(f)) {
+			} else if (c == CTL('f')) {
 				x = strlen(bfr);
 			} else
 				beep();
@@ -518,7 +524,7 @@ int	at_flag	= ((endc == 'u') || (endc == 'g')) ? at_save() : FALSE;
 	if (at_flag) {		/* we had to toggle because of sym-link	*/
 		(void)at_last(FALSE); /* force stat on the files to cleanup */
 	}
-#endif	S_IFLNK
+#endif
 	dlog_flush();
 	dlog_comment("after  \"%s\"\n", bfr);
 	return (code);
@@ -728,7 +734,7 @@ editlink(cmd)
 	}
 	restat(changed);
 }
-#endif	S_IFLNK
+#endif	/* S_IFLNK */
 
 /*
  * Initiate/conclude repetition of inline editing.

@@ -1,6 +1,6 @@
 #ifdef	MAIN
 #ifndef	lint
-static	char	*ded_h = "$Id: ded.h,v 8.0 1990/01/30 07:52:28 ste_cm Rel $";
+static	char	*ded_h = "$Id: ded.h,v 9.0 1991/05/15 13:28:33 ste_cm Rel $";
 #endif	/* lint */
 #endif
 
@@ -41,7 +41,7 @@ extern	char	*regcmp(),
 #define	NEW_REGEX(expr,pattern)	((expr = regcmp(pattern,0)) != 0)
 #define	GOT_REGEX(expr,string)	(regex(expr, string, 0) != 0)
 #define	BAD_REGEX(expr)		dedmsg("illegal expression")
-#else	SYSTEM5
+#else	/* SYSTEM5 */
 extern	char	*re_comp();	/* returns 0 or error message */
 extern	int	re_exec();	/* (return > 0): match */
 #define	OLD_REGEX(expr)

@@ -1,16 +1,22 @@
 #ifndef	lint
-static	char	Id[] = "$Id: dedmake.c,v 8.1 1991/04/18 08:58:58 dickey Exp $";
-#endif	lint
+static	char	Id[] = "$Id: dedmake.c,v 9.0 1991/05/15 13:57:00 ste_cm Rel $";
+#endif
 
 /*
  * Title:	dedmake.c (make entry for ded)
  * Author:	T.E.Dickey
  * Created:	12 Sep 1988
  * $Log: dedmake.c,v $
- * Revision 8.1  1991/04/18 08:58:58  dickey
- * added command "cL" to create hard link (implicitly to the
- * current entry).
+ * Revision 9.0  1991/05/15 13:57:00  ste_cm
+ * BASELINE Mon Jun 10 10:09:56 1991 -- apollo sr10.3
  *
+ *		Revision 8.2  91/05/15  13:57:00  dickey
+ *		apollo sr10.3 cpp complains about tag on #endif
+ *		
+ *		Revision 8.1  91/04/18  08:58:58  dickey
+ *		added command "cL" to create hard link (implicitly to the
+ *		current entry).
+ *		
  *		Revision 8.0  89/10/05  17:02:20  ste_cm
  *		BASELINE Mon Aug 13 15:06:41 1990 -- LINCNT, ADA_TRANS
  *		
@@ -77,7 +83,7 @@ char	*name;
 		if (symlink(cLTXT = txtalloc("."), name) < 0)
 			return (FALSE);
 	}
-#endif	S_IFLNK
+#endif
 	cNAME = txtalloc(name);
 	if (hard >= 0) {
 		register int j;
@@ -108,7 +114,7 @@ dedmake()
 	case 'f':	mode = S_IFREG;	break;
 #ifdef	S_IFLNK
 	case 'l':	mode = S_IFLNK;	break;
-#endif	S_IFLNK
+#endif
 	case 'L':	if ((mode = (cSTAT.st_mode & S_IFMT)) == S_IFREG) {
 				hard = curfile + 1;
 				break;

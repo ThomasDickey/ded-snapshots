@@ -1,17 +1,23 @@
 #ifndef	lint
-static	char	Id[] = "$Id: dedread.c,v 8.1 1991/04/18 07:56:15 dickey Exp $";
-#endif	lint
+static	char	Id[] = "$Id: dedread.c,v 9.0 1991/05/15 13:57:21 ste_cm Rel $";
+#endif
 
 /*
  * Title:	dedread.c (modify read-list expression)
  * Author:	T.E.Dickey
  * Created:	26 May 1989
  * $Log: dedread.c,v $
- * Revision 8.1  1991/04/18 07:56:15  dickey
- * added flag to control whether identical pattern returns
- * true or false (so that if nothing is found, we can force
- * re-invocation of this procedure).
+ * Revision 9.0  1991/05/15 13:57:21  ste_cm
+ * BASELINE Mon Jun 10 10:09:56 1991 -- apollo sr10.3
  *
+ *		Revision 8.2  91/05/15  13:57:21  dickey
+ *		apollo sr10.3 cpp complains about tag on #endif
+ *		
+ *		Revision 8.1  91/04/18  08:05:39  dickey
+ *		added flag to control whether identical pattern returns
+ *		true or false (so that if nothing is found, we can force
+ *		re-invocation of this procedure).
+ *		
  *		Revision 8.0  90/05/23  08:09:14  ste_cm
  *		BASELINE Mon Aug 13 15:06:41 1990 -- LINCNT, ADA_TRANS
  *		

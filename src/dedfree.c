@@ -1,15 +1,21 @@
 #ifndef	lint
-static	char	sccs_id[] = "$Header: /users/source/archives/ded.vcs/src/RCS/dedfree.c,v 8.0 1988/05/10 13:18:03 ste_cm Rel $";
-#endif	lint
+static	char	Id[] = "$Id: dedfree.c,v 9.0 1991/05/15 13:39:19 ste_cm Rel $";
+#endif
 
 /*
  * Title:	dedfree.c (free ded's main structure)
  * Author:	T.E.Dickey
  * Created:	02 May 1988
  * $Log: dedfree.c,v $
- * Revision 8.0  1988/05/10 13:18:03  ste_cm
- * BASELINE Mon Aug 13 15:06:41 1990 -- LINCNT, ADA_TRANS
+ * Revision 9.0  1991/05/15 13:39:19  ste_cm
+ * BASELINE Mon Jun 10 10:09:56 1991 -- apollo sr10.3
  *
+ *		Revision 8.1  91/05/15  13:39:19  dickey
+ *		apollo sr10.3 cpp complains about tag on #endif
+ *		
+ *		Revision 8.0  88/05/10  13:18:03  ste_cm
+ *		BASELINE Mon Aug 13 15:06:41 1990 -- LINCNT, ADA_TRANS
+ *		
  *		Revision 7.0  88/05/10  13:18:03  ste_cm
  *		BASELINE Mon Apr 30 09:54:01 1990 -- (CPROTO)
  *		

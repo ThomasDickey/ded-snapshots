@@ -1,15 +1,21 @@
 #ifndef	lint
-static	char	Id[] = "$Id: dedring.c,v 8.1 1991/04/04 09:08:41 dickey Exp $";
-#endif	lint
+static	char	Id[] = "$Id: dedring.c,v 9.0 1991/05/15 13:57:49 ste_cm Rel $";
+#endif
 
 /*
  * Title:	dedring.c (ded: ring of directories)
  * Author:	T.E.Dickey
  * Created:	27 Apr 1988
  * $Log: dedring.c,v $
- * Revision 8.1  1991/04/04 09:08:41  dickey
- * guard against 'getwd()' failure.
+ * Revision 9.0  1991/05/15 13:57:49  ste_cm
+ * BASELINE Mon Jun 10 10:09:56 1991 -- apollo sr10.3
  *
+ *		Revision 8.2  91/05/15  13:57:49  dickey
+ *		apollo sr10.3 cpp complains about tag on #endif
+ *		
+ *		Revision 8.1  91/04/04  09:08:41  dickey
+ *		guard against 'getwd()' failure.
+ *		
  *		Revision 8.0  90/05/23  11:16:30  ste_cm
  *		BASELINE Mon Aug 13 15:06:41 1990 -- LINCNT, ADA_TRANS
  *		
@@ -111,7 +117,7 @@ typedef	struct	_ring	{
 			tagsort,
 #ifdef	S_IFLNK
 			AT_opt,
-#endif	S_IFLNK
+#endif
 			A_opt,
 			G_opt,
 			I_opt,
@@ -126,7 +132,7 @@ typedef	struct	_ring	{
 			V_opt,
 			Y_opt,
 			Z_opt;
-#endif	Z_RCS_SCCS
+#endif
 	unsigned	numfiles;
 	} RING;
 
@@ -196,7 +202,7 @@ RING	*p;
 	SAVE(tagsort);
 #ifdef	S_IFLNK
 	SAVE(AT_opt);
-#endif	S_IFLNK
+#endif
 	SAVE(A_opt);
 	SAVE(G_opt);
 	SAVE(I_opt);
@@ -211,7 +217,7 @@ RING	*p;
 	SAVE(V_opt);
 	SAVE(Y_opt);
 	SAVE(Z_opt);
-#endif	Z_RCS_SCCS
+#endif
 	SAVE(numfiles);
 }
 
@@ -242,7 +248,7 @@ RING	*p;
 	UNSAVE(tagsort);
 #ifdef	S_IFLNK
 	UNSAVE(AT_opt);
-#endif	S_IFLNK
+#endif
 	UNSAVE(A_opt);
 	UNSAVE(G_opt);
 	UNSAVE(I_opt);
@@ -257,7 +263,7 @@ RING	*p;
 	UNSAVE(V_opt);
 	UNSAVE(Y_opt);
 	UNSAVE(Z_opt);
-#endif	Z_RCS_SCCS
+#endif
 	UNSAVE(numfiles);
 }
 
@@ -517,7 +523,7 @@ char	tmp[BUFSIZ];
 			V_opt = 0;
 			Y_opt = 0;
 			Z_opt = 0;
-#endif	Z_RCS_SCCS
+#endif
 #ifdef	S_IFLNK
 			AT_opt = 0;
 
@@ -536,7 +542,7 @@ char	tmp[BUFSIZ];
 				success = FALSE;
 			}
 			if (success && numfiles == 0)
-#endif	S_IFLNK
+#endif
 				success = do_a_scan(newp);
 
 			if (!success)
