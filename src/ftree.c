@@ -1,11 +1,16 @@
 #ifndef	NO_IDENT
-static	char	Id[] = "$Id: ftree.c,v 12.39 1995/08/30 14:38:04 tom Exp $";
+static	char	Id[] = "$Id: ftree.c,v 12.41 1995/09/03 19:56:26 tom Exp $";
 #endif
 
 /*
  * Author:	T.E.Dickey
  * Created:	02 Sep 1987
  * Modified:
+ *		03 Sep 1995, mods to make '&'-toggle correspond better with
+ *			     the same command in the file-list.
+ *		04 Jul 1994, use ungetch rather than ungetc.
+ *		23 Nov 1994, fix uninitialized flag that broke Z-toggle for
+ *			     items _before_ RCS leaf.
  *		23 Jul 1994, implemented repeat-count for 'V'.
  *		17 Jul 1994, implemented left/right scrolling.
  *		16 Jul 1994, redesign display, taking advantage of Sys5-curses
@@ -13,7 +18,7 @@ static	char	Id[] = "$Id: ftree.c,v 12.39 1995/08/30 14:38:04 tom Exp $";
  *		02 Jun 1994, allow environment variable DED_TREE to set full
  *			     ".ftree" path.
  *		24 May 1994, allow leaves with non-printing characters.
- *		19 Nov 1993, added mouse-support.
+ *		19 Nov 1993, added xterm mouse-support.
  *		18 Nov 1993, modified to make "^" command toggle, and to make
  *			     up/down row commands simulate scrolling.
  *		29 Oct 1993, ifdef-ident, port to HP/UX
@@ -635,16 +640,18 @@ private	int	do_find (
  * the database from 'ded' when (re)reading a directory.  The argument must
  * be a directory name.
  *
- * The 'all' argument is used so that we needn't resolve symbolic links to
- * retain them in a directory-scan.  If 'all' is true, then we will purge
- * symbolic links as well.
+ * The 'links' argument is used so that we needn't resolve symbolic links to
+ * retain them in a directory-scan.  If 'links' is true, then we will purge
+ * symbolic links as well.  Similarly, 'dots' suppresses checks for '.' files.
  */
 public	void	ft_remove(
 	_ARX(char *,	path)
-	_AR1(int,	all)
+	_ARX(int,	links)
+	_AR1(int,	dots)
 		)
 	_DCL(char *,	path)
-	_DCL(int,	all)
+	_DCL(int,	links)
+	_DCL(int,	dots)
 {
 	int	last = do_find(path);
 	register int j;
@@ -653,8 +660,10 @@ public	void	ft_remove(
 		for (j = last+1; j <= FDlast; j++) {
 		register FTREE *f = &ftree[j];
 			if (f->f_root == last) {
+				if (!dots && PRE(j,'.'))
+					continue;
 #ifdef	S_IFLNK
-				if (all || !(f->f_mark & LINKED))
+				if (links || !(f->f_mark & LINKED))
 #endif	/* S_IFLNK */
 					f->f_mark |= MARKED;
 			} else if (f->f_root < last)
@@ -691,7 +700,7 @@ public	void	ft_purge (
 	FDdiff += changed;
 
 	if (changed) {			/* re-insert ring */
-		char	tmp[BUFSIZ], *s;
+		char	tmp[MAXPATHLEN], *s;
 
 		(void)strcpy(tmp, gbl->new_wd);
 		for (j = 1; (s = ring_path(gbl, j)) != NULL; j++) {
@@ -813,7 +822,7 @@ private	int	ok_read(
 {
 	LEN_READ	got = read(fid,s,ask);
 	if (got != ask) {
-		char	bfr[BUFSIZ];
+		char	bfr[MAXPATHLEN];
 		dlog_comment("%s (got %d, asked %d)", msg, got, ask);
 		FORMAT(bfr, "%s \"%s\"", msg, FDname);
 		return (ft_init(msg));
@@ -1264,7 +1273,7 @@ private	int	fd_ring(
 	_DCL(int *,	level_)
 {
 	int	newrow;
-	char	cwdpath[BUFSIZ];
+	char	cwdpath[MAXPATHLEN];
 
 	if ((newrow = do_find(strcpy(cwdpath, gbl->new_wd))) < 0) {
 		/* path was deleted, put it back if it is really there */
@@ -1637,7 +1646,7 @@ public	RING *	ft_view(
 
 		case '=':	/* rename-function */
 			if (chdir(fd_path(cwdpath,zROOT(row))) >= 0) {
-				char	bfr[BUFSIZ];
+				char	bfr[MAXPATHLEN];
 
 				abspath(fd_path(cwdpath,row));
 				move(node2row(row),node2col(row,MAXLVL));
@@ -1715,7 +1724,7 @@ public	RING *	ft_view(
 			(void)fd_path(cwdpath, row);
 #ifdef	S_IFLNK
 			if (zLINK(row)) {
-				char	bfr[BUFSIZ];
+				char	bfr[MAXPATHLEN];
 				int	len;
 
 				(void)chdir(fd_path(bfr, ftree[row].f_root));
@@ -1952,7 +1961,7 @@ public	int	ft_scan(
 	if (chdir(bfr) < 0)
 		waitmsg(bfr);
 	else if ((dp = opendir(bfr)) != 0) {
-		ft_remove(bfr,TRUE);
+		ft_remove(bfr, TRUE, TRUE);
 		if (strcmp(bfr,zero))	*s_++ = '/';
 		while ((d = readdir(dp)) != NULL) {
 			(void)strcpy(s_, "*");

@@ -1,7 +1,3 @@
-#if	!defined(NO_IDENT)
-static	char	Id[] = "$Header: /users/source/archives/ded.vcs/src/RCS/ded.c,v 12.39 1995/08/30 14:25:35 tom Exp $";
-#endif
-
 /*
  * Title:	ded.c (directory-editor)
  * Author:	T.E.Dickey
@@ -150,6 +146,8 @@ static	char	Id[] = "$Header: /users/source/archives/ded.vcs/src/RCS/ded.c,v 12.3
 #define	MAIN
 #include	"ded.h"
 
+MODULE_ID("$Header: /users/source/archives/ded.vcs/src/RCS/ded.c,v 12.41 1995/09/03 20:02:52 tom Exp $")
+
 #define	EDITOR	DEFAULT_EDITOR
 #define	BROWSE	DEFAULT_BROWSE
 #define	PAGER	DEFAULT_PAGER
@@ -163,10 +161,10 @@ public	int	in_screen;		/* TRUE if we have init'ed */
 /*
  * Other, private main-module state:
  */
-static	char	whoami[BUFSIZ],		/* my execution-path */
+static	char	whoami[MAXPATHLEN],	/* my execution-path */
 		*log_opt,		/* log-file option */
 		*tree_opt,		/* my file-tree database */
-		howami[BUFSIZ];		/* my help-file */
+		howami[MAXPATHLEN];	/* my help-file */
 
 /************************************************************************
  *	local procedures						*
@@ -545,7 +543,7 @@ public	char *	fixname(
 	_DCL(RING *,	gbl)
 	_DCL(int,	j)
 {
-	static	char	nbfr[BUFSIZ];
+	static	char	nbfr[MAXPATHLEN];
 	(void)ded2string(gbl, nbfr, sizeof(nbfr), gNAME(j), TRUE);
 	return (nbfr);
 }
@@ -619,7 +617,7 @@ private	RING *	run_editor(
 {
 	Stat_t	sb;
 	char	*editor = (readonly ? ENV(BROWSE) : ENV(EDITOR));
-	char	tpath[BUFSIZ];
+	char	tpath[MAXPATHLEN];
 
 	dlog_name(cNAME);
 	switch (realstat(gbl, gbl->curfile, &sb)) {
@@ -871,9 +869,9 @@ _MAIN
 	auto	int	c,
 			count,
 			lastc	= '?';
-	auto	char	tree_bfr[BUFSIZ],
-			tpath[BUFSIZ],
-			dpath[BUFSIZ];
+	auto	char	tree_bfr[MAXPATHLEN],
+			tpath[MAXPATHLEN],
+			dpath[MAXPATHLEN];
 
 	RING	*gbl = ring_alloc();
 
@@ -992,7 +990,9 @@ _MAIN
 
 	argc -= optind;
 	argv += optind;
+	first_scan = TRUE;
 	ring_args(gbl, argc, argv);
+	first_scan = FALSE;
 
 	mark_W = (LINES/2);
 	openVIEW(gbl);

@@ -1,5 +1,5 @@
 #if	!defined(NO_IDENT)
-static	char	Id[] = "$Id: dedring.c,v 12.7 1994/11/22 23:44:05 tom Exp $";
+static	char	Id[] = "$Id: dedring.c,v 12.9 1995/09/03 23:15:43 tom Exp $";
 #endif
 
 /*
@@ -7,6 +7,7 @@ static	char	Id[] = "$Id: dedring.c,v 12.7 1994/11/22 23:44:05 tom Exp $";
  * Author:	T.E.Dickey
  * Created:	27 Apr 1988
  * Modified:
+ *		03 Sep 1995, polished debug-logging
  *		22 Nov 1994, quitVIEW fix.
  *		16 Oct 1994, fixed a missing abspath in 'E' ring operation.
  *		29 Oct 1993, ifdef-ident, port to HP/UX.
@@ -70,7 +71,7 @@ static	RING	*ring;		/* directory-list */
 /*
  * Dump the list of ring-paths
  */
-private	void	dump_ring(
+private	void	DumpRing(
 	_ARX(RING *,	gbl)
 	_AR1(char *,	tag)
 		)
@@ -86,8 +87,15 @@ private	void	dump_ring(
 			p, p->new_wd);
 	}
 }
+
+#define dump_ring(p)    DumpRing p;
+#define dump_comment(p) dlog_comment p;
+
 #else
-#define	dump_ring(g,s)
+
+#define dump_ring(p)    /*NOTHING*/
+#define dump_comment(p) /*NOTHING*/
+
 #endif
 
 /*
@@ -115,6 +123,10 @@ private	void	ring_copy(
 	SAVE(top_argc);
 	for (j = 0; j < CCOL_MAX; j++)
 		SAVE(cmdcol[j]);
+	for (j = 0; j < PORT_MAX; j++) {
+		SAVE(base_of[j]);
+		SAVE(item_of[j]);
+	}
 	SAVE(top_argv);
 	SAVE(clr_sh);
 	SAVE(Xbase);
@@ -431,10 +443,8 @@ public	RING *	dedring(
 		*newp	= 0;
 	int	success	= TRUE;
 
-#ifdef	TEST
-	dlog_comment("dedring(%d%c) %s\n", count, cmd, path);
-	dump_ring(gbl, "before");
-#endif
+	dump_comment(("dedring(%d%c) %s\n", count, cmd, path))
+	dump_ring((gbl, "before"))
 
 	/*
 	 * Get the appropriate state:
@@ -473,6 +483,10 @@ public	RING *	dedring(
 		Remove(path);
 		path = newp->new_wd;
 		quitVIEW(gbl);
+		break;
+	default:
+		dump_comment(("dedring unexpected command: %c\n", cmd))
+		break;
 	}
 
 	/*
@@ -513,11 +527,11 @@ public	RING *	dedring(
 		if (!(success = do_a_scan(newp)))
 			(void)chdir(oldp->new_wd);
 	}
-	dump_ring(gbl, "debug");
-#ifdef	TEST
-	dlog_comment("...%s\n", success ? "ok" : "not-successful");
-	dump_ring(newp, "after");
-#endif
+
+	dump_ring((gbl, "debug"))
+	dump_comment(("...%s\n", success ? "ok" : "not-successful"))
+	dump_ring((newp, "after"))
+
 	return (success ? newp : 0);
 }
 
@@ -589,12 +603,10 @@ public	void	ring_rename(
 	abspath(oldname = pathcat(oldtemp, gbl->new_wd, oldname));
 	abspath(newname = pathcat(newtemp, gbl->new_wd, newname));
 
-#ifdef	TEST
-	dlog_comment("ring_rename\n");
-	dlog_comment("...old:%s\n", oldname);
-	dlog_comment("...new:%s\n", newname);
-	dump_ring(gbl, "before");
-#endif
+	dump_comment(("ring_rename\n"))
+	dump_comment(("...old:%s\n", oldname))
+	dump_comment(("...new:%s\n", newname))
+	dump_ring((gbl, "before"))
 
 	for (p = ring; (p != 0) && (p != mark); p = q) {
 		q = p->_link;
@@ -614,9 +626,8 @@ public	void	ring_rename(
 					pathcat(tmp2, newname, s + len));
 			}
 
-#ifdef	TEST
-			dlog_comment(".moved:%s\n", p->new_wd);
-#endif
+			dump_comment((".moved:%s\n", p->new_wd))
+
 			/*
 			 * If we renamed our current directory, reset.
 			 */
@@ -635,5 +646,5 @@ public	void	ring_rename(
 				mark = p;
 		}
 	}
-	dump_ring(gbl, "after");
+	dump_ring((gbl, "after"))
 }

@@ -1,7 +1,3 @@
-#if	!defined(NO_IDENT)
-static	char	Id[] = "$Id: dedmake.c,v 12.3 1994/07/02 20:29:40 tom Exp $";
-#endif
-
 /*
  * Title:	dedmake.c (make entry for ded)
  * Author:	T.E.Dickey
@@ -23,6 +19,8 @@ static	char	Id[] = "$Id: dedmake.c,v 12.3 1994/07/02 20:29:40 tom Exp $";
  */
 
 #include	"ded.h"
+
+MODULE_ID("$Id: dedmake.c,v 12.5 1995/09/03 19:40:25 tom Exp $")
 
 private	int	makeit(
 	_ARX(RING *,	gbl)
@@ -92,7 +90,7 @@ private	int	made_or_quit(
 	auto	Stat_t	sb;
 	auto	int	ok;
 
-	ok = edittext(gbl, firstc, gbl->cmdcol[CCOL_NAME], BUFSIZ, to_edit);
+	ok = edittext(gbl, firstc, gbl->cmdcol[CCOL_NAME], MAXPATHLEN, to_edit);
 
 	clearmsg();
 
@@ -126,7 +124,7 @@ public	void	dedmake(
 {
 	auto	int	mode;
 	auto	int	hard	= -1;
-	auto	char	bfr[BUFSIZ];
+	auto	char	bfr[MAXPATHLEN];
 
 	/* make a dummy entry */
 	switch (firstc) {

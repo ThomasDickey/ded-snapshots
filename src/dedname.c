@@ -1,7 +1,3 @@
-#if	!defined(NO_IDENT)
-static	char	Id[] = "$Id: dedname.c,v 12.5 1994/05/24 01:01:32 tom Exp $";
-#endif
-
 /*
  * Title:	dedname.c (ded rename)
  * Author:	T.E.Dickey
@@ -22,6 +18,8 @@ static	char	Id[] = "$Id: dedname.c,v 12.5 1994/05/24 01:01:32 tom Exp $";
 
 #include	"ded.h"
 
+MODULE_ID("$Id: dedname.c,v 12.7 1995/09/03 19:42:14 tom Exp $")
+
 int	dedname(
 	_ARX(RING *,	gbl)
 	_ARX(int,	x)
@@ -32,7 +30,7 @@ int	dedname(
 	_DCL(char *,	newname)
 {
 	int	ok	= FALSE;
-	char	oldname[BUFSIZ];
+	char	oldname[MAXPATHLEN];
 
 	if (strcmp(strcpy(oldname, gNAME(x)), newname)) {
 		dlog_comment("rename \"%s\" (name=%s)\n", newname, gNAME(x));
@@ -54,7 +52,7 @@ int	dedname(
 			}
 			ok = TRUE;
 		} else {
-			char	bfr[BUFSIZ];
+			char	bfr[MAXPATHLEN];
 			FORMAT(bfr, "cannot rename \"%s\"", gNAME(x));
 			dedmsg(gbl, bfr);
 			return (-1);

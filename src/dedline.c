@@ -1,7 +1,3 @@
-#if	!defined(NO_IDENT)
-static	char	Id[] = "$Id: dedline.c,v 12.13 1995/07/30 18:00:21 tom Exp $";
-#endif
-
 /*
  * Title:	dedline.c (directory-editor inline editing)
  * Author:	T.E.Dickey
@@ -55,6 +51,8 @@ static	char	Id[] = "$Id: dedline.c,v 12.13 1995/07/30 18:00:21 tom Exp $";
  */
 
 #include	"ded.h"
+
+MODULE_ID("$Id: dedline.c,v 12.15 1995/09/03 19:39:36 tom Exp $")
 
 #define	CHMOD(n)	(gSTAT(n).st_mode & 07777)
 #define	OWNER(n)	((geteuid() == 0) || (gSTAT(x).st_uid == geteuid()))
@@ -149,7 +147,7 @@ private	int	subs_path(
 {
 	register size_t	len = strlen(path);
 	auto	 int	changed = FALSE;
-	auto	 char	tmp[BUFSIZ];
+	auto	 char	tmp[MAXPATHLEN];
 
 	if (!result[len]) {		/* exact match ? */
 		if (!strcmp(result,path)) {
@@ -173,7 +171,7 @@ private	void	subs_leaf(
 	_DCL(char *,	leaf)
 	_DCL(char *,	result)
 {
-	auto	 char	tmp[BUFSIZ];
+	auto	 char	tmp[MAXPATHLEN];
 	auto	 size_t	len = strlen(leaf);
 
 	while (*result) {		/* substitute current-name */
@@ -266,7 +264,7 @@ private	char *	subslink(
 	_DCL(char *,	bfr)
 	_DCL(int,	x)
 {
-	auto	char	tmp[BUFSIZ];
+	auto	char	tmp[MAXPATHLEN];
 	register char	*s = strcpy(tmp, bfr);
 	register char	*d = bfr;
 	register char	*t;
@@ -640,7 +638,7 @@ public	void	editname (
 {
 	auto	 int	changed	= 0;
 	register int	j;
-	auto	 char	bfr[BUFSIZ];
+	auto	 char	bfr[MAXPATHLEN];
 
 #define	EDITNAME(n)	EDITTEXT('=', CCOL_NAME, sizeof(bfr), strcpy(bfr, n))
 
@@ -683,7 +681,7 @@ public	void	editlink(
 	auto	 int	col,
 			changed	= 0;
 	register int	j;
-	auto	 char	bfr[BUFSIZ];
+	auto	 char	bfr[MAXPATHLEN];
 
 	cmd_link = (cmd == '<');
 

@@ -3,7 +3,7 @@
 
 #ifdef	MAIN
 #if	!defined(NO_IDENT)
-static	char	*ded_h = "$Id: ded.h,v 12.34 1994/12/16 13:29:34 tom Exp $";
+static	char	*ded_h = "$Id: ded.h,v 12.37 1995/09/03 23:08:07 tom Exp $";
 #endif
 #endif	/* MAIN */
 
@@ -128,6 +128,8 @@ static	char	*ded_h = "$Id: ded.h,v 12.34 1994/12/16 13:29:34 tom Exp $";
 			/* total number of columns */
 #define	CCOL_MAX	6
 
+#define	PORT_MAX	2	/* number of viewports */
+
 /*
  * The RING structure saves global data which lets us restore the state
  * of a file-list (see "ded.h"):
@@ -147,6 +149,8 @@ static	char	*ded_h = "$Id: ded.h,v 12.34 1994/12/16 13:29:34 tom Exp $";
 
 	int	cmdcol[CCOL_MAX],/* column in which to show cursor */
 				/* 0=mode, 1=uid/gid, 2=normal */
+		base_of[PORT_MAX],/* nominal base-file of viewport */
+		item_of[PORT_MAX],/* nominal current-file of viewport */
 		clr_sh,		/* true if we clear-screen after SHELL	*/
 		Xbase, Ybase,	/* viewport (for scrolling) */
 		curfile,	/* current file on which to operate */
@@ -208,6 +212,7 @@ MAIN	int	mark_W;		/* row of work-area marker */
 MAIN	int	tree_visible;	/* denotes filelist vs directory-tree */
 MAIN	int	gets_active;	/* true while in 'dlog_string()' */
 MAIN	HIST	*cmd_history;	/* command-history shared by all filelists */
+MAIN	int	first_scan;	/* true while processing command-line scan */
 
 
 /* *** "boxchars.c" *** */
@@ -652,7 +657,8 @@ extern	void	ft_insert(
 
 extern	void	ft_remove(
 		_arx(char *,	path)
-		_ar1(int,	all));
+		_arx(int,	links)
+		_ar1(int,	dots));
 
 extern	void	ft_purge(
 		_ar1(RING *,	gbl));

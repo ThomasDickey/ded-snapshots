@@ -1,12 +1,10 @@
-#if	!defined(NO_IDENT)
-static	char	Id[] = "$Id: dedview.c,v 12.22 1995/01/28 14:07:16 tom Exp $";
-#endif
-
 /*
  * Title:	dedview.c (viewport procedures)
  * Author:	T.E.Dickey
  * Created:	03 Apr 1992, from 'ded.c'
  * Modified:
+ *		03 Sep 1995, mods to keep base_file, curfile more stable when
+ *			     switching viewports.
  *		19 Oct 1994, mods for color
  *		16 Dec 1993, added 'mrkfile' flag to cleanup 'markC()' logic.
  *		19 Nov 1993, added 'row2VIEW()' for mouse-support.
@@ -21,7 +19,8 @@ static	char	Id[] = "$Id: dedview.c,v 12.22 1995/01/28 14:07:16 tom Exp $";
 
 #include	"ded.h"
 
-#define	MAXVIEW	2		/* number of viewports */
+MODULE_ID("$Id: dedview.c,v 12.24 1995/09/03 23:48:42 tom Exp $")
+
 #define	MINLIST	2		/* minimum length of file-list + header */
 #define	MINWORK	3		/* minimum size of work-area */
 
@@ -47,10 +46,10 @@ typedef	struct	{
 		RING	*gbl;		/* ...so dedring can identify	*/
 	} VIEW;
 
-static	VIEW	viewlist[MAXVIEW],
+static	VIEW	viewlist[PORT_MAX],
 		*vue = viewlist;
 
-static	int	curview,		/* 0..MAXVIEW			*/
+static	int	curview,		/* 0..PORT_MAX			*/
 		maxview;		/* current number of viewports	*/
 
 /************************************************************************
@@ -58,15 +57,44 @@ static	int	curview,		/* 0..MAXVIEW			*/
  ************************************************************************/
 
 /*
- * Store parameters corresponding to the current viewport
+ * Copy viewport limits from the current viewport, used when splitting a
+ * viewport.
+ */
+private	void	copy_view(
+	_AR1(RING *,	gbl))
+	_DCL(RING *,	gbl)
+{
+	int	n;
+
+	TRACE(("...copy_view %d to %d...\n", curview, maxview))
+	for (n = maxview; n < PORT_MAX; n++) {
+		gbl->base_of[n] = vue->base_file;
+		gbl->item_of[n] = gbl->curfile;
+		TRACE(("...copy_view[%d] base_of=%d, item_of=%d\n", n, gbl->base_of[n], gbl->item_of[n]))
+	}
+}
+
+/*
+ * Store/restore parameters corresponding to the current viewport
  */
 private	void	save_view (
 	_AR1(RING *,	gbl))
 	_DCL(RING *,	gbl)
 {
 	register VIEW *p = &viewlist[curview];
-	p->curfile = gbl->curfile;
-	p->gbl   = gbl;
+	register RING *q = p->gbl;
+
+	TRACE(("...save_view port=%d\n", curview))
+	if (q != 0) {
+		TRACE(("...save_view old base_of=%d, item_of=%d\n", vue->base_file, vue->curfile))
+		q->base_of[curview] = vue->base_file;
+		q->item_of[curview] = vue->gbl->curfile;
+	}
+	p->gbl       = gbl;
+	p->base_file = gbl->base_of[curview];
+	p->curfile   = gbl->item_of[curview];
+	gbl->curfile = p->curfile;
+	TRACE(("...save_view new base_of=%d, item_of=%d\n", vue->base_file, vue->curfile))
 }
 
 /*
@@ -144,6 +172,7 @@ private	RING *	quit_view (
 {
 	register int j;
 
+	TRACE(("quit_view %d of %d\n", curview, maxview))
 	if (maxview > 1) {
 		maxview--;
 		for (j = curview; j < maxview; j++)
@@ -275,6 +304,7 @@ private	void	forward(
 	_DCL(RING *,	gbl)
 	_DCL(int,	n)
 {
+	TRACE(("forward %d\n", n))
 	setup_view(gbl);
 	while (n-- > 0) {
 		if (vue->last_file < (gbl->numfiles - 1)) {
@@ -292,6 +322,7 @@ private	void	backward(
 	_DCL(RING *,	gbl)
 	_DCL(int,	n)
 {
+	TRACE(("backward %d\n", n))
 	setup_view(gbl);
 	while (n-- > 0) {
 		if (vue->base_file > 0) {
@@ -372,7 +403,7 @@ public	int	to_file (
 {
 	register int	code;
 
-	TRACE(("to_file\n"))
+	TRACE(("to_file %d in %s\n", gbl->curfile, gbl->new_wd))
 	setup_view(gbl);
 
 	code = !FILE_VISIBLE(vue, gbl->curfile);
@@ -629,10 +660,11 @@ public	void	openVIEW (
 	_AR1(RING *,	gbl))
 	_DCL(RING *,	gbl)
 {
-	if (maxview < MAXVIEW) {
+	if (maxview < PORT_MAX) {
 		int	adj,
 			r_head;
 
+		copy_view(gbl);
 		save_view(gbl);
 		if (maxview) {
 			adj	= (r_head = file2row(gbl->curfile) + 1)
