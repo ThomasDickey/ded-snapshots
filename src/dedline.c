@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	Id[] = "$Id: dedline.c,v 11.2 1992/08/11 16:58:46 dickey Exp $";
+static	char	Id[] = "$Id: dedline.c,v 11.3 1992/08/14 07:23:35 dickey Exp $";
 #endif
 
 /*
@@ -382,7 +382,9 @@ public	void	editprot _ONE(RING *,gbl)
 	auto	int
 		opt	= gbl->P_opt,
 		changed	= FALSE,
-		done	= FALSE;
+		done	= FALSE,
+		init	= TRUE,
+		oldmode	= sb->st_mode;
 #ifdef	S_IFLNK
 	int	at_flag	= at_save(gbl);
 #endif
@@ -395,6 +397,11 @@ public	void	editprot _ONE(RING *,gbl)
 	int	rwx,
 		cols[3];
 
+		if (init) {
+			x = 0;
+			init = FALSE;
+			sb->st_mode = oldmode;
+		}
 		showLINE(gbl, gbl->curfile);
 
 		rwx	= (gbl->P_opt ? 1 : 3),
@@ -406,6 +413,7 @@ public	void	editprot _ONE(RING *,gbl)
 		switch (c = ReplayChar()) {
 		case '\n':
 		case 'p':
+			ReplayFinish();
 			changed = change_protection(gbl);
 			done = TRUE;
 			break;
@@ -418,6 +426,12 @@ public	void	editprot _ONE(RING *,gbl)
 			break;
 		case TO_LAST:
 			x = 2;
+			break;
+		case ARO_UP:
+			init = up_inline();
+			break;
+		case ARO_DOWN:
+			init = down_inline();
 			break;
 		case ARO_RIGHT:
 		case '\f':

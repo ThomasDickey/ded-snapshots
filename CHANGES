@@ -1,3 +1,10 @@
+1992-08-14  dickey@software.org
+
+	* src/inline.c: make args to 'find_item()' module-level, so I can add
+	new interface 'up_inline()' and 'down_inline()'
+
+	* src/dedline.c: use new interface up_inline/down_inline (untested)
+
 1992-08-13  dickey@software.org
 
 	* src/ded.h: added ReplayFinish
