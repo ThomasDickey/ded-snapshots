@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	sccs_id[] = "@(#)ded.c	1.57 88/09/12 15:13:27";
+static	char	sccs_id[] = "@(#)ded.c	1.58 89/01/18 10:45:51";
 #endif	lint
 
 /*
@@ -7,6 +7,7 @@ static	char	sccs_id[] = "@(#)ded.c	1.57 88/09/12 15:13:27";
  * Author:	T.E.Dickey
  * Created:	09 Nov 1987
  * Modified:
+ *		18 Jan 1989, added '#' command.
  *		12 Sep 1988, show blip during '@'.  Added 'c' command.
  *		02 Sep 1988, added '>' command.
  *		01 Sep 1988, trim repeats in 'argv[]'.
@@ -1041,6 +1042,14 @@ char	tpath[BUFSIZ],
 
 	case 'C':	if (++dateopt > 2)	dateopt = 0;
 			showFILES();
+			break;
+
+	case '#':	/* tag files with duplicated fields */
+			count = tag_count;
+			if ((tag_count = deduniq()) || count)
+				showFILES();
+			else
+				showC();
 			break;
 
 			/* tag/untag specific files */

@@ -1,3 +1,17 @@
+1989-01-18  dickey@software.org
+
+	* src/ded.hlp: documented '#' command.
+
+	* src/version.h: '#' command marks duplicated sort-keys
+
+	* src/deduniq.c: New file.
+
+	* src/ded.c: added '#' command to mark duplicated sort-keys
+
+	* src/dedsort.c: added 'dedsort_cmp()' entrypoint for 'deduniq()'
+
+	* src/Makefile: added deduniq.c module for '#' command
+
 1988-09-15  dickey@software.org
 
 	* src/README: more about blip

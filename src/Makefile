@@ -1,4 +1,4 @@
-# @(#)Makefile	1.22 88/09/12 11:21:07
+# @(#)Makefile	1.23 89/01/18 09:57:13
 # MAKE-file for directory editor
 #
 ####### (Environment) ##########################################################
@@ -32,6 +32,7 @@ CSRC	=\
 	dedsigs.c \
 	dedsort.c \
 	dedtype.c \
+	deduniq.c \
 	dedwait.c \
 	ded2s.c \
 	ftree.c
@@ -53,6 +54,7 @@ OBJS	= \
 	dedsigs.o \
 	dedsort.o \
 	dedtype.o \
+	deduniq.o \
 	dedwait.o \
 	ded2s.o \
 	ftree.o
