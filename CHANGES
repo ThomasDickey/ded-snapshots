@@ -1,3 +1,8 @@
+1998-02-19  Thomas E. Dickey  <dickey@clark.net>
+
+	* src/ftree.c:
+	reuse 'apollo' code to attempt resize/repaint on 'w' command
+
 1998-02-16  Thomas E. Dickey  <dickey@clark.net>
 
 	* src/ded2s.c, src/ded.c, src/ded.h, src/dedring.c: rename:O_opt

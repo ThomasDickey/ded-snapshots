@@ -129,7 +129,7 @@
 
 #include	<fcntl.h>
 
-MODULE_ID("$Id: ftree.c,v 12.51 1998/02/16 01:10:01 tom Exp $")
+MODULE_ID("$Id: ftree.c,v 12.52 1998/02/19 20:19:17 tom Exp $")
 
 #define	Null	(char *)0	/* some NULL's are simply 0 */
 
@@ -1858,7 +1858,7 @@ public	RING *	ft_view(
 
 		/* Screen refresh */
 		case 'w':
-#ifdef	apollo
+#ifdef SIGWINCH
 				if (resizewin()) {
 					dlog_comment("resizewin(%d,%d)\n",
 						LINES, COLS);
@@ -1866,7 +1866,7 @@ public	RING *	ft_view(
 					row = showbase;
 					break;
 				}
-#endif	/* apollo */
+#endif
 				wrepaint(stdscr,0);
 				break;
 
