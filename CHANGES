@@ -1,3 +1,7 @@
+2001-07-11  Thomas E. Dickey  <dickey@clark.net>
+
+	* src/dedring.c: rename 'ring' to work with U/Win
+
 2001-06-22  Thomas E. Dickey  <dickey@clark.net>
 
 	* install-sh: newer version uses ':' rather than 'true'

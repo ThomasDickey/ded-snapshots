@@ -56,7 +56,7 @@
 
 #include	"ded.h"
 
-MODULE_ID("$Id: dedring.c,v 12.19 2000/10/19 09:44:28 tom Exp $")
+MODULE_ID("$Id: dedring.c,v 12.20 2001/07/11 22:26:04 tom Exp $")
 
 #define	CMP_PATH(a,b)	pathcmp(a, b->new_wd)
 
@@ -64,6 +64,7 @@ MODULE_ID("$Id: dedring.c,v 12.19 2000/10/19 09:44:28 tom Exp $")
 	/*ARGSUSED*/
 	def_ALLOC(RING)
 
+#define ring DirectoryList	/* U/Win defines a bogus ring() in curses.h */
 static	RING	*ring;		/* directory-list */
 
 /************************************************************************
