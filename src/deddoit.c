@@ -1,57 +1,19 @@
 #ifndef	lint
-static	char	Id[] = "$Id: deddoit.c,v 9.0 1991/05/15 13:38:37 ste_cm Rel $";
+static	char	Id[] = "$Id: deddoit.c,v 9.1 1991/06/28 08:17:45 dickey Exp $";
 #endif
 
 /*
  * Title:	deddoit.c (do it for ded!)
  * Author:	T.E.Dickey
  * Created:	17 Nov 1987
- * $Log: deddoit.c,v $
- * Revision 9.0  1991/05/15 13:38:37  ste_cm
- * BASELINE Mon Jun 10 10:09:56 1991 -- apollo sr10.3
- *
- *		Revision 8.3  91/05/15  13:38:37  dickey
- *		apollo sr10.3 cpp complains about tag on #endif
- *		
- *		Revision 8.2  91/04/18  08:10:16  dickey
- *		modified interface of 'dedwait()'
- *		
- *		Revision 8.1  91/04/16  08:51:20  dickey
- *		absorb backslash only when it precedes "#" or "%", to make
- *		typing commands with backslashes simpler (though inconsistent).
- *		also, made the static buffers auto (cleaner code).
- *		
- *		Revision 8.0  90/03/06  08:27:14  ste_cm
- *		BASELINE Mon Aug 13 15:06:41 1990 -- LINCNT, ADA_TRANS
- *		
- *		Revision 7.0  90/03/06  08:27:14  ste_cm
- *		BASELINE Mon Apr 30 09:54:01 1990 -- (CPROTO)
- *		
- *		Revision 6.0  90/03/06  08:27:14  ste_cm
- *		BASELINE Thu Mar 29 07:37:55 1990 -- maintenance release (SYNTHESIS)
- *		
- *		Revision 5.2  90/03/06  08:27:14  dickey
- *		lint
- *		
- *		Revision 5.1  90/01/30  08:43:30  dickey
- *		pass 'sense' as argument to 'deddoit()' so user can alter the
- *		'clr_sh' flag explicitly.
- *		
- *		Revision 5.0  89/03/14  13:19:15  ste_cm
- *		BASELINE Fri Oct 27 12:27:25 1989 -- apollo SR10.1 mods + ADA_PITS 4.0
- *		
- *		Revision 4.0  89/03/14  13:19:15  ste_cm
- *		BASELINE Thu Aug 24 10:20:06 EDT 1989 -- support:navi_011(rel2)
- *		
- *		Revision 3.0  89/03/14  13:19:15  ste_cm
- *		BASELINE Mon Jun 19 14:21:57 EDT 1989
- *		
- *		Revision 2.0  89/03/14  13:19:15  ste_cm
- *		BASELINE Thu Apr  6 13:14:13 EDT 1989
- *		
- *		Revision 1.16  89/03/14  13:19:15  dickey
- *		sccs2rcs keywords
- *		
+ * Modified:
+ *		18 Apr 1991, modified interface of 'dedwait()'
+ *		16 Apr 1991, absorb backslash only when it precedes "#" or "%",
+ *			     to make typing commands with backslashes simpler
+ *			     (though inconsistent).  Also, made the static
+ *			     buffers auto (cleaner code).
+ *		30 Jan 1990, pass 'sense' as argument to 'deddoit()' so user
+ *			     can alter the 'clr_sh' flag explicitly.
  *		14 Mar 1989, interface to 'dlog' module.
  *		03 Aug 1988, Use 'dedsigs()' so we can fix signals at one point.
  *		02 Aug 1988, so that if nothing is read from 'rawgets()', we
@@ -117,7 +79,7 @@ char	*b_subs;
 	char	name[BUFSIZ],
 	*from	= 0;
 
-	if (strchr("NHRET", (size_t)code))
+	if (strchr("NHRET", code))
 		abspath(pathcat(name, new_wd, cNAME));
 	else
 		(void)strcpy(name, cNAME);

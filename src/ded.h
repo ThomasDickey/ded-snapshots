@@ -1,6 +1,6 @@
 #ifdef	MAIN
 #ifndef	lint
-static	char	*ded_h = "$Id: ded.h,v 9.0 1991/05/15 13:28:33 ste_cm Rel $";
+static	char	*ded_h = "$Id: ded.h,v 9.1 1991/06/28 08:09:19 dickey Exp $";
 #endif	/* lint */
 #endif
 
@@ -15,6 +15,7 @@ static	char	*ded_h = "$Id: ded.h,v 9.0 1991/05/15 13:28:33 ste_cm Rel $";
 #include	<ctype.h>
 #include	<sys/errno.h>
 #include	"cmdch.h"
+extern	void	blip();
 extern	char	*getenv();
 extern	int	errno;
 

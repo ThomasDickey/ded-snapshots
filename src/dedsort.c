@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	Id[] = "$Id: dedsort.c,v 9.0 1991/05/16 07:43:46 ste_cm Rel $";
+static	char	Id[] = "$Id: dedsort.c,v 9.1 1991/06/28 07:47:56 dickey Exp $";
 #endif
 
 /*
@@ -7,9 +7,13 @@ static	char	Id[] = "$Id: dedsort.c,v 9.0 1991/05/16 07:43:46 ste_cm Rel $";
  * Author:	T.E.Dickey
  * Created:	11 Nov 1987
  * $Log: dedsort.c,v $
- * Revision 9.0  1991/05/16 07:43:46  ste_cm
- * BASELINE Mon Jun 10 10:09:56 1991 -- apollo sr10.3
+ * Revision 9.1  1991/06/28 07:47:56  dickey
+ * added P-sort (same as p-sort, but keeps "+" for apollo-sr10
+ * extended-acls sorted into groups)
  *
+ *		Revision 9.0  91/05/16  07:43:46  ste_cm
+ *		BASELINE Mon Jun 10 10:09:56 1991 -- apollo sr10.3
+ *		
  *		Revision 8.1  91/05/16  07:43:46  dickey
  *		apollo sr10.3 cpp complains about tag on #endif
  *		
@@ -72,6 +76,7 @@ extern	char	*ftype2();
 extern	char	*pathleaf();
 
 #ifdef	apollo_sr10
+#include	"acl.h"
 extern	char	*type_uid2s();
 #endif
 
@@ -151,10 +156,23 @@ FLIST	*p1, *p2;
 			break;
 
 			/* sort filemodes within the mode-character */
+#ifdef	apollo_sr10
+	case 'P':
+#endif
 	case 'p':	cmp	= modechar(p1->s.st_mode)
 				- modechar(p2->s.st_mode);
-			if (!cmp)
+			if (!cmp) {
 				cmp = CMP(st_mode);
+#ifdef	apollo_sr10
+				if (!cmp && sortopt == 'P') {
+				int	x1 = (is_EXTENDED_ACL(p1->s.st_rfu4)),
+					x2 = (is_EXTENDED_ACL(p2->s.st_rfu4));
+					cmp = (x1 && !x2)
+						? -1
+						: (!x1 && x2) ? 1 : 0;
+				}
+#endif
+			}
 			break;
 
 			/* sort by the various file dates: */

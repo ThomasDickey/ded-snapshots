@@ -1,4 +1,4 @@
-$Id: ded.hlp,v 9.0 1991/04/18 09:41:21 ste_cm Rel $
+$Id: ded.hlp,v 9.1 1991/06/28 07:52:28 dickey Exp $
 
 DED (Directory EDitor)
 ======================
@@ -102,6 +102,7 @@ Display-Adjustment:
 		o	object-types
 		O	object-types (numeric)
 		p	file-protection mask/mode.
+		P	file-protection mask/mode, with extended-acl flag.
 		r	last-access date
 		s	size
 		t	filetype (after first '.')

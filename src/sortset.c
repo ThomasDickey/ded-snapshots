@@ -1,37 +1,16 @@
 #ifndef	lint
-static	char	what[] = "$Id: sortset.c,v 9.0 1991/05/16 07:55:11 ste_cm Rel $";
+static	char	what[] = "$Id: sortset.c,v 9.2 1991/06/28 08:14:44 dickey Exp $";
 #endif
 
 /*
  * Title:	sortset.c (set sort-parms)
  * Author:	T.E.Dickey
  * Created:	01 Dec 1989 (from ded.c)
- * $Log: sortset.c,v $
- * Revision 9.0  1991/05/16 07:55:11  ste_cm
- * BASELINE Mon Jun 10 10:09:56 1991 -- apollo sr10.3
- *
- *		Revision 8.1  91/05/16  07:55:11  dickey
- *		apollo sr10.3 cpp complains about tag on #endif
- *		
- *		Revision 8.0  90/03/06  08:24:51  ste_cm
- *		BASELINE Mon Aug 13 15:06:41 1990 -- LINCNT, ADA_TRANS
- *		
- *		Revision 7.0  90/03/06  08:24:51  ste_cm
- *		BASELINE Mon Apr 30 09:54:01 1990 -- (CPROTO)
- *		
- *		Revision 6.0  90/03/06  08:24:51  ste_cm
- *		BASELINE Thu Mar 29 07:37:55 1990 -- maintenance release (SYNTHESIS)
- *		
- *		Revision 5.4  90/03/06  08:24:51  dickey
- *		lint
- *		
- *		Revision 5.3  89/12/11  09:15:20  dickey
- *		corrected call on 'dlog_char()'
- *		
- *		Revision 5.2  89/12/08  10:23:00  dickey
- *		added ':' special-sort to allow user to scroll among all
- *		sort options before selecting.
- *		
+ * Modified:
+ *		28 Jun 1991, added 'P' (apollo sr10)
+ *		11 Dec 1989, corrected call on 'dlog_char()'
+ *		08 Dec 1989, added ':' special-sort to allow user to scroll
+ *			     among all sort options before selecting.
  *
  * Function:	Set sort-argument for ded, encapsulating knowledge of the
  *		particular sort-keys available (see also 'dedsort.c')
@@ -56,6 +35,9 @@ static	char	*sort_msg[] = {
 	,"O - object type-uid (numeric)"
 #endif	/* apollo_sr10 */
 	,"p - protection code"
+#ifdef	apollo_sr10
+	,"P - protection code, with extended-acl flag"
+#endif
 	,"r - atime (access time)"
 	,"s - size (bytes)"
 	,"t - suffix/type (after first '.')"
@@ -81,7 +63,7 @@ sortset(ord,opt)
 			sortc[k++] = *sort_msg[j];
 		sortc[k] = EOS;
 	}
-	if (strchr(sortc, (size_t)opt) != 0) {
+	if (strchr(sortc, opt) != 0) {
 		dateopt = opt == 'c'  ? 1 : (opt == 'r' ? 0 : 2);
 		sortopt = opt;
 		sortord = (ord == 'r');

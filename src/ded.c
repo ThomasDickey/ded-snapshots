@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	Id[] = "$Header: /users/source/archives/ded.vcs/src/RCS/ded.c,v 9.1 1991/06/20 08:59:51 dickey Exp $";
+static	char	Id[] = "$Header: /users/source/archives/ded.vcs/src/RCS/ded.c,v 9.2 1991/06/28 08:18:03 dickey Exp $";
 #endif
 
 /*
@@ -7,9 +7,12 @@ static	char	Id[] = "$Header: /users/source/archives/ded.vcs/src/RCS/ded.c,v 9.1 
  * Author:	T.E.Dickey
  * Created:	09 Nov 1987
  * $Log: ded.c,v $
- * Revision 9.1  1991/06/20 08:59:51  dickey
- * don't need "-" special argument to make pipe-args.
+ * Revision 9.2  1991/06/28 08:18:03  dickey
+ * lint (apollo sr10.3)
  *
+ *		Revision 9.1  91/06/20  09:19:10  dickey
+ *		don't need "-" special argument to make pipe-args.
+ *		
  *		Revision 9.0  91/05/31  08:27:42  ste_cm
  *		BASELINE Mon Jun 10 10:09:56 1991 -- apollo sr10.3
  *		
@@ -241,7 +244,7 @@ extern	char	**vecalloc();
 #define	PAGER	"/usr/ucb/more"
 #endif
 
-#define	needSCCS(c)	(!Z_opt && (strchr("vyZz",(size_t)c) != 0))
+#define	needSCCS(c)	(!Z_opt && (strchr("vyZz",c) != 0))
 
 #define	MAXVIEW	2		/* number of viewports */
 #define	MINLIST	2		/* minimum length of file-list + header */

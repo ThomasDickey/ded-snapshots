@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	Id[] = "$Id: dedline.c,v 9.0 1991/05/15 13:40:16 ste_cm Rel $";
+static	char	Id[] = "$Id: dedline.c,v 9.1 1991/06/28 07:36:38 dickey Exp $";
 #endif
 
 /*
@@ -7,9 +7,13 @@ static	char	Id[] = "$Id: dedline.c,v 9.0 1991/05/15 13:40:16 ste_cm Rel $";
  * Author:	T.E.Dickey
  * Created:	01 Aug 1988 (from 'ded.c')
  * $Log: dedline.c,v $
- * Revision 9.0  1991/05/15 13:40:16  ste_cm
- * BASELINE Mon Jun 10 10:09:56 1991 -- apollo sr10.3
+ * Revision 9.1  1991/06/28 07:36:38  dickey
+ * corrected code which tests for user's id (look at effective
+ * uid, not real-uid).
  *
+ *		Revision 9.0  91/05/15  13:40:16  ste_cm
+ *		BASELINE Mon Jun 10 10:09:56 1991 -- apollo sr10.3
+ *		
  *		Revision 8.2  91/05/15  13:40:16  dickey
  *		mods to accommodate apollo sr10.3
  *		
@@ -296,6 +300,7 @@ int	col;			/* leftmost column we need to show */
  * edit protection-code for current & tagged files
  */
 #define	CHMOD(n)	(xSTAT(n).st_mode & 07777)
+#define	OWNER(n)	((geteuid() == 0) || (xSTAT(x).st_uid == geteuid()))
 
 editprot()
 {
@@ -346,7 +351,7 @@ int	at_flag	= at_save();
 							c, xNAME(x));
 #ifdef	apollo_sr10
 						if (has_extended_acl(x)
-						&& xSTAT(x).st_uid != getuid()){
+						 && !OWNER(x)) {
 							errno = EPERM;
 							warn(xNAME(x));
 							break;
@@ -576,7 +581,7 @@ edit_gid()
 register int j;
 int	gid	= cSTAT.st_gid,
 	changed	= FALSE,
-	root	= (getuid() == 0);
+	root	= (geteuid() == 0);
 char	bfr[BUFSIZ];
 
 	if (!G_opt) {
