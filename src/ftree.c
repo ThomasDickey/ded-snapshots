@@ -2,6 +2,9 @@
  * Author:	T.E.Dickey
  * Created:	02 Sep 1987
  * Modified:
+ *		29 May 1998, compile with g++
+ *		20 Mar 1997, fix size mismatch (size_t vs int) that caused
+ *			     core-dump on OSF/1.
  *		15 Feb 1998, add home/end/ppage/npage keys.
  *		10 Jan 1996, mods to scrolling-regions
  *		29 Oct 1995, guard 'do_find()' against getwd failure
@@ -129,7 +132,7 @@
 
 #include	<fcntl.h>
 
-MODULE_ID("$Id: ftree.c,v 12.52 1998/02/19 20:19:17 tom Exp $")
+MODULE_ID("$Id: ftree.c,v 12.54 1998/05/30 12:14:52 tom Exp $")
 
 #define	Null	(char *)0	/* some NULL's are simply 0 */
 
@@ -200,11 +203,13 @@ private	int	limits(
 			_arx(int,	base)
 			_ar1(int,	row));
 
+#define ENTRIES	int			/* FIXME: should be unsigned	*/
+
 static	DYN	*FDname;		/* name of user's database	*/
 static	time_t	FDtime;			/* time: last modified ".ftree"	*/
+static	ENTRIES	FDlast;			/* last used-entry in ftree[]	*/
 static	unsigned FDsize;		/* current sizeof(ftree[])	*/
 static	int	FDdiff,			/* number of changes made	*/
-		FDlast,			/* last used-entry in ftree[]	*/
 		cant_W,			/* TRUE if last ft_write failed	*/
 		showbase,		/* base of current display	*/
 		shifted,		/* amount of right-shifting	*/
@@ -266,10 +271,10 @@ private	void	fd_slow(
 	_DCL(char *,	pathname)
 {
 	static	time_t	last;
-	auto	time_t	this	= time((time_t *)0);
+	auto	time_t	now	= time((time_t *)0);
 	auto	int	y,x;
 
-	if ((count == 0) || (last != this)) {
+	if ((count == 0) || (last != now)) {
 		getyx(stdscr,y,x);
 		move(PATH_ROW,0);
 		PRINTW("%4d: ", count);
@@ -278,7 +283,7 @@ private	void	fd_slow(
 		refresh();
 		move(y,x);
 	} else
-		last = this;
+		last = now;
 }
 
 /*
@@ -313,11 +318,11 @@ private	void	fd_add_path(
 	auto	int	last = 0, /* assume we start from root level */
 			order,
 			sort,
-			this,
+			item,
 			check;
 	auto	char	bfr[MAXPATHLEN];
 	auto	Stat_t	sb;
-	register int	j;
+	register ENTRIES j;
 	register FTREE	*f;
 
 	path = strcpy(bfr,path);
@@ -346,13 +351,13 @@ private	void	fd_add_path(
 				break;
 		}
 
-		this = sort = 0;
+		item = sort = 0;
 		for (j = last+1; j <= FDlast; j++) {
 			f = &ftree[j];
 			if (f->f_root == last) {
 				order = strcmp(f->f_name, name);
 				if (order == 0) {
-					this = j;
+					item = j;
 					break;
 				} else if (order > 0) {
 					sort = j;
@@ -364,29 +369,29 @@ private	void	fd_add_path(
 			}
 		}
 
-		if (!this) {		/* add a new entry */
+		if (!item) {		/* add a new entry */
 			FDdiff++;
 			FDlast++;
 			fd_alloc();	/* make room for entry */
 			if (sort) {	/* insert into the list */
-				this = sort;
-				for (j = FDlast; j > this; j--) {
+				item = sort;
+				for (j = FDlast; j > item; j--) {
 					ftree[j] = ftree[j-1];
-					if (ftree[j].f_root >= this)
+					if (ftree[j].f_root >= item)
 						ftree[j].f_root++;
 				}
 			} else		/* append on the end */
-				this = FDlast;
+				item = FDlast;
 
-			ftree[this].f_root = last;
-			ftree[this].f_mark &= ~(MARKED | LINKED | NOVIEW);
-			ftree[this].f_name = txtalloc(name);
-			ftree[this].f_mark = 0;
-			if (!showsccs && is_sccs(this))
-				ftree[this].f_mark |= NOSCCS;
+			ftree[item].f_root = last;
+			ftree[item].f_mark &= ~(MARKED | LINKED | NOVIEW);
+			ftree[item].f_name = txtalloc(name);
+			ftree[item].f_mark = 0;
+			if (!showsccs && is_sccs(item))
+				ftree[item].f_mark |= NOSCCS;
 		}
 
-		last = this;
+		last = item;
 		ftree[last].f_mark &= ~(MARKED | LINKED);
 
 #ifdef	S_IFLNK
@@ -428,7 +433,7 @@ private	int	fd_find (
 	static	int	ok_expr;
 
 	register int	snxt,
-			new = old,
+			tmp = old,
 			skip,
 			looped = 0;
 
@@ -456,12 +461,12 @@ private	int	fd_find (
 		OLD_REGEX(expr);
 	if ((ok_expr = NEW_REGEX(expr,dyn_string(pattern))) != 0) {
 		do {
-			if (looped++ && (new == old)) { beep();	return(-1); }
-			else if ((new += snxt) < 0)		new = FDlast;
-			else if (new > FDlast)			new = 0;
-			skip = (out_of_sight && !fd_show(new));
-		} while (skip || !GOT_REGEX(expr, ftree[new].f_name));
-		return(new);
+			if (looped++ && (tmp == old)) { beep();	return(-1); }
+			else if ((tmp += snxt) < 0)		tmp = FDlast;
+			else if (tmp > FDlast)			tmp = 0;
+			skip = (out_of_sight && !fd_show(tmp));
+		} while (skip || !GOT_REGEX(expr, ftree[tmp].f_name));
+		return(tmp);
 	}
 	BAD_REGEX(expr);
 	return (-1);
@@ -471,12 +476,12 @@ private	int	fd_find (
  * Returns the hierarchical level of a given node
  */
 private	int	fd_level (
-	_AR1(int,	this))
-	_DCL(int,	this)
+	_AR1(int,	item))
+	_DCL(int,	item)
 {
-	register int level = this ? 1 : 0;
+	register int level = item ? 1 : 0;
 
-	while ((this = ftree[this].f_root) != 0)
+	while ((item = ftree[item].f_root) != 0)
 		level++;
 	return(level);
 }
@@ -621,7 +626,7 @@ private	int	do_find (
 	_DCL(char *,	path)
 {
 	char	bfr[MAXPATHLEN];
-	register int j, this, last = 0;
+	register int j, item, last = 0;
 
 	if (path == 0 || *path == EOS)
 		return(-1);
@@ -635,11 +640,11 @@ private	int	do_find (
 	char	*name = ++path,
 		*next = strchr(path, (*gap));
 		if (next) *next = EOS;
-		this = 0;
+		item = 0;
 		for (j = last+1; j <= FDlast; j++) {
 			if (ftree[j].f_root == last) {
 				if (!strcmp(ftree[j].f_name, name)) {
-					this = j;
+					item = j;
 					break;
 				}
 			}
@@ -648,8 +653,8 @@ private	int	do_find (
 			*next = *gap;
 			path = next;
 		}
-		if (this) {
-			last = this;
+		if (item) {
+			last = item;
 		} else {
 			last = -1;
 			break;
@@ -705,7 +710,7 @@ public	void	ft_purge (
 	_AR1(RING *,	gbl))
 	_DCL(RING *,	gbl)
 {
-	register int j, k, adj;
+	register ENTRIES j, k, adj;
 	int	changed	= 0;
 
 	for (j = 1; j <= FDlast; j++) {	/* scan for things to purge */
@@ -739,22 +744,22 @@ public	void	ft_purge (
  * Rename a directory or link.
  */
 public	void	ft_rename(
-	_ARX(char *,	old)
-	_AR1(char *,	new)
+	_ARX(char *,	oldname)
+	_AR1(char *,	newname)
 		)
-	_DCL(char *,	old)
-	_DCL(char *,	new)
+	_DCL(char *,	oldname)
+	_DCL(char *,	newname)
 {
-	register int	j, k;
+	register ENTRIES j, k;
 	int	oldloc, newloc, base, len1, len2, chop, count;
 
-	if (do_find(new) >= 0) {
+	if (do_find(newname) >= 0) {
 		beep();
 		return;
 	}
-	ft_insert(new);
-	newloc = do_find(new);
-	oldloc = do_find(old);
+	ft_insert(newname);
+	newloc = do_find(newname);
+	oldloc = do_find(oldname);
 	if (oldloc < 0)
 		return;
 
@@ -786,7 +791,7 @@ public	void	ft_rename(
 	/* interchange segments to make children follow renaming */
 	count = j = 0;
 	while (count < len2) {
-		int	first = j;
+		ENTRIES	first = j;
 		FTREE	tmp;
 		tmp = ftree[base+j];
 		for (;;) {
@@ -860,7 +865,7 @@ private	void	read_ftree (
 {
 	Stat_t		sb;
 	register int	j;
-	size_t		vecsize;
+	ENTRIES		vecsize;	/* same size as FDlast */
 	int		fid;
 	size_t		size;
 
@@ -994,7 +999,7 @@ private	int	ft_show(
 	_DCL(int,	node)
 	_DCL(int,	level)
 {
-	static	const	char	*fmt = "%.*s";
+	static	char	fmt[] = "%.*s";
 	register int j, k;
 	auto	int	row,
 			count,
@@ -1214,7 +1219,7 @@ private	int	fd_bak (
  */
 private	void	toggle_sccs(_AR0)
 {
-	register int j;
+	register ENTRIES j;
 
 	showsccs = !showsccs;
 	for (j = 1; j <= FDlast; j++) {
@@ -1358,15 +1363,15 @@ private	int	uprow(
 }
 
 private	int	downrow(
-	_ARX(int,	node)
+	_ARX(ENTRIES,	node)
 	_ARX(int,	count)
 	_AR1(int,	level)
 		)
-	_DCL(int,	node)
+	_DCL(ENTRIES,	node)
 	_DCL(int,	count)
 	_DCL(int,	level)
 {
-	register int j, k = node;
+	register ENTRIES j, k = node;
 #if HAVE_WSCRL && HAVE_WSETSCRREG
 	int savebase = showbase;
 #endif

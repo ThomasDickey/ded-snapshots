@@ -3,6 +3,7 @@
  * Author:	T.E.Dickey
  * Created:	18 Jan 1989
  * Modified:
+ *		29 May 1998, compile with g++
  *		16 Feb 1998, compiler-warnings
  *		23 Nov 1993, new blip-code.
  *		29 Oct 1993, ifdef-ident
@@ -16,7 +17,7 @@
  */
 #include	"ded.h"
 
-MODULE_ID("$Id: deduniq.c,v 12.6 1998/02/16 16:37:01 tom Exp $")
+MODULE_ID("$Id: deduniq.c,v 12.7 1998/05/30 02:09:20 tom Exp $")
 
 public	void	deduniq (
 	_ARX(RING *,	gbl)
@@ -26,7 +27,7 @@ public	void	deduniq (
 	_DCL(int,	level)
 {
 	register unsigned j, k;
-	auto	 int	old, new;
+	auto	 int	old, tmp;
 
 	set_dedblip(gbl);
 	gbl->tagsort = FALSE;	/* don't confuse 'dedsort_cmp()' */
@@ -35,10 +36,10 @@ public	void	deduniq (
 
 		k = (level > 1) ? j-1 : gbl->curfile;
 
-		if ((new = (k == j)) != 0) {
+		if ((tmp = (k == j)) != 0) {
 			put_dedblip('*');
 			dlog_name(gNAME(k));
-		} else if ((new = (! dedsort_cmp(gbl, gbl->flist+k, gbl->flist+j)) ) != 0) {
+		} else if ((tmp = (! dedsort_cmp(gbl, gbl->flist+k, gbl->flist+j)) ) != 0) {
 			put_dedblip('#');
 			gFLAG(k) =
 			gFLAG(j) = (level > 0);
@@ -47,6 +48,6 @@ public	void	deduniq (
 			dlog_name(gNAME(j));
 		} else
 			put_dedblip('.');
-		old = new;
+		old = tmp;
 	}
 }

@@ -3,6 +3,7 @@
  * Author:	T.E.Dickey
  * Created:	27 Apr 1988
  * Modified:
+ *		29 May 1998, compile with g++
  *		15 Feb 1998, remove special code for apollo sr10
  *		16 Mar 1996, memory-leak of 'scan_expr'.
  *		26 Feb 1996, memory-leak of 'cmd_sh'.
@@ -54,7 +55,7 @@
 
 #include	"ded.h"
 
-MODULE_ID("$Id: dedring.c,v 12.17 1998/02/16 21:03:45 tom Exp $")
+MODULE_ID("$Id: dedring.c,v 12.18 1998/05/30 02:09:45 tom Exp $")
 
 #define	CMP_PATH(a,b)	pathcmp(a, b->new_wd)
 
@@ -175,18 +176,18 @@ private	RING *	FindInsert(
  * 
  */
 private	void	InsertAfter(
-	_ARX(RING *,	old)
-	_AR1(RING *,	new)
+	_ARX(RING *,	olditem)
+	_AR1(RING *,	newitem)
 		)
-	_DCL(RING *,	old)
-	_DCL(RING *,	new)
+	_DCL(RING *,	olditem)
+	_DCL(RING *,	newitem)
 {
-	if (old) {
-		new->_link	= old->_link;
-		old->_link	= new;
+	if (olditem) {
+		newitem->_link	= olditem->_link;
+		olditem->_link	= newitem;
 	} else {
-		new->_link	= ring;
-		ring		= new;
+		newitem->_link	= ring;
+		ring		= newitem;
 	}
 }
 

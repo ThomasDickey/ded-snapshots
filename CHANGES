@@ -1,3 +1,19 @@
+1998-05-30  Thomas E. Dickey  <dickey@clark.net>
+
+	* src/ftree.c: correction - I did the 'ENTRIES' code on Mar 20.
+
+	* src/dedsort.c: compensate for const change in td_lib
+
+1998-05-29  Thomas E. Dickey  <dickey@clark.net>
+
+	* src/ftree.c: compile with g++
+	fix for OSF/1 core dump
+
+	* src/dedring.c, src/deduniq.c, src/dedsigs.c, src/ded.c, src/ded.h:
+	compile with g++
+
+	* src/ded.c: nits
+
 1998-03-04  Thomas E. Dickey  <dickey@clark.net>
 
 	* src/dedsort.c: missed one on renaming.

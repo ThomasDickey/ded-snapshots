@@ -3,6 +3,7 @@
  * Author:	T.E.Dickey
  * Created:	09 Nov 1987
  * Modified:
+ *		29 May 1998, compile with g++
  *		15 Feb 1998, remove special code for apollo sr10.
  *			     working on signed/unsigned compiler warnings.
  *			     add home/end/ppage/npage cases.
@@ -153,7 +154,7 @@
 #define	MAIN
 #include	"ded.h"
 
-MODULE_ID("$Header: /users/source/archives/ded.vcs/src/RCS/ded.c,v 12.58 1998/02/16 21:03:58 tom Exp $")
+MODULE_ID("$Header: /users/source/archives/ded.vcs/src/RCS/ded.c,v 12.60 1998/05/30 02:08:02 tom Exp $")
 
 #define	EDITOR	DEFAULT_EDITOR
 #define	BROWSE	DEFAULT_BROWSE
@@ -269,7 +270,7 @@ public	int	realstat(
 	_DCL(int,	inx)
 	_DCL(Stat_t *,	sb)
 {
-	register j = gSTAT(inx).st_mode;
+	register int	j = gSTAT(inx).st_mode;
 
 #ifdef	S_IFLNK
 	if (isLINK(j)) {
@@ -485,11 +486,11 @@ private	RING *	old_args(
 	_DCL(int,	cmd)
 	_DCL(int,	count)
 {
-	auto	RING *	new;
+	auto	RING *	tmp;
 
-	new = new_args(gbl, gbl->new_wd, cmd, count, 0, FALSE, (char *)0);
-	if (new != 0)
-		gbl = new;
+	tmp = new_args(gbl, gbl->new_wd, cmd, count, 0, FALSE, (char *)0);
+	if (tmp != 0)
+		gbl = tmp;
 	else
 		showC (gbl);	/* try to recover */
 	return gbl;
@@ -506,11 +507,11 @@ private	RING *	pattern_args(
 	_DCL(char *,	path)
 {
 	char	*pattern = 0;
-	RING	*new;
+	RING	*tmp;
 
 	while (dedread(gbl, &pattern, FALSE)) {
-		if ((new = new_args(gbl, path, 'E', 1, 3, TRUE, pattern)) != NULL)
-			return (new);
+		if ((tmp = new_args(gbl, path, 'E', 1, 3, TRUE, pattern)) != NULL)
+			return (tmp);
 	}
 	return (0);
 }
@@ -640,9 +641,9 @@ private	RING *	run_editor(
 		break;
 	case 1:	/* edit-directory */
 		if (extended) {
-			RING *new;
-			if ((new = pattern_args(gbl, tpath)) != NULL)
-				gbl = new;
+			RING *tmp;
+			if ((tmp = pattern_args(gbl, tpath)) != NULL)
+				gbl = tmp;
 		} else {
 			to_work(gbl,TRUE);
 			ft_write();
@@ -667,13 +668,13 @@ private	RING *	edit_directory (
 	_AR1(RING *,	gbl))
 	_DCL(RING *,	gbl)
 {
-	RING	*new = gbl;
+	RING	*tmp = gbl;
 	char	tpath[MAXPATHLEN];
 	char	dpath[MAXPATHLEN];
 	Stat_t	sb;
 
 	if (realstat(gbl, gbl->curfile, &sb) == 1) {
-		if (!(new = new_args(gbl,
+		if (!(tmp = new_args(gbl,
 			pathcat2(tpath, gbl->new_wd, cNAME),
 			'E', 1, 3, FALSE, (char *)0)))
 			return gbl;
@@ -681,16 +682,16 @@ private	RING *	edit_directory (
 #ifdef	S_IFLNK		/* try to edit head-directory of symbolic-link */
 	} else if (edithead(gbl, tpath, dpath)) {
 		if (strcmp(tpath, gbl->new_wd)
-		&&  !(new = new_args(gbl, tpath, 'E', 1, 3, FALSE, (char *)0)))
+		&&  !(tmp = new_args(gbl, tpath, 'E', 1, 3, FALSE, (char *)0)))
 			return gbl;
 
-		scroll_to_file(new, findFILE(new, txtalloc(dpath)));
+		scroll_to_file(tmp, findFILE(tmp, txtalloc(dpath)));
 #endif	/* S_IFLNK */
 
 	} else
 		dedmsg(gbl, "not a directory");
 
-	return new;
+	return tmp;
 }
 
 /*
@@ -706,14 +707,14 @@ private	RING *	new_tree(
 	_DCL(char *,	path)
 	_DCL(int,	cmd)
 {
-	RING *	new;
+	RING *	tmp;
 
 	if (iscntrl(cmd))
-		new = pattern_args(gbl, path);
+		tmp = pattern_args(gbl, path);
 	else
-		new = new_args(gbl, path, 'E', 1, 0, FALSE, (char *)0);
+		tmp = new_args(gbl, path, 'E', 1, 0, FALSE, (char *)0);
 
-	return new;
+	return tmp;
 }
 
 /*
@@ -1168,9 +1169,9 @@ _MAIN
 
 	case CTL('R'):	/* modify read-expression */
 			while (dedread(gbl, &gbl->toscan, gbl->numfiles == 0)) {
-				RING *new;
-				if ((new = rescan(gbl, FALSE)) != NULL) {
-					gbl = new;
+				RING *tmp;
+				if ((tmp = rescan(gbl, FALSE)) != NULL) {
+					gbl = tmp;
 					break;
 				}
 			}
@@ -1304,14 +1305,14 @@ _MAIN
 	case 'D':	/* toggle directory/filelist mode */
 			(void)strcpy(dpath, strcpy(tpath, gbl->new_wd) );
 			for (;;) {
-				RING *new;
+				RING *tmp;
 				tree_visible = TRUE;
 				gbl = ft_view(gbl, tpath, &c);
 				tree_visible = FALSE;
 				if (c == 'e' && !optInprocess)
 					new_process(gbl, tpath);
-				else if ((new = new_tree(gbl, tpath, c)) != NULL) {
-					gbl = new;
+				else if ((tmp = new_tree(gbl, tpath, c)) != NULL) {
+					gbl = tmp;
 					break;
 				}
 			}
@@ -1361,4 +1362,5 @@ _MAIN
 	ft_write();
 	dlog_exit(SUCCESS);
 	/*NOTREACHED*/
+	return(SUCCESS);
 }

@@ -39,10 +39,10 @@
  */
 
 #include	<ded.h>
-#define	QSORT_SRC	const FLIST
+#define	QSORT_SRC	FLIST
 #include	<td_qsort.h>
 
-MODULE_ID("$Id: dedsort.c,v 12.10 1998/03/04 23:50:19 tom Exp $")
+MODULE_ID("$Id: dedsort.c,v 12.11 1998/05/30 11:56:38 tom Exp $")
 
 #define	CHECKED(p)	(p->z_time == p->s.st_mtime)
 #define	CMPF(f)	(f(&(p1->s)) > f(&(p2->s)) ? -1 : (f(&(p1->s)) < f(&(p2->s)) ? 1 : 0))
