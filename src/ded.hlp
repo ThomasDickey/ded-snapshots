@@ -1,4 +1,4 @@
-$Id: ded.hlp,v 5.1 1989/12/01 15:06:38 dickey Exp $
+$Id: ded.hlp,v 5.2 1989/12/08 10:25:49 dickey Exp $
 
 DED (Directory EDitor)
 ======================
@@ -87,6 +87,7 @@ Display-Adjustment:
 		from others.  If {key} is '?', the current sort-option
 		is displayed.  If {key} is newline or return, the last
 		sort-key is re-executed with the current 'r' or 's'.
+		If {key} is ":", you will be prompted for the sort-option.
 
 		c	last-change date
 		d	order in directory-file (cf: 'find' utility)
