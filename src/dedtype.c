@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	Id[] = "$Id: dedtype.c,v 10.9 1992/04/02 08:46:09 dickey Exp $";
+static	char	Id[] = "$Id: dedtype.c,v 10.10 1992/04/03 12:08:58 dickey Exp $";
 #endif
 
 /*
@@ -401,7 +401,7 @@ public	void	dedtype(
 				/* move work-area marker */
 			case 'A':	count = -count;
 			case 'a':
-				markset(mark_W + count,FALSE);
+				markset(gbl, mark_W + count,FALSE);
 				again = 1;
 				break;
 			default:

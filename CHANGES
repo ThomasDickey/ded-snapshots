@@ -1,3 +1,86 @@
+1992-04-03  dickey@software.org
+
+	* src/ded.h: oops: introduced a typo into _ONE macro
+
+	* src/ded.h, src/ded.c: split 'dedview.c' out of 'ded.c'
+
+	* src/dedview.c: RCS_BASE
+
+	* src/Makefile: split 'dedview.c' out of 'ded.c'
+
+	* src/dedscan.c, src/dedline.c: showFILES:interface
+
+	* src/ded.h, src/ded.c: showFILES, showVIEW, showMARK: interface
+
+	* src/ded.h, src/ded.c: interfaces of forward, backward, showWHAT
+
+	* src/dedline.c: fixname, fixtime:interface
+
+	* src/deddoit.c: fixname:interface
+
+	* src/ded.c: eliminated FOO from several internal procedures,
+	plus fixtime & fixname
+
+	* src/ded.h: interfaces of fixtime & fixname
+
+	* src/ded.c, src/ded.h: interface mods to upLINE, downLINE, showDOWN
+
+	* src/dedsort.c: findFILE:interface
+
+	* src/ded.c: scroll_to_file:interface
+	markset:interface
+	findFILE:interface
+	(make these changes to get rid of FOO -- global data)
+
+	* src/ded.h:
+	changed interfaces of markset & findFILE to get rid of global
+	data
+
+	* src/dedtype.c: markset:interface
+
+	* src/dedfind.c: scroll_to_file:interface
+
+	* src/ded.h: interfaces of 'to_file()' and 'scroll_to_file()'
+
+	* src/ded.c: eliminated FOO from 'viewset()' and 'to_file()'
+
+	* src/ded.c: corrected call on 'new_tree()'
+	revised interface of 'ft_view()' so that this is the last
+	module with FOO -- global data
+
+	* src/ftree.c:
+	changed interface of 'ft_view()' so that caller can get the
+	updated value of 'gbl'
+	(gets rid of FOO -- global data)
+
+	* src/dedring.c: eradicated FOO (global data)
+
+	* src/ded.h: changed interface of 'ft_view()' so I can get rid of FOO
+
+	* src/ded.c: make new internal procedure 'new_process()' to clean up
+	clutter before I modify interface to 'ft_view()'
+
+	* src/dedring.c:
+	got rid of FOO, except for updating global variable at the
+	end of 'dedring()' -- must still retest 'ring_rename()'
+
+	* src/ftree.c:
+	mods to 'dedring()' imply I must update local variable 'gbl'
+
+	* src/dedline.c: modified interface of 'ring_path()'
+
+	* src/ded.h: modified interface of 'dedring()' -- added gbl-arg
+
+	* src/ded.c: modified interface to 'dedring()'
+
+	* src/deddoit.c: modified interface of 'ring_path()'
+
+	* src/ded.c: lint
+
+	* src/dedring.c: combined 'save()' and 'unsave()' into 'ring_copy()',
+	thereby eliminating use of FOO (global data) in those
+	procedures.
+
 1992-04-02  dickey@software.org
 
 	* src/dedring.c:

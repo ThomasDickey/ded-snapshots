@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	Id[] = "$Id: deddoit.c,v 10.7 1992/04/02 12:49:38 dickey Exp $";
+static	char	Id[] = "$Id: deddoit.c,v 10.9 1992/04/03 12:42:43 dickey Exp $";
 #endif
 
 /*
@@ -90,10 +90,10 @@ private	void	Expand(
 		(void)strcpy(name, cur_name);
 
 	switch(code) {
-	case 'F':	from = ring_path(1);
+	case 'F':	from = ring_path(gbl,1);
 			break;
 
-	case 'B':	from = ring_path(-1);
+	case 'B':	from = ring_path(gbl,-1);
 			break;
 
 	case 'D':	from = old_wd;	/* original working directory */
@@ -221,7 +221,7 @@ public	void	deddoit(
 
 			for (x = 0; x < gbl->numfiles; x++) {
 				if (GROUPED(x)) {
-					len = strlen(s = fixname(x));
+					len = strlen(s = fixname(gbl, x));
 					if (others++)
 						APPEND(Subs, " ");
 

@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	Id[] = "$Header: /users/source/archives/ded.vcs/src/RCS/ded.c,v 10.17 1992/04/02 14:05:38 dickey Exp $";
+static	char	Id[] = "$Header: /users/source/archives/ded.vcs/src/RCS/ded.c,v 10.28 1992/04/03 15:39:35 dickey Exp $";
 #endif
 
 /*
@@ -156,37 +156,12 @@ static	char	Id[] = "$Header: /users/source/archives/ded.vcs/src/RCS/ded.c,v 10.1
 
 #define	needSCCS(c)	(!FOO->Z_opt && (strchr("vyZz",c) != 0))
 
-#define	MAXVIEW	2		/* number of viewports */
-#define	MINLIST	2		/* minimum length of file-list + header */
-#define	MINWORK	3		/* minimum size of work-area */
-
 #define	COMPLEMENT(opt) (opt) = !(opt)
 
-int	debug	= FALSE;	/* generic debug-flag */
-int	no_worry = -1;		/* don't prompt on quit */
-
-/*
- * Per-viewport main-module state:
- */
-typedef	struct	{
-		int	Yhead;		/* beginning of viewport (row)	*/
-		int	Ybase;		/* beginning of viewport (file)	*/
-		char	*cname;		/* arg for 'findFILE()		*/
-		char	*path;		/* ...so dedring can identify	*/
-	} VIEW;
-
-static	VIEW	viewlist[MAXVIEW];
-
-static	int	Yhead = 0,		/* first line of viewport	*/
-		Ylast,			/* last visible file on screen	*/
-		Ynext;			/* marks end of viewport	*/
-static	int	curview,		/* 0..MAXVIEW			*/
-		maxview;		/* current number of viewports	*/
+public	int	debug	= FALSE;	/* generic debug-flag */
+public	int	no_worry = -1;		/* don't prompt on quit */
 
 static	int	Xscroll;		/* amount by which to left/right */
-static	int	tag_count;		/* number of tagged files */
-static	off_t	tag_bytes;
-static	long	tag_blocks;
 
 /*
  * Other, private main-module state:
@@ -204,13 +179,12 @@ static	char	whoami[BUFSIZ],		/* my execution-path */
 /*
  * Returns 0, 1 or 2 for a three-way toggle
  */
-static
-one_or_both(
-_ARX(int,	opt)
-_AR1(int,	val)
-	)
-_DCL(int,	opt)
-_DCL(int,	val)
+private	int	one_or_both(
+	_ARX(int,	opt)
+	_AR1(int,	val)
+		)
+	_DCL(int,	opt)
+	_DCL(int,	val)
 {
 	if (val == 0)
 		opt = 0;
@@ -221,28 +195,13 @@ _DCL(int,	val)
 	return (opt);
 }
 
-/*
- * Set 'Ylast' as a function of the current viewport and our position in it.
- * Also, set 'Ynext' to the row number of the first line after the viewport.
- */
-static
-viewset(_AR0)
-{
-	register int	j	= curview + 1;
-
-	Ynext	= (j >= maxview) ? mark_W : viewlist[j].Yhead;
-	Ylast	= Ynext + Ybase - (Yhead + MINLIST);
-	if (Ylast >= FOO->numfiles)	Ylast = FOO->numfiles - 1;
-}
-
 #ifdef	S_IFLNK
-static
-edithead(
-_ARX(char *,	dst)
-_AR1(char *,	leaf)
-	)
-_DCL(char *,	dst)
-_DCL(char *,	leaf)
+private	int	edithead(
+	_ARX(char *,	dst)
+	_AR1(char *,	leaf)
+		)
+	_DCL(char *,	dst)
+	_DCL(char *,	leaf)
 {
 	auto	struct	stat	sb;
 	auto	char		*s;
@@ -273,42 +232,59 @@ _DCL(char *,	leaf)
 }
 #endif	/* S_IFLNK */
 
+/*
+ * Initialize counters associated with tags
+ */
+private	void	init_tags(_AR0)
+{
+	FOO->tag_count = 0;
+	FOO->tag_bytes = 0;
+	FOO->tag_blocks= 0;
+}
+
+private	void	tag_entry _ONE(int,inx)
+{
+	if (!xFLAG(inx)) {
+		xFLAG(inx) = TRUE;
+		FOO->tag_count++;
+		FOO->tag_bytes += xSTAT(inx).st_size;
+		FOO->tag_blocks += xSTAT(inx).st_blocks;
+	}
+}
+
+private	void	untag_entry _ONE(int,inx)
+{
+	if (xFLAG(inx)) {
+		xFLAG(inx) = FALSE;
+		FOO->tag_count--;
+		FOO->tag_bytes -= xSTAT(inx).st_size;
+		FOO->tag_blocks -= xSTAT(inx).st_blocks;
+	}
+}
+
+/*
+ * Re-count the files which are tagged
+ */
+private	void	count_tags(_AR0)
+{
+	register int j;
+	init_tags();
+	for (j = 0; j < FOO->numfiles; j++) {
+		if (xFLAG(j)) {
+			xFLAG(j) = FALSE;
+			tag_entry(j);
+		}
+	}
+}
+
 /************************************************************************
  *	public	utility procedures					*
  ************************************************************************/
 
 /*
- * Translate an index into the file-list to a row-number in the screen for the
- * current viewport.
- */
-int
-file2row _ONE(int,n)
-{
-	return ((n - Ybase) + Yhead + 1);
-}
-
-/*
- * Move to the indicated row; return FALSE if it does not correspond to a
- * currently-displayed line.
- */
-move2row(
-_ARX(int,	n)
-_AR1(int,	col)
-	)
-_DCL(int,	n)
-_DCL(int,	col)
-{
-	if (n >= Ybase && n <= Ylast) {
-		move(file2row(n), col);
-		return (TRUE);
-	}
-	return (FALSE);
-}
-
-/*
  * Exit from window mode
  */
-to_exit _ONE(int,last)
+public	void	to_exit _ONE(int,last)
 {
 	if (in_screen) {
 		if (last) {
@@ -323,102 +299,16 @@ to_exit _ONE(int,last)
 }
 
 /*
- * Clear the work-area, and move the cursor there.
- */
-clear_work(_AR0)
-{
-	move(mark_W + 1, 0);
-	clrtobot();
-	move(mark_W + 1, 0);
-	refresh();
-}
-
-/*
- * Clear the work area, move the cursor there after setting marker
- */
-to_work _ONE(int,clear_it)
-{
-	markC(TRUE);
-	if (clear_it)
-		clear_work();
-}
-
-/*
- * Scroll, as needed, to put current-file in the window
- */
-to_file(_AR0)
-{
-	register int	code;
-	viewset();		/* ensure that Ylast is up to date */
-	code	= ((FOO->curfile < Ybase)
-		|| (FOO->curfile > Ylast));
-	while (FOO->curfile > Ylast)	forward(1);
-	while (FOO->curfile < Ybase)	backward(1);
-	return(code);
-}
-
-scroll_to_file _ONE(int,inx)
-{
-	if (FOO->curfile != inx) {
-		FOO->curfile = inx;
-		if (to_file())
-			showFILES(FALSE,TRUE);
-		else
-			showC();
-	}
-}
-
-/*
- * Move the workspace marker.  If we are in split-screen mode, also adjust the
- * length of the current viewport.  Finally, re-display the screen.
- */
-markset(
-_ARX(int,	num)
-_AR1(int,	reset_work)
-	)
-_DCL(int,	num)
-_DCL(int,	reset_work)
-{
-	int	lo = (Yhead + MINLIST * (maxview - curview)),
-		hi = (LINES - MINWORK);
-
-	if (num < lo)	num = lo;
-
-	if (curview < (maxview-1)) {	/* not the last viewport */
-		int	next_W = viewlist[curview+1].Yhead;
-		if (num > hi) {		/* multiple-adjust */
-			mark_W = hi;
-			next_W += (num - hi);
-			if (curview < (maxview-2))
-				hi = viewlist[curview+2].Yhead;
-			hi -= MINLIST;
-			if (next_W > hi)
-				next_W = hi;
-		} else if (Yhead + MINLIST <= (hi = next_W + (num - mark_W))) {
-			next_W = hi;
-			mark_W = num;
-		}
-		viewlist[curview+1].Yhead = next_W;
-	} else {			/* in the last viewport */
-		if (num > hi)	num = hi;
-		mark_W = num;
-	}
-
-	(void)to_file();
-	showFILES(FALSE,reset_work);
-}
-
-/*
  * Determine if the given entry is a file, directory or none of these.
  */
-realstat(
-_ARX(int,	inx)
-_AR1(struct stat*,sb)
-	)
-_DCL(int,	inx)
-_DCL(struct stat*,sb)
+public	int	realstat(
+	_ARX(int,	inx)
+	_AR1(struct stat*,sb)
+		)
+	_DCL(int,	inx)
+	_DCL(struct stat*,sb)
 {
-register j = xSTAT(inx).st_mode;
+	register j = xSTAT(inx).st_mode;
 
 #ifdef	S_IFLNK
 	if (isLINK(j)) {
@@ -434,8 +324,7 @@ register j = xSTAT(inx).st_mode;
 /*
  * Clear the message-line
  */
-void
-clearmsg(_AR0)
+public	void	clearmsg(_AR0)
 {
 	move(LINES-1,0);
 	clrtoeol();		/* clear off the waiting-message */
@@ -444,15 +333,14 @@ clearmsg(_AR0)
 /*
  * Print an error/warning message, optionally pausing
  */
-static
-show_message(
-_ARX(char *,	tag)
-_ARX(char *,	msg)
-_AR1(int,	pause)
-	)
-_DCL(char *,	tag)
-_DCL(char *,	msg)
-_DCL(int,	pause)
+private	void	show_message(
+	_ARX(char *,	tag)
+	_ARX(char *,	msg)
+	_AR1(int,	pause)
+		)
+	_DCL(char *,	tag)
+	_DCL(char *,	msg)
+	_DCL(int,	pause)
 {
 	if (in_screen) {
 		move(LINES-1,0);
@@ -474,8 +362,7 @@ _DCL(int,	pause)
 	dlog_comment("(%s) %s\n", tag, msg);
 }
 
-char	*
-err_msg _ONE(char *,msg)
+public	char *	err_msg _ONE(char *,msg)
 {
 	static	char	bfr[BUFSIZ];
 	if (msg == 0)	msg = "?";
@@ -545,285 +432,18 @@ _DCL(int,	ok)
  * This is used to reposition after sorting, etc, and uses the feature that
  * strings in 'txtalloc()' are uniquely determined by their address.
  */
-findFILE _ONE(char *,name)
-{
-	register int j;
-	for (j = 0; j < FOO->numfiles; j++)
-		if (name == xNAME(j))
-			return (j);
-	return (0);			/* give up, set to beginning of list */
-}
-
-/*
- * Move the cursor up/down the specified number of lines, scrolling
- * to a new screen if necessary.
- */
-upLINE _ONE(int,n)
-{
-	FOO->curfile -= n;
-	if (FOO->curfile < 0)		FOO->curfile = 0;
-	if (FOO->curfile < Ybase) {
-		while (FOO->curfile < Ybase)	backward(1);
-		showFILES(FALSE,FALSE);
-	} else
-		showC();
-}
-
-downLINE _ONE(int,n)
-{
-	FOO->curfile += n;
-	if (FOO->curfile >= FOO->numfiles)	FOO->curfile = FOO->numfiles-1;
-	if (FOO->curfile > Ylast) {
-		while (FOO->curfile > Ylast)	forward(1);
-		showFILES(FALSE,FALSE);
-	} else
-		showC();
-}
-
-showDOWN(_AR0)
-{
-	showLINE(FOO, FOO->curfile);
-	dlog_name(cNAME);
-	if (FOO->curfile < FOO->numfiles - 1)
-		downLINE(1);
-	else {
-		showC();
-		return (FALSE);
-	}
-	return (TRUE);
-}
-
-/*
- * Recompute viewport line-limits for forward/backward scrolling
- */
-forward _ONE(int,n)
-{
-	while (n-- > 0) {
-		if (Ylast < (FOO->numfiles - 1)) {
-			Ybase = Ylast + 1;
-			viewset();
-		} else
-			break;
-	}
-}
-
-backward _ONE(int,n)
-{
-	while (n-- > 0) {
-		if (Ybase > 0) {
-			Ybase -= (Ynext - Yhead - 1);
-			if (Ybase < 0)	Ybase = 0;
-			viewset();
-		} else
-			break;
-	}
-}
-
-/*
- * Show, in the viewport-header, where the cursor points (which file, which
- * path) as well as the current setting of the 'C' command.  If any files are
- * tagged, show the heading highlighted.
- */
-showWHAT(_AR0)
-{
-	static	char	datechr[] = "acm";
-
-	move(Yhead,0);
-	if (tag_count)	standout();
-	PRINTW("%2d of %2d [%ctime] ",
-		FOO->curfile + 1,
-		FOO->numfiles,
-		datechr[FOO->dateopt]);
-	if (FOO->tag_opt)
-		PRINTW("(%d files, %d %s) ",
-			tag_count,
-			(FOO->tag_opt > 1) ? tag_bytes : tag_blocks,
-			(FOO->tag_opt > 1) ? "bytes"   : "blocks");
-	showpath(FOO->new_wd, 999, -1, 0);
-	if (tag_count)	standend();
-	clrtoeol();
-}
-
-/*
- * Display the given line.  If it is tagged, highlight the name.
- */
-public	void	showLINE(
+public	int	findFILE(
 	_ARX(RING *,	gbl)
-	_AR1(int,	j)
+	_AR1(char *,	name)
 		)
 	_DCL(RING *,	gbl)
-	_DCL(int,	j)
-{
-	int	col, len;
-	char	bfr[BUFSIZ];
-
-	if (move2row(j,0)) {
-		ded2s(FOO, j, bfr, sizeof(bfr));
-		if (Xbase < strlen(bfr)) {
-			PRINTW("%.*s", COLS-1, &bfr[Xbase]);
-			if (xFLAG(j)) {
-				col = FOO->cmdcol[CCOL_NAME] - Xbase;
-				len = (COLS-1) - col;
-				if (len > 0) {
-					int	adj = FOO->cmdcol[CCOL_NAME];
-					if (col < 0) {
-						adj -= col;
-						col  = 0;
-						len  = COLS-1;
-					}
-					(void)move2row(j, col);
-					standout();
-					PRINTW("%.*s", len, &bfr[adj]);
-					standend();
-				}
-			}
-		}
-		clrtoeol();
-	}
-}
-
-/*
- * Display all files in the current viewport
- */
-showVIEW(_AR0)
+	_DCL(char *,	name)
 {
 	register int j;
-
-	viewset();		/* set 'Ylast' as function of mark_W */
-
-	for (j = Ybase; j <= Ylast; j++)
-		showLINE(FOO, j);
-	for (j = file2row(Ylast+1); j < Ynext; j++) {
-		move(j,0);
-		clrtoeol();
-	}
-}
-
-/*
- * Display the marker which precedes the workspace
- */
-showMARK _ONE(int,col)
-{
-	register int j, k;
-	char	scale[20];
-
-	move(mark_W,0);
-	for (j = 0; j < COLS - 1; j += 10) {
-		k = ((col + j) / 10) + 1;
-		FORMAT(scale, "----+---%d", k > 9 ? k : -k);
-		PRINTW("%.*s", COLS - j - 1, scale);
-	}
-}
-
-/*
- * Display all files in the current screen (all viewports), and then show the
- * remaining stuff on the screen (position in each viewport and workspace
- * marker).
- */
-showFILES(
-_ARX(int,	reset_cols)
-_AR1(int,	reset_work)
-	)
-_DCL(int,	reset_cols)
-_DCL(int,	reset_work)
-{
-	register int j;
-
-	if (reset_cols)
-		for (j = 0; j < CCOL_MAX; j++)
-			FOO->cmdcol[j] = 0;
-
-	for (j = 0; j < maxview; j++) {
-		showVIEW();
-		if (maxview > 1) {
-			if (j) showWHAT();
-			nextVIEW(TRUE);
-		}
-	}
-	showMARK(Xbase);
-	if (reset_work) {
-		move(mark_W+1,0);
-		clrtobot();
-	}
-	showC();
-}
-
-/*
- * Open a new viewport by splitting the current one after the current file.
- */
-static
-openVIEW(_AR0)
-{
-	if (maxview < MAXVIEW) {
-		saveVIEW();
-		if (maxview) {
-			int	adj	= (Yhead = file2row(FOO->curfile) + 1)
-					- (mark_W - MINLIST);
-			if (adj > 0) {
-				if (mark_W + adj < (LINES - MINWORK))
-					mark_W += adj;
-				else
-					Yhead -= adj;
-			}
-		} else
-			Yhead = 0;
-		curview = maxview++;	/* patch: no insertion? */
-		saveVIEW();		/* current viewport */
-		markset(mark_W,TRUE);	/* adjust marker, re-display */
-	} else
-		dedmsg("too many viewports");
-}
-
-/*
- * Store parameters corresponding to the current viewport
- */
-static
-saveVIEW(_AR0)
-{
-	register VIEW *p = &viewlist[curview];
-	p->Yhead = Yhead;
-	p->Ybase = Ybase;
-	p->cname = cNAME;
-}
-
-/*
- * Close the current viewport, advance to the next one, if available, and show
- * the new screen contents.
- */
-static
-quitVIEW(_AR0)
-{
-	register int j;
-
-	if (maxview > 1) {
-		maxview--;
-		for (j = curview; j < maxview; j++)
-			viewlist[j] = viewlist[j+1];
-		viewlist[0].Yhead = 0;
-		curview--;
-		nextVIEW(FALSE);	/* load current-viewport */
-		showFILES(FALSE,TRUE);
-	} else
-		dedmsg("no more viewports to quit");
-}
-
-/*
- * Switch to the next viewport (do not re-display, this is handled elsewhere)
- */
-static
-nextVIEW _ONE(int,save)
-{
-	register VIEW *p;
-
-	if (save)
-		saveVIEW();
-	if (++curview >= maxview)
-		curview = 0;
-	p = &viewlist[curview];
-	Yhead	= p->Yhead;
-	Ybase	= p->Ybase;
-	FOO->curfile = findFILE(p->cname);
-	(void)to_file();
+	for (j = 0; j < gbl->numfiles; j++)
+		if (name == gNAME(j))
+			return (j);
+	return (0);			/* give up, set to beginning of list */
 }
 
 #ifdef	Z_RCS_SCCS
@@ -845,36 +465,6 @@ register int j;
 #endif	/* Z_RCS_SCCS */
 
 /*
- * Set the cursor to the current file, noting this in the viewport header.
- */
-showC(_AR0)
-{
-	register int	x = FOO->cmdcol[CCOL_CMD] - Xbase;
-
-	if (x < 0)		x = 0;
-	if (x > COLS-1)		x = COLS-1;
-
-	showWHAT();
-	markC(FALSE);
-	(void)move2row(FOO->curfile, x);
-	refresh();
-}
-
-/*
- * Flag the current-file in the display (i.e., when leaving the current
- * line for the work-area).
- */
-markC _ONE(int,on)
-{
-int	col = FOO->cmdcol[CCOL_CMD] - Xbase;
-
-	if (col >= 0) {
-		(void)move2row(FOO->curfile, col);
-		addch(on ? '*' : ' ');
-	}
-}
-
-/*
  * Repaint the screen
  */
 retouch _ONE(int,row)
@@ -883,8 +473,8 @@ int	y,x;
 #ifdef	apollo
 	if (resizewin()) {
 		dlog_comment("resizewin(%d,%d)\n", LINES, COLS);
-		markset(mark_W,FALSE);
-		showFILES(FALSE,TRUE);
+		markset(FOO, mark_W,FALSE);
+		showFILES(FOO,FALSE,TRUE);
 		return;
 	}
 #endif	/* apollo */
@@ -916,11 +506,11 @@ _DCL(char *,	backto)
 				FOO->curfile = j;
 				break;
 			}
-		(void)to_file();
-		showFILES(TRUE,TRUE);
+		(void)to_file(FOO);
+		showFILES(FOO,TRUE,TRUE);
 		return (TRUE);
 	} else if (fwd)
-		return (old_args('F',1));
+		return (old_args(FOO, 'F',1));
 	return (FALSE);
 }
 
@@ -943,30 +533,15 @@ restat _ONE(int,group)
 	showC();
 }
 
-restat_l(_AR0)
-{
-	restat(TRUE);
-}
-
-restat_W(_AR0)
-{
-	register int j;
-	for (j = Ybase; j <= Ylast; j++) {
-		statLINE(FOO, j);
-		showLINE(FOO, j);
-	}
-	showC();
-}
-
 /*
  * Process the given function in a repeat-loop which is interruptable.
  */
 resleep(
 _ARX(int,	count)
-_FN1(int,	func)
+_FN1(void,	func)
 	)
 _DCL(int,	count)
-_DCL(int,	(*func)())
+_DCL(void,	(*func)())
 {
 	register int	interrupted = 1,
 			last	= count;
@@ -988,138 +563,77 @@ _DCL(int,	(*func)())
 }
 
 /*
- * Initialize counters associated with tags
- */
-static
-init_tags(_AR0)
-{
-	tag_count = 0;
-	tag_bytes = 0;
-	tag_blocks= 0;
-}
-
-static
-tag_entry _ONE(int,inx)
-{
-	if (!xFLAG(inx)) {
-		xFLAG(inx) = TRUE;
-		tag_count++;
-		tag_bytes += xSTAT(inx).st_size;
-		tag_blocks += xSTAT(inx).st_blocks;
-	}
-}
-
-static
-untag_entry _ONE(int,inx)
-{
-	if (xFLAG(inx)) {
-		xFLAG(inx) = FALSE;
-		tag_count--;
-		tag_bytes -= xSTAT(inx).st_size;
-		tag_blocks -= xSTAT(inx).st_blocks;
-	}
-}
-
-/*
- * Re-count the files which are tagged
- */
-static
-count_tags(_AR0)
-{
-	register int j;
-	init_tags();
-	for (j = 0; j < FOO->numfiles; j++) {
-		if (xFLAG(j)) {
-			xFLAG(j) = FALSE;
-			tag_entry(j);
-		}
-	}
-}
-
-/*
  * Use the 'dedring()' module to switch to a different file-list
  */
-static
-new_args(
-_ARX(char *,	path)
-_ARX(int,	cmd)
-_ARX(int,	count)
-_ARX(int,	flags)
-_ARX(int,	set_pattern)
-_AR1(char *,	pattern)
-	)
-_DCL(char *,	path)
-_DCL(int,	cmd)
-_DCL(int,	count)
-_DCL(int,	flags)
-_DCL(int,	set_pattern)
-_DCL(char *,	pattern)
+private	int	new_args(
+	_ARX(RING *,	gbl)
+	_ARX(char *,	path)
+	_ARX(int,	cmd)
+	_ARX(int,	count)
+	_ARX(int,	flags)
+	_ARX(int,	set_pattern)
+	_AR1(char *,	pattern)
+		)
+	_DCL(RING *,	gbl)
+	_DCL(char *,	path)
+	_DCL(int,	cmd)
+	_DCL(int,	count)
+	_DCL(int,	flags)
+	_DCL(int,	set_pattern)
+	_DCL(char *,	pattern)
 {
-int	ok;
+	RING *	ok;
 
 	if (flags & 1)
 		markC(TRUE);
 	clear_work();
-	if (ok = dedring(path, cmd, count, set_pattern, pattern)) {
-		(void)to_file();
+	if (ok = dedring(gbl, path, cmd, count, set_pattern, pattern)) {
+		FOO = gbl = ok;
+		(void)to_file(gbl);
 		count_tags();
-		showFILES(TRUE,TRUE);
+		showFILES(gbl,TRUE,TRUE);
 	}
-	(void)chdir(FOO->new_wd);
-	dlog_comment("chdir %s\n", FOO->new_wd);
+	(void)chdir(gbl->new_wd);
+	dlog_comment("chdir %s\n", gbl->new_wd);
 	if (!ok && (flags & 2))
 		showC();
-	return (ok);
+	return (ok != 0);
 }
 
 /*
  * Set list to an old set of arguments
  */
-static
-old_args(
-_ARX(int,	cmd)
-_AR1(int,	count)
-	)
-_DCL(int,	cmd)
-_DCL(int,	count)
+private	int	old_args(
+	_ARX(RING *,	gbl)
+	_ARX(int,	cmd)
+	_AR1(int,	count)
+		)
+	_DCL(RING *,	gbl)
+	_DCL(int,	cmd)
+	_DCL(int,	count)
 {
 	auto	 char	tpath[MAXPATHLEN];
 	return (new_args(
-		strcpy(tpath, FOO->new_wd),
+		gbl,
+		strcpy(tpath, gbl->new_wd),
 		cmd, count, 0, FALSE, (char *)0));
 }
 
 /*
  * Open a (new) argument-list, setting the scan-pattern
  */
-static
-pattern_args _ONE(char *,path)
+private	int	pattern_args(
+	_ARX(RING *,	gbl)
+	_AR1(char *,	path)
+		)
+	_DCL(RING *,	gbl)
+	_DCL(char *,	path)
 {
 	char	*pattern = 0;
-	while (dedread(FOO, &pattern, FALSE)) {
-		if (new_args(path, 'E', 1, 3, TRUE, pattern))
+	while (dedread(gbl, &pattern, FALSE)) {
+		if (new_args(gbl, path, 'E', 1, 3, TRUE, pattern))
 			return (TRUE);
 	}
-	return (FALSE);
-}
-
-/*
- * Invoke a new file-list from the directory-tree display, cleaning up if
- * it fails.
- */
-static
-new_tree(
-_ARX(char *,	path)
-_AR1(int,	cmd)
-	)
-_DCL(char *,	path)
-_DCL(int,	cmd)
-{
-	if (iscntrl(cmd)) {
-		if (pattern_args(path))
-			return (TRUE);
-	} else if (new_args(path, 'E', 1, 0, FALSE, (char *)0))
-		return (TRUE);
 	return (FALSE);
 }
 
@@ -1128,11 +642,15 @@ _DCL(int,	cmd)
  * names, this is simply a copy of the original name.  However, on
  * Apollo, we may have names with '$' and other special characters.
  */
-char *
-fixname _ONE(int,j)
+public	char *	fixname(
+	_ARX(RING *,	gbl)
+	_AR1(int,	j)
+		)
+	_DCL(RING *,	gbl)
+	_DCL(int,	j)
 {
-static	char	nbfr[BUFSIZ];
-	(void)ded2string(FOO, nbfr, sizeof(nbfr), xNAME(j), TRUE);
+	static	char	nbfr[BUFSIZ];
+	(void)ded2string(gbl, nbfr, sizeof(nbfr), gNAME(j), TRUE);
 	return (nbfr);
 }
 
@@ -1140,23 +658,27 @@ static	char	nbfr[BUFSIZ];
  * Adjust mtime-field so that chmod, chown do not alter it.
  * This fixes Apollo/NFS kludges!
  */
-fixtime _ONE(int,j)
+public	void	fixtime(
+	_ARX(RING *,	gbl)
+	_AR1(int,	j)
+		)
+	_DCL(RING *,	gbl)
+	_DCL(int,	j)
 {
-	if (setmtime(xNAME(j), xSTAT(j).st_mtime) < 0)	warn("utime");
+	if (setmtime(gNAME(j), gSTAT(j).st_mtime) < 0)	warn("utime");
 }
 
 /*
  * Spawn a subprocess, wait for completion.
  */
-static
-forkfile(
-_ARX(char *,	arg0)
-_ARX(char *,	arg1)
-_AR1(int,	normal)
-	)
-_DCL(char *,	arg0)
-_DCL(char *,	arg1)
-_DCL(int,	normal)
+private	void	forkfile(
+	_ARX(char *,	arg0)
+	_ARX(char *,	arg1)
+	_AR1(int,	normal)
+		)
+	_DCL(char *,	arg0)
+	_DCL(char *,	arg1)
+	_DCL(int,	normal)
 {
 	char	quoted[MAXPATHLEN];
 
@@ -1169,7 +691,7 @@ _DCL(int,	normal)
 		warn(arg0);
 	dlog_elapsed();
 	rawterm();
-	(void)chdir(FOO->new_wd);
+	/* patch: (void)chdir(FOO->new_wd); */
 	if (normal) {
 		retouch(0);
 		restat(FALSE);
@@ -1179,20 +701,21 @@ _DCL(int,	normal)
 /*
  * Enter an editor (separate process) for the current-file/directory.
  */
-static
-editfile(
-_ARX(int,	readonly)
-_AR1(int,	extended)
-	)
-_DCL(int,	readonly)
-_DCL(int,	extended)
+private	void	editfile(
+	_ARX(RING *,	gbl)
+	_ARX(int,	readonly)
+	_AR1(int,	extended)
+		)
+	_DCL(RING *,	gbl)
+	_DCL(int,	readonly)
+	_DCL(int,	extended)
 {
 	struct	stat	sb;
 	char	*editor = (readonly ? ENV(BROWSE) : ENV(EDITOR));
 	char	tpath[BUFSIZ];
 
 	dlog_name(cNAME);
-	switch (realstat(FOO->curfile, &sb)) {
+	switch (realstat(gbl->curfile, &sb)) {
 	case 0:	/* edit-file */
 		to_work(TRUE);
 		if (extended) {
@@ -1204,14 +727,14 @@ _DCL(int,	extended)
 		break;
 	case 1:	/* edit-directory */
 		if (extended) {
-			(void)pattern_args(pathcat(tpath, FOO->new_wd, cNAME));
+			(void)pattern_args(gbl, pathcat(tpath, gbl->new_wd, cNAME));
 		} else {
 			to_work(TRUE);
 			ft_write();
 			dlog_close();
 			forkfile(whoami, cNAME, TRUE);
 			dlog_reopen();
-			ft_read(FOO->new_wd, tree_opt);
+			ft_read(gbl->new_wd, tree_opt);
 			if (no_worry < 0)	/* start worrying! */
 				no_worry = FALSE;
 		}
@@ -1221,9 +744,56 @@ _DCL(int,	extended)
 	}
 }
  
-static
-void
-trace_pipe _ONE(char *,arg)
+/*
+ * Invoke a new file-list from the directory-tree display, cleaning up if
+ * it fails.
+ */
+private	int	new_tree(
+	_ARX(RING *,	gbl)
+	_ARX(char *,	path)
+	_AR1(int,	cmd)
+		)
+	_DCL(RING *,	gbl)
+	_DCL(char *,	path)
+	_DCL(int,	cmd)
+{
+	int	code	= FALSE;
+
+	if (iscntrl(cmd)) {
+		if (pattern_args(gbl, path))
+			code = TRUE;
+	} else if (new_args(gbl, path, 'E', 1, 0, FALSE, (char *)0))
+		code = TRUE;
+	return (code);
+}
+
+/*
+ * Invoke a new copy of 'ded'
+ */
+private	void	new_process(
+	_ARX(RING *,	gbl)
+	_AR1(char *,	path)
+		)
+	_DCL(RING *,	gbl)
+	_DCL(char *,	path)
+{
+	int	y,x;
+
+	getyx(stdscr, y, x);
+	if (++y >= LINES)	y = LINES-1;
+	move(y, x-x);
+	clrtobot();
+	move(y, 0);
+	refresh();
+	ft_write();
+	dlog_close();
+	forkfile(whoami, path, FALSE);
+	dlog_reopen();
+	wrepaint(stdscr,0);
+	ft_read(gbl->new_wd, tree_opt);
+}
+
+private	void	trace_pipe _ONE(char *,arg)
 {
 	if (debug) {
 		if (debug > 1) {
@@ -1290,7 +860,7 @@ _MAIN
 {
 #include	"version.h"
 
-	register int		j, k;
+	register int		j;
 	auto	struct	stat	sb;
 	auto	int		c,
 				count,
@@ -1400,53 +970,53 @@ _MAIN
 	Xscroll = (1 + (COLS/4)/10) * 10;
 	dedsort(FOO);
 	FOO->curfile = 0;
-	openVIEW();
+	openVIEW(FOO);
 
 	while (!quit) { switch (c = dlog_char(&count,1)) {
 			/* scrolling */
 	case ARO_UP:
 	case '\b':
-	case 'k':	upLINE(count);
+	case 'k':	upLINE(FOO, count);
 			break;
 
 	case ARO_DOWN:
 	case '\r':
 	case '\n':
-	case 'j':	downLINE(count);
+	case 'j':	downLINE(FOO, count);
 			break;
 
-	case 'f':	forward(count);
+	case 'f':	forward(FOO, count);
 			FOO->curfile = Ybase;
-			showFILES(FALSE,FALSE);
+			showFILES(FOO,FALSE,FALSE);
 			break;
 
-	case 'b':	backward(count);
+	case 'b':	backward(FOO, count);
 			FOO->curfile = Ybase;
-			showFILES(FALSE,FALSE);
+			showFILES(FOO,FALSE,FALSE);
 			break;
 
 	case ARO_LEFT:	if (Xbase > 0) {
 				if ((Xbase -= Xscroll * count) < 0)
 					Xbase = 0;
-				showFILES(FALSE,FALSE);
+				showFILES(FOO,FALSE,FALSE);
 			} else
 				dedmsg("already at left margin");
 			break;
 
 	case ARO_RIGHT:	if (Xbase + (Xscroll * count) < 990) {
 				Xbase += Xscroll * count;
-				showFILES(FALSE,FALSE);
+				showFILES(FOO,FALSE,FALSE);
 			} else
 				beep();
 			break;
 
 			/* cursor-movement in-screen */
-	case 'H':	FOO->curfile = Ybase;		showC(); break;
-	case 'M':	FOO->curfile = (Ybase+Ylast)/2;	showC(); break;
-	case 'L':	FOO->curfile = Ylast;		showC(); break;
+	case 'H':	FOO->curfile = baseVIEW(FOO);	showC(); break;
+	case 'M':	FOO->curfile = (baseVIEW(FOO)+lastVIEW(FOO))/2;	showC(); break;
+	case 'L':	FOO->curfile = lastVIEW(FOO);		showC(); break;
 	case '^':	if (Ybase != FOO->curfile) {
 				Ybase = FOO->curfile;
-				showFILES(FALSE,FALSE);
+				showFILES(FOO,FALSE,FALSE);
 			}
 			break;
 
@@ -1464,7 +1034,7 @@ _MAIN
 					blip('.');
 			}
 			if (count)
-				showFILES(TRUE,TRUE);
+				showFILES(FOO,TRUE,TRUE);
 			else
 				showC();
 			break;
@@ -1475,25 +1045,25 @@ _MAIN
 			quit = !rescan(TRUE, strcpy(tpath, cNAME));
 			break;
 	case 'G':	FOO->G_opt = one_or_both(j = FOO->G_opt,count);
-			showFILES((FOO->G_opt != 2) != (j != 2), FALSE);
+			showFILES(FOO,(FOO->G_opt != 2) != (j != 2), FALSE);
 			break;
 	case 'I':	FOO->I_opt = one_or_both(j = FOO->I_opt,count);
-			showFILES(FOO->I_opt != j, FALSE);
+			showFILES(FOO,FOO->I_opt != j, FALSE);
 			break;
 #ifdef	apollo_sr10
-	case 'O':	COMPLEMENT(FOO->O_opt); showFILES(TRUE, FALSE); break;
+	case 'O':	COMPLEMENT(FOO->O_opt); showFILES(FOO,TRUE, FALSE); break;
 #endif
 	case 'P':	FOO->P_opt = one_or_both(j = FOO->P_opt,count);
-			showFILES(FOO->P_opt != j, FALSE);
+			showFILES(FOO,FOO->P_opt != j, FALSE);
 			break;
 	case 'S':	FOO->S_opt = one_or_both(j = FOO->S_opt,count);
-			showFILES(FOO->S_opt != j, FALSE);
+			showFILES(FOO,FOO->S_opt != j, FALSE);
 			break;
 	case 'T':	FOO->T_opt = one_or_both(j = FOO->T_opt,count);
-			showFILES(FOO->T_opt != j, FALSE);
+			showFILES(FOO,FOO->T_opt != j, FALSE);
 			break;
 #ifdef	apollo
-	case 'U':	COMPLEMENT(FOO->U_opt); showFILES(FALSE,FALSE);	break;
+	case 'U':	COMPLEMENT(FOO->U_opt); showFILES(FOO,FALSE,FALSE);	break;
 #endif
 
 #ifdef	Z_RCS_SCCS
@@ -1501,27 +1071,27 @@ _MAIN
 			j = !FOO->Z_opt;
 			showSCCS();
 			FOO->V_opt = !FOO->V_opt;
-			showFILES(TRUE,j);
+			showFILES(FOO,TRUE,j);
 			break;
 
 	case 'Y':	/* show owner of file lock */
 			j = !FOO->Z_opt;
 			showSCCS();
 			FOO->Y_opt = !FOO->Y_opt;
-			showFILES(TRUE,j);
+			showFILES(FOO,TRUE,j);
 			break;
 
 	case 'Z':	/* toggle sccs-date display */
 			j = !FOO->Z_opt;
 			showSCCS();
 			FOO->Z_opt = -FOO->Z_opt;
-			showFILES(TRUE,j);
+			showFILES(FOO,TRUE,j);
 			break;
 
 	case 'z':	/* cancel sccs-display */
 			if (FOO->Z_opt) {
 				FOO->Z_opt = 0;
-				showFILES(TRUE,FALSE);
+				showFILES(FOO,TRUE,FALSE);
 			}
 			break;
 #endif	/* Z_RCS_SCCS */
@@ -1536,7 +1106,7 @@ _MAIN
 			/* move work-area marker */
 	case 'A':	count = -count;
 	case 'a':
-			markset(mark_W + count,TRUE);
+			markset(FOO, mark_W + count,TRUE);
 			break;
 
 	case CTL('R'):	/* modify read-expression */
@@ -1578,36 +1148,36 @@ _MAIN
 					showSCCS();
 #endif	/* Z_RCS_SCCS */
 				dedsort(FOO);
-				(void)to_file();
-				showFILES(FALSE,FALSE);
+				(void)to_file(FOO);
+				showFILES(FOO,FALSE,FALSE);
 			} else
 				dedmsg("unknown sort-key");
 			break;
 
 	case 'C':	FOO->dateopt += 1;
 			if (FOO->dateopt > 2)	FOO->dateopt = 0;
-			showFILES(FALSE,FALSE);
+			showFILES(FOO,FALSE,FALSE);
 			break;
 
 	case '#':	/* tag files with duplicated fields */
 			deduniq(FOO, count);
 			count_tags();
-			showFILES(FALSE,TRUE);
+			showFILES(FOO,FALSE,TRUE);
 			break;
 
 			/* tag/untag specific files */
 	case '+':	while (count-- > 0) {
 				tag_entry(FOO->curfile);
-				if (FOO->tag_opt) showWHAT();
-				if (!showDOWN())
+				if (FOO->tag_opt) showWHAT(FOO);
+				if (!showDOWN(FOO))
 					break;
 			}
 			break;
 
 	case '-':	while (count-- > 0) {
 				untag_entry(FOO->curfile);
-				if (FOO->tag_opt) showWHAT();
-				if (!showDOWN())
+				if (FOO->tag_opt) showWHAT(FOO);
+				if (!showDOWN(FOO))
 					break;
 			}
 			break;
@@ -1615,12 +1185,12 @@ _MAIN
 	case '_':	for (j = 0; j < FOO->numfiles; j++)
 				untag_entry(j);
 			init_tags();
-			showFILES(FALSE,FALSE);
+			showFILES(FOO,FALSE,FALSE);
 			break;
 
 	case CTL('G'):	FOO->tag_opt = one_or_both(j = FOO->tag_opt,count);
 			if (FOO->tag_opt != j) {
-				showWHAT();
+				showWHAT(FOO);
 				showC();
 			}
 			break;
@@ -1668,7 +1238,7 @@ _MAIN
 	case CTL('v'):	/* pad-view */
 	case 'e':
 	case 'v':	/* enter new process with current file */
-			editfile((c & 037) != CTL('e'), (int)iscntrl(c));
+			editfile(FOO, (c & 037) != CTL('e'), (int)iscntrl(c));
 			break;
 
 	case 'm':	to_work(TRUE);
@@ -1707,38 +1277,27 @@ _MAIN
 			break;
 
 	case 'D':	/* toggle directory/filelist mode */
-			(void)strcpy(dpath, strcpy(tpath,FOO->new_wd) );
-			do {
-			    while ((c = ft_view(FOO, tpath)) == 'e') {
-			    int	y,x;
-
-				getyx(stdscr, y, x);
-				if (++y >= LINES)	y = LINES-1;
-				move(y, x-x);
-				clrtobot();
-				move(y, 0);
-				refresh();
-				ft_write();
-				dlog_close();
-				forkfile(whoami, tpath, FALSE);
-				dlog_reopen();
-				wrepaint(stdscr,0);
-				ft_read(FOO->new_wd, tree_opt);
-			    }
-			} while (!new_tree(tpath, c));
+			(void)strcpy(dpath, strcpy(tpath, FOO->new_wd) );
+			for (;;) {
+				FOO = ft_view(FOO, tpath, &c);
+				if (c == 'e')
+					new_process(FOO, tpath);
+				else if (new_tree(FOO, tpath, c))
+					break;
+			}
 			break;
 
 	case 'E':	/* enter new directory on ring */
 			if (realstat(FOO->curfile, &sb) == 1) {
-				(void)new_args(
+				(void)new_args(FOO,
 					pathcat(tpath, FOO->new_wd, cNAME),
 					c, 1, 3, FALSE, (char *)0);
 #ifdef	S_IFLNK		/* try to edit head-directory of symbolic-link */
 			} else if (edithead(tpath, dpath)) {
 				if (strcmp(tpath, FOO->new_wd)
-				&&  !new_args(tpath, c, 1, 3, FALSE, (char *)0))
+				&&  !new_args(FOO, tpath, c, 1, 3, FALSE, (char *)0))
 					break;
-				scroll_to_file(findFILE(txtalloc(dpath)));
+				scroll_to_file(FOO, findFILE(FOO, txtalloc(dpath)));
 #endif	/* S_IFLNK */
 			} else
 				dedmsg("not a directory");
@@ -1746,7 +1305,7 @@ _MAIN
 
 	case 'F':	/* move forward in directory-ring */
 	case 'B':	/* move backward in directory-ring */
-			if (!old_args(c, count))
+			if (!old_args(FOO, c, count))
 				showC();
 			break;
 
@@ -1754,18 +1313,12 @@ _MAIN
 			deddump();
 			break;
 
-			/* patch: not implemented */
 	case 'X':	/* split/join screen (1 or 2 viewports) */
-			if (maxview > 1)	quitVIEW();
-			else			openVIEW();
+			splitVIEW(FOO);
 			break;
 
 	case '\t':	/* tab to next viewport */
-			if (maxview > 1) {
-				nextVIEW(TRUE);
-				showC();
-			} else
-				dedmsg("no other viewport");
+			tab2VIEW(FOO);
 			break;
 
 	default:	beep();

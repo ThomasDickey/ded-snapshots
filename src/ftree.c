@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	Id[] = "$Id: ftree.c,v 10.16 1992/04/02 13:03:31 dickey Exp $";
+static	char	Id[] = "$Id: ftree.c,v 10.18 1992/04/03 11:14:58 dickey Exp $";
 #endif
 
 /*
@@ -608,7 +608,7 @@ public	void	ft_purge _ONE(RING *,gbl)
 		char	tmp[BUFSIZ], *s;
 
 		(void)strcpy(tmp, gbl->new_wd);
-		for (j = 1; s = ring_path(j); j++) {
+		for (j = 1; s = ring_path(gbl, j); j++) {
 			ft_insert(s);
 			if (!strcmp(s,tmp))
 				break;
@@ -1154,13 +1154,16 @@ private	int	is_sccs _ONE(int,node)
  *	* The argument is overwritten with the name of the new directory
  *	  for e/E commands.
  */
-public	int	ft_view(
+public	RING *	ft_view(
 	_ARX(RING *,	gbl)
-	_AR1(char *,	path) /* caller's current directory */
+	_ARX(char *,	path) /* caller's current directory */
+	_AR1(int *,	cmdp)
 		)
 	_DCL(RING *,	gbl)
 	_DCL(char *,	path)
+	_DCL(int *,	cmdp)
 {
+	auto	 RING *	tmp;
 	auto	 int	row,
 			lvl,
 			num,
@@ -1168,13 +1171,15 @@ public	int	ft_view(
 	auto	 char	cwdpath[MAXPATHLEN];
 	register int	j;
 
+	*cmdp = 'E';	/* the most common return-value */
+
 	/* Set initial position. This has to be done by assuming the 'path'
 	 * argument is a true result from 'getwd' since the mount-table may
 	 * be screwed up and a symbolic link may be hiding this path. */
 	fd_add_path(strcpy(cwdpath, path), path);
 	if ((row = do_find(cwdpath)) < 0) {
 		waitmsg(cwdpath);
-		return 'E';
+		return gbl;
 	}
 	lvl = fd_level(row);
 	scroll_to(row);
@@ -1335,32 +1340,41 @@ public	int	ft_view(
 			deddump();
 			break;
 
-#define	SKIP_THIS(num)	dedring(fd_path(cwdpath, row), c, num, FALSE, (char *)0)
-#define	QUIT_THIS(num)	dedring(fd_path(cwdpath, row),'q',num, FALSE, (char *)0)
+#define	SKIP_THIS(num)	dedring(gbl, fd_path(cwdpath, row), c, num, FALSE, (char *)0)
+#define	QUIT_THIS(num)	dedring(gbl, fd_path(cwdpath, row),'q',num, FALSE, (char *)0)
 
 		/* quit lists in directory-ring */
 		case 'Q':
 		case 'q':
 			while (num-- > 0) {
-				j = SKIP_THIS(1);
-				if (!j)
+				tmp = SKIP_THIS(1);
+				if (j = (tmp != 0))
+					gbl = tmp;
+				else
 					break;
 				if (is_sccs(row) && (savesccs != showsccs))
 					toggle_sccs();
 			}
-			while (!fd_ring(gbl, path, &row, &lvl))
-				if (!QUIT_THIS(1))
-					return('E');
+			while (!fd_ring(gbl, path, &row, &lvl)) {
+				if (tmp = QUIT_THIS(1))
+					gbl = tmp;
+				else
+					return gbl;
+			}
 			if (!j)
-				return('E');
+				return gbl;
 			break;
 		/* scroll through the directory-ring */
 		case 'F':
 		case 'B':
-			num = SKIP_THIS(num);
-			while (!fd_ring(gbl, path, &row, &lvl))
-				if (!QUIT_THIS(1))
-					return('E');
+			if (tmp = SKIP_THIS(num))
+				gbl = tmp;
+			while (!fd_ring(gbl, path, &row, &lvl)) {
+				if (tmp = QUIT_THIS(1))
+					gbl = tmp;
+				else
+					return gbl;
+			}
 			break;
 
 		/* Exit from this program (back to 'ded') */
@@ -1390,7 +1404,8 @@ public	int	ft_view(
 			(void)strcpy(path, cwdpath);
 			/* fall-thru to return */
 		case 'D':
-			return(c);	/* 'e', 'E' CTL(E) or 'D' -- only! */
+			*cmdp = c;	/* 'e', 'E' CTL(E) or 'D' -- only! */
+			return gbl;
 
 		/* Scan/delete nodes */
 		case 'R':	if (ftree[row].f_mark & LINKED)
