@@ -1,3 +1,7 @@
+1992-08-10  dickey@software.org
+
+	* src/dlog.c: added 'prefix' arg to 'wrawgets()'
+
 1992-08-07  dickey@software.org
 
 	* Makefile: use:common.mk
