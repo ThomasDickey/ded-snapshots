@@ -55,7 +55,7 @@
 #define		DIR_PTYPES	/* includes directory-stuff */
 #include	"ded.h"
 
-MODULE_ID("$Id: dedtype.c,v 12.24 1996/01/13 15:02:15 tom Exp $")
+MODULE_ID("$Id: dedtype.c,v 12.25 1996/02/02 01:19:42 tom Exp $")
 
 typedef	struct	{
 	OFF_T	offset;
@@ -507,7 +507,6 @@ private	int	FinishPage(
 	standend();
 	PRINTW(" ");
 	clrtoeol();
-	refresh();
 
 	return shown;
 }

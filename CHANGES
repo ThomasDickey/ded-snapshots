@@ -1,3 +1,10 @@
+1996-02-01  Thomas E. Dickey  <dickey@clark.net>
+
+	* src/dedtype.c: removed a redundant 'refresh()'
+
+	* src/ded.c:
+	fix a place where I could have typed a non-printing char into a message
+
 1996-01-25  Thomas E. Dickey  <dickey@clark.net>
 
 	* src/ftree.c:
