@@ -1,3 +1,8 @@
+1988-03-28  dickey@software.org
+
+	* src/ded.c:
+	forgot to save ".ftree" when 'e' command is invoked from ft_view().
+
 1988-03-25  dickey@software.org
 
 	* src/ded.c: Began interface to 'ftree' module (far from done!).
