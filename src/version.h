@@ -1,6 +1,8 @@
 /*
  * Version-identifier for DED
+ * 07 Jun 1988, added CTL(K) command.
  * 06 Jun 1988, provided clean recover for 'R' if no files are found.
+ *		use 'gethome()' for ".ftree" location (process, not login).
  * 01 Jun 1988, added 'Y'-toggle.
  * 26 May 1988, minor fixes to refresh, allocation.
  * 23 May 1988, added '.'-sort, extended RCS/SCCS interface for versions.
@@ -23,4 +25,4 @@
  * 01 Dec 1987, added '*', '^' commands, made '%' refresh screen
  * 25 Nov 1987, added sccs-support (V,z,Z toggles, V,z,Z sorts)
  */
-static	char	version[] = "@(#)DED Directory Editor (88/06/06 12:30:33)";
+static	char	version[] = "@(#)DED Directory Editor (88/06/07 07:22:47)";
