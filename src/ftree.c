@@ -1,11 +1,12 @@
 #ifndef	lint
-static	char	Id[] = "$Id: ftree.c,v 10.7 1992/03/30 11:49:29 dickey Exp $";
+static	char	Id[] = "$Id: ftree.c,v 10.8 1992/04/01 14:29:58 dickey Exp $";
 #endif
 
 /*
  * Author:	T.E.Dickey
  * Created:	02 Sep 1987
  * Modified:
+ *		01 Apr 1992, convert most global variables to RING-struct.
  *		30 Mar 1992, in 'ft_write()', copy strings to temp-buffer first
  *			     to avoid having to make lots of writes.
  *		17 Feb 1992, fix 'V' toggle, 'R' command when no-children.
@@ -635,7 +636,7 @@ int	changed	= 0;
 #ifndef	TEST
 	if (changed) {			/* re-insert ring */
 	char	tmp[BUFSIZ], *s;
-		(void)strcpy(tmp, new_wd);
+		(void)strcpy(tmp, FOO->new_wd);
 		for (j = 1; s = dedrung(j); j++) {
 			ft_insert(s);
 			if (!strcmp(s,tmp))
@@ -1112,7 +1113,7 @@ _DCL(int *,	level_)
 	int	newrow;
 	char	cwdpath[BUFSIZ];
 
-	if ((newrow = do_find(strcpy(cwdpath,new_wd))) < 0) {
+	if ((newrow = do_find(strcpy(cwdpath,FOO->new_wd))) < 0) {
 		/* path was deleted, put it back if it is really there */
 		(void) ft_stat(cwdpath, cwdpath);
 		newrow = do_find(cwdpath);
@@ -1369,12 +1370,12 @@ ft_view _ONE(char *,	path)	/* caller's current directory */
 				if (ok_rename(cwdpath, bfr) ) {
 #ifndef	TEST
 					dedrering(cwdpath, bfr);
-					(void)strcpy(path, new_wd);
+					(void)strcpy(path, FOO->new_wd);
 #endif
 					ft_rename(cwdpath, bfr);
 					scroll_to (row = do_find(bfr));
 				}
-				(void)chdir(new_wd);
+				(void)chdir(FOO->new_wd);
 			} else
 				waitmsg(cwdpath);
 			break;
@@ -1429,7 +1430,7 @@ ft_view _ONE(char *,	path)	/* caller's current directory */
 				}
 				bfr[len] = EOS;
 				abspath(strcpy(cwdpath, bfr));
-				(void)chdir(new_wd);
+				(void)chdir(FOO->new_wd);
 			}
 #endif	/* S_IFLNK */
 			if (access(cwdpath, R_OK | X_OK) < 0) {
@@ -1521,7 +1522,7 @@ ft_view _ONE(char *,	path)	/* caller's current directory */
 #ifdef	apollo
 		/* toggle flag showing Aegis/Unix names */
 		case 'U':
-			U_opt = !U_opt;
+			FOO->U_opt = !FOO->U_opt;
 			showdiff = -1;
 			break;
 #endif	/* apollo */
@@ -1713,7 +1714,7 @@ _DCL(int,	base)
 #ifdef	TEST
 	(void)chdir(old);
 #else
-	(void)chdir(new_wd);
+	(void)chdir(FOO->new_wd);
 #endif
 	return (0);
 }

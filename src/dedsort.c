@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	Id[] = "$Id: dedsort.c,v 10.1 1992/02/06 10:41:25 dickey Exp $";
+static	char	Id[] = "$Id: dedsort.c,v 10.2 1992/04/01 14:29:49 dickey Exp $";
 #endif
 
 /*
@@ -7,6 +7,7 @@ static	char	Id[] = "$Id: dedsort.c,v 10.1 1992/02/06 10:41:25 dickey Exp $";
  * Author:	T.E.Dickey
  * Created:	11 Nov 1987
  * Modified:
+ *		01 Apr 1992, convert most global variables to RING-struct.
  *		06 Feb 1992, make 'Z' sort by difference between checkin-time
  *			     and modification-time.
  *		18 Oct 1991, converted to ANSI
@@ -89,14 +90,14 @@ _DCL(FLIST *,	p2)
 	auto	 char	bfr[BUFSIZ];
 	auto	 char	*s1, *s2;
 
-	if (tagsort) {
+	if (FOO->tagsort) {
 		if (p1->flag && !p2->flag)
 			return (-1);
 		if (p2->flag && !p1->flag)
 			return (1);
 	}
 
-	switch (sortopt) {
+	switch (FOO->sortopt) {
 			/* patch: N sort from 'fl' would be nice... */
 
 #ifdef	apollo_sr10
@@ -140,7 +141,7 @@ _DCL(FLIST *,	p2)
 			if (!cmp) {
 				cmp = CMP(st_mode);
 #ifdef	apollo_sr10
-				if (!cmp && sortopt == 'P') {
+				if (!cmp && FOO->sortopt == 'P') {
 				int	x1 = (is_EXTENDED_ACL(p1->s.st_rfu4)),
 					x2 = (is_EXTENDED_ACL(p2->s.st_rfu4));
 					cmp = (x1 && !x2)
@@ -194,7 +195,7 @@ _DCL(FLIST *,	p2)
 			break;
 
 	case 'l':	cmp = CMP(st_nlink);	break;
-	case 'i':	if (I_opt == 2) {
+	case 'i':	if (FOO->I_opt == 2) {
 				cmp = CMP(st_dev);
 				if (cmp == 0)
 					cmp = CMP(st_ino);
@@ -206,21 +207,21 @@ _DCL(FLIST *,	p2)
 
 			/* compare uid/gid fields numerically */
 	case 'U':	cmp = CMP(st_uid);
-			if (cmp == 0 && G_opt == 2)
+			if (cmp == 0 && FOO->G_opt == 2)
 				cmp = CMP(st_gid);
 			break;
 	case 'G':	cmp = CMP(st_gid);
-			if (cmp == 0 && G_opt == 2)
+			if (cmp == 0 && FOO->G_opt == 2)
 				cmp = CMP(st_uid);
 			break;
 
 			/* compare uid/gid fields lexically */
 	case 'u':	cmp  = CMP2S(uid2s,st_uid);
-			if (cmp == 0 && G_opt == 2)
+			if (cmp == 0 && FOO->G_opt == 2)
 				cmp  = CMP2S(gid2s,st_gid);
 			break;
 	case 'g':	cmp  = CMP2S(gid2s,st_gid);
-			if (cmp == 0 && G_opt == 2)
+			if (cmp == 0 && FOO->G_opt == 2)
 				cmp  = CMP2S(gid2s,st_uid);
 			break;
 
@@ -246,12 +247,12 @@ _DCL(FLIST *,	p2)
 	int	cmp = dedsort_cmp(p1,p2);
 
 	if (!cmp) {
-		if (sortopt == 'Z')
+		if (FOO->sortopt == 'Z')
 			cmp = CMP(st_mtime);
 		else
 			cmp = strcmp(p1->name, p2->name);
 	}
-	return(sortord ? -cmp : cmp);
+	return(FOO->sortord ? -cmp : cmp);
 }
 
 /*
@@ -261,6 +262,6 @@ _DCL(FLIST *,	p2)
 dedsort(_AR0)
 {
 	char	*name = cNAME;
-	qsort((char *)flist, (LEN_QSORT)numfiles, sizeof(FLIST), compare);
-	curfile = findFILE(name);
+	qsort((char *)FOO->flist, (LEN_QSORT)FOO->numfiles, sizeof(FLIST), compare);
+	FOO->curfile = findFILE(name);
 }

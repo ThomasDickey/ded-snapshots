@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	Id[] = "$Id: ded2s.c,v 10.1 1992/02/04 15:37:48 dickey Exp $";
+static	char	Id[] = "$Id: ded2s.c,v 10.2 1992/04/01 14:29:46 dickey Exp $";
 #endif
 
 /*
@@ -7,6 +7,7 @@ static	char	Id[] = "$Id: ded2s.c,v 10.1 1992/02/04 15:37:48 dickey Exp $";
  * Author:	T.E.Dickey
  * Created:	09 Nov 1987
  * Modified:
+ *		01 Apr 1992, convert most global variables to RING-struct.
  *		04 Feb 1992, show differences between mtime & ztime specially
  *			     when +/- 1.
  *		18 Oct 1991, converted to ANSI
@@ -84,9 +85,9 @@ _DCL(char *,	bfr)
 _DCL(int,	n)
 _DCL(int,	val)
 {
-	if (cmdcol[n] < val)	cmdcol[n] = val;
+	if (FOO->cmdcol[n] < val)	FOO->cmdcol[n] = val;
 	else {
-		while (val++ < cmdcol[n])
+		while (val++ < FOO->cmdcol[n])
 			*bfr++ = ' ';
 	}
 	return (bfr);
@@ -101,7 +102,7 @@ _DCL(int,	inx)
 _DCL(char *,	bfr)
 _DCL(int,	len)
 {
-FLIST		*f_	= &flist[inx];
+FLIST		*f_	= &xENTRY(inx);
 struct	stat	*s	= &(f_->s);
 time_t  fdate;
 register unsigned mj;
@@ -112,12 +113,12 @@ char	*t,
 
 	/* Translate the filemode (type+protection) */
 	mj = s->st_mode;
-	if (P_opt) {
+	if (FOO->P_opt) {
 		FORMAT(bfr, "%6o ", mj);
-		cmdcol[CCOL_PROT] = 3;
+		FOO->cmdcol[CCOL_PROT] = 3;
 	} else {
 		*bfr++ = modechar(mj); /* translate the type of file */
-		cmdcol[CCOL_PROT] = bfr - base;
+		FOO->cmdcol[CCOL_PROT] = bfr - base;
 
 		(void)strcpy(bfr, "---------");
 		for (c = 0; c < 9; c += 3) {
@@ -132,7 +133,7 @@ char	*t,
 
 #ifdef	S_IFLNK
 	/* show symbolic link target mode in uppercase */
-	if (AT_opt && f_->ltxt) {
+	if (FOO->AT_opt && f_->ltxt) {
 		for (t = base; *t; t++)
 			if (isalpha(*t))	*t = _toupper(*t);
 	}
@@ -140,7 +141,7 @@ char	*t,
 	bfr += strlen(bfr);
 #ifdef	apollo_sr10
 	*bfr++ = ((mj != 0) && has_extended_acl(inx)) ? '+' : ' ';
-	if (O_opt) {
+	if (FOO->O_opt) {
 		FORMAT(bfr, " %-9.9s ", type_uid2s(s));
 		bfr += field(bfr,mj);
 	}
@@ -149,20 +150,20 @@ char	*t,
 
 	/* translate the number of links, or the inode value */
 #ifdef	apollo
-	if (I_opt)	FORMAT(bfr, "%08x ", s->st_ino);
+	if (FOO->I_opt)	FORMAT(bfr, "%08x ", s->st_ino);
 #else	/* unix */
-	if (I_opt)	FORMAT(bfr, "%5u ", s->st_ino);
+	if (FOO->I_opt)	FORMAT(bfr, "%5u ", s->st_ino);
 #endif	/* apollo/unix */
 	else		FORMAT(bfr, "%3d ", s->st_nlink);
 	bfr += field(bfr,mj);
-	if (I_opt == 2)	{
+	if (FOO->I_opt == 2)	{
 		FORMAT(bfr, "%08x ", s->st_dev);
 		bfr += field(bfr,mj);
 	}
 
 	bfr = setcol(bfr, CCOL_UID, bfr - base);
-	if (!(G_opt & 1)) {	/* show the user-id */
-		if (P_opt > 1)
+	if (!(FOO->G_opt & 1)) {	/* show the user-id */
+		if (FOO->P_opt > 1)
 			FORMAT(bfr, "%-*d ", UIDLEN, (int)(s->st_uid));
 		else
 			FORMAT(bfr, "%-*.*s ",
@@ -170,31 +171,31 @@ char	*t,
 		bfr += field(bfr,mj);
 	}
 
-	if (G_opt != 0) {	/* show the group-id */
+	if (FOO->G_opt != 0) {	/* show the group-id */
 		bfr = setcol(bfr, CCOL_GID, bfr - base);
-		if (P_opt > 1)
+		if (FOO->P_opt > 1)
 			FORMAT(bfr, "%-*d ", UIDLEN, (int)(s->st_gid));
 		else
 			FORMAT(bfr, "%-*.*s ",
 				UIDLEN, UIDLEN, gid2s((int)(s->st_gid)));
 		bfr += field(bfr,mj);
 	} else
-		cmdcol[CCOL_GID] = cmdcol[CCOL_UID];
+		FOO->cmdcol[CCOL_GID] = FOO->cmdcol[CCOL_UID];
 
 	/* show the file-size (or major/minor device codes, if device) */
 	switch (mj & S_IFMT) {
 	case S_IFBLK:
 	case S_IFCHR:
-		if (S_opt >= 1)
+		if (FOO->S_opt >= 1)
 			bfr += strlen(strcpy(bfr, "      "));
-		if (S_opt != 1) {
+		if (FOO->S_opt != 1) {
 			FORMAT(bfr, "%3d,%3d ",
 				major(s->st_rdev), minor(s->st_rdev));
 			bfr += field(bfr,mj);
 		}
 		break;
 	default:
-		if (S_opt >= 1) {
+		if (FOO->S_opt >= 1) {
 			FORMAT(bfr, "%5u ",
 #ifdef	SYSTEM5
 				s->st_size / 1024	/* patch */
@@ -204,7 +205,7 @@ char	*t,
 				);
 			bfr += field(bfr,mj);
 		}
-		if (S_opt != 1) {
+		if (FOO->S_opt != 1) {
 			FORMAT(bfr, "%7d ", s->st_size);
 			bfr += field(bfr,mj);
 		}
@@ -213,11 +214,11 @@ char	*t,
 
 	/* show sccs-date, if any */
 #ifdef	Z_RCS_SCCS
-	if (Z_opt > 0) {
+	if (FOO->Z_opt > 0) {
 		time2s(bfr, f_->z_time);
 		bfr += field(bfr,mj);
 	}
-	if (Z_opt != 0) {	/* show relationship between dates */
+	if (FOO->Z_opt != 0) {	/* show relationship between dates */
 		if (mj != 0 && f_->z_time) {
 			long	diff = s->st_mtime - f_->z_time;
 			int	mark = '=';
@@ -235,20 +236,20 @@ char	*t,
 #endif	/* Z_RCS_SCCS */
 
 	/* show the appropriate-date */
-	fdate =	(dateopt == 1)  ? s->st_ctime
-				: (dateopt == 0 ? s->st_atime
+	fdate =	(FOO->dateopt == 1)  ? s->st_ctime
+				: (FOO->dateopt == 0 ? s->st_atime
 						: s->st_mtime);
 	time2s(bfr,fdate);
 	bfr += field(bfr,mj);
 
 #ifdef	Z_RCS_SCCS
-	if (Z_opt) {
-		if (V_opt) {	/* show highest version number */
+	if (FOO->Z_opt) {
+		if (FOO->V_opt) {	/* show highest version number */
 			if (!(t = f_->z_vers))	t = "";
 			FORMAT(bfr, "%-7s ", t);
 			bfr += field(bfr, (unsigned)(OK_S(t)));
 		}
-		if (Y_opt) {	/* show current lock */
+		if (FOO->Y_opt) {	/* show current lock */
 			if (!(t = f_->z_lock))	t = "";
 			FORMAT(bfr, "%-*.*s ", UIDLEN, UIDLEN, t);
 			bfr += field(bfr, (unsigned)(OK_S(t)));
@@ -337,9 +338,9 @@ _DCL(time_t,	fdate)
 						/* 0123456789.123456789.123 */
 	t[24]	= ' ';				/* ddd mmm DD HH:MM:SS YYYY */
 
-	if (T_opt == 2) {
+	if (FOO->T_opt == 2) {
 		FORMAT(bfr, "%12.6f ", (now - fdate) / (24.0 * HOUR));
-	} else if (T_opt == 1) {
+	} else if (FOO->T_opt == 1) {
 		(void)strcpy(bfr, t);
 	} else {
 		if (midnite == 0) {
@@ -377,7 +378,7 @@ _DCL(int,	len)
 _DCL(char *,	name)
 _DCL(int,	flag)
 {
-	return (name2s(bfr, len, name, flag | (U_opt ? 2 : 0)));
+	return (name2s(bfr, len, name, flag | (FOO->U_opt ? 2 : 0)));
 }
 
 #ifdef	apollo_sr10

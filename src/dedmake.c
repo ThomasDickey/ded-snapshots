@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	Id[] = "$Id: dedmake.c,v 10.1 1992/01/16 15:47:14 dickey Exp $";
+static	char	Id[] = "$Id: dedmake.c,v 10.3 1992/04/01 14:57:35 dickey Exp $";
 #endif
 
 /*
@@ -7,6 +7,7 @@ static	char	Id[] = "$Id: dedmake.c,v 10.1 1992/01/16 15:47:14 dickey Exp $";
  * Author:	T.E.Dickey
  * Created:	12 Sep 1988
  * Modified:
+ *		01 Apr 1992, convert most global variables to RING-struct.
  *		16 Jan 1992, force 'dedline()' off on exit.
  *		16 Oct 1991, modified to allow command-replay
  *		15 Oct 1991, converted to ANSI
@@ -59,16 +60,16 @@ _DCL(int,	hard)
 	cNAME = txtalloc(name);
 	if (hard >= 0) {
 		register int j;
-		for (j = 0; j < numfiles; j++) {
-			if (j == curfile
+		for (j = 0; j < FOO->numfiles; j++) {
+			if (j == FOO->curfile
 			 || xSTAT(j).st_ino == xSTAT(hard).st_ino) {
-				statLINE(j);
-				showLINE(j);
+				statLINE(FOO, j);
+				showLINE(FOO, j);
 			}
 		}
 	} else {
-		statLINE(curfile);
-		showLINE(curfile);
+		statLINE(FOO, FOO->curfile);
+		showLINE(FOO, FOO->curfile);
 	}
 	return (TRUE);
 }
@@ -87,7 +88,7 @@ _DCL(char *,	to_edit)
 {
 	auto	struct	stat	sb;
 	auto	int	ok =
-			edittext(firstc, cmdcol[CCOL_NAME], BUFSIZ, to_edit);
+			edittext(firstc, FOO->cmdcol[CCOL_NAME], BUFSIZ, to_edit);
 
 	clearmsg();
 
@@ -98,7 +99,7 @@ _DCL(char *,	to_edit)
 		else if (errno == ENOENT) {
 			if (!makeit(to_edit, mode, hard)) {
 				waitmsg(sys_errlist[errno]);
-				statMAKE(0);	/* undo it -- error */
+				statMAKE(FOO, 0); /* undo it -- error */
 			}
 			showC();
 			return TRUE;
@@ -108,7 +109,7 @@ _DCL(char *,	to_edit)
 		(void)replay(-1);
 		return FALSE;
 	}
-	statMAKE(0);				/* undo it -- gave up */
+	statMAKE(FOO, 0);			/* undo it -- gave up */
 	return TRUE;
 }
 
@@ -126,7 +127,7 @@ dedmake _ONE(int,firstc)
 	case 'l':	mode = S_IFLNK;	break;
 #endif
 	case 'L':	if ((mode = (cSTAT.st_mode & S_IFMT)) == S_IFREG) {
-				hard = curfile + 1;
+				hard = FOO->curfile + 1;
 				break;
 			}
 	default:	if (isascii(firstc) && isgraph(firstc)) {
@@ -136,7 +137,7 @@ dedmake _ONE(int,firstc)
 				beep();
 			return;
 	}
-	statMAKE(mode);
+	statMAKE(FOO, mode);
 
 	/* loop until either the user gives up, or supplies a legal name */
 	do {

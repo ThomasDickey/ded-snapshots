@@ -1,4 +1,4 @@
-# $Id: Makefile,v 10.5 1992/03/20 12:52:36 dickey Exp $
+# $Id: Makefile,v 10.6 1992/04/01 13:51:25 dickey Exp $
 # MAKE-file for directory editor
 #
 ####### (Environment) ##########################################################
@@ -26,6 +26,7 @@ LINTOPT	= $(CPP_OPTS) -ltd -lcurses -lapollo
 ALL	= $B/$(THIS) $B/$(THIS).hlp
 CSRC	=\
 	$(THIS).c \
+	ded2s.c \
 	deddoit.c \
 	deddump.c \
 	dedfind.c \
@@ -42,7 +43,6 @@ CSRC	=\
 	dedtype.c \
 	deduniq.c \
 	dedwait.c \
-	ded2s.c \
 	dlog.c \
 	ftree.c \
 	showpath.c \
@@ -53,6 +53,7 @@ HSRC	= \
 #
 Z	= $(THIS).a
 OBJS	= \
+	$Z(ded2s.o) \
 	$Z(deddoit.o) \
 	$Z(deddump.o) \
 	$Z(dedfind.o) \
@@ -69,7 +70,6 @@ OBJS	= \
 	$Z(dedtype.o) \
 	$Z(deduniq.o) \
 	$Z(dedwait.o) \
-	$Z(ded2s.o) \
 	$Z(dlog.o) \
 	$Z(ftree.o) \
 	$Z(showpath.o) \

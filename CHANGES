@@ -1,3 +1,30 @@
+1992-04-01  dickey@software.org
+
+	* src/ded.c, src/ded.h:
+	change interface to 'dedtype()' to get rid of global-data
+
+	* src/dedtype.c: change interface to get rid of global-data
+
+	* src/dedscan.c:
+	use new gXXX macros to eradicate use of FOO (global data)
+
+	* src/ded.h:
+	new macros gXXX to use when passing RING-struct as parameter
+
+	* src/dedscan.c:
+	got rid of variable FOO (except where buried away within
+	macros)
+
+	* src/dedtype.c, src/ded.h, src/dedscan.c, src/dedring.c, src/dedmake.c, src/dedline.c, src/ded.c:
+	modified interfaces to dedscan.c to allow decoupling from global RING-struct
+
+	* src/ded.c, src/dedtype.c, src/ftree.c, src/dedring.c, src/deddoit.c, src/dedsort.c, src/ded2s.c, src/dedmake.c, src/dedscan.c, src/dedline.c, src/sortset.c, src/dedfind.c, src/dedread.c, src/deduniq.c:
+	converted most global variables to RING-struct
+
+	* src/Makefile: moved ded2s to correspond with alphabetical order
+
+	* src/ded.h: converted most global variables to RING-struct
+
 1992-03-30  dickey@software.org
 
 	* src/dedtype.c, src/ftree.c: lint

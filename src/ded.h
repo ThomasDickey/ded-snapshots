@@ -3,7 +3,7 @@
 
 #ifdef	MAIN
 #ifndef	lint
-static	char	*ded_h = "$Id: ded.h,v 10.3 1992/03/12 12:13:38 dickey Exp $";
+static	char	*ded_h = "$Id: ded.h,v 10.7 1992/04/01 16:27:27 dickey Exp $";
 #endif
 #endif	/* MAIN */
 
@@ -20,6 +20,9 @@ static	char	*ded_h = "$Id: ded.h,v 10.3 1992/03/12 12:13:38 dickey Exp $";
 #include	<errno.h>
 #include	<cmdch.h>
 extern	char	*sys_errlist[];
+
+#define	private	static
+#define	public
 
 /*
  * Definitions to make linting easier
@@ -86,35 +89,58 @@ extern	int	re_exec();	/* (return > 0): match */
  * We store an array of FLIST structures to describe all files which can
  * be displayed in a given viewport.  This is denoted the 'display list'.
  */
-typedef	struct	_flist	{
-	struct	_flist	*next;
-	char		*name;	/* name (within working-directory)	*/
-	char		*ltxt;	/* what link resolves to		*/
-	STAT		s;	/* stat()-block				*/
-	short		dord;	/* directory-order, for "d" sort	*/
-	char		flag;	/* tag-flag				*/
+#define	FLIST	struct	_flist
+typedef	FLIST	{
+	FLIST	*next;
+	char	*name;		/* name (within working-directory)	*/
+	char	*ltxt;		/* what link resolves to		*/
+	STAT	s;		/* stat()-block				*/
+	short	dord;		/* directory-order, for "d" sort	*/
+	char	flag;		/* tag-flag				*/
 #ifdef	Z_RCS_SCCS
 	char	*z_vers;	/* last sccs-release, version		*/
 	char	*z_lock;	/* current locker (user-name)		*/
 	time_t	z_time;		/* last sccs delta-date			*/
 #endif	/* Z_RCS_SCCS */
-	} FLIST;
+	};
 
 /*
  * Short-hand expressions:
  */
-#define	xNAME(x)	flist[x].name
-#define	xSTAT(x)	flist[x].s
-#define	xLTXT(x)	flist[x].ltxt
-#define	xFLAG(x)	flist[x].flag
-#define	xDORD(x)	flist[x].dord
+#define	xENTRY(x)	FOO->flist[x]	/* passed as global */
+#define	xNAME(x)	xENTRY(x).name
+#define	xSTAT(x)	xENTRY(x).s
+#define	xLTXT(x)	xENTRY(x).ltxt
+#define	xFLAG(x)	xENTRY(x).flag
+#define	xDORD(x)	xENTRY(x).dord
 
-#define	cNAME		xNAME(curfile)
-#define	cSTAT		xSTAT(curfile)
-#define	cLTXT		xLTXT(curfile)
-#define	cFLAG		xFLAG(curfile)
+#define	xVERS(x)	xENTRY(x).z_vers
+#define	xLOCK(x)	xENTRY(x).z_lock
+#define	xTIME(x)	xENTRY(x).z_time
 
-#define	GROUPED(n)	(xFLAG(n) || ((n) == curfile))
+#define	gENTRY(x)	gbl->flist[x]	/* passed-thru as argument */
+#define	gNAME(x)	gENTRY(x).name
+#define	gSTAT(x)	gENTRY(x).s
+#define	gLTXT(x)	gENTRY(x).ltxt
+#define	gFLAG(x)	gENTRY(x).flag
+#define	gDORD(x)	gENTRY(x).dord
+
+#define	gVERS(x)	gENTRY(x).z_vers
+#define	gLOCK(x)	gENTRY(x).z_lock
+#define	gTIME(x)	gENTRY(x).z_time
+
+#define	cENTRY		xENTRY(FOO->curfile)
+#define	cNAME		cENTRY.name
+#define	cSTAT		cENTRY.s
+#define	cLTXT		cENTRY.ltxt
+#define	cFLAG		cENTRY.flag
+#define	cDORD		cENTRY.dord
+
+#define	cVERS		cENTRY.z_vers
+#define	cLOCK		cENTRY.z_lock
+#define	cTIME		cENTRY.z_time
+
+#define	GROUPED(n)	(xFLAG(n) || ((n) == FOO->curfile))
 
 			/* markers for column-beginnings */
 #define	CCOL_PROT	0
@@ -127,21 +153,22 @@ typedef	struct	_flist	{
 #define	CCOL_MAX	6
 
 /*
- * Global data (cf: dedring.c)
+ * The RING structure saves global data which lets us restore the state
+ * of a file-list (see "ded.h"):
  */
-MAIN	char	old_wd[BUFSIZ],	/* original working-directory */
-		new_wd[BUFSIZ],	/* current working directory */
-		*toscan,	/* selects files in 'dedscan()'		*/
-		*scan_expr;	/* compiled version of 'toscan'		*/
-MAIN	DYN	*cmd_sh;	/* last $SHELL-command			*/
-
-MAIN	FLIST	*flist;		/* pointer to display-list */
-
-MAIN	char	**top_argv;	/* 'argv[]' used in re-scanning, etc. */
-MAIN	int	top_argc,
-		cmdcol[CCOL_MAX],/* column in which to show cursor */
+#define	RING	struct	_ring
+typedef	RING {
+	RING	*_link;
+	DYN	*sort_key;	/* 'new_wd', translated for sorting */
+	char	new_wd[BUFSIZ],
+		*toscan,	/* directory-scan expression	*/
+		*scan_expr;	/* compiled version of 'toscan'	*/
+	DYN	*cmd_sh;
+	FLIST	*flist;
+	char	**top_argv;
+	int	top_argc;
+	int	cmdcol[CCOL_MAX],/* column in which to show cursor */
 				/* 0=mode, 1=uid/gid, 2=normal */
-		mark_W,		/* row of work-area marker */
 		clr_sh,		/* true if we clear-screen after SHELL	*/
 		Xbase, Ybase,	/* viewport (for scrolling) */
 		curfile,	/* current file on which to operate */
@@ -152,24 +179,33 @@ MAIN	int	top_argc,
 		tag_opt,	/* show totals for tagged files */
 #ifdef	S_IFLNK
 		AT_opt,		/* show symbolic link target */
-#endif	/* S_IFLNK */
+#endif
 		A_opt,		/* show "." and ".." */
 		G_opt,		/* show uid/gid field */
 		I_opt,		/* show link/inode field */
 #ifdef	apollo_sr10
 		O_opt,		/* show apollo object-types */
-#endif	/* apollo_sr10 */
+#endif
 		P_opt,		/* show filemode in octal vs normal */
 		S_opt,		/* show filesize in blocks */
-		T_opt;		/* show long date+time */
+		T_opt,		/* show long date+time */
 		U_opt;		/* show underlying file-info */
 #ifdef	Z_RCS_SCCS
-MAIN	int	V_opt,		/* show sccs-versions */
+	int	V_opt,		/* show sccs-versions */
 		Y_opt,		/* show sccs-locks */
 		Z_opt;		/* show sccs-information */
-#endif	/* Z_RCS_SCCS */
+#endif
+	unsigned numfiles;	/* total files in display-list */
+	};
 
-MAIN unsigned	numfiles;	/* total files in display-list */
+/*
+ * Global data (cf: dedring.c)
+ */
+MAIN	char	old_wd[BUFSIZ];	/* original working-directory */
+MAIN	int	mark_W,		/* row of work-area marker */
+		Xbase,
+		Ybase;
+MAIN	RING	*FOO;		/* current list (patch: 'X' command?) */
 
 /* *** "ded.c" *** */
 extern	int	debug;
@@ -245,7 +281,8 @@ extern	int	backward(
 
 extern	int	showWHAT(_ar0);
 
-extern	int	showLINE(
+extern	void	showLINE(
+		_arx(RING *,	gbl)
 		_ar1(int,	j));
 
 extern	int	showVIEW(_ar0);
@@ -351,6 +388,8 @@ extern	int	ok_scan(
 		_ar1(char *,	name));
 
 /* *** "dedring.c" *** */
+extern	RING	*ring_alloc(_ar0);
+
 extern	int	dedring(
 		_arx(char *,	path)
 		_arx(int,	cmd)
@@ -370,20 +409,25 @@ extern	void	dedrering(
 
 /* *** "dedscan.c" *** */
 extern	int	dedscan(
+		_arx(RING *,	gbl)
 		_arx(int,	argc)
 		_ar1(char **,	argv));
 
-extern	int	statSCCS(
+extern	void	statSCCS(
+		_arx(RING *,	gbl)
 		_arx(char *,	name)
 		_ar1(FLIST *,	f_));
 
-extern	int	statLINE(
+extern	void	statLINE(
+		_arx(RING *,	gbl)
 		_ar1(int,	j));
 
-extern	int	statMAKE(
+extern	void	statMAKE(
+		_arx(RING *,	gbl)
 		_ar1(int,	mode));
 
 extern	int	path_RESOLVE(
+		_arx(RING *,	gbl)
 		_ar1(char *,	path));
 
 /* *** "dedshow.c" *** */
@@ -404,6 +448,7 @@ extern	int	dedsort(_ar0);
 
 /* *** "dedtype.c" *** */
 extern	int	dedtype(
+		_arx(RING *,	gbl)
 		_arx(char *,	name)
 		_arx(int,	inlist)
 		_arx(int,	binary)
