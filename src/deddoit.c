@@ -3,6 +3,7 @@
  * Author:	T.E.Dickey
  * Created:	17 Nov 1987
  * Modified:
+ *		10 Aug 1999, ignore errno if system() doesn't return < 0.
  *		15 Feb 1998, compiler-warnings
  *		29 Oct 1993, ifdef-ident
  *		28 Sep 1993, gcc warnings
@@ -35,7 +36,7 @@
  */
 #include	"ded.h"
 
-MODULE_ID("$Id: deddoit.c,v 12.17 1998/07/03 01:22:58 tom Exp $")
+MODULE_ID("$Id: deddoit.c,v 12.18 1999/08/10 11:10:09 tom Exp $")
 
 /*
  * Return a pointer to a leaf of a given name
@@ -266,7 +267,7 @@ public	void	deddoit(
 		(void)dedsigs(FALSE);	/* prevent child from killing us */
 		dlog_comment("execute %s\n", dyn_string(Subs));
 		errno = 0;
-		if (system(dyn_string(Subs)) < 0 || errno != 0) {
+		if (system(dyn_string(Subs)) < 0) {
 			ok = FALSE;
 			warn(gbl, "system");
 		}
