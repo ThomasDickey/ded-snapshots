@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	what[] = "$Id: ded.c,v 5.4 1990/02/07 08:23:10 dickey Exp $";
+static	char	what[] = "$Id: ded.c,v 5.7 1990/03/02 12:08:37 dickey Exp $";
 #endif	lint
 
 /*
@@ -7,9 +7,21 @@ static	char	what[] = "$Id: ded.c,v 5.4 1990/02/07 08:23:10 dickey Exp $";
  * Author:	T.E.Dickey
  * Created:	09 Nov 1987
  * $Log: ded.c,v $
- * Revision 5.4  1990/02/07 08:23:10  dickey
- * modified '#' command (deduniq-proc) to 3 modes of operation.
+ * Revision 5.7  1990/03/02 12:08:37  dickey
+ * set 'no_worry' in 'dedring()', not 'new_args()'
  *
+ *		Revision 5.6  90/03/02  08:57:19  dickey
+ *		modified quit-behavior so that if user has gone into any
+ *		directory other than the original one, he will be prompted
+ *		on quit.  added "-n" option so this doesn't happen in a
+ *		subprocess.
+ *		
+ *		Revision 5.5  90/03/02  08:21:02  dickey
+ *		added special case for typing contents of directory-file.
+ *		
+ *		Revision 5.4  90/02/07  09:51:39  dickey
+ *		modified '#' command (deduniq-proc) to 3 modes of operation.
+ *		
  *		Revision 5.3  90/02/01  12:54:33  dickey
  *		use 'showpath()' to handle long pathname-display
  *		
@@ -158,6 +170,7 @@ extern	char	**vecalloc();
 #define	MINWORK	3		/* minimum size of work-area */
 
 int	debug	= FALSE;	/* generic debug-flag */
+int	no_worry = -1;		/* don't prompt on quit */
 
 /*
  * Per-viewport main-module state:
@@ -183,7 +196,7 @@ static	int	tag_count;		/* number of tagged files */
 /*
  * Other, private main-module state:
  */
-static	int	in_screen;		/* TRUE if we have successfully init'ed */
+static	int	in_screen;		/* TRUE if we have init'ed */
 static	char	whoami[BUFSIZ],		/* my execution-path */
 		*log_opt,		/* log-file option */
 		*tree_opt,		/* my file-tree database */
@@ -461,6 +474,28 @@ char	*msg;
 	}
 #endif	apollo
 	dlog_exit(FAIL);
+}
+
+/*
+ * Prompt user for yes/no response
+ */
+user_says(ok)
+{
+	int	y,x;
+	char	reply[8];
+
+	if (!ok) {
+		to_work();
+		PRINTW("Are you sure (y/n)? ");
+		getyx(stdscr,y,x);
+		clrtobot();
+		move(y,x);
+		refresh();
+		dlog_string(reply,sizeof(reply),FALSE);
+		ok = (*reply == 'y') || (*reply == 'Y');
+		showC();
+	}
+	return (ok);
 }
 
 /*
@@ -981,6 +1016,8 @@ editfile(readonly, pad)
 		forkfile(whoami, cNAME, TRUE);
 		dlog_reopen();
 		ft_read(new_wd, tree_opt);
+		if (no_worry < 0)	/* start worrying! */
+			no_worry = FALSE;
 		break;
 	default:
 		dedmsg("cannot edit this item");
@@ -996,7 +1033,7 @@ usage()
 	extern	char	sortc[];
 	auto	char	tmp[BUFSIZ];
 	static	char	*tbl[] = {
-			"usage: ded [options] [filespecs]",
+			"Usage: ded [options] [filespecs]",
 			"",
 			"Options which alter initial display fields:",
 			"  -A       show \".\" and \"..\" names",
@@ -1022,8 +1059,9 @@ usage()
 			"",
 			"Options controlling environment:",
 			"  -c FILE  read DED commands from FILE",
-			"  -l FILE  write DED commands to log-FILE",
 			"  -d       (debug)",
+			"  -l FILE  write DED commands to log-FILE",
+			"  -n       disable \"are you sure\" on quit",
 			"  -t DIR   read \".ftree\"-file from directory DIR",
 			(char *)0
 			};
@@ -1032,7 +1070,7 @@ usage()
 	setbuf(stderr,tmp);
 	for (p = tbl; *p; p++)
 		FPRINTF(stderr, "%s\n", *p);
-	FPRINTF(stderr, "Sort KEY-options are: \"%s\"\n", sortc);
+	FPRINTF(stderr, "\nSort KEY-options are: \"%s\"\n", sortc);
 
 	dlog_exit(FAIL);
 }
@@ -1060,7 +1098,7 @@ char	*argv[];
 	/* show when entering process */
 	(void)fflush(stdout);
 
-	while ((c = getopt(argc, argv, "aGIOPSTUZc:l:r:s:zdt:")) != EOF)
+	while ((c = getopt(argc, argv, "aGIOPSTUZc:l:r:s:zdt:n")) != EOF)
 	switch (c) {
 	case 'a':	A_opt = !A_opt;	break;
 	case 'G':	G_opt = !G_opt;	break;
@@ -1085,6 +1123,7 @@ char	*argv[];
 			break;
 	case 'd':	debug = TRUE;	break;
 	case 't':	tree_opt = optarg;	break;
+	case 'n':	no_worry = TRUE;	break;
 	default:	usage();
 			/*NOTREACHED*/
 	}
@@ -1102,6 +1141,7 @@ char	*argv[];
 	/* pass options to lower-level processes of ded */
 	if (log_opt)
 		(void)strcat(strcat(whoami, " -l"), log_opt);
+	(void)strcat(whoami, " -n");
 
 	(void)dedsigs(TRUE);
 	if (!initscr())			failed("initscr");
@@ -1256,7 +1296,7 @@ char	*argv[];
 	case 'q':	/* quit this process */
 			if (lastc == 't')
 				retouch(mark_W+1);
-			else
+			else if (user_says(no_worry))
 				quit = TRUE;
 			break;
 
@@ -1387,11 +1427,11 @@ char	*argv[];
 			break;
 
 			/* page thru files in work area */
-	case 'h':	dedtype(howami,FALSE);
+	case 'h':	dedtype(howami,FALSE,FALSE);
 			c = 't';	/* force work-clear if 'q' */
 			break;
-	case 't':	if (realstat(curfile, &sb) >= 0)
-				dedtype(cNAME,(count != 1));
+	case 't':	if ((j = realstat(curfile, &sb)) >= 0)
+				dedtype(cNAME,(count != 1),j);
 			break;
 
 	case '%':	/* execute shell command with screen refresh */

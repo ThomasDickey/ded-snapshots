@@ -1,3 +1,46 @@
+1990-03-02  dickey@software.org
+
+	* src/dedring.c:
+	set 'no_worry' flag after successfully reading new-directory
+
+1990-03-02  ste_cm@software.org
+
+	* src/dedring.c: BASELINE Mon Apr 30 09:54:01 1990 -- (CPROTO)
+
+	* src/dedring.c:
+	BASELINE Thu Mar 29 07:37:55 1990 -- maintenance release (SYNTHESIS)
+
+1990-03-02  dickey@software.org
+
+	* src/ded.c: set 'no_worry' in 'dedring()', not 'new_args()'
+
+	* src/Makefile: separated CFLAGS, INCLUDES, DEFINES defs
+
+	* src/version.h:
+	modified 't' command so that directories are shown in a
+	reasonable form.  modified 'q' behavior to prompt user if
+	he has gone into other directory than original-arg.  added
+	"-n" option to support this (so subprocesses don't prompt).
+
+1990-03-02  ste_cm@software.org
+
+	* src/version.h:
+	BASELINE Thu Mar 29 07:37:55 1990 -- maintenance release (SYNTHESIS)
+
+1990-03-02  dickey@software.org
+
+	* src/ded.c: modified quit-behavior so that if user has gone into any
+	directory other than the original one, he will be prompted
+	on quit.  added "-n" option so this doesn't happen in a
+	subprocess.
+
+	* src/dedtype.c:
+	for the special case of a directory-file, create a temporary
+	file with the inode-values and names of the files.  Display
+	this instead of the raw contents of the directory.
+
+	* src/ded.c: added special case for typing contents of directory-file.
+
 1990-02-08  dickey@software.org
 
 	* src/deduniq.c: don't tag current entry unless other entries match!

@@ -1,11 +1,20 @@
 /*
- * $Id: version.h,v 5.4 1990/02/07 09:48:00 dickey Exp $
+ * $Id: version.h,v 6.0 1990/03/02 08:59:28 ste_cm Rel $
  * Version-identifier for DED
  * $Log: version.h,v $
- * Revision 5.4  1990/02/07 09:48:00  dickey
- * added 'showpath()' procedure to handle display of very-long
- * paths.  modified '#' command to provide reset/set/all mode.
+ * Revision 6.0  1990/03/02 08:59:28  ste_cm
+ * BASELINE Thu Mar 29 07:37:55 1990 -- maintenance release (SYNTHESIS)
  *
+ *		Revision 5.5  90/03/02  08:59:28  dickey
+ *		modified 't' command so that directories are shown in a
+ *		reasonable form.  modified 'q' behavior to prompt user if
+ *		he has gone into other directory than original-arg.  added
+ *		"-n" option to support this (so subprocesses don't prompt).
+ *		
+ *		Revision 5.4  90/02/07  09:48:00  dickey
+ *		added 'showpath()' procedure to handle display of very-long
+ *		paths.  modified '#' command to provide reset/set/all mode.
+ *		
  *		Revision 5.3  90/01/30  08:50:49  dickey
  *		added '-T' (and 'T' toggle) to show long date+time.
  *		added 0/2 repeat-count for ':' and '.' commands so we can
@@ -124,4 +133,4 @@
  * 01 Dec 1987, added '*', '^' commands, made '%' refresh screen
  * 25 Nov 1987, added sccs-support (V,z,Z toggles, V,z,Z sorts)
  */
-static	char	version[] = "$Date: 1990/02/07 09:48:00 $";
+static	char	version[] = "$Date: 1990/03/02 08:59:28 $";
