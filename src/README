@@ -21,9 +21,6 @@ To do:
 	The top_argv checking in 'dedring' does not take into account invocation
 	with a wildcard.
 
-88/05/11:
-	Should provide a rename-leaf command in ftree using '='
-
 88/05/16:
 	Don't think that csh-like symbolic links are processed correctly
 	(e.g., "~/src").  Probably should modify linkstat (and corresponding
@@ -51,22 +48,9 @@ To do:
 	For SYSTEM5, should use 'wrefresh(curscr)' to forcibly refresh the
 	screen.
 
-88/09/06:
-	Consider another toggle in ftree to suppress names beginning with
-	'.' (e.g., 'A' or '.').
-
-	In '>' command (also, '=') don't try to perform change if none
-	occurred!
-
 88/09/08:
-	should add sort-by-leafname (for when using long argument format).
-
 	should consider processing '~'-style stuff in '@'-toggle, even tho
 	the 'stat()' command would need 'abspath()' processing.
-
-88/09/09:
-	in editlink, should permit '%' expressions such as that used in
-	'deddoit()'.
 
 88/09/15:
 	Using '@' toggle with symbolic links on the last two lines of the

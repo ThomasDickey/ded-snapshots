@@ -1,5 +1,7 @@
 /*
  * Version-identifier for DED
+ * 23 Jan 1989, added 'N' sort, '-t' option, 'A'-ftree toggle.  Expand '%F' and
+ *		'%B' in '>' command.  Added '~'-ftree command.
  * 18 Jan 1989, added '#' command
  * 12 Sep 1988, added 'c' command, changed '@'-toggle interaction with stat's.
  * 09 Sep 1988, misc bug fixes
@@ -38,4 +40,4 @@
  * 01 Dec 1987, added '*', '^' commands, made '%' refresh screen
  * 25 Nov 1987, added sccs-support (V,z,Z toggles, V,z,Z sorts)
  */
-static	char	version[] = "@(#)DED Directory Editor (89/01/18 11:00:16)";
+static	char	version[] = "@(#)DED Directory Editor (89/01/23 13:43:56)";

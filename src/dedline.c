@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	sccs_id[] = "@(#)dedline.c	1.10 88/09/02 13:13:30";
+static	char	sccs_id[] = "@(#)dedline.c	1.11 89/01/23 10:55:27";
 #endif	lint
 
 /*
@@ -7,6 +7,8 @@ static	char	sccs_id[] = "@(#)dedline.c	1.10 88/09/02 13:13:30";
  * Author:	T.E.Dickey
  * Created:	01 Aug 1988 (from 'ded.c')
  * Modified:
+ *		23 Jan 1989, in '>', '=', do nothing if no text changed.
+ *			     For '>', provide '%B' and '%F' expansion.
  *		02 Sep 1988, added 'editlink()'
  *		12 Aug 1988, apollo sys5 permits symbolic links.
  *		03 Aug 1988, use 'dedsigs()' to permit interrupt of group-ops.
@@ -18,6 +20,7 @@ static	char	sccs_id[] = "@(#)dedline.c	1.10 88/09/02 13:13:30";
  */
 
 #include	"ded.h"
+extern	char	*dedrung();
 extern	char	*fixname();
 extern	char	*txtalloc();
 
@@ -104,6 +107,31 @@ char	*name;
 	}
 	waitmsg(xNAME(x));
 	return (FALSE);
+}
+
+static
+char *
+subslink(bfr)
+char	*bfr;
+{
+	auto	char	tmp[BUFSIZ];
+	register char	*s = strcpy(tmp, bfr);
+	register char	*d = bfr;
+
+	while (*d = *s) {
+		if (*s++ == '%') {
+			if (*s++ == 'F')
+				d += strlen(strcpy(d, dedrung(1)));
+			else if (*s == 'B')
+				d += strlen(strcpy(d, dedrung(-1)));
+			else {
+				d++;
+				s--;	/* point back just after '%' */
+			}
+		} else
+			d++;
+	}
+	return (bfr);
 }
 #endif	S_IFLNK
 
@@ -463,7 +491,7 @@ editname()
 	auto	 char	bfr[BUFSIZ];
 
 #define	EDITNAME(n)	edittext('=', cmdcol[3], sizeof(bfr), name2bfr(bfr, n))
-	if (EDITNAME(cNAME)) {
+	if (EDITNAME(cNAME) && strcmp(cNAME, bfr)) {
 		if (dedname(curfile, bfr) >= 0) {
 			(void)dedsigs(TRUE);	/* reset interrupt count */
 			re_edit = TRUE;
@@ -500,12 +528,12 @@ editlink()
 	auto	 char	bfr[BUFSIZ];
 
 #define	EDITLINK(n)	edittext('>', col, sizeof(bfr), name2bfr(bfr, xLTXT(n)))
-	if (!xLTXT(curfile))
+	if (!cLTXT)
 		beep();
 	else {
 		move(file2row(curfile), cmdcol[3] - Xbase);
 		PRINTW("=> ");
-		if (EDITLINK(curfile)) {
+		if (EDITLINK(curfile) && strcmp(cLTXT, subslink(bfr))) {
 			if (relink(curfile, bfr)) {
 				(void)dedsigs(TRUE);
 					/* reset interrupt count */

@@ -1,11 +1,13 @@
 #ifndef	lint
-static	char	sccs_id[] = "@(#)ftree.c	1.60 88/09/12 10:34:42";
+static	char	sccs_id[] = "@(#)ftree.c	1.62 89/01/23 13:30:58";
 #endif	lint
 
 /*
  * Author:	T.E.Dickey
  * Created:	02 Sep 1987
  * Modified:
+ *		23 Jan 1989, to support 'A' toggle and '~' home-command
+ *		20 Jan 1989, to support "-t" option of DED.
  *		09 Sep 1988, adjusted '=' to permit "~" expressions.
  *		07 Sep 1988, fixes to q/Q.
  *		02 Sep 1988, use 'rcs_dir()' and 'sccs_dir()'
@@ -90,7 +92,10 @@ extern	char	*rcs_dir(),
 #define	ROOT	"/"
 #endif
 
-#define	TOSHOW	(LINES-1)	/* lines to show on a screen */
+#define	PATH_ROW	0	/* line to show "path:" on */
+#define	FLAG_ROW	1	/* line to show "flags:" on */
+#define	LOSHOW	(2)		/* first line to show directory name on */
+#define	TOSHOW	(LINES-LOSHOW)	/* lines to show on a screen */
 
 #define	NORMAL	0
 #define	MARKED	1
@@ -101,6 +106,7 @@ extern	char	*rcs_dir(),
 
 #define	MAXLVL	999
 
+#define	ALL_SHOW(j)	(all_show || (strchr(".$", ftree[node].f_name[0]) == 0))
 #define	zMARK(j)	(ftree[j].f_mark & MARKED)
 #define	zLINK(j)	(ftree[j].f_mark & LINKED)
 #define	zROOT(j)	(ftree[j].f_root)
@@ -132,6 +138,7 @@ static	int	FDdiff,			/* number of changes made	*/
 		showbase,		/* base of current display	*/
 		showlast,		/* last line in current display	*/
 		showdiff = -1,		/* controls re-display		*/
+		all_show = TRUE,	/* TRUE to suppress '.' files	*/
 		out_of_sight = TRUE,	/* TRUE to suppress search	*/
 		savesccs,		/* original state of 'showsccs'	*/
 		showsccs = TRUE;	/* control display of 'sccs'	*/
@@ -157,7 +164,7 @@ int	y,x;
 
 	if ((count == 0) || (last != this)) {
 		getyx(stdscr,y,x);
-		move(0,0);
+		move(PATH_ROW,0);
 		PRINTW("%4d: %.*s", count, COLS-8, pathname);
 		clrtoeol();
 		refresh();
@@ -253,7 +260,7 @@ node2row(node)
 {
 	register int j, row;
 
-	for (j = showbase, row = 0; j <= showlast; j++) {
+	for (j = showbase, row = LOSHOW-1; j <= showlast; j++) {
 		if (fd_show(j))	row++;
 		if (j == node)	break;
 	}
@@ -304,8 +311,12 @@ fd_show(node)
 {
 	if (ftree[node].f_mark & NOSCCS)
 		return(FALSE);
+	if (!ALL_SHOW(node))
+		return(FALSE);
 	while (node = ftree[node].f_root) {
 		if (ftree[node].f_mark & NOVIEW)
+			return(FALSE);
+		if (!ALL_SHOW(node))
 			return(FALSE);
 	}
 	return(TRUE);
@@ -614,8 +625,9 @@ char	*old, *new;
  *	3) the string-heap
  */
 #define	RDT(s,n)	(read(fid,(char *)s,(LEN_READ)(n)) == n)
-ft_read(first)
+ft_read(first,home_dir)
 char	*first;		/* => string defining the initial directory */
+char	*home_dir;
 {
 	struct		stat sb;
 	register int	j;
@@ -624,7 +636,7 @@ char	*first;		/* => string defining the initial directory */
 			size;
 
 	/* read the current database */
-	(void)strcat(strcpy(FDname, gethome()), "/.ftree");
+	(void)strcat(strcpy(FDname, home_dir), "/.ftree");
 	if ((fid = open(FDname, O_RDONLY)) != 0) {
 		if (stat(FDname, &sb) < 0)
 			return;
@@ -694,20 +706,27 @@ static
 ft_show(path, home, node, level)
 char	*path, *home;
 {
-register int j, k;
-int	row = 0;
-char	*marker,
+	register int j, k;
+	auto	int	row;
+	auto	char	*marker,
 	bfr[BUFSIZ];
 
-	move(row++,0);
+	move(PATH_ROW,0);
+	row = LOSHOW;
 	node = limits(showbase, node);
 	k = FDdiff || (savesccs != showsccs);
 	PRINTW("path: %.*s", COLS-8, path);
 	clrtoeol();
 	if (k) {	/* show W-command if we have pending diffs */
-		move(0, COLS-5);
+		move(PATH_ROW, COLS-5);
 		PRINTW(" (W%s)", cant_W ? "?" : "");
 	}
+	move(FLAG_ROW,0);
+	PRINTW("flags:");
+	if (!all_show)		PRINTW(" A (hide '.' names)");
+	if (out_of_sight) 	PRINTW(" I (inhibit search in V)");
+	if (!showsccs) 		PRINTW(" Z (hide SCCS/RCS)");
+	clrtoeol();
 	if (showdiff != FDdiff) {
 		for (j = showbase; j <= showlast; j++) {
 			if (!fd_show(j)) continue;
@@ -730,8 +749,7 @@ char	*marker,
 			if (j == 0)
 				PRINTW("%s", zero+1);
 #endif	apollo
-			if (ftree[j].f_mark & NOVIEW)
-				PRINTW(out_of_sight ? " (I/V)": " (V)");
+			if (ftree[j].f_mark & NOVIEW) PRINTW(" (V)");
 			if (ftree[j].f_mark & MARKED) PRINTW(" (+)");
 			clrtoeol();
 		}
@@ -786,7 +804,8 @@ fd_fwd(num)
 			showbase = showlast;
 			showdiff = -1;
 			(void)limits(showbase,showbase);
-		}
+		} else
+			break;	/* no sense in going further */
 	}
 	return(showlast);
 }
@@ -805,7 +824,8 @@ fd_bak(num)
 		if (base >= 0) {
 			showbase = base;
 			showdiff = -1;
-		}
+		} else
+			break;	/* no sense in going further */
 	}
 	return(showbase);
 }
@@ -1045,14 +1065,17 @@ char	*path;
 		case 'n':
 		case 'N':
 			*cwdpath = EOS;
+		case '~':
 		case '@':
 			if (!isalpha(c)) {
-				move(0,0);
+				move(PATH_ROW,0);
 				PRINTW((c != '@') ? "find: " : "jump: ");
 				clrtoeol();
+				if (c == '~')
+					(void)strcpy(cwdpath, "~");
 				rawgets(cwdpath,sizeof(cwdpath),FALSE);
 			}
-			if (c != '@')
+			if (c != '@' && c != '~')
 				c = fd_find(cwdpath,c,row);
 			else {
 				abspath(cwdpath);
@@ -1197,6 +1220,15 @@ char	*path;
 		case 'W':
 				ft_write();
 				break;
+
+		/*
+		 * toggle flag which controls whether names beginning with
+		 * '.' are shown
+		 */
+		case 'A':
+			all_show = !all_show;
+			showdiff = -1;
+			break;
 
 		/*
 		 * toggle flag which controls whether invisible directories
@@ -1456,7 +1488,7 @@ int	j,
 char	cwdpath[MAXPATHLEN],
 	*s;
 
-	ft_read(".");
+	ft_read(".", gethome());
 	for (j = 1; j < argc; j++) {
 		s = argv[j];
 		if (*s == '-') {
