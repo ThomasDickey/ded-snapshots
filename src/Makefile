@@ -1,4 +1,4 @@
-# @(#)Makefile	1.2 87/11/24 13:04:48
+# @(#)Makefile	1.3 87/11/25 08:51:38
 # MAKE-file for directory editor
 DED_H   = ded.h
 CFLAGS  = $(DEFINES) $(INCLUDES) -O
@@ -18,7 +18,7 @@ ded:	$(OBJS) $(LIBS)
 	$(CC) -o $@ $(OBJS) $(LIBS) -lcurses -ltermcap
 	chmod 755 $@
 #
-ded.o:	        $(DED_H) ded.c
+ded.o:	        $(DED_H) ded.c version.h
 deddoit.o:      $(DED_H) deddoit.c
 dedfind.o:      $(DED_H) dedfind.c
 dedscan.o:      $(DED_H) dedscan.c

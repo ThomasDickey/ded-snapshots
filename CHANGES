@@ -1,3 +1,26 @@
+1987-11-25  dickey@software.org
+
+	* src/ded.c: added sccs-related commands.
+	reserved commands in main-switch (for later development).
+	linted.
+
+	* src/version.h: sccs support
+
+	* src/version.h: New file.
+
+	* src/Makefile: added version-control string.
+
+	* src/ded2s.c:
+	added support for sccs-related displays, as well as for 'U' (unix/apollo) toggle.
+
+	* src/dedsort.c: added sccs-related sorting.
+
+	* src/ded.hlp: added sccs-related commands.
+
+	* src/ded.h: added sccs-related support variables.
+
+	* src/dedscan.c: lint, added support for sccs-data
+
 1987-11-24  dickey@software.org
 
 	* src/deddoit.c, src/dedtype.c: lint, sccs-id.
