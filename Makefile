@@ -1,10 +1,10 @@
-# $Id: Makefile,v 11.3 1992/10/09 13:03:29 dickey Exp $
+# $Id: Makefile,v 11.4 1993/04/27 10:49:35 dickey Exp $
 # Top-level makefile for unix directory-editor
 
 ####### (Development) ##########################################################
 top	= ../..
 TOP	= $(top)/..
-include $(TOP)/cm_library/support/cm_library.mk
+include $(TOP)/td_lib/support/td_lib.mk
 
 B	= $(top)/bin
 
@@ -19,14 +19,14 @@ MFILES	=\
 
 ####### (Standard Productions) #################################################
 all\
-run_tests::	$L/$(CM_LIB).a bin
+run_test::	$L/$(TD_LIB).a bin
 
 all\
 clean\
 clobber\
 destroy\
 sources\
-run_tests\
+run_test\
 lincnt.out\
 lint.out::	$(MFILES)
 	cd src;		$(MAKE) $@

@@ -1,3 +1,25 @@
+1993-04-27  dickey@software.org
+
+	* src/dedsort.c: shorten-filenames
+
+1993-04-27  ste_cm@software.org
+
+	* src/dedsort.c:
+	BASELINE Thu May  6 14:26:47 1993 -- split from CM_TOOLS #11
+
+1993-04-27  dickey@software.org
+
+	* src/ded.h: shorten-filenames
+
+1993-04-27  ste_cm@software.org
+
+	* src/ded.h:
+	BASELINE Thu May  6 14:26:47 1993 -- split from CM_TOOLS #11
+
+1993-04-27  dickey@software.org
+
+	* src/Makefile, Makefile, test/Makefile: shorten-filenames
+
 1992-12-18  dickey@software.org
 
 	* src/dedring.c: oops: forgot 0-case in ring_pointer()
