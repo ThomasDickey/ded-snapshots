@@ -1,3 +1,17 @@
+1996-01-10  Thomas E. Dickey  <dickey@clark.net>
+
+	* src/dedview.c: corrected limit-checking for column in move2row
+
+	* src/dedtype.c:
+	corrected boundary check for scrolling that caused jitter at eof
+
+	* src/ftree.c:
+	corrected scrolling-amount by taking into account the invisible files
+
+	* src/dedtype.c:
+	must keep cursor within scrolling region (on solaris), otherwise entire
+	screen scrolls
+
 1996-01-09  Thomas E. Dickey  <dickey@clark.net>
 
 	* src/dedtype.c: mods to support scrolling regions

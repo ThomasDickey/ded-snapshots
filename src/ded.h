@@ -19,7 +19,7 @@
 
 #ifdef	MAIN
 #if	!defined(NO_IDENT)
-static const char ded_h[] = "$Id: ded.h,v 12.40 1995/12/16 14:41:01 tom Exp $";
+static const char ded_h[] = "$Id: ded.h,v 12.41 1996/01/10 00:28:06 tom Exp $";
 #endif
 #endif	/* MAIN */
 
@@ -464,6 +464,7 @@ extern	void	count_tags(
 		_ar1(RING *,	gbl));
 
 /* *** "dedtype.c" *** */
+extern	int	in_dedtype;
 extern	void	dedtype(
 		_arx(RING *,	gbl)
 		_arx(char *,	name)

@@ -3,6 +3,7 @@
  * Author:	T.E.Dickey
  * Created:	16 Nov 1987
  * Modified:
+ *		09 Jan 1996, mods for scrolling regions
  *		15 Dec 1995, allow for missing newline in file-ending.
  *		01 Nov 1995, mods to use last column on display, and to
  *			     provide single column/row scrolling.
@@ -53,7 +54,7 @@
 #define		DIR_PTYPES	/* includes directory-stuff */
 #include	"ded.h"
 
-MODULE_ID("$Id: dedtype.c,v 12.19 1995/12/16 00:30:07 tom Exp $")
+MODULE_ID("$Id: dedtype.c,v 12.20 1996/01/10 00:37:09 tom Exp $")
 
 typedef	struct	{
 	OFF_T	offset;
@@ -69,6 +70,8 @@ typedef	struct	{
 #define	Over	dyn_string(my_over)
 
 extern WINDOW *newscr;
+
+int	in_dedtype;
 
 /******************************************************************************/
 static	FILE	*InFile;
@@ -355,11 +358,12 @@ private	int	JumpBackwards(
 	_DCL(int *,	infile)
 	_DCL(int,	jump)
 {
+	int	savejump;
 	int	blank;
 	int	n;
 	int	page = NumP(1);
 
-	jump = page - jump;
+	savejump = jump = page - jump;
 	n = TopOfPage(*infile, &blank);
 
 	/* jump the requested number of lines */
@@ -391,6 +395,15 @@ private	int	JumpBackwards(
 			jump++;
 		}
 	}
+#if HAVE_WSCRL && HAVE_WSETSCRREG
+	if (jump != savejump
+	 && (jump - savejump) <= (LINES-mark_W-3)
+	 && (savejump - jump) <= (LINES-mark_W-3)) {
+		setscrreg(mark_W+1, LINES-2);
+		scrl(savejump - jump);
+		setscrreg(0, LINES-1);
+	}
+#endif
 	*infile = n;
 	return JumpToLine(*infile);
 }
@@ -720,6 +733,8 @@ public	void	dedtype(
 	} else
 		InFile = fopen(name, "r");
 
+	in_dedtype = TRUE;	/* disable clearing of workspace via A/a cmd */
+
 	if (InFile) {
 		auto	int	jump	= 0;
 
@@ -866,4 +881,5 @@ public	void	dedtype(
 		showC(gbl);
 	} else
 		warn(gbl, name);
+	in_dedtype = FALSE;
 }
