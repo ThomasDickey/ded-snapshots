@@ -32,7 +32,7 @@
 #include	"ded.h"
 #include	<time.h>
 
-MODULE_ID("$Id: dlog.c,v 12.17 2001/05/15 21:21:17 tom Exp $")
+MODULE_ID("$Id: dlog.c,v 12.18 2001/12/11 14:17:50 tom Exp $")
 
 #define	NOW		time((time_t *)0)
 
@@ -184,7 +184,7 @@ private	int	read_char (
 	_AR1(int *,	count_))
 	_DCL(int *,	count_)
 {
-	auto	int	num;
+	auto	int	num = 0;
 	register int	j;
 
 	refresh();
