@@ -54,7 +54,7 @@
 #define		DIR_PTYPES	/* includes directory-stuff */
 #include	"ded.h"
 
-MODULE_ID("$Id: dedtype.c,v 12.20 1996/01/10 00:37:09 tom Exp $")
+MODULE_ID("$Id: dedtype.c,v 12.21 1996/01/10 13:25:52 tom Exp $")
 
 typedef	struct	{
 	OFF_T	offset;
@@ -399,9 +399,13 @@ private	int	JumpBackwards(
 	if (jump != savejump
 	 && (jump - savejump) <= (LINES-mark_W-3)
 	 && (savejump - jump) <= (LINES-mark_W-3)) {
+		int y, x;
+		getyx(stdscr, y, x);
+		move(LINES-2, 0);
 		setscrreg(mark_W+1, LINES-2);
 		scrl(savejump - jump);
 		setscrreg(0, LINES-1);
+		move(y, x);
 	}
 #endif
 	*infile = n;
