@@ -1,5 +1,5 @@
 #if	!defined(NO_IDENT)
-static	char	Id[] = "$Id: dedmake.c,v 12.1 1993/10/29 20:27:00 dickey Exp $";
+static	char	Id[] = "$Id: dedmake.c,v 12.2 1994/07/01 23:58:22 tom Exp $";
 #endif
 
 /*
@@ -102,13 +102,13 @@ private	int	made_or_quit(
 			errno = EEXIST;
 		else if (errno == ENOENT) {
 			if (!makeit(gbl, to_edit, mode, hard)) {
-				waitmsg(sys_errlist[errno]);
+				waitmsg(strerror(errno));
 				statMAKE(gbl, 0); /* undo it -- error */
 			}
 			showC(gbl);
 			return TRUE;
 		}
-		dedmsg(gbl, sys_errlist[errno]);
+		dedmsg(gbl, strerror(errno));
 		(void)edit_inline(-TRUE);	/* force refresh! */
 		(void)ReplayTrim();
 		return FALSE;

@@ -1,4 +1,4 @@
-# $Id: Makefile,v 12.4 1994/06/26 23:25:41 tom Exp $
+# $Id: Makefile,v 12.5 1994/07/01 23:28:19 tom Exp $
 # MAKE-file for directory editor
 
 THIS	= ded
@@ -79,7 +79,7 @@ OBJS	= \
 	$Z(showpath.o) \
 	$Z(sortset.o)
 
-SOURCES	= Makefile README $(CSRC) $(HSRC) $(THIS).hlp
+SOURCES	= Makefile README $(CSRC) $(HSRC) $(THIS).hlp $(THIS)rc
 MAIN_O	= $(THIS).o $Z $(LIBS)
 
 ####### (Standard Productions) #################################################

@@ -1,4 +1,4 @@
-MANIFEST for ded, version t19940630
+MANIFEST for ded, version t19940701
 --------------------------------------------------------------------------------
 MANIFEST                        this file
 COPYING                         copyright notice for DED
@@ -25,6 +25,7 @@ src/dedline.c                   inline commands for file-list
 src/dedmake.c                   create file/directory/link for DED
 src/dedmsgs.c                   write to message/status line
 src/dedname.c                   rename files within file-list
+src/dedrc                       sketch of bindings files
 src/dedread.c                   module which encapsulates knowledge of read-selection expression
 src/dedring.c                   manage ring of file-lists
 src/dedscan.c                   read file-list

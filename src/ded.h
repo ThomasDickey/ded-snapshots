@@ -3,7 +3,7 @@
 
 #ifdef	MAIN
 #if	!defined(NO_IDENT)
-static	char	*ded_h = "$Id: ded.h,v 12.22 1994/06/29 00:35:08 tom Exp $";
+static	char	*ded_h = "$Id: ded.h,v 12.24 1994/07/01 23:58:24 tom Exp $";
 #endif
 #endif	/* MAIN */
 
@@ -29,8 +29,6 @@ static	char	*ded_h = "$Id: ded.h,v 12.22 1994/06/29 00:35:08 tom Exp $";
 #else
 #include	<varargs.h>
 #endif
-
-extern	char	*sys_errlist[];
 
 #define	private	static
 #define	public
@@ -208,6 +206,7 @@ typedef	struct	_hist	{
 MAIN	char	old_wd[MAXPATHLEN]; /* original working-directory */
 MAIN	int	mark_W;		/* row of work-area marker */
 MAIN	int	tree_visible;	/* denotes filelist vs directory-tree */
+MAIN	int	gets_active;	/* true while in 'dlog_string()' */
 
 /* *** "ded.c" *** */
 extern	int	debug;
@@ -589,8 +588,17 @@ extern	int	dlog_char(
 		_arx(int *,	count_)
 		_ar1(int,	begin));
 
+extern	void	dlog_prompt(
+		_arx(RING *,	gbl)
+		_ar1(char *,	prompt));
+
+#ifdef	SIGWINCH
+extern	void	dlog_resize(_ar0);
+#endif
+
 extern	char *	dlog_string(
 		_arx(RING *,	gbl)
+		_arx(char *,	prompt)
 		_arx(DYN **,	result)
 		_arx(DYN **,	inflag)
 		_arx(HIST **,	history)

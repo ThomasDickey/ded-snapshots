@@ -1,10 +1,17 @@
 /*
- * $Id: version.h,v 12.3 1993/12/06 17:23:59 dickey Exp $
+ * $Id: version.h,v 12.5 1994/07/01 00:21:51 tom Exp $
  * Version-identifier for DED
  * $Log: version.h,v $
- * Revision 12.3  1993/12/06 17:23:59  dickey
- * added 'S' sort
- * optimized some of the screen refreshing
+ * Revision 12.5  1994/07/01 00:21:51  tom
+ * S-sort. Mods to make scrolling smoother.
+ *
+ *		Revision 12.4  1994/07/01  00:18:43  tom
+ *		HP/UX port. Linux port. Mods for autoconf. Mods for resizing (non-Sys5)
+ *		curses windows.
+ *
+ *		Revision 12.3  1993/12/06  17:23:59  dickey
+ *		added 'S' sort
+ *		optimized some of the screen refreshing
  *
  *		Revision 12.2  1993/11/23  18:51:42  dickey
  *		Ifdef'd idents (to simply testing with gcc warnings)
@@ -279,4 +286,4 @@
  * 01 Dec 1987, added '*', '^' commands, made '%' refresh screen
  * 25 Nov 1987, added sccs-support (V,z,Z toggles, V,z,Z sorts)
  */
-static	char	version[] = "$Date: 1993/12/06 17:23:59 $";
+static	char	version[] = "$Date: 1994/07/01 00:21:51 $";

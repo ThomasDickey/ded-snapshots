@@ -1,0 +1,9 @@
+# $Id: dedrc,v 12.1 1994/07/01 23:26:56 tom Exp $
+
+# uncomment these lines to make DED behave like the old version (pre 13.0)
+bind	:	list	execute-dot
+bind	^B	edit	beginning-of-line
+bind	^F	edit	end-of-line
+bind	^W	edit	backward-delete-word
+bind	A	tree	toggle-hidden-files
+bind	e	list	edit-new-process %F

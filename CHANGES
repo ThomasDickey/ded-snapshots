@@ -1,3 +1,18 @@
+1994-07-01  Thomas E. Dickey  <dickey@clark.net>
+
+	* src/dedmsgs.c: use 'strerror()'
+
+	* src/ded.h: autoconf: sys_errlist
+
+	* src/dedmake.c: use strerror()
+
+	* src/Makefile: added 'dedrc' to sources
+
+	* src/dedrc: RCS_BASE
+
+	* user/ded.man: added notes about CTL/N, CTL/P for history
+	workaround for bug in Linux man-program in the chmod expression.
+
 1994-06-30  Thomas E. Dickey  <dickey@clark.net>
 
 	* certify/release.txt: more notes for 13.0
