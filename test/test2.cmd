@@ -84,6 +84,7 @@ u
 	# "dedwait.c"
 	# "dlog.c"
 	# "ftree.c"
+	# "sortset.c"
 	# "ded.h"
 	# "version.h"
 	# "ded.o"
@@ -106,6 +107,7 @@ u
 	# "dedwait.o"
 	# "dlog.o"
 	# "ftree.o"
+	# "sortset.o"
 1/ded.a
 	# "ded.a"
 1s+t
