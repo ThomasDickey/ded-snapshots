@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	Id[] = "$Id: dedview.c,v 11.1 1992/08/05 07:29:56 dickey Exp $";
+static	char	Id[] = "$Id: dedview.c,v 12.0 1992/12/02 09:03:03 ste_cm Rel $";
 #endif
 
 /*
@@ -7,6 +7,7 @@ static	char	Id[] = "$Id: dedview.c,v 11.1 1992/08/05 07:29:56 dickey Exp $";
  * Author:	T.E.Dickey
  * Created:	03 Apr 1992, from 'ded.c'
  * Modified:
+ *		02 Dec 1992, fix current-position in 'markC()'
  *
  * Function:	manages a viewport for ded (see: 'X' command)
  */
@@ -692,8 +693,11 @@ public	void	markC(
 	int	col = gbl->cmdcol[CCOL_CMD] - gbl->Xbase;
 
 	if (col >= 0) {
+		register int y,x;
 		(void)move2row(gbl->curfile, col);
+		getyx(stdscr,y,x);
 		addch(on ? '*' : ' ');
+		(void)move(y,x);
 	}
 }
 

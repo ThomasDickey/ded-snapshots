@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	Id[] = "$Id: dedtype.c,v 11.16 1992/10/08 14:36:13 dickey Exp $";
+static	char	Id[] = "$Id: dedtype.c,v 12.0 1992/12/02 08:51:56 ste_cm Rel $";
 #endif
 
 /*
@@ -526,13 +526,13 @@ public	void	dedtype(
 	OptStripped = stripped;
 
 	if (isdir && !OptBinary) {
-		DIR		*dp;
-		struct	direct	*de;
-		char		bfr[MAXPATHLEN];
+		DIR	*dp;
+		DIRENT	*de;
+		char	bfr[MAXPATHLEN];
 #ifdef	apollo
-		char		*fmt = "%08x %s\n";
+		char	*fmt = "%08x %s\n";
 #else
-		char		*fmt = "%5u %s\n";
+		char	*fmt = "%5u %s\n";
 #endif
 		if ((InFile = tmpfile()) == 0) {
 			warn(gbl, "tmp-file");

@@ -1,3 +1,50 @@
+1992-12-02  dickey@software.org
+
+	* src/dedfind.c: show message "no other matches" when applicable
+
+1992-12-02  ste_cm@software.org
+
+	* src/dedfind.c:
+	BASELINE Thu May  6 14:26:47 1993 -- split from CM_TOOLS #11
+
+1992-12-02  dickey@software.org
+
+	* src/dedview.c:
+	fixed a place in 'markC()' where we could have the wrong
+	cursor-position
+
+1992-12-02  ste_cm@software.org
+
+	* src/dedview.c:
+	BASELINE Thu May  6 14:26:47 1993 -- split from CM_TOOLS #11
+
+1992-12-02  dickey@software.org
+
+	* src/ftree.c: use defs of STAT, DIRENT
+
+1992-12-02  ste_cm@software.org
+
+	* src/ftree.c:
+	BASELINE Thu May  6 14:26:47 1993 -- split from CM_TOOLS #11
+
+1992-12-02  dickey@software.org
+
+	* src/dedtype.c: use def of DIRENT
+
+1992-12-02  ste_cm@software.org
+
+	* src/dedtype.c:
+	BASELINE Thu May  6 14:26:47 1993 -- split from CM_TOOLS #11
+
+1992-12-02  dickey@software.org
+
+	* src/dedscan.c: use def of DIRENT
+
+1992-12-02  ste_cm@software.org
+
+	* src/dedscan.c:
+	BASELINE Thu May  6 14:26:47 1993 -- split from CM_TOOLS #11
+
 1992-11-23  dickey@software.org
 
 	* src/ded2s.c: hack for RCS 5 vs RCS 4 (localtime vs gmt_time
