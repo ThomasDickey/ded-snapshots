@@ -1,16 +1,23 @@
 #ifndef	lint
-static	char	Id[] = "$Id: ftree.c,v 8.4 1991/05/31 08:27:59 dickey Exp $";
+static	char	Id[] = "$Id: ftree.c,v 9.0 1991/06/04 08:32:39 ste_cm Rel $";
 #endif
 
 /*
  * Author:	T.E.Dickey
  * Created:	02 Sep 1987
  * $Log: ftree.c,v $
- * Revision 8.4  1991/05/31 08:27:59  dickey
- * modified interface to 'showpath()' so that 'fd_slow()' will
- * highlight subtree scanned by 'ft_scan()'. increased width
- * of number-tag.
+ * Revision 9.0  1991/06/04 08:32:39  ste_cm
+ * BASELINE Mon Jun 10 10:09:56 1991 -- apollo sr10.3
  *
+ *		Revision 8.5  91/06/04  08:32:39  dickey
+ *		corrected logic in q/Q/F/B commands which caused program to
+ *		hang when call on 'fd_ring()' failed to find a path.
+ *		
+ *		Revision 8.4  91/05/31  08:27:59  dickey
+ *		modified interface to 'showpath()' so that 'fd_slow()' will
+ *		highlight subtree scanned by 'ft_scan()'. increased width
+ *		of number-tag.
+ *		
  *		Revision 8.3  91/05/16  07:48:31  dickey
  *		mods to accommodate apollo sr10.3
  *		
@@ -972,17 +979,24 @@ fd_ring(path, row_, level_)
 char	*path;
 int	*row_, *level_;
 {
+	int	newrow;
 	char	cwdpath[BUFSIZ];
-	if ((*row_ = do_find(strcpy(cwdpath,new_wd))) < 0) {
-		/* path was deleted, put it back */
-		/* patch: should do ft_stat, recover if err */
-		ft_insert(cwdpath);
-		*row_ = do_find(cwdpath);
+
+	if ((newrow = do_find(strcpy(cwdpath,new_wd))) < 0) {
+		/* path was deleted, put it back if it is really there */
+		ft_stat(cwdpath, cwdpath);
+		newrow = do_find(cwdpath);
 	}
-	*level_ = fd_level(*row_);
-	scroll_to(*row_);
-	(void)strcpy(path, cwdpath);
-	showdiff = -1;		/* always refresh '*', '=>' marks */
+
+	if (newrow >= 0) {
+		*level_ = fd_level(newrow);
+		scroll_to(newrow);
+		(void)strcpy(path, cwdpath);
+		showdiff = -1;		/* always refresh '*', '=>' marks */
+		*row_ = newrow;
+		return TRUE;
+	}
+	return FALSE;
 }
 
 static
@@ -1274,6 +1288,7 @@ char	*path;
 			break;
 
 #define	SKIP_THIS(num)	dedring(fd_path(cwdpath, row), c, num, FALSE, (char *)0)
+#define	QUIT_THIS(num)	dedring(fd_path(cwdpath, row),'q',num, FALSE, (char *)0)
 
 		/* quit lists in directory-ring */
 		case 'Q':
@@ -1285,7 +1300,9 @@ char	*path;
 				if (is_sccs(row) && (savesccs != showsccs))
 					toggle_sccs();
 			}
-			fd_ring(path, &row, &lvl);
+			while (!fd_ring(path, &row, &lvl))
+				if (!QUIT_THIS(1))
+					return('E');
 			if (!j)
 				return('E');
 			break;
@@ -1293,7 +1310,9 @@ char	*path;
 		case 'F':
 		case 'B':
 			num = SKIP_THIS(num);
-			fd_ring(path, &row, &lvl);
+			while (!fd_ring(path, &row, &lvl))
+				if (!QUIT_THIS(1))
+					return('E');
 			break;
 
 		/* Exit from this program (back to 'ded') */

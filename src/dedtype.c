@@ -1,5 +1,5 @@
 #ifndef	lint
-static	char	Id[] = "$Id: dedtype.c,v 8.3 1991/05/16 07:44:08 dickey Exp $";
+static	char	Id[] = "$Id: dedtype.c,v 9.0 1991/06/04 09:03:08 ste_cm Rel $";
 #endif
 
 /*
@@ -7,9 +7,16 @@ static	char	Id[] = "$Id: dedtype.c,v 8.3 1991/05/16 07:44:08 dickey Exp $";
  * Author:	T.E.Dickey
  * Created:	16 Nov 1987
  * $Log: dedtype.c,v $
- * Revision 8.3  1991/05/16 07:44:08  dickey
- * mods to accommodate apollo sr10.3
+ * Revision 9.0  1991/06/04 09:03:08  ste_cm
+ * BASELINE Mon Jun 10 10:09:56 1991 -- apollo sr10.3
  *
+ *		Revision 8.4  91/06/04  09:03:08  dickey
+ *		forgot to reset column on successive blank-lines that are
+ *		suppressed.
+ *		
+ *		Revision 8.3  91/05/16  07:44:08  dickey
+ *		mods to accommodate apollo sr10.3
+ *		
  *		Revision 8.2  91/04/22  08:19:23  dickey
  *		added stripped-mode to make looking at binary files easier on
  *		my eyes.
@@ -286,8 +293,10 @@ int	c,			/* current character */
 			infile[page++] = ftell(fp);
 			while ((c = GetC(fp)) != EOF) {
 				if (typeconv(c,binary,stripped)) {
-					if ((Tlen == 0) && blank)
+					if ((Tlen == 0) && blank) {
+						typeinit();
 						continue;
+					}
 					blank = (Tlen == 0);
 					y = typeline(y,skip);
 					if (y >= LINES-1)
