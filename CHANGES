@@ -1,3 +1,15 @@
+1999-08-16  Thomas E. Dickey  <dickey@clark.net>
+
+	* src/ded.c:
+	handle read from pipe on BeOS, which has no /dev/tty (just a bunch of pty's
+	that can be found with ttyname()).
+
+	* src/ded.h: fallback definition for BeOS's S_IEXEC
+
+	* src/dedtype.c:
+	arg: BeOS has long long type used for ino_t (so I have to cast it down to
+	long to make it portable).
+
 1999-08-10  Thomas E. Dickey  <dickey@clark.net>
 
 	* src/ded.c: change -b to toggle
