@@ -1,14 +1,24 @@
 #ifndef	lint
-static	char	sccs_id[] = "$Header: /users/source/archives/ded.vcs/src/RCS/ftree.c,v 2.0 1989/03/14 13:25:04 ste_cm Exp $";
+static	char	sccs_id[] = "$Header: /users/source/archives/ded.vcs/src/RCS/ftree.c,v 4.0 1989/06/05 15:44:44 ste_cm Rel $";
 #endif	lint
 
 /*
  * Author:	T.E.Dickey
  * Created:	02 Sep 1987
  * $Log: ftree.c,v $
- * Revision 2.0  1989/03/14 13:25:04  ste_cm
- * BASELINE Thu Apr  6 13:14:13 EDT 1989
+ * Revision 4.0  1989/06/05 15:44:44  ste_cm
+ * BASELINE Thu Aug 24 10:20:06 EDT 1989 -- support:navi_011(rel2)
  *
+ *		Revision 3.0  89/06/05  15:44:44  ste_cm
+ *		BASELINE Mon Jun 19 14:21:57 EDT 1989
+ *		
+ *		Revision 2.1  89/06/05  15:44:44  dickey
+ *		revised/simplified code which inserts logical links by making this part
+ *		of 'ft_insert()'
+ *		
+ *		Revision 2.0  89/03/14  13:25:04  ste_cm
+ *		BASELINE Thu Apr  6 13:14:13 EDT 1989
+ *		
  *		Revision 1.66  89/03/14  13:25:04  dickey
  *		sccs2rcs keywords
  *		
@@ -58,7 +68,6 @@ static	char	sccs_id[] = "$Header: /users/source/archives/ded.vcs/src/RCS/ftree.c
  *		ft_read
  *		ft_write
  *		ft_insert
- *		ft_linkto
  *		ft_remove
  *		ft_purge
  *		ft_rename
@@ -341,13 +350,14 @@ fd_show(node)
 ft_insert(path)
 char	*path;
 {
-int	last = 0,	/* assume we start from root level */
-	order,
-	sort,
-	this;
-char	bfr[MAXPATHLEN];
-register int j;
-register FTREE *f;
+	auto	int		last = 0, /* assume we start from root level */
+				order,
+				sort,
+				this;
+	auto	char		bfr[MAXPATHLEN];
+	auto	struct	stat	sb;
+	register int		j;
+	register FTREE		*f;
 
 	abspath(path = strcpy(bfr,path));
 	if (!strcmp(path, zero)) {
@@ -364,8 +374,13 @@ register FTREE *f;
 	while (*path == *gap) {
 	char	*name = ++path,
 		*next = strchr(name, *gap);
+
 		if (next != 0)
 			*next = EOS;
+
+		/* double-check link/directory here */
+		if (lstat(bfr, &sb) < 0)
+			break;
 
 		this = sort = 0;
 		for (j = last+1; j <= FDlast; j++) {
@@ -408,6 +423,18 @@ register FTREE *f;
 
 		last = this;
 		ftree[last].f_mark &= ~MARKED;
+
+#ifdef	S_IFLNK
+		if (isLINK(sb.st_mode)) {
+			ftree[last].f_mark |= LINKED;
+			/* patch: store pointer to show 'readlink()' */
+			break;
+		}
+		if (isDIR(sb.st_mode)) {
+			ftree[last].f_mark &= ~LINKED;
+		} else
+			break;
+#endif	S_IFLNK
 
 		if (next != 0) {
 			*next = *gap; /* restore the one we knocked out */
@@ -458,21 +485,6 @@ register int j, this, last = 0;
 	}
 	return(last);
 }
-
-#ifdef	S_IFLNK
-/*
- * Enter a symbolic link into the database.
- */
-ft_linkto(path)
-char	*path;
-{
-int	row;
-	ft_insert(path);
-	row = do_find(path);
-	markit(row,LINKED,TRUE);
-	/* patch: store pointer to show 'readlink()' */
-}
-#endif	S_IFLNK
 
 /*
  * Mark nodes below a given path in the database for removal, unless they
@@ -1439,18 +1451,10 @@ ft_stat(name, leaf)
 char	*name, *leaf;
 {
 struct	stat	sb;
-	if (lstat(leaf, &sb) >= 0) {
-		if ((int)sb.st_ino > 0) {
-#ifdef	S_IFLNK
-			if (isLINK(sb.st_mode)) {
-				if (stat(name, &sb) >= 0)
-					if (isDIR(sb.st_mode))
-						ft_linkto(name);
-			} else
-#endif	S_IFLNK
-			if (isDIR(sb.st_mode))
-				ft_insert(name);
-		}
+	if (stat(leaf, &sb) >= 0
+	&&  (int)sb.st_ino > 0) {
+		if (isDIR(sb.st_mode))
+			ft_insert(name);
 	}
 }
 
