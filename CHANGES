@@ -1,3 +1,7 @@
+1997-09-16  Thomas E. Dickey  <dickey@clark.net>
+
+	* makefile.in: dummy sources-rule for stupid 'make' programs.
+
 1997-09-13  Thomas E. Dickey  <dickey@clark.net>
 
 	* aclocal.m4: add search for <td/ptypes.h>

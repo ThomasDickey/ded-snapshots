@@ -1,4 +1,4 @@
-# $Id: makefile.in,v 12.3 1997/09/12 23:36:25 tom Exp $
+# $Id: makefile.in,v 12.4 1997/09/16 10:08:41 tom Exp $
 # Top-level make-file for DED
 
 SHELL		= /bin/sh
@@ -77,3 +77,4 @@ deinstall::
 
 $(DIRS):			; $(srcdir)/mkdirs.sh $@
 bin/$(THIS):	all
+$(SOURCES):
