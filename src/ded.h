@@ -1,4 +1,4 @@
-/* @(#)ded.h	1.4 88/03/24 13:16:07 */
+/* @(#)ded.h	1.6 88/04/27 14:18:40 */
 
 /*
  * Created:	09 Nov 1987
@@ -9,6 +9,7 @@
 #include	<sys/types.h>
 #include	<sys/stat.h>
 #include	<sys/dir.h>
+#include	"cmdch.h"
 extern	char	*getcwd(),
 		*getenv(),
 		*strcat(),
@@ -60,12 +61,6 @@ typedef char	chtype;		/* sys5-curses data-type */
 
 #define	EOS	'\0'
 #define	ENV(n)	n
-#define	CTL(c)	('c' & 037)
-
-#define	ARO_UP		CTL(u)
-#define	ARO_DOWN	CTL(d)
-#define	ARO_LEFT	CTL(l)
-#define	ARO_RIGHT	CTL(r)
 
 #define	UIDLEN	9		/* length of uid/gid field */
 
@@ -107,7 +102,9 @@ MAIN	char	old_wd[BUFSIZ],	/* original working-directory */
 
 MAIN	FLIST	*flist;		/* pointer to display-list */
 
-MAIN	int	cmdcol[4],	/* column in which to show cursor */
+MAIN	char	**top_argv;	/* 'argv[]' used in re-scanning, etc. */
+MAIN	int	top_argc,
+		cmdcol[4],	/* column in which to show cursor */
 				/* 0=mode, 1=uid/gid, 2=normal */
 		mark_W,		/* row of work-area marker */
 		clr_sh,		/* true if we clear-screen after SHELL	*/

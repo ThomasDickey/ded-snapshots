@@ -1,5 +1,6 @@
 /*
  * Version-identifier for DED
+ * 27 Apr 1988, cleanup of 'rawgets()' interface to fix bugs in wraparound, etc.
  * 21 Apr 1988, corrections/enhancements to screen-refresh logic.
  * 11 Apr 1988, integrated 'U' command so we can issue either Aegis or Unix
  *		commands.
@@ -9,4 +10,4 @@
  * 01 Dec 1987, added '*', '^' commands, made '%' refresh screen
  * 25 Nov 1987, added sccs-support (V,z,Z toggles, V,z,Z sorts)
  */
-static	char	version[] = "@(#)DED Directory Editor (88/04/21 14:44:54)";
+static	char	version[] = "@(#)DED Directory Editor (88/04/27 10:42:01)";

@@ -1,3 +1,20 @@
+1988-04-27  dickey@software.org
+
+	* src/Makefile: replaced 'fring.c' by 'dedring.c'
+
+	* src/ded.h:
+	added top_argc, top_argv to simplify 'dedring()' interface.
+
+	* src/version.h: fixes to 'rawgets()'.
+
+	* src/deddoit.c: let 'rawgets()' print its buffer itself!
+
+	* src/ftree.c: let 'rawgets()' print its own buffer!
+
+	* src/Makefile: broke 'cmdch.h' out of 'ded.h'
+
+	* src/ded.h: broke cmdch.h out of ded.h
+
 1988-04-26  dickey@software.org
 
 	* src/ftree.c:
