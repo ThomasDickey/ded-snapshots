@@ -1,3 +1,109 @@
+1993-05-06  dickey@software.org
+
+	* test/test2.cmd: added ../certify
+
+1993-05-06  ste_cm@software.org
+
+	* test/test2.cmd:
+	BASELINE Thu May  6 14:26:47 1993 -- split from CM_TOOLS #11
+
+1993-05-06  dickey@software.org
+
+	* test/test1.cmd: added ../certify
+
+1993-05-06  ste_cm@software.org
+
+	* test/test1.cmd:
+	BASELINE Thu May  6 14:26:47 1993 -- split from CM_TOOLS #11
+
+1993-05-06  dickey@software.org
+
+	* user/Makefile: typo
+
+1993-05-06  ste_cm@software.org
+
+	* user/Makefile:
+	BASELINE Thu May  6 14:26:47 1993 -- split from CM_TOOLS #11
+
+1993-05-06  dickey@software.org
+
+	* README: RCS_BASE
+
+1993-05-06  ste_cm@software.org
+
+	* README: BASELINE Thu May  6 14:26:47 1993 -- split from CM_TOOLS #11
+
+1993-05-06  dickey@software.org
+
+	* COPYING: RCS_BASE
+
+1993-05-06  ste_cm@software.org
+
+	* COPYING: BASELINE Thu May  6 14:26:47 1993 -- split from CM_TOOLS #11
+
+1993-05-06  dickey@software.org
+
+	* certify/config.txt: documented dependencies
+
+1993-05-06  ste_cm@software.org
+
+	* certify/config.txt:
+	BASELINE Thu May  6 14:26:47 1993 -- split from CM_TOOLS #11
+
+1993-05-06  dickey@software.org
+
+	* Makefile: split out from CM_TOOLS hierarchy
+
+1993-05-06  ste_cm@software.org
+
+	* Makefile:
+	BASELINE Thu May  6 14:26:47 1993 -- split from CM_TOOLS #11
+
+1993-05-06  dickey@software.org
+
+	* user/Makefile, certify/config.txt, certify/README: RCS_BASE
+
+1993-05-06  ste_cm@software.org
+
+	* certify/README:
+	BASELINE Thu May  6 14:26:47 1993 -- split from CM_TOOLS #11
+
+1993-05-06  dickey@software.org
+
+	* certify/Makefile: RCS_BASE
+
+1993-05-06  ste_cm@software.org
+
+	* certify/Makefile:
+	BASELINE Thu May  6 14:26:47 1993 -- split from CM_TOOLS #11
+
+1993-05-06  dickey@software.org
+
+	* certify/release.txt: RCS_BASE
+
+1993-05-06  ste_cm@software.org
+
+	* certify/release.txt:
+	BASELINE Thu May  6 14:26:47 1993 -- split from CM_TOOLS #11
+
+1993-05-06  dickey@software.org
+
+	* test/Makefile: split out from CM_TOOLS hierarchy
+
+1993-05-06  ste_cm@software.org
+
+	* test/Makefile:
+	BASELINE Thu May  6 14:26:47 1993 -- split from CM_TOOLS #11
+
+1993-05-06  dickey@software.org
+
+	* src/Makefile: split out from CM_TOOLS hierarchy
+
+1993-05-06  ste_cm@software.org
+
+	* src/Makefile:
+	BASELINE Thu May  6 14:26:47 1993 -- split from CM_TOOLS #11
+
 1993-04-27  dickey@software.org
 
 	* src/dedsort.c: shorten-filenames

@@ -1,8 +1,8 @@
-# $Id: Makefile,v 11.9 1993/04/27 10:51:24 dickey Exp $
+# $Id: Makefile,v 12.0 1993/05/06 13:19:59 ste_cm Rel $
 # MAKE-file for directory editor
 
 THIS	= ded
-TOP	= ../../../..
+TOP	= ../..
 include $(TOP)/td_lib/support/td_lib.mk
 
 ####### (Standard Lists) #######################################################
@@ -80,7 +80,7 @@ MAIN_O	= $(THIS).o $Z $(LIBS)
 
 ####### (Standard Productions) #################################################
 all\
-install:	$(SOURCES) $(ALL)
+install:	$B $(SOURCES) $(ALL)
 
 clean:				; rm -f $(CLEAN)
 clobber:	clean		; rm -f $(ALL)
@@ -89,6 +89,7 @@ run_test:
 sources:	$(SOURCES)
 
 ####### (Details of Productions) ###############################################
+$B:				; mkdir $@
 $B/$(THIS):	$(MAIN_O)	; $(CC) -o $@ $(MAIN_O) -lcurses -ltermcap
 $B/$(THIS).hlp:	$(THIS).hlp	; $(PUT)
 

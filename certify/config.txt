@@ -1,0 +1,16 @@
+$Id: config.txt,v 12.0 1993/05/06 13:55:00 ste_cm Rel $
+
+--------------------------------------------------------------------------------
+
+DED is a directory editor, designed to be run in a BSD-UNIX environment.  It is
+written in C using curses.
+
+This tool has been tested on the Apollo and Sun systems at the SPC
+
+	Apollo SR10.2 (DN3500 hardware) -- CC 6.7
+	Apollo SR10.3 (DN5500 hardware) -- CC 6.8
+	SunOs 4.1.1 (Sun3 and Sun4 hardware)
+
+It is built upon the following prototype libraries and tools:
+
+	TD_LIB (baseline 12+)
