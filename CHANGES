@@ -1,3 +1,7 @@
+2007-03-25  Thomas E. Dickey  <dickey@invisible-island.net>
+
+	* mkdirs.sh: resync with my-autoconf
+
 2005-01-24  Thomas E. Dickey  <dickey@invisible-island.net>
 
 	* src/dedview.c, src/dedtype.c, src/dedscan.c, src/ded2s.c:
