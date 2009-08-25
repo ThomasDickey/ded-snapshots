@@ -1,3 +1,7 @@
+2009-08-25  Thomas E. Dickey  <dickey@invisible-island.net>
+
+	* config.guess, config.sub: RCS_BASE
+
 2007-03-25  Thomas E. Dickey  <dickey@invisible-island.net>
 
 	* mkdirs.sh: resync with my-autoconf
