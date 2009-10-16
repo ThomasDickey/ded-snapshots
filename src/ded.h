@@ -19,7 +19,7 @@
 
 #ifdef	MAIN
 #if	!defined(NO_IDENT)
-static const char ded_h[] = "$Id: ded.h,v 12.66 2004/09/08 00:49:45 tom Exp $";
+static const char ded_h[] = "$Id: ded.h,v 12.67 2009/10/16 00:37:12 tom Exp $";
 #endif
 #endif	/* MAIN */
 
@@ -36,7 +36,7 @@ static const char ded_h[] = "$Id: ded.h,v 12.66 2004/09/08 00:49:45 tom Exp $";
 /*
  * Conditional-compilation variables
  */
-#if defined(RCS_PATH) || defined(SCCS_PATH)
+#if defined(RCS_PATH) || defined(SCCS_PATH) || defined(CVS_PATH) || defined(SVN_PATH)
 #  define Z_RCS_SCCS		/* compile-in common sccs/rcs support */
 #endif
 
