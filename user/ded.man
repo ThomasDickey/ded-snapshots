@@ -1,5 +1,5 @@
 .\"*****************************************************************************
-.\" Copyright 2004 by Thomas E. Dickey.  All Rights Reserved.                  *
+.\" Copyright 2004,2009 by Thomas E. Dickey.  All Rights Reserved.             *
 .\"                                                                            *
 .\" Permission to use, copy, modify, and distribute this software and its      *
 .\" documentation for any purpose and without fee is hereby granted, provided  *
@@ -17,7 +17,7 @@
 .\" ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR *
 .\" IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.                *
 .\"*****************************************************************************
-.\" $Id: ded.man,v 12.17 2004/09/17 00:08:17 tom Exp $
+.\" $Id: ded.man,v 12.18 2009/10/16 09:23:57 tom Exp $
 .if t .ds T \(tm
 .if n .ds T (tm)
 .
@@ -1535,9 +1535,11 @@ so that the help file can be found.
 .B DED_CM_LOOKUP
 specifies the order to use when looking for the last version of files
 in RCS, SCCS, CmVision, CVS.
-If you do not specify it, the default order is "rcs,sccs".
+If you do not specify it, the default order is "rcs,sccs,cvs,svn",
+according to their availability at build time.
 Specify CmVision with a "cmv" keyword.
 Specify CVS with a "cvs" keyword.
+Specify SVN with a "svn" keyword.
 .TP
 .B DED_TREE
 overrides the default location of the directory-tree database file.

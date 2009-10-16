@@ -1,3 +1,7 @@
+2009-10-16  Thomas E. Dickey  <dickey@invisible-island.net>
+
+	* user/ded.man: add SVN
+
 2009-10-15  Thomas E. Dickey  <dickey@invisible-island.net>
 
 	* src/ded.h:
