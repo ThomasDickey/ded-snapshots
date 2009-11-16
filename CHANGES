@@ -1,3 +1,9 @@
+2009-11-15  Thomas E. Dickey  <dickey@invisible-island.net>
+
+	* src/dedscan.c:
+	fix an out-of-bounds indexing in dedscan() when processing ^R pattern on
+	pathnames read from stdin.  Also improve chunking in reallocs by append()
+
 2009-10-16  Thomas E. Dickey  <dickey@invisible-island.net>
 
 	* user/ded.man: add SVN
