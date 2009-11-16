@@ -3,6 +3,8 @@
  * Author:	T.E.Dickey
  * Created:	09 Nov 1987
  * Modified:
+ *		15 Nov 2009, fix an out-of-bounds indexing in dedscan() when
+ *			     doing a ^R pattern on pathnames read from stdin.
  *		07 Mar 2004, remove K&R support, indent'd
  *		15 Jul 2001, fix uninitialized FLIST struct in dedstat() call
  *			     in path_RESOLVE() - U/Win.
@@ -94,7 +96,7 @@
 #include	<rcsdefs.h>
 #include	<sccsdefs.h>
 
-MODULE_ID("$Id: dedscan.c,v 12.42 2005/01/25 01:45:18 tom Exp $")
+MODULE_ID("$Id: dedscan.c,v 12.43 2009/11/15 23:10:12 tom Exp $")
 
 #define	N_UNKNOWN	-1	/* name does not exist */
 #define	N_FILE		0	/* a file (synonym for 'common==0') */
@@ -152,23 +154,36 @@ ReZero(FLIST * f_)
     alloc_name(f_, name);
 }
 
+#define CHUNK (2 << 5)
+
+#define CHUNKED(n) (((n + 1) | (CHUNK - 1)) + 1)
+
 /*
  * For a given name, update/append to the display-list the new FLIST data.
  */
 static void
 append(RING * gbl, char *name, FLIST * f_)
 {
-    int j = lookup(gbl, name);
+    FLIST *ptr;
+    int have = lookup(gbl, name);
+    unsigned need;
 
-    if (j >= 0) {
-	gENTRY(j) = *f_;
-	alloc_name(&gENTRY(j), name);
+    if (have >= 0) {
+	gENTRY(have) = *f_;
+	alloc_name(&gENTRY(have), name);
 	return;
     }
 
     /* append a new entry on the end of the list */
-    j = (gbl->numfiles | 31) + 1;
-    gbl->flist = DOALLOC(gbl->flist, FLIST, (unsigned) j);
+    need = CHUNKED(gbl->numfiles + 1);
+    if (gbl->flist == 0 || (need != CHUNKED(gbl->numfiles))) {
+	ptr = DOALLOC(gbl->flist, FLIST, (unsigned) need);
+	if (ptr != gbl->flist) {
+	    dlog_comment("append numfiles %d, need %d, size %u ->%p\n",
+			 gbl->numfiles + 1, need, sizeof(FLIST) * need, ptr);
+	    gbl->flist = ptr;
+	}
+    }
 
     Zero(&gENTRY(gbl->numfiles));
     gENTRY(gbl->numfiles) = *f_;
@@ -401,11 +416,14 @@ dedscan(RING * gbl)
 		alloc_name(&gENTRY(n), gNAME(n) + comlen);
 	} else {
 	    size_t len = strlen(gbl->new_wd);
-	    for (j = 0; j < argc; j++) {
-		if (strlen(s = argv[j]) > len
+	    for (j = 0; j < argc && j < (int) gbl->numfiles; j++) {
+		s = argv[j];
+		if (s != 0
+		    && strlen(s) > len
 		    && s[len] == '/'
-		    && !strncmp(gbl->new_wd, s, len))
-		    alloc_name(&gENTRY(j), gNAME(j) + len + 1);
+		    && !strncmp(gbl->new_wd, s, len)) {
+		    alloc_name(&gENTRY(j), s + len + 1);
+		}
 	    }
 	}
     }
