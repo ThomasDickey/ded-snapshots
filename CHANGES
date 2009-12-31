@@ -1,3 +1,9 @@
+2009-12-31  Thomas E. Dickey  <dickey@invisible-island.net>
+
+	* config.guess: 2009-12-30
+
+	* config.sub: 2009-12-31
+
 2009-11-15  Thomas E. Dickey  <dickey@invisible-island.net>
 
 	* src/dedscan.c:
