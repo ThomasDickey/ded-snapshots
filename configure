@@ -2165,16 +2165,16 @@ if test "${enable_echo+set}" = set; then
 
     ECHO_LT='--silent'
     ECHO_LD='@echo linking $@;'
-    RULE_CC='	@echo compiling $<'
-    SHOW_CC='	@echo compiling $@'
+    RULE_CC='@echo compiling $<'
+    SHOW_CC='@echo compiling $@'
     ECHO_CC='@'
 
   else
 
     ECHO_LT=''
     ECHO_LD=''
-    RULE_CC='# compiling'
-    SHOW_CC='# compiling'
+    RULE_CC=''
+    SHOW_CC=''
     ECHO_CC=''
 
   fi
@@ -2183,8 +2183,8 @@ else
 
     ECHO_LT=''
     ECHO_LD=''
-    RULE_CC='# compiling'
-    SHOW_CC='# compiling'
+    RULE_CC=''
+    SHOW_CC=''
     ECHO_CC=''
 
 fi;
