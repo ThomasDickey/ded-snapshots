@@ -1,4 +1,4 @@
-MANIFEST for ded, version t20100114
+MANIFEST for ded, version t20100323
 --------------------------------------------------------------------------------
 MANIFEST                        this file
 COPYING                         copyright notice for DED
@@ -10,7 +10,8 @@ configure                       configure-script
 configure.in                    template for DED configure script
 install-sh                      install script
 makefile.in                     template for ./makefile
-mkdirs.sh                       script to make directory-hierarchy
+package                         subdirectory
+package/ded-12.0.spec           RPM spec-file for DED
 src                             subdirectory
 src/README                      to-do list for DED
 src/boxchars.c                  encapsulate knowledge of box-characters

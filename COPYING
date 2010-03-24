@@ -1,10 +1,10 @@
-$Id: COPYING,v 12.3 2004/09/17 00:31:15 tom Exp $
+$Id: COPYING,v 12.4 2010/03/24 00:07:06 tom Exp $
 
 DED - Directory EDitor
 
 --------------------------------------------------------------------------------
 
-Copyright 2004 by Thomas E. Dickey.  All Rights Reserved.
+Copyright 1987-2004,2010 by Thomas E. Dickey.  All Rights Reserved.
 
 Permission to use, copy, modify, and distribute this software and its
 documentation for any purpose and without fee is hereby granted, provided that
@@ -13,6 +13,9 @@ notice and this permission notice appear in supporting documentation, and that
 the name of the above listed copyright holder(s) not be used in advertising or
 publicity pertaining to distribution of the software without specific, written
 prior permission.
+
+The above copyright notice and this permission notice shall be included
+in all copies or substantial portions of the Software.
 
 THE ABOVE LISTED COPYRIGHT HOLDER(S) DISCLAIM ALL WARRANTIES WITH REGARD TO THIS
 SOFTWARE, INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS, IN NO

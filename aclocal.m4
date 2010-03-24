@@ -1,4 +1,4 @@
-dnl $Id: aclocal.m4,v 12.17 2010/01/14 23:55:34 tom Exp $
+dnl $Id: aclocal.m4,v 12.18 2010/03/23 22:48:28 tom Exp $
 dnl Macros for DED configure script.
 dnl ---------------------------------------------------------------------------
 dnl ---------------------------------------------------------------------------
@@ -175,12 +175,16 @@ fi
 ])
 ])dnl
 dnl ---------------------------------------------------------------------------
-dnl CF_FIND_TDLIB version: 7 updated: 2009/01/06 19:42:31
+dnl CF_FIND_TDLIB version: 8 updated: 2010/03/23 18:47:33
 dnl -------------
-dnl Locate TD_LIB, which is either installed, with headers, library and
-dnl include-file for make, or in a directory side-by-side with the current
-dnl program's configure script. Use the side-by-side version in preference
+dnl Locate TD_LIB, which is available in one of these configurations:
+dnl a) installed, with headers, library and include-file for make
+dnl b) in a directory side-by-side with the current program's configure script
+dnl c) in a subdirectory of this directory.
+dnl
+dnl Use (b) or (c) in preference
 dnl to the installed version, to facilitate development.
+dnl (b) is mainly useful for packaging.
 dnl
 dnl Sets:
 dnl	TD_LIB_rules - actual path of td_lib.mk
@@ -192,20 +196,16 @@ AC_MSG_CHECKING(for td_lib in side-by-side directory)
 AC_CACHE_VAL(cf_cv_tdlib_devel,[
 	cf_cv_tdlib_devel=no
 
-	test -d ../td_lib &&
-	test -d ../td_lib/include &&
-	test -f ../td_lib/include/td_config.h &&
-	test -d ../td_lib/lib &&
-	test -f ../td_lib/lib/${LIB_PREFIX}td.a &&
-	cf_cv_tdlib_devel=yes
-
-	if test "$cf_cv_tdlib_devel" = yes ; then
-		cf_save_CFLAGS="$CFLAGS"
-		cf_save_LIBS="$LIBS"
-		CFLAGS="$CFLAGS -I`cd ../td_lib/include;pwd`"
-		LIBS="-L`cd ../td_lib/lib;pwd` $LIBS"
-		TD_LIB_rules=`cd ../td_lib/support;pwd`
-	fi
+	for cf_path in . ..
+	do
+		test -d $cf_path/td_lib &&
+		test -d $cf_path/td_lib/include &&
+		test -f $cf_path/td_lib/include/td_config.h &&
+		test -d $cf_path/td_lib/lib &&
+		test -f $cf_path/td_lib/lib/${LIB_PREFIX}td.a &&
+		cf_cv_tdlib_devel=`CDPATH=; export CDPATH; cd $cf_path/td_lib;pwd` &&
+		break
+	done
 ])
 AC_MSG_RESULT($cf_cv_tdlib_devel)
 
@@ -235,12 +235,16 @@ if test "$cf_cv_tdlib_devel" = no ; then
 		test $cf_td_lib_rules = no && AC_MSG_ERROR(Cannot find td_lib.mk)
 	fi
 	TD_LIB_rules=$cf_libdir
+else
+	CPPFLAGS="$CPPFLAGS -I$cf_cv_tdlib_devel/include $CPPFLAGS"
+	LIBS="-L$cf_cv_tdlib_devel/lib $LIBS"
+	TD_LIB_rules=$cf_cv_tdlib_devel/support
 fi
 
 AC_SUBST(TD_LIB_rules)
 ])dnl
 dnl ---------------------------------------------------------------------------
-dnl CF_HEADER_PATH version: 9 updated: 2008/12/07 19:38:31
+dnl CF_HEADER_PATH version: 10 updated: 2010/01/17 20:36:17
 dnl --------------
 dnl Construct a search-list of directories for a nonstandard header-file
 dnl
@@ -249,6 +253,7 @@ dnl	$1 = the variable to return as result
 dnl	$2 = the package name
 AC_DEFUN([CF_HEADER_PATH],
 [
+$1=
 cf_header_path_list=""
 if test -n "${CFLAGS}${CPPFLAGS}" ; then
 	for cf_header_path in $CPPFLAGS $CFLAGS

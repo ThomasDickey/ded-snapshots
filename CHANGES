@@ -1,3 +1,31 @@
+2010-03-23  Thomas E. Dickey  <dickey@invisible-island.net>
+
+	* package/ded-12.0.spec: new release, with spec-file included
+
+	* configure: regen
+
+	* COPYING: update
+
+	* makefile.in, user/makefile.in: s/deinstall/uninstall/
+
+	* package/ded-12.0.spec:
+	modify to show the nominal version "12.x" in the rpm file.
+
+	* aclocal.m4:
+	modify CF_FIND_TDLIB to allow td_lib to be a subdirectory of ded.  That
+	simplifies an RPM script.
+
+	* package/ded-12.0.spec: RCS_BASE
+
+	* makefile.in: remove an unused assignment for INSTALL_MAN
+
+	* makefile.in: use $DESTDIR
+	create bindir if not existing
+	use mkdir -p rather than mkdirs.sh script
+
+	* user/makefile.in: add $DESTDIR
+	create mandir if not existing.
+
 2010-01-14  Thomas E. Dickey  <dickey@invisible-island.net>
 
 	* configure: regen
