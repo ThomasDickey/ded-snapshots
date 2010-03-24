@@ -1,4 +1,4 @@
-# $Id: makefile.in,v 12.3 1997/09/13 13:48:14 tom Exp $
+# $Id: makefile.in,v 12.5 2010/03/23 23:42:34 tom Exp $
 
 THIS	= ded
 
@@ -12,7 +12,7 @@ mandir		= @mandir@
 
 USE	= man
 SECTION	= 1
-MANDIR	= $(mandir)/$(USE)$(SECTION)/
+MANDIR	= $(DESTDIR)$(mandir)/$(USE)$(SECTION)/
 
 ####### (Standard Lists) #######################################################
 IT	=\
@@ -30,8 +30,10 @@ distclean:	clean			; -$(RM) $(ALL) *.cat
 run_test:
 sources:	$(SOURCES)
 install:	$(IT)
-deinstall:				; -$(RM) $(IT)
+uninstall:				; -$(RM) $(IT)
 
 ####### (Details of Productions) ###############################################
-$(IT):	$(THIS).man
+$(IT):	$(THIS).man $(MANDIR)
 	$(INSTALL_DATA) $(THIS).man $(IT)
+
+$(MANDIR) :				; mkdir -p $@

@@ -1,4 +1,4 @@
-# $Id: makefile.in,v 12.5 2004/03/07 22:10:04 tom Exp $
+# $Id: makefile.in,v 12.8 2010/03/23 23:42:42 tom Exp $
 # Top-level make-file for DED
 
 SHELL		= /bin/sh
@@ -14,6 +14,8 @@ prefix		= @prefix@
 exec_prefix	= @exec_prefix@
 bindir		= @bindir@
 srcdir		= @srcdir@
+
+BINDIR		= $(DESTDIR)$(bindir)
 
 SOURCES	= \
 	makefile.in \
@@ -59,20 +61,21 @@ distclean::
 	$(RM) */makefile
 	$(RM) makefile
 
-install::	bin/$(THIS)
-	$(INSTALL_PROGRAM) -m 755 bin/$(THIS) $(bindir)
-	$(INSTALL_DATA) bin/$(THIS).hlp $(bindir)
+install::	bin/$(THIS) $(BINDIR)
+	$(INSTALL_PROGRAM) -m 755 bin/$(THIS) $(BINDIR)
+	$(INSTALL_DATA) bin/$(THIS).hlp $(BINDIR)
 
-deinstall::
-	$(RM) $(bindir)/$(THIS)
-	$(RM) $(bindir)/$(THIS).hlp
+uninstall::
+	$(RM) $(BINDIR)/$(THIS)
+	$(RM) $(BINDIR)/$(THIS).hlp
 
 install\
-deinstall::
-	cd user &&	$(MAKE) $(MAKE_OPTS) $@ INSTALL_MAN=`cd ..;cd $(INSTALL_MAN);pwd`
+uninstall::
+	cd user &&	$(MAKE) $(MAKE_OPTS) $@
 
 ####### (Details of Productions) ###############################################
 
-$(DIRS):			; $(srcdir)/mkdirs.sh $@
+$(BINDIR) \
+$(DIRS):			; mkdir -p $@
 bin/$(THIS):	all
 $(SOURCES):
