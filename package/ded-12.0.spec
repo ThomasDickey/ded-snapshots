@@ -1,7 +1,7 @@
 Summary: DED directory editor
 %define AppVersion 20100323
 %define LibVersion 20100323
-# $Header: /users/source/archives/ded.vcs/package/RCS/ded-12.0.spec,v 1.3 2010/03/24 00:48:04 tom Exp $
+# $Header: /users/source/archives/ded.vcs/package/RCS/ded-12.0.spec,v 1.4 2010/05/02 13:18:34 tom Exp $
 Name: ded
 Version: 12.x
 # Base version is 12.x; rpm version corresponds to "Source1" directory name.
@@ -40,6 +40,7 @@ cd td_lib-%{LibVersion}
 		--bindir=%{_bindir} \
 		--libdir=%{_libdir} \
 		--mandir=%{_mandir} \
+		--with-ncursesw \
 		--with-screen=ncursesw
 make
 
@@ -69,6 +70,9 @@ make install                    DESTDIR=$RPM_BUILD_ROOT
 
 %changelog
 # each patch should add its ChangeLog entries here
+
+* Sun May 02 2010 Thomas Dickey
+- correct option for specifying ncursesw library
 
 * Tue Mar 23 2010 Thomas Dickey
 - initial version
