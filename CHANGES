@@ -1,3 +1,12 @@
+2010-05-24  Thomas E. Dickey  <dickey@invisible-island.net>
+
+	* src/dedcolor.c, src/dedfind.c, src/dedline.c, src/dedscan.c, src/dedshow.c, src/dedsigs.c, src/dedtype.c, src/dedview.c, src/dedwait.c, src/dlog.c, src/ftree.c, src/showpath.c:
+	fix warnings from clang --analyze
+
+	* aclocal.m4:
+	minor fixes to CF_HEADER_PATH, CF_LIBRARY_PATH, CF_SUBDIR_PATH to reset the
+	target variable, avoiding conflicts with other uses.
+
 2010-05-02  Thomas E. Dickey  <dickey@invisible-island.net>
 
 	* package/ded-12.0.spec: correct option for specifying ncursesw library
