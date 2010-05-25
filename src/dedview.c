@@ -3,6 +3,7 @@
  * Author:	T.E.Dickey
  * Created:	03 Apr 1992, from 'ded.c'
  * Modified:
+ *		25 May 2010, fix clang --analyze warnings.
  *		07 Mar 2004, remove K&R support, indent'd
  *		21 Jul 1998, change filelist header layout to allow for
  *			     hostname prefix to pathname.
@@ -26,7 +27,7 @@
 
 #include	"ded.h"
 
-MODULE_ID("$Id: dedview.c,v 12.46 2005/01/25 01:46:28 tom Exp $")
+MODULE_ID("$Id: dedview.c,v 12.47 2010/05/25 00:30:13 tom Exp $")
 
 #define	MINLIST	2		/* minimum length of file-list + header */
 #define	MINWORK	3		/* minimum size of work-area */
@@ -251,9 +252,9 @@ show_line(VIEW * vp, unsigned j)
 		if (gFLAG(j)) {
 		    trimmed = trim_at(line);
 		    move(line, col);
-		    standout();
+		    (void) standout();
 		    PRINTW("%.*s", len, &bfr[adj]);
-		    standend();
+		    (void) standend();
 		}
 #if defined(HAVE_HAS_COLORS)
 		else if (has_colors()
@@ -303,7 +304,7 @@ show_what(VIEW * vp)
 
     move(vp->base_row, 0);
     if (gbl->tag_count)
-	standout();
+	(void) standout();
 
     buffer[0] = EOS;
     if (gbl->tag_opt) {
@@ -324,7 +325,7 @@ show_what(VIEW * vp)
 
     addstr(buffer);
     if (gbl->tag_count)
-	standend();
+	(void) standend();
 }
 
 /*

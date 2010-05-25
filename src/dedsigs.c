@@ -3,6 +3,7 @@
  * Author:	T.E.Dickey
  * Created:	03 Aug 1988
  * Modified:
+ *		25 May 2010, fix clang --analyze warnings.
  *		07 Mar 2004, remove K&R support, indent'd
  *		29 May 1998, compile with g++
  *		26 Jun 1994, catch INTR only when flag argument is TRUE.
@@ -22,7 +23,7 @@
 
 #include	"ded.h"
 
-MODULE_ID("$Id: dedsigs.c,v 12.13 2004/03/07 23:25:18 tom Exp $")
+MODULE_ID("$Id: dedsigs.c,v 12.14 2010/05/25 00:30:13 tom Exp $")
 
 static int caught;		/* counts number of interrupts */
 static int init = -1;		/* last-flag, to prevent redundant 'signal()' */
@@ -50,7 +51,7 @@ SIGNAL_FUNC(dedquit)
     (void) strcat(temp, "\n");
 
     to_exit(1);
-    FPRINTF(stderr, temp);
+    FPRINTF(stderr, "%s", temp);
     dlog_comment(temp);
 
     dlog_exit(FAIL);

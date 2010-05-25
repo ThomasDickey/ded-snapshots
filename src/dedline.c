@@ -3,6 +3,7 @@
  * Author:	T.E.Dickey
  * Created:	01 Aug 1988 (from 'ded.c')
  * Modified:
+ *		25 May 2010, fix clang --analyze warnings.
  *		07 Sep 2004, add editdate().
  *		07 Mar 2004, remove K&R support, indent'd
  *		01 Mar 1998, mods to build with OS/2 EMX 0.9b
@@ -58,7 +59,7 @@
 
 #include	"ded.h"
 
-MODULE_ID("$Id: dedline.c,v 12.28 2004/09/08 01:08:02 tom Exp $")
+MODULE_ID("$Id: dedline.c,v 12.29 2010/05/25 00:30:13 tom Exp $")
 
 #define	CHMOD(n)	(gSTAT(n).st_mode & 07777)
 #define	OWNER(n)	((geteuid() == 0) || (gSTAT(x).st_uid == geteuid()))
@@ -710,9 +711,9 @@ editlink(RING * gbl, int cmd)
 		    int y0, y1, x;
 		    getyx(stdscr, y0, x);
 		    if (COLS - x > 3) {
-			standout();
+			(void) standout();
 			PRINTW("-> ");
-			standend();
+			(void) standend();
 			PRINTW("%.*s",
 			       COLS - col - 3,
 			       link2bfr(gbl, bfr, j));
@@ -784,7 +785,7 @@ editdate(RING * gbl, int current, int recur)
     ReplayStart('T');
 
     for (c = fields = 0; datemask[c] != 0; ++c) {
-	if (c == 0 || (isalpha(datemask[c]) && datemask[c] != datemask[c-1])) {
+	if (c == 0 || (isalpha(datemask[c]) && datemask[c] != datemask[c - 1])) {
 	    cols[fields++] = gbl->cmdcol[CCOL_DATE] + c;
 	}
     }
@@ -798,7 +799,7 @@ editdate(RING * gbl, int current, int recur)
 	showLINE(gbl, current);
 
 	move(y, cols[x]);
-	switch (c = ReplayChar()) {
+	switch (ReplayChar()) {
 	case '\n':
 	case 'T':
 	    ReplayFinish();

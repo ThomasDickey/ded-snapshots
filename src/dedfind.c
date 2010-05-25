@@ -3,6 +3,7 @@
  * Author:	T.E.Dickey
  * Created:	18 Nov 1987
  * Modified:
+ *		25 May 2010, fix clang --analyze warnings.
  *		07 Mar 2004, remove K&R support, indent'd
  *		16 Feb 1998, make 'curfile' unsigned.
  *		18 Nov 1993, corrected infinite loop when current-file happened
@@ -24,7 +25,7 @@
  */
 #include	"ded.h"
 
-MODULE_ID("$Id: dedfind.c,v 12.12 2004/03/07 23:25:18 tom Exp $")
+MODULE_ID("$Id: dedfind.c,v 12.13 2010/05/25 00:30:13 tom Exp $")
 
 void
 dedfind(RING * gbl, int key)
@@ -72,7 +73,7 @@ dedfind(RING * gbl, int key)
 	}
     }
     if (ok_expr) {
-	for (j = gbl->curfile, found = FALSE;;) {
+	for (j = gbl->curfile;;) {
 	    if (next > 0) {
 		if ((j += next) >= gbl->numfiles)
 		    j = 0;

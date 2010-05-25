@@ -3,6 +3,7 @@
  * Author:	T.E.Dickey
  * Created:	01 Dec 1987
  * Modified:
+ *		25 May 2010, fix clang --analyze warnings.
  *		07 Mar 2004, remove K&R support, indent'd
  *		21 Oct 1995, show escaped control chars in printable form.
  *		29 Oct 1993, ifdef-ident, port to HP/UX.
@@ -22,7 +23,7 @@
 
 #include	"ded.h"
 
-MODULE_ID("$Id: dedshow.c,v 12.9 2004/03/07 23:25:18 tom Exp $")
+MODULE_ID("$Id: dedshow.c,v 12.10 2010/05/25 00:30:13 tom Exp $")
 
 static int
 dedshow_c(int ch)
@@ -96,9 +97,9 @@ dedshow2(char *arg)
 	} else {
 	    if (!dedshow_c('{'))
 		return;
-	    standout();
+	    (void) standout();
 	    dedshow2("...");
-	    standend();
+	    (void) standend();
 	    if (!dedshow_c('}'))
 		return;
 	    while ((*arg != EOS) && !isascii(*arg))
