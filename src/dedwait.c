@@ -3,6 +3,7 @@
  * Author:	T.E.Dickey
  * Created:	01 Dec 1987
  * Modified:
+ *		25 May 2010, fix clang --analyze warnings.
  *		07 Mar 2004, remove K&R support, indent'd
  *		29 Oct 1993, ifdef-ident
  *		18 Oct 1991, converted to ANSI
@@ -18,7 +19,7 @@
 
 #include	"ded.h"
 
-MODULE_ID("$Id: dedwait.c,v 12.6 2004/03/07 23:25:18 tom Exp $")
+MODULE_ID("$Id: dedwait.c,v 12.7 2010/05/25 00:30:13 tom Exp $")
 
 /*ARGSUSED*/
 void
@@ -30,9 +31,9 @@ dedwait(RING * gbl, int cursed)
     PRINTF("\n");
     if (cursed) {		/* assume we are already in raw-mode */
 	move(LINES - 1, 0);
-	standout();
+	(void) standout();
 	PRINTW("%.*s", COLS - 1, msg);
-	standend();
+	(void) standend();
 	PRINTW(" ");
 	clrtoeol();
     } else {

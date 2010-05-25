@@ -3,6 +3,7 @@
  * Author:	T.E.Dickey
  * Created:	09 Nov 1987
  * Modified:
+ *		25 May 2010, fix clang --analyze warnings.
  *		15 Nov 2009, fix an out-of-bounds indexing in dedscan() when
  *			     doing a ^R pattern on pathnames read from stdin.
  *		07 Mar 2004, remove K&R support, indent'd
@@ -96,7 +97,7 @@
 #include	<rcsdefs.h>
 #include	<sccsdefs.h>
 
-MODULE_ID("$Id: dedscan.c,v 12.43 2009/11/15 23:10:12 tom Exp $")
+MODULE_ID("$Id: dedscan.c,v 12.44 2010/05/25 00:30:13 tom Exp $")
 
 #define	N_UNKNOWN	-1	/* name does not exist */
 #define	N_FILE		0	/* a file (synonym for 'common==0') */
@@ -339,7 +340,7 @@ dedscan(RING * gbl)
 		    j = argstat(gbl, strcpy(name + len1, s), TRUE, FALSE);
 		    if (!dotname(s)
 			&& j > 0
-			&& (k = lookup(gbl, s)) >= 0) {
+			&& lookup(gbl, s) >= 0) {
 			ft_insert(name);
 		    }
 		}

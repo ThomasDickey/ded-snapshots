@@ -3,6 +3,7 @@
  * Author:	T.E.Dickey
  * Created:	14 Mar 1989
  * Modified:
+ *		25 May 2010, fix clang --analyze warnings.
  *		07 Mar 2004, remove K&R support, indent'd
  *		27 Dec 1996, move ANSI_VARARGS ifdef to configure-script.
  *		01 Dec 1993, moved most 'refresh()' calls under 'dlog_char()'
@@ -33,7 +34,7 @@
 #include	"ded.h"
 #include	<time.h>
 
-MODULE_ID("$Id: dlog.c,v 12.20 2004/03/07 23:25:18 tom Exp $")
+MODULE_ID("$Id: dlog.c,v 12.21 2010/05/25 00:30:13 tom Exp $")
 
 #define	NOW		time((time_t *)0)
 
@@ -152,7 +153,7 @@ read_script(void)
 	dyn_init(&cmd_bfr, BUFSIZ);
 	cmd_ptr = dyn_string(cmd_bfr);
     }
-    while (!*cmd_ptr || join) {
+    while ((cmd_ptr && !*cmd_ptr) || join) {
 	if (cmd_fp == 0)
 	    break;
 	else if (fgets(temp, sizeof(temp), cmd_fp)) {
@@ -172,7 +173,7 @@ read_script(void)
 	    break;
 	}
     }
-    return *cmd_ptr;		/* have text to process */
+    return (cmd_ptr && *cmd_ptr);	/* have text to process */
 }
 
 /*
@@ -479,7 +480,7 @@ dlog_string(RING * gbl,
 	gets_active = FALSE;
 
 	/* account for chars we read from command-file */
-	if (*cmd_ptr) {
+	if (cmd_ptr && *cmd_ptr) {
 	    cmd_ptr += (script_ptr - dyn_string(script_bfr))
 		- script_inx;
 #ifdef	DEBUG

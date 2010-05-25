@@ -2,6 +2,7 @@
  * Author:	T.E.Dickey
  * Created:	02 Sep 1987
  * Modified:
+ *		25 May 2010, fix clang --analyze warnings.
  *		18 Mar 2004, update old_wd if we rename the directory it was.
  *		07 Mar 2004, remove K&R support, indent'd
  *		07 Dec 2001, add special case /cygdrive for Cygwin.
@@ -139,7 +140,7 @@
 
 #include	<fcntl.h>
 
-MODULE_ID("$Id: ftree.c,v 12.62 2004/03/19 01:51:39 tom Exp $")
+MODULE_ID("$Id: ftree.c,v 12.63 2010/05/25 00:30:13 tom Exp $")
 
 #define	Null	(char *)0	/* some NULL's are simply 0 */
 
@@ -230,10 +231,10 @@ static char zero[] = ROOT, *gap = zero + (TOP - 1);
 
 	/*ARGSUSED */
 static void
-my_dedmsg(RING * gbl, char *msg)
+my_dedmsg(char *msg)
 {
     waitmsg(msg);
-#define	dedmsg	my_dedmsg	/* ...so we don't call 'showC' from this module */
+#define	dedmsg(gbl,msg)	my_dedmsg(msg)	/* ...so we don't call 'showC' from this module */
 }
 
 static int
@@ -579,7 +580,7 @@ ft_insert(char *path)
 {
     char bfr[MAXPATHLEN];
 
-    abspath(path = strcpy(bfr, path));
+    abspath(strcpy(bfr, path));
     fd_add_path(bfr, (char *) zero);
 }
 
@@ -1049,10 +1050,10 @@ ft_show(RING * gbl, char *path, char *home, int node, int level)
 
 		if ((int) strlen(bfr) > count) {
 		    if (zMARK(j))
-			standout();
+			(void) standout();
 		    PRINTW(fmt, limit, bfr + count);
 		    if (zMARK(j))
-			standend();
+			(void) standend();
 		    limit -= (strlen(bfr) - count);
 		    count = 0;
 		} else {

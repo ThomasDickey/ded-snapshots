@@ -3,6 +3,7 @@
  * Author:	T.E.Dickey
  * Created:	10 Jul 1994
  * Modified:
+ *		25 May 2010, fix clang --analyze warnings.
  *		07 Mar 2004, remove K&R support, indent'd
  *		09 Aug 1999, allow color names to be mixed case, in any order.
  *		09 Feb 1996, allow ISO 6429 codes to be used on non-Linux.
@@ -17,7 +18,7 @@
  */
 #include "ded.h"
 
-MODULE_ID("$Id: dedcolor.c,v 12.20 2004/03/07 23:25:18 tom Exp $")
+MODULE_ID("$Id: dedcolor.c,v 12.21 2010/05/25 00:30:13 tom Exp $")
 
 #if defined(HAVE_HAS_COLORS)
 
@@ -419,7 +420,7 @@ dedcolor(FLIST * entry)
     if (entry != 0)		/* set color according to filename & type */
 	attr = AttributesOf(entry);
 
-    attrset(attr);
+    (void) attrset(attr);
 }
 
 void

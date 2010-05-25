@@ -3,6 +3,7 @@
  * Author:	T.E.Dickey
  * Created:	01 Feb 1990
  * Modified:
+ *		25 May 2010, fix clang --analyze warnings.
  *		07 Mar 2004, remove K&R support, indent'd
  *		21 Jul 1998, show hostname prefix for pathname
  *		16 Feb 1998, compiler warnings
@@ -21,7 +22,7 @@
 
 #include	"ded.h"
 
-MODULE_ID("$Id: showpath.c,v 12.10 2004/03/07 23:25:18 tom Exp $")
+MODULE_ID("$Id: showpath.c,v 12.11 2010/05/25 00:30:13 tom Exp $")
 
 #define	DOTLEN	((int)sizeof(ellipsis)-1)
 
@@ -67,7 +68,7 @@ showpath(char *path,		/* pathname to display */
 
     if (base == 0) {
 	hilite = TRUE;
-	standout();
+	(void) standout();
     }
 
     while (len > (cols - left)) {
@@ -78,7 +79,7 @@ showpath(char *path,		/* pathname to display */
 	if ((t = strchr(s, PATH_SLASH)) != NULL) {
 	    if (base-- == 0) {
 		hilite = TRUE;
-		standout();
+		(void) standout();
 	    }
 	    s = t;
 	    len = d - s;
@@ -117,7 +118,7 @@ showpath(char *path,		/* pathname to display */
 			len -= j;
 			s += j;
 		    }
-		    standout();
+		    (void) standout();
 		    break;
 		}
 	    }
@@ -127,8 +128,8 @@ showpath(char *path,		/* pathname to display */
     if (len > 0)
 	PRINTW("%.*s", len, s);
     if (*d != EOS)
-	PRINTW(ellipsis);
+	PRINTW("%s", ellipsis);
     if (hilite) {
-	standend();
+	(void) standend();
     }
 }

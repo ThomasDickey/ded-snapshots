@@ -3,6 +3,7 @@
  * Author:	T.E.Dickey
  * Created:	16 Nov 1987
  * Modified:
+ *		25 May 2010, fix clang --analyze warnings.
  *		07 Mar 2004, remove K&R support, indent'd
  *		24 Jan 2000, revised directory-macros.
  *		16 Aug 1999, add cast to work with BeOS's long long ino_t.
@@ -59,7 +60,7 @@
 #define		DIR_PTYPES	/* includes directory-stuff */
 #include	"ded.h"
 
-MODULE_ID("$Id: dedtype.c,v 12.34 2005/01/25 01:45:46 tom Exp $")
+MODULE_ID("$Id: dedtype.c,v 12.35 2010/05/25 00:30:13 tom Exp $")
 
 typedef struct {
     OFF_T offset;
@@ -112,12 +113,12 @@ typeline(int y, int skip)
 	    Tlen = COLS;
 
 	if (found) {
-	    standout();
+	    (void) standout();
 	    if (Tlen > 0)
 		PRINTW("%.*s", Tlen, Text + Shift);
 	    else
 		addstr(" ");
-	    standend();
+	    (void) standend();
 	} else if (Tlen > 0) {
 	    int now = Shift, j;
 
@@ -127,10 +128,10 @@ typeline(int y, int skip)
 			break;
 		}
 		if (Over[now])
-		    standout();
+		    (void) standout();
 		PRINTW("%.*s", (j - now), Text + now);
 		if (Over[now])
-		    standend();
+		    (void) standend();
 		Tlen -= (j - now);
 		now = j;
 	    }
@@ -454,30 +455,27 @@ FinishPage(RING * gbl,
 	y = typeline(y, FALSE);
 
     move(LINES - 1, 0);
-    standout();
+    (void) standout();
     PRINTW("---lines %d to %d", TopOfPage(infile, &foo) + 1, infile);
     if (inlist >= 0) {
 	int oldy, oldx;
 	int save = gbl->AT_opt;
 
 	getyx(stdscr, oldy, oldx);
-	standend();
+	(void) standend();
 	gbl->AT_opt = TRUE;
 	shown = reshow(gbl, (unsigned) inlist);
 	gbl->AT_opt = save;
-	length = gSTAT(inlist).st_size;
 	gbl->mrkfile = -1;
 	markC(gbl, TRUE);
-	standout();
+	(void) standout();
 	move(oldy, oldx);
-
-    } else {
-	length = MaxP();
     }
+
     if ((length = MaxP()) != 0)
 	PRINTW(": %.1f%%", (ftell(InFile) * 100.) / length);
     PRINTW("---");
-    standend();
+    (void) standend();
     PRINTW(" ");
     clrtoeol();
 
@@ -493,9 +491,9 @@ IgnorePage(int infile)
     if (now != last) {
 	last = now;
 	move(LINES - 1, 0);
-	standout();
+	(void) standout();
 	PRINTW("---line %d ...skipping", infile);
-	standend();
+	(void) standend();
 	PRINTW(" ");
 	clrtoeol();
 	refresh();
