@@ -1,4 +1,4 @@
-dnl $Id: aclocal.m4,v 12.19 2010/05/24 20:58:00 tom Exp $
+dnl $Id: aclocal.m4,v 12.20 2010/06/24 00:43:13 tom Exp $
 dnl Macros for DED configure script.
 dnl ---------------------------------------------------------------------------
 dnl ---------------------------------------------------------------------------
@@ -30,7 +30,7 @@ dnl Allow user to disable a normally-on option.
 AC_DEFUN([CF_ARG_DISABLE],
 [CF_ARG_OPTION($1,[$2],[$3],[$4],yes)])dnl
 dnl ---------------------------------------------------------------------------
-dnl CF_ARG_OPTION version: 3 updated: 1997/10/18 14:42:41
+dnl CF_ARG_OPTION version: 4 updated: 2010/05/26 05:38:42
 dnl -------------
 dnl Restricted form of AC_ARG_ENABLE that ensures user doesn't give bogus
 dnl values.
@@ -42,13 +42,13 @@ dnl $3 = action to perform if option is not default
 dnl $4 = action if perform if option is default
 dnl $5 = default option value (either 'yes' or 'no')
 AC_DEFUN([CF_ARG_OPTION],
-[AC_ARG_ENABLE($1,[$2],[test "$enableval" != ifelse($5,no,yes,no) && enableval=ifelse($5,no,no,yes)
+[AC_ARG_ENABLE([$1],[$2],[test "$enableval" != ifelse([$5],no,yes,no) && enableval=ifelse([$5],no,no,yes)
   if test "$enableval" != "$5" ; then
-ifelse($3,,[    :]dnl
-,[    $3]) ifelse($4,,,[
+ifelse([$3],,[    :]dnl
+,[    $3]) ifelse([$4],,,[
   else
     $4])
-  fi],[enableval=$5 ifelse($4,,,[
+  fi],[enableval=$5 ifelse([$4],,,[
   $4
 ])dnl
   ])])dnl
@@ -457,7 +457,7 @@ AC_SUBST(make_include_left)
 AC_SUBST(make_include_right)
 ])dnl
 dnl ---------------------------------------------------------------------------
-dnl CF_PATHSEP version: 4 updated: 2009/01/11 20:30:23
+dnl CF_PATHSEP version: 5 updated: 2010/05/26 05:38:42
 dnl ----------
 dnl Provide a value for the $PATH and similar separator
 AC_DEFUN([CF_PATHSEP],
@@ -466,7 +466,7 @@ AC_DEFUN([CF_PATHSEP],
 	os2*)	PATH_SEPARATOR=';'  ;;
 	*)	PATH_SEPARATOR=':'  ;;
 	esac
-ifelse($1,,,[$1=$PATH_SEPARATOR])
+ifelse([$1],,,[$1=$PATH_SEPARATOR])
 	AC_SUBST(PATH_SEPARATOR)
 ])dnl
 dnl ---------------------------------------------------------------------------

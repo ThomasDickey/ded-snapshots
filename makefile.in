@@ -1,4 +1,4 @@
-# $Id: makefile.in,v 12.8 2010/03/23 23:42:42 tom Exp $
+# $Id: makefile.in,v 12.9 2010/06/24 09:27:11 tom Exp $
 # Top-level make-file for DED
 
 SHELL		= /bin/sh
@@ -16,6 +16,7 @@ bindir		= @bindir@
 srcdir		= @srcdir@
 
 BINDIR		= $(DESTDIR)$(bindir)
+DATADIR		= $(DESTDIR)$(datadir)/$(THIS)
 
 SOURCES	= \
 	makefile.in \
@@ -63,11 +64,19 @@ distclean::
 
 install::	bin/$(THIS) $(BINDIR)
 	$(INSTALL_PROGRAM) -m 755 bin/$(THIS) $(BINDIR)
-	$(INSTALL_DATA) bin/$(THIS).hlp $(BINDIR)
+
+install::	$(DATADIR)
+	$(INSTALL_DATA) $(srcdir)/src/$(THIS).hlp $(DATADIR)
+	$(INSTALL_DATA) $(srcdir)/src/ccodes.rc $(DATADIR)
+	$(INSTALL_DATA) $(srcdir)/src/cnames.rc $(DATADIR)
 
 uninstall::
 	$(RM) $(BINDIR)/$(THIS)
-	$(RM) $(BINDIR)/$(THIS).hlp
+	@-rmdir $(BINDIR)
+	$(RM) $(DATADIR)/$(THIS).hlp
+	$(RM) $(DATADIR)/ccodes.rc
+	$(RM) $(DATADIR)/cnames.rc
+	@-rmdir $(DATADIR)
 
 install\
 uninstall::
@@ -76,6 +85,8 @@ uninstall::
 ####### (Details of Productions) ###############################################
 
 $(BINDIR) \
+$(DATADIR) \
 $(DIRS):			; mkdir -p $@
+
 bin/$(THIS):	all
 $(SOURCES):

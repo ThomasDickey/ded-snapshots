@@ -1,7 +1,7 @@
 Summary: DED directory editor
-%define AppVersion 20100525
-%define LibVersion 20100525
-# $Header: /users/source/archives/ded.vcs/package/RCS/ded-12.0.spec,v 1.5 2010/05/25 08:08:22 tom Exp $
+%define AppVersion 20100624
+%define LibVersion 20100624
+# $Header: /users/source/archives/ded.vcs/package/RCS/ded-12.0.spec,v 1.6 2010/06/24 09:53:45 tom Exp $
 Name: ded
 Version: 12.x
 # Base version is 12.x; rpm version corresponds to "Source1" directory name.
@@ -40,6 +40,7 @@ cd td_lib-%{LibVersion}
 		--bindir=%{_bindir} \
 		--libdir=%{_libdir} \
 		--mandir=%{_mandir} \
+		--datadir=%{_datadir} \
 		--with-ncursesw \
 		--with-screen=ncursesw
 make
@@ -50,7 +51,8 @@ cd ..
 		--prefix=%{_prefix} \
 		--bindir=%{_bindir} \
 		--libdir=%{_libdir} \
-		--mandir=%{_mandir}
+		--mandir=%{_mandir} \
+		--datadir=%{_datadir}
 make
 
 %install
@@ -65,11 +67,15 @@ make install                    DESTDIR=$RPM_BUILD_ROOT
 %files
 %defattr(-,root,root)
 %{_bindir}/ded
-%{_bindir}/ded.hlp
 %{_mandir}/man1/ded.*
+%{_datadir}/ded/*.hlp
+%{_datadir}/ded/*.rc
 
 %changelog
 # each patch should add its ChangeLog entries here
+
+* Thu Jun 24 2010 Thomas Dickey
+- move data files to data directory
 
 * Tue May 26 2010 Thomas Dickey
 - code cleanup with clang --analyze

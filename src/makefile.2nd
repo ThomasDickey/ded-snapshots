@@ -1,10 +1,11 @@
 
-# $Id: makefile.2nd,v 12.3 1998/03/01 23:57:21 tom Exp $
+# $Id: makefile.2nd,v 12.5 2010/06/24 10:39:31 tom Exp $
 # second part of MAKE-file for directory editor
 
 MAIN_C	= $(THIS).c $(CSRC)
 MAIN_O	= $(THIS).o $Z
 SOURCES	= makefile.in README $(MAIN_C) $(HSRC) $(THIS).hlp $(THIS)rc
+EXTRA_CPP_OPTS	= -DDATA_DIR=\"$(datadir)/ded\"
 
 ####### (Standard Productions) #################################################
 all\

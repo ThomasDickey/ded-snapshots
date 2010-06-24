@@ -3,6 +3,7 @@
  * Author:	T.E.Dickey
  * Created:	09 Nov 1987
  * Modified:
+ *		24 Jun 2010, look first for help-file in data-directory.
  *		07 Sep 2004, add -D option for date-editing.
  *		07 Mar 2004, remove K&R support, indent'd
  *		03 Jul 2003, move dedsigs() after initscr() to avoid conflict
@@ -169,7 +170,7 @@
 
 #include <locale.h>
 
-MODULE_ID("$Header: /users/source/archives/ded.vcs/src/RCS/ded.c,v 12.76 2004/09/08 00:49:45 tom Exp $")
+MODULE_ID("$Header: /users/source/archives/ded.vcs/src/RCS/ded.c,v 12.77 2010/06/24 09:48:34 tom Exp $")
 
 #define	EDITOR	DEFAULT_EDITOR
 #define	BROWSE	DEFAULT_BROWSE
@@ -955,9 +956,12 @@ _MAIN
     if (which(whoami, sizeof(whoami), argv[0], old_wd) <= 0)
 	failed("which-path");
 
-    /* my help-file lives where the binary does */
-    strcpy(howami, whoami);
-    strcpy(ftype(howami), ".hlp");
+    sprintf(howami, "%s/ded.hlp", DATA_DIR);
+    if (!stat_file(howami, &sb)) {
+	/* my help-file lives where the binary does */
+	strcpy(howami, whoami);
+	strcpy(ftype(howami), ".hlp");
+    }
 
     /* pass options to lower-level processes of ded */
     (void) strcat(strcat(whoami, " -t"), tree_opt);
