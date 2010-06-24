@@ -1,5 +1,5 @@
 .\"*****************************************************************************
-.\" Copyright 2004,2009 by Thomas E. Dickey.  All Rights Reserved.             *
+.\" Copyright 2004-2009,2010 by Thomas E. Dickey.  All Rights Reserved.        *
 .\"                                                                            *
 .\" Permission to use, copy, modify, and distribute this software and its      *
 .\" documentation for any purpose and without fee is hereby granted, provided  *
@@ -17,7 +17,7 @@
 .\" ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR *
 .\" IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.                *
 .\"*****************************************************************************
-.\" $Id: ded.man,v 12.18 2009/10/16 09:23:57 tom Exp $
+.\" $Id: ded.man,v 12.19 2010/06/24 09:51:32 tom Exp $
 .if t .ds T \(tm
 .if n .ds T (tm)
 .
@@ -1499,6 +1499,8 @@ Linux color \fBls\fR program.
 ~/.ded_colors
 ~/.dir_colors
 /etc/DIR_COLORS
+\fIdatadir\fP/ccodes.rc
+\fIdatadir\fP/cnames.rc
 .fi
 .RE
 .
@@ -1576,7 +1578,8 @@ When executed, \fBded\fR determines (by inspecting the zeroth
 argument passed to it by the shell, as well as the contents of the
 \fBPATH\fR variable) where it was executed from.
 Its help file \fIded.hlp\fR
-is assumed to reside in the same directory.
+is checked in the \fIdatadir\fP (compile-time data directory),
+If not found there, the help file is assumed to reside in the same directory.
 .PP
 The directory tree manager maintains its database in your home directory
 (i.e., the path is derived from your process's uid).

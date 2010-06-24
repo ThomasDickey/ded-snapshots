@@ -3,6 +3,7 @@
  * Author:	T.E.Dickey
  * Created:	10 Jul 1994
  * Modified:
+ *		24 Jun 2010, look for color-configuration in data-directory.
  *		25 May 2010, fix clang --analyze warnings.
  *		07 Mar 2004, remove K&R support, indent'd
  *		09 Aug 1999, allow color names to be mixed case, in any order.
@@ -18,7 +19,7 @@
  */
 #include "ded.h"
 
-MODULE_ID("$Id: dedcolor.c,v 12.21 2010/05/25 00:30:13 tom Exp $")
+MODULE_ID("$Id: dedcolor.c,v 12.22 2010/06/24 09:49:00 tom Exp $")
 
 #if defined(HAVE_HAS_COLORS)
 
@@ -352,7 +353,9 @@ InitializeColors(void)
     /* find the color-definition file */
     if (FindColorFile(gethome(), ".ded_colors")
 	|| FindColorFile(gethome(), ".dir_colors")
-	|| FindColorFile("/etc", "DIR_COLORS"))
+	|| FindColorFile("/etc", "DIR_COLORS")
+	|| FindColorFile(DATA_DIR, "ccodes.rc")
+	|| FindColorFile(DATA_DIR, "cnames.rc"))
 	ParseColorFile();
 }
 

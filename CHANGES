@@ -1,3 +1,25 @@
+2010-06-24  Thomas E. Dickey  <dickey@invisible-island.net>
+
+	* src/makefile.2nd: use "ded" subdir of data-directory
+
+	* package/ded-12.0.spec: move data files to data-directory
+
+	* user/ded.man:
+	configure the help- and color-files in the data directory
+
+	* src/dedcolor.c: look for color-configuration in data-directory
+
+	* src/ded.c: look first for help-file in data-directory
+
+	* makefile.in:
+	install data-files in data-directory (don't put help-file in bin-directory)
+
+	* src/makefile.2nd: provide for specifying data-directory location
+
+2010-06-23  Thomas E. Dickey  <dickey@invisible-island.net>
+
+	* aclocal.m4: quote params of ifelse()
+
 2010-05-25  Thomas E. Dickey  <dickey@invisible-island.net>
 
 	* package/ded-12.0.spec: package for 20100525
