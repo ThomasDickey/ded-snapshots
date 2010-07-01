@@ -1,3 +1,18 @@
+2010-06-30  Thomas E. Dickey  <dickey@invisible-island.net>
+
+	* configure: regen
+
+	* src/makefile.in: allow for different compiler/options than td_lib
+
+	* configure.in:
+	add --enable-warnings here, to allow different compiler/options than td_lib
+
+	* aclocal.m4: add macros for --enable-warnings
+
+2010-06-27  Thomas E. Dickey  <dickey@invisible-island.net>
+
+	* package/debian/docs: RCS_BASE
+
 2010-06-24  Thomas E. Dickey  <dickey@invisible-island.net>
 
 	* src/makefile.2nd: use "ded" subdir of data-directory

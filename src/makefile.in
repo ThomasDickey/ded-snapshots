@@ -1,9 +1,13 @@
-# $Id: makefile.in,v 12.3 2000/01/17 22:47:59 tom Exp $
+# $Id: makefile.in,v 12.4 2010/06/30 23:29:16 tom Exp $
 # MAKE-file for directory editor
 
 THIS	= ded
 
 @make_include_left@@TD_LIB_rules@/td_lib.mk@make_include_right@
+
+CC		= @CC@
+CFLAGS		= @CFLAGS@
+EXTRA_CFLAGS	= @EXTRA_CFLAGS@
 
 ####### (Standard Lists) #######################################################
 LINTLIBS= -ltd -lcurses
