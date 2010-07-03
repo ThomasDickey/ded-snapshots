@@ -1,0 +1,14 @@
+Source: ded
+Maintainer: Thomas E. Dickey <dickey@invisible-island.net>
+Section: utils
+Priority: extra
+Standards-Version: 3.8.4
+Build-Depends: debhelper (>= 5), tdlib-dev
+Homepage: http://invisible-island.net/ded/
+
+Package: ded
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: ded - directory editor
+ A directory editor for UNIX systems, DED has special functions to manage RCS
+ and SCCS files.

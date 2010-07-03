@@ -1,3 +1,17 @@
+2010-07-03  Thomas E. Dickey  <dickey@invisible-island.net>
+
+	* src/ded.c, src/ded.h: stricter gcc warnings
+
+	* package/ded-12.0.spec:
+	use symbols to iron out diff's between related spec files
+
+	* package/debian/changelog: bump
+
+2010-07-02  Thomas E. Dickey  <dickey@invisible-island.net>
+
+	* package/debian/rules, package/debian/copyright, package/debian/control, package/debian/changelog, package/debian/watch, package/debian/source/format:
+	RCS_BASE
+
 2010-06-30  Thomas E. Dickey  <dickey@invisible-island.net>
 
 	* configure: regen
