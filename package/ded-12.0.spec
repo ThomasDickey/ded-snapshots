@@ -1,16 +1,18 @@
 Summary: DED directory editor
-%define AppVersion 20100624
-%define LibVersion 20100624
-# $Header: /users/source/archives/ded.vcs/package/RCS/ded-12.0.spec,v 1.6 2010/06/24 09:53:45 tom Exp $
-Name: ded
-Version: 12.x
-# Base version is 12.x; rpm version corresponds to "Source1" directory name.
-Release: %{AppVersion}
+%define AppProgram ded
+%define AppLibrary td_lib
+%define AppVersion 12.x
+%define AppRelease 20100704
+%define LibRelease 20100704
+# $Id: ded-12.0.spec,v 1.7 2010/07/03 13:44:03 tom Exp $
+Name: %{AppProgram}
+Version: %{AppVersion}
+Release: %{AppRelease}
 License: MIT-X11
-Group: Applications/Editors
+Group: System Environment/Shells
 URL: ftp://invisible-island.net/ded
-Source0: td_lib-%{LibVersion}.tgz
-Source1: ded-%{AppVersion}.tgz
+Source0: %{AppLibrary}-%{LibRelease}.tgz
+Source1: %{AppProgram}-%{AppRelease}.tgz
 Vendor: Thomas Dickey <dickey@invisible-island.net>
 
 %description
@@ -24,15 +26,15 @@ and SCCS files.
 # -D (do not delete directory before unpacking)
 # -q (quiet)
 # -T (do not do default unpacking, is used with -a or -b)
-rm -rf ded-12.x
-mkdir ded-12.x
+rm -rf %{AppProgram}-%{AppVersion}
+mkdir %{AppProgram}-%{AppVersion}
 %setup -q -D -T -a 1
-mv ded-%{AppVersion}/* .
+mv %{AppProgram}-%{AppRelease}/* .
 %setup -q -D -T -a 0
 
 %build
 
-cd td_lib-%{LibVersion}
+cd %{AppLibrary}-%{LibRelease}
 
 ./configure \
 		--target %{_target_platform} \
@@ -41,8 +43,8 @@ cd td_lib-%{LibVersion}
 		--libdir=%{_libdir} \
 		--mandir=%{_mandir} \
 		--datadir=%{_datadir} \
-		--with-ncursesw \
-		--with-screen=ncursesw
+		--disable-echo \
+		--with-ncursesw
 make
 
 cd ..
@@ -73,6 +75,9 @@ make install                    DESTDIR=$RPM_BUILD_ROOT
 
 %changelog
 # each patch should add its ChangeLog entries here
+
+* Sat Jul 03 2010 Thomas Dickey
+- code cleanup
 
 * Thu Jun 24 2010 Thomas Dickey
 - move data files to data directory

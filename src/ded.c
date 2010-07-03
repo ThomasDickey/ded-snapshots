@@ -170,7 +170,7 @@
 
 #include <locale.h>
 
-MODULE_ID("$Header: /users/source/archives/ded.vcs/src/RCS/ded.c,v 12.77 2010/06/24 09:48:34 tom Exp $")
+MODULE_ID("$Id: ded.c,v 12.78 2010/07/03 17:23:03 tom Exp $")
 
 #define	EDITOR	DEFAULT_EDITOR
 #define	BROWSE	DEFAULT_BROWSE
@@ -291,7 +291,7 @@ realstat(RING * gbl, int inx, Stat_t * sb)
  * Fatal-error exit from this process
  */
 void
-failed(char *msg)
+failed(const char *msg)
 {
     if (debug) {
 	FPRINTF(stderr, "failed?");

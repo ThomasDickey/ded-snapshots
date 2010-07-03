@@ -19,7 +19,7 @@
 
 #ifdef	MAIN
 #if	!defined(NO_IDENT)
-static const char ded_h[] = "$Id: ded.h,v 12.67 2009/10/16 00:37:12 tom Exp $";
+static const char ded_h[] = "$Id: ded.h,v 12.68 2010/07/03 17:19:32 tom Exp $";
 #endif
 #endif	/* MAIN */
 
@@ -243,7 +243,7 @@ extern	int	realstat(
 		Stat_t *	sb);
 
 extern	void	failed(
-		char *	msg);
+		const char *	msg);
 
 extern	int	user_says(
 		RING *	gbl,
