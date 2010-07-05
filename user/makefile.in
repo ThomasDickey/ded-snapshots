@@ -1,4 +1,4 @@
-# $Id: makefile.in,v 12.5 2010/03/23 23:42:34 tom Exp $
+# $Id: makefile.in,v 12.6 2010/07/05 16:57:20 tom Exp $
 
 THIS	= ded
 
@@ -27,7 +27,7 @@ ALL	=
 all:		$(SOURCES) $(ALL)
 clean:					; -$(RM) $(CLEAN)
 distclean:	clean			; -$(RM) $(ALL) *.cat
-run_test:
+check:
 sources:	$(SOURCES)
 install:	$(IT)
 uninstall:				; -$(RM) $(IT)

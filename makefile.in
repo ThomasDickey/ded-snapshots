@@ -1,4 +1,4 @@
-# $Id: makefile.in,v 12.10 2010/07/04 23:41:34 tom Exp $
+# $Id: makefile.in,v 12.11 2010/07/05 16:57:20 tom Exp $
 # Top-level make-file for DED
 
 SHELL		= /bin/sh
@@ -44,7 +44,7 @@ sources::	$(SOURCES)
 all\
 clean\
 distclean\
-run_test\
+check\
 sources::	$(MFILES)
 	cd src &&	$(MAKE) $(MAKE_OPTS) $@
 	cd test &&	$(MAKE) $(MAKE_OPTS) $@
