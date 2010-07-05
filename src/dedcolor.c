@@ -19,7 +19,7 @@
  */
 #include "ded.h"
 
-MODULE_ID("$Id: dedcolor.c,v 12.22 2010/06/24 09:49:00 tom Exp $")
+MODULE_ID("$Id: dedcolor.c,v 12.23 2010/07/04 23:02:35 tom Exp $")
 
 #if defined(HAVE_HAS_COLORS)
 
@@ -28,16 +28,16 @@ enum ColorBy {
 };
 
 typedef struct {
-    char *name;
+    const char *name;
     enum ColorBy code;
-    char *value;
+    const char *value;
 } KEYWORD;
 
 #define	KEYATTR	struct	key_pair
 KEYATTR {
     KEYATTR *next;
     KEYWORD key;		/* data used to match file to color */
-    int attr;			/* the attributes and color-pair value */
+    chtype attr;		/* the attributes and color-pair value */
 };
 
 int invert_colors;
@@ -71,7 +71,7 @@ CreatePair(int foreground, int background)
     }
     if (used_pairs < COLOR_PAIRS - 1) {
 	used_pairs++;
-	init_pair(used_pairs, foreground, background);
+	init_pair(used_pairs, (short) foreground, (short) background);
 	return used_pairs;
     }
     return -1;
@@ -86,53 +86,32 @@ CreatePair(int foreground, int background)
 static void
 SaveColor(const KEYWORD * name, char *spec)
 {
+    /* *INDENT-OFF* */
     static const struct {
-	char *name;
-	int code;
+	const char *name;
+	chtype code;
     } attr_names[] = {
-	{
-	    "UNDERLINE", A_UNDERLINE
-	},
-	{
-	    "REVERSE", A_REVERSE
-	},
-	{
-	    "DIM", A_DIM
-	},
-	{
-	    "BLINK", A_BLINK
-	},
-	{
-	    "BOLD", A_BOLD
-	}
+	{ "UNDERLINE", A_UNDERLINE },
+	{ "REVERSE",   A_REVERSE },
+	{ "DIM",       A_DIM },
+	{ "BLINK",     A_BLINK },
+	{ "BOLD",      A_BOLD }
     }, my_color_names[] = {
-	{
-	    "BLACK", COLOR_BLACK
-	},
-	{
-	    "RED", COLOR_RED
-	},
-	{
-	    "GREEN", COLOR_GREEN
-	},
-	{
-	    "YELLOW", COLOR_YELLOW
-	},
-	{
-	    "BLUE", COLOR_BLUE
-	},
-	{
-	    "MAGENTA", COLOR_MAGENTA
-	},
-	{
-	    "CYAN", COLOR_CYAN
-	},
-	{
-	    "WHITE", COLOR_WHITE
-	}
+	{ "BLACK",     COLOR_BLACK },
+	{ "RED",       COLOR_RED },
+	{ "GREEN",     COLOR_GREEN },
+	{ "YELLOW",    COLOR_YELLOW },
+	{ "BLUE",      COLOR_BLUE },
+	{ "MAGENTA",   COLOR_MAGENTA },
+	{ "CYAN",      COLOR_CYAN },
+	{ "WHITE",     COLOR_WHITE }
     };
+    /* *INDENT-ON* */
+
     int code;
-    int attr = A_NORMAL, forg = default_foreground, bakg = default_background;
+    chtype attr = A_NORMAL;
+    int forg = default_foreground;
+    int bakg = default_background;
     size_t n;
     int found = FALSE;
     char *temp;
@@ -147,7 +126,7 @@ SaveColor(const KEYWORD * name, char *spec)
 	    *next++ = EOS;
 	    (void) strclean(spec);
 	}
-	code = strtol(spec, &temp, 10);
+	code = (int) strtol(spec, &temp, 10);
 	found = FALSE;
 	if (temp != spec) {	/* there's a number */
 	    found = TRUE;
@@ -235,9 +214,9 @@ SaveColor(const KEYWORD * name, char *spec)
 	    for (n = 0; n < SIZEOF(my_color_names); n++) {
 		if (!strucmp(temp, my_color_names[n].name)) {
 		    if (*spec == 'f')
-			forg = my_color_names[n].code;
+			forg = (int) my_color_names[n].code;
 		    else
-			bakg = my_color_names[n].code;
+			bakg = (int) my_color_names[n].code;
 		    break;
 		}
 	    }
@@ -249,7 +228,7 @@ SaveColor(const KEYWORD * name, char *spec)
     if ((code = CreatePair(forg, bakg)) >= 0) {
 	KEYATTR *p = (KEYATTR *) doalloc((char *) 0, sizeof(KEYATTR));
 	p->key = *name;
-	p->attr = attr | COLOR_PAIR(code);
+	p->attr = (attr | (chtype) COLOR_PAIR(code));
 	p->next = keypairs;
 	keypairs = p;
     }
@@ -259,24 +238,27 @@ SaveColor(const KEYWORD * name, char *spec)
 static const KEYWORD *
 FindKeyword(char *name)
 {
+    /* *INDENT-OFF* */
     static const
     KEYWORD keywords[] =
     {
 	{"NORMAL", ByType, "?"},	/* global default */
-	{"FILE", ByType, "-"},	/* normal file */
-	{"DIR", ByType, "d"},	/* directory */
-	{"LINK", ByType, "l"},	/* symbolic link */
-	{"FIFO", ByType, "p"},	/* pipe */
-	{"SOCK", ByType, "s"},	/* socket */
-	{"BLK", ByType, "b"},	/* block device driver */
-	{"CHR", ByType, "c"},	/* character device driver */
-	{"EXEC", ByMode, "X"},	/* executable */
+	{"FILE",   ByType, "-"},	/* normal file */
+	{"DIR",	   ByType, "d"},	/* directory */
+	{"LINK",   ByType, "l"},	/* symbolic link */
+	{"FIFO",   ByType, "p"},	/* pipe */
+	{"SOCK",   ByType, "s"},	/* socket */
+	{"BLK",	   ByType, "b"},	/* block device driver */
+	{"CHR",	   ByType, "c"},	/* character device driver */
+	{"EXEC",   ByMode, "X"},	/* executable */
     /* these are my extensions (cf: 'access_mode()'): */
-	{"WRITE", ByMode, "W"},	/* writeable */
-	{"READ", ByMode, "R"},	/* readable */
-	{"RW", ByMode, "RW"},	/* readable/writeable */
-	{"RWX", ByMode, "RWX"}	/* readable/writeable */
+	{"WRITE",  ByMode, "W"},	/* writeable */
+	{"READ",   ByMode, "R"},	/* readable */
+	{"RW",	   ByMode, "RW"},	/* readable/writeable */
+	{"RWX",	   ByMode, "RWX"}	/* readable/writeable */
     };
+    /* *INDENT-ON* */
+
     size_t n;
 
     for (n = 0; n < SIZEOF(keywords); n++)
@@ -327,10 +309,11 @@ ParseColorFile(void)
  *	/etc/DIR_COLORS
  */
 static int
-FindColorFile(char *path, char *leaf)
+FindColorFile(const char *path, const char *leaf)
 {
     Stat_t sb;
     char temp[MAXPATHLEN];
+
     if (stat_file(pathcat(temp, path, leaf), &sb) >= 0) {
 	color_file = txtalloc(temp);
 	return TRUE;
@@ -347,7 +330,7 @@ InitializeColors(void)
     if (invert_colors) {
 	default_background = COLOR_WHITE | A_BOLD;
 	default_foreground = COLOR_BLACK;
-	init_pair(0, default_foreground, default_background);
+	init_pair(0, (short) default_foreground, (short) default_background);
     }
 
     /* find the color-definition file */
@@ -361,7 +344,7 @@ InitializeColors(void)
 
 /* returns true if the file is at least as accessible as the pattern */
 static int
-AtLeastAccessible(char *pattern, Stat_t * sb)
+AtLeastAccessible(const char *pattern, Stat_t * sb)
 {
     char temp[8], *match = temp;
 
@@ -384,13 +367,13 @@ AtLeastAccessible(char *pattern, Stat_t * sb)
     return (*pattern == EOS);
 }
 
-static int
+static chtype
 AttributesOf(FLIST * entry)
 {
     KEYATTR *p;
     Stat_t *sb = &(entry->s);
     char *suffix = ftype2(entry->z_name);
-    int attr = A_NORMAL;
+    chtype attr = A_NORMAL;
 
     for (p = keypairs; p != 0; p = p->next) {
 	switch (p->key.code) {
@@ -416,7 +399,7 @@ AttributesOf(FLIST * entry)
 void
 dedcolor(FLIST * entry)
 {
-    int attr = A_NORMAL;	/* default, resets color */
+    chtype attr = A_NORMAL;	/* default, resets color */
 
     if (!initialized)
 	InitializeColors();

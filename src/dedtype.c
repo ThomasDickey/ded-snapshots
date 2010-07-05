@@ -60,7 +60,7 @@
 #define		DIR_PTYPES	/* includes directory-stuff */
 #include	"ded.h"
 
-MODULE_ID("$Id: dedtype.c,v 12.35 2010/05/25 00:30:13 tom Exp $")
+MODULE_ID("$Id: dedtype.c,v 12.36 2010/07/04 21:57:09 tom Exp $")
 
 typedef struct {
     OFF_T offset;
@@ -145,7 +145,7 @@ typeline(int y, int skip)
 static void
 typeover(int c)
 {
-    size_t need = Tcol + 1;
+    size_t need = (size_t) Tcol + 1;
 
     if (need >= END_COL) {
 	need = (need * 5) / 4;
@@ -155,9 +155,9 @@ typeover(int c)
 
     if ((Over[Tcol] = Text[Tcol]) != EOS) {
 	if (ispunct(UCH(Text[Tcol])))
-	    Text[Tcol] = c;
+	    Text[Tcol] = (char) c;
     } else
-	Text[Tcol] = c;
+	Text[Tcol] = (char) c;
 
     if (++Tcol > Tlen) {
 	Tlen = Tcol;
@@ -268,7 +268,7 @@ MarkLine(int *infile)
 
     *infile += 1;
     if ((*infile) + 2 > (int) allocated_lines) {
-	allocated_lines = ((*infile) + 100) * 2;
+	allocated_lines = (unsigned) ((*infile) + 100) * 2;
 	LineAt = DOALLOC(LineAt, OFFSETS, allocated_lines);
     }
     if (*infile > max_lines) {
@@ -472,8 +472,10 @@ FinishPage(RING * gbl,
 	move(oldy, oldx);
     }
 
-    if ((length = MaxP()) != 0)
-	PRINTW(": %.1f%%", (ftell(InFile) * 100.) / length);
+    if ((length = MaxP()) != 0) {
+	off_t num = ftell(InFile);
+	PRINTW(": %.1f%%", ((double) num * 100.) / (double) length);
+    }
     PRINTW("---");
     (void) standend();
     PRINTW(" ");
@@ -669,7 +671,7 @@ dedtype(RING * gbl,
 	if ((dp = opendir(name)) != 0) {
 	    while ((de = readdir(dp)) != NULL) {
 		(void) ded2string(gbl, bfr,
-				  NAMLEN(de),
+				  (int) NAMLEN(de),
 				  de->d_name,
 				  FALSE);
 		FPRINTF(InFile, INO_FMT, (unsigned long) de->d_ino);
@@ -724,7 +726,7 @@ dedtype(RING * gbl,
 	    }
 
 	    markC(gbl, TRUE);
-	    y = StartPage(&infile, skip, &had_eof);
+	    y = StartPage(&infile, (int) skip, &had_eof);
 	    if (skip && !was_interrupted) {
 		if (feof(InFile)) {
 		    skip = 0;
@@ -834,7 +836,7 @@ dedtype(RING * gbl,
 		jump -= count;
 		/*FALLTHRU */
 	    case 'a':
-		markset(gbl, mark_W + count);
+		markset(gbl, (unsigned) (mark_W + count));
 		break;
 
 	    case '/':

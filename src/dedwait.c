@@ -19,14 +19,14 @@
 
 #include	"ded.h"
 
-MODULE_ID("$Id: dedwait.c,v 12.7 2010/05/25 00:30:13 tom Exp $")
+MODULE_ID("$Id: dedwait.c,v 12.8 2010/07/04 22:05:19 tom Exp $")
 
 /*ARGSUSED*/
 void
 dedwait(RING * gbl, int cursed)
 {
     int c;
-    static char *msg = "Hit <RETURN> to continue";
+    static const char *msg = "Hit <RETURN> to continue";
 
     PRINTF("\n");
     if (cursed) {		/* assume we are already in raw-mode */

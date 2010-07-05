@@ -27,7 +27,7 @@
 
 #include	"ded.h"
 
-MODULE_ID("$Id: dedview.c,v 12.47 2010/05/25 00:30:13 tom Exp $")
+MODULE_ID("$Id: dedview.c,v 12.48 2010/07/04 23:01:38 tom Exp $")
 
 #define	MINLIST	2		/* minimum length of file-list + header */
 #define	MINWORK	3		/* minimum size of work-area */
@@ -70,12 +70,12 @@ static unsigned maxview;	/* current number of viewports  */
 static void
 copy_view(RING * gbl)
 {
-    int n;
+    unsigned n;
 
     TRACE(("...copy_view %d to %d...\n", curview, maxview));
     for (n = maxview; n < PORT_MAX; n++) {
-	gbl->base_of[n] = vue->base_file;
-	gbl->item_of[n] = gbl->curfile;
+	gbl->base_of[n] = (int) vue->base_file;
+	gbl->item_of[n] = (int) gbl->curfile;
 	TRACE(("...copy_view[%d] base_of=%d, item_of=%d\n", n,
 	       gbl->base_of[n], gbl->item_of[n]));
     }
@@ -93,12 +93,12 @@ save_view(RING * gbl)
     TRACE(("...save_view port=%d\n", curview));
     if (q != 0) {
 	TRACE(("...save_view old base_of=%d, item_of=%d\n", vue->base_file, vue->curfile));
-	q->base_of[curview] = vue->base_file;
-	q->item_of[curview] = vue->gbl->curfile;
+	q->base_of[curview] = (int) vue->base_file;
+	q->item_of[curview] = (int) vue->gbl->curfile;
     }
     p->gbl = gbl;
-    p->base_file = gbl->base_of[curview];
-    p->curfile = gbl->item_of[curview];
+    p->base_file = (unsigned) gbl->base_of[curview];
+    p->curfile = (unsigned) gbl->item_of[curview];
     gbl->curfile = p->curfile;
     TRACE(("...save_view new base_of=%d, item_of=%d\n", vue->base_file, vue->curfile));
 }
@@ -112,13 +112,13 @@ setup_view(RING * gbl)
 {
     unsigned j = curview + 1;
 
-    vue->last_row = (j >= maxview)
-	? mark_W
-	: (int) viewlist[j].base_row;
+    vue->last_row = ((j >= maxview)
+		     ? (unsigned) mark_W
+		     : viewlist[j].base_row);
 
-    vue->last_file = vue->last_row
-	+ vue->base_file
-	- (vue->base_row + MINLIST);
+    vue->last_file = (vue->last_row
+		      + vue->base_file
+		      - (vue->base_row + MINLIST));
 
     if (vue->last_file >= gbl->numfiles)
 	vue->last_file = gbl->numfiles - 1;
@@ -224,11 +224,11 @@ show_line(VIEW * vp, unsigned j)
     char bfr[BUFSIZ];
 
     if (FILE_VISIBLE(vp, j)) {
-	int line = FILE2ROW(vp, j);
+	int line = (int) FILE2ROW(vp, j);
 	int trimmed = FALSE;
 
 	move(line, 0);
-	ded2s(gbl, j, bfr, sizeof(bfr));
+	ded2s(gbl, (int) j, bfr, sizeof(bfr));
 	if (gbl->Xbase < (int) strlen(bfr)) {
 	    int adj = gbl->cmdcol[CCOL_NAME];
 	    int col = adj - gbl->Xbase;
@@ -285,8 +285,8 @@ show_view(RING * gbl)
 
     for (j = vue->base_file; j <= vue->last_file; j++)
 	show_line(vue, j);
-    for (j = file2row(vue->last_file + 1); j < vue->last_row; j++) {
-	move(j, 0);
+    for (j = (unsigned) file2row(vue->last_file + 1); j < vue->last_row; j++) {
+	move((int) j, 0);
 	clrtoeol();
     }
 }
@@ -302,7 +302,7 @@ show_what(VIEW * vp)
     static char datechr[] = "acm";
     int y, x;
 
-    move(vp->base_row, 0);
+    move((int) vp->base_row, 0);
     if (gbl->tag_count)
 	(void) standout();
 
@@ -317,9 +317,9 @@ show_what(VIEW * vp)
 	    gbl->curfile + 1,
 	    gbl->numfiles,
 	    datechr[gbl->dateopt]);
-    showpath(gbl->new_wd, 999, -1, strlen(buffer) + 3);
+    showpath(gbl->new_wd, 999, -1, (int) strlen(buffer) + 3);
     getyx(stdscr, y, x);
-    x = COLS - strlen(buffer) - x;
+    x = COLS - (int) strlen(buffer) - x;
     while (x-- > 0)
 	addch(' ');
 
@@ -375,7 +375,7 @@ backward(RING * gbl, int n)
 int
 file2row(unsigned n)
 {
-    return FILE2ROW(vue, n);
+    return (int) FILE2ROW(vue, n);
 }
 
 /*
@@ -461,7 +461,7 @@ void
 markset(RING * gbl, unsigned num)
 {
     unsigned lo = (vue->base_row + MINLIST * (maxview - curview));
-    unsigned hi = (LINES - MINWORK);
+    unsigned hi = (unsigned) (LINES - MINWORK);
 
     if (num < lo)
 	num = lo;
@@ -469,7 +469,7 @@ markset(RING * gbl, unsigned num)
     if (curview < (maxview - 1)) {	/* not the last viewport */
 	unsigned next_W = viewlist[curview + 1].base_row;
 	if (num > hi) {		/* multiple-adjust */
-	    mark_W = hi;
+	    mark_W = (int) hi;
 	    next_W += (num - hi);
 	    if (curview < (maxview - 2))
 		hi = viewlist[curview + 2].base_row;
@@ -477,15 +477,15 @@ markset(RING * gbl, unsigned num)
 	    if (next_W > hi)
 		next_W = hi;
 	} else if (vue->base_row + MINLIST
-		   <= (hi = next_W + (num - mark_W))) {
+		   <= (hi = next_W + (num - (unsigned) mark_W))) {
 	    next_W = hi;
-	    mark_W = num;
+	    mark_W = (int) num;
 	}
 	viewlist[curview + 1].base_row = next_W;
     } else {			/* in the last viewport */
 	if (num > hi)
 	    num = hi;
-	mark_W = num;
+	mark_W = (int) num;
     }
 
     (void) to_file(gbl);
@@ -513,8 +513,9 @@ upLINE(RING * gbl, unsigned n)
 	}
 #if defined(HAVE_WSCRL) && defined(HAVE_WSETSCRREG)
 	if (vue->base_file < savebase
-	    && setscrreg(vue->base_row + 1, vue->last_row - 1) != ERR) {
-	    scrl(vue->base_file - savebase);
+	    && setscrreg((int) vue->base_row + 1,
+			 (int) vue->last_row - 1) != ERR) {
+	    scrl((int) (vue->base_file - savebase));
 	    setscrreg(0, LINES - 1);
 	}
 #endif
@@ -541,8 +542,9 @@ downLINE(RING * gbl, unsigned n)
 	}
 #if defined(HAVE_WSCRL) && defined(HAVE_WSETSCRREG)
 	if (vue->base_file > savebase
-	    && setscrreg(vue->base_row + 1, vue->last_row - 1) != ERR) {
-	    scrl(vue->base_file - savebase);
+	    && setscrreg((int) vue->base_row + 1,
+			 (int) vue->last_row - 1) != ERR) {
+	    scrl((int) (vue->base_file - savebase));
 	    setscrreg(0, LINES - 1);
 	}
 #endif
@@ -573,7 +575,7 @@ showDOWN(RING * gbl)
 void
 showWHAT(RING * gbl)
 {
-    int save = vue->curfile = gbl->curfile;
+    unsigned save = vue->curfile = gbl->curfile;
     unsigned j;
 
     for (j = 0; j < maxview; j++)
@@ -590,7 +592,7 @@ showWHAT(RING * gbl)
 void
 showLINE(RING * gbl, unsigned inx)
 {
-    int save = vue->curfile = gbl->curfile;
+    unsigned save = vue->curfile = gbl->curfile;
     unsigned j;
 
     for (j = 0; j < maxview; j++)
@@ -626,7 +628,7 @@ showMARK(int col)
 	getyx(stdscr, ys, xs);
 	addchnstr(bar_ruler + units, limit);
 	FORMAT(value, "%d", ++col);
-	first = 10 - units - strlen(value);
+	first = 10 - units - (int) strlen(value);
 	if (first < limit) {
 	    move(ys, xs + first);
 	    PRINTW("%.*s", limit - first, value);
@@ -645,7 +647,7 @@ showMARK(int col)
 void
 showFILES(RING * gbl, int reset_cols)
 {
-    int current = curview;
+    unsigned current = curview;
     int j;
     unsigned k;
 
@@ -695,10 +697,10 @@ openVIEW(RING * gbl)
 
 	curview = maxview++;	/* patch: no insertion? */
 	vue = &viewlist[curview];
-	vue->base_row = r_head;
+	vue->base_row = (unsigned) r_head;
 
 	save_view(gbl);		/* current viewport */
-	markset(gbl, mark_W);	/* adjust marker, re-display */
+	markset(gbl, (unsigned) mark_W);	/* adjust marker, re-display */
     } else
 	dedmsg(gbl, "too many viewports");
 }
@@ -867,7 +869,7 @@ baseVIEW(void)
 int
 lastVIEW(void)
 {
-    return vue->last_file;
+    return (int) vue->last_file;
 }
 
 /*
@@ -883,7 +885,7 @@ row2VIEW(RING * gbl, int row)
 
     for (n = 0; n < maxview; n++) {
 	vp = viewlist + n;
-	nn = ROW2FILE(vp, row);
+	nn = ROW2FILE(vp, (unsigned) row);
 	if (FILE_VISIBLE(vp, nn)) {
 	    curview = n;
 	    vp->curfile = nn;

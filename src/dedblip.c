@@ -14,14 +14,14 @@
  */
 #include "ded.h"
 
-MODULE_ID("$Id: dedblip.c,v 12.7 2004/03/07 23:25:18 tom Exp $")
+MODULE_ID("$Id: dedblip.c,v 12.8 2010/07/04 19:42:30 tom Exp $")
 
 #define	L_PAREN '('
 #define	R_PAREN ')'
 
 typedef struct {
-    char *label;
-    char *plural;
+    const char *label;
+    const char *plural;
     int total;
 } BLIP;
 
@@ -49,13 +49,13 @@ static void
 PutChar(int c)
 {
     if (in_screen)
-	addch(c);
+	addch((chtype) c);
     else
 	fputc(c, stderr);
 }
 
 static void
-PutText(char *s)
+PutText(const char *s)
 {
     while (*s != EOS)
 	PutChar(*s++);
@@ -66,7 +66,7 @@ put_dedblip(int code)
 {
     BLIP *table;
     int n;
-    char *s;
+    const char *s;
     char temp[20];
 
     for (table = blips, n = 0; table->label != 0; table++, n++) {

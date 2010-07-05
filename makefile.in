@@ -1,4 +1,4 @@
-# $Id: makefile.in,v 12.9 2010/06/24 09:27:11 tom Exp $
+# $Id: makefile.in,v 12.10 2010/07/04 23:41:34 tom Exp $
 # Top-level make-file for DED
 
 SHELL		= /bin/sh
@@ -13,6 +13,7 @@ THIS	= ded
 prefix		= @prefix@
 exec_prefix	= @exec_prefix@
 bindir		= @bindir@
+datadir		= @datadir@
 srcdir		= @srcdir@
 
 BINDIR		= $(DESTDIR)$(bindir)

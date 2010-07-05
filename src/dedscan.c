@@ -97,14 +97,14 @@
 #include	<rcsdefs.h>
 #include	<sccsdefs.h>
 
-MODULE_ID("$Id: dedscan.c,v 12.44 2010/05/25 00:30:13 tom Exp $")
+MODULE_ID("$Id: dedscan.c,v 12.45 2010/07/04 22:04:33 tom Exp $")
 
 #define	N_UNKNOWN	-1	/* name does not exist */
 #define	N_FILE		0	/* a file (synonym for 'common==0') */
 #define	N_DIR		1	/* a directory */
 #define	N_LDIR		2	/* symbolic link to a directory */
 
-static int dir_order;
+static ORDER_T dir_order;
 
 /************************************************************************
  *	local procedures						*
@@ -114,13 +114,13 @@ static int dir_order;
  * Find a given name in the display list, returning -1 if not found, or index.
  */
 static int
-lookup(RING * gbl, char *name)
+lookup(RING * gbl, const char *name)
 {
     unsigned j;
 
     for_each_file(gbl, j) {
 	if (!strcmp(gENTRY(j).z_real_name, name))
-	    return (j);
+	    return (int) (j);
     }
     return (-1);
 }
@@ -131,7 +131,7 @@ lookup(RING * gbl, char *name)
 #define	Zero(p)	(void)memset(p, 0, sizeof(FLIST))
 
 static void
-alloc_name(FLIST * f_, char *name)
+alloc_name(FLIST * f_, const char *name)
 {
     if (name != 0) {
 #ifndef MIXEDCASE_FILENAMES
@@ -163,7 +163,7 @@ ReZero(FLIST * f_)
  * For a given name, update/append to the display-list the new FLIST data.
  */
 static void
-append(RING * gbl, char *name, FLIST * f_)
+append(RING * gbl, const char *name, FLIST * f_)
 {
     FLIST *ptr;
     int have = lookup(gbl, name);
@@ -204,7 +204,7 @@ append(RING * gbl, char *name, FLIST * f_)
  * symbolic link.
  */
 static int
-dedstat(RING * gbl, char *name, FLIST * f_)
+dedstat(RING * gbl, const char *name, FLIST * f_)
 {
 #ifdef	S_IFLNK
     int len;
@@ -221,7 +221,7 @@ dedstat(RING * gbl, char *name, FLIST * f_)
     code = isDIR(f_->s.st_mode) ? N_DIR : N_FILE;
 #ifdef	S_IFLNK
     if (isLINK(f_->s.st_mode)) {
-	len = readlink(name, bfr, sizeof(bfr));
+	len = (int) readlink(name, bfr, sizeof(bfr));
 	if (len > 0) {
 	    bfr[len] = EOS;
 	    if (f_->z_ltxt)
@@ -248,7 +248,7 @@ dedstat(RING * gbl, char *name, FLIST * f_)
  * see if they resolve to a directory.
  */
 static int
-argstat(RING * gbl, char *name, int list, int tilde)
+argstat(RING * gbl, const char *name, int list, int tilde)
 {
     FLIST fb;
     char full[MAXPATHLEN];
@@ -259,8 +259,10 @@ argstat(RING * gbl, char *name, int list, int tilde)
 	FFLUSH(stdout);
     }
 
-    if (tilde && (*name == '~'))	/* permit "~" from Bourne-shell */
-	abshome(name = strcpy(full, name));
+    if (tilde && (*name == '~')) {	/* permit "~" from Bourne-shell */
+	abshome(strcpy(full, name));
+	name = full;
+    }
 
     Zero(&fb);
     if ((code = dedstat(gbl, name, &fb)) != N_UNKNOWN) {
@@ -298,11 +300,14 @@ dedscan(RING * gbl)
     gbl->numfiles = 0;
 
     if (argc > 1) {
-	(void) chdir(strcpy(gbl->new_wd, old_wd));
-	for (j = 0; j < argc; j++)
-	    if (ok_scan(gbl, argv[j])
-		&& argstat(gbl, argv[j], TRUE, TRUE) >= 0)
-		common = 0;
+	if (chdir(strcpy(gbl->new_wd, old_wd)) == 0) {
+	    for (j = 0; j < argc; j++)
+		if (ok_scan(gbl, argv[j])
+		    && argstat(gbl, argv[j], TRUE, TRUE) >= 0)
+		    common = 0;
+	} else {
+	    return (0);
+	}
     } else {
 	abshome(pathcat(gbl->new_wd, old_wd, argv[0]));
 	if (!path_RESOLVE(gbl, gbl->new_wd)) {
@@ -319,8 +324,8 @@ dedscan(RING * gbl)
 	    set_dedblip(gbl);
 
 	    if ((dp = opendir(".")) != NULL) {
-		unsigned len1;
-		unsigned len2;
+		size_t len1;
+		size_t len2;
 
 		len1 = strlen(strcpy(name, gbl->new_wd));
 
@@ -365,7 +370,7 @@ dedscan(RING * gbl)
 		s[-1] = EOS;
 	    }
 	    argv[0] = txtalloc(gbl->new_wd);
-	    common = strlen(gbl->new_wd);
+	    common = (int) strlen(gbl->new_wd);
 	    (void) argstat(gbl, s, TRUE, FALSE);
 	}
     }
@@ -379,7 +384,7 @@ dedscan(RING * gbl)
     if (debug)
 	PRINTF("common=%d, numfiles=%u\r\n", common, gbl->numfiles);
     if (common == 0 && gbl->numfiles != 0) {
-	unsigned comlen = strlen(strcpy(name, argv[0]));
+	unsigned comlen = (unsigned) strlen(strcpy(name, argv[0]));
 	for (j = 0; (j < argc) && (comlen != 0); j++) {
 	    char *d = argv[j];
 	    unsigned slash = 0;
@@ -388,7 +393,7 @@ dedscan(RING * gbl)
 		 (d[k] == s[k]) && (d[k] != EOS);) {
 		if ((d[k++] == '/')
 		    && (d[k] != EOS))	/* need a leaf */
-		    slash = k;	/* ...common-length */
+		    slash = (unsigned) k;	/* ...common-length */
 	    }
 	    if (slash < comlen) {
 #ifdef	apollo
@@ -435,7 +440,7 @@ dedscan(RING * gbl)
     dedsort(gbl);
     gbl->curfile = 0;		/* ensure consistent initial */
 
-    return (gbl->numfiles);
+    return (int) (gbl->numfiles);
 }
 
 /************************************************************************
@@ -451,7 +456,7 @@ dedscan(RING * gbl)
 #define	LAST(p)	p(gbl->new_wd, name, &(f_->z_vers), &(f_->z_time), &(f_->z_lock))
 
 void
-statSCCS(RING * gbl, char *name, FLIST * f_)
+statSCCS(RING * gbl, const char *name, FLIST * f_)
 {
     if (gbl->Z_opt) {
 	if (isFILE(f_->s.st_mode)) {
@@ -487,10 +492,10 @@ statLINE(RING * gbl, unsigned j)
     char *path = gNAME(j);
     FLIST *blok = &gENTRY(j);
     int flag = gFLAG(j);
-    int dord = gDORD(j);
+    ORDER_T dord = gDORD(j);
 
     (void) dedstat(gbl, path, blok);
-    gFLAG(j) = flag;
+    gFLAG(j) = (char) flag;
     gDORD(j) = dord;
 }
 
@@ -499,9 +504,9 @@ statLINE(RING * gbl, unsigned j)
  * entry down, so the user can edit the name in-place.
  */
 void
-statMAKE(RING * gbl, int mode)
+statMAKE(RING * gbl, mode_t mode)
 {
-    static char *null = "";
+    static char null[] = "";
     int x;
 
     if (mode) {
@@ -515,7 +520,7 @@ statMAKE(RING * gbl, int mode)
 	append(gbl, null, &dummy);
 
 	if ((x = lookup(gbl, null)) >= 0
-	    && ((n = x) != gbl->curfile)) {
+	    && ((n = (unsigned) x) != gbl->curfile)) {
 	    FLIST save;
 	    save = gENTRY(x);
 	    if (n < gbl->curfile) {
@@ -529,7 +534,7 @@ statMAKE(RING * gbl, int mode)
 	}
     } else {			/* remove entry */
 	if ((x = lookup(gbl, null)) >= 0) {
-	    unsigned n = x;
+	    unsigned n = (unsigned) x;
 	    while (n++ < gbl->numfiles)
 		gENTRY(n - 1) = gENTRY(n);
 	    gbl->numfiles--;
@@ -543,9 +548,12 @@ statMAKE(RING * gbl, int mode)
  * gave for a filename.
  */
 static char *
-make_EXPR(char *path)
+make_EXPR(const char *path)
 {
-    char temp[MAXPATHLEN], *s = path, *d = temp;
+    char temp[MAXPATHLEN];
+    const char *s = path;
+    char *d = temp;
+
     *d++ = '^';
     while (*s) {
 	if (ispunct(UCH(*s))) {
@@ -604,8 +612,10 @@ path_RESOLVE(RING * gbl, char *path)
 		 * the ring, give up, removing this entry.
 		 */
 		if (ring_get(temp) != 0) {
+		    static char just_dot[] = ".";
+
 		    warn(gbl, gbl->new_wd);
-		    dedring(gbl, ".", 'Q', 1, FALSE, (char *) 0);
+		    dedring(gbl, just_dot, 'Q', 1, FALSE, (char *) 0);
 		    return (FALSE);
 		}
 		if (chdir(temp) < 0)
@@ -621,14 +631,17 @@ path_RESOLVE(RING * gbl, char *path)
 #if defined(HAVE_REALPATH)
     else {
 	/* try to recover, just in case */
-	(void) chdir(old_wd);
+	if (chdir(old_wd) != 0)
+	    return (FALSE);
     }
     s = realpath(path, temp);
 #else
     s = getwd(temp);
 #endif
     if (s != 0) {
-	(void) chdir(strcpy(path, temp));
+	if (chdir(strcpy(path, temp)) != 0) {
+	    return (FALSE);
+	}
     } else {			/* for SunOS? */
 	FLIST fb;
 	int save = gbl->AT_opt;

@@ -23,7 +23,7 @@
 
 #include	"ded.h"
 
-MODULE_ID("$Id: dedshow.c,v 12.10 2010/05/25 00:30:13 tom Exp $")
+MODULE_ID("$Id: dedshow.c,v 12.11 2010/07/04 20:28:01 tom Exp $")
 
 static int
 dedshow_c(int ch)
@@ -44,7 +44,7 @@ dedshow_c(int ch)
 }
 
 void
-dedshow2(char *arg)
+dedshow2(const char *arg)
 {
     int y, x, ch;
     int max_Y = LINES - 1, literal = lnext_char(), escaped = 0;
@@ -112,8 +112,8 @@ dedshow2(char *arg)
 
 void
 dedshow(RING * gbl,
-	char *tag,
-	char *arg)
+	const char *tag,
+	const char *arg)
 {
     int y, x;
 

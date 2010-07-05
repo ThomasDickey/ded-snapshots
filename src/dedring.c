@@ -57,7 +57,7 @@
 
 #include	"ded.h"
 
-MODULE_ID("$Id: dedring.c,v 12.21 2004/03/07 23:25:18 tom Exp $")
+MODULE_ID("$Id: dedring.c,v 12.22 2010/07/04 22:58:32 tom Exp $")
 
 #define	CMP_PATH(a,b)	pathcmp(a, b->new_wd)
 
@@ -85,8 +85,8 @@ DumpRing(RING * gbl, char *tag)
     }
 }
 
-#define dump_ring(p)    DumpRing p;
-#define dump_comment(p) dlog_comment p;
+#define dump_ring(p)    DumpRing p
+#define dump_comment(p) dlog_comment p
 
 #else
 
@@ -344,6 +344,8 @@ ring_alloc(void)
 void
 ring_args(RING * gbl, int argc, char **argv)
 {
+    static char just_dot[] = ".";
+
     int j, k;
     int new_argc = 0;
     int save_worry = no_worry;
@@ -361,8 +363,9 @@ ring_args(RING * gbl, int argc, char **argv)
 	    gbl->top_argv[new_argc++] = s;
     }
 
-    if (new_argc < 1)
-	gbl->top_argv[new_argc++] = ".";
+    if (new_argc < 1) {
+	gbl->top_argv[new_argc++] = just_dot;
+    }
 
     gbl->top_argv[new_argc] = 0;	/* always keep a null pointer on end */
     gbl->top_argc = new_argc;
@@ -379,7 +382,7 @@ ring_args(RING * gbl, int argc, char **argv)
  * Find a directory-list item for a given pathname
  */
 RING *
-ring_get(char *path)
+ring_get(const char *path)
 {
     RING *p;
 
@@ -405,13 +408,13 @@ dedring(RING * gbl,		/* current/reference data */
     RING *newp = 0;
     int success = TRUE;
 
-    dump_comment(("dedring(%d%c) %s\n", count, cmd, path))
-	dump_ring((gbl, "before"))
+    dump_comment(("dedring(%d%c) %s\n", count, cmd, path));
+    dump_ring((gbl, "before"));
 
     /*
      * Get the appropriate state:
      */
-	switch (cmd) {
+    switch (cmd) {
     case 'E':
 	abspath(path = strcpy(temp, path));
 	if ((newp = ring_get(path)) == 0)
@@ -447,8 +450,8 @@ dedring(RING * gbl,		/* current/reference data */
 	quitVIEW(gbl);
 	break;
     default:
-	dump_comment(("dedring unexpected command: %c\n", cmd))
-	    break;
+	dump_comment(("dedring unexpected command: %c\n", cmd));
+	break;
     }
 
     /*
@@ -490,11 +493,11 @@ dedring(RING * gbl,		/* current/reference data */
 	    (void) chdir(oldp->new_wd);
     }
 
-    dump_ring((gbl, "debug"))
-	dump_comment(("...%s\n", success ? "ok" : "not-successful"))
-	dump_ring((newp, "after"))
+    dump_ring((gbl, "debug"));
+    dump_comment(("...%s\n", success ? "ok" : "not-successful"));
+    dump_ring((newp, "after"));
 
-	return (success ? newp : 0);
+    return (success ? newp : 0);
 }
 
 /*
@@ -551,12 +554,12 @@ ring_rename(RING * gbl, char *oldname, char *newname)
     abspath(oldname = pathcat2(oldtemp, gbl->new_wd, oldname));
     abspath(newname = pathcat2(newtemp, gbl->new_wd, newname));
 
-    dump_comment(("ring_rename\n"))
-	dump_comment(("...old:%s\n", oldname))
-	dump_comment(("...new:%s\n", newname))
-	dump_ring((gbl, "before"))
+    dump_comment(("ring_rename\n"));
+    dump_comment(("...old:%s\n", oldname));
+    dump_comment(("...new:%s\n", newname));
+    dump_ring((gbl, "before"));
 
-	for (p = ring; (p != 0) && (p != mark); p = q) {
+    for (p = ring; (p != 0) && (p != mark); p = q) {
 	q = p->_link;
 	if ((len = is_subpath(oldname, p->new_wd)) >= 0) {
 
@@ -574,12 +577,12 @@ ring_rename(RING * gbl, char *oldname, char *newname)
 					     pathcat2(tmp2, newname, s + len));
 	    }
 
-	    dump_comment((".moved:%s\n", p->new_wd))
+	    dump_comment((".moved:%s\n", p->new_wd));
 
 	    /*
 	     * If we renamed our current directory, reset.
 	     */
-		if (p == gbl) {
+	    if (p == gbl) {
 		int ok = chdir(gbl->new_wd);
 		dlog_comment("RING-chdir %s =>%d\n",
 			     p->new_wd, ok);
@@ -594,7 +597,7 @@ ring_rename(RING * gbl, char *oldname, char *newname)
 		mark = p;
 	}
     }
-    dump_ring((gbl, "after"))
+    dump_ring((gbl, "after"));
 }
 
 /*

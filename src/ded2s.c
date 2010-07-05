@@ -61,7 +61,7 @@
 #include	"ded.h"
 #include	<rcsdefs.h>
 
-MODULE_ID("$Id: ded2s.c,v 12.30 2005/01/25 01:44:51 tom Exp $")
+MODULE_ID("$Id: ded2s.c,v 12.31 2010/07/04 22:24:57 tom Exp $")
 
 #if defined(MAJOR_IN_MKDEV)
 #  include	<sys/mkdev.h>
@@ -81,7 +81,7 @@ MODULE_ID("$Id: ded2s.c,v 12.30 2005/01/25 01:44:51 tom Exp $")
 
 #define	OK_S(s)		(s != 0 && s[0] != '?')
 
-#define	SETCOL(p,col)	p = setcol(p, &(gbl->cmdcol[col]), p - base)
+#define	SETCOL(p,col)	p = setcol(p, &(gbl->cmdcol[col]), (int) (p - base))
 
 /************************************************************************
  *	local procedures						*
@@ -93,7 +93,7 @@ static int
 field(char *bfr, unsigned mode)
 {
     char *s = bfr;
-    int len = strlen(s);
+    int len = (int) strlen(s);
 
     if (mode == 0)
 	while (*s)
@@ -117,7 +117,7 @@ time2s(char *bfr, time_t fdate, int option)
     if (option == 3) {
 	FORMAT(bfr, "%12ld ", (long) fdate);
     } else if (option == 2) {
-	FORMAT(bfr, "%12.6f ", (now - fdate) / (24.0 * HOUR));
+	FORMAT(bfr, "%12.6f ", (double) (now - fdate) / (24.0 * HOUR));
     } else if (option == 1) {
 	(void) strcpy(bfr, t);
     } else {
@@ -168,7 +168,9 @@ ded2s(RING * gbl, int inx, char *bfr, int len)
     time_t fdate;
     unsigned mj;
     int c;
-    char *t, *name = f_->z_name, *base = bfr;
+    const char *temp;
+    char *name = f_->z_name;
+    char *base = bfr;
 
     /* Translate the filemode (type+protection) */
     mj = s->st_mode;
@@ -176,16 +178,16 @@ ded2s(RING * gbl, int inx, char *bfr, int len)
 	FORMAT(bfr, "%6o ", mj);
 	gbl->cmdcol[CCOL_PROT] = 3;
     } else {
-	*bfr++ = modechar(mj);	/* translate the type of file */
-	gbl->cmdcol[CCOL_PROT] = bfr - base;
+	*bfr++ = (char) modechar(mj);	/* translate the type of file */
+	gbl->cmdcol[CCOL_PROT] = (int) (bfr - base);
 
 	(void) strcpy(bfr, "---------");
 	for (c = 0; c < 9; c += 3) {
-	    if (mj & (S_IREAD >> c))
+	    if (mj & (unsigned) (S_IREAD >> c))
 		bfr[c] = 'r';
-	    if (mj & (S_IWRITE >> c))
+	    if (mj & (unsigned) (S_IWRITE >> c))
 		bfr[c + 1] = 'w';
-	    if (mj & (S_IEXEC >> c))
+	    if (mj & (unsigned) (S_IEXEC >> c))
 		bfr[c + 2] = 'x';
 	}
 	if (mj & S_ISUID)
@@ -201,8 +203,9 @@ ded2s(RING * gbl, int inx, char *bfr, int len)
 #ifdef	S_IFLNK
     /* show symbolic link target mode in uppercase */
     if (gbl->AT_opt && f_->z_ltxt) {
-	for (t = base; *t; t++)
-	    UpperCase(*t);
+	char *ss;
+	for (ss = base; *ss; ss++)
+	    UpperCase(*ss);
     }
 #endif
     bfr += strlen(bfr);
@@ -230,7 +233,7 @@ ded2s(RING * gbl, int inx, char *bfr, int len)
 	    FORMAT(bfr, "%-*d ", UIDLEN, (int) (s->st_uid));
 	else
 	    FORMAT(bfr, "%-*.*s ",
-		   UIDLEN, UIDLEN, uid2s((int) (s->st_uid)));
+		   UIDLEN, UIDLEN, uid2s(s->st_uid));
 	bfr += field(bfr, mj);
     }
 
@@ -240,7 +243,7 @@ ded2s(RING * gbl, int inx, char *bfr, int len)
 	    FORMAT(bfr, "%-*d ", UIDLEN, (int) (s->st_gid));
 	else
 	    FORMAT(bfr, "%-*.*s ",
-		   UIDLEN, UIDLEN, gid2s((int) (s->st_gid)));
+		   UIDLEN, UIDLEN, gid2s(s->st_gid));
 	bfr += field(bfr, mj);
     } else
 	gbl->cmdcol[CCOL_GID] = gbl->cmdcol[CCOL_UID];
@@ -295,7 +298,7 @@ ded2s(RING * gbl, int inx, char *bfr, int len)
 		mark = '~';
 #endif
 
-	    *bfr++ = mark;
+	    *bfr++ = (char) mark;
 	} else
 	    *bfr++ = ' ';
 	*bfr++ = ' ';
@@ -312,16 +315,16 @@ ded2s(RING * gbl, int inx, char *bfr, int len)
 #ifdef	Z_RCS_SCCS
     if (gbl->Z_opt) {
 	if (gbl->V_opt) {	/* show highest version number */
-	    if (!(t = f_->z_vers))
-		t = "";
-	    FORMAT(bfr, "%-7s ", t);
-	    bfr += field(bfr, (unsigned) (OK_S(t)));
+	    if (!(temp = f_->z_vers))
+		temp = "";
+	    FORMAT(bfr, "%-7s ", temp);
+	    bfr += field(bfr, (unsigned) (OK_S(temp)));
 	}
 	if (gbl->O_opt) {	/* show current lock */
-	    if (!(t = f_->z_lock))
-		t = "";
-	    FORMAT(bfr, "%-*.*s ", UIDLEN, UIDLEN, t);
-	    bfr += field(bfr, (unsigned) (OK_S(t)));
+	    if (!(temp = f_->z_lock))
+		temp = "";
+	    FORMAT(bfr, "%-*.*s ", UIDLEN, UIDLEN, temp);
+	    bfr += field(bfr, (unsigned) (OK_S(temp)));
 	}
     }
 #endif /* Z_RCS_SCCS */
@@ -332,18 +335,18 @@ ded2s(RING * gbl, int inx, char *bfr, int len)
 
     /* translate the filename */
     SETCOL(bfr, CCOL_NAME);
-    len -= (bfr - base);
-    f_->z_namlen = ded2string(gbl, bfr, len, name, FALSE);
+    len -= (int) (bfr - base);
+    f_->z_namlen = (short) ded2string(gbl, bfr, len, name, FALSE);
     bfr += f_->z_namlen;
 
 #ifdef	S_IFLNK
-    if ((t = f_->z_ltxt) != 0) {
+    if ((temp = f_->z_ltxt) != 0) {
 	*bfr++ = ' ';
 	*bfr++ = '-';
 	*bfr++ = '>';
 	*bfr++ = ' ';
-	len -= (bfr - base);
-	bfr += ded2string(gbl, bfr, len, t, FALSE);
+	len -= (int) (bfr - base);
+	bfr += ded2string(gbl, bfr, len, temp, FALSE);
     } else
 #endif /* S_IFLNK */
     if (isDIR(mj)) {
@@ -354,29 +357,34 @@ ded2s(RING * gbl, int inx, char *bfr, int len)
 }
 
 int
-ded2string(RING * gbl, char *bfr, int len, char *name, int flag)
+ded2string(RING * gbl, char *bfr, int len, const char *name, int flag)
 {
     return (name2s(bfr, len, name, flag | (gbl->U_opt ? 2 : 0)));
 }
 
 int
 ded_access(Stat_t * s,
-	   int mask)		/* one of S_IEXEC, S_IREAD, S_IWRITE */
+	   mode_t mask)		/* one of S_IEXEC, S_IREAD, S_IWRITE */
 {
-    int uid = geteuid();
-    int gid = getegid();
+    int result;
+    uid_t uid = geteuid();
+    gid_t gid = getegid();
 
     if (in_group(s->st_gid))
 	gid = s->st_gid;
 
     if (!uid) {			/* root can do anything */
-	if (mask != S_IEXEC)
-	    return TRUE;
-	return (s->st_mode & (mask | (mask >> 3) | (mask >> 6)));
-    } else if (uid == (int) s->st_uid) {
-	return (s->st_mode & mask);
-    } else if (gid == (int) s->st_gid) {
-	return (s->st_mode & (mask >> 3));
+	if (mask != S_IEXEC) {
+	    result = TRUE;
+	} else {
+	    result = (int) (s->st_mode & (mask | (mask >> 3) | (mask >> 6)));
+	}
+    } else if (uid == s->st_uid) {
+	result = (int) (s->st_mode & mask);
+    } else if (gid == s->st_gid) {
+	result = (int) (s->st_mode & (mask >> 3));
+    } else {
+	result = (int) (s->st_mode & (mask >> 6));
     }
-    return (s->st_mode & (mask >> 6));
+    return result;
 }

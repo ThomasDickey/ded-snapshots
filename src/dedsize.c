@@ -22,7 +22,7 @@
 
 #include "ded.h"
 
-MODULE_ID("$Id: dedsize.c,v 12.9 2004/03/07 23:25:18 tom Exp $")
+MODULE_ID("$Id: dedsize.c,v 12.10 2010/07/04 22:05:01 tom Exp $")
 
 #ifdef	SIGWINCH
 
@@ -37,7 +37,7 @@ handle_resize(void)
 	if (!working++) {
 	    dlog_comment("resizewin LINES=%d, COLS=%d\n", LINES, COLS);
 	    if (!ft_resize()) {
-		markset(save_gbl, mark_W);
+		markset(save_gbl, (unsigned) mark_W);
 		/*patch showFILES(save_gbl, FALSE); */
 		if (gets_active)
 		    dlog_resize();

@@ -12,7 +12,7 @@
 
 #include	"ded.h"
 
-MODULE_ID("$Id: dedmsgs.c,v 12.11 2004/03/07 23:25:18 tom Exp $")
+MODULE_ID("$Id: dedmsgs.c,v 12.12 2010/07/04 19:41:22 tom Exp $")
 
 /*
  * Clear the message-line
@@ -28,7 +28,7 @@ clearmsg(void)
  * Print an error/warning message, optionally pausing
  */
 static void
-show_message(RING * gbl, char *tag, char *msg)
+show_message(RING * gbl, const char *tag, const char *msg)
 {
     if (in_screen) {
 	move(LINES - 1, 0);
@@ -49,8 +49,8 @@ show_message(RING * gbl, char *tag, char *msg)
     dlog_comment("(%s) %s\n", tag, msg);
 }
 
-static char *
-err_msg(char *msg)
+static const char *
+err_msg(const char *msg)
 {
     static char *bfr;
     char *text = strerror(errno);
@@ -66,13 +66,13 @@ err_msg(char *msg)
 }
 
 void
-dedmsg(RING * gbl, char *msg)
+dedmsg(RING * gbl, const char *msg)
 {
     show_message(gbl, "dedmsg", msg);
 }
 
 void
-warn(RING * gbl, char *msg)
+warn(RING * gbl, const char *msg)
 {
     show_message(gbl, "warn", err_msg(msg));
 }
@@ -83,13 +83,13 @@ warn(RING * gbl, char *msg)
  * directory tree display.
  */
 void
-waitmsg(char *msg)
+waitmsg(const char *msg)
 {
     show_message((RING *) 0, "waitmsg", msg);
 }
 
 void
-wait_warn(char *msg)
+wait_warn(const char *msg)
 {
     waitmsg(err_msg(msg));
 }

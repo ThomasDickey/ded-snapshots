@@ -25,7 +25,7 @@
  */
 #include	"ded.h"
 
-MODULE_ID("$Id: dedfind.c,v 12.13 2010/05/25 00:30:13 tom Exp $")
+MODULE_ID("$Id: dedfind.c,v 12.14 2010/07/04 20:52:00 tom Exp $")
 
 void
 dedfind(RING * gbl, int key)
@@ -75,12 +75,12 @@ dedfind(RING * gbl, int key)
     if (ok_expr) {
 	for (j = gbl->curfile;;) {
 	    if (next > 0) {
-		if ((j += next) >= gbl->numfiles)
+		if ((j += (unsigned) next) >= gbl->numfiles)
 		    j = 0;
 	    } else {
 		if (j == 0)
 		    j = gbl->numfiles;
-		j += next;
+		j += (unsigned) next;
 	    }
 	    if ((found = GOT_REGEX(expr, gNAME(j))) != 0) {
 		break;

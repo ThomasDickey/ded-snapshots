@@ -34,7 +34,7 @@
 #include	"ded.h"
 #include	<time.h>
 
-MODULE_ID("$Id: dlog.c,v 12.21 2010/05/25 00:30:13 tom Exp $")
+MODULE_ID("$Id: dlog.c,v 12.22 2010/07/04 23:00:26 tom Exp $")
 
 #define	NOW		time((time_t *)0)
 
@@ -50,7 +50,7 @@ static time_t mark_time;
 static DYN *pending;		/* buffers parts of raw-commands */
 
 static void
-show_time(char *msg)
+show_time(const char *msg)
 {
     time_t now = NOW;
 
@@ -81,11 +81,11 @@ static void
 trim_ending(DYN * p)
 {
     char *s = find_ending(dyn_string(p));
-    int len;
+    size_t len;
 
     if (s != 0) {
 	len = strlen(s);
-	while (len-- > 0)
+	while (len-- != 0)
 	    (void) dyn_trim1(p);
     }
 }
@@ -324,7 +324,7 @@ dlog_char(RING * gbl, int *count_, int begin)
  * the prompt.
  */
 void
-dlog_prompt(RING * gbl, char *prompt, int row)
+dlog_prompt(RING * gbl, const char *prompt, int row)
 {
     int y, x;
 
@@ -350,7 +350,7 @@ dlog_prompt(RING * gbl, char *prompt, int row)
  * when resizing the window.
  */
 static RING *gets_g_data;
-static char *gets_prompt;
+static const char *gets_prompt;
 static int gets_row;
 
 #ifdef	SIGWINCH
@@ -371,7 +371,7 @@ dlog_resize(void)
  */
 char *
 dlog_string(RING * gbl,
-	    char *prompt,	/* nonnull iff we're using work-area */
+	    const char *prompt,	/* nonnull iff we're using work-area */
 	    int row,		/* positive to specify row */
 	    DYN ** result,
 	    DYN ** inflag,
@@ -380,8 +380,9 @@ dlog_string(RING * gbl,
 	    int wrap_len)
 {
     static DYN *original, *before, *after, *script_bfr, *edited;
-    static char *i_pref[] =
-    {"^", " "}, *n_pref[] =
+    static const char *i_pref[] =
+    {"^", " "};
+    static const char *n_pref[] =
     {"^ ", ": "};
 
     int done;
@@ -391,7 +392,7 @@ dlog_string(RING * gbl,
     int script_inx, use_script;
     int y, x;
     char *buffer, *to_hist;
-    char **prefix = inflag ? i_pref : n_pref;
+    const char **prefix = inflag ? i_pref : n_pref;
     char *script_ptr;
 
     int c;
@@ -434,7 +435,7 @@ dlog_string(RING * gbl,
 			 inline_hidden(), dyn_length(script_bfr));
 	    dlog_comment("INLINE:%s\n", dyn_string(script_bfr));
 #endif
-	    script_inx = dyn_length(script_bfr);
+	    script_inx = (int) dyn_length(script_bfr);
 	    if (cmd_ptr)
 		script_bfr = dyn_append(script_bfr, cmd_ptr);
 	} else if (cmd_ptr) {
@@ -481,8 +482,8 @@ dlog_string(RING * gbl,
 
 	/* account for chars we read from command-file */
 	if (cmd_ptr && *cmd_ptr) {
-	    cmd_ptr += (script_ptr - dyn_string(script_bfr))
-		- script_inx;
+	    cmd_ptr += ((script_ptr - dyn_string(script_bfr))
+			- script_inx);
 #ifdef	DEBUG
 	    dlog_comment("s::CMD:%d:%d:%s\n",
 			 cmd_ptr - dyn_string(cmd_bfr),
@@ -626,8 +627,9 @@ dlog_name(char *name)
  * Write a comment to the log-file (with trailing newline in 'fmt').
  */
 void
-dlog_comment(char *fmt,...)
+dlog_comment(const char *fmt,...)
 {
+    static char null_mark[] = "<null>";
     va_list args;
     static DYN *msg, *tmp;
     char buffer[BUFSIZ], Fmt[BUFSIZ];
@@ -649,13 +651,13 @@ dlog_comment(char *fmt,...)
 	    char *dst = Fmt;
 	    int is_long = FALSE;
 
-	    *dst++ = c;
+	    *dst++ = (char) c;
 	    do {
 		if ((c = *fmt++) == '*') {
 		    FORMAT(dst, "%d", va_arg(args, int));
 		    dst += strlen(dst);
 		} else {
-		    *dst++ = c;
+		    *dst++ = (char) c;
 		    if (c == 'l') {
 			is_long = TRUE;
 			continue;
@@ -677,7 +679,7 @@ dlog_comment(char *fmt,...)
 		dyn_init(&tmp, 1);
 
 		if (!dst)
-		    dst = "<null>";
+		    dst = null_mark;
 		while ((c = *dst++) != EOS) {
 		    c = toascii(c);
 		    if (c == '\n' && *fmt == EOS) ;	/* fix for ctime */
