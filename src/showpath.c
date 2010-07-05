@@ -22,7 +22,7 @@
 
 #include	"ded.h"
 
-MODULE_ID("$Id: showpath.c,v 12.11 2010/05/25 00:30:13 tom Exp $")
+MODULE_ID("$Id: showpath.c,v 12.12 2010/07/04 21:30:39 tom Exp $")
 
 #define	DOTLEN	((int)sizeof(ellipsis)-1)
 
@@ -38,7 +38,7 @@ showpath(char *path,		/* pathname to display */
     char *s = path;
     int marker = (base == -1);
     int cols;
-    int len = strlen(s);
+    int len = (int) strlen(s);
     int left = 0;
     int hilite = FALSE;
     char *d = s + len;
@@ -53,7 +53,7 @@ showpath(char *path,		/* pathname to display */
 	else
 #endif
 	    strcpy(the_host, "path: ");
-	len_host = strlen(the_host);
+	len_host = (int) strlen(the_host);
     }
     getyx(stdscr, y, x);
     cols = COLS - (x + 2 + margin + len_host);
@@ -82,7 +82,7 @@ showpath(char *path,		/* pathname to display */
 		(void) standout();
 	    }
 	    s = t;
-	    len = d - s;
+	    len = (int) (d - s);
 	} else
 	    break;		/* will have to truncate on right */
 	if (left == 0)
@@ -96,7 +96,7 @@ showpath(char *path,		/* pathname to display */
 	    return;
     }
 
-    len = d - s;
+    len = (int) (d - s);
     if ((len > cols) && (cols > DOTLEN)) {
 	d -= ((len - cols) + DOTLEN);
 	while ((d > s) && !isSlash(d[-1]))
@@ -104,7 +104,7 @@ showpath(char *path,		/* pathname to display */
     }
 
     /* if we didn't start highlighting, try now */
-    len = d - s;
+    len = (int) (d - s);
     if ((base >= 0) && !hilite) {
 	int j;
 	for (j = 0; j < len; j++) {

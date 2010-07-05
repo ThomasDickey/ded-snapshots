@@ -44,14 +44,14 @@
 #define	QSORT_SRC	FLIST
 #include	<td_qsort.h>
 
-MODULE_ID("$Id: dedsort.c,v 12.16 2004/03/07 23:25:18 tom Exp $")
+MODULE_ID("$Id: dedsort.c,v 12.17 2010/07/04 22:58:02 tom Exp $")
 
 #define	CHECKED(p)	(p->z_time == p->s.st_mtime)
 #define	CMPF(f)	(f(&(p1->s)) > f(&(p2->s)) ? -1 : (f(&(p1->s)) < f(&(p2->s)) ? 1 : 0))
 #define	CMPX(m)		(p1->m > p2->m ? -1 : (p1->m < p2->m ? 1 : 0))
 #define	CMP(m)		CMPX(s.m)
-#define	CMP2S(f,m)	strcmp(strcpy(bfr, f((int)p1->s.m)),\
-					   f((int)p2->s.m))
+#define	CMP2S(f,m)	strcmp(strcpy(bfr, f(p1->s.m)),\
+					   f(p2->s.m))
 
 /* sort types so that names beginning with '.' are treated specially */
 static char *
@@ -91,7 +91,7 @@ dedsort_cmp(RING * gbl,
 {
     int cmp = 0;
     char bfr[BUFSIZ];
-    char *s1, *s2;
+    const char *s1, *s2;
 
     if (gbl->tagsort) {
 	if (p1->z_flag && !p2->z_flag)
@@ -150,8 +150,8 @@ dedsort_cmp(RING * gbl,
 	break;
 #ifdef	Z_RCS_SCCS
     case 'Z':
-	cmp = (p1->z_time - p1->s.st_mtime)
-	    - (p2->z_time - p2->s.st_mtime);
+	cmp = (int) ((p1->z_time - p1->s.st_mtime)
+		     - (p2->z_time - p2->s.st_mtime));
 	break;
 
     case 'z':
@@ -278,8 +278,8 @@ dedsort(RING * gbl)
     if (gbl->numfiles > 1) {
 	char *name = cNAME;
 	local = gbl;
-	qsort((char *) gbl->flist, (LEN_QSORT) gbl->numfiles, sizeof(FLIST), compare);
-	gbl->curfile = findFILE(gbl, name);
+	qsort((char *) gbl->flist, (size_t) gbl->numfiles, sizeof(FLIST), compare);
+	gbl->curfile = (unsigned) findFILE(gbl, name);
     } else
 	gbl->curfile = 0;
 }

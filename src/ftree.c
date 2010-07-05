@@ -140,7 +140,7 @@
 
 #include	<fcntl.h>
 
-MODULE_ID("$Id: ftree.c,v 12.63 2010/05/25 00:30:13 tom Exp $")
+MODULE_ID("$Id: ftree.c,v 12.64 2010/07/04 22:20:11 tom Exp $")
 
 #define	Null	(char *)0	/* some NULL's are simply 0 */
 
@@ -231,7 +231,7 @@ static char zero[] = ROOT, *gap = zero + (TOP - 1);
 
 	/*ARGSUSED */
 static void
-my_dedmsg(char *msg)
+my_dedmsg(const char *msg)
 {
     waitmsg(msg);
 #define	dedmsg(gbl,msg)	my_dedmsg(msg)	/* ...so we don't call 'showC' from this module */
@@ -282,7 +282,7 @@ fd_alloc(void)
 {
     if (FDlast >= (int) FDsize) {
 	unsigned size = FDsize;
-	FDsize += FDlast + 2;
+	FDsize += (unsigned) FDlast + 2;
 	ftree = DOALLOC(ftree, FTREE, FDsize);
 	while (size < FDsize) {
 	    ftree[size].f_root =
@@ -399,9 +399,8 @@ fd_add_path(char *path, char *validated)
  * Perform a search through the database for a selected directory name.
  */
 static int
-fd_find(char *buffer, int cmd, int old)
+fd_find(const char *buffer, int cmd, int old)
 {
-    static RING *gbl;		/* dummy for REGEX stuff        */
     static int next = 0;	/* last-direction               */
     static DYN *pattern;
     static REGEX_T expr;	/* regex-state/output           */
@@ -576,7 +575,7 @@ fd_show(int node)
  * order to make it simple to display the tree.
  */
 void
-ft_insert(char *path)
+ft_insert(const char *path)
 {
     char bfr[MAXPATHLEN];
 
@@ -792,7 +791,7 @@ ft_rename(char *oldname, char *newname)
 
 /* recover from corrupt .ftree file by initializing to empty-state */
 static int
-ft_init(char *msg)
+ft_init(const char *msg)
 {
     waitmsg(msg);
     FDtime = time((time_t *) 0);
@@ -803,9 +802,9 @@ ft_init(char *msg)
 
 /* read from the .ftree file, testing for consistency in sizes */
 static int
-ok_read(int fid, char *s, size_t ask, char *msg)
+ok_read(int fid, char *s, size_t ask, const char *msg)
 {
-    size_t got = read(fid, s, ask);
+    size_t got = (size_t) read(fid, s, ask);
     if (got != ask) {
 	char bfr[MAXPATHLEN];
 	dlog_comment("%s (got %d, asked %d)", msg, got, ask);
@@ -835,7 +834,7 @@ read_ftree(char *the_file)
 	    showdiff = -1;
 	}
 	FDtime = sb.st_mtime;
-	size = sb.st_size - sizeof(FDlast);
+	size = ((size_t) sb.st_size - sizeof(FDlast));
 
 	/* (1) vector-size */
 	if (!ok_read(fid,
@@ -852,12 +851,12 @@ read_ftree(char *the_file)
 	    FDlast = vecsize;
 	fd_alloc();
 	vecsize++;		/* account for 0'th node */
-	vecsize *= sizeof(FTREE);
-	if (!ok_read(fid, (char *) ftree, vecsize, "read"))
+	vecsize *= (ENTRIES) sizeof(FTREE);
+	if (!ok_read(fid, (char *) ftree, (size_t) vecsize, "read"))
 	    return;
 
 	/* (3) string-heap */
-	if ((size -= vecsize) > 0) {
+	if ((size -= (size_t) vecsize) > 0) {
 	    char *heap = doalloc(Null, (unsigned) (size + 1));
 	    char *s = heap;
 	    if (!ok_read(fid, heap, size, "heap"))
@@ -940,7 +939,9 @@ ft_show(RING * gbl, char *path, char *home, int node, int level)
     static char fmt[] = "%.*s";
     int j, k;
     int row, count, limit;
-    char *marker, bfr[BUFSIZ], end[BUFSIZ];
+    const char *marker;
+    char bfr[BUFSIZ];
+    char end[BUFSIZ];
 
     move(PATH_ROW, 0);
     row = LOSHOW;
@@ -966,7 +967,7 @@ ft_show(RING * gbl, char *path, char *home, int node, int level)
     clrtoeol();
     FORMAT(bfr, "  node: %d of %d ", node + 1, FDlast + 1);
     if ((int) strlen(bfr) < COLS) {
-	move(FLAG_ROW, (int) (COLS - strlen(bfr)));
+	move(FLAG_ROW, (COLS - (int) strlen(bfr)));
 	addstr(bfr);
     }
 
@@ -988,7 +989,7 @@ ft_show(RING * gbl, char *path, char *home, int node, int level)
      */
     (void) ded2string(gbl, bfr, sizeof(bfr), ftree[node].f_name, FALSE);
     fd_annotate(node, end);
-    k = strlen(bfr) + strlen(end);
+    k = (int) (strlen(bfr) + strlen(end));
     j = k + (level * BAR_WIDTH) + LEN_MARK;
     if (j >= COLS) {		/* not all of the line will be visible */
 	int value;
@@ -1054,10 +1055,10 @@ ft_show(RING * gbl, char *path, char *home, int node, int level)
 		    PRINTW(fmt, limit, bfr + count);
 		    if (zMARK(j))
 			(void) standend();
-		    limit -= (strlen(bfr) - count);
+		    limit -= ((int) strlen(bfr) - count);
 		    count = 0;
 		} else {
-		    count -= strlen(bfr);
+		    count -= (int) strlen(bfr);
 		}
 
 		if (limit > 0
@@ -1390,6 +1391,7 @@ ft_view(RING * gbl,
 	char *path,		/* caller's current directory */
 	int *cmdp)
 {
+    static char empty[1];
     static DYN *my_text;
     static HIST *JumpHistory, *FindHistory, *NameHistory;
     RING *tmp;
@@ -1591,7 +1593,7 @@ ft_view(RING * gbl,
 	case '~':
 	case '@':
 	    j = (c == '@' || c == '~');
-	    s = "";
+	    s = empty;
 	    if (!isalpha(c)) {
 		move(CMDS_ROW, 0);
 		PRINTW(j ? "jump: " : "find: ");
@@ -1607,8 +1609,9 @@ ft_view(RING * gbl,
 					 (DYN **) 0,
 					 j ? &JumpHistory : &FindHistory,
 					 EOS,
-					 MAXPATHLEN)))
-		    s = "";
+					 MAXPATHLEN))) {
+		    s = empty;
+		}
 
 		if (!*s && c != '@') {
 		    c = -1;
@@ -1724,7 +1727,7 @@ ft_view(RING * gbl,
 		int len;
 
 		(void) chdir(fd_path(bfr, ftree[row].f_root));
-		len = readlink(cwdpath, bfr, sizeof(bfr));
+		len = (int) readlink(cwdpath, bfr, sizeof(bfr));
 		if (len <= 0) {
 		    beep();
 		    break;
@@ -2055,7 +2058,7 @@ ft_write(void)
     if (FDdiff || (savesccs != showsccs)) {
 	int fid;
 	int j;
-	unsigned k;
+	size_t k;
 #ifdef	DEBUG
 	ft_dump("write");
 #endif
@@ -2070,12 +2073,12 @@ ft_write(void)
 #endif
 #define	WRT(s,n)	(void)write(fid,(char *)s,(size_t)(n))
 	    WRT(&FDlast, sizeof(FDlast));
-	    WRT(ftree, ((FDlast + 1) * sizeof(FTREE)));
+	    WRT(ftree, ((size_t) (FDlast + 1) * sizeof(FTREE)));
 
-	    for (j = k = 0; j <= FDlast; j++)
+	    for (j = 0, k = 0; j <= FDlast; j++)
 		k += strlen(ftree[j].f_name) + 1;
 	    heap = doalloc(Null, k);
-	    for (j = k = 0; j <= FDlast; j++)
+	    for (j = 0, k = 0; j <= FDlast; j++)
 		k += strlen(strcpy(heap + k, ftree[j].f_name)) + 1;
 	    (void) write(fid, heap, (size_t) k);
 	    free(heap);

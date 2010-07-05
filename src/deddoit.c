@@ -37,7 +37,7 @@
  */
 #include	"ded.h"
 
-MODULE_ID("$Id: deddoit.c,v 12.20 2004/03/07 23:25:18 tom Exp $")
+MODULE_ID("$Id: deddoit.c,v 12.21 2010/07/04 20:47:06 tom Exp $")
 
 /*
  * Return a pointer to a leaf of a given name
@@ -81,7 +81,9 @@ Expand(RING * gbl, int code, DYN * subs)
     char *cur_name = cNAME;
     Stat_t *cur_stat = &cSTAT;
     FLIST *cur_item = &cENTRY;
-    char temp[MAXPATHLEN], name[MAXPATHLEN], *from;
+    char temp[MAXPATHLEN];
+    char name[MAXPATHLEN];
+    const char *from;
 
     if (strchr("NHRET", code))
 	abspath(pathcat2(name, gbl->new_wd, cur_name));
@@ -112,14 +114,16 @@ Expand(RING * gbl, int code, DYN * subs)
 
     case 'H':
     case 'h':			/* Remove a pathname component, leaving head */
-	*subleaf(from = name) = EOS;
-	if (*from == EOS)
-	    (void) strcpy(from, "./");
+	from = name;
+	*subleaf(name) = EOS;
+	if (*name == EOS)
+	    (void) strcpy(name, "./");
 	break;
 
     case 'R':
     case 'r':			/* Remove a trailing ".xxx" component, leaving root */
-	*subroot(subleaf(from = name)) = EOS;
+	from = name;
+	*subroot(subleaf(name)) = EOS;
 	break;
 
     case 'E':
@@ -134,10 +138,10 @@ Expand(RING * gbl, int code, DYN * subs)
 
 	/* non-pathname attributes */
     case 'u':
-	from = uid2s((int) (cur_stat->st_uid));
+	from = uid2s(cur_stat->st_uid);
 	break;
     case 'g':
-	from = gid2s((int) (cur_stat->st_gid));
+	from = gid2s(cur_stat->st_gid);
 	break;
 #ifdef	Z_RCS_SCCS
     case 'v':
@@ -227,19 +231,19 @@ deddoit(RING * gbl, int key, int sense)
 
 	    for_each_file(gbl, x) {
 		if (GROUPED(x)) {
-		    len = strlen(s = fixname(gbl, x));
+		    len = (int) strlen(s = fixname(gbl, x));
 		    if (others++)
 			APPEND(Subs, " ");
 
 		    if (!ellipsis
-			&& (dyn_length(Subs) + len) > 256)
-			ellipsis = dyn_length(Subs);
+			&& ((int) dyn_length(Subs) + len) > 256)
+			ellipsis = (int) dyn_length(Subs);
 		    APPEND(Subs, s);
 		}
 	    }
 	    if (ellipsis) {
 		for (s = dyn_string(Subs) + ellipsis; *s; s++)
-		    *s |= 0200;
+		    *s = (char) (*s | 0200);
 	    }
 
 	} else if (*This == '%') {	/* substitute current file */

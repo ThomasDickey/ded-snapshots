@@ -170,7 +170,7 @@
 
 #include <locale.h>
 
-MODULE_ID("$Id: ded.c,v 12.78 2010/07/03 17:23:03 tom Exp $")
+MODULE_ID("$Id: ded.c,v 12.79 2010/07/04 23:02:35 tom Exp $")
 
 #define	EDITOR	DEFAULT_EDITOR
 #define	BROWSE	DEFAULT_BROWSE
@@ -270,9 +270,9 @@ to_exit(int last)
  * Determine if the given entry is a file, directory or none of these.
  */
 int
-realstat(RING * gbl, int inx, Stat_t * sb)
+realstat(RING * gbl, unsigned inx, Stat_t * sb)
 {
-    int j = gSTAT(inx).st_mode;
+    mode_t j = gSTAT(inx).st_mode;
 
 #ifdef	S_IFLNK
     if (isLINK(j)) {
@@ -333,13 +333,13 @@ user_says(RING * gbl, int ok)
  * This is used to reposition after sorting, etc, and uses the feature that
  * strings in 'txtalloc()' are uniquely determined by their address.
  */
-int
+unsigned
 findFILE(RING * gbl, char *name)
 {
     unsigned j;
     for_each_file(gbl, j)
 	if (name == gNAME(j))
-	return (j);
+	return j;
     return (0);			/* give up, set to beginning of list */
 }
 
@@ -379,7 +379,7 @@ retouch(RING * gbl, int row)
 #if	defined(apollo) || defined(SIGWINCH)
     if (resizewin()) {
 	dlog_comment("resizewin(%d,%d)\n", LINES, COLS);
-	markset(gbl, mark_W);
+	markset(gbl, (unsigned) mark_W);
 	showFILES(gbl, FALSE);
 	return;
     }
@@ -491,7 +491,9 @@ rescan(RING * gbl, int fwd)
     set_dedblip(gbl);
     init_tags(gbl);
     if (dedscan(gbl)) {
-	gbl->curfile = cur_name ? findFILE(gbl, cur_name) : 0;
+	gbl->curfile = (unsigned) (cur_name
+				   ? findFILE(gbl, cur_name)
+				   : 0);
 	(void) to_file(gbl);
 	showFILES(gbl, TRUE);
 	return (gbl);
@@ -529,7 +531,7 @@ fixtime(RING * gbl, unsigned j)
  * Spawn a subprocess, wait for completion.
  */
 static void
-forkfile(RING * gbl, char *arg0, char *arg1, int option)
+forkfile(RING * gbl, const char *arg0, const char *arg1, int option)
 {
     char quoted[MAXPATHLEN];
 
@@ -564,7 +566,7 @@ static RING *
 run_editor(RING * gbl, int readonly, int extended)
 {
     Stat_t sb;
-    char *editor = (readonly ? ENV(BROWSE) : ENV(EDITOR));
+    const char *editor = (readonly ? ENV(BROWSE) : ENV(EDITOR));
     char tpath[MAXPATHLEN];
 
     dlog_name(cNAME);
@@ -698,7 +700,7 @@ void
 usage(void)
 {
     char tmp[BUFSIZ];
-    static char *tbl[] =
+    static const char *tbl[] =
     {
 	"Usage: ded [options] [filespecs]",
 	"(filespecs may be read from pipe)",
@@ -738,7 +740,7 @@ usage(void)
 	"  -t DIR   read \".ftree\"-file from directory DIR",
 	(char *) 0
     };
-    char **p;
+    const char **p;
 
     setbuf(stderr, tmp);
     for (p = tbl; *p; p++)
@@ -826,7 +828,9 @@ _MAIN
     int j;
     unsigned k;
     Stat_t sb;
-    int c, count, lastc = '?';
+    int c;
+    int count;
+    int lastc = '?';
     char tree_bfr[MAXPATHLEN];
     char tpath[MAXPATHLEN];
     char dpath[MAXPATHLEN];
@@ -976,7 +980,7 @@ _MAIN
 	optind = 0;
 	for (j = 0; j < argc; j++) {
 	    char *s = argv[j];
-	    int len = strlen(s) - 1;
+	    int len = (int) strlen(s) - 1;
 	    if (len >= 0 && s[len] == '\n')
 		s[len] = EOS;	/* trim trailing newline */
 	}
@@ -1048,13 +1052,13 @@ _MAIN
 	case KEY_UP:
 	case '\b':
 	case 'k':
-	    upLINE(gbl, count);
+	    upLINE(gbl, (unsigned) count);
 	    break;
 
 	case KEY_DOWN:
 	case '\n':
 	case 'j':
-	    downLINE(gbl, count);
+	    downLINE(gbl, (unsigned) count);
 	    break;
 
 	case KEY_HOME:
@@ -1113,11 +1117,11 @@ _MAIN
 	    showC(gbl);
 	    break;
 	case 'M':
-	    gbl->curfile = (baseVIEW() + lastVIEW()) / 2;
+	    gbl->curfile = ((baseVIEW() + (unsigned) lastVIEW()) / 2);
 	    showC(gbl);
 	    break;
 	case 'L':
-	    gbl->curfile = lastVIEW();
+	    gbl->curfile = (unsigned) lastVIEW();
 	    showC(gbl);
 	    break;
 	case '^':
@@ -1219,7 +1223,7 @@ _MAIN
 	case 'A':
 	    count = -count;
 	case 'a':
-	    markset(gbl, mark_W + count);
+	    markset(gbl, (unsigned) (mark_W + count));
 	    break;
 
 	case CTL('R'):		/* modify read-expression */
@@ -1289,14 +1293,14 @@ _MAIN
 
 	    /* tag/untag specific files */
 	case '+':
-	    tag_entry(gbl, gbl->curfile, count);
-	    downLINE(gbl, count);
+	    tag_entry(gbl, gbl->curfile, (unsigned) count);
+	    downLINE(gbl, (unsigned) count);
 	    showFILES(gbl, FALSE);
 	    break;
 
 	case '-':
-	    untag_entry(gbl, gbl->curfile, count);
-	    downLINE(gbl, count);
+	    untag_entry(gbl, gbl->curfile, (unsigned) count);
+	    downLINE(gbl, (unsigned) count);
 	    showFILES(gbl, FALSE);
 	    break;
 
@@ -1348,7 +1352,8 @@ _MAIN
 	    break;
 	case 't':
 	    if ((j = realstat(gbl, gbl->curfile, &sb)) >= 0)
-		dedtype(gbl, cNAME, gbl->curfile, (count != 1), (count > 2), j);
+		dedtype(gbl, cNAME, (int) gbl->curfile, (count != 1), (count
+								       > 2), j);
 	    break;
 
 	case '%':		/* execute shell command with screen refresh */

@@ -59,7 +59,7 @@
 
 #include	"ded.h"
 
-MODULE_ID("$Id: dedline.c,v 12.29 2010/05/25 00:30:13 tom Exp $")
+MODULE_ID("$Id: dedline.c,v 12.30 2010/07/04 23:00:26 tom Exp $")
 
 #define	CHMOD(n)	(gSTAT(n).st_mode & 07777)
 #define	OWNER(n)	((geteuid() == 0) || (gSTAT(x).st_uid == geteuid()))
@@ -133,7 +133,7 @@ static int cmd_link;		/* true if we use short-form */
  * can later expand it.
  */
 static int
-subs_path(char *path, char *result, char *short_form)
+subs_path(const char *path, char *result, const char *short_form)
 {
     size_t len = strlen(path);
     int changed = FALSE;
@@ -174,23 +174,18 @@ link2bfr(RING * gbl, char *dst, unsigned x)
 {
     (void) strcpy(dst, gLTXT(x));
     if (cmd_link) {
+	/* *INDENT-OFF* */
 	static struct {
-	    char *code;
-	    char *path;
+	    const char *code;
+	    const char *path;
 	} ppp[] = {
-	    {
-		"%F", 0
-	    },
-	    {
-		"%B", 0
-	    },
-	    {
-		"%d", 0
-	    },
-	    {
-		"%D", old_wd
-	    }
+	    { "%F", 0 },
+	    { "%B", 0 },
+	    { "%d", 0 },
+	    { "%D", old_wd }
 	};
+	/* *INDENT-ON* */
+
 	unsigned j;
 	size_t maxlen = 0;
 
@@ -220,7 +215,7 @@ link2bfr(RING * gbl, char *dst, unsigned x)
 	do {
 	    size_t next = 0;
 	    for (j = 0; j < SIZEOF(ppp); j++) {
-		char *path = ppp[j].path;
+		const char *path = ppp[j].path;
 		if (path != 0) {
 		    size_t len = strlen(path);
 		    if (len < maxlen) {
@@ -396,7 +391,7 @@ editprot(RING * gbl)
     int changed = FALSE;
     int done = FALSE;
     int init = TRUE;
-    int oldmode = sb->st_mode;
+    mode_t oldmode = sb->st_mode;
 
     (void) save_Xbase(gbl, gbl->cmdcol[CCOL_PROT]);
 
@@ -459,8 +454,8 @@ editprot(RING * gbl)
 	default:
 	    if (c >= '0' && c <= '7') {
 		int shift = 6 - (x * 3);
-		sb->st_mode &= ~(7 << shift);
-		sb->st_mode |= ((c - '0') << shift);
+		sb->st_mode &= (mode_t) (~(7 << shift));
+		sb->st_mode |= (mode_t) (((c - '0') << shift));
 		if (x < 2)
 		    x++;
 	    } else if (c == 'P') {
@@ -505,13 +500,15 @@ int
 edittext(RING * gbl, int endc, int col, int len, char *bfr)
 {
     static DYN *result;
-    int y = file2row(gbl->curfile), code = TRUE, limit = strlen(bfr) + 2;
+    int y = file2row(gbl->curfile);
+    int code = TRUE;
+    int limit = (int) strlen(bfr) + 2;
     char *s;
 
 #ifdef	S_IFLNK
-    int at_flag = ((endc == 'u') || (endc == 'g'))
-    ? at_save(gbl)
-    : FALSE;
+    int at_flag = (((endc == 'u') || (endc == 'g'))
+		   ? at_save(gbl)
+		   : FALSE);
 #endif
 
     dlog_comment("before \"%s\"\n", bfr);
@@ -562,7 +559,8 @@ edit_uid(RING * gbl)
 {
 #if defined(HAVE_CHOWN)
     unsigned j;
-    int uid = cSTAT.st_uid, changed = FALSE;
+    int uid = (int) cSTAT.st_uid;
+    int changed = FALSE;
     char bfr[BUFSIZ];
 
     if (gbl->G_opt == 1) {
@@ -570,7 +568,7 @@ edit_uid(RING * gbl)
 	showFILES(gbl, FALSE);
     }
 
-    if (EDITTEXT('u', CCOL_UID, UIDLEN, strcpy(bfr, uid2s(uid)))
+    if (EDITTEXT('u', CCOL_UID, UIDLEN, strcpy(bfr, uid2s((uid_t) uid)))
 	&& (uid = s2uid(bfr)) >= 0) {
 	(void) dedsigs(TRUE);	/* reset interrupt-count */
 	for_each_file(gbl, j) {
@@ -581,13 +579,12 @@ edit_uid(RING * gbl)
 		break;
 	    }
 	    if (GROUPED(j)) {
-		if (chown(gNAME(j),
-			  uid, (int) gSTAT(j).st_gid) < 0) {
+		if (chown(gNAME(j), (uid_t) uid, gSTAT(j).st_gid) < 0) {
 		    warn(gbl, gNAME(j));
 		    break;
 		}
 		fixtime(gbl, j);
-		gSTAT(j).st_uid = uid;
+		gSTAT(j).st_uid = (uid_t) uid;
 		changed++;
 	    }
 	}
@@ -606,7 +603,8 @@ edit_gid(RING * gbl)
 {
 #if defined(HAVE_CHOWN)
     unsigned j;
-    int gid = cSTAT.st_gid, changed = FALSE;
+    int gid = (int) cSTAT.st_gid;
+    int changed = FALSE;
     char bfr[BUFSIZ];
 
     if (!gbl->G_opt) {
@@ -614,7 +612,7 @@ edit_gid(RING * gbl)
 	showFILES(gbl, FALSE);
     }
 
-    if (EDITTEXT('g', CCOL_GID, UIDLEN, strcpy(bfr, gid2s(gid)))
+    if (EDITTEXT('g', CCOL_GID, UIDLEN, strcpy(bfr, gid2s((gid_t) gid)))
 	&& (gid = s2gid(bfr)) >= 0) {
 
 	(void) dedsigs(TRUE);	/* reset interrupt-count */
@@ -626,12 +624,11 @@ edit_gid(RING * gbl)
 		break;
 	    }
 	    if (GROUPED(j)) {
-		if (chown(gNAME(j),
-			  (int) gSTAT(j).st_uid, gid) < 0) {
+		if (chown(gNAME(j), gSTAT(j).st_uid, (gid_t) gid) < 0) {
 		    warn(gbl, gNAME(j));
 		    break;
 		}
-		gSTAT(j).st_gid = gid;
+		gSTAT(j).st_gid = (gid_t) gid;
 		fixtime(gbl, j);	/* some systems touch too */
 		changed++;
 	    }
@@ -656,7 +653,7 @@ editname(RING * gbl)
 #define	EDITNAME(n)	EDITTEXT('=', CCOL_NAME, sizeof(bfr), strcpy(bfr, n))
 
     if (EDITNAME(cNAME) && strcmp(cNAME, bfr)) {
-	if (dedname(gbl, gbl->curfile, bfr) >= 0) {
+	if (dedname(gbl, (int) gbl->curfile, bfr) >= 0) {
 	    (void) dedsigs(TRUE);	/* reset interrupt count */
 	    hide_inline(TRUE);
 	    for_each_file(gbl, j) {
@@ -668,7 +665,7 @@ editname(RING * gbl)
 		}
 		if (gFLAG(j)) {
 		    (void) EDITNAME(gNAME(j));
-		    if (dedname(gbl, j, bfr) >= 0)
+		    if (dedname(gbl, (int) j, bfr) >= 0)
 			changed++;
 		    else
 			break;
@@ -765,7 +762,7 @@ editlink(RING * gbl, int cmd)
  * Edit the file's modification time.
  */
 void
-editdate(RING * gbl, int current, int recur)
+editdate(RING * gbl, unsigned current, int recur)
 {
     static const char datemask[] = "ddd mmm DD HH:MM:SS YYYY";
 

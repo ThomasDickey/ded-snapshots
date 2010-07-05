@@ -19,7 +19,7 @@
 
 #ifdef	MAIN
 #if	!defined(NO_IDENT)
-static const char ded_h[] = "$Id: ded.h,v 12.68 2010/07/03 17:19:32 tom Exp $";
+static const char ded_h[] = "$Id: ded.h,v 12.69 2010/07/04 21:49:20 tom Exp $";
 #endif
 #endif	/* MAIN */
 
@@ -31,6 +31,7 @@ static const char ded_h[] = "$Id: ded.h,v 12.68 2010/07/03 17:19:32 tom Exp $";
 
 #define	FREE(p)		dofree(p)
 
+#define ORDER_T	short
 #define	OFF_T	long		/* lint libraries should have 'off_t' */
 
 /*
@@ -83,11 +84,11 @@ static const char ded_h[] = "$Id: ded.h,v 12.68 2010/07/03 17:19:32 tom Exp $";
 	char	*z_ltxt;	/* what link resolves to		*/
 	Stat_t	s;		/* stat()-block				*/
 	short	z_namlen;	/* length of 'z_name' field		*/
-	short	z_dord;		/* directory-order, for "d" sort	*/
+	ORDER_T	z_dord;		/* directory-order, for "d" sort	*/
 	char	z_flag;		/* tag-flag				*/
 #ifdef	Z_RCS_SCCS
-	char	*z_vers;	/* last sccs-release, version		*/
-	char	*z_lock;	/* current locker (user-name)		*/
+	const char *z_vers;	/* last sccs-release, version		*/
+	const char *z_lock;	/* current locker (user-name)		*/
 	time_t	z_time;		/* last sccs delta-date			*/
 #endif	/* Z_RCS_SCCS */
 #ifdef MIXEDCASE_FILENAMES
@@ -238,8 +239,8 @@ extern	void	to_exit(
 		int	last);
 
 extern	int	realstat(
-		RING *	gbl,
-		int	inx,
+		RING *		gbl,
+		unsigned	inx,
 		Stat_t *	sb);
 
 extern	void	failed(
@@ -249,7 +250,7 @@ extern	int	user_says(
 		RING *	gbl,
 		int	ok);
 
-extern	int	findFILE(
+extern	unsigned findFILE(
 		RING *	gbl,
 		char *	name);
 
@@ -329,7 +330,7 @@ extern	void	edit_gid(
 
 extern	void	editdate(
 		RING *	gbl,
-		int	current,
+		unsigned current,
 		int	recur);
 
 extern	void	editname(
@@ -349,17 +350,17 @@ extern	void	clearmsg(void);
 
 extern	void	dedmsg(
 		RING *	gbl,
-		char *	msg);
+		const char *	msg);
 
 extern	void	warn(
 		RING *	gbl,
-		char *	msg);
+		const char *	msg);
 
 extern	void	waitmsg(
-		char *	msg);
+		const char *	msg);
 
 extern	void	wait_warn(
-		char *	msg);
+		const char *	msg);
 
 /* *** "dedname.c" *** */
 extern	int	dedname(
@@ -389,7 +390,7 @@ extern	void	ring_args(
 		char **	argv);
 
 extern	RING *	ring_get(
-		char *	path);
+		const char *	path);
 
 extern	RING *	dedring(
 		RING *	gbl,
@@ -420,7 +421,7 @@ extern	int	dedscan(
 
 extern	void	statSCCS(
 		RING *	gbl,
-		char *	name,
+		const char *	name,
 		FLIST *	f_);
 
 extern	void	statLINE(
@@ -429,7 +430,7 @@ extern	void	statLINE(
 
 extern	void	statMAKE(
 		RING *	gbl,
-		int	mode);
+		mode_t	mode);
 
 extern	int	path_RESOLVE(
 		RING *	gbl,
@@ -437,12 +438,12 @@ extern	int	path_RESOLVE(
 
 /* *** "dedshow.c" *** */
 extern	void	dedshow2 (
-		char *	arg);
+		const char *	arg);
 
 extern	void	dedshow(
-		RING *	gbl,
-		char *	tag,
-		char *	arg);
+		RING *		gbl,
+		const char *	tag,
+		const char *	arg);
 
 /* *** "dedsigs.c" *** */
 extern	int	dedsigs(
@@ -597,12 +598,12 @@ extern	int	ded2string(
 		RING *	gbl,
 		char *	bfr,
 		int	len,
-		char *	name,
+		const char *	name,
 		int	flag);
 
 extern	int	ded_access(
 		Stat_t *	sb,
-		int	mask);
+		mode_t	mask);
 
 #define ded_blocks(sb) fileblocks(sb)
 
@@ -630,14 +631,14 @@ extern	void	dlog_exit(
 		int	code);
 
 extern	int	dlog_char(
-		RING *	gbl,
-		int *	count_,
-		int	begin);
+		RING *		gbl,
+		int *		count_,
+		int		begin);
 
 extern	void	dlog_prompt(
-		RING *	gbl,
-		char *	prompt,
-		int	row);
+		RING *		gbl,
+		const char *	prompt,
+		int		row);
 
 #ifdef	SIGWINCH
 extern	void	dlog_resize(void);
@@ -645,7 +646,7 @@ extern	void	dlog_resize(void);
 
 extern	char *	dlog_string(
 		RING *	gbl,
-		char *	prompt,
+		const char *	prompt,
 		int	row,
 		DYN **	result,
 		DYN **	inflag,
@@ -661,13 +662,13 @@ extern	void	dlog_name(
 		char *	name);
 
 extern	void	dlog_comment(
-			char * fmt,
+			const char * fmt,
 			...
 		);
 
 /* *** "ftree.c" *** */
 extern	void	ft_insert(
-		char *	path);
+		const char *	path);
 
 extern	void	ft_remove(
 		char *	path,

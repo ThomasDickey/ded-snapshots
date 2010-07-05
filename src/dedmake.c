@@ -23,10 +23,10 @@
 
 #include	"ded.h"
 
-MODULE_ID("$Id: dedmake.c,v 12.12 2004/03/07 23:25:18 tom Exp $")
+MODULE_ID("$Id: dedmake.c,v 12.13 2010/07/04 21:40:44 tom Exp $")
 
 static int
-makeit(RING * gbl, char *name, int mode, int hard)
+makeit(RING * gbl, char *name, mode_t mode, int hard)
 {
     int fid;
 
@@ -73,7 +73,7 @@ makeit(RING * gbl, char *name, int mode, int hard)
 }
 
 static int
-made_or_quit(RING * gbl, int firstc, int mode, int hard, char *to_edit)
+made_or_quit(RING * gbl, int firstc, mode_t mode, int hard, char *to_edit)
 {
     Stat_t sb;
     int ok;
@@ -106,7 +106,7 @@ made_or_quit(RING * gbl, int firstc, int mode, int hard, char *to_edit)
 void
 dedmake(RING * gbl, int firstc)
 {
-    int mode;
+    mode_t mode;
     int hard = -1;
     char bfr[MAXPATHLEN];
 
@@ -125,7 +125,7 @@ dedmake(RING * gbl, int firstc)
 #endif
     case 'L':
 	if ((mode = (cSTAT.st_mode & S_IFMT)) == S_IFREG) {
-	    hard = gbl->curfile + 1;
+	    hard = (int) gbl->curfile + 1;
 	    break;
 	}
     default:

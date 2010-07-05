@@ -22,14 +22,16 @@
  */
 #include	"ded.h"
 
-MODULE_ID("$Id: dedread.c,v 12.9 2004/03/07 23:25:18 tom Exp $")
+MODULE_ID("$Id: dedread.c,v 12.10 2010/07/04 22:21:10 tom Exp $")
 
 int
 dedread(RING * gbl, char **pattern_, int change_needed)
 {
-    char *s;
+    static char empty[1];
     static DYN *text;
     static HIST *History;
+
+    char *s;
     REGEX_T expr;
 
     set_dedblip(gbl);
@@ -40,8 +42,9 @@ dedread(RING * gbl, char **pattern_, int change_needed)
 	dyn_init(&text, BUFSIZ);
 
     if (!(s = dlog_string(gbl, "Pattern: ", -1, &text, (DYN **) 0, &History,
-			  EOS, 0)))
-	s = "";
+			  EOS, 0))) {
+	s = empty;
+    }
     if ((*pattern_ != 0) && !strcmp(s, *pattern_)) {
 	showC(gbl);
 	return (change_needed);

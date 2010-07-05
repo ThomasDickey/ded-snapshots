@@ -23,7 +23,7 @@
 
 #include	"ded.h"
 
-MODULE_ID("$Id: sortset.c,v 12.13 2004/03/07 23:25:18 tom Exp $")
+MODULE_ID("$Id: sortset.c,v 12.14 2010/07/04 21:29:50 tom Exp $")
 
 char sortc[128];
 
@@ -123,7 +123,7 @@ sortget(RING * gbl, int c)
 		}
 	    }
 	    if (found) {
-		j = m;
+		j = (int) m;
 		move(y, x);
 		PRINTW("%s", bfr);
 		clrtobot();
@@ -132,7 +132,7 @@ sortget(RING * gbl, int c)
 		beep();
 	    }
 	    move(y, x - 2);
-	    k = strlen(sortc) - 1;
+	    k = (int) strlen(sortc) - 1;
 	    switch (found = dlog_char(gbl, (int *) 0, 0)) {
 	    case KEY_UP:
 		if (--j < 0)

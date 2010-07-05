@@ -1,3 +1,16 @@
+2010-07-04  Thomas E. Dickey  <dickey@invisible-island.net>
+
+	* makefile.in:
+	declare datadir here, needed for installing using --prefix
+
+	* src/ded.c, src/dedcolor.c, src/dedview.c, src/dedline.c, src/dlog.c, src/dedring.c, src/dedsort.c, src/ded2s.c, src/dedread.c, src/ftree.c, src/restat.c, src/dedwait.c, src/dedsize.c, src/dedscan.c, src/dedtype.c, src/ded.h, src/dedmake.c, src/showpath.c, src/sortset.c, src/dedfind.c, src/deddoit.c, src/dedshow.c, src/dedblip.c, src/dedmsgs.c:
+	stricter gcc warnings
+
+	* configure: regen
+
+	* aclocal.m4:
+	workaround for finding td_lib.mk when $prefix has not been mkdir'd
+
 2010-07-03  Thomas E. Dickey  <dickey@invisible-island.net>
 
 	* src/ded.c, src/ded.h: stricter gcc warnings
