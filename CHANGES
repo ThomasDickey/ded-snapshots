@@ -1,3 +1,10 @@
+2010-07-05  Thomas E. Dickey  <dickey@invisible-island.net>
+
+	* package/debian/changelog, package/ded-12.0.spec: bump
+
+	* src/makefile.2nd, makefile.in, test/makefile.in, user/makefile.in:
+	s/run_test/check/
+
 2010-07-04  Thomas E. Dickey  <dickey@invisible-island.net>
 
 	* makefile.in:

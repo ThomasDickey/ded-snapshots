@@ -1,5 +1,5 @@
 
-# $Id: makefile.2nd,v 12.5 2010/06/24 10:39:31 tom Exp $
+# $Id: makefile.2nd,v 12.6 2010/07/05 16:58:10 tom Exp $
 # second part of MAKE-file for directory editor
 
 MAIN_C	= $(THIS).c $(CSRC)
@@ -13,7 +13,7 @@ install:	$B $(SOURCES) $(ALL)
 
 clean:				; -$(RM) $(CLEAN) $Z
 distclean:	clean		; -$(RM) $(ALL)
-run_test:
+check:
 sources:	$(SOURCES)
 
 lint.out:	$(MAIN_C)	; $(DATE); $(LINT) $(LINTOPTS) $(MAIN_C) >>$@
