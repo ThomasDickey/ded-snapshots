@@ -1,3 +1,12 @@
+2010-07-09  Thomas E. Dickey  <dickey@invisible-island.net>
+
+	* package/debian/changelog, package/ded-12.0.spec: add "-m" option
+
+	* user/ded.man: re-order options alphabetically
+	document -m, -O and -V options
+
+	* src/ded.c: add -m option, to control whether we use the mouse
+
 2010-07-05  Thomas E. Dickey  <dickey@invisible-island.net>
 
 	* package/debian/changelog, package/ded-12.0.spec: bump

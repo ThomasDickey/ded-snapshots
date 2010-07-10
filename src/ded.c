@@ -170,7 +170,7 @@
 
 #include <locale.h>
 
-MODULE_ID("$Id: ded.c,v 12.79 2010/07/04 23:02:35 tom Exp $")
+MODULE_ID("$Id: ded.c,v 12.80 2010/07/09 21:45:06 tom Exp $")
 
 #define	EDITOR	DEFAULT_EDITOR
 #define	BROWSE	DEFAULT_BROWSE
@@ -818,6 +818,21 @@ inline_command(RING * gbl, int c)
     (void) edit_inline(FALSE);
 }
 
+static const char *GETOPT =
+"abc:dDeGIiOPSTUl:"
+#ifndef	NO_XTERM_MOUSE
+"m"
+#endif
+"n"
+#if defined(HAVE_NEWTERM)
+"p"
+#endif
+"r:s:t:"
+#ifdef	Z_RCS_SCCS
+"zZ"
+#endif
+ ;
+
 /*ARGSUSED*/
 _MAIN
 {
@@ -853,7 +868,7 @@ _MAIN
 #ifdef ACS_PLUS
     optBox = TRUE;
 #endif
-    while ((c = getopt(argc, argv, "abDeGIiOPSTUZc:l:r:s:zdt:np")) != EOF)
+    while ((c = getopt(argc, argv, GETOPT)) != EOF)
 	switch (c) {
 	case 'a':
 	    COMPLEMENT(gbl->A_opt);
@@ -926,6 +941,11 @@ _MAIN
 	case 'n':
 	    no_worry = TRUE;
 	    break;
+#ifndef	NO_XTERM_MOUSE
+	case 'm':
+	    xt_enabled = !xt_enabled;
+	    break;
+#endif
 #if defined(HAVE_NEWTERM)
 	case 'p':
 	    do_select = TRUE;
