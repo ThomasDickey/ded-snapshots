@@ -17,7 +17,7 @@
 .\" ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR *
 .\" IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.                *
 .\"*****************************************************************************
-.\" $Id: ded.man,v 12.19 2010/06/24 09:51:32 tom Exp $
+.\" $Id: ded.man,v 12.20 2010/07/09 21:55:37 tom Exp $
 .if t .ds T \(tm
 .if n .ds T (tm)
 .
@@ -102,7 +102,8 @@ and runs in a UNIX environment.
 .\"****************************************************************************
 .SH OPTIONS
 .PP
-Most command-line options are the same as display-manipulation commands.
+Most command-line options initialize the state for
+display-manipulation commands.
 They
 include:
 .TP
@@ -113,6 +114,14 @@ list (see "\fB&\fR" toggle).
 .B -b
 use the box-character set for displaying the directory-tree and workspace
 ruler.
+.TP
+.BI -c filename
+read user commands from the
+specified file.
+The commands are assumed to be in the same format
+as the log-file generated with the "-\fBl\fR" option.
+Subprocesses
+do not (currently) inherit this option.
 .TP
 .B -D
 force date-display to long format.
@@ -130,27 +139,11 @@ displays user-identifiers).
 toggle inode/links display field (initially displays
 number of links for each file).
 .TP
-.B -P
-toggle file-protection display field (initially displays
-file protection in \fBls\fR-style).
-.TP
-.B -p
-print full pathnames of tagged files on exit.
-.TP
-.B -S
-toggle file size (in blocks) display field (normally
-displays only the size in bytes).
-.TP
-.B -T
-toggle date-display to long format.
-.TP
-.BI -c filename
-read user commands from the
-specified file.
-The commands are assumed to be in the same format
-as the log-file generated with the "-\fBl\fR" option.
-Subprocesses
-do not (currently) inherit this option.
+.B -i
+invert colors used for filenames.
+This helps with contrast on white backgrounds,
+particularly with older curses implementations which do not
+support default-colors.
 .TP
 .BI -l filename
 log user commands (and \fBded\fR
@@ -158,8 +151,34 @@ messages) to the specified file.
 \fBDed\fR subprocesses invoked
 with the "e" command inherit this option.
 .TP
+.B -m
+disable mouse events.
+.TP
 .B -n
 disable prompt on \fBded\fR quit command.
+.TP
+.B -P
+toggle file-protection display field (initially displays
+file protection in \fBls\fR-style).
+.TP
+.B -p
+print full pathnames of tagged files on exit.
+.TP
+.B -O
+show rcs file-lock owner.
+.TP
+.BI -r key
+provide initial reverse-sort by \fIkey\fR
+.TP
+.B -S
+toggle file size (in blocks) display field (normally
+displays only the size in bytes).
+.TP
+.BI -s key
+provide initial sort by \fIkey\fR
+.TP
+.B -T
+toggle date-display to long format.
 .TP
 .BI -t path
 read the directory tree file ".ftree"
@@ -167,17 +186,14 @@ from the specified directory \fIpath\fR.
 This option is inherited
 in subsequent processes of \fBded\fR.
 .TP
+.B -V
+show rcs/sccs version.
+.TP
 .B -Z
 toggle rcs/sccs data display (normally inactive).
 .TP
 .B -z
 toggle rcs/sccs data display
-.TP
-.BI -r key
-provide initial reverse-sort by \fIkey\fR
-.TP
-.BI -s key
-provide initial sort by \fIkey\fR
 .
 .\"****************************************************************************
 .SH OPERATIONS

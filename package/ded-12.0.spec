@@ -2,9 +2,9 @@ Summary: DED directory editor
 %define AppProgram ded
 %define AppLibrary td_lib
 %define AppVersion 12.x
-%define AppRelease 20100705
-%define LibRelease 20100705
-# $Id: ded-12.0.spec,v 1.8 2010/07/05 17:02:10 tom Exp $
+%define AppRelease 20100711
+%define LibRelease 20100711
+# $Id: ded-12.0.spec,v 1.9 2010/07/09 23:05:25 tom Exp $
 Name: %{AppProgram}
 Version: %{AppVersion}
 Release: %{AppRelease}
@@ -75,6 +75,9 @@ make install                    DESTDIR=$RPM_BUILD_ROOT
 
 %changelog
 # each patch should add its ChangeLog entries here
+
+* Fri Jul 09 2010 Thomas Dickey
+- add "-m" option
 
 * Sat Jul 03 2010 Thomas Dickey
 - code cleanup
