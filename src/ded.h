@@ -5,6 +5,7 @@
  * Created:	09 Nov 1987
  * Function:	Common definitions for 'ded' (directory editor)
  */
+/* *INDENT-OFF* */
 
 #define		CUR_PTYPES	/* use "td_curse.h" */
 #define		CHR_PTYPES	/* use <ctype.h> */
@@ -19,7 +20,7 @@
 
 #ifdef	MAIN
 #if	!defined(NO_IDENT)
-static const char ded_h[] = "$Id: ded.h,v 12.69 2010/07/04 21:49:20 tom Exp $";
+static const char ded_h[] = "$Id: ded.h,v 12.70 2011/01/31 01:36:29 tom Exp $";
 #endif
 #endif	/* MAIN */
 
@@ -231,6 +232,7 @@ extern	void	boxchars(
 		int	flag);
 
 /* *** "ded.c" *** */
+extern	FILE *	debug_fp;
 extern	int	debug;
 extern	int	no_worry;
 extern	int	in_screen;
@@ -789,4 +791,6 @@ extern	int	sortget(
 		RING *	gbl,
 		int	c);
 
-#endif	/* DED_H */
+/* *INDENT-ON* */
+
+#endif /* DED_H */

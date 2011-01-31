@@ -1,5 +1,5 @@
 .\"*****************************************************************************
-.\" Copyright 2004-2009,2010 by Thomas E. Dickey.  All Rights Reserved.        *
+.\" Copyright 2004-2010,2011 by Thomas E. Dickey.  All Rights Reserved.        *
 .\"                                                                            *
 .\" Permission to use, copy, modify, and distribute this software and its      *
 .\" documentation for any purpose and without fee is hereby granted, provided  *
@@ -17,7 +17,7 @@
 .\" ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR *
 .\" IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.                *
 .\"*****************************************************************************
-.\" $Id: ded.man,v 12.20 2010/07/09 21:55:37 tom Exp $
+.\" $Id: ded.man,v 12.21 2011/01/31 00:54:39 tom Exp $
 .if t .ds T \(tm
 .if n .ds T (tm)
 .
@@ -126,6 +126,30 @@ do not (currently) inherit this option.
 .B -D
 force date-display to long format.
 Allows editing of modification times using the "T" command.
+.TP
+.B -d
+enable debug trace.
+.IP
+If the standard output is a terminal,
+debug messages are written to the standard output.
+Otherwise, they are written to the standard error.
+.IP
+Repeating the flag changes the level.
+Setting the \fBDED_DEBUG\fP environment to a nonzero integer will
+also enable a debug-trace, with the corresponding level.
+The levels are cumulative:
+.RS
+.TP 5
+1
+\fBded\fP prints the name of each file as it gets its properties,
+and pauses after reading the set of files.
+.TP 5
+2
+In addition, \fBded\fP prints the data read from a pipe.
+.TP 5
+3
+On exit due to error, \fBded\fP will dump core.
+.RE
 .TP
 .B -e
 modify the interpretation of the "e" command to spawn a new process of
