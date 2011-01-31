@@ -3,6 +3,8 @@
  * Author:	T.E.Dickey
  * Created:	09 Nov 1987
  * Modified:
+ *		30 Jan 2011, merge -d and DED_DEBUG environment variable, and
+ *			     only do a core-dump on level 3.
  *		24 Jun 2010, look first for help-file in data-directory.
  *		07 Sep 2004, add -D option for date-editing.
  *		07 Mar 2004, remove K&R support, indent'd
@@ -170,7 +172,7 @@
 
 #include <locale.h>
 
-MODULE_ID("$Id: ded.c,v 12.80 2010/07/09 21:45:06 tom Exp $")
+MODULE_ID("$Id: ded.c,v 12.81 2011/01/31 01:33:17 tom Exp $")
 
 #define	EDITOR	DEFAULT_EDITOR
 #define	BROWSE	DEFAULT_BROWSE
@@ -178,6 +180,7 @@ MODULE_ID("$Id: ded.c,v 12.80 2010/07/09 21:45:06 tom Exp $")
 
 #define	COMPLEMENT(opt) (opt) = !(opt)
 
+FILE *debug_fp;
 int debug = FALSE;		/* generic debug-flag */
 int no_worry = -1;		/* don't prompt on quit */
 int in_screen;			/* TRUE if we have init'ed */
@@ -294,15 +297,16 @@ void
 failed(const char *msg)
 {
     if (debug) {
-	FPRINTF(stderr, "failed?");
+	FPRINTF(debug_fp, "failed?");
+	(void) fflush(debug_fp);
 	(void) cmdch((int *) 0);
     }
     to_exit(msg != 0);
     if (msg)
-	FPRINTF(stderr, "-------- \n?? %-79s\n-------- \n", msg);
+	FPRINTF(debug_fp, "-------- \n?? %-79s\n-------- \n", msg);
     if (msg) {
-	(void) fflush(stderr);
-	if (getenv("DED_DEBUG") != 0 || debug)
+	(void) fflush(debug_fp);
+	if (debug > 2)
 	    abort();
     }
 
@@ -679,8 +683,8 @@ trace_pipe(char *arg)
 {
     if (debug) {
 	if (debug > 1) {
-	    FPRINTF(stderr, "%s\n", arg);
-	    (void) fflush(stderr);
+	    FPRINTF(debug_fp, "%s\n", arg);
+	    (void) fflush(debug_fp);
 	} else
 	    put_dedblip('#');
     }
@@ -818,6 +822,19 @@ inline_command(RING * gbl, int c)
     (void) edit_inline(FALSE);
 }
 
+static void
+init_debug(void)
+{
+    char *s = getenv("DED_DEBUG");
+    if (s != 0)
+	debug = atoi(s);
+
+    if (isatty(fileno(stdout)))
+	debug_fp = stdout;
+    else
+	debug_fp = stderr;
+}
+
 static const char *GETOPT =
 "abc:dDeGIiOPSTUl:"
 #ifndef	NO_XTERM_MOUSE
@@ -858,6 +875,8 @@ _MAIN
 #ifdef LOCALE
     setlocale(LC_ALL, "");
 #endif
+    init_debug();
+
     (void) sortset(gbl, 's', 'n');
     (void) sscanf(version, "%*s %s %s", tpath, dpath);
     FPRINTF(stderr, "DED Directory Editor (%s %s)\r\n", tpath, dpath);
@@ -868,7 +887,7 @@ _MAIN
 #ifdef ACS_PLUS
     optBox = TRUE;
 #endif
-    while ((c = getopt(argc, argv, GETOPT)) != EOF)
+    while ((c = getopt(argc, argv, GETOPT)) != EOF) {
 	switch (c) {
 	case 'a':
 	    COMPLEMENT(gbl->A_opt);
@@ -955,6 +974,7 @@ _MAIN
 	    usage();
 	    /*NOTREACHED */
 	}
+    }
 
 #ifdef	Z_RCS_SCCS
     /* if we're going to sort by checkin-date, ensure we read the dates */

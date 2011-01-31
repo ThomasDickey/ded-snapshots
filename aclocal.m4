@@ -1,4 +1,4 @@
-dnl $Id: aclocal.m4,v 12.22 2010/07/04 09:04:04 tom Exp $
+dnl $Id: aclocal.m4,v 12.23 2011/01/31 00:02:30 tom Exp $
 dnl Macros for DED configure script.
 dnl ---------------------------------------------------------------------------
 dnl ---------------------------------------------------------------------------
@@ -275,7 +275,7 @@ fi
 AC_SUBST(TD_LIB_rules)
 ])dnl
 dnl ---------------------------------------------------------------------------
-dnl CF_GCC_ATTRIBUTES version: 13 updated: 2009/08/11 20:19:56
+dnl CF_GCC_ATTRIBUTES version: 14 updated: 2010/10/23 15:52:32
 dnl -----------------
 dnl Test for availability of useful gcc __attribute__ directives to quiet
 dnl compiler warnings.  Though useful, not all are supported -- and contrary
@@ -302,7 +302,7 @@ if test "$GCC" = yes
 then
 	AC_CHECKING([for $CC __attribute__ directives])
 cat > conftest.$ac_ext <<EOF
-#line __oline__ "${as_me-configure}"
+#line __oline__ "${as_me:-configure}"
 #include "confdefs.h"
 #include "conftest.h"
 #include "conftest.i"
@@ -399,7 +399,7 @@ if test "$GCC" = yes ; then
 fi
 ])dnl
 dnl ---------------------------------------------------------------------------
-dnl CF_GCC_WARNINGS version: 25 updated: 2010/04/24 11:03:31
+dnl CF_GCC_WARNINGS version: 27 updated: 2010/10/23 15:52:32
 dnl ---------------
 dnl Check if the compiler supports useful warning options.  There's a few that
 dnl we don't use, simply because they're too noisy:
@@ -424,7 +424,7 @@ AC_REQUIRE([CF_GCC_VERSION])
 CF_INTEL_COMPILER(GCC,INTEL_COMPILER,CFLAGS)
 
 cat > conftest.$ac_ext <<EOF
-#line __oline__ "${as_me-configure}"
+#line __oline__ "${as_me:-configure}"
 int main(int argc, char *argv[[]]) { return (argv[[argc-1]] == 0) ; }
 EOF
 
@@ -503,7 +503,7 @@ then
 	done
 	CFLAGS="$cf_save_CFLAGS"
 fi
-rm -f conftest*
+rm -rf conftest*
 
 AC_SUBST(EXTRA_CFLAGS)
 ])dnl
@@ -637,13 +637,13 @@ ifelse($1,,,[$1=$LIB_PREFIX])
 	AC_SUBST(LIB_PREFIX)
 ])dnl
 dnl ---------------------------------------------------------------------------
-dnl CF_MAKE_AR_RULES version: 4 updated: 2008/03/23 14:48:54
+dnl CF_MAKE_AR_RULES version: 5 updated: 2010/10/23 15:52:32
 dnl ----------------
 dnl Check if the 'make' program knows how to interpret archive rules.  Though
 dnl this is common practice since the mid-80's, there are some holdouts (1997).
 AC_DEFUN([CF_MAKE_AR_RULES],
 [
-AC_MSG_CHECKING(if ${MAKE-make} program knows about archives)
+AC_MSG_CHECKING(if ${MAKE:-make} program knows about archives)
 AC_CACHE_VAL(cf_cv_ar_rules,[
 cf_dir=subd$$
 cf_cv_ar_rules=unknown
@@ -665,7 +665,7 @@ conf.a : conf.a(conftest.o)
 CF_EOF
 touch $cf_dir/conftest.c
 CDPATH=; export CDPATH
-if ( cd $cf_dir && ${MAKE-make} 2>&AC_FD_CC >&AC_FD_CC && test -f conf.a )
+if ( cd $cf_dir && ${MAKE:-make} 2>&AC_FD_CC >&AC_FD_CC && test -f conf.a )
 then
 	cf_cv_ar_rules=yes
 else
@@ -688,7 +688,7 @@ conf.a : conftest.o
 	\$(AR) \$[]@ \$?
 CF_EOF
 CDPATH=; export CDPATH
-if ( cd $cf_dir && ${MAKE-make} 2>&AC_FD_CC >&AC_FD_CC && test -f conf.a )
+if ( cd $cf_dir && ${MAKE:-make} 2>&AC_FD_CC >&AC_FD_CC && test -f conf.a )
 then
 	cf_cv_ar_rules=no
 else
@@ -700,7 +700,7 @@ rm -rf $cf_dir
 AC_MSG_RESULT($cf_cv_ar_rules)
 ])dnl
 dnl ---------------------------------------------------------------------------
-dnl CF_MAKE_INCLUDE version: 8 updated: 2008/03/23 14:48:54
+dnl CF_MAKE_INCLUDE version: 9 updated: 2010/10/23 15:52:32
 dnl ---------------
 dnl Check for the use of 'include' in 'make' (BSDI is a special case)
 dnl The symbol $ac_make is set in AC_MAKE_SET, as a side-effect.
@@ -729,7 +729,7 @@ all :
 CF_EOF
 	cf_make_include=""
 	CDPATH=; export CDPATH
-	eval `(cd $cf_dir && ${MAKE-make}) 2>&AC_FD_CC | grep cf_make_include=OK`
+	eval `(cd $cf_dir && ${MAKE:-make}) 2>&AC_FD_CC | grep cf_make_include=OK`
 	if test -n "$cf_make_include"; then
 		make_include_left="$cf_include"
 		make_include_quote="$cf_quote"
@@ -758,12 +758,12 @@ AC_SUBST(make_include_left)
 AC_SUBST(make_include_right)
 ])dnl
 dnl ---------------------------------------------------------------------------
-dnl CF_MSG_LOG version: 4 updated: 2007/07/29 09:55:12
+dnl CF_MSG_LOG version: 5 updated: 2010/10/23 15:52:32
 dnl ----------
 dnl Write a debug message to config.log, along with the line number in the
 dnl configure script.
 AC_DEFUN([CF_MSG_LOG],[
-echo "${as_me-configure}:__oline__: testing $* ..." 1>&AC_FD_CC
+echo "${as_me:-configure}:__oline__: testing $* ..." 1>&AC_FD_CC
 ])dnl
 dnl ---------------------------------------------------------------------------
 dnl CF_PATHSEP version: 5 updated: 2010/05/26 05:38:42
@@ -779,7 +779,7 @@ ifelse([$1],,,[$1=$PATH_SEPARATOR])
 	AC_SUBST(PATH_SEPARATOR)
 ])dnl
 dnl ---------------------------------------------------------------------------
-dnl CF_PROGRAM_FULLPATH version: 5 updated: 2009/01/11 20:30:23
+dnl CF_PROGRAM_FULLPATH version: 6 updated: 2010/10/23 16:12:25
 dnl -------------------
 dnl Tests for one or more programs given by name along the user's path, and
 dnl sets a variable to the program's full-path if found.
@@ -801,7 +801,7 @@ AC_CACHE_VAL(cf_cv_$1,[
 				if test -f "$cf_word" && test ! -f "./$cf_word" && test -x "$cf_word"; then
 					cf_cv_$1="$cf_word"
 				else
-					IFS="${IFS= 	}"; cf_save_ifs="$IFS"; IFS="${IFS}${PATH_SEPARATOR}"
+					IFS="${IFS:- 	}"; cf_save_ifs="$IFS"; IFS="${IFS}${PATH_SEPARATOR}"
 					for cf_dir in $PATH; do
 						test -z "$cf_dir" && cf_dir=.
 						if test "$cf_dir" != "." && test -f $cf_dir/$cf_word && test -x $cf_dir/$cf_word; then
@@ -839,7 +839,7 @@ else
 fi
 ])dnl
 dnl ---------------------------------------------------------------------------
-dnl CF_SRC_MAKEFILE version: 2 updated: 1997/09/13 01:16:12
+dnl CF_SRC_MAKEFILE version: 3 updated: 2010/10/23 15:52:32
 dnl ---------------
 dnl Append predefined lists to $2/makefile, given a path to a directory that
 dnl has a 'modules' file in $1.
@@ -850,7 +850,7 @@ AC_DEFUN([CF_SRC_MAKEFILE],
 cf_mod=$1/$2/modules
 cf_out=$2/makefile
 if test -f $cf_mod ; then
-${AWK-awk} <$cf_mod >>$cf_out '
+${AWK:-awk} <$cf_mod >>$cf_out '
 BEGIN	{
 		found = 0;
 	}
@@ -867,7 +867,7 @@ END	{
 	}
 '
 	if test $cf_cv_ar_rules = yes ; then
-${AWK-awk} <$cf_mod >>$cf_out '
+${AWK:-awk} <$cf_mod >>$cf_out '
 BEGIN	{
 		found = 0;
 	}
@@ -884,7 +884,7 @@ END	{
 	}
 '
 	else
-${AWK-awk} <$cf_mod >>$cf_out '
+${AWK:-awk} <$cf_mod >>$cf_out '
 BEGIN	{
 		found = 0;
 	}

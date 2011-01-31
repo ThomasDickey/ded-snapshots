@@ -1,3 +1,18 @@
+2011-01-30  Thomas E. Dickey  <dickey@invisible-island.net>
+
+	* configure: regen
+
+	* src/ded.h, src/dedscan.c, src/ded.c, user/ded.man:
+	merge -d option and DED_DEBUG environment variable.
+	fix a bug that caused exit when piping a single filename (not directory) to ded.
+
+	* COPYING: bump
+
+	* aclocal.m4:
+	resync with my-autoconf, to deprecate ${name-value} in favor of ${name:-value}
+
+	* package/debian/changelog, package/ded-12.0.spec: bump
+
 2010-09-28  Thomas E. Dickey  <dickey@invisible-island.net>
 
 	* config.guess: 2010-09-24

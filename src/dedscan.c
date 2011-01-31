@@ -3,6 +3,10 @@
  * Author:	T.E.Dickey
  * Created:	09 Nov 1987
  * Modified:
+ *		30 Jan 2011, merge -d and DED_DEBUG environment variable, and
+ *			     only do a core-dump on level 3.  Fix special case
+ *			     which caused exit when piping single filename to
+ *			     ded.
  *		25 May 2010, fix clang --analyze warnings.
  *		15 Nov 2009, fix an out-of-bounds indexing in dedscan() when
  *			     doing a ^R pattern on pathnames read from stdin.
@@ -97,7 +101,7 @@
 #include	<rcsdefs.h>
 #include	<sccsdefs.h>
 
-MODULE_ID("$Id: dedscan.c,v 12.45 2010/07/04 22:04:33 tom Exp $")
+MODULE_ID("$Id: dedscan.c,v 12.46 2011/01/31 01:34:21 tom Exp $")
 
 #define	N_UNKNOWN	-1	/* name does not exist */
 #define	N_FILE		0	/* a file (synonym for 'common==0') */
@@ -255,8 +259,8 @@ argstat(RING * gbl, const char *name, int list, int tilde)
     int code;
 
     if (debug) {
-	PRINTF(" stat \"%s\" %slist\r\n", name, list ? "" : "no");
-	FFLUSH(stdout);
+	FPRINTF(debug_fp, " stat \"%s\" %slist\r\n", name, list ? "" : "no");
+	FFLUSH(debug_fp);
     }
 
     if (tilde && (*name == '~')) {	/* permit "~" from Bourne-shell */
@@ -381,8 +385,10 @@ dedscan(RING * gbl)
      * find the longest common leading pathname component and readjust
      * everything if it is nonnull.
      */
-    if (debug)
-	PRINTF("common=%d, numfiles=%u\r\n", common, gbl->numfiles);
+    if (debug) {
+	FPRINTF(debug_fp, "common=%d, numfiles=%u\r\n", common, gbl->numfiles);
+	FFLUSH(debug_fp);
+    }
     if (common == 0 && gbl->numfiles != 0) {
 	unsigned comlen = (unsigned) strlen(strcpy(name, argv[0]));
 	for (j = 0; (j < argc) && (comlen != 0); j++) {
@@ -588,9 +594,12 @@ path_RESOLVE(RING * gbl, char *path)
 {
     char temp[MAXPATHLEN];
     char *s;
+    int is_dir = 1;
+    Stat_t my_sb;
     static int tried;
 
     if (chdir(strcpy(temp, path)) < 0) {
+	is_dir = 0;
 	if (errno == ENOTDIR
 	    || errno == ENOENT) {
 	    /*
@@ -635,6 +644,9 @@ path_RESOLVE(RING * gbl, char *path)
 	    return (FALSE);
     }
     s = realpath(path, temp);
+    if (!is_dir) {
+	strcpy(temp, pathhead(temp, &my_sb));
+    }
 #else
     s = getwd(temp);
 #endif
