@@ -1,3 +1,7 @@
+2011-02-05  Thomas E. Dickey  <dickey@invisible-island.net>
+
+	* src/ded.h: gcc warning
+
 2011-01-30  Thomas E. Dickey  <dickey@invisible-island.net>
 
 	* configure: regen
