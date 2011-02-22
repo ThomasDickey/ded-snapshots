@@ -3,6 +3,7 @@
  * Author:	T.E.Dickey
  * Created:	09 Nov 1987
  * Modified:
+ *		22 Feb 2011, correct check for help-file location.
  *		30 Jan 2011, merge -d and DED_DEBUG environment variable, and
  *			     only do a core-dump on level 3.
  *		24 Jun 2010, look first for help-file in data-directory.
@@ -172,7 +173,7 @@
 
 #include <locale.h>
 
-MODULE_ID("$Id: ded.c,v 12.81 2011/01/31 01:33:17 tom Exp $")
+MODULE_ID("$Id: ded.c,v 12.82 2011/02/22 10:25:16 tom Exp $")
 
 #define	EDITOR	DEFAULT_EDITOR
 #define	BROWSE	DEFAULT_BROWSE
@@ -1001,7 +1002,7 @@ _MAIN
 	failed("which-path");
 
     sprintf(howami, "%s/ded.hlp", DATA_DIR);
-    if (!stat_file(howami, &sb)) {
+    if (stat_file(howami, &sb) < 0) {
 	/* my help-file lives where the binary does */
 	strcpy(howami, whoami);
 	strcpy(ftype(howami), ".hlp");
