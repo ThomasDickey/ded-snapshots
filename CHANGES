@@ -1,3 +1,9 @@
+2011-02-22  Thomas E. Dickey  <dickey@invisible-island.net>
+
+	* package/debian/changelog, package/ded-12.0.spec: bump
+
+	* src/ded.c: correct check for help-file location.
+
 2011-02-05  Thomas E. Dickey  <dickey@invisible-island.net>
 
 	* src/ded.h: gcc warning
