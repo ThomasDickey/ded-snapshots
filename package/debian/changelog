@@ -1,3 +1,9 @@
+ded (20120113) unstable; urgency=low
+
+  * minor cleanup
+
+ -- Thomas E. Dickey <dickey@invisible-island.net>  Fri, 13 Jan 2012 14:06:33 -0500
+
 ded (20110222) unstable; urgency=low
 
   * portability/build fixes

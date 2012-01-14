@@ -13,7 +13,7 @@
 
 #include	"ded.h"
 
-MODULE_ID("$Id: dedtags.c,v 12.8 2004/03/07 23:25:18 tom Exp $")
+MODULE_ID("$Id: dedtags.c,v 12.9 2012/01/13 18:58:19 tom Exp $")
 
 /*
  * Initialize counters associated with tags
@@ -35,8 +35,8 @@ tag_entry(RING * gbl,
 	if (!gFLAG(inx)) {
 	    gFLAG(inx) = TRUE;
 	    gbl->tag_count++;
-	    gbl->tag_bytes += gSTAT(inx).st_size;
-	    gbl->tag_blocks += ded_blocks(&(gSTAT(inx)));
+	    gbl->tag_bytes += (long) gSTAT(inx).st_size;
+	    gbl->tag_blocks += (long) ded_blocks(&(gSTAT(inx)));
 	}
 	count--;
 	inx++;
@@ -52,8 +52,8 @@ untag_entry(RING * gbl,
 	if (gFLAG(inx)) {
 	    gFLAG(inx) = FALSE;
 	    gbl->tag_count--;
-	    gbl->tag_bytes -= gSTAT(inx).st_size;
-	    gbl->tag_blocks -= ded_blocks(&(gSTAT(inx)));
+	    gbl->tag_bytes -= (long) gSTAT(inx).st_size;
+	    gbl->tag_blocks -= (long) ded_blocks(&(gSTAT(inx)));
 	}
 	count--;
 	inx++;

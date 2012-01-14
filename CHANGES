@@ -1,3 +1,10 @@
+2012-01-13  Thomas E. Dickey  <dickey@invisible-island.net>
+
+	* package/debian/changelog, package/ded-12.0.spec, COPYING: bump
+
+	* src/ded2s.c, src/deddoit.c, src/dedline.c, src/dedtags.c, src/dedtype.c, src/deduniq.c:
+	gcc-warnings
+
 2011-02-22  Thomas E. Dickey  <dickey@invisible-island.net>
 
 	* package/debian/changelog, package/ded-12.0.spec: bump

@@ -61,7 +61,7 @@
 #include	"ded.h"
 #include	<rcsdefs.h>
 
-MODULE_ID("$Id: ded2s.c,v 12.31 2010/07/04 22:24:57 tom Exp $")
+MODULE_ID("$Id: ded2s.c,v 12.32 2012/01/13 18:59:26 tom Exp $")
 
 #if defined(MAJOR_IN_MKDEV)
 #  include	<sys/mkdev.h>
@@ -205,7 +205,7 @@ ded2s(RING * gbl, int inx, char *bfr, int len)
     if (gbl->AT_opt && f_->z_ltxt) {
 	char *ss;
 	for (ss = base; *ss; ss++)
-	    UpperCase(*ss);
+	    *ss = (char) UpperMacro(*ss);
     }
 #endif
     bfr += strlen(bfr);

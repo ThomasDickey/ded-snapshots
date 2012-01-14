@@ -18,7 +18,7 @@
  */
 #include	"ded.h"
 
-MODULE_ID("$Id: deduniq.c,v 12.8 2004/03/07 23:25:18 tom Exp $")
+MODULE_ID("$Id: deduniq.c,v 12.9 2012/01/13 18:58:19 tom Exp $")
 
 void
 deduniq(RING * gbl, int level)
@@ -29,7 +29,7 @@ deduniq(RING * gbl, int level)
     set_dedblip(gbl);
     gbl->tagsort = FALSE;	/* don't confuse 'dedsort_cmp()' */
 
-    for (j = (level > 1), old = FALSE; j < gbl->numfiles; j++) {
+    for (j = (unsigned) (level > 1), old = FALSE; j < gbl->numfiles; j++) {
 
 	k = (level > 1) ? j - 1 : gbl->curfile;
 
@@ -40,7 +40,7 @@ deduniq(RING * gbl, int level)
 					j))) != 0) {
 	    put_dedblip('#');
 	    gFLAG(k) =
-		gFLAG(j) = (level > 0);
+		gFLAG(j) = (char) (level > 0);
 	    if (!old)
 		dlog_name(gNAME(k));
 	    dlog_name(gNAME(j));

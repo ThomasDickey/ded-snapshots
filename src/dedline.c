@@ -59,7 +59,7 @@
 
 #include	"ded.h"
 
-MODULE_ID("$Id: dedline.c,v 12.30 2010/07/04 23:00:26 tom Exp $")
+MODULE_ID("$Id: dedline.c,v 12.31 2012/01/13 18:58:19 tom Exp $")
 
 #define	CHMOD(n)	(gSTAT(n).st_mode & 07777)
 #define	OWNER(n)	((geteuid() == 0) || (gSTAT(x).st_uid == geteuid()))
@@ -304,7 +304,7 @@ change_protection(RING * gbl)
     unsigned x;
 
     (void) dedsigs(TRUE);	/* reset interrupt counter */
-    c = CHMOD(gbl->curfile);
+    c = (int) CHMOD(gbl->curfile);
     for_each_file(gbl, x) {
 	if (GROUPED(x)) {
 	    if (dedsigs(TRUE)) {
