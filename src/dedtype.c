@@ -60,7 +60,7 @@
 #define		DIR_PTYPES	/* includes directory-stuff */
 #include	"ded.h"
 
-MODULE_ID("$Id: dedtype.c,v 12.36 2010/07/04 21:57:09 tom Exp $")
+MODULE_ID("$Id: dedtype.c,v 12.37 2012/01/13 18:58:19 tom Exp $")
 
 typedef struct {
     OFF_T offset;
@@ -172,7 +172,7 @@ typeover(int c)
 static int
 typeconv(int c)
 {
-    char dot = OptStripped ? ' ' : '.';
+    char dot = (char) (OptStripped ? ' ' : '.');
 
     if (OptBinary) {		/* highlight chars with parity */
 	if (!isascii(c)) {
@@ -254,7 +254,7 @@ MaxP(void)
     Stat_t sb;
     OFF_T length = 0;
     if (fstat(fileno(InFile), &sb) >= 0)
-	length = sb.st_size;
+	length = (OFF_T) sb.st_size;
     return length;
 }
 

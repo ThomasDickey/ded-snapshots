@@ -37,7 +37,7 @@
  */
 #include	"ded.h"
 
-MODULE_ID("$Id: deddoit.c,v 12.21 2010/07/04 20:47:06 tom Exp $")
+MODULE_ID("$Id: deddoit.c,v 12.22 2012/01/13 18:58:19 tom Exp $")
 
 /*
  * Return a pointer to a leaf of a given name
@@ -260,7 +260,7 @@ deddoit(RING * gbl, int key, int sense)
 	int ok = TRUE;
 	for (s = dyn_string(Subs); *s; s++)
 	    if (!isascii(*s))
-		*s = toascii(*s);
+		*s = (char) toascii(*s);
 
 	cookterm();
 	(void) dedsigs(FALSE);	/* prevent child from killing us */
