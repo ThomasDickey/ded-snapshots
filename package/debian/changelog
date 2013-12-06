@@ -1,3 +1,9 @@
+ded (20131205) unstable; urgency=low
+
+  * configure script updates/fixes
+
+ -- Thomas E. Dickey <dickey@invisible-island.net>  Thu, 05 Dec 2013 20:02:33 -0500
+
 ded (20120113) unstable; urgency=low
 
   * minor cleanup

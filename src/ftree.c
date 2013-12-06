@@ -140,7 +140,7 @@
 
 #include	<fcntl.h>
 
-MODULE_ID("$Id: ftree.c,v 12.64 2010/07/04 22:20:11 tom Exp $")
+MODULE_ID("$Id: ftree.c,v 12.65 2013/12/06 01:22:45 tom Exp $")
 
 #define	Null	(char *)0	/* some NULL's are simply 0 */
 
@@ -320,7 +320,7 @@ fd_add_path(char *path, char *validated)
     /* put this into the database, if it is not already */
     path += (TOP - 1);
     while (*path == *gap) {
-	char *name = ++path, *next = strchr(name, (*gap));
+	char *name = ++path, *next = (strchr) (name, (*gap));
 
 	if (next != 0)
 	    *next = EOS;
@@ -409,7 +409,7 @@ fd_find(const char *buffer, int cmd, int old)
     int snxt, tmp = old, skip, looped = 0;
 
     if (cmd == '?' || cmd == '/') {
-	if (strchr(buffer, (*gap))) {
+	if ((strchr) (buffer, (*gap))) {
 	    waitmsg("\"/\" not allowed in search-path");
 	    return (-1);	/* we don't search full-paths */
 	}
@@ -601,7 +601,7 @@ do_find(char *path)
 
     path += (TOP - 1);
     while (*path == *gap) {
-	char *name = ++path, *next = strchr(path, (*gap));
+	char *name = ++path, *next = (strchr) (path, (*gap));
 	if (next)
 	    *next = EOS;
 	item = 0;

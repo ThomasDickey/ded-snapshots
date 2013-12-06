@@ -23,7 +23,7 @@
 
 #include	"ded.h"
 
-MODULE_ID("$Id: sortset.c,v 12.14 2010/07/04 21:29:50 tom Exp $")
+MODULE_ID("$Id: sortset.c,v 12.15 2013/12/06 01:22:45 tom Exp $")
 
 char sortc[128];
 
@@ -74,7 +74,7 @@ sortset(RING * gbl, int ord, int opt)
 	    sortc[k++] = *sort_msg[j];
 	sortc[k] = EOS;
     }
-    if (strchr(sortc, opt) != 0) {
+    if ((strchr) (sortc, opt) != 0) {
 	gbl->dateopt = (opt == 'c') ? 1 : (opt == 'r' ? 0 : 2);
 	gbl->sortopt = opt;
 	gbl->sortord = (ord == 'r');

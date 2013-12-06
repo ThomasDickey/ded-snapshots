@@ -1,3 +1,22 @@
+2013-12-05  Thomas E. Dickey  <dickey@invisible-island.net>
+
+	* src/ftree.c, src/sortset.c: workaround for -Wlogical-op
+
+	* user/makefile.in: honor datarootdir
+
+	* package/debian/changelog, package/debian/copyright, COPYING, package/ded-12.0.spec:
+	bump
+
+	* configure: regen
+
+	* aclocal.m4: using CF_PROG_CC, deprecating pre-ANSI C checks
+
+	* configure.in: use CF_PROG_CC
+
+	* makefile.in: honor datarootdir
+
+	* aclocal.m4: resync with my-autoconf
+
 2013-10-25  Thomas E. Dickey  <dickey@invisible-island.net>
 
 	* config.sub: 2013-10-01
