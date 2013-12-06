@@ -1,7 +1,7 @@
 Upstream source http://invisible-island.net/ded/ded.html
 
 -------------------------------------------------------------------------------
-Copyright 1987-2004,2010 by Thomas E. Dickey.  All Rights Reserved.
+Copyright 1987-2010,2013 by Thomas E. Dickey.  All Rights Reserved.
 
 Permission to use, copy, modify, and distribute this software and its
 documentation for any purpose and without fee is hereby granted, provided that
@@ -59,7 +59,7 @@ Licence: other-BSD
     shared with many OS's install programs.
 
 Files: debian/*
-Copyright:  2010 Thomas E. Dickey
+Copyright:  2010,2013 Thomas E. Dickey
 Licence: other-BSD
     Permission to use, copy, modify, and distribute this software and its
     documentation for any purpose and without fee is hereby granted,
