@@ -22,7 +22,7 @@
 
 #include	"ded.h"
 
-MODULE_ID("$Id: showpath.c,v 12.12 2010/07/04 21:30:39 tom Exp $")
+MODULE_ID("$Id: showpath.c,v 12.13 2014/07/22 18:23:36 tom Exp $")
 
 #define	DOTLEN	((int)sizeof(ellipsis)-1)
 
@@ -56,6 +56,7 @@ showpath(char *path,		/* pathname to display */
 	len_host = (int) strlen(the_host);
     }
     getyx(stdscr, y, x);
+    (void) y;
     cols = COLS - (x + 2 + margin + len_host);
 
     if (cols <= 0)

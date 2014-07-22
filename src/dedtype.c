@@ -60,7 +60,7 @@
 #define		DIR_PTYPES	/* includes directory-stuff */
 #include	"ded.h"
 
-MODULE_ID("$Id: dedtype.c,v 12.37 2012/01/13 18:58:19 tom Exp $")
+MODULE_ID("$Id: dedtype.c,v 12.38 2014/07/22 18:28:45 tom Exp $")
 
 typedef struct {
     OFF_T offset;
@@ -74,7 +74,9 @@ typedef struct {
 #define	Text	dyn_string(my_text)
 #define	Over	dyn_string(my_over)
 
+#ifndef newscr
 extern WINDOW *newscr;
+#endif
 
 int in_dedtype;
 

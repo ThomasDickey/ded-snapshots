@@ -19,7 +19,7 @@
  */
 #include "ded.h"
 
-MODULE_ID("$Id: dedcolor.c,v 12.23 2010/07/04 23:02:35 tom Exp $")
+MODULE_ID("$Id: dedcolor.c,v 12.24 2014/07/22 15:16:44 tom Exp $")
 
 #if defined(HAVE_HAS_COLORS)
 
@@ -348,11 +348,11 @@ AtLeastAccessible(const char *pattern, Stat_t * sb)
 {
     char temp[8], *match = temp;
 
-    if (ded_access(sb, S_IREAD))
+    if (ded_access(sb, S_IRUSR))
 	*match++ = 'R';
-    if (ded_access(sb, S_IWRITE))
+    if (ded_access(sb, S_IWUSR))
 	*match++ = 'W';
-    if (ded_access(sb, S_IEXEC))
+    if (ded_access(sb, S_IXUSR))
 	*match++ = 'X';
     *match = EOS;
 
