@@ -27,7 +27,7 @@
 
 #include	"ded.h"
 
-MODULE_ID("$Id: dedview.c,v 12.48 2010/07/04 23:01:38 tom Exp $")
+MODULE_ID("$Id: dedview.c,v 12.49 2014/07/22 18:23:23 tom Exp $")
 
 #define	MINLIST	2		/* minimum length of file-list + header */
 #define	MINWORK	3		/* minimum size of work-area */
@@ -204,6 +204,7 @@ trim_at(int line)
     int y, x;
 
     getyx(stdscr, y, x);
+    (void) x;
     if (y == line
 #if defined(CURSES_LIKE_BSD44)
 	&& (x + 1 < wMaxX(stdscr))
@@ -319,6 +320,7 @@ show_what(VIEW * vp)
 	    datechr[gbl->dateopt]);
     showpath(gbl->new_wd, 999, -1, (int) strlen(buffer) + 3);
     getyx(stdscr, y, x);
+    (void) y;
     x = COLS - (int) strlen(buffer) - x;
     while (x-- > 0)
 	addch(' ');

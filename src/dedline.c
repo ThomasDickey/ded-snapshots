@@ -59,7 +59,7 @@
 
 #include	"ded.h"
 
-MODULE_ID("$Id: dedline.c,v 12.31 2012/01/13 18:58:19 tom Exp $")
+MODULE_ID("$Id: dedline.c,v 12.32 2014/07/22 18:31:05 tom Exp $")
 
 #define	CHMOD(n)	(gSTAT(n).st_mode & 07777)
 #define	OWNER(n)	((geteuid() == 0) || (gSTAT(x).st_uid == geteuid()))
@@ -782,7 +782,8 @@ editdate(RING * gbl, unsigned current, int recur)
     ReplayStart('T');
 
     for (c = fields = 0; datemask[c] != 0; ++c) {
-	if (c == 0 || (isalpha(datemask[c]) && datemask[c] != datemask[c - 1])) {
+	if (c == 0 || (isalpha(UCH(datemask[c])) &&
+		       datemask[c] != datemask[c - 1])) {
 	    cols[fields++] = gbl->cmdcol[CCOL_DATE] + c;
 	}
     }

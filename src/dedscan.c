@@ -3,6 +3,7 @@
  * Author:	T.E.Dickey
  * Created:	09 Nov 1987
  * Modified:
+ *		22 Jul 2014, improve support for caseless filenames.
  *		30 Jan 2011, merge -d and DED_DEBUG environment variable, and
  *			     only do a core-dump on level 3.  Fix special case
  *			     which caused exit when piping single filename to
@@ -101,7 +102,7 @@
 #include	<rcsdefs.h>
 #include	<sccsdefs.h>
 
-MODULE_ID("$Id: dedscan.c,v 12.46 2011/01/31 01:34:21 tom Exp $")
+MODULE_ID("$Id: dedscan.c,v 12.47 2014/07/22 13:10:55 tom Exp $")
 
 #define	N_UNKNOWN	-1	/* name does not exist */
 #define	N_FILE		0	/* a file (synonym for 'common==0') */
@@ -125,6 +126,16 @@ lookup(RING * gbl, const char *name)
     for_each_file(gbl, j) {
 	if (!strcmp(gENTRY(j).z_real_name, name))
 	    return (int) (j);
+#ifndef MIXEDCASE_FILENAMES
+        /*
+	 * As implemented on Windows and OSX, case-preserving names are
+	 * reasonably stable, i.e., most system calls return the same sense
+	 * of the names.  But we first check against the monocase version
+	 * just to be sure.
+         */
+	if (!strcasecmp(gENTRY(j).z_name, name))
+	    return (int) (j);
+#endif
     }
     return (-1);
 }

@@ -1,3 +1,9 @@
+ded (20140722) unstable; urgency=low
+
+  * configure script updates/fixes
+
+ -- Thomas E. Dickey <dickey@invisible-island.net>  Tue, 22 Jul 2014 08:38:36 -0400
+
 ded (20131205) unstable; urgency=low
 
   * configure script updates/fixes

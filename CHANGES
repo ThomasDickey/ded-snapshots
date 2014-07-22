@@ -1,3 +1,20 @@
+2014-07-22  Thomas E. Dickey  <dickey@invisible-island.net>
+
+	* src/dedline.c, src/dedtype.c, src/showpath.c, src/dedview.c, src/ded2s.c:
+	cygwin-compiler-warnings
+
+	* src/ded2s.c, src/dedcolor.c: minix3.2-build-fixes
+
+	* src/dedscan.c:
+	improve support for caseless filenames to avoid dropping items from the ftree cache.
+
+	* configure: regen
+
+	* aclocal.m4: resync with my-autoconf
+
+	* COPYING, package/debian/changelog, package/debian/copyright, package/ded-12.0.spec:
+	bump
+
 2014-04-19  Thomas E. Dickey  <dickey@invisible-island.net>
 
 	* config.sub: 2014-04-03

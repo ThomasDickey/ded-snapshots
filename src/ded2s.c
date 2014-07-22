@@ -61,7 +61,7 @@
 #include	"ded.h"
 #include	<rcsdefs.h>
 
-MODULE_ID("$Id: ded2s.c,v 12.32 2012/01/13 18:59:26 tom Exp $")
+MODULE_ID("$Id: ded2s.c,v 12.34 2014/07/22 18:22:59 tom Exp $")
 
 #if defined(MAJOR_IN_MKDEV)
 #  include	<sys/mkdev.h>
@@ -71,9 +71,14 @@ MODULE_ID("$Id: ded2s.c,v 12.32 2012/01/13 18:59:26 tom Exp $")
 #  endif
 #endif
 
+#ifndef major
 #ifdef __EMX__
 #define major(d) (d)
 #define minor(d) (d)
+#else
+#define minor(dev)      ((dev) & 0xff)
+#define major(dev)      (((dev) >> 8) & 0xff)
+#endif
 #endif
 
 #define ONE_WEEK	(7 * 24 * HOUR)
@@ -183,11 +188,11 @@ ded2s(RING * gbl, int inx, char *bfr, int len)
 
 	(void) strcpy(bfr, "---------");
 	for (c = 0; c < 9; c += 3) {
-	    if (mj & (unsigned) (S_IREAD >> c))
+	    if (mj & (unsigned) (S_IRUSR >> c))
 		bfr[c] = 'r';
-	    if (mj & (unsigned) (S_IWRITE >> c))
+	    if (mj & (unsigned) (S_IWUSR >> c))
 		bfr[c + 1] = 'w';
-	    if (mj & (unsigned) (S_IEXEC >> c))
+	    if (mj & (unsigned) (S_IXUSR >> c))
 		bfr[c + 2] = 'x';
 	}
 	if (mj & S_ISUID)
@@ -205,7 +210,7 @@ ded2s(RING * gbl, int inx, char *bfr, int len)
     if (gbl->AT_opt && f_->z_ltxt) {
 	char *ss;
 	for (ss = base; *ss; ss++)
-	    *ss = (char) UpperMacro(*ss);
+	    *ss = (char) UpperMacro(UCH(*ss));
     }
 #endif
     bfr += strlen(bfr);
@@ -351,7 +356,7 @@ ded2s(RING * gbl, int inx, char *bfr, int len)
 #endif /* S_IFLNK */
     if (isDIR(mj)) {
 	*bfr++ = '/';
-    } else if (ded_access(s, S_IEXEC))
+    } else if (ded_access(s, S_IXUSR))
 	*bfr++ = '*';
     *bfr = '\0';
 }
@@ -364,7 +369,7 @@ ded2string(RING * gbl, char *bfr, int len, const char *name, int flag)
 
 int
 ded_access(Stat_t * s,
-	   mode_t mask)		/* one of S_IEXEC, S_IREAD, S_IWRITE */
+	   mode_t mask)		/* one of S_IXUSR, S_IRUSR, S_IWUSR */
 {
     int result;
     uid_t uid = geteuid();
@@ -374,7 +379,7 @@ ded_access(Stat_t * s,
 	gid = s->st_gid;
 
     if (!uid) {			/* root can do anything */
-	if (mask != S_IEXEC) {
+	if (mask != S_IXUSR) {
 	    result = TRUE;
 	} else {
 	    result = (int) (s->st_mode & (mask | (mask >> 3) | (mask >> 6)));
