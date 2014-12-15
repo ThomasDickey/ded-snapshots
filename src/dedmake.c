@@ -3,6 +3,7 @@
  * Author:	T.E.Dickey
  * Created:	12 Sep 1988
  * Modified:
+ *		14 Dec 2014, fix coverity warnings
  *		07 Mar 2004, remove K&R support, indent'd
  *		01 Mar 1998, mods to build on OS/2 EMX 0.9b
  *		15 Feb 1998, compiler-warnings
@@ -23,7 +24,7 @@
 
 #include	"ded.h"
 
-MODULE_ID("$Id: dedmake.c,v 12.13 2010/07/04 21:40:44 tom Exp $")
+MODULE_ID("$Id: dedmake.c,v 12.14 2014/12/14 16:00:43 tom Exp $")
 
 static int
 makeit(RING * gbl, char *name, mode_t mode, int hard)
@@ -140,7 +141,10 @@ dedmake(RING * gbl, int firstc)
 
     /* loop until either the user gives up, or supplies a legal name */
     do {
-	(void) strcpy(bfr, (hard >= 0) ? gNAME(hard) : cNAME);
+	const char *src = ((hard >= 0) ? gNAME(hard) : cNAME);
+	size_t len = strlen(src);
+	if (len < (sizeof(bfr) - 1))
+	    (void) strcpy(bfr, src);
     } while (!made_or_quit(gbl, firstc, mode, hard, bfr));
     (void) edit_inline(FALSE);
 }

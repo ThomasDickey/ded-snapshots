@@ -3,6 +3,7 @@
  * Author:	T.E.Dickey
  * Created:	11 May 1988
  * Modified:
+ *		14 Dec 2014, fix coverity warnings
  *		18 Mar 2004, update old_wd if we rename the directory it was.
  *		07 Mar 2004, remove K&R support, indent'd
  *		01 Nov 1993, Sys5.4 can rename directories.
@@ -20,7 +21,7 @@
 
 #include	"ded.h"
 
-MODULE_ID("$Id: dedname.c,v 12.10 2004/03/19 01:51:45 tom Exp $")
+MODULE_ID("$Id: dedname.c,v 12.12 2014/12/14 18:36:05 tom Exp $")
 
 int
 dedname(RING * gbl, int x, char *newname)
@@ -28,10 +29,12 @@ dedname(RING * gbl, int x, char *newname)
     int ok = FALSE;
     char oldname[MAXPATHLEN];
 
-    if (strcmp(strcpy(oldname, gNAME(x)), newname)) {
+    if (strlen(gNAME(x)) < sizeof(oldname)
+	&& strcmp(strcpy(oldname, gNAME(x)), newname)) {
 	dlog_comment("rename \"%s\" (name=%s)\n", newname, gNAME(x));
 #if defined(HAVE_RENAME)
-	if (rename(oldname, newname) < 0) {
+	if (strlen(newname) >= sizeof(oldname)
+	    || rename(oldname, newname) < 0) {
 	    warn(gbl, newname);
 	    return (-1);
 	}

@@ -3,6 +3,7 @@
  * Author:	T.E.Dickey
  * Created:	11 Nov 1987
  * Modified:
+ *		14 Dec 2014, fix coverity warnings
  *		07 Mar 2004, remove K&R support, indent'd
  *		29 Jan 2001, support caseless filenames.
  *		04 Mar 1998, rename 'y' sort to 'o'.
@@ -44,14 +45,13 @@
 #define	QSORT_SRC	FLIST
 #include	<td_qsort.h>
 
-MODULE_ID("$Id: dedsort.c,v 12.17 2010/07/04 22:58:02 tom Exp $")
+MODULE_ID("$Id: dedsort.c,v 12.19 2014/12/14 18:50:26 tom Exp $")
 
 #define	CHECKED(p)	(p->z_time == p->s.st_mtime)
 #define	CMPF(f)	(f(&(p1->s)) > f(&(p2->s)) ? -1 : (f(&(p1->s)) < f(&(p2->s)) ? 1 : 0))
 #define	CMPX(m)		(p1->m > p2->m ? -1 : (p1->m < p2->m ? 1 : 0))
 #define	CMP(m)		CMPX(s.m)
-#define	CMP2S(f,m)	strcmp(strcpy(bfr, f(p1->s.m)),\
-					   f(p2->s.m))
+#define	CMP2S(f,m)	strcmp(f(p1->s.m), f(p2->s.m))
 
 /* sort types so that names beginning with '.' are treated specially */
 static char *
@@ -237,8 +237,11 @@ dedsort_cmp(RING * gbl,
 	break;
 
     case 'N':
-	(void) strcpy(bfr, pathleaf(p2->z_real_name));
-	cmp = strcmp(pathleaf(p1->z_real_name), bfr);
+	s2 = pathleaf(p2->z_real_name);
+	if (strlen(s2) < sizeof(bfr)) {
+	    (void) strcpy(bfr, s2);
+	    cmp = strcmp(pathleaf(p1->z_real_name), bfr);
+	}
 	break;
     default:
 	cmp = strcmp(p1->z_real_name, p2->z_real_name);

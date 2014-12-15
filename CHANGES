@@ -1,3 +1,83 @@
+2014-12-14  Thomas E. Dickey  <dickey@invisible-island.net>
+
+	* src/dlog.c: fix a regression
+
+	* package/debian/changelog, package/ded-12.0.spec: bump
+
+	* src/dedsort.c: add limit-check
+
+	* src/dedscan.c: fix regression from last change...
+
+	* src/dedscan.c, src/ftree.c, src/dedname.c: add limit-check
+
+	* src/ftree.c: coverity reported possible integer overflow - add check
+
+	* src/dedscan.c: add limit-check
+
+	* src/ftree.c: add limit-checks
+
+	* src/dedname.c, src/dedscan.c: add limit-check
+
+	* src/ftree.c: add limit-checks
+
+	* src/ded.c: add limit-check
+
+	* src/deddoit.c: fix regression due to last change
+
+	* src/deddoit.c: add limit-check
+
+	* src/dedsort.c: eliminate strcpy for CMP2S()
+
+	* src/dedline.c: add limit-check
+
+	* src/dedscan.c, src/ded.h, src/dedring.c:
+	tell compiler more about limits
+
+	* src/dedline.c: coverity - add limit-check
+
+	* src/dedline.c: coverity - add limit-checks
+
+	* src/sortset.c: coverity #78330 - add limit-check
+
+	* src/dedmake.c: coverity #78329 - add limit-check
+
+	* src/ftree.c: coverity #78321 - add limit-check
+
+	* src/dlog.c: coverity #78309 - add limit-check
+
+	* src/ftree.c: coverity #78306 - add check for negative size
+
+	* src/ftree.c: coverity 78542 - add check for negative index
+
+	* src/dedline.c: tell compiler more about buffer-sizes
+
+	* src/ftree.c:
+	coverity - another resource leak, as well as not checking return-value
+
+	* src/ftree.c: coverity #78302 - unchecked return-value from limits()
+
+	* src/ftree.c:
+	coverity reported a bug: incorrect check for return value of open()
+
+	* src/ded.c: coverity #78299 - unchecked return value
+
+	* src/ftree.c: coverity #78301 - missing "FALLTHRU" comment
+
+	* src/ftree.c: coverity #78313 - resource leak
+
+	* src/ded.c: coverity #78320 - unbounded buffer from getenv()
+
+2014-12-12  Thomas E. Dickey  <dickey@invisible-island.net>
+
+	* src/ded.c: coverity #78320 - possible buffer overrun
+
+	* src/dlog.c: coverity #78328 - uninitialized pointer
+
+	* src/ftree.c: coverity #78313 - file-descriptor leak on error
+
+	* src/dedscan.c, src/ftree.c:
+	coverity #78331 - readlink buffer-size mismatch
+
 2014-07-22  Thomas E. Dickey  <dickey@invisible-island.net>
 
 	* src/dedline.c, src/dedtype.c, src/showpath.c, src/dedview.c, src/ded2s.c:
