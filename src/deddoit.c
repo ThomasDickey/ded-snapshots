@@ -3,6 +3,7 @@
  * Author:	T.E.Dickey
  * Created:	17 Nov 1987
  * Modified:
+ *		12 Dec 2014, fix coverity warnings
  *		07 Mar 2004, remove K&R support, indent'd
  *		10 Aug 1999, ignore errno if system() doesn't return < 0.
  *		15 Feb 1998, compiler-warnings
@@ -37,7 +38,7 @@
  */
 #include	"ded.h"
 
-MODULE_ID("$Id: deddoit.c,v 12.22 2012/01/13 18:58:19 tom Exp $")
+MODULE_ID("$Id: deddoit.c,v 12.24 2014/12/14 17:52:18 tom Exp $")
 
 /*
  * Return a pointer to a leaf of a given name
@@ -85,10 +86,13 @@ Expand(RING * gbl, int code, DYN * subs)
     char name[MAXPATHLEN];
     const char *from;
 
-    if (strchr("NHRET", code))
+    if (strchr("NHRET", code)) {
 	abspath(pathcat2(name, gbl->new_wd, cur_name));
-    else
+    } else if (strlen(cur_name) < sizeof(name)) {
 	(void) strcpy(name, cur_name);
+    } else {
+	(void) strcpy(name, "?");
+    }
 
     switch (code) {
     case 'F':

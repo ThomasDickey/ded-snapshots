@@ -3,6 +3,7 @@
  * Author:	T.E.Dickey
  * Created:	09 Nov 1987
  * Modified:
+ *		14 Dec 2014, fix coverity warnings
  *		22 Jul 2014, improve support for caseless filenames.
  *		30 Jan 2011, merge -d and DED_DEBUG environment variable, and
  *			     only do a core-dump on level 3.  Fix special case
@@ -102,7 +103,7 @@
 #include	<rcsdefs.h>
 #include	<sccsdefs.h>
 
-MODULE_ID("$Id: dedscan.c,v 12.47 2014/07/22 13:10:55 tom Exp $")
+MODULE_ID("$Id: dedscan.c,v 12.53 2014/12/14 18:48:03 tom Exp $")
 
 #define	N_UNKNOWN	-1	/* name does not exist */
 #define	N_FILE		0	/* a file (synonym for 'common==0') */
@@ -127,12 +128,12 @@ lookup(RING * gbl, const char *name)
 	if (!strcmp(gENTRY(j).z_real_name, name))
 	    return (int) (j);
 #ifndef MIXEDCASE_FILENAMES
-        /*
+	/*
 	 * As implemented on Windows and OSX, case-preserving names are
 	 * reasonably stable, i.e., most system calls return the same sense
 	 * of the names.  But we first check against the monocase version
 	 * just to be sure.
-         */
+	 */
 	if (!strcasecmp(gENTRY(j).z_name, name))
 	    return (int) (j);
 #endif
@@ -236,7 +237,7 @@ dedstat(RING * gbl, const char *name, FLIST * f_)
     code = isDIR(f_->s.st_mode) ? N_DIR : N_FILE;
 #ifdef	S_IFLNK
     if (isLINK(f_->s.st_mode)) {
-	len = (int) readlink(name, bfr, sizeof(bfr));
+	len = (int) readlink(name, bfr, sizeof(bfr) - 1);
 	if (len > 0) {
 	    bfr[len] = EOS;
 	    if (f_->z_ltxt)
@@ -274,7 +275,10 @@ argstat(RING * gbl, const char *name, int list, int tilde)
 	FFLUSH(debug_fp);
     }
 
-    if (tilde && (*name == '~')) {	/* permit "~" from Bourne-shell */
+    if (tilde
+	&& (*name == '~')
+	&& strlen(name) < sizeof(full)) {
+	/* permit "~" from Bourne-shell */
 	abshome(strcpy(full, name));
 	name = full;
     }
@@ -601,7 +605,7 @@ make_EXPR(const char *path)
  * access.  In this case we try to live with the link-text.
  */
 int
-path_RESOLVE(RING * gbl, char *path)
+path_RESOLVE(RING * gbl, char path[MAXPATHLEN])
 {
     char temp[MAXPATHLEN];
     char *s;
@@ -609,7 +613,8 @@ path_RESOLVE(RING * gbl, char *path)
     Stat_t my_sb;
     static int tried;
 
-    if (chdir(strcpy(temp, path)) < 0) {
+    if ((strlen(path) < sizeof(temp)) &&
+	chdir(strcpy(temp, path)) < 0) {
 	is_dir = 0;
 	if (errno == ENOTDIR
 	    || errno == ENOENT) {

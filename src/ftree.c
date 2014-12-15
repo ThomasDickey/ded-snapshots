@@ -2,6 +2,7 @@
  * Author:	T.E.Dickey
  * Created:	02 Sep 1987
  * Modified:
+ *		14 Dec 2014, fix coverity warnings
  *		25 May 2010, fix clang --analyze warnings.
  *		18 Mar 2004, update old_wd if we rename the directory it was.
  *		07 Mar 2004, remove K&R support, indent'd
@@ -140,7 +141,7 @@
 
 #include	<fcntl.h>
 
-MODULE_ID("$Id: ftree.c,v 12.65 2013/12/06 01:22:45 tom Exp $")
+MODULE_ID("$Id: ftree.c,v 12.79 2014/12/14 18:44:57 tom Exp $")
 
 #define	Null	(char *)0	/* some NULL's are simply 0 */
 
@@ -242,9 +243,11 @@ ok_rename(char *oldname, char *newname)
 {
     if (strcmp(oldname, newname)) {
 	dlog_comment("rename \"%s\" (name=%s)\n", newname, oldname);
-	if (rename(oldname, newname) >= 0) {
-	    if (!strcmp(oldname, old_wd))
+	if (strlen(newname) < MAXPATHLEN
+	    && rename(oldname, newname) >= 0) {
+	    if (!strcmp(oldname, old_wd)) {
 		strcpy(old_wd, newname);
+	    }
 	    return TRUE;
 	}
 	wait_warn(newname);
@@ -298,14 +301,20 @@ fd_alloc(void)
  * order to make it simple to display the tree.
  */
 static void
-fd_add_path(char *path, char *validated)
+fd_add_path(char path[MAXPATHLEN], char *validated)
 {
-    int last = 0,		/* assume we start from root level */
-      order, sort, item, check;
+    int last = 0;		/* assume we start from root level */
+    int order;
+    int sort;
+    int item;
+    int check;
     char bfr[MAXPATHLEN];
     Stat_t sb;
     ENTRIES j;
     FTREE *f;
+
+    if (strlen(path) >= sizeof(bfr))
+	return;
 
     path = strcpy(bfr, path);
     if (!strcmp(path, zero)) {
@@ -524,6 +533,10 @@ fd_path(char *bfr, int node)
     *bfr = EOS;
 
     do {
+	if ((strlen(bfr) +
+	     strlen(gap) +
+	     strlen(ftree[node].f_name)) >= sizeof(tmp))
+	    break;
 	(void) strcpy(tmp, bfr);
 	(void) strcat(strcat(strcpy(bfr, gap), ftree[node].f_name), tmp);
     }
@@ -577,10 +590,12 @@ fd_show(int node)
 void
 ft_insert(const char *path)
 {
-    char bfr[MAXPATHLEN];
+    if ((int) strlen(path) < MAXPATHLEN) {
+	char bfr[MAXPATHLEN];
 
-    abspath(strcpy(bfr, path));
-    fd_add_path(bfr, (char *) zero);
+	abspath(strcpy(bfr, path));
+	fd_add_path(bfr, (char *) zero);
+    }
 }
 
 /*
@@ -592,7 +607,7 @@ do_find(char *path)
     char bfr[MAXPATHLEN];
     int j, item, last = 0;
 
-    if (path == 0 || *path == EOS)
+    if (path == 0 || *path == EOS || strlen(path) >= sizeof(bfr))
 	return (-1);
 
     abspath(path = strcpy(bfr, path));
@@ -820,14 +835,16 @@ read_ftree(char *the_file)
     Stat_t sb;
     int j;
     ENTRIES vecsize;		/* same size as FDlast */
+    ENTRIES tmpsize;
     int fid;
     size_t size;
 
     /* read the current database */
-    if ((fid = open(the_file, O_BINARY | O_RDONLY, 0)) != 0) {
-	if (stat_file(the_file, &sb) < 0)
+    if ((fid = open(the_file, O_BINARY | O_RDONLY, 0)) >= 0) {
+	if (stat_file(the_file, &sb) < 0) {
+	    (void) close(fid);
 	    return;
-	if (sb.st_mtime <= FDtime) {
+	} else if (sb.st_mtime <= FDtime) {
 	    (void) close(fid);
 	    return;
 	} else if (FDtime) {
@@ -839,28 +856,43 @@ read_ftree(char *the_file)
 	/* (1) vector-size */
 	if (!ok_read(fid,
 		     (char *) &vecsize, sizeof(vecsize),
-		     "size"))
+		     "size")) {
+	    (void) close(fid);
 	    return;
+	}
 	if ((int) (size / sizeof(FTREE)) < vecsize) {
+	    (void) close(fid);
 	    (void) ft_init("? size error");
 	    return;
 	}
 
 	/* (2) vector-contents */
-	if (vecsize > FDlast)
+	if (vecsize < 0) {
+	    vecsize = 0;
+	} else if (vecsize > FDlast) {
 	    FDlast = vecsize;
+	}
 	fd_alloc();
-	vecsize++;		/* account for 0'th node */
+	tmpsize = vecsize++;	/* account for 0'th node */
 	vecsize *= (ENTRIES) sizeof(FTREE);
-	if (!ok_read(fid, (char *) ftree, (size_t) vecsize, "read"))
+	if (tmpsize >= vecsize) {
+	    /* overflow... */
+	    (void) close(fid);
 	    return;
+	}
+	if (!ok_read(fid, (char *) ftree, (size_t) vecsize, "read")) {
+	    (void) close(fid);
+	    return;
+	}
 
 	/* (3) string-heap */
 	if ((size -= (size_t) vecsize) > 0) {
 	    char *heap = doalloc(Null, (unsigned) (size + 1));
 	    char *s = heap;
-	    if (!ok_read(fid, heap, size, "heap"))
+	    if (!ok_read(fid, heap, size, "heap")) {
+		(void) close(fid);
 		return;
+	    }
 	    s[size] = EOS;
 	    for (j = 0; j <= FDlast; j++) {
 		ftree[j].f_name = txtalloc(s);
@@ -945,7 +977,10 @@ ft_show(RING * gbl, char *path, char *home, int node, int level)
 
     move(PATH_ROW, 0);
     row = LOSHOW;
-    node = limits(showbase, node);
+
+    if ((node = limits(showbase, node)) < 0)
+	return node;
+
     k = FDdiff || (savesccs != showsccs);
     dlog_comment("path: %s\n", path);
     showpath(path, level, -1, k ? 5 : 0);
@@ -1413,6 +1448,9 @@ ft_view(RING * gbl,
     /* Set initial position. This has to be done by assuming the 'path'
      * argument is a true result from 'getwd' since the mount-table may
      * be screwed up and a symbolic link may be hiding this path. */
+    if (strlen(path) >= sizeof(cwdpath))
+	return gbl;
+
     fd_add_path(strcpy(cwdpath, path), path);
     if ((row = do_find(cwdpath)) < 0) {
 	waitmsg(cwdpath);
@@ -1433,7 +1471,10 @@ ft_view(RING * gbl,
     /* process commands */
     for (;;) {
 
-	row = ft_update(gbl, row, &lvl);
+	int new_row = ft_update(gbl, row, &lvl);
+	if (new_row >= 0)
+	    row = new_row;
+
 	switch (c = dlog_char(gbl, &num, 1)) {
 	    /* Ordinary cursor movement */
 	case KEY_LEFT:
@@ -1443,11 +1484,13 @@ ft_view(RING * gbl,
 		lvl -= num;
 		if (lvl < 0)
 		    lvl = 0;
-	    } else
+	    } else {
 		beep();
+	    }
 	    break;
 	case '\n':
 	    lvl = MAXLVL;
+	    /* FALLTHRU */
 	case KEY_DOWN:
 	case 'j':
 	    row = downrow(row, num, lvl);
@@ -1590,6 +1633,7 @@ ft_view(RING * gbl,
 	case 'n':
 	case 'N':
 	    *cwdpath = EOS;
+	    /* FALLTHRU */
 	case '~':
 	case '@':
 	    j = (c == '@' || c == '~');
@@ -1658,8 +1702,11 @@ ft_view(RING * gbl,
 					 (DYN **) 0,
 					 &NameHistory,
 					 '=',
-					 MAXPATHLEN)))
+					 MAXPATHLEN))) {
 		    break;
+		} else if (strlen(s) >= sizeof(bfr)) {
+		    break;
+		}
 
 		abspath(strcpy(bfr, s));
 
@@ -1670,8 +1717,9 @@ ft_view(RING * gbl,
 		    scroll_to(row = do_find(bfr));
 		}
 		(void) chdir(gbl->new_wd);
-	    } else
+	    } else {
 		waitmsg(cwdpath);
+	    }
 	    break;
 	    /* dump the current screen */
 	case CTL('K'):
@@ -1727,7 +1775,7 @@ ft_view(RING * gbl,
 		int len;
 
 		(void) chdir(fd_path(bfr, ftree[row].f_root));
-		len = (int) readlink(cwdpath, bfr, sizeof(bfr));
+		len = (int) readlink(cwdpath, bfr, sizeof(bfr) - 1);
 		if (len <= 0) {
 		    beep();
 		    break;
@@ -1742,17 +1790,18 @@ ft_view(RING * gbl,
 		break;
 	    }
 	    (void) strcpy(path, cwdpath);
-	    /* fall-thru to return */
+	    /* FALLTHRU */
 	case 'D':
 	    *cmdp = c;		/* 'e', 'E' CTL(E) or 'D' -- only! */
 	    return gbl;
 
 	    /* Scan/delete nodes */
 	case 'R':
-	    if (zLINK(row))
+	    if ((row < 0) || zLINK(row)) {
 		beep();
-	    else
+	    } else {
 		(void) ft_scan(gbl, row, num, fd_level(row));
+	    }
 	    break;
 	case '+':
 	    while (num-- > 0) {

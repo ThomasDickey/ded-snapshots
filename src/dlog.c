@@ -3,6 +3,7 @@
  * Author:	T.E.Dickey
  * Created:	14 Mar 1989
  * Modified:
+ *		14 Dec 2014, fix coverity warnings
  *		25 May 2010, fix clang --analyze warnings.
  *		07 Mar 2004, remove K&R support, indent'd
  *		27 Dec 1996, move ANSI_VARARGS ifdef to configure-script.
@@ -34,7 +35,7 @@
 #include	"ded.h"
 #include	<time.h>
 
-MODULE_ID("$Id: dlog.c,v 12.22 2010/07/04 23:00:26 tom Exp $")
+MODULE_ID("$Id: dlog.c,v 12.25 2014/12/14 22:43:33 tom Exp $")
 
 #define	NOW		time((time_t *)0)
 
@@ -254,7 +255,7 @@ dlog_open(char *name, int argc, char **argv)
 {
     int j;
 
-    if (name != 0 && *name != EOS) {
+    if (name != 0 && *name != EOS && ((int) strlen(name) < MAXPATHLEN)) {
 	char temp[MAXPATHLEN];
 	abspath(name = strcpy(temp, name));
 	if (!(log_fp = fopen(name, "a+")))
@@ -393,7 +394,7 @@ dlog_string(RING * gbl,
     int y, x;
     char *buffer, *to_hist;
     const char **prefix = inflag ? i_pref : n_pref;
-    char *script_ptr;
+    char *script_ptr = 0;
 
     int c;
     char *s;

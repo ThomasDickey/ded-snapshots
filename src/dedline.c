@@ -3,6 +3,7 @@
  * Author:	T.E.Dickey
  * Created:	01 Aug 1988 (from 'ded.c')
  * Modified:
+ *		14 Dec 2014, coverity warnings
  *		25 May 2010, fix clang --analyze warnings.
  *		07 Sep 2004, add editdate().
  *		07 Mar 2004, remove K&R support, indent'd
@@ -59,7 +60,7 @@
 
 #include	"ded.h"
 
-MODULE_ID("$Id: dedline.c,v 12.32 2014/07/22 18:31:05 tom Exp $")
+MODULE_ID("$Id: dedline.c,v 12.36 2014/12/14 17:33:04 tom Exp $")
 
 #define	CHMOD(n)	(gSTAT(n).st_mode & 07777)
 #define	OWNER(n)	((geteuid() == 0) || (gSTAT(x).st_uid == geteuid()))
@@ -133,7 +134,7 @@ static int cmd_link;		/* true if we use short-form */
  * can later expand it.
  */
 static int
-subs_path(const char *path, char *result, const char *short_form)
+subs_path(const char path[MAXPATHLEN], char result[MAXPATHLEN], const char *short_form)
 {
     size_t len = strlen(path);
     int changed = FALSE;
@@ -145,7 +146,8 @@ subs_path(const char *path, char *result, const char *short_form)
 	    changed = TRUE;
 	}
     } else if (result[len] == '/') {	/* prefix-match ? */
-	if (!strncmp(result, path, len)) {
+	if (!strncmp(result, path, len) &&
+	    strlen(result + len) < sizeof(tmp)) {
 	    (void) strcpy(tmp, result + len);
 	    (void) strcat(strcpy(result, short_form), tmp);
 	    changed = TRUE;
@@ -155,13 +157,14 @@ subs_path(const char *path, char *result, const char *short_form)
 }
 
 static void
-subs_leaf(char *leaf, char *result)
+subs_leaf(char leaf[MAXPATHLEN], char result[MAXPATHLEN])
 {
     char tmp[MAXPATHLEN];
     size_t len = strlen(leaf);
 
     while (*result) {		/* substitute current-name */
-	if (!strncmp(result, leaf, len)) {
+	if (!strncmp(result, leaf, len)
+	    && (strlen(result + len) < (sizeof(tmp) - 3))) {
 	    (void) strcpy(tmp, result + len);
 	    (void) strcat(strcpy(result, "#"), tmp);
 	}
@@ -170,7 +173,7 @@ subs_leaf(char *leaf, char *result)
 }
 
 static char *
-link2bfr(RING * gbl, char *dst, unsigned x)
+link2bfr(RING * gbl, char dst[MAXPATHLEN], unsigned x)
 {
     (void) strcpy(dst, gLTXT(x));
     if (cmd_link) {
@@ -242,38 +245,40 @@ link2bfr(RING * gbl, char *dst, unsigned x)
  * Substitute user's short-hand notation back to normal link-text.
  */
 static char *
-subslink(RING * gbl, char *bfr, unsigned x)
+subslink(RING * gbl, char bfr[MAXPATHLEN], unsigned x)
 {
     char tmp[MAXPATHLEN];
-    char *s = strcpy(tmp, bfr);
-    char *d = bfr;
-    char *t;
 
-    while ((*d = *s) != EOS) {
-	if (*s++ == '%') {
-	    switch (*s++) {
-	    case 'F':
-		d += strlen(strcpy(d, ring_path(gbl, 1)));
-		break;
-	    case 'B':
-		d += strlen(strcpy(d, ring_path(gbl, -1)));
-		break;
-	    case 'D':
-		d += strlen(strcpy(d, old_wd));
-		break;
-	    case 'd':
-		d += strlen(strcpy(d, ring_path(gbl, 0)));
-		break;
-	    default:
+    if (strlen(bfr) < sizeof(tmp)) {
+	char *s = strcpy(tmp, bfr);
+	char *d = bfr;
+	char *t;
+	while ((*d = *s) != EOS) {
+	    if (*s++ == '%') {
+		switch (*s++) {
+		case 'F':
+		    d += strlen(strcpy(d, ring_path(gbl, 1)));
+		    break;
+		case 'B':
+		    d += strlen(strcpy(d, ring_path(gbl, -1)));
+		    break;
+		case 'D':
+		    d += strlen(strcpy(d, old_wd));
+		    break;
+		case 'd':
+		    d += strlen(strcpy(d, ring_path(gbl, 0)));
+		    break;
+		default:
+		    d++;
+		    s--;	/* point back just after '%' */
+		}
+	    } else if (*d == '#') {
+		t = gNAME(x);
+		while ((*d = *t++) != EOS)
+		    d++;
+	    } else
 		d++;
-		s--;		/* point back just after '%' */
-	    }
-	} else if (*d == '#') {
-	    t = gNAME(x);
-	    while ((*d = *t++) != EOS)
-		d++;
-	} else
-	    d++;
+	}
     }
     return (bfr);
 }
@@ -562,13 +567,16 @@ edit_uid(RING * gbl)
     int uid = (int) cSTAT.st_uid;
     int changed = FALSE;
     char bfr[BUFSIZ];
+    char *uid_s;
 
     if (gbl->G_opt == 1) {
 	gbl->G_opt = 0;
 	showFILES(gbl, FALSE);
     }
 
-    if (EDITTEXT('u', CCOL_UID, UIDLEN, strcpy(bfr, uid2s((uid_t) uid)))
+    uid_s = uid2s((uid_t) uid);
+    if ((strlen(uid_s) < sizeof(bfr))
+	&& EDITTEXT('u', CCOL_UID, UIDLEN, strcpy(bfr, uid_s))
 	&& (uid = s2uid(bfr)) >= 0) {
 	(void) dedsigs(TRUE);	/* reset interrupt-count */
 	for_each_file(gbl, j) {
@@ -606,13 +614,16 @@ edit_gid(RING * gbl)
     int gid = (int) cSTAT.st_gid;
     int changed = FALSE;
     char bfr[BUFSIZ];
+    char *gid_s;
 
     if (!gbl->G_opt) {
 	gbl->G_opt = 1;
 	showFILES(gbl, FALSE);
     }
 
-    if (EDITTEXT('g', CCOL_GID, UIDLEN, strcpy(bfr, gid2s((gid_t) gid)))
+    gid_s = gid2s((gid_t) gid);
+    if ((strlen(gid_s) < sizeof(bfr))
+	&& EDITTEXT('g', CCOL_GID, UIDLEN, strcpy(bfr, gid_s))
 	&& (gid = s2gid(bfr)) >= 0) {
 
 	(void) dedsigs(TRUE);	/* reset interrupt-count */
@@ -652,7 +663,9 @@ editname(RING * gbl)
 
 #define	EDITNAME(n)	EDITTEXT('=', CCOL_NAME, sizeof(bfr), strcpy(bfr, n))
 
-    if (EDITNAME(cNAME) && strcmp(cNAME, bfr)) {
+    if (strlen(cNAME) < sizeof(bfr)
+	&& EDITNAME(cNAME)
+	&& strcmp(cNAME, bfr)) {
 	if (dedname(gbl, (int) gbl->curfile, bfr) >= 0) {
 	    (void) dedsigs(TRUE);	/* reset interrupt count */
 	    hide_inline(TRUE);
@@ -663,7 +676,8 @@ editname(RING * gbl)
 		    waitmsg(gNAME(j));
 		    break;
 		}
-		if (gFLAG(j)) {
+		if (gFLAG(j)
+		    && (strlen(gNAME(j)) < sizeof(bfr))) {
 		    (void) EDITNAME(gNAME(j));
 		    if (dedname(gbl, (int) j, bfr) >= 0)
 			changed++;

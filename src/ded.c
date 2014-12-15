@@ -3,6 +3,7 @@
  * Author:	T.E.Dickey
  * Created:	09 Nov 1987
  * Modified:
+ *		14 Dec 2014, fix coverity warnings
  *		22 Feb 2011, correct check for help-file location.
  *		30 Jan 2011, merge -d and DED_DEBUG environment variable, and
  *			     only do a core-dump on level 3.
@@ -173,7 +174,7 @@
 
 #include <locale.h>
 
-MODULE_ID("$Id: ded.c,v 12.82 2011/02/22 10:25:16 tom Exp $")
+MODULE_ID("$Id: ded.c,v 12.86 2014/12/14 18:04:13 tom Exp $")
 
 #define	EDITOR	DEFAULT_EDITOR
 #define	BROWSE	DEFAULT_BROWSE
@@ -545,11 +546,11 @@ forkfile(RING * gbl, const char *arg0, const char *arg1, int option)
 
     cookterm();
     dlog_comment("execute %s %s\n", arg0, arg1);
-    dedsigs(FALSE);
+    (void) dedsigs(FALSE);
     (void) signal(SIGINT, SIG_IGN);	/* Linux need this */
     if (execute(arg0, quoted) < 0)
 	warn(gbl, arg0);
-    dedsigs(TRUE);
+    (void) dedsigs(TRUE);
     dlog_elapsed();
     rawterm();
 
@@ -985,10 +986,16 @@ _MAIN
 
 #define	DED_TREE	".ftree"
     if (tree_opt != 0) {
+	if (strlen(tree_opt) > (sizeof(tree_bfr) - 10)) {
+	    failed("tree-option too long");
+	}
 	abspath(tree_opt = strcpy(tree_bfr, tree_opt));
     } else {
-	if ((tree_opt = getenv("DED_TREE")) == 0)
+	if ((tree_opt = getenv("DED_TREE")) == 0) {
 	    tree_opt = strcpy(tree_bfr, gethome());
+	} else if (strlen(tree_opt) > (sizeof(tree_bfr) - 10)) {
+	    failed("DED_TREE variable too long");
+	}
     }
     if (stat_dir(tree_opt, &sb) >= 0)
 	tree_opt = pathcat(tree_opt, tree_opt, DED_TREE);
@@ -1010,8 +1017,12 @@ _MAIN
 
     /* pass options to lower-level processes of ded */
     (void) strcat(strcat(whoami, " -t"), tree_opt);
-    if (log_opt)
+    if (log_opt) {
+	if (strlen(log_opt) > (sizeof(whoami) - 10)) {
+	    failed("log-option too long");
+	}
 	(void) strcat(strcat(whoami, " -l"), log_opt);
+    }
     (void) strcat(whoami, " -n");
 
     if (!isatty(fileno(stdin))) {
@@ -1417,7 +1428,8 @@ _MAIN
 	    break;
 
 	case 'D':		/* toggle directory/filelist mode */
-	    (void) strcpy(dpath, strcpy(tpath, gbl->new_wd));
+	    (void) strcpy(tpath, gbl->new_wd);
+	    (void) strcpy(dpath, tpath);
 	    for (;;) {
 		RING *tmp;
 		tree_visible = TRUE;

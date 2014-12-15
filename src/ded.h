@@ -20,7 +20,7 @@
 
 #ifdef	MAIN
 #if	!defined(NO_IDENT)
-static const char ded_h[] = "$Id: ded.h,v 12.71 2011/02/05 17:22:35 tom Exp $";
+static const char ded_h[] = "$Id: ded.h,v 12.72 2014/12/14 17:27:13 tom Exp $";
 #endif
 #endif	/* MAIN */
 
@@ -436,7 +436,7 @@ extern	void	statMAKE(
 
 extern	int	path_RESOLVE(
 		RING *	gbl,
-		char *	path);
+		char  	path[MAXPATHLEN]);
 
 /* *** "dedshow.c" *** */
 extern	void	dedshow2 (
@@ -630,8 +630,7 @@ extern	void	dlog_reopen(void);
 extern	void	dlog_close(void);
 
 extern	void	dlog_exit(
-		int	code)
-		GCC_NORETURN ;
+		int	code) GCC_NORETURN ;
 
 extern	int	dlog_char(
 		RING *		gbl,

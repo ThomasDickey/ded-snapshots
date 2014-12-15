@@ -3,6 +3,7 @@
  * Author:	T.E.Dickey
  * Created:	27 Apr 1988
  * Modified:
+ *		14 Dec 2014, coverity warnings
  *		07 Mar 2004, remove K&R support, indent'd
  *		19 Oct 2000, add ring_tags()
  *		29 May 1998, compile with g++
@@ -57,7 +58,7 @@
 
 #include	"ded.h"
 
-MODULE_ID("$Id: dedring.c,v 12.22 2010/07/04 22:58:32 tom Exp $")
+MODULE_ID("$Id: dedring.c,v 12.23 2014/12/14 16:58:01 tom Exp $")
 
 #define	CMP_PATH(a,b)	pathcmp(a, b->new_wd)
 
@@ -416,9 +417,11 @@ dedring(RING * gbl,		/* current/reference data */
      */
     switch (cmd) {
     case 'E':
-	abspath(path = strcpy(temp, path));
-	if ((newp = ring_get(path)) == 0)
-	    newp = Insert(gbl, path, pattern);
+	if (strlen(path) < sizeof(temp)) {
+	    abspath(path = strcpy(temp, path));
+	    if ((newp = ring_get(path)) == 0)
+		newp = Insert(gbl, path, pattern);
+	}
 	break;
     case 'F':
 	while (count-- > 0) {

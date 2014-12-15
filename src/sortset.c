@@ -3,6 +3,7 @@
  * Author:	T.E.Dickey
  * Created:	01 Dec 1989 (from ded.c)
  * Modified:
+ *		14 Dec 2014, fix coverity warnings
  *		07 Mar 2004, remove K&R support, indent'd
  *		15 Feb 1998, remove special code for apollo sr10.
  *			     change 'y' (lock owner) to 'o'.
@@ -23,7 +24,7 @@
 
 #include	"ded.h"
 
-MODULE_ID("$Id: sortset.c,v 12.15 2013/12/06 01:22:45 tom Exp $")
+MODULE_ID("$Id: sortset.c,v 12.16 2014/12/14 16:03:08 tom Exp $")
 
 char sortc[128];
 
@@ -116,7 +117,8 @@ sortget(RING * gbl, int c)
 	while (!done) {
 	    found = FALSE;
 	    LOOP(m) {
-		if (*sort_msg[m] == find) {
+		if (*sort_msg[m] == find &&
+		    (strlen(sort_msg[m]) < (sizeof(bfr) - 1))) {
 		    c = *strcpy(bfr, sort_msg[m]);
 		    found = TRUE;
 		    break;
