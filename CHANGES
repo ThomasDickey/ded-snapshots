@@ -1,3 +1,7 @@
+2014-12-15  Thomas E. Dickey  <dickey@invisible-island.net>
+
+	* user/ded.man: formatting fixes
+
 2014-12-14  Thomas E. Dickey  <dickey@invisible-island.net>
 
 	* src/dlog.c: fix a regression
