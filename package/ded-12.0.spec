@@ -2,9 +2,9 @@ Summary: DED directory editor
 %define AppProgram ded
 %define AppLibrary td_lib
 %define AppVersion 12.x
-%define AppRelease 20141214
-%define LibRelease 20141214
-# $Id: ded-12.0.spec,v 1.15 2014/12/14 20:47:14 tom Exp $
+%define AppRelease 20150704
+%define LibRelease 20150704
+# $Id: ded-12.0.spec,v 1.16 2015/07/04 18:59:13 tom Exp $
 Name: %{AppProgram}
 Version: %{AppVersion}
 Release: %{AppRelease}
