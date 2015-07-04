@@ -1,4 +1,4 @@
-dnl $Id: aclocal.m4,v 12.26 2014/07/22 12:38:50 tom Exp $
+dnl $Id: aclocal.m4,v 12.27 2015/07/04 18:57:34 tom Exp $
 dnl Macros for DED configure script.
 dnl ---------------------------------------------------------------------------
 dnl ---------------------------------------------------------------------------
@@ -28,7 +28,7 @@ define([CF_ACVERSION_COMPARE],
 [ifelse([$8], , ,[$8])],
 [ifelse([$9], , ,[$9])])])dnl
 dnl ---------------------------------------------------------------------------
-dnl CF_ADD_CFLAGS version: 11 updated: 2014/07/22 05:32:57
+dnl CF_ADD_CFLAGS version: 12 updated: 2015/04/12 15:39:00
 dnl -------------
 dnl Copy non-preprocessor flags to $CFLAGS, preprocessor flags to $CPPFLAGS
 dnl The second parameter if given makes this macro verbose.
@@ -46,11 +46,11 @@ cf_new_extra_cppflags=
 for cf_add_cflags in $1
 do
 case $cf_fix_cppflags in
-no)
-	case $cf_add_cflags in #(vi
-	-undef|-nostdinc*|-I*|-D*|-U*|-E|-P|-C) #(vi
+(no)
+	case $cf_add_cflags in
+	(-undef|-nostdinc*|-I*|-D*|-U*|-E|-P|-C)
 		case $cf_add_cflags in
-		-D*)
+		(-D*)
 			cf_tst_cflags=`echo ${cf_add_cflags} |sed -e 's/^-D[[^=]]*='\''\"[[^"]]*//'`
 
 			test "x${cf_add_cflags}" != "x${cf_tst_cflags}" \
@@ -67,11 +67,11 @@ no)
 			;;
 		esac
 		case "$CPPFLAGS" in
-		*$cf_add_cflags) #(vi
+		(*$cf_add_cflags)
 			;;
-		*) #(vi
-			case $cf_add_cflags in #(vi
-			-D*)
+		(*)
+			case $cf_add_cflags in
+			(-D*)
 				cf_tst_cppflags=`echo "x$cf_add_cflags" | sed -e 's/^...//' -e 's/=.*//'`
 				CF_REMOVE_DEFINE(CPPFLAGS,$CPPFLAGS,$cf_tst_cppflags)
 				;;
@@ -80,12 +80,12 @@ no)
 			;;
 		esac
 		;;
-	*)
+	(*)
 		cf_new_cflags="$cf_new_cflags $cf_add_cflags"
 		;;
 	esac
 	;;
-yes)
+(yes)
 	cf_new_extra_cppflags="$cf_new_extra_cppflags $cf_add_cflags"
 
 	cf_tst_cflags=`echo ${cf_add_cflags} |sed -e 's/^[[^"]]*"'\''//'`
@@ -150,7 +150,7 @@ dnl Allow user to enable a normally-off option.
 AC_DEFUN([CF_ARG_ENABLE],
 [CF_ARG_OPTION($1,[$2],[$3],[$4],no)])dnl
 dnl ---------------------------------------------------------------------------
-dnl CF_ARG_OPTION version: 4 updated: 2010/05/26 05:38:42
+dnl CF_ARG_OPTION version: 5 updated: 2015/05/10 19:52:14
 dnl -------------
 dnl Restricted form of AC_ARG_ENABLE that ensures user doesn't give bogus
 dnl values.
@@ -163,17 +163,17 @@ dnl $4 = action if perform if option is default
 dnl $5 = default option value (either 'yes' or 'no')
 AC_DEFUN([CF_ARG_OPTION],
 [AC_ARG_ENABLE([$1],[$2],[test "$enableval" != ifelse([$5],no,yes,no) && enableval=ifelse([$5],no,no,yes)
-  if test "$enableval" != "$5" ; then
+	if test "$enableval" != "$5" ; then
 ifelse([$3],,[    :]dnl
 ,[    $3]) ifelse([$4],,,[
-  else
-    $4])
-  fi],[enableval=$5 ifelse([$4],,,[
-  $4
+	else
+		$4])
+	fi],[enableval=$5 ifelse([$4],,,[
+	$4
 ])dnl
-  ])])dnl
+])])dnl
 dnl ---------------------------------------------------------------------------
-dnl CF_CC_ENV_FLAGS version: 1 updated: 2012/10/03 05:25:49
+dnl CF_CC_ENV_FLAGS version: 2 updated: 2015/04/12 15:39:00
 dnl ---------------
 dnl Check for user's environment-breakage by stuffing CFLAGS/CPPFLAGS content
 dnl into CC.  This will not help with broken scripts that wrap the compiler with
@@ -184,8 +184,8 @@ AC_DEFUN([CF_CC_ENV_FLAGS],
 : ${CC:=cc}
 
 AC_MSG_CHECKING(\$CC variable)
-case "$CC" in #(vi
-*[[\ \	]]-[[IUD]]*)
+case "$CC" in
+(*[[\ \	]]-[[IUD]]*)
 	AC_MSG_RESULT(broken)
 	AC_MSG_WARN(your environment misuses the CC variable to hold CFLAGS/CPPFLAGS options)
 	# humor him...
@@ -193,7 +193,7 @@ case "$CC" in #(vi
 	CC=`echo "$CC" | sed -e 's/[[ 	]].*//'`
 	CF_ADD_CFLAGS($cf_flags)
 	;;
-*)
+(*)
 	AC_MSG_RESULT(ok)
 	;;
 esac
@@ -267,7 +267,7 @@ cf_save_CFLAGS="$cf_save_CFLAGS -Qunused-arguments"
 fi
 ])
 dnl ---------------------------------------------------------------------------
-dnl CF_DISABLE_ECHO version: 12 updated: 2012/10/06 16:30:28
+dnl CF_DISABLE_ECHO version: 13 updated: 2015/04/18 08:56:57
 dnl ---------------
 dnl You can always use "make -n" to see the actual options, but it's hard to
 dnl pick out/analyze warning messages when the compile-line is long.
@@ -284,17 +284,17 @@ AC_MSG_CHECKING(if you want to see long compiling messages)
 CF_ARG_DISABLE(echo,
 	[  --disable-echo          do not display "compiling" commands],
 	[
-    ECHO_LT='--silent'
-    ECHO_LD='@echo linking [$]@;'
-    RULE_CC='@echo compiling [$]<'
-    SHOW_CC='@echo compiling [$]@'
-    ECHO_CC='@'
+	ECHO_LT='--silent'
+	ECHO_LD='@echo linking [$]@;'
+	RULE_CC='@echo compiling [$]<'
+	SHOW_CC='@echo compiling [$]@'
+	ECHO_CC='@'
 ],[
-    ECHO_LT=''
-    ECHO_LD=''
-    RULE_CC=''
-    SHOW_CC=''
-    ECHO_CC=''
+	ECHO_LT=''
+	ECHO_LD=''
+	RULE_CC=''
+	SHOW_CC=''
+	ECHO_CC=''
 ])
 AC_MSG_RESULT($enableval)
 AC_SUBST(ECHO_LT)
@@ -447,7 +447,7 @@ fi
 AC_SUBST(TD_LIB_rules)
 ])dnl
 dnl ---------------------------------------------------------------------------
-dnl CF_GCC_ATTRIBUTES version: 16 updated: 2012/10/02 20:55:03
+dnl CF_GCC_ATTRIBUTES version: 17 updated: 2015/04/12 15:39:00
 dnl -----------------
 dnl Test for availability of useful gcc __attribute__ directives to quiet
 dnl compiler warnings.  Though useful, not all are supported -- and contrary
@@ -501,20 +501,20 @@ EOF
 		cf_directive="__attribute__(($cf_attribute))"
 		echo "checking for $CC $cf_directive" 1>&AC_FD_CC
 
-		case $cf_attribute in #(vi
-		printf) #(vi
+		case $cf_attribute in
+		(printf)
 			cf_printf_attribute=yes
 			cat >conftest.h <<EOF
 #define GCC_$cf_ATTRIBUTE 1
 EOF
 			;;
-		scanf) #(vi
+		(scanf)
 			cf_scanf_attribute=yes
 			cat >conftest.h <<EOF
 #define GCC_$cf_ATTRIBUTE 1
 EOF
 			;;
-		*) #(vi
+		(*)
 			cat >conftest.h <<EOF
 #define GCC_$cf_ATTRIBUTE $cf_directive
 EOF
@@ -524,11 +524,11 @@ EOF
 		if AC_TRY_EVAL(ac_compile); then
 			test -n "$verbose" && AC_MSG_RESULT(... $cf_attribute)
 			cat conftest.h >>confdefs.h
-			case $cf_attribute in #(vi
-			noreturn) #(vi
+			case $cf_attribute in
+			(noreturn)
 				AC_DEFINE_UNQUOTED(GCC_NORETURN,$cf_directive,[Define to noreturn-attribute for gcc])
 				;;
-			printf) #(vi
+			(printf)
 				cf_value='/* nothing */'
 				if test "$cf_printf_attribute" != no ; then
 					cf_value='__attribute__((format(printf,fmt,var)))'
@@ -536,7 +536,7 @@ EOF
 				fi
 				AC_DEFINE_UNQUOTED(GCC_PRINTFLIKE(fmt,var),$cf_value,[Define to printf-attribute for gcc])
 				;;
-			scanf) #(vi
+			(scanf)
 				cf_value='/* nothing */'
 				if test "$cf_scanf_attribute" != no ; then
 					cf_value='__attribute__((format(scanf,fmt,var)))'
@@ -544,7 +544,7 @@ EOF
 				fi
 				AC_DEFINE_UNQUOTED(GCC_SCANFLIKE(fmt,var),$cf_value,[Define to sscanf-attribute for gcc])
 				;;
-			unused) #(vi
+			(unused)
 				AC_DEFINE_UNQUOTED(GCC_UNUSED,$cf_directive,[Define to unused-attribute for gcc])
 				;;
 			esac
@@ -571,7 +571,7 @@ if test "$GCC" = yes ; then
 fi
 ])dnl
 dnl ---------------------------------------------------------------------------
-dnl CF_GCC_WARNINGS version: 31 updated: 2013/11/19 19:23:35
+dnl CF_GCC_WARNINGS version: 32 updated: 2015/04/12 15:39:00
 dnl ---------------
 dnl Check if the compiler supports useful warning options.  There's a few that
 dnl we don't use, simply because they're too noisy:
@@ -663,20 +663,20 @@ then
 		CFLAGS="$cf_save_CFLAGS $EXTRA_CFLAGS -$cf_opt"
 		if AC_TRY_EVAL(ac_compile); then
 			test -n "$verbose" && AC_MSG_RESULT(... -$cf_opt)
-			case $cf_opt in #(vi
-			Wcast-qual) #(vi
+			case $cf_opt in
+			(Wcast-qual)
 				CPPFLAGS="$CPPFLAGS -DXTSTRINGDEFINES"
 				;;
-			Winline) #(vi
+			(Winline)
 				case $GCC_VERSION in
-				[[34]].*)
+				([[34]].*)
 					CF_VERBOSE(feature is broken in gcc $GCC_VERSION)
 					continue;;
 				esac
 				;;
-			Wpointer-arith) #(vi
+			(Wpointer-arith)
 				case $GCC_VERSION in
-				[[12]].*)
+				([[12]].*)
 					CF_VERBOSE(feature is broken in gcc $GCC_VERSION)
 					continue;;
 				esac
@@ -692,7 +692,7 @@ rm -rf conftest*
 AC_SUBST(EXTRA_CFLAGS)
 ])dnl
 dnl ---------------------------------------------------------------------------
-dnl CF_HEADER_PATH version: 12 updated: 2010/05/05 05:22:40
+dnl CF_HEADER_PATH version: 13 updated: 2015/04/15 19:08:48
 dnl --------------
 dnl Construct a search-list of directories for a nonstandard header-file
 dnl
@@ -708,8 +708,8 @@ cf_header_path_list=""
 if test -n "${CFLAGS}${CPPFLAGS}" ; then
 	for cf_header_path in $CPPFLAGS $CFLAGS
 	do
-		case $cf_header_path in #(vi
-		-I*)
+		case $cf_header_path in
+		(-I*)
 			cf_header_path=`echo ".$cf_header_path" |sed -e 's/^...//' -e 's,/include$,,'`
 			CF_ADD_SUBDIR_PATH($1,$2,include,$cf_header_path,NONE)
 			cf_header_path_list="$cf_header_path_list [$]$1"
@@ -738,7 +738,7 @@ test -d "$oldincludedir" && {
 $1="[$]$1 $cf_header_path_list"
 ])dnl
 dnl ---------------------------------------------------------------------------
-dnl CF_INTEL_COMPILER version: 6 updated: 2014/03/17 13:13:07
+dnl CF_INTEL_COMPILER version: 7 updated: 2015/04/12 15:39:00
 dnl -----------------
 dnl Check if the given compiler is really the Intel compiler for Linux.  It
 dnl tries to imitate gcc, but does not return an error when it finds a mismatch
@@ -757,7 +757,7 @@ ifelse([$2],,INTEL_COMPILER,[$2])=no
 
 if test "$ifelse([$1],,[$1],GCC)" = yes ; then
 	case $host_os in
-	linux*|gnu*)
+	(linux*|gnu*)
 		AC_MSG_CHECKING(if this is really Intel ifelse([$1],GXX,C++,C) compiler)
 		cf_save_CFLAGS="$ifelse([$3],,CFLAGS,[$3])"
 		ifelse([$3],,CFLAGS,[$3])="$ifelse([$3],,CFLAGS,[$3]) -no-gcc"
@@ -776,7 +776,7 @@ cf_save_CFLAGS="$cf_save_CFLAGS -we147"
 fi
 ])dnl
 dnl ---------------------------------------------------------------------------
-dnl CF_LIBRARY_PATH version: 9 updated: 2010/03/28 12:52:50
+dnl CF_LIBRARY_PATH version: 10 updated: 2015/04/15 19:08:48
 dnl ---------------
 dnl Construct a search-list of directories for a nonstandard library-file
 dnl
@@ -790,8 +790,8 @@ cf_library_path_list=""
 if test -n "${LDFLAGS}${LIBS}" ; then
 	for cf_library_path in $LDFLAGS $LIBS
 	do
-		case $cf_library_path in #(vi
-		-L*)
+		case $cf_library_path in
+		(-L*)
 			cf_library_path=`echo ".$cf_library_path" |sed -e 's/^...//' -e 's,/lib$,,'`
 			CF_ADD_SUBDIR_PATH($1,$2,lib,$cf_library_path,NONE)
 			cf_library_path_list="$cf_library_path_list [$]$1"
@@ -805,18 +805,18 @@ CF_SUBDIR_PATH($1,$2,lib)
 $1="$cf_library_path_list [$]$1"
 ])dnl
 dnl ---------------------------------------------------------------------------
-dnl CF_LIB_PREFIX version: 9 updated: 2012/01/21 19:28:10
+dnl CF_LIB_PREFIX version: 11 updated: 2015/04/18 08:56:57
 dnl -------------
 dnl Compute the library-prefix for the given host system
 dnl $1 = variable to set
 define([CF_LIB_PREFIX],
 [
-	case $cf_cv_system_name in #(vi
-	OS/2*|os2*) #(vi
-        LIB_PREFIX=''
-        ;;
-	*)	LIB_PREFIX='lib'
-        ;;
+	case $cf_cv_system_name in
+	(OS/2*|os2*)
+		LIB_PREFIX=''
+		;;
+	(*)	LIB_PREFIX='lib'
+		;;
 	esac
 ifelse($1,,,[$1=$LIB_PREFIX])
 	AC_SUBST(LIB_PREFIX)
@@ -1072,7 +1072,7 @@ test -f $1/$2/makefile.end && \
     cat $1/$2/makefile.end >>$2/makefile
 ])dnl
 dnl ---------------------------------------------------------------------------
-dnl CF_SUBDIR_PATH version: 6 updated: 2010/04/21 06:20:50
+dnl CF_SUBDIR_PATH version: 7 updated: 2014/12/04 04:33:06
 dnl --------------
 dnl Construct a search-list for a nonstandard header/lib-file
 dnl	$1 = the variable to return as result
@@ -1082,11 +1082,18 @@ AC_DEFUN([CF_SUBDIR_PATH],
 [
 $1=
 
-CF_ADD_SUBDIR_PATH($1,$2,$3,/usr,$prefix)
 CF_ADD_SUBDIR_PATH($1,$2,$3,$prefix,NONE)
-CF_ADD_SUBDIR_PATH($1,$2,$3,/usr/local,$prefix)
-CF_ADD_SUBDIR_PATH($1,$2,$3,/opt,$prefix)
-CF_ADD_SUBDIR_PATH($1,$2,$3,[$]HOME,$prefix)
+
+for cf_subdir_prefix in \
+	/usr \
+	/usr/local \
+	/usr/pkg \
+	/opt \
+	/opt/local \
+	[$]HOME
+do
+	CF_ADD_SUBDIR_PATH($1,$2,$3,$cf_subdir_prefix,$prefix)
+done
 ])dnl
 dnl ---------------------------------------------------------------------------
 dnl CF_UPPER version: 5 updated: 2001/01/29 23:40:59
