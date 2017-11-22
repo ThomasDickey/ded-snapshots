@@ -9,6 +9,6 @@ Homepage: http://invisible-island.net/ded/
 Package: ded
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}
-Description: ded - directory editor
+Description: directory editor
  A directory editor for UNIX systems, DED has special functions to manage RCS
  and SCCS files.

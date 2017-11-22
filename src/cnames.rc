@@ -1,3 +1,4 @@
+# vile:confmode
 # Configuration file for the color ls utility
 # This file goes in the /etc directory, and must be world readable.
 # You can copy this file to .dir_colors in your $HOME directory to override
@@ -15,24 +16,6 @@ COLOR tty
 #  -T 0 = don't trust tab spacing when formatting ls output.
 # -b = better support for special characters
 OPTIONS -F -b -T 0
-
-# Below, there should be one TERM entry for each termtype that is colorizable
-TERM linux
-TERM console
-TERM con132x25
-TERM con132x30
-TERM con132x43
-TERM con132x60
-TERM con80x25
-TERM con80x28
-TERM con80x30
-TERM con80x43
-TERM con80x50
-TERM con80x60
-TERM xterm
-TERM vt100
-TERM ansi
-TERM qansi-m
 
 # Below are the color init strings for the basic file types. A color init
 # string consists of one or more of the following numeric codes:
@@ -58,41 +41,129 @@ EXEC BOLD;f=GREEN
 # List any file extensions like '.gz' or '.tar' that you would like ls
 # to colorize below. Put the extension, a space, and the color init string.
 # (and any comments you want to add after a '#')
-.cmd BOLD;f=GREEN # executables (bright green)
-.exe BOLD;f=GREEN
-.com BOLD;f=GREEN
-.btm BOLD;f=GREEN
-.bat BOLD;f=GREEN
 
-.tar BOLD;f=RED # archives or compressed (bright red)
-.tgz BOLD;f=RED
-.arj BOLD;f=RED
-.taz BOLD;f=RED
-.tbz BOLD;f=RED
-.lzh BOLD;f=RED
-.zip BOLD;f=RED
-.bz2 BOLD;f=RED
-.rpm BOLD;f=RED
-.deb BOLD;f=RED
-.z   BOLD;f=RED
-.Z   BOLD;f=RED
-.gz  BOLD;f=RED
-.bz2 BOLD;f=RED
+# executables (bright green)
+.cmd	BOLD;f=GREEN
+.exe	BOLD;f=GREEN
+.com	BOLD;f=GREEN
+.btm	BOLD;f=GREEN
+.bat	BOLD;f=GREEN
 
-.jpg BOLD;f=MAGENTA # image formats
-.gif BOLD;f=MAGENTA
-.bmp BOLD;f=MAGENTA
-.ppm BOLD;f=MAGENTA
-.tga BOLD;f=MAGENTA
-.png BOLD;f=MAGENTA
-.pdf BOLD;f=MAGENTA
-.xbm BOLD;f=MAGENTA
-.xpm BOLD;f=MAGENTA
-.tif BOLD;f=MAGENTA
+# archives or compressed (bright red)
+.7z	BOLD;f=RED
+.Z	BOLD;f=RED
+.ace	BOLD;f=RED
+.alz	BOLD;f=RED
+.arc	BOLD;f=RED
+.arj	BOLD;f=RED
+.bz	BOLD;f=RED
+.bz2	BOLD;f=RED
+.cab	BOLD;f=RED
+.cpio	BOLD;f=RED
+.deb	BOLD;f=RED
+.dwm	BOLD;f=RED
+.dz	BOLD;f=RED
+.ear	BOLD;f=RED
+.esd	BOLD;f=RED
+.gz	BOLD;f=RED
+.jar	BOLD;f=RED
+.lha	BOLD;f=RED
+.lrz	BOLD;f=RED
+.lz	BOLD;f=RED
+.lz4	BOLD;f=RED
+.lzh	BOLD;f=RED
+.lzma	BOLD;f=RED
+.lzo	BOLD;f=RED
+.rar	BOLD;f=RED
+.rpm	BOLD;f=RED
+.rz	BOLD;f=RED
+.sar	BOLD;f=RED
+.swm	BOLD;f=RED
+.t7z	BOLD;f=RED
+.tar	BOLD;f=RED
+.taz	BOLD;f=RED
+.tbz	BOLD;f=RED
+.tbz2	BOLD;f=RED
+.tgz	BOLD;f=RED
+.tlz	BOLD;f=RED
+.txz	BOLD;f=RED
+.tz	BOLD;f=RED
+.tzo	BOLD;f=RED
+.tzst	BOLD;f=RED
+.war	BOLD;f=RED
+.wim	BOLD;f=RED
+.xz	BOLD;f=RED
+.z	BOLD;f=RED
+.zip	BOLD;f=RED
+.zoo	BOLD;f=RED
+.zst	BOLD;f=RED
 
-.mpg 01;37 # movie formats
-.avi 01;37
-.mov 01;37
-.gl  01;37
-.dl  01;37
+# image formats
+.asf	BOLD;f=MAGENTA
+.avi	BOLD;f=MAGENTA
+.bmp	BOLD;f=MAGENTA
+.cgm	BOLD;f=MAGENTA
+.dl	BOLD;f=MAGENTA
+.emf	BOLD;f=MAGENTA
+.flc	BOLD;f=MAGENTA
+.fli	BOLD;f=MAGENTA
+.flv	BOLD;f=MAGENTA
+.gif	BOLD;f=MAGENTA
+.gl	BOLD;f=MAGENTA
+.jpeg	BOLD;f=MAGENTA
+.jpg	BOLD;f=MAGENTA
+.m2v	BOLD;f=MAGENTA
+.m4v	BOLD;f=MAGENTA
+.mjpeg	BOLD;f=MAGENTA
+.mjpg	BOLD;f=MAGENTA
+.mkv	BOLD;f=MAGENTA
+.mng	BOLD;f=MAGENTA
+.mov	BOLD;f=MAGENTA
+.mp4	BOLD;f=MAGENTA
+.mp4v	BOLD;f=MAGENTA
+.mpeg	BOLD;f=MAGENTA
+.mpg	BOLD;f=MAGENTA
+.nuv	BOLD;f=MAGENTA
+.ogm	BOLD;f=MAGENTA
+.ogv	BOLD;f=MAGENTA
+.ogx	BOLD;f=MAGENTA
+.pbm	BOLD;f=MAGENTA
+.pcx	BOLD;f=MAGENTA
+.pdf	BOLD;f=MAGENTA
+.pgm	BOLD;f=MAGENTA
+.png	BOLD;f=MAGENTA
+.ppm	BOLD;f=MAGENTA
+.qt	BOLD;f=MAGENTA
+.rm	BOLD;f=MAGENTA
+.rmvb	BOLD;f=MAGENTA
+.svg	BOLD;f=MAGENTA
+.svgz	BOLD;f=MAGENTA
+.tga	BOLD;f=MAGENTA
+.tif	BOLD;f=MAGENTA
+.tiff	BOLD;f=MAGENTA
+.vob	BOLD;f=MAGENTA
+.webm	BOLD;f=MAGENTA
+.wmv	BOLD;f=MAGENTA
+.xbm	BOLD;f=MAGENTA
+.xcf	BOLD;f=MAGENTA
+.xpm	BOLD;f=MAGENTA
+.xwd	BOLD;f=MAGENTA
+.yuv	BOLD;f=MAGENTA
 
+# audio formats
+.aac	NORMAL;f=CYAN
+.au	NORMAL;f=CYAN
+.axa	NORMAL;f=CYAN
+.flac	NORMAL;f=CYAN
+.mid	NORMAL;f=CYAN
+.midi	NORMAL;f=CYAN
+.mka	NORMAL;f=CYAN
+.mp3	NORMAL;f=CYAN
+.mpc	NORMAL;f=CYAN
+.oga	NORMAL;f=CYAN
+.ogg	NORMAL;f=CYAN
+.opus	NORMAL;f=CYAN
+.ra	NORMAL;f=CYAN
+.spx	NORMAL;f=CYAN
+.wav	NORMAL;f=CYAN
+.xspf	NORMAL;f=CYAN

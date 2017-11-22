@@ -1,5 +1,5 @@
 .\"*****************************************************************************
-.\" Copyright 2004-2011,2014 by Thomas E. Dickey.  All Rights Reserved.        *
+.\" Copyright 2004-2014,2017 by Thomas E. Dickey.  All Rights Reserved.        *
 .\"                                                                            *
 .\" Permission to use, copy, modify, and distribute this software and its      *
 .\" documentation for any purpose and without fee is hereby granted, provided  *
@@ -17,7 +17,7 @@
 .\" ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR *
 .\" IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.                *
 .\"*****************************************************************************
-.\" $Id: ded.man,v 12.22 2014/12/15 22:44:32 tom Exp $
+.\" $Id: ded.man,v 12.24 2017/11/22 00:40:52 tom Exp $
 .de Es
 .ne \\$1
 .nr mE \\n(.f
@@ -36,7 +36,8 @@
 .sp .7
 ..
 .de bP
-.IP \(bu 3n
+.ie n  .IP \(bu 4
+.el    .IP \(bu 2
 ..
 .TH DED 1
 .hy 0
@@ -208,6 +209,9 @@ read the directory tree file ".ftree"
 from the specified directory \fIpath\fR.
 This option is inherited
 in subsequent processes of \fBded\fR.
+.TP
+.B -x
+toggle BRE (basic regular expressions) versus ERE (extended regular expression).
 .TP
 .B -V
 show rcs/sccs version.
@@ -527,7 +531,7 @@ move workspace marker down \fIcount\fR line(s).
 .TP
 .I CTL/R
 causes \fBded\fR to prompt you for a regular
-expression (see \fIex(1)\fR) which will control the set of files
+expression (see \fBex\fP(1)) which will control the set of files
 subsequently shown in the current file-list.
 \fBDed\fR then rescans
 the current directory, adjusting the file-list.
@@ -1637,7 +1641,7 @@ so that shell commands need not use the Bourne shell.
 .\"****************************************************************************
 .SH SEE ALSO
 .PP
-rcsput, rcsget, sccsput, sccsget
+\fBrcsput\fP(1), \fBrcsget\fP(1), \fBsccsput\fP(1), \fBsccsget\fP(1)
 .
 .\"****************************************************************************
 .SH AUTHOR:

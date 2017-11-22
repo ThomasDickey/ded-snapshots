@@ -3,6 +3,7 @@
  * Author:	T.E.Dickey
  * Created:	09 Nov 1987
  * Modified:
+ *		21 Nov 2017, add "-x" option.
  *		14 Dec 2014, fix coverity warnings
  *		22 Feb 2011, correct check for help-file location.
  *		30 Jan 2011, merge -d and DED_DEBUG environment variable, and
@@ -174,7 +175,7 @@
 
 #include <locale.h>
 
-MODULE_ID("$Id: ded.c,v 12.86 2014/12/14 18:04:13 tom Exp $")
+MODULE_ID("$Id: ded.c,v 12.87 2017/11/22 00:39:47 tom Exp $")
 
 #define	EDITOR	DEFAULT_EDITOR
 #define	BROWSE	DEFAULT_BROWSE
@@ -744,6 +745,7 @@ usage(void)
 	"  -l FILE  write DED commands to log-FILE",
 	"  -n       disable \"are you sure\" on quit",
 	"  -t DIR   read \".ftree\"-file from directory DIR",
+	"  -x       toggle use of regex BRE/ERE's",
 	(char *) 0
     };
     const char **p;
@@ -846,7 +848,7 @@ static const char *GETOPT =
 #if defined(HAVE_NEWTERM)
 "p"
 #endif
-"r:s:t:"
+"r:s:t:x"
 #ifdef	Z_RCS_SCCS
 "zZ"
 #endif
@@ -958,6 +960,9 @@ _MAIN
 	    break;
 	case 't':
 	    tree_opt = optarg;
+	    break;
+	case 'x':
+	    extended_regex = !extended_regex;
 	    break;
 	case 'n':
 	    no_worry = TRUE;
