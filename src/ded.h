@@ -16,11 +16,14 @@
 #define		TIM_PTYPES	/* use <time.h> */
 #include	<ptypes.h>
 #include	<dyn_str.h>	/* dynamic strings */
+
+#define TD_ERE_REGEX ( extended_regex ? REG_EXTENDED : 0 )
+
 #include	<td_regex.h>	/* regular expressions */
 
 #ifdef	MAIN
 #if	!defined(NO_IDENT)
-static const char ded_h[] = "$Id: ded.h,v 12.72 2014/12/14 17:27:13 tom Exp $";
+static const char ded_h[] = "$Id: ded.h,v 12.73 2017/11/22 00:38:14 tom Exp $";
 #endif
 #endif	/* MAIN */
 
@@ -220,6 +223,7 @@ MAIN	int	gets_active;	/* true while in 'dlog_string()' */
 MAIN	HIST	*cmd_history;	/* command-history shared by all filelists */
 MAIN	int	first_scan;	/* true while processing command-line scan */
 MAIN	int	edit_dates;	/* true if we may edit dates */
+MAIN	int	extended_regex;	/* true if we use extended regex's */
 
 
 /* *** "boxchars.c" *** */

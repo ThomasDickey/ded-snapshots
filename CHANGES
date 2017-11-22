@@ -1,3 +1,39 @@
+2017-11-21  Thomas E. Dickey  <dickey@invisible-island.net>
+
+	* package/debian/control: fix build-warning
+
+	* src/dedcolor.c: corrected a comment
+
+	* package/debian/rules: use Debian build-flags
+
+	* package/debian/copyright, COPYING, package/debian/changelog: bump
+
+	* user/ded.man, src/ded.c, src/ded.h: add "-x" option
+
+	* src/cnames.rc:
+	augmented lists of suffixes from coreutils, but drop bogus "TERM" list.
+
+	* src/dedcolor.c: allow "normal" as a keyword to reset attributes
+
+	* src/ccodes.rc:
+	augmented lists of suffixes from coreutils, but drop bogus "TERM" list.
+
+	* user/ded.man: minor typography fixes
+
+	* configure: regen
+
+	* aclocal.m4: resync with my-autoconf
+
+	* package/ded-12.0.spec, package/debian/changelog: bump
+
+2017-08-08  Thomas E. Dickey  <dickey@invisible-island.net>
+
+	* config.guess: 2017-08-08
+
+2017-04-29  Thomas E. Dickey  <dickey@invisible-island.net>
+
+	* config.sub: 2017-04-02
+
 2015-07-04  Thomas E. Dickey  <dickey@invisible-island.net>
 
 	* package/debian/copyright, package/debian/changelog, package/ded-12.0.spec, COPYING:
@@ -7378,23 +7414,23 @@
 
 	* src/dedscan.c: New file.
 
-1987-10-01  Thomas E. Dickey
+1987-10-01	Thomas E. Dickey
 
 	* src/ftree.c: corrected test-for-permissions in 'ft_write()'.
 
-1987-09-30  Thomas E. Dickey
+1987-09-30	Thomas E. Dickey
 
 	* src/ftree.c:  added a regular search facility a la vi.
 
-1987-09-29  Thomas E. Dickey
+1987-09-29	Thomas E. Dickey
 
 	* src/ftree.c: added '@' (position-at-directory) command.
 
-1987-09-28  Thomas E. Dickey
+1987-09-28	Thomas E. Dickey
 
 	* src/ftree.c: mods to reduce calls on 'getcwd()'.
 
-1987-09-17  Thomas E. Dickey
+1987-09-17	Thomas E. Dickey
 
 	* src/ftree.c:
 	broke out 'abspath()' to try to reduce the clutter caused by 'denode()'!
@@ -7402,7 +7438,7 @@
 	* src/ftree.c:
 	ensure that an arbitrary node will be visible (e.g., when originally invoking the display).
 
-1987-09-16  Thomas E. Dickey
+1987-09-16	Thomas E. Dickey
 
 	* src/ftree.c: mods to support 'fring' module.
 	Corrected 'fd_prep()' to strip ".." in relative paths.
@@ -7410,21 +7446,21 @@
 	* src/ftree.c:
 	workable interface with 'fl'; still have to do 'fring' module.
 
-1987-09-15  Thomas E. Dickey
+1987-09-15	Thomas E. Dickey
 
 	* src/ftree.c: first version integrated with 'fl'.
 
-1987-09-11  Thomas E. Dickey
+1987-09-11	Thomas E. Dickey
 
 	* src/ftree.c: forward/backward scrolling complete.
 
-1987-09-10  Thomas E. Dickey
+1987-09-10	Thomas E. Dickey
 
 	* src/ftree.c: move cursor movement.
 
 	* src/ftree.c: improvements to scrolling
 
-1987-09-08  Thomas E. Dickey
+1987-09-08	Thomas E. Dickey
 
 	* src/ftree.c: New file.
 

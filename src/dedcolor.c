@@ -3,6 +3,7 @@
  * Author:	T.E.Dickey
  * Created:	10 Jul 1994
  * Modified:
+ *		21 Nov 2017, add "normal"
  *		24 Jun 2010, look for color-configuration in data-directory.
  *		25 May 2010, fix clang --analyze warnings.
  *		07 Mar 2004, remove K&R support, indent'd
@@ -19,7 +20,7 @@
  */
 #include "ded.h"
 
-MODULE_ID("$Id: dedcolor.c,v 12.24 2014/07/22 15:16:44 tom Exp $")
+MODULE_ID("$Id: dedcolor.c,v 12.26 2017/11/22 02:10:19 tom Exp $")
 
 #if defined(HAVE_HAS_COLORS)
 
@@ -91,6 +92,7 @@ SaveColor(const KEYWORD * name, char *spec)
 	const char *name;
 	chtype code;
     } attr_names[] = {
+	{ "NORMAL",    A_NORMAL },
 	{ "UNDERLINE", A_UNDERLINE },
 	{ "REVERSE",   A_REVERSE },
 	{ "DIM",       A_DIM },
@@ -131,6 +133,9 @@ SaveColor(const KEYWORD * name, char *spec)
 	if (temp != spec) {	/* there's a number */
 	    found = TRUE;
 	    switch (code) {
+	    case 0:
+		attr = A_NORMAL;
+		break;
 		/* attributes */
 	    case 1:
 		attr |= A_BOLD;
@@ -201,7 +206,10 @@ SaveColor(const KEYWORD * name, char *spec)
 	} else {		/* non-number: keywords */
 	    for (n = 0; n < SIZEOF(attr_names); n++) {
 		if (!strucmp(spec, attr_names[n].name)) {
-		    attr |= attr_names[n].code;
+		    if (attr_names[n].code)
+			attr |= attr_names[n].code;
+		    else
+			attr = 0;
 		    found = TRUE;
 		    break;
 		}
@@ -303,10 +311,7 @@ ParseColorFile(void)
 }
 
 /*
- * Look for the color-file in one of the following locations:
- *	~/.ded_colors
- *	~/.dir_colors
- *	/etc/DIR_COLORS
+ * Look for the color-file in the given directory, and filename.
  */
 static int
 FindColorFile(const char *path, const char *leaf)
