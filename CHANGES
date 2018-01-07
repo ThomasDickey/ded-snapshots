@@ -1,3 +1,14 @@
+2018-01-07  Thomas E. Dickey  <dickey@invisible-island.net>
+
+	* package/debian/copyright, COPYING, package/debian/changelog, package/ded-12.0.spec:
+	bump
+
+2017-11-25  Thomas E. Dickey  <dickey@invisible-island.net>
+
+	* config.guess: 2017-11-07
+
+	* config.sub: 2017-11-23
+
 2017-11-21  Thomas E. Dickey  <dickey@invisible-island.net>
 
 	* package/debian/control: fix build-warning
@@ -1958,7 +1969,7 @@
 
 	* src/dedblip.c: removed-traces
 
-1993-11-23  Thomas E. Dickey  <dickey@software.org>
+1993-11-23  dickey@software.org
 
 	* src/dedblip.c: use MODULE_ID
 
@@ -1975,7 +1986,7 @@
 	* src/ded.c, src/dedread.c, src/dedscan.c, src/deduniq.c:
 	use new blip-code
 
-1993-11-23  Thomas E. Dickey  <dickey@software.org>
+1993-11-23  dickey@software.org
 
 	* src/deduniq.c: use MODULE_ID
 
@@ -2054,7 +2065,7 @@
 
 	* src/ded2s.c, src/deddoit.c, src/deddump.c, src/dedfree.c: ifdef-ident
 
-1993-10-29  Thomas E. Dickey  <dickey@software.org>
+1993-10-29  dickey@software.org
 
 	* src/dedfree.c: use MODULE_ID
 
@@ -3757,7 +3768,7 @@
 	* test/traceback.sh:
 	BASELINE Thu May  6 14:26:47 1993 -- split from CM_TOOLS #11
 
-1991-11-12  Thomas E. Dickey  <dickey@software.org>
+1991-11-12  dickey@software.org
 
 	* test/walkback.sh: RCS_BASE
 
@@ -6028,7 +6039,7 @@
 	* test/edit_test.sed:
 	BASELINE Thu May  6 14:26:47 1993 -- split from CM_TOOLS #11
 
-1989-03-24  Thomas E. Dickey  <dickey@software.org>
+1989-03-24  dickey@software.org
 
 	* test/edittest.sed: RCS_BASE
 
@@ -7414,23 +7425,23 @@
 
 	* src/dedscan.c: New file.
 
-1987-10-01	Thomas E. Dickey
+1987-10-01  Thomas E. Dickey
 
 	* src/ftree.c: corrected test-for-permissions in 'ft_write()'.
 
-1987-09-30	Thomas E. Dickey
+1987-09-30  Thomas E. Dickey
 
 	* src/ftree.c:  added a regular search facility a la vi.
 
-1987-09-29	Thomas E. Dickey
+1987-09-29  Thomas E. Dickey
 
 	* src/ftree.c: added '@' (position-at-directory) command.
 
-1987-09-28	Thomas E. Dickey
+1987-09-28  Thomas E. Dickey
 
 	* src/ftree.c: mods to reduce calls on 'getcwd()'.
 
-1987-09-17	Thomas E. Dickey
+1987-09-17  Thomas E. Dickey
 
 	* src/ftree.c:
 	broke out 'abspath()' to try to reduce the clutter caused by 'denode()'!
@@ -7438,7 +7449,7 @@
 	* src/ftree.c:
 	ensure that an arbitrary node will be visible (e.g., when originally invoking the display).
 
-1987-09-16	Thomas E. Dickey
+1987-09-16  Thomas E. Dickey
 
 	* src/ftree.c: mods to support 'fring' module.
 	Corrected 'fd_prep()' to strip ".." in relative paths.
@@ -7446,21 +7457,21 @@
 	* src/ftree.c:
 	workable interface with 'fl'; still have to do 'fring' module.
 
-1987-09-15	Thomas E. Dickey
+1987-09-15  Thomas E. Dickey
 
 	* src/ftree.c: first version integrated with 'fl'.
 
-1987-09-11	Thomas E. Dickey
+1987-09-11  Thomas E. Dickey
 
 	* src/ftree.c: forward/backward scrolling complete.
 
-1987-09-10	Thomas E. Dickey
+1987-09-10  Thomas E. Dickey
 
 	* src/ftree.c: move cursor movement.
 
 	* src/ftree.c: improvements to scrolling
 
-1987-09-08	Thomas E. Dickey
+1987-09-08  Thomas E. Dickey
 
 	* src/ftree.c: New file.
 
