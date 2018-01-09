@@ -4158,7 +4158,7 @@ CF_EOF
 cat >>$cf_out <<CF_EOF
 
 \$Z:	\$(OBJS)
-	\$(AR) \$Z \$(OBJS)
+	\$(AR) \$(ARFLAGS) \$Z \$(OBJS)
 	\$(RANLIB) \$Z
 CF_EOF
 	fi

@@ -1,9 +1,9 @@
-dnl $Id: aclocal.m4,v 12.28 2017/11/21 23:12:56 tom Exp $
+dnl $Id: aclocal.m4,v 12.29 2018/01/09 00:14:48 tom Exp $
 dnl Macros for DED configure script.
 dnl vi:set ts=4:
 dnl
 dnl see
-dnl		http://invisible-island.net/autoconf/
+dnl		https://invisible-island.net/autoconf/
 dnl ---------------------------------------------------------------------------
 dnl ---------------------------------------------------------------------------
 dnl CF_ACVERSION_CHECK version: 5 updated: 2014/06/04 19:11:49
@@ -1020,7 +1020,7 @@ $1=`echo "$2" | \
 		-e 's/-[[UD]]'"$3"'\(=[[^ 	]]*\)\?[$]//g'`
 ])dnl
 dnl ---------------------------------------------------------------------------
-dnl CF_SRC_MAKEFILE version: 3 updated: 2010/10/23 15:52:32
+dnl CF_SRC_MAKEFILE version: 4 updated: 2018/01/08 18:28:33
 dnl ---------------
 dnl Append predefined lists to $2/makefile, given a path to a directory that
 dnl has a 'modules' file in $1.
@@ -1102,7 +1102,7 @@ CF_EOF
 cat >>$cf_out <<CF_EOF
 
 \$Z:	\$(OBJS)
-	\$(AR) \$Z \$(OBJS)
+	\$(AR) \$(ARFLAGS) \$Z \$(OBJS)
 	\$(RANLIB) \$Z
 CF_EOF
 	fi
