@@ -1,3 +1,13 @@
+2018-01-08  Thomas E. Dickey  <dickey@invisible-island.net>
+
+	* configure: regen
+
+	* aclocal.m4:
+	add $(ARFLAGS) to generated library rule, overlooked with OpenBSD (because it
+	is slow) and Debian (because GNU make supports POSIX "library" rules, as do the
+	vendor Unixes, e.g., AIX, HPUX, Solaris).  The make-program provided by NetBSD
+	7.1 does not support the feature.
+
 2018-01-07  Thomas E. Dickey  <dickey@invisible-island.net>
 
 	* package/debian/copyright, COPYING, package/debian/changelog, package/ded-12.0.spec:
