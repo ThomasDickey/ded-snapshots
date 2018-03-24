@@ -2,15 +2,15 @@ Summary: DED directory editor
 %define AppProgram ded
 %define AppLibrary td_lib
 %define AppVersion 12.x
-%define AppRelease 20180107
-%define LibRelease 20180107
-# $Id: ded-12.0.spec,v 1.18 2018/01/07 16:17:06 tom Exp $
+%define AppRelease 20180324
+%define LibRelease 20180324
+# $Id: ded-12.0.spec,v 1.19 2018/03/24 16:30:51 tom Exp $
 Name: %{AppProgram}
 Version: %{AppVersion}
 Release: %{AppRelease}
 License: MIT-X11
 Group: System Environment/Shells
-URL: ftp://invisible-island.net/ded
+URL: ftp://ftp.invisible-island.net/ded
 Source0: %{AppLibrary}-%{LibRelease}.tgz
 Source1: %{AppProgram}-%{AppRelease}.tgz
 Vendor: Thomas Dickey <dickey@invisible-island.net>
@@ -20,6 +20,9 @@ A directory editor for UNIX systems, DED has special functions to manage RCS
 and SCCS files.
 
 %prep
+
+# no need for debugging symbols...
+%define debug_package %{nil}
 
 # -a N (unpack Nth source after cd'ing into build-root)
 # -b N (unpack Nth source before cd'ing into build-root)
@@ -61,7 +64,7 @@ make
 
 [ "$RPM_BUILD_ROOT" != "/" ] && rm -rf $RPM_BUILD_ROOT
 
-make install                    DESTDIR=$RPM_BUILD_ROOT
+make install DESTDIR=$RPM_BUILD_ROOT
 
 %clean
 [ "$RPM_BUILD_ROOT" != "/" ] && rm -rf $RPM_BUILD_ROOT
@@ -75,6 +78,9 @@ make install                    DESTDIR=$RPM_BUILD_ROOT
 
 %changelog
 # each patch should add its ChangeLog entries here
+
+* Sat Mar 24 2018 Thomas Dickey
+- disable debug-package
 
 * Fri Jul 09 2010 Thomas Dickey
 - add "-m" option
