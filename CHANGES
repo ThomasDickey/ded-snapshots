@@ -1,3 +1,11 @@
+2018-03-24  Thomas E. Dickey  <dickey@invisible-island.net>
+
+	* package/debian/watch: update ftp url
+
+	* package/debian/changelog: bump
+
+	* package/ded-12.0.spec: disable debug-build, update ftp-url
+
 2018-01-08  Thomas E. Dickey  <dickey@invisible-island.net>
 
 	* configure: regen
