@@ -1,3 +1,17 @@
+2019-11-29  Thomas E. Dickey  <dickey@invisible-island.net>
+
+	* package/debian/compat, package/debian/copyright, COPYING: bump
+
+	* configure: regen
+
+	* aclocal.m4: resync with my-autoconf
+
+	* package/debian/changelog, package/ded-12.0.spec: bump
+
+2019-09-11  Thomas E. Dickey  <dickey@invisible-island.net>
+
+	* config.guess, config.sub: 2019-09-10
+
 2018-03-24  Thomas E. Dickey  <dickey@invisible-island.net>
 
 	* package/debian/watch: update ftp url
