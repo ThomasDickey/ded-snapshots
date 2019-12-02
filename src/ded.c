@@ -3,6 +3,7 @@
  * Author:	T.E.Dickey
  * Created:	09 Nov 1987
  * Modified:
+ *		01 Dec 2019, use executev() to handle UTF-8 parameters.
  *		21 Nov 2017, add "-x" option.
  *		14 Dec 2014, fix coverity warnings
  *		22 Feb 2011, correct check for help-file location.
@@ -175,7 +176,7 @@
 
 #include <locale.h>
 
-MODULE_ID("$Id: ded.c,v 12.87 2017/11/22 00:39:47 tom Exp $")
+MODULE_ID("$Id: ded.c,v 12.90 2019/12/02 01:34:14 tom Exp $")
 
 #define	EDITOR	DEFAULT_EDITOR
 #define	BROWSE	DEFAULT_BROWSE
@@ -540,20 +541,30 @@ fixtime(RING * gbl, unsigned j)
 static void
 forkfile(RING * gbl, const char *arg0, const char *arg1, int option)
 {
-    char quoted[MAXPATHLEN];
+    size_t need = strlen(arg0);
+    char **args = calloc(need + 2, sizeof(char *));
+    char *alias = stralloc(arg0);	/* alias may have options */
+    char *param = stralloc(arg1);
 
-    *quoted = EOS;
-    catarg(quoted, arg1);
+    if (args != NULL && alias != NULL && param != NULL) {
+	int argc = bldarg((int) need, args, alias);
+	args[argc++] = param;
+	args[argc] = NULL;
 
-    cookterm();
-    dlog_comment("execute %s %s\n", arg0, arg1);
-    (void) dedsigs(FALSE);
-    (void) signal(SIGINT, SIG_IGN);	/* Linux need this */
-    if (execute(arg0, quoted) < 0)
-	warn(gbl, arg0);
-    (void) dedsigs(TRUE);
-    dlog_elapsed();
-    rawterm();
+	dlog_comment("execute %s %s\n", arg0, arg1);
+
+	cookterm();
+	(void) dedsigs(FALSE);
+	(void) signal(SIGINT, SIG_IGN);		/* Linux needs this */
+	if (executev(args) < 0)
+	    warn(gbl, arg0);
+	(void) dedsigs(TRUE);
+	dlog_elapsed();
+	rawterm();
+    }
+    free(alias);
+    free(param);
+    free(args);
 
     switch (option) {
     case TRUE + 1:
@@ -583,7 +594,8 @@ run_editor(RING * gbl, int readonly, int extended)
 	to_work(gbl, TRUE);
 	if (extended) {
 	    if (padedit(tpath, readonly, editor) < 0)
-		beep();
+		if (view_file(tpath, readonly) < 0)
+		    beep();
 	    restat(gbl, FALSE);
 	} else
 	    forkfile(gbl, editor, tpath, TRUE);
@@ -1279,6 +1291,7 @@ _MAIN
 	    /* move work-area marker */
 	case 'A':
 	    count = -count;
+	    /* FALLTHRU */
 	case 'a':
 	    markset(gbl, (unsigned) (mark_W + count));
 	    break;
@@ -1416,6 +1429,7 @@ _MAIN
 	case '%':		/* execute shell command with screen refresh */
 	case '!':		/* execute shell command w/o screen refresh */
 	    count = (c == '!') ? 0 : 2;		/* force refresh-sense */
+	    /* FALLTHRU */
 	case '.':		/* re-execute last shell command */
 	case ':':		/* edit last shell command */
 	    deddoit(gbl, c, count);
