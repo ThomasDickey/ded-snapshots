@@ -24,7 +24,7 @@
 
 #include	"ded.h"
 
-MODULE_ID("$Id: dedmake.c,v 12.14 2014/12/14 16:00:43 tom Exp $")
+MODULE_ID("$Id: dedmake.c,v 12.15 2019/12/02 01:34:38 tom Exp $")
 
 static int
 makeit(RING * gbl, char *name, mode_t mode, int hard)
@@ -129,6 +129,7 @@ dedmake(RING * gbl, int firstc)
 	    hard = (int) gbl->curfile + 1;
 	    break;
 	}
+	/* FALLTHRU */
     default:
 	if (isascii(firstc) && isgraph(firstc)) {
 	    FORMAT(bfr, "create-%c not defined", firstc);

@@ -3,6 +3,7 @@
  * Author:	T.E.Dickey
  * Created:	14 Mar 1989
  * Modified:
+ *		01 Dec 2019, handle UTF-8 in dlog_comment().
  *		14 Dec 2014, fix coverity warnings
  *		25 May 2010, fix clang --analyze warnings.
  *		07 Mar 2004, remove K&R support, indent'd
@@ -35,7 +36,7 @@
 #include	"ded.h"
 #include	<time.h>
 
-MODULE_ID("$Id: dlog.c,v 12.25 2014/12/14 22:43:33 tom Exp $")
+MODULE_ID("$Id: dlog.c,v 12.27 2019/12/02 01:40:35 tom Exp $")
 
 #define	NOW		time((time_t *)0)
 
@@ -628,7 +629,7 @@ dlog_name(char *name)
  * Write a comment to the log-file (with trailing newline in 'fmt').
  */
 void
-dlog_comment(const char *fmt,...)
+dlog_comment(const char *fmt, ...)
 {
     static char null_mark[] = "<null>";
     va_list args;
@@ -681,17 +682,43 @@ dlog_comment(const char *fmt,...)
 
 		if (!dst)
 		    dst = null_mark;
-		while ((c = *dst++) != EOS) {
-		    c = toascii(c);
-		    if (c == '\n' && *fmt == EOS) ;	/* fix for ctime */
-		    else if (!isprint(c)) {
-			tmp = dyn_append_c(tmp, '^');
-			if (c == '\177')
-			    c = '?';
-			else
-			    c |= '@';
+		while ((c = UCH(*dst++)) != EOS) {
+		    if (valid_shell_char(c)) {
+			tmp = dyn_append_c(tmp, c);
+		    } else {
+			char once[80];
+			if (c < 128) {
+			    switch (c) {
+			    case '\b':
+				tmp = dyn_append(tmp, "\\b");
+				break;
+			    case '\n':
+				tmp = dyn_append(tmp, "\\n");
+				break;
+			    case '\r':
+				tmp = dyn_append(tmp, "\\r");
+				break;
+			    case '\t':
+				tmp = dyn_append(tmp, "\\t");
+				break;
+			    case 127:
+				tmp = dyn_append(tmp, "^?");
+				break;
+			    default:
+				if (c < 32) {
+				    sprintf(once, "^%c", c + '@');
+				    tmp = dyn_append(tmp, once);
+				} else {
+				    sprintf(once, "\\%c", c);
+				    tmp = dyn_append(tmp, once);
+				}
+				break;
+			    }
+			} else {
+			    sprintf(once, "\\%03o", c);
+			    tmp = dyn_append(tmp, once);
+			}
 		    }
-		    tmp = dyn_append_c(tmp, c);
 		}
 		FORMAT(buffer, Fmt, dyn_string(tmp));
 		break;
