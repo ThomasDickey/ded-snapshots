@@ -17,7 +17,7 @@
 .\" ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR *
 .\" IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.                *
 .\"*****************************************************************************
-.\" $Id: ded.man,v 12.24 2017/11/22 00:40:52 tom Exp $
+.\" $Id: ded.man,v 12.25 2019/12/06 21:38:28 tom Exp $
 .de Es
 .ne \\$1
 .nr mE \\n(.f
@@ -28,7 +28,7 @@
 .ta 9n 17n 25n 33n 41n 49n
 .ft CW
 ..
-.de Ex
+.de Eh
 .ft \\n(mE
 .fi
 .hy \\n(HY
@@ -277,7 +277,8 @@ To exit from \fBded\fR, you must be in the file list display.
 If you are in the directory tree, typing "\fBq\fR" (for \fBquit\fR)
 will release the current file list and move to the next file list
 (if any).
-Typing "\fBQ\fR" moves backward. When only one
+Typing "\fBQ\fR" moves backward.
+When only one
 file list is left, \fBded\fR will toggle back to the file list
 display.
 If there are a lot of file lists, it is faster to toggle
@@ -348,10 +349,10 @@ Single-character cursor movement commands are:
 (directory): same as \fIleft-arrow\fR.
 .TP
 .B k
-move cursor up \fIcount\fR entries. (also: \fIbackspace\fR, \fIup-arrow\fR).
+move cursor up \fIcount\fR entries (also: \fIbackspace\fR, \fIup-arrow\fR).
 .TP
 .B j
-move cursor down \fIcount\fR entries. (also: \fIreturn\fR, \fIdown-arrow\fR).
+move cursor down \fIcount\fR entries (also: \fIreturn\fR, \fIdown-arrow\fR).
 .TP
 .B l
 (directory): same as \fIright-arrow\fR.
@@ -703,8 +704,8 @@ or grouping items in the display.
 Groups in the file list mark files
 upon which commands can operate as a whole.
 Directory tree groups
-are used to mark entries for purging from the database. The following
-commands mark and unmark items for the group:
+are used to mark entries for purging from the database.
+The following commands mark and unmark items for the group:
 .TP 4n
 .B +
 Add the \fIcount\fR entries to the \fIgroup\fR.
@@ -905,7 +906,7 @@ For example, type
 .RS
 .Es
 \&'cf
-.Ex
+.Eh
 .PP
 to replay the last create-file command.
 \fBDed\fR replays the specified command, not including the final newline.
@@ -965,13 +966,13 @@ that file.
 .TP
 .B e
 If the current entry is a directory, spawn a new \fBded\fR
-process with that as argument. If it is a file, invoke the editor
-(e.g., \fBvi\fR) on it.
+process with that as argument.
+If it is a file, invoke the editor (e.g., \fBvi\fR) on it.
 .TP
 .B v
 If the current entry is a directory, spawn a new \fBded\fR
-process with that as argument. If it is a file, invoke the browser
-(e.g, \fBview\fR).
+process with that as argument.
+If it is a file, invoke the browser (e.g, \fBview\fR).
 .TP
 .B m
 run the pager (e.g., \fBmore\fR) on the current file.
@@ -1420,7 +1421,7 @@ Multi-character commands are logged on a single line, e.g.,
 .Es
 1st
 1%ls -l #
-.Ex
+.Eh
 .PP
 Comments are inserted with a tab followed by a "#" character.
 \fBDed\fR's log comments indicate the names of files affected by commands,
@@ -1449,7 +1450,7 @@ current working directory, etc., e.g.,
 1q	# process 1631 ended at Thu Mar 16 09:52:24 1989
 	# process 1417 resuming
 1q	# process 1417 ended at Thu Mar 16 09:52:41 1989
-.Ex
+.Eh
 .PP
 \fBDed\fR commands which are read in "raw" (single-character)
 mode are logged as backslash-codes, if necessary, to make them readable
@@ -1487,7 +1488,7 @@ Other text (which is buffered) contains no non-printing characters.
 .\"****************************************************************************
 .SS X Windows Enhancements
 .PP
-\fBDed\fR assumes that you are running under the X\ Window System\*R.
+\fBDed\fR assumes that you are running under the X\ Window System.
 In this case, if the program \fBxterm\fR is found in your execution
 path, \fBded\fR will permit the following commands:
 .TP 4n

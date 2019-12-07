@@ -1,3 +1,12 @@
+2019-12-06  Thomas E. Dickey  <dickey@invisible-island.net>
+
+	* package/ded-12.0.spec: bump
+
+	* user/ded.man:
+	check-manpage fixes (rename Ex to Eh for consistency, other errata)
+
+	* package/debian/changelog: bump
+
 2019-12-01  Thomas E. Dickey  <dickey@invisible-island.net>
 
 	* src/dlog.c, src/dedmake.c, src/ded.c: gcc-warnings
