@@ -3,6 +3,7 @@
  * Author:	T.E.Dickey
  * Created:	01 Dec 1987
  * Modified:
+ *		09 Dec 2019, improve string-handling for non-ASCII chars.
  *		25 May 2010, fix clang --analyze warnings.
  *		07 Mar 2004, remove K&R support, indent'd
  *		21 Oct 1995, show escaped control chars in printable form.
@@ -23,16 +24,17 @@
 
 #include	"ded.h"
 
-MODULE_ID("$Id: dedshow.c,v 12.11 2010/07/04 20:28:01 tom Exp $")
+MODULE_ID("$Id: dedshow.c,v 12.12 2019/12/10 01:58:45 tom Exp $")
 
 static int
 dedshow_c(int ch)
 {
-    int max_Y = LINES - 1, max_X = COLS - 1;
+    int max_Y = LINES - 1;
+    int max_X = COLS - 1;
     int x, y;
 
     getyx(stdscr, y, x);
-    if (addch((chtype) ch) == ERR)
+    if (addch((ch & 0xff)) == ERR)
 	return FALSE;
     if (++x > max_X) {
 	x = 0;
@@ -43,67 +45,83 @@ dedshow_c(int ch)
     return TRUE;
 }
 
+static void
+show_invalid(int ch)
+{
+    char buf[10];
+    char *s = buf;
+
+    if (ch == 0x7f) {
+	strcpy(buf, "^?");
+    } else if (ch >= 0x80) {
+	sprintf(buf, "%03o", ch & 0xff);
+    } else if (iscntrl(ch)) {
+	sprintf(buf, "^%c", ch | 0x40);
+    } else {
+	sprintf(buf, "%c", ch);
+    }
+    while (*s != EOS) {
+	if (!dedshow_c(UCH(*s++)))
+	    break;
+    }
+}
+
 void
 dedshow2(const char *arg)
 {
     int y, x, ch;
-    int max_Y = LINES - 1, literal = lnext_char(), escaped = 0;
-    char buf[4];
+    int max_Y = LINES - 1;
+    int literal = lnext_char();
+    int escaped = 0;
 
     if (arg == 0)
 	return;
 
     getyx(stdscr, y, x);
-    if (y >= max_Y)
+    if (y >= max_Y) {
 	return;
+    }
 
     while ((ch = *arg++) != EOS) {
 
-	if (isascii(ch) || escaped) {
+	if (valid_shell_char(ch) || ch == '\n' || escaped) {
 	    if (ch == literal || ch == '\\')
 		escaped = 2;
-	    if (!isprint(ch)) {
+	    if (valid_shell_char(ch) || ch == '\n') {
+		if (!dedshow_c(ch))
+		    break;
+	    } else {
 		if (escaped) {
-		    if (ch == 0177) {
-			if (!dedshow_c('^'))
-			    return;
-			ch = '?';
-		    } else if (ch >= 0200) {
-			sprintf(buf, "%03o", ch & 0xff);
-			dedshow2(buf);
-			escaped--;
-			continue;
-		    } else if (iscntrl(ch)) {
-			if (!dedshow_c('^'))
-			    return;
-			ch |= 0100;
-		    }
+		    show_invalid(ch);
+		    escaped--;
 		} else if (ch == '\t') {
-		    ch = ' ';
+		    if (!dedshow_c(' '))
+			break;
 		} else if (ch == '\n') {
 		    getyx(stdscr, y, x);
 		    x = 0;
 		    if (++y > max_Y)
-			return;
+			break;
 		    move(y, x);
 		    continue;
 		} else {
-		    /* ignore other chars */
-		    continue;
+		    show_invalid(ch);
 		}
 	    }
-	    if (!dedshow_c(ch))
-		return;
-	} else {
+	} else if (ch == ELIDE_B) {
 	    if (!dedshow_c('{'))
-		return;
+		break;
 	    (void) standout();
 	    dedshow2("...");
 	    (void) standend();
 	    if (!dedshow_c('}'))
-		return;
-	    while ((*arg != EOS) && !isascii(*arg))
+		break;
+	    while ((*arg != EOS) && *arg != ELIDE_E)
 		arg++;
+	    if (*arg == ELIDE_E)
+		arg++;
+	} else {
+	    show_invalid(ch);
 	}
 	if (escaped > 0)
 	    escaped--;
