@@ -3,6 +3,7 @@
  * Author:	T.E.Dickey
  * Created:	17 Nov 1987
  * Modified:
+ *		09 Dec 2019, improve string-handling for non-ASCII chars.
  *		12 Dec 2014, fix coverity warnings
  *		07 Mar 2004, remove K&R support, indent'd
  *		10 Aug 1999, ignore errno if system() doesn't return < 0.
@@ -38,7 +39,7 @@
  */
 #include	"ded.h"
 
-MODULE_ID("$Id: deddoit.c,v 12.24 2014/12/14 17:52:18 tom Exp $")
+MODULE_ID("$Id: deddoit.c,v 12.25 2019/12/10 01:59:04 tom Exp $")
 
 /*
  * Return a pointer to a leaf of a given name
@@ -162,7 +163,7 @@ Expand(RING * gbl, int code, DYN * subs)
     }
 
     (void) ded2string(gbl, temp, sizeof(temp), from, TRUE);
-    APPEND(subs, temp);
+    dyn_append(subs, temp);
 }
 
 /*
@@ -174,7 +175,7 @@ deddoit(RING * gbl, int key, int sense)
     char prompt[80];
     static DYN *Subs;
     int c, j;
-    char *s;
+    char *s, *d;
 
     dyn_init(&Subs, BUFSIZ);
     if (!dyn_string(gbl->cmd_sh))
@@ -189,7 +190,7 @@ deddoit(RING * gbl, int key, int sense)
 
     if ((key != '.') || (*dyn_string(gbl->cmd_sh) == EOS)) {
 	if (key == ':')
-	    APPEND(Subs, dyn_string(gbl->cmd_sh));
+	    dyn_append(Subs, dyn_string(gbl->cmd_sh));
 
 	c = FALSE;
 	if (!(s = dlog_string(gbl, prompt, -1, &Subs, (DYN **) 0,
@@ -200,7 +201,7 @@ deddoit(RING * gbl, int key, int sense)
 	while (*s) {		/* skip leading blanks */
 	    if (!isspace(UCH(*s))) {
 		dyn_init(&gbl->cmd_sh, BUFSIZ);
-		APPEND(gbl->cmd_sh, s);
+		dyn_append(gbl->cmd_sh, s);
 		c = TRUE;
 		break;
 	    }
@@ -220,34 +221,37 @@ deddoit(RING * gbl, int key, int sense)
 
     dyn_init(&Subs, BUFSIZ);
     for (j = 0; *(s = dyn_string(gbl->cmd_sh) + j); j++) {
-	static char This[] = "?", Next[] = "?";
+	static char This[2];
+	static char Next[2];
 
 	This[0] = s[0];
 	Next[0] = s[1];
 
 	if (*This == '\\'
 	    && (*Next == '#' || *Next == '%')) {
-	    APPEND(Subs, Next);
+	    dyn_append(Subs, Next);
 	    j++;
 	} else if (*This == '#') {	/* substitute group */
-	    int ellipsis = 0, others = FALSE, len;
+	    int ellipsis = FALSE;
+	    int others = FALSE;
+	    int len;
 	    unsigned x;
 
 	    for_each_file(gbl, x) {
 		if (GROUPED(x)) {
 		    len = (int) strlen(s = fixname(gbl, x));
 		    if (others++)
-			APPEND(Subs, " ");
+			dyn_append(Subs, " ");
 
-		    if (!ellipsis
-			&& ((int) dyn_length(Subs) + len) > 256)
-			ellipsis = (int) dyn_length(Subs);
-		    APPEND(Subs, s);
+		    if (!ellipsis && ((int) dyn_length(Subs) + len) > 256) {
+			ellipsis = TRUE;
+			dyn_append_c(Subs, ELIDE_B);
+		    }
+		    dyn_append(Subs, s);
 		}
 	    }
 	    if (ellipsis) {
-		for (s = dyn_string(Subs) + ellipsis; *s; s++)
-		    *s = (char) (*s | 0200);
+		dyn_append_c(Subs, ELIDE_E);
 	    }
 
 	} else if (*This == '%') {	/* substitute current file */
@@ -255,16 +259,29 @@ deddoit(RING * gbl, int key, int sense)
 		j++;
 	    Expand(gbl, *Next, Subs);
 	} else {
-	    APPEND(Subs, This);
+	    dyn_append(Subs, This);
 	}
     }
     dedshow(gbl, "> ", dyn_string(Subs));
 
     if (*dyn_string(Subs)) {
 	int ok = TRUE;
-	for (s = dyn_string(Subs); *s; s++)
-	    if (!isascii(*s))
-		*s = (char) toascii(*s);
+	int ch;
+	int escaped = FALSE;
+
+	/* strip ellipsis markers */
+	for (s = d = dyn_string(Subs); (ch = UCH(*s)) != EOS; s++) {
+	    if (ch == BACK_SL) {
+		escaped = TRUE;
+		*d++ = (char) ch;
+	    } else if (escaped) {
+		escaped = FALSE;
+		*d++ = (char) ch;
+	    } else if (ch != ELIDE_B && ch != ELIDE_E) {
+		*d++ = (char) ch;
+	    }
+	}
+	*d = EOS;
 
 	cookterm();
 	(void) dedsigs(FALSE);	/* prevent child from killing us */

@@ -23,7 +23,7 @@
 
 #ifdef	MAIN
 #if	!defined(NO_IDENT)
-static const char ded_h[] = "$Id: ded.h,v 12.73 2017/11/22 00:38:14 tom Exp $";
+static const char ded_h[] = "$Id: ded.h,v 12.74 2019/12/07 15:11:54 tom Exp $";
 #endif
 #endif	/* MAIN */
 
@@ -131,6 +131,10 @@ static const char ded_h[] = "$Id: ded.h,v 12.73 2017/11/22 00:38:14 tom Exp $";
 #define	cTIME		cENTRY.z_time
 
 #define	GROUPED(n)	(gFLAG(n) || ((n) == gbl->curfile))
+
+#define BACK_SL		'\\'
+#define ELIDE_B		CTL('B')
+#define ELIDE_E		CTL('E')
 
 			/* markers for column-beginnings */
 #define	CCOL_PROT	0
