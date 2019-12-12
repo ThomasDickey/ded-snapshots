@@ -3,6 +3,7 @@
  * Author:	T.E.Dickey
  * Created:	17 Nov 1987
  * Modified:
+ *		11 Dec 2019, remove long-obsolete apollo name2s option.
  *		09 Dec 2019, improve string-handling for non-ASCII chars.
  *		12 Dec 2014, fix coverity warnings
  *		07 Mar 2004, remove K&R support, indent'd
@@ -39,7 +40,7 @@
  */
 #include	"ded.h"
 
-MODULE_ID("$Id: deddoit.c,v 12.25 2019/12/10 01:59:04 tom Exp $")
+MODULE_ID("$Id: deddoit.c,v 12.26 2019/12/12 00:31:15 tom Exp $")
 
 /*
  * Return a pointer to a leaf of a given name
@@ -162,7 +163,7 @@ Expand(RING * gbl, int code, DYN * subs)
 	from = "?";
     }
 
-    (void) ded2string(gbl, temp, sizeof(temp), from, TRUE);
+    (void) name2s(temp, sizeof(temp), from, TRUE);
     dyn_append(subs, temp);
 }
 

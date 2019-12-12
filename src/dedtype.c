@@ -3,6 +3,7 @@
  * Author:	T.E.Dickey
  * Created:	16 Nov 1987
  * Modified:
+ *		11 Dec 2019, remove long-obsolete apollo name2s option.
  *		25 May 2010, fix clang --analyze warnings.
  *		07 Mar 2004, remove K&R support, indent'd
  *		24 Jan 2000, revised directory-macros.
@@ -60,7 +61,7 @@
 #define		DIR_PTYPES	/* includes directory-stuff */
 #include	"ded.h"
 
-MODULE_ID("$Id: dedtype.c,v 12.38 2014/07/22 18:28:45 tom Exp $")
+MODULE_ID("$Id: dedtype.c,v 12.39 2019/12/12 00:31:15 tom Exp $")
 
 typedef struct {
     OFF_T offset;
@@ -672,10 +673,10 @@ dedtype(RING * gbl,
 	}
 	if ((dp = opendir(name)) != 0) {
 	    while ((de = readdir(dp)) != NULL) {
-		(void) ded2string(gbl, bfr,
-				  (int) NAMLEN(de),
-				  de->d_name,
-				  FALSE);
+		(void) name2s(bfr,
+			      (int) NAMLEN(de),
+			      de->d_name,
+			      FALSE);
 		FPRINTF(InFile, INO_FMT, (unsigned long) de->d_ino);
 		FPRINTF(InFile, " %s\n", bfr);
 	    }

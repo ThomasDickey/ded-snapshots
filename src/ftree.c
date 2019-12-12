@@ -2,6 +2,7 @@
  * Author:	T.E.Dickey
  * Created:	02 Sep 1987
  * Modified:
+ *		11 Dec 2019, remove long-obsolete apollo name2s option.
  *		14 Dec 2014, fix coverity warnings
  *		25 May 2010, fix clang --analyze warnings.
  *		18 Mar 2004, update old_wd if we rename the directory it was.
@@ -141,7 +142,7 @@
 
 #include	<fcntl.h>
 
-MODULE_ID("$Id: ftree.c,v 12.79 2014/12/14 18:44:57 tom Exp $")
+MODULE_ID("$Id: ftree.c,v 12.80 2019/12/12 00:31:15 tom Exp $")
 
 #define	Null	(char *)0	/* some NULL's are simply 0 */
 
@@ -966,7 +967,7 @@ fd_annotate(int node, char *buffer)
  * status line, moving to the common nodes only if the user directs so.
  */
 static int
-ft_show(RING * gbl, char *path, char *home, int node, int level)
+ft_show(char *path, char *home, int node, int level)
 {
     static char fmt[] = "%.*s";
     int j, k;
@@ -1022,7 +1023,7 @@ ft_show(RING * gbl, char *path, char *home, int node, int level)
      * show.  In all cases, we show the 2-column prefix that indicates to
      * which filelist the node corresponds, if any.
      */
-    (void) ded2string(gbl, bfr, sizeof(bfr), ftree[node].f_name, FALSE);
+    (void) name2s(bfr, sizeof(bfr), ftree[node].f_name, FALSE);
     fd_annotate(node, end);
     k = (int) (strlen(bfr) + strlen(end));
     j = k + (level * BAR_WIDTH) + LEN_MARK;
@@ -1081,7 +1082,7 @@ ft_show(RING * gbl, char *path, char *home, int node, int level)
 
 	    if (limit > 0) {
 
-		(void) ded2string(gbl, bfr, sizeof(bfr), ftree[j].f_name, FALSE);
+		(void) name2s(bfr, sizeof(bfr), ftree[j].f_name, FALSE);
 		fd_annotate(j, end);
 
 		if ((int) strlen(bfr) > count) {
@@ -1382,15 +1383,14 @@ is_sccs(int node)
  * inputs, and repaint the display as needed.
  */
 static int
-ft_update(RING * gbl,
-	  int row,
+ft_update(int row,
 	  int *level)
 {
     int c = fd_level(row);
 
     if (c < *level)
 	*level = c;		/* loosely drag down level */
-    return ft_show(gbl, fd_path(viewer_top, row), caller_top, row, *level);
+    return ft_show(fd_path(viewer_top, row), caller_top, row, *level);
 }
 
 /*
@@ -1408,7 +1408,7 @@ ft_resize(void)
     if (tree_visible) {
 	showdiff = -1;
 	scroll_to(*resize_row);
-	(void) ft_update(resize_gbl, *resize_row, resize_lvl);
+	(void) ft_update(*resize_row, resize_lvl);
 	return TRUE;
     }
     return FALSE;
@@ -1471,7 +1471,7 @@ ft_view(RING * gbl,
     /* process commands */
     for (;;) {
 
-	int new_row = ft_update(gbl, row, &lvl);
+	int new_row = ft_update(row, &lvl);
 	if (new_row >= 0)
 	    row = new_row;
 
@@ -1876,14 +1876,6 @@ ft_view(RING * gbl,
 	    out_of_sight = !out_of_sight;
 	    showdiff = -1;
 	    break;
-
-#ifdef	apollo
-	    /* toggle flag showing Aegis/Unix names */
-	case 'U':
-	    gbl->U_opt = !gbl->U_opt;
-	    showdiff = -1;
-	    break;
-#endif /* apollo */
 
 	    /* toggle flag which controls whether we show dependents */
 	case 'V':

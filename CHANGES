@@ -1,3 +1,10 @@
+2019-12-11  Thomas E. Dickey  <dickey@invisible-island.net>
+
+	* package/debian/changelog, package/ded-12.0.spec: bump
+
+	* src/ded2s.c, src/deddoit.c, src/dedring.c, src/dedtype.c, src/ftree.c, src/ded.c, src/ded.h:
+	remove long-obsolete apollo name2s option.
+
 2019-12-09  Thomas E. Dickey  <dickey@invisible-island.net>
 
 	* package/debian/changelog, package/ded-12.0.spec: bump

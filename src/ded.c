@@ -3,6 +3,7 @@
  * Author:	T.E.Dickey
  * Created:	09 Nov 1987
  * Modified:
+ *		11 Dec 2019, remove long-obsolete apollo name2s option.
  *		01 Dec 2019, use executev() to handle UTF-8 parameters.
  *		21 Nov 2017, add "-x" option.
  *		14 Dec 2014, fix coverity warnings
@@ -176,7 +177,7 @@
 
 #include <locale.h>
 
-MODULE_ID("$Id: ded.c,v 12.90 2019/12/02 01:34:14 tom Exp $")
+MODULE_ID("$Id: ded.c,v 12.91 2019/12/12 00:21:34 tom Exp $")
 
 #define	EDITOR	DEFAULT_EDITOR
 #define	BROWSE	DEFAULT_BROWSE
@@ -233,16 +234,6 @@ edithead(RING * gbl,
 	dlog_comment("... becomes pathname  \"%s\"\n", dst);
 	(void) strcpy(leaf, cLTXT);
 	if ((s = strrchr(cLTXT, '/')) != NULL) {
-#ifdef	apollo
-	    /* special hack for DSEE library */
-	    if (s[1] == '[') {
-		leaf[s - cLTXT] = EOS;
-		if (s = strrchr(leaf, '/')) {
-		    s++;
-		    while (*leaf++ = *s++) ;
-		}
-	    } else
-#endif /* apollo */
 	    if (s[1] != EOS)
 		(void) strcpy(leaf, ++s);
 	}
@@ -384,14 +375,14 @@ void
 retouch(RING * gbl, int row)
 {
     int y, x;
-#if	defined(apollo) || defined(SIGWINCH)
+#if defined(SIGWINCH)
     if (resizewin()) {
 	dlog_comment("resizewin(%d,%d)\n", LINES, COLS);
 	markset(gbl, (unsigned) mark_W);
 	showFILES(gbl, FALSE);
 	return;
     }
-#endif /* apollo */
+#endif /* SIGWINCH */
     getyx(stdscr, y, x);
     move(mark_W + 1, 0);
     clrtobot();
@@ -520,7 +511,7 @@ char *
 fixname(RING * gbl, unsigned j)
 {
     static char nbfr[MAXPATHLEN];
-    (void) ded2string(gbl, nbfr, sizeof(nbfr), gNAME(j), TRUE);
+    (void) name2s(nbfr, sizeof(nbfr), gNAME(j), TRUE);
     return (nbfr);
 }
 
@@ -734,9 +725,6 @@ usage(void)
 #endif
 	"  -S       show file-size in blocks",
 	"  -T       show long date+time",
-#ifdef	apollo
-	"  -U       show AEGIS-style names",
-#endif
 #ifdef	Z_RCS_SCCS
 	"  -Z       read RCS/SCCS data, show date",
 	"  -z       read RCS/SCCS data, don't show date",
@@ -942,11 +930,6 @@ _MAIN
 	    if (!edit_dates)
 		COMPLEMENT(gbl->T_opt);
 	    break;
-#ifdef	apollo
-	case 'U':
-	    COMPLEMENT(gbl->U_opt);
-	    break;
-#endif
 #ifdef	Z_RCS_SCCS
 	case 'Z':
 	    gbl->Z_opt = 1;
@@ -1247,12 +1230,6 @@ _MAIN
 		showFILES(gbl, gbl->T_opt != j);
 	    }
 	    break;
-#ifdef	apollo
-	case 'U':
-	    COMPLEMENT(gbl->U_opt);
-	    showFILES(gbl, FALSE);
-	    break;
-#endif
 
 #ifdef	Z_RCS_SCCS
 	case 'V':		/* toggle sccs-version display */
