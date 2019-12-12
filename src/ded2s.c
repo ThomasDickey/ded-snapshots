@@ -3,6 +3,7 @@
  * Author:	T.E.Dickey
  * Created:	09 Nov 1987
  * Modified:
+ *		11 Dec 2019, remove long-obsolete apollo name2s option.
  *		07 Mar 2004, remove K&R support, indent'd
  *		15 Feb 1998, remove special code for apollo sr10.
  *			     Correct a missing 'else' in time2s that caused
@@ -61,7 +62,7 @@
 #include	"ded.h"
 #include	<rcsdefs.h>
 
-MODULE_ID("$Id: ded2s.c,v 12.34 2014/07/22 18:22:59 tom Exp $")
+MODULE_ID("$Id: ded2s.c,v 12.35 2019/12/12 00:31:15 tom Exp $")
 
 #if defined(MAJOR_IN_MKDEV)
 #  include	<sys/mkdev.h>
@@ -341,7 +342,7 @@ ded2s(RING * gbl, int inx, char *bfr, int len)
     /* translate the filename */
     SETCOL(bfr, CCOL_NAME);
     len -= (int) (bfr - base);
-    f_->z_namlen = (short) ded2string(gbl, bfr, len, name, FALSE);
+    f_->z_namlen = (short) name2s(bfr, len, name, FALSE);
     bfr += f_->z_namlen;
 
 #ifdef	S_IFLNK
@@ -351,7 +352,7 @@ ded2s(RING * gbl, int inx, char *bfr, int len)
 	*bfr++ = '>';
 	*bfr++ = ' ';
 	len -= (int) (bfr - base);
-	bfr += ded2string(gbl, bfr, len, temp, FALSE);
+	bfr += name2s(bfr, len, temp, FALSE);
     } else
 #endif /* S_IFLNK */
     if (isDIR(mj)) {
@@ -359,12 +360,6 @@ ded2s(RING * gbl, int inx, char *bfr, int len)
     } else if (ded_access(s, S_IXUSR))
 	*bfr++ = '*';
     *bfr = '\0';
-}
-
-int
-ded2string(RING * gbl, char *bfr, int len, const char *name, int flag)
-{
-    return (name2s(bfr, len, name, flag | (gbl->U_opt ? 2 : 0)));
 }
 
 int

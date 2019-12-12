@@ -23,7 +23,7 @@
 
 #ifdef	MAIN
 #if	!defined(NO_IDENT)
-static const char ded_h[] = "$Id: ded.h,v 12.74 2019/12/07 15:11:54 tom Exp $";
+static const char ded_h[] = "$Id: ded.h,v 12.75 2019/12/12 00:21:34 tom Exp $";
 #endif
 #endif	/* MAIN */
 
@@ -183,8 +183,7 @@ static const char ded_h[] = "$Id: ded.h,v 12.74 2019/12/07 15:11:54 tom Exp $";
 		I_opt,		/* show link/inode field */
 		P_opt,		/* show filemode in octal vs normal */
 		S_opt,		/* show filesize in blocks */
-		T_opt,		/* show long date+time */
-		U_opt;		/* show underlying file-info */
+		T_opt;		/* show long date+time */
 #ifdef	Z_RCS_SCCS
 	int	V_opt,		/* show sccs-versions */
 		O_opt,		/* show sccs-lock owners */
@@ -603,13 +602,6 @@ extern	void	ded2s(
 		int	inx,
 		char *	bfr,
 		int	len);
-
-extern	int	ded2string(
-		RING *	gbl,
-		char *	bfr,
-		int	len,
-		const char *	name,
-		int	flag);
 
 extern	int	ded_access(
 		Stat_t *	sb,

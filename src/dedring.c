@@ -3,6 +3,7 @@
  * Author:	T.E.Dickey
  * Created:	27 Apr 1988
  * Modified:
+ *		11 Dec 2019, remove long-obsolete apollo name2s option.
  *		14 Dec 2014, coverity warnings
  *		07 Mar 2004, remove K&R support, indent'd
  *		19 Oct 2000, add ring_tags()
@@ -58,7 +59,7 @@
 
 #include	"ded.h"
 
-MODULE_ID("$Id: dedring.c,v 12.23 2014/12/14 16:58:01 tom Exp $")
+MODULE_ID("$Id: dedring.c,v 12.24 2019/12/12 00:31:15 tom Exp $")
 
 #define	CMP_PATH(a,b)	pathcmp(a, b->new_wd)
 
@@ -137,7 +138,6 @@ ring_copy(RING * dst, RING * src)
     SAVE(P_opt);
     SAVE(S_opt);
     SAVE(T_opt);
-    SAVE(U_opt);
 #ifdef	Z_RCS_SCCS
     SAVE(V_opt);
     SAVE(O_opt);
