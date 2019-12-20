@@ -23,7 +23,7 @@
 
 #ifdef	MAIN
 #if	!defined(NO_IDENT)
-static const char ded_h[] = "$Id: ded.h,v 12.75 2019/12/12 00:21:34 tom Exp $";
+static const char ded_h[] = "$Id: ded.h,v 12.76 2019/12/20 02:19:42 tom Exp $";
 #endif
 #endif	/* MAIN */
 
@@ -251,9 +251,6 @@ extern	int	realstat(
 		RING *		gbl,
 		unsigned	inx,
 		Stat_t *	sb);
-
-extern	void	failed(
-		const char *	msg);
 
 extern	int	user_says(
 		RING *	gbl,
@@ -713,8 +710,6 @@ extern	int	ft_stat(
 extern	void	ft_write(void);
 
 /* *** "history.c" *** */
-extern	HIST	*cmd_history;
-
 extern	void	put_history(
 		HIST **	table,
 		char *	text);
