@@ -1,5 +1,5 @@
 .\"*****************************************************************************
-.\" Copyright 2004-2014,2017 by Thomas E. Dickey.  All Rights Reserved.        *
+.\" Copyright 2004-2017,2019 by Thomas E. Dickey.  All Rights Reserved.        *
 .\"                                                                            *
 .\" Permission to use, copy, modify, and distribute this software and its      *
 .\" documentation for any purpose and without fee is hereby granted, provided  *
@@ -17,7 +17,7 @@
 .\" ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR *
 .\" IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.                *
 .\"*****************************************************************************
-.\" $Id: ded.man,v 12.25 2019/12/06 21:38:28 tom Exp $
+.\" $Id: ded.man,v 12.27 2019/12/27 00:01:31 tom Exp $
 .de Es
 .ne \\$1
 .nr mE \\n(.f
@@ -339,9 +339,8 @@ the directory tree has markers (vertical bars or dashes) showing where
 you are allowed to put the cursor.
 Vertical movement is normally
 within items at the same directory level.
-You may move from one line
-to another irregardless of level by the "\fBJ\fR" and "\fBK\fR"
-commands.
+You may move from one line to another
+at any level by the "\fBJ\fR" and "\fBK\fR" commands.
 .PP
 Single-character cursor movement commands are:
 .TP 4n
@@ -767,20 +766,26 @@ in \fBinsert\fR mode causes that character to be inserted into the field.
 .TP
 .I left-arrow
 (cursor) moves cursor left one column within the edited field.
+.IP
 The \fIbackspace\fR key does the same operation.
+.IP
+The \fIh\fR key (like \fIvi\fP) also moves the cursor left.
 .TP
 .I right-arrow
 (cursor) moves cursor right one column within the edited field.
 The \fIform-feed\fR (\fICTL/L\fR) key does the same thing.
+The \fIl\fR key (like \fIvi\fP) also moves the cursor right.
 .TP
 .I up-arrow
 saves the current set of editing keystrokes and replays an older set from
 the command's history.
+.LP
 \fICTL/P\fR does the same thing.
 .TP
 .I down-arrow
 saves the current set of editing keystrokes and replays an newer set from
 the command's history.
+.IP
 \fICTL/N\fR does the same thing.
 .TP
 .I CTL/I
@@ -790,9 +795,18 @@ is highlighted and prefixed with a "^" character.
 .TP
 .I CTL/B
 move cursor to beginning of field
+.IP
+The \fI^\fR key (like \fIvi\fP) also moves the cursor to the beginning.
 .TP
 .I CTL/F
 move cursor to end of field
+.IP
+The \fI$\fR key (like \fIvi\fP) also moves the cursor to the end.
+.TP
+.IR b ", " w ", and " e
+(cursor) move the cursor to the beginning of the previous word,
+or to the next word, or to the end of the current/next word,
+respectively as in \fIvi\fP.
 .
 .\"****************************************************************************
 .SS Built-in Operations on Groups of Files
