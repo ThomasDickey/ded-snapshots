@@ -1,4 +1,4 @@
-dnl $Id: aclocal.m4,v 12.30 2019/11/30 01:51:57 tom Exp $
+dnl $Id: aclocal.m4,v 12.31 2020/04/28 22:33:43 tom Exp $
 dnl Macros for DED configure script.
 dnl vi:set ts=4:
 dnl
@@ -32,10 +32,11 @@ define([CF_ACVERSION_COMPARE],
 [ifelse([$8], , ,[$8])],
 [ifelse([$9], , ,[$9])])])dnl
 dnl ---------------------------------------------------------------------------
-dnl CF_ADD_CFLAGS version: 13 updated: 2017/02/25 18:57:40
+dnl CF_ADD_CFLAGS version: 14 updated: 2020/04/04 16:16:13
 dnl -------------
 dnl Copy non-preprocessor flags to $CFLAGS, preprocessor flags to $CPPFLAGS
-dnl The second parameter if given makes this macro verbose.
+dnl $1 = flags to add
+dnl $2 = if given makes this macro verbose.
 dnl
 dnl Put any preprocessor definitions that use quoted strings in $EXTRA_CPPFLAGS,
 dnl to simplify use of $CPPFLAGS in compiler checks, etc., that are easily
@@ -319,7 +320,7 @@ cf_save_CFLAGS="$cf_save_CFLAGS -Qunused-arguments"
 fi
 ])
 dnl ---------------------------------------------------------------------------
-dnl CF_CONST_X_STRING version: 1 updated: 2019/04/08 17:50:29
+dnl CF_CONST_X_STRING version: 4 updated: 2020/03/10 18:53:47
 dnl -----------------
 dnl The X11R4-X11R6 Xt specification uses an ambiguous String type for most
 dnl character-strings.
@@ -340,12 +341,16 @@ dnl when compiling the library and compiling using the library, to tell the
 dnl compiler that String is const.
 AC_DEFUN([CF_CONST_X_STRING],
 [
+AC_REQUIRE([AC_PATH_XTRA])
+
+CF_SAVE_XTRA_FLAGS([CF_CONST_X_STRING])
+
 AC_TRY_COMPILE(
 [
 #include <stdlib.h>
 #include <X11/Intrinsic.h>
 ],
-[String foo = malloc(1)],[
+[String foo = malloc(1); (void)foo],[
 
 AC_CACHE_CHECK(for X11/Xt const-feature,cf_cv_const_x_string,[
 	AC_TRY_COMPILE(
@@ -360,6 +365,8 @@ AC_CACHE_CHECK(for X11/Xt const-feature,cf_cv_const_x_string,[
 			cf_cv_const_x_string=yes
 		])
 ])
+
+CF_RESTORE_XTRA_FLAGS([CF_CONST_X_STRING])
 
 case $cf_cv_const_x_string in
 (no)
@@ -553,7 +560,7 @@ fi
 AC_SUBST(TD_LIB_rules)
 ])dnl
 dnl ---------------------------------------------------------------------------
-dnl CF_GCC_ATTRIBUTES version: 17 updated: 2015/04/12 15:39:00
+dnl CF_GCC_ATTRIBUTES version: 18 updated: 2020/03/10 18:53:47
 dnl -----------------
 dnl Test for availability of useful gcc __attribute__ directives to quiet
 dnl compiler warnings.  Though useful, not all are supported -- and contrary
@@ -597,7 +604,7 @@ cat > conftest.$ac_ext <<EOF
 extern void wow(char *,...) GCC_SCANFLIKE(1,2);
 extern void oops(char *,...) GCC_PRINTFLIKE(1,2) GCC_NORETURN;
 extern void foo(void) GCC_NORETURN;
-int main(int argc GCC_UNUSED, char *argv[[]] GCC_UNUSED) { return 0; }
+int main(int argc GCC_UNUSED, char *argv[[]] GCC_UNUSED) { (void)argc; (void)argv; return 0; }
 EOF
 	cf_printf_attribute=no
 	cf_scanf_attribute=no
@@ -680,12 +687,13 @@ CF_INTEL_COMPILER(GCC,INTEL_COMPILER,CFLAGS)
 CF_CLANG_COMPILER(GCC,CLANG_COMPILER,CFLAGS)
 ])dnl
 dnl ---------------------------------------------------------------------------
-dnl CF_GCC_WARNINGS version: 36 updated: 2019/09/07 13:38:36
+dnl CF_GCC_WARNINGS version: 37 updated: 2020/01/05 20:04:12
 dnl ---------------
 dnl Check if the compiler supports useful warning options.  There's a few that
 dnl we don't use, simply because they're too noisy:
 dnl
 dnl	-Wconversion (useful in older versions of gcc, but not in gcc 2.7.x)
+dnl	-Winline (usually not worthwhile)
 dnl	-Wredundant-decls (system headers make this too noisy)
 dnl	-Wtraditional (combines too many unrelated messages, only a few useful)
 dnl	-Wwrite-strings (too noisy, but should review occasionally).  This
@@ -741,7 +749,7 @@ then
 		fi
 	done
 	CFLAGS="$cf_save_CFLAGS"
-elif test "$GCC" = yes
+elif test "$GCC" = yes && test "$GCC_VERSION" != "unknown"
 then
 	AC_CHECKING([for $CC warning options])
 	cf_save_CFLAGS="$CFLAGS"
@@ -763,7 +771,7 @@ then
 		Wpointer-arith \
 		Wshadow \
 		Wstrict-prototypes \
-		Wundef $cf_gcc_warnings $cf_warn_CONST $1
+		Wundef Wno-inline $cf_gcc_warnings $cf_warn_CONST $1
 	do
 		CFLAGS="$cf_save_CFLAGS $EXTRA_CFLAGS -$cf_opt"
 		if AC_TRY_EVAL(ac_compile); then
@@ -907,7 +915,7 @@ CF_SUBDIR_PATH($1,$2,lib)
 $1="$cf_library_path_list [$]$1"
 ])dnl
 dnl ---------------------------------------------------------------------------
-dnl CF_LIB_PREFIX version: 12 updated: 2015/10/17 19:03:33
+dnl CF_LIB_PREFIX version: 13 updated: 2020/04/04 10:11:47
 dnl -------------
 dnl Compute the library-prefix for the given host system
 dnl $1 = variable to set
@@ -921,6 +929,9 @@ define([CF_LIB_PREFIX],
 			LIB_PREFIX=''
 		fi
 		;;
+	(*-msvc*)
+		LIB_PREFIX=''
+		;;
 	(*)	LIB_PREFIX='lib'
 		;;
 	esac
@@ -928,10 +939,25 @@ ifelse($1,,,[$1=$LIB_PREFIX])
 	AC_SUBST(LIB_PREFIX)
 ])dnl
 dnl ---------------------------------------------------------------------------
-dnl CF_MAKE_AR_RULES version: 5 updated: 2010/10/23 15:52:32
+dnl CF_MAKE_AR_RULES version: 7 updated: 2019/12/18 19:06:19
 dnl ----------------
 dnl Check if the 'make' program knows how to interpret archive rules.  Though
-dnl this is common practice since the mid-80's, there are some holdouts (1997).
+dnl this has been common practice since the mid-80's, there were some holdouts
+dnl noted in 1997 among the BSD-based Unix systems.  Twenty years later, some
+dnl BSDs still fail to provide this POSIX feature.
+dnl
+dnl For reference, here is the 2004 edition:
+dnl
+dnl https://pubs.opengroup.org/onlinepubs/009695399/utilities/make.html
+dnl
+dnl If a target or prerequisite contains parentheses, it shall be treated as a
+dnl member of an archive library.  For the lib( member .o) expression lib
+dnl refers to the name of the archive library and member .o to the member name. 
+dnl The application shall ensure that the member is an object file with the .o
+dnl suffix.  The modification time of the expression is the modification time
+dnl for the member as kept in the archive library; see ar.  The .a suffix shall
+dnl refer to an archive library.  The .s2.a rule shall be used to update a
+dnl member in the library from a file with a suffix .s2.
 AC_DEFUN([CF_MAKE_AR_RULES],
 [
 AC_MSG_CHECKING(if ${MAKE:-make} program knows about archives)
@@ -954,15 +980,28 @@ all:  conf.a
 	\$(AR) \$[]@ \$[]*.o
 conf.a : conf.a(conftest.o)
 CF_EOF
-touch $cf_dir/conftest.c
+cat >$cf_dir/conftest.c <<CF_EOF
+#include <stdio.h>
+extern int conftest(char *name);
+int conftest(char *name)
+{
+	FILE *fp = fopen(name, "r");
+	int rc = 0;
+	if (fp != 0) {
+		fclose(fp);
+		rc = 1;
+	}
+	return rc;
+}
+CF_EOF
 CDPATH=; export CDPATH
 if ( cd $cf_dir && ${MAKE:-make} 2>&AC_FD_CC >&AC_FD_CC && test -f conf.a )
 then
 	cf_cv_ar_rules=yes
 else
-echo ... did not find archive >&AC_FD_CC
-rm -f $cf_dir/conftest.o
-cat >$cf_dir/makefile <<CF_EOF
+	echo ... library-rule did not create an archive >&AC_FD_CC
+	rm -f $cf_dir/conftest.o
+	cat >$cf_dir/makefile <<CF_EOF
 SHELL = /bin/sh
 AR = ar crv
 CC = $CC
@@ -978,13 +1017,13 @@ all:  conf.a
 conf.a : conftest.o
 	\$(AR) \$[]@ \$?
 CF_EOF
-CDPATH=; export CDPATH
-if ( cd $cf_dir && ${MAKE:-make} 2>&AC_FD_CC >&AC_FD_CC && test -f conf.a )
-then
-	cf_cv_ar_rules=no
-else
-	AC_MSG_ERROR(I do not know how to construct a library)
-fi
+	CDPATH=; export CDPATH
+	if ( cd $cf_dir && ${MAKE:-make} 2>&AC_FD_CC >&AC_FD_CC && test -f conf.a )
+	then
+		cf_cv_ar_rules=no
+	else
+		AC_MSG_ERROR(I do not know how to construct a library)
+	fi
 fi
 rm -rf $cf_dir
 ])
@@ -1057,11 +1096,15 @@ AC_DEFUN([CF_MSG_LOG],[
 echo "${as_me:-configure}:__oline__: testing $* ..." 1>&AC_FD_CC
 ])dnl
 dnl ---------------------------------------------------------------------------
-dnl CF_PROG_CC version: 4 updated: 2014/07/12 18:57:58
+dnl CF_PROG_CC version: 5 updated: 2019/12/31 08:53:54
 dnl ----------
 dnl standard check for CC, plus followup sanity checks
 dnl $1 = optional parameter to pass to AC_PROG_CC to specify compiler name
 AC_DEFUN([CF_PROG_CC],[
+CF_ACVERSION_CHECK(2.53,
+	[AC_MSG_WARN(this will incorrectly handle gnatgcc choice)
+	 AC_REQUIRE([AC_PROG_CC])],
+	[])
 ifelse($1,,[AC_PROG_CC],[AC_PROG_CC($1)])
 CF_GCC_VERSION
 CF_ACVERSION_CHECK(2.52,
@@ -1087,7 +1130,7 @@ $1=`echo "$2" | \
 		-e 's/-[[UD]]'"$3"'\(=[[^ 	]]*\)\?[$]//g'`
 ])dnl
 dnl ---------------------------------------------------------------------------
-dnl CF_SRC_MAKEFILE version: 4 updated: 2018/01/08 18:28:33
+dnl CF_SRC_MAKEFILE version: 5 updated: 2019/12/18 19:06:19
 dnl ---------------
 dnl Append predefined lists to $2/makefile, given a path to a directory that
 dnl has a 'modules' file in $1.
@@ -1171,6 +1214,7 @@ cat >>$cf_out <<CF_EOF
 \$Z:	\$(OBJS)
 	\$(AR) \$(ARFLAGS) \$Z \$(OBJS)
 	\$(RANLIB) \$Z
+	@echo "...working around non-POSIX \"\$(MAKE)\"" && sleep 1
 CF_EOF
 	fi
 fi
@@ -1218,3 +1262,11 @@ AC_DEFUN([CF_VERBOSE],
 [test -n "$verbose" && echo "	$1" 1>&AC_FD_MSG
 CF_MSG_LOG([$1])
 ])dnl
+dnl ---------------------------------------------------------------------------
+dnl CF_WITHOUT_X version: 1 updated: 2020/03/03 18:27:24
+dnl ------------
+dnl Use this to cancel the check for X headers/libraries which would be pulled
+dnl in via CF_GCC_WARNINGS.
+define([CF_WITHOUT_X],
+AC_DEFUN([CF_CONST_X_STRING],[echo "skipping X-const check";])dnl
+[])dnl

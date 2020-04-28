@@ -3,6 +3,7 @@
  * Author:	T.E.Dickey
  * Created:	14 Mar 1989
  * Modified:
+ *		28 Apr 2020, check for KEY_RESIZE from ncurses.
  *		01 Dec 2019, handle UTF-8 in dlog_comment().
  *		14 Dec 2014, fix coverity warnings
  *		25 May 2010, fix clang --analyze warnings.
@@ -36,7 +37,7 @@
 #include	"ded.h"
 #include	<time.h>
 
-MODULE_ID("$Id: dlog.c,v 12.27 2019/12/02 01:40:35 tom Exp $")
+MODULE_ID("$Id: dlog.c,v 12.28 2020/04/28 20:55:55 tom Exp $")
 
 #define	NOW		time((time_t *)0)
 
@@ -183,7 +184,7 @@ read_script(void)
  * from the keyboard.
  */
 static int
-read_char(int *count_)
+read_char(RING * gbl, int *count_)
 {
     int num = 0;
     int j;
@@ -200,11 +201,21 @@ read_char(int *count_)
      */
     else {
 	for (j = 0; j < MAXTRIES; j++) {
-	    if ((num = cmdch(count_)) > 0)
+	    if ((num = cmdch(count_)) > 0) {
+#ifdef KEY_RESIZE
+		if (num == KEY_RESIZE) {
+		    retouch(gbl, 0);
+		    dedsize(gbl);
+		    continue;
+		}
+#endif
 		break;
+	    }
+#ifndef KEY_RESIZE
 	    if (j == 0)
 		beep();
 	    sleep(2);
+#endif
 	}
 	if (num <= 0)
 	    failed("read_char");
@@ -316,7 +327,7 @@ dlog_char(RING * gbl, int *count_, int begin)
 {
     int c;
     dedsize(gbl);
-    c = record_char(read_char(count_), count_, begin);
+    c = record_char(read_char(gbl, count_), count_, begin);
     dedsize((RING *) 0);
     return c;
 }
