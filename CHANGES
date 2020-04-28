@@ -1,3 +1,20 @@
+2020-04-28  Thomas E. Dickey  <dickey@invisible-island.net>
+
+	* configure: regen
+
+	* aclocal.m4: resync with my-autoconf
+
+	* configure.in: --without-x
+
+	* package/debian/copyright, COPYING, package/debian/changelog, package/ded-12.0.spec:
+	bump
+
+	* src/dlog.c: check for KEY_RESIZE from ncurses
+
+	* src/dedsize.c:
+	on_winch() now lets ncurses handle all SIGWINCH; this module just has to
+	do screen-updates after a SIGWINCH is detected.
+
 2019-12-26  Thomas E. Dickey  <dickey@invisible-island.net>
 
 	* package/ded-12.0.spec, package/debian/changelog: bump
@@ -9,6 +26,8 @@
 	* user/ded.man: simplify/reword
 
 2019-12-20  Thomas E. Dickey  <dickey@invisible-island.net>
+
+	* config.guess: 2019-12-21
 
 	* package/debian/changelog, package/ded-12.0.spec: bump
 

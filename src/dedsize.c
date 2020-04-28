@@ -3,6 +3,7 @@
  * Author:	T.E.Dickey
  * Created:	26 Jun 1994
  * Modified:
+ *		28 Apr 2020, let ncurses handle SIGWINCH
  *		07 Mar 2004, remove K&R support, indent'd
  *
  * Function:	Detect resizing of the window within which DED is running,
@@ -22,10 +23,12 @@
 
 #include "ded.h"
 
-MODULE_ID("$Id: dedsize.c,v 12.10 2010/07/04 22:05:01 tom Exp $")
+MODULE_ID("$Id: dedsize.c,v 12.11 2020/04/28 20:51:44 tom Exp $")
 
 #ifdef	SIGWINCH
 
+static int save_rows;
+static int save_cols;
 static RING *save_gbl;
 
 static void
@@ -35,7 +38,7 @@ handle_resize(void)
 
     if (save_gbl != 0) {
 	if (!working++) {
-	    dlog_comment("resizewin LINES=%d, COLS=%d\n", LINES, COLS);
+	    dlog_comment("handle_resize LINES=%d, COLS=%d\n", LINES, COLS);
 	    if (!ft_resize()) {
 		markset(save_gbl, (unsigned) mark_W);
 		/*patch showFILES(save_gbl, FALSE); */
@@ -52,8 +55,20 @@ void
 dedsize(RING * gbl)
 {
 #ifdef	SIGWINCH
-    static void (*dummy) (void);
     save_gbl = gbl;
-    on_winch(gbl ? handle_resize : dummy);
+#ifdef NCURSES_VERSION
+    if (save_rows != LINES || save_cols != COLS) {
+	handle_resize();
+    }
+#else
+    {
+	static void (*dummy) (void);
+	on_winch(gbl ? handle_resize : dummy);
+    }
+#endif
+    save_rows = LINES;
+    save_cols = COLS;
+#else
+    (void) gbl;
 #endif /* SIGWINCH */
 }
