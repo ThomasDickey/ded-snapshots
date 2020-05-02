@@ -1,3 +1,15 @@
+2020-05-01  Thomas E. Dickey  <dickey@invisible-island.net>
+
+	* package/debian/changelog, package/ded-12.0.spec: bump
+
+	* src/dlog.c: add null-pointer check
+
+	* src/dedscan.c: add null pointer check
+
+	* src/deddoit.c: coverity CID 300422 - memory leak
+
+	* src/ftree.c: coverity CID 300423 - memory leak
+
 2020-04-28  Thomas E. Dickey  <dickey@invisible-island.net>
 
 	* configure: regen

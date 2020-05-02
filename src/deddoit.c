@@ -40,7 +40,7 @@
  */
 #include	"ded.h"
 
-MODULE_ID("$Id: deddoit.c,v 12.26 2019/12/12 00:31:15 tom Exp $")
+MODULE_ID("$Id: deddoit.c,v 12.27 2020/05/01 23:07:35 tom Exp $")
 
 /*
  * Return a pointer to a leaf of a given name
@@ -78,7 +78,7 @@ subroot(char *name)
  * Perform '%' expansions for current-entry.  The substitutions are modified
  * from the ":" modifiers defined for "csh".
  */
-static void
+static DYN *
 Expand(RING * gbl, int code, DYN * subs)
 {
     char *cur_name = cNAME;
@@ -164,7 +164,8 @@ Expand(RING * gbl, int code, DYN * subs)
     }
 
     (void) name2s(temp, sizeof(temp), from, TRUE);
-    dyn_append(subs, temp);
+    subs = dyn_append(subs, temp);
+    return subs;
 }
 
 /*
@@ -191,7 +192,7 @@ deddoit(RING * gbl, int key, int sense)
 
     if ((key != '.') || (*dyn_string(gbl->cmd_sh) == EOS)) {
 	if (key == ':')
-	    dyn_append(Subs, dyn_string(gbl->cmd_sh));
+	    Subs = dyn_append(Subs, dyn_string(gbl->cmd_sh));
 
 	c = FALSE;
 	if (!(s = dlog_string(gbl, prompt, -1, &Subs, (DYN **) 0,
@@ -202,7 +203,7 @@ deddoit(RING * gbl, int key, int sense)
 	while (*s) {		/* skip leading blanks */
 	    if (!isspace(UCH(*s))) {
 		dyn_init(&gbl->cmd_sh, BUFSIZ);
-		dyn_append(gbl->cmd_sh, s);
+		gbl->cmd_sh = dyn_append(gbl->cmd_sh, s);
 		c = TRUE;
 		break;
 	    }
@@ -230,7 +231,7 @@ deddoit(RING * gbl, int key, int sense)
 
 	if (*This == '\\'
 	    && (*Next == '#' || *Next == '%')) {
-	    dyn_append(Subs, Next);
+	    Subs = dyn_append(Subs, Next);
 	    j++;
 	} else if (*This == '#') {	/* substitute group */
 	    int ellipsis = FALSE;
@@ -242,17 +243,17 @@ deddoit(RING * gbl, int key, int sense)
 		if (GROUPED(x)) {
 		    len = (int) strlen(s = fixname(gbl, x));
 		    if (others++)
-			dyn_append(Subs, " ");
+			Subs = dyn_append(Subs, " ");
 
 		    if (!ellipsis && ((int) dyn_length(Subs) + len) > 256) {
 			ellipsis = TRUE;
-			dyn_append_c(Subs, ELIDE_B);
+			Subs = dyn_append_c(Subs, ELIDE_B);
 		    }
-		    dyn_append(Subs, s);
+		    Subs = dyn_append(Subs, s);
 		}
 	    }
 	    if (ellipsis) {
-		dyn_append_c(Subs, ELIDE_E);
+		Subs = dyn_append_c(Subs, ELIDE_E);
 	    }
 
 	} else if (*This == '%') {	/* substitute current file */
@@ -260,7 +261,7 @@ deddoit(RING * gbl, int key, int sense)
 		j++;
 	    Expand(gbl, *Next, Subs);
 	} else {
-	    dyn_append(Subs, This);
+	    Subs = dyn_append(Subs, This);
 	}
     }
     dedshow(gbl, "> ", dyn_string(Subs));
