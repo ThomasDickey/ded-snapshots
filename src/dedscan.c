@@ -3,6 +3,7 @@
  * Author:	T.E.Dickey
  * Created:	09 Nov 1987
  * Modified:
+ *		01 May 2020, fix coverity warnings
  *		14 Dec 2014, fix coverity warnings
  *		22 Jul 2014, improve support for caseless filenames.
  *		30 Jan 2011, merge -d and DED_DEBUG environment variable, and
@@ -103,7 +104,7 @@
 #include	<rcsdefs.h>
 #include	<sccsdefs.h>
 
-MODULE_ID("$Id: dedscan.c,v 12.53 2014/12/14 18:48:03 tom Exp $")
+MODULE_ID("$Id: dedscan.c,v 12.54 2020/05/02 00:29:36 tom Exp $")
 
 #define	N_UNKNOWN	-1	/* name does not exist */
 #define	N_FILE		0	/* a file (synonym for 'common==0') */
@@ -678,8 +679,9 @@ path_RESOLVE(RING * gbl, char path[MAXPATHLEN])
 	gbl->AT_opt = TRUE;
 	code = dedstat(gbl, path, &fb);
 	gbl->AT_opt = save;
-	if (code == N_LDIR)
+	if (code == N_LDIR && fb.z_ltxt != 0) {
 	    (void) strcpy(path, fb.z_ltxt);
+	}
     }
     return (TRUE);
 }

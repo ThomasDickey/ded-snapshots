@@ -142,7 +142,7 @@
 
 #include	<fcntl.h>
 
-MODULE_ID("$Id: ftree.c,v 12.80 2019/12/12 00:31:15 tom Exp $")
+MODULE_ID("$Id: ftree.c,v 12.81 2020/05/01 23:00:30 tom Exp $")
 
 #define	Null	(char *)0	/* some NULL's are simply 0 */
 
@@ -892,6 +892,7 @@ read_ftree(char *the_file)
 	    char *s = heap;
 	    if (!ok_read(fid, heap, size, "heap")) {
 		(void) close(fid);
+		dofree(heap);
 		return;
 	    }
 	    s[size] = EOS;

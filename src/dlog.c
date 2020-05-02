@@ -3,6 +3,7 @@
  * Author:	T.E.Dickey
  * Created:	14 Mar 1989
  * Modified:
+ *		01 May 2020, coverity warnings.
  *		28 Apr 2020, check for KEY_RESIZE from ncurses.
  *		01 Dec 2019, handle UTF-8 in dlog_comment().
  *		14 Dec 2014, fix coverity warnings
@@ -37,7 +38,7 @@
 #include	"ded.h"
 #include	<time.h>
 
-MODULE_ID("$Id: dlog.c,v 12.28 2020/04/28 20:55:55 tom Exp $")
+MODULE_ID("$Id: dlog.c,v 12.29 2020/05/02 00:35:29 tom Exp $")
 
 #define	NOW		time((time_t *)0)
 
@@ -204,8 +205,10 @@ read_char(RING * gbl, int *count_)
 	    if ((num = cmdch(count_)) > 0) {
 #ifdef KEY_RESIZE
 		if (num == KEY_RESIZE) {
-		    retouch(gbl, 0);
-		    dedsize(gbl);
+		    if (gbl != 0) {
+			retouch(gbl, 0);
+			dedsize(gbl);
+		    }
 		    continue;
 		}
 #endif
