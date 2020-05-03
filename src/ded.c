@@ -3,6 +3,7 @@
  * Author:	T.E.Dickey
  * Created:	09 Nov 1987
  * Modified:
+ *		02 May 2020, log errors from chdir.
  *		11 Dec 2019, remove long-obsolete apollo name2s option.
  *		01 Dec 2019, use executev() to handle UTF-8 parameters.
  *		21 Nov 2017, add "-x" option.
@@ -177,7 +178,7 @@
 
 #include <locale.h>
 
-MODULE_ID("$Id: ded.c,v 12.91 2019/12/12 00:21:34 tom Exp $")
+MODULE_ID("$Id: ded.c,v 12.92 2020/05/02 14:42:36 tom Exp $")
 
 #define	EDITOR	DEFAULT_EDITOR
 #define	BROWSE	DEFAULT_BROWSE
@@ -430,6 +431,7 @@ new_args(RING * gbl,
 	 char *pattern)
 {
     RING *ok;
+    int rc;
 
     if (flags & 1)
 	markC(gbl, TRUE);
@@ -440,8 +442,8 @@ new_args(RING * gbl,
 	count_tags(gbl);
 	showFILES(gbl, TRUE);
     }
-    (void) chdir(gbl->new_wd);
-    dlog_comment("chdir %s\n", gbl->new_wd);
+    rc = chdir(gbl->new_wd);
+    dlog_comment("chdir %s (%s)\n", gbl->new_wd, (rc < 0) ? "ERR" : "OK");
     if (!ok && (flags & 2))
 	showC(gbl);
     return ok;

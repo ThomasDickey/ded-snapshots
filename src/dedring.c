@@ -3,6 +3,7 @@
  * Author:	T.E.Dickey
  * Created:	27 Apr 1988
  * Modified:
+ *		02 May 2020, log errors from chdir.
  *		11 Dec 2019, remove long-obsolete apollo name2s option.
  *		14 Dec 2014, coverity warnings
  *		07 Mar 2004, remove K&R support, indent'd
@@ -59,7 +60,7 @@
 
 #include	"ded.h"
 
-MODULE_ID("$Id: dedring.c,v 12.24 2019/12/12 00:31:15 tom Exp $")
+MODULE_ID("$Id: dedring.c,v 12.25 2020/05/02 14:41:36 tom Exp $")
 
 #define	CMP_PATH(a,b)	pathcmp(a, b->new_wd)
 
@@ -488,12 +489,19 @@ dedring(RING * gbl,		/* current/reference data */
 	    newp->toscan = pattern;
 	    success = do_a_scan(newp);	/* rescan with pattern */
 	}
-	if (!success)		/* pop back to last "good" directory */
-	    (void) chdir(oldp->new_wd);
+	if (!success) {		/* pop back to last "good" directory */
+	    if (chdir(oldp->new_wd) < 0)
+		dlog_comment("chdir %s failed: %s\n",
+			     oldp->new_wd,
+			     strerror(errno));
+	}
     } else if (set_pattern && (newp->toscan != pattern)) {
 	newp->toscan = pattern;
 	if (!(success = do_a_scan(newp)))
-	    (void) chdir(oldp->new_wd);
+	    if (chdir(oldp->new_wd) < 0)
+		dlog_comment("chdir %s failed: %s\n",
+			     oldp->new_wd,
+			     strerror(errno));
     }
 
     dump_ring((gbl, "debug"));
