@@ -1,3 +1,15 @@
+2020-05-03  Thomas E. Dickey  <dickey@invisible-island.net>
+
+	* package/debian/changelog, package/ded-12.0.spec: bump
+
+	* src/ftree.c: check failure on write's
+
+	* src/ftree.c: log failures for chdir
+
+2020-05-02  Thomas E. Dickey  <dickey@invisible-island.net>
+
+	* src/ded.c, src/dedline.c, src/dedring.c: log errors from chdir
+
 2020-05-01  Thomas E. Dickey  <dickey@invisible-island.net>
 
 	* package/debian/changelog, package/ded-12.0.spec: bump

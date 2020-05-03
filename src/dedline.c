@@ -3,6 +3,7 @@
  * Author:	T.E.Dickey
  * Created:	01 Aug 1988 (from 'ded.c')
  * Modified:
+ *		02 May 2020, log errors from chdir.
  *		14 Dec 2014, coverity warnings
  *		25 May 2010, fix clang --analyze warnings.
  *		07 Sep 2004, add editdate().
@@ -60,7 +61,7 @@
 
 #include	"ded.h"
 
-MODULE_ID("$Id: dedline.c,v 12.36 2014/12/14 17:33:04 tom Exp $")
+MODULE_ID("$Id: dedline.c,v 12.37 2020/05/02 14:42:07 tom Exp $")
 
 #define	CHMOD(n)	(gSTAT(n).st_mode & 07777)
 #define	OWNER(n)	((geteuid() == 0) || (gSTAT(x).st_uid == geteuid()))
@@ -121,7 +122,8 @@ relink(RING * gbl, unsigned x, char *name)
     if (unlink(gNAME(x)) >= 0) {
 	if (symlink(name, gNAME(x)) >= 0)
 	    return (TRUE);
-	(void) symlink(gLTXT(x), gNAME(x));	/* try to restore */
+	if (symlink(gLTXT(x), gNAME(x)) < 0)	/* try to restore */
+	    dlog_comment("relink failed: %s\n", strerror(errno));
     }
     waitmsg(gNAME(x));
     return (FALSE);

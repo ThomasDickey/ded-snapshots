@@ -2,6 +2,7 @@
  * Author:	T.E.Dickey
  * Created:	02 Sep 1987
  * Modified:
+ *		03 May 2020, log failures for chdir.
  *		11 Dec 2019, remove long-obsolete apollo name2s option.
  *		14 Dec 2014, fix coverity warnings
  *		25 May 2010, fix clang --analyze warnings.
@@ -142,7 +143,7 @@
 
 #include	<fcntl.h>
 
-MODULE_ID("$Id: ftree.c,v 12.81 2020/05/01 23:00:30 tom Exp $")
+MODULE_ID("$Id: ftree.c,v 12.83 2020/05/03 15:11:52 tom Exp $")
 
 #define	Null	(char *)0	/* some NULL's are simply 0 */
 
@@ -1717,7 +1718,10 @@ ft_view(RING * gbl,
 		    ft_rename(cwdpath, bfr);
 		    scroll_to(row = do_find(bfr));
 		}
-		(void) chdir(gbl->new_wd);
+		if (chdir(gbl->new_wd) < 0)
+		    dlog_comment("chdir %s failed:%s\n",
+				 gbl->new_wd,
+				 strerror(errno));
 	    } else {
 		waitmsg(cwdpath);
 	    }
@@ -1774,8 +1778,14 @@ ft_view(RING * gbl,
 	    if (zLINK(row)) {
 		char bfr[MAXPATHLEN];
 		int len;
+		char *target = fd_path(bfr, ftree[row].f_root);
 
-		(void) chdir(fd_path(bfr, ftree[row].f_root));
+		if (chdir(target) < 0) {
+		    dlog_comment("chdir %s failed:%s\n",
+				 target,
+				 strerror(errno));
+		    break;
+		}
 		len = (int) readlink(cwdpath, bfr, sizeof(bfr) - 1);
 		if (len <= 0) {
 		    beep();
@@ -1783,7 +1793,10 @@ ft_view(RING * gbl,
 		}
 		bfr[len] = EOS;
 		abspath(strcpy(cwdpath, bfr));
-		(void) chdir(gbl->new_wd);
+		if (chdir(gbl->new_wd) < 0)
+		    dlog_comment("chdir %s failed:%s\n",
+				 gbl->new_wd,
+				 strerror(errno));
 	    }
 #endif /* S_IFLNK */
 	    if (access(cwdpath, R_OK | X_OK) < 0) {
@@ -2036,7 +2049,10 @@ ft_scan(RING * gbl, int node, int levels, int base)
 	if (!found)
 	    markit(node, NOVIEW, FALSE);
     }
-    (void) chdir(gbl->new_wd);
+    if (chdir(gbl->new_wd) < 0)
+	dlog_comment("chdir %s failed:%s\n",
+		     gbl->new_wd,
+		     strerror(errno));
     return (0);
 }
 
@@ -2113,16 +2129,25 @@ ft_write(void)
 	    PRINTF("writing file \"%s\" (%d)\n",
 		   dyn_string(FDname), FDlast);
 #endif
-#define	WRT(s,n)	(void)write(fid,(char *)s,(size_t)(n))
-	    WRT(&FDlast, sizeof(FDlast));
-	    WRT(ftree, ((size_t) (FDlast + 1) * sizeof(FTREE)));
+#define	WRT(s,n)	write(fid,(char *)s,(size_t)(n))
+	    if (WRT(&FDlast, sizeof(FDlast)) < 0
+		|| WRT(ftree, ((size_t) (FDlast + 1) * sizeof(FTREE))) < 0) {
+		close(fid);
+		return;
+	    }
 
-	    for (j = 0, k = 0; j <= FDlast; j++)
+	    for (j = 0, k = 0; j <= FDlast; j++) {
 		k += strlen(ftree[j].f_name) + 1;
+	    }
 	    heap = doalloc(Null, k);
-	    for (j = 0, k = 0; j <= FDlast; j++)
+	    for (j = 0, k = 0; j <= FDlast; j++) {
 		k += strlen(strcpy(heap + k, ftree[j].f_name)) + 1;
-	    (void) write(fid, heap, (size_t) k);
+	    }
+	    if (write(fid, heap, (size_t) k) < 0) {
+		free(heap);
+		(void) close(fid);
+		return;
+	    }
 	    free(heap);
 
 	    (void) close(fid);
@@ -2132,7 +2157,8 @@ ft_write(void)
 	    (void) time(&FDtime);
 	} else if (errno != EPERM
 		   && errno != ENOENT
-		   && errno != EACCES)
+		   && errno != EACCES) {
 	    wait_warn(dyn_string(FDname));
+	}
     }
 }
