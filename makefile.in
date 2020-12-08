@@ -1,7 +1,11 @@
-# $Id: makefile.in,v 12.12 2013/12/05 23:17:05 tom Exp $
+# $Id: makefile.in,v 12.13 2020/12/08 00:14:02 tom Exp $
 # Top-level make-file for DED
 
+####### (Environment) ##########################################################
 SHELL		= /bin/sh
+top_srcdir	= @top_srcdir@
+srcdir		= @srcdir@
+VPATH		= @srcdir@
 @SET_MAKE@
 
 THIS	= ded
@@ -21,7 +25,6 @@ BINDIR		= $(DESTDIR)$(bindir)
 DATADIR		= $(DESTDIR)$(datadir)/$(THIS)
 
 SOURCES	= \
-	makefile.in \
 	COPYING\
 	README
 

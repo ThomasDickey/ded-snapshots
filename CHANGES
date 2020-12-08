@@ -1,3 +1,30 @@
+2020-12-08  Thomas E. Dickey  <dickey@invisible-island.net>
+
+	* package/debian/changelog, package/ded-12.0.spec: bump
+
+2020-12-07  Thomas E. Dickey  <dickey@invisible-island.net>
+
+	* user/makefile.in, test/makefile.in, src/makefile.in, makefile.in:
+	use VPATH
+
+	* src/makefile.2nd: don't depend on makefile.in
+
+	* configure: regen
+
+2020-12-06  Thomas E. Dickey  <dickey@invisible-island.net>
+
+	* src/makefile.in: add VPATH and top_srcdir
+
+	* package/debian/changelog, package/ded-12.0.spec: bump
+
+	* configure.in: remove unused macros
+
+	* aclocal.m4: resync with my-autoconf
+
+2020-08-16  Thomas E. Dickey  <dickey@invisible-island.net>
+
+	* config.guess, config.sub: 2020-08-17
+
 2020-05-03  Thomas E. Dickey  <dickey@invisible-island.net>
 
 	* package/debian/changelog, package/ded-12.0.spec: bump
