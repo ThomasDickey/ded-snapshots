@@ -1,5 +1,12 @@
-# $Id: makefile.in,v 12.2 2010/07/05 16:57:20 tom Exp $
+# $Id: makefile.in,v 12.3 2020/12/08 00:18:26 tom Exp $
 # make-file for testing unix directory editor
+
+####### (Environment) ##########################################################
+SHELL		= /bin/sh
+top_srcdir	= @top_srcdir@
+srcdir		= @srcdir@
+VPATH		= @srcdir@
+@SET_MAKE@
 
 @make_include_left@@TD_LIB_rules@/td_lib.mk@make_include_right@
 

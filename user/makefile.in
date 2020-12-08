@@ -1,4 +1,11 @@
-# $Id: makefile.in,v 12.7 2013/12/06 01:20:23 tom Exp $
+# $Id: makefile.in,v 12.8 2020/12/08 00:19:14 tom Exp $
+
+####### (Environment) ##########################################################
+SHELL		= /bin/sh
+top_srcdir	= @top_srcdir@
+srcdir		= @srcdir@
+VPATH		= @srcdir@
+@SET_MAKE@
 
 THIS	= ded
 
