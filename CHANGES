@@ -1,3 +1,11 @@
+2020-12-14  Thomas E. Dickey  <dickey@invisible-island.net>
+
+	* package/debian/changelog, package/ded-12.0.spec: bump
+
+2020-12-13  Thomas E. Dickey  <dickey@invisible-island.net>
+
+	* user/makefile.in: fix for out-of-tree builds
+
 2020-12-08  Thomas E. Dickey  <dickey@invisible-island.net>
 
 	* package/debian/changelog, package/ded-12.0.spec: bump
