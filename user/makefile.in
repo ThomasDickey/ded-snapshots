@@ -1,4 +1,4 @@
-# $Id: makefile.in,v 12.8 2020/12/08 00:19:14 tom Exp $
+# $Id: makefile.in,v 12.9 2020/12/13 21:20:13 tom Exp $
 
 ####### (Environment) ##########################################################
 SHELL		= /bin/sh
@@ -42,6 +42,6 @@ uninstall:				; -$(RM) $(IT)
 
 ####### (Details of Productions) ###############################################
 $(IT):	$(THIS).man $(MANDIR)
-	$(INSTALL_DATA) $(THIS).man $(IT)
+	$(INSTALL_DATA) $(srcdir)/$(THIS).man $(IT)
 
 $(MANDIR) :				; mkdir -p $@
