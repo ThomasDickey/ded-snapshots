@@ -1,3 +1,16 @@
+2021-01-10  Thomas E. Dickey  <dickey@invisible-island.net>
+
+	* configure: regen
+
+	* aclocal.m4: quoting fixes for shellcheck
+
+	* configure: regen
+
+	* aclocal.m4: resync with my-autoconf
+
+	* COPYING, package/debian/changelog, package/debian/copyright, package/ded-12.0.spec:
+	bump
+
 2020-12-14  Thomas E. Dickey  <dickey@invisible-island.net>
 
 	* package/debian/changelog, package/ded-12.0.spec: bump

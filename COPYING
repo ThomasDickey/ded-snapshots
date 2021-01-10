@@ -1,10 +1,10 @@
-$Id: COPYING,v 12.13 2020/04/28 22:30:22 tom Exp $
+$Id: COPYING,v 12.14 2021/01/10 18:22:50 tom Exp $
 
 DED - Directory EDitor
 
 --------------------------------------------------------------------------------
 
-Copyright 1987-2019,2020 by Thomas E. Dickey.  All Rights Reserved.
+Copyright 1987-2020,2021 by Thomas E. Dickey.  All Rights Reserved.
 
 Permission to use, copy, modify, and distribute this software and its
 documentation for any purpose and without fee is hereby granted, provided that
