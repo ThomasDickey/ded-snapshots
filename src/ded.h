@@ -23,7 +23,7 @@
 
 #ifdef	MAIN
 #if	!defined(NO_IDENT)
-static const char ded_h[] = "$Id: ded.h,v 12.76 2019/12/20 02:19:42 tom Exp $";
+static const char ded_h[] = "$Id: ded.h,v 12.77 2021/03/28 19:57:09 tom Exp $";
 #endif
 #endif	/* MAIN */
 
@@ -626,8 +626,8 @@ extern	void	dlog_reopen(void);
 
 extern	void	dlog_close(void);
 
-extern	void	dlog_exit(
-		int	code) GCC_NORETURN ;
+extern	GCC_NORETURN void dlog_exit(
+		int	code);
 
 extern	int	dlog_char(
 		RING *		gbl,

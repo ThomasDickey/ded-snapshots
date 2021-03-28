@@ -1,3 +1,13 @@
+2021-03-28  Thomas E. Dickey  <dickey@invisible-island.net>
+
+	* src/ded.h: use _Noreturn if available
+
+	* package/debian/changelog, package/ded-12.0.spec: bump
+
+	* configure: regen
+
+	* aclocal.m4: resync with my-autoconf
+
 2021-01-10  Thomas E. Dickey  <dickey@invisible-island.net>
 
 	* configure: regen
