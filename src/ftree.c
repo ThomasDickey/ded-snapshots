@@ -2,6 +2,7 @@
  * Author:	T.E.Dickey
  * Created:	02 Sep 1987
  * Modified:
+ *		11 Oct 2022, gcc-warnings.
  *		03 May 2020, log failures for chdir.
  *		11 Dec 2019, remove long-obsolete apollo name2s option.
  *		14 Dec 2014, fix coverity warnings
@@ -143,7 +144,7 @@
 
 #include	<fcntl.h>
 
-MODULE_ID("$Id: ftree.c,v 12.83 2020/05/03 15:11:52 tom Exp $")
+MODULE_ID("$Id: ftree.c,v 12.84 2022/10/11 23:26:16 tom Exp $")
 
 #define	Null	(char *)0	/* some NULL's are simply 0 */
 
@@ -1400,7 +1401,6 @@ ft_update(int row,
  * to the row/lvl variables of 'ft_view()'.
  */
 #ifdef	SIGWINCH
-static RING *resize_gbl;
 static int *resize_row;
 static int *resize_lvl;
 
@@ -1416,6 +1416,19 @@ ft_resize(void)
     return FALSE;
 }
 #endif
+
+static RING *
+ft_end_view(RING *gbl)
+{
+#ifdef	SIGWINCH		/* make the row/column visible to signal handler */
+    resize_row = NULL;
+    resize_lvl = NULL;
+#endif
+    caller_top = NULL;
+    viewer_top = NULL;
+
+    return gbl;
+}
 
 /*
  * Interactively display the directory tree and modify it:
@@ -1439,7 +1452,6 @@ ft_view(RING * gbl,
     char *s;
 
 #ifdef	SIGWINCH		/* make the row/column visible to signal handler */
-    resize_gbl = gbl;
     resize_row = &row;
     resize_lvl = &lvl;
 #endif
@@ -1451,12 +1463,12 @@ ft_view(RING * gbl,
      * argument is a true result from 'getwd' since the mount-table may
      * be screwed up and a symbolic link may be hiding this path. */
     if (strlen(path) >= sizeof(cwdpath))
-	return gbl;
+	return ft_end_view(gbl);
 
     fd_add_path(strcpy(cwdpath, path), path);
     if ((row = do_find(cwdpath)) < 0) {
 	waitmsg(cwdpath);
-	return gbl;
+	return ft_end_view(gbl);
     }
 
     /*
@@ -1751,10 +1763,10 @@ ft_view(RING * gbl,
 		if ((tmp = QUIT_THIS(1)) != 0)
 		    redoVIEW(gbl = tmp, TRUE);
 		else
-		    return gbl;
+		    return ft_end_view(gbl);
 	    }
 	    if (!j)
-		return gbl;
+		return ft_end_view(gbl);
 	    break;
 	    /* scroll through the directory-ring */
 	case 'F':
@@ -1765,7 +1777,7 @@ ft_view(RING * gbl,
 		if ((tmp = QUIT_THIS(1)) != 0)
 		    redoVIEW(gbl = tmp, TRUE);
 		else
-		    return gbl;
+		    return ft_end_view(gbl);
 	    }
 	    break;
 
@@ -1807,7 +1819,7 @@ ft_view(RING * gbl,
 	    /* FALLTHRU */
 	case 'D':
 	    *cmdp = c;		/* 'e', 'E' CTL(E) or 'D' -- only! */
-	    return gbl;
+	    return ft_end_view(gbl);
 
 	    /* Scan/delete nodes */
 	case 'R':

@@ -3,6 +3,7 @@
  * Author:	T.E.Dickey
  * Created:	03 Apr 1992, from 'ded.c'
  * Modified:
+ *		11 Oct 2022, gcc-warnings.
  *		25 May 2010, fix clang --analyze warnings.
  *		07 Mar 2004, remove K&R support, indent'd
  *		21 Jul 1998, change filelist header layout to allow for
@@ -27,7 +28,7 @@
 
 #include	"ded.h"
 
-MODULE_ID("$Id: dedview.c,v 12.49 2014/07/22 18:23:23 tom Exp $")
+MODULE_ID("$Id: dedview.c,v 12.50 2022/10/11 23:26:25 tom Exp $")
 
 #define	MINLIST	2		/* minimum length of file-list + header */
 #define	MINWORK	3		/* minimum size of work-area */
@@ -54,7 +55,7 @@ typedef struct {
     RING *gbl;			/* ...so dedring can identify   */
 } VIEW;
 
-static VIEW viewlist[PORT_MAX], *vue = viewlist;
+static VIEW viewlist[PORT_MAX + 1], *vue = viewlist;
 
 static unsigned curview;	/* 0..PORT_MAX                  */
 static unsigned maxview;	/* current number of viewports  */

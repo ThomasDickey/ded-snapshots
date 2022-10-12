@@ -1,4 +1,4 @@
-# $Id: makefile.in,v 12.9 2020/12/13 21:20:13 tom Exp $
+# $Id: makefile.in,v 12.10 2022/10/12 00:09:31 tom Exp $
 
 ####### (Environment) ##########################################################
 SHELL		= /bin/sh
@@ -34,10 +34,10 @@ ALL	=
 ####### (Standard Productions) #################################################
 all:		$(SOURCES) $(ALL)
 clean:					; -$(RM) $(CLEAN)
-distclean:	clean			; -$(RM) $(ALL) *.cat
+distclean:	clean			; -$(RM) $(ALL) *.cat install-sh
 check:
 sources:	$(SOURCES)
-install:	$(IT)
+install:	install-sh $(IT)
 uninstall:				; -$(RM) $(IT)
 
 ####### (Details of Productions) ###############################################
@@ -45,3 +45,5 @@ $(IT):	$(THIS).man $(MANDIR)
 	$(INSTALL_DATA) $(srcdir)/$(THIS).man $(IT)
 
 $(MANDIR) :				; mkdir -p $@
+install-sh : $(top_srcdir)/install-sh
+	cp $? $@

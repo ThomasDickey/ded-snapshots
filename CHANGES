@@ -1,3 +1,21 @@
+2022-10-11  Thomas E. Dickey  <dickey@invisible-island.net>
+
+	* user/makefile.in: use ../install-sh if necessary
+
+	* src/dedview.c, src/ftree.c: gcc-warnings
+
+	* configure: regen
+
+	* aclocal.m4: resync with my-autoconf
+
+	* package/debian/copyright, COPYING, package/debian/changelog,
+	  package/ded-12.0.spec:
+	bump
+
+2022-08-01  Thomas E. Dickey  <dickey@invisible-island.net>
+
+	* config.guess, config.sub: 2022-08-01
+
 2021-03-28  Thomas E. Dickey  <dickey@invisible-island.net>
 
 	* src/ded.h: use _Noreturn if available
@@ -18,7 +36,8 @@
 
 	* aclocal.m4: resync with my-autoconf
 
-	* COPYING, package/debian/changelog, package/debian/copyright, package/ded-12.0.spec:
+	* COPYING, package/debian/changelog, package/debian/copyright,
+	  package/ded-12.0.spec:
 	bump
 
 2020-12-14  Thomas E. Dickey  <dickey@invisible-island.net>
@@ -88,7 +107,8 @@
 
 	* configure.in: --without-x
 
-	* package/debian/copyright, COPYING, package/debian/changelog, package/ded-12.0.spec:
+	* package/debian/copyright, COPYING, package/debian/changelog,
+	  package/ded-12.0.spec:
 	bump
 
 	* src/dlog.c: check for KEY_RESIZE from ncurses
@@ -125,7 +145,9 @@
 
 	* package/debian/changelog, package/ded-12.0.spec: bump
 
-	* src/ded2s.c, src/deddoit.c, src/dedring.c, src/dedtype.c, src/ftree.c, src/ded.c, src/ded.h:
+	* src/ded2s.c, src/deddoit.c, src/dedring.c, src/dedtype.c, src/ftree.c,
+	  src/ded.c, src/ded.h
+:
 	remove long-obsolete apollo name2s option.
 
 2019-12-09  Thomas E. Dickey  <dickey@invisible-island.net>
@@ -197,7 +219,8 @@
 
 2018-01-07  Thomas E. Dickey  <dickey@invisible-island.net>
 
-	* package/debian/copyright, COPYING, package/debian/changelog, package/ded-12.0.spec:
+	* package/debian/copyright, COPYING, package/debian/changelog,
+	  package/ded-12.0.spec:
 	bump
 
 2017-11-25  Thomas E. Dickey  <dickey@invisible-island.net>
@@ -244,7 +267,9 @@
 
 2015-07-04  Thomas E. Dickey  <dickey@invisible-island.net>
 
-	* package/debian/copyright, package/debian/changelog, package/ded-12.0.spec, COPYING:
+	* package/debian/copyright, package/debian/changelog,
+	  package/ded-12.0.spec, COPYING
+:
 	bump
 
 	* configure: regen
@@ -343,7 +368,8 @@
 
 2014-07-22  Thomas E. Dickey  <dickey@invisible-island.net>
 
-	* src/dedline.c, src/dedtype.c, src/showpath.c, src/dedview.c, src/ded2s.c:
+	* src/dedline.c, src/dedtype.c, src/showpath.c, src/dedview.c,
+	  src/ded2s.c:
 	cygwin-compiler-warnings
 
 	* src/ded2s.c, src/dedcolor.c: minix3.2-build-fixes
@@ -355,7 +381,8 @@
 
 	* aclocal.m4: resync with my-autoconf
 
-	* COPYING, package/debian/changelog, package/debian/copyright, package/ded-12.0.spec:
+	* COPYING, package/debian/changelog, package/debian/copyright,
+	  package/ded-12.0.spec:
 	bump
 
 2014-04-19  Thomas E. Dickey  <dickey@invisible-island.net>
@@ -370,7 +397,8 @@
 
 	* user/makefile.in: honor datarootdir
 
-	* package/debian/changelog, package/debian/copyright, COPYING, package/ded-12.0.spec:
+	* package/debian/changelog, package/debian/copyright, COPYING,
+	  package/ded-12.0.spec:
 	bump
 
 	* configure: regen
@@ -395,7 +423,9 @@
 
 	* package/debian/changelog, package/ded-12.0.spec, COPYING: bump
 
-	* src/ded2s.c, src/deddoit.c, src/dedline.c, src/dedtags.c, src/dedtype.c, src/deduniq.c:
+	* src/ded2s.c, src/deddoit.c, src/dedline.c, src/dedtags.c,
+	  src/dedtype.c, src/deduniq.c
+:
 	gcc-warnings
 
 2011-02-22  Thomas E. Dickey  <dickey@invisible-island.net>
@@ -452,7 +482,13 @@
 	* makefile.in:
 	declare datadir here, needed for installing using --prefix
 
-	* src/ded.c, src/dedcolor.c, src/dedview.c, src/dedline.c, src/dlog.c, src/dedring.c, src/dedsort.c, src/ded2s.c, src/dedread.c, src/ftree.c, src/restat.c, src/dedwait.c, src/dedsize.c, src/dedscan.c, src/dedtype.c, src/ded.h, src/dedmake.c, src/showpath.c, src/sortset.c, src/dedfind.c, src/deddoit.c, src/dedshow.c, src/dedblip.c, src/dedmsgs.c:
+	* src/ded.c, src/dedcolor.c, src/dedview.c, src/dedline.c, src/dlog.c,
+	  src/dedring.c, src/dedsort.c, src/ded2s.c, src/dedread.c, src/ftree.c,
+	  src/restat.c, src/dedwait.c, src/dedsize.c, src/dedscan.c,
+	  src/dedtype.c, src/ded.h, src/dedmake.c, src/showpath.c,
+	  src/sortset.c, src/dedfind.c, src/deddoit.c, src/dedshow.c,
+	  src/dedblip.c, src/dedmsgs.c
+:
 	stricter gcc warnings
 
 	* configure: regen
@@ -471,7 +507,9 @@
 
 2010-07-02  Thomas E. Dickey  <dickey@invisible-island.net>
 
-	* package/debian/rules, package/debian/copyright, package/debian/control, package/debian/changelog, package/debian/watch, package/debian/source/format:
+	* package/debian/rules, package/debian/copyright,
+	  package/debian/control, package/debian/changelog,
+	  package/debian/watch, package/debian/source/format:
 	RCS_BASE
 
 2010-06-30  Thomas E. Dickey  <dickey@invisible-island.net>
@@ -517,7 +555,10 @@
 
 2010-05-24  Thomas E. Dickey  <dickey@invisible-island.net>
 
-	* src/dedcolor.c, src/dedfind.c, src/dedline.c, src/dedscan.c, src/dedshow.c, src/dedsigs.c, src/dedtype.c, src/dedview.c, src/dedwait.c, src/dlog.c, src/ftree.c, src/showpath.c:
+	* src/dedcolor.c, src/dedfind.c, src/dedline.c, src/dedscan.c,
+	  src/dedshow.c, src/dedsigs.c, src/dedtype.c, src/dedview.c,
+	  src/dedwait.c, src/dlog.c, src/ftree.c, src/showpath.c
+:
 	fix warnings from clang --analyze
 
 	* aclocal.m4:
@@ -646,7 +687,15 @@
 
 2004-03-07  Thomas E. Dickey  <dickey@invisible-island.net>
 
-	* src/boxchars.c, src/ded.c, src/ded2s.c, src/dedblip.c, src/dedcmds.c, src/dedcolor.c, src/deddoit.c, src/deddump.c, src/dedfind.c, src/dedfree.c, src/dedline.c, src/dedmake.c, src/dedmsgs.c, src/dedname.c, src/dedread.c, src/dedring.c, src/dedscan.c, src/dedshow.c, src/dedsigs.c, src/dedsize.c, src/dedsort.c, src/dedtags.c, src/dedtype.c, src/deduniq.c, src/dedview.c, src/dedwait.c, src/dlog.c, src/ftree.c, src/history.c, src/inline.c, src/restat.c, src/showpath.c, src/sortset.c:
+	* src/boxchars.c, src/ded.c, src/ded2s.c, src/dedblip.c, src/dedcmds.c,
+	  src/dedcolor.c, src/deddoit.c, src/deddump.c, src/dedfind.c,
+	  src/dedfree.c, src/dedline.c, src/dedmake.c, src/dedmsgs.c,
+	  src/dedname.c, src/dedread.c, src/dedring.c, src/dedscan.c,
+	  src/dedshow.c, src/dedsigs.c, src/dedsize.c, src/dedsort.c,
+	  src/dedtags.c, src/dedtype.c, src/deduniq.c, src/dedview.c,
+	  src/dedwait.c, src/dlog.c, src/ftree.c, src/history.c, src/inline.c,
+	  src/restat.c, src/showpath.c, src/sortset.c
+:
 	remove K&R support, indent'd
 
 	* src/ded.h: remove K&R support
@@ -695,10 +744,13 @@
 	* src/ded.c, src/ded.h, src/dedcolor.c:
 	change ifdef convention to work with "gcc -Wundef"
 
-	* src/dedline.c, src/dedmake.c, src/dedname.c, src/dedscan.c, src/showpath.c:
+	* src/dedline.c, src/dedmake.c, src/dedname.c, src/dedscan.c,
+	  src/showpath.c:
 	changed ifdef convention to work with "gcc -Wundef"
 
-	* src/ded.c, src/ded2s.c, src/dedcolor.c, src/dedtype.c, src/dedview.c, src/ftree.c, src/ded.h:
+	* src/ded.c, src/ded2s.c, src/dedcolor.c, src/dedtype.c, src/dedview.c,
+	  src/ftree.c, src/ded.h
+:
 	change ifdef convention to work with "gcc -Wundef"
 
 2002-07-03  Thomas E. Dickey  <dickey@invisible-island.net>
@@ -770,7 +822,9 @@
 	* src/dedfree.c, src/dedscan.c, src/dedsort.c, src/ded.h:
 	caseless-filenames
 
-	* src/ded.h, src/dedsort.c, src/dedscan.c, src/dedfree.c, src/dedcolor.c, src/ded2s.c, src/dedview.c:
+	* src/ded.h, src/dedsort.c, src/dedscan.c, src/dedfree.c,
+	  src/dedcolor.c, src/ded2s.c, src/dedview.c
+:
 	renaming-FLIST-members
 
 	* src/ded.c: don't abort on newterm/initscr failure...
@@ -1097,7 +1151,8 @@
 	change y/Y lock-owner stuff to o/O (a little more mnemonic, and will also
 	let me reserve y/Y for vertical-split - also mnemonic)
 
-	* src/ded.c, src/ded2s.c, src/dedline.c, src/dedring.c, src/dedsort.c, src/sortset.c:
+	* src/ded.c, src/ded2s.c, src/dedline.c, src/dedring.c, src/dedsort.c,
+	  src/sortset.c:
 	remove apollo_sr10 code
 
 	* user/ded.man: remove the o/O/P special cases for apollo_sr10
@@ -1152,7 +1207,9 @@
 
 	* makefile.in: add distclean rule
 
-	* aclocal.m4, user/makefile.in, src/makefile.in, certify/makefile.in, makefile.in, configure.in, test/makefile.in, src/modules:
+	* aclocal.m4, user/makefile.in, src/makefile.in, certify/makefile.in,
+	  makefile.in, configure.in, test/makefile.in, src/modules
+:
 	RCS_BASE
 
 1997-09-07  Thomas E. Dickey  <dickey@clark.net>
@@ -1264,7 +1321,9 @@
 	move search-prompt to bottom of work-area, and fixed bug that left highlighting
 	on if an empty reply was given
 
-	* src/dlog.c, src/ded.h, src/ftree.c, src/dedread.c, src/dedline.c, src/dedfind.c, src/deddoit.c, src/ded.c:
+	* src/dlog.c, src/ded.h, src/ftree.c, src/dedread.c, src/dedline.c,
+	  src/dedfind.c, src/deddoit.c, src/ded.c
+:
 	modify interface of dlog_string and dlog_prompt
 
 	* src/dedtype.c:
@@ -1897,7 +1956,9 @@
 	* src/dedsigs.c:
 	use default signal handling when I'm running a subprocess
 
-	* src/dedtype.c, src/ftree.c, src/dedmake.c, src/dedline.c, src/deddoit.c, src/ded2s.c, src/ded.c:
+	* src/dedtype.c, src/ftree.c, src/dedmake.c, src/dedline.c,
+	  src/deddoit.c, src/ded2s.c, src/ded.c
+:
 	obsolete-name:STAT
 
 	* src/restat.c: _ONE:broke-tags
@@ -1912,7 +1973,10 @@
 
 	* src/README: neat new ideas
 
-	* src/dlog.c, src/dedview.c, src/dedtype.c, src/dedtags.c, src/dedsort.c, src/dedsigs.c, src/dedshow.c, src/dedscan.c, src/dedring.c, src/dedread.c:
+	* src/dlog.c, src/dedview.c, src/dedtype.c, src/dedtags.c,
+	  src/dedsort.c, src/dedsigs.c, src/dedshow.c, src/dedscan.c,
+	  src/dedring.c, src/dedread.c
+:
 	_ONE:broke-tags
 
 	* src/dedread.c: use MODULE_ID
@@ -1954,7 +2018,8 @@
 	HP/UX port. Linux port. Mods for autoconf. Mods for resizing (non-Sys5)
 	curses windows.
 
-	* src/dlog.c, src/ded.h, src/dedsize.c, src/dedtype.c, src/dedread.c, src/dedfind.c:
+	* src/dlog.c, src/ded.h, src/dedsize.c, src/dedtype.c, src/dedread.c,
+	  src/dedfind.c:
 	rawgets-resizing
 
 	* src/dedfind.c: use MODULE_ID
@@ -1964,14 +2029,18 @@
 
 1994-06-28  Thomas E. Dickey  <dickey@clark.net>
 
-	* src/ftree.c, src/dlog.c, src/dedtype.c, src/dedread.c, src/dedline.c, src/dedfind.c, src/deddoit.c, src/ded.c, src/ded.h:
+	* src/ftree.c, src/dlog.c, src/dedtype.c, src/dedread.c, src/dedline.c,
+	  src/dedfind.c, src/deddoit.c, src/ded.c, src/ded.h
+:
 	dlog_string-args
 
 1994-06-27  Thomas E. Dickey  <dickey@clark.net>
 
 	* src/ded.c, src/dlog.c, src/dedsize.c, src/ded.h: unused-argument
 
-	* src/ftree.c, src/ded.h, src/ded.c, src/dedsize.c, src/dlog.c, src/sortset.c, src/inline.c, src/dedwait.c, src/dedtype.c, src/dedmsgs.c:
+	* src/ftree.c, src/ded.h, src/ded.c, src/dedsize.c, src/dlog.c,
+	  src/sortset.c, src/inline.c, src/dedwait.c, src/dedtype.c,
+	  src/dedmsgs.c:
 	window-resize
 
 	* src/dedsize.c: first cut of using 'on_winch()'
@@ -2139,7 +2208,9 @@
 
 	* src/ded.c: removed unnecessary 'refresh()' calls
 
-	* src/ftree.c, src/sortset.c, src/deddoit.c, src/dedfind.c, src/dedmsgs.c, src/dedread.c, src/dedshow.c:
+	* src/ftree.c, src/sortset.c, src/deddoit.c, src/dedfind.c,
+	  src/dedmsgs.c, src/dedread.c, src/dedshow.c
+:
 	removed unnecessary 'refresh()'
 
 	* src/dedview.c: removed unnecessary 'refresh()' calls
@@ -2172,7 +2243,9 @@
 
 1993-11-23  dickey@software.org
 
-	* src/dedblip.c, src/dedview.c, src/ded.c, src/dedtype.c, src/ded.h, src/dedline.c, src/dedscan.c:
+	* src/dedblip.c, src/dedview.c, src/ded.c, src/dedtype.c, src/ded.h,
+	  src/dedline.c, src/dedscan.c
+:
 	showFILES-interface
 
 	* src/dedblip.c:
@@ -2257,7 +2330,9 @@
 
 1993-10-29  dickey@software.org
 
-	* src/dedfind.c, src/dedread.c, src/dedring.c, src/dedscan.c, src/dedshow.c, src/dedtype.c, src/dedview.c, src/ftree.c:
+	* src/dedfind.c, src/dedread.c, src/dedring.c, src/dedscan.c,
+	  src/dedshow.c, src/dedtype.c, src/dedview.c, src/ftree.c
+:
 	HP/UX-port
 
 	* src/ded2s.c, src/deddoit.c, src/deddump.c, src/dedfree.c: ifdef-ident
@@ -2268,7 +2343,11 @@
 
 1993-10-29  dickey@software.org
 
-	* src/dedline.c, src/dedmake.c, src/dedmsgs.c, src/dedname.c, src/dedsigs.c, src/dedsort.c, src/dedtags.c, src/deduniq.c, src/dedwait.c, src/dlog.c, src/history.c, src/inline.c, src/restat.c, src/showpath.c, src/sortset.c, src/ded.c:
+	* src/dedline.c, src/dedmake.c, src/dedmsgs.c, src/dedname.c,
+	  src/dedsigs.c, src/dedsort.c, src/dedtags.c, src/deduniq.c,
+	  src/dedwait.c, src/dlog.c, src/history.c, src/inline.c, src/restat.c,
+	  src/showpath.c, src/sortset.c, src/ded.c
+:
 	ifdef-ident
 
 	* src/ded.h: HP/UX-port
@@ -2287,7 +2366,12 @@
 
 	* src/version.h: gcc warnings
 
-	* src/dlog.c, src/ftree.c, src/history.c, src/inline.c, src/showpath.c, src/dedsigs.c, src/dedtype.c, src/deduniq.c, src/dedview.c, src/dedname.c, src/dedring.c, src/dedscan.c, src/dedshow.c, src/ded2s.c, src/dedfind.c, src/dedline.c, src/dedmsgs.c, src/ded.c, src/deddoit.c, src/dedsort.c, src/sortset.c:
+	* src/dlog.c, src/ftree.c, src/history.c, src/inline.c, src/showpath.c,
+	  src/dedsigs.c, src/dedtype.c, src/deduniq.c, src/dedview.c,
+	  src/dedname.c, src/dedring.c, src/dedscan.c, src/dedshow.c,
+	  src/ded2s.c, src/dedfind.c, src/dedline.c, src/dedmsgs.c, src/ded.c,
+	  src/deddoit.c, src/dedsort.c, src/sortset.c
+:
 	log-comment:gcc-warnings
 
 1993-09-24  dickey@software.org
@@ -2300,7 +2384,12 @@
 	added tags rule
 	clobber ded.a
 
-	* src/ded.h, src/sortset.c, src/showpath.c, src/inline.c, src/history.c, src/ftree.c, src/dedsort.c, src/dlog.c, src/dedtype.c, src/deduniq.c, src/dedview.c, src/dedsigs.c, src/dedshow.c, src/dedscan.c, src/dedring.c, src/dedname.c, src/dedmsgs.c, src/dedline.c, src/dedfind.c, src/ded2s.c, src/deddoit.c, src/ded.c:
+	* src/ded.h, src/sortset.c, src/showpath.c, src/inline.c, src/history.c,
+	  src/ftree.c, src/dedsort.c, src/dlog.c, src/dedtype.c, src/deduniq.c,
+	  src/dedview.c, src/dedsigs.c, src/dedshow.c, src/dedscan.c,
+	  src/dedring.c, src/dedname.c, src/dedmsgs.c, src/dedline.c,
+	  src/dedfind.c, src/ded2s.c, src/deddoit.c, src/ded.c
+:
 	gcc-warnings
 
 1993-05-06  dickey@software.org
@@ -2786,7 +2875,9 @@
 
 1992-08-17  dickey@software.org
 
-	* src/ftree.c, src/dlog.c, src/dedfind.c, src/dedread.c, src/deddoit.c, src/dedtype.c, src/ded.c, src/ded.h:
+	* src/ftree.c, src/dlog.c, src/dedfind.c, src/dedread.c, src/deddoit.c,
+	  src/dedtype.c, src/ded.c, src/ded.h
+:
 	added fast_q-arg to dlog_string() for edittext()
 
 	* src/ded.h: lint
@@ -2872,7 +2963,9 @@
 
 1992-08-12  dickey@software.org
 
-	* src/dedtype.c, src/ded.c, test/test4.cmd, test/test3.cmd, test/test2.cmd, test/test1.cmd:
+	* src/dedtype.c, src/ded.c, test/test4.cmd, test/test3.cmd,
+	  test/test2.cmd, test/test1.cmd
+:
 	map-returns
 
 	* src/dlog.c: 'encode_logch()' no longer assumes that its output-buffer
@@ -2963,7 +3056,8 @@
 	thru list of alternatives, and for saving keystrokes for
 	"-command (replay).
 
-	* src/ded.h, src/deddoit.c, src/ftree.c, src/dedtype.c, src/ded.c, src/dedfind.c:
+	* src/ded.h, src/deddoit.c, src/ftree.c, src/dedtype.c, src/ded.c,
+	  src/dedfind.c:
 	dlog_string-interface
 
 	* src/dlog.c: modified 'pending' so that it should never overflow.
@@ -3500,7 +3594,8 @@
 	* src/ded.c, src/dedline.c, src/dedview.c, src/ded.h:
 	restat,rescan:interface
 
-	* src/ded.c, src/ded.h, src/dedview.c, src/deddoit.c, src/sortset.c, src/deduniq.c:
+	* src/ded.c, src/ded.h, src/dedview.c, src/deddoit.c, src/sortset.c,
+	  src/deduniq.c:
 	dedview:interfaces
 
 1992-04-06  ste_cm@software.org
@@ -3692,7 +3787,9 @@
 
 1992-04-02  dickey@software.org
 
-	* src/ftree.c, src/dedtype.c, src/dedline.c, src/deddoit.c, src/ded2s.c, src/ded.c, src/ded.h:
+	* src/ftree.c, src/dedtype.c, src/dedline.c, src/deddoit.c, src/ded2s.c,
+	  src/ded.c, src/ded.h
+:
 	ded2s-interface
 
 	* src/ded.c, src/ded.h, src/sortset.c: sortset-interface
@@ -3726,10 +3823,15 @@
 	got rid of variable FOO (except where buried away within
 	macros)
 
-	* src/dedtype.c, src/ded.h, src/dedscan.c, src/dedring.c, src/dedmake.c, src/dedline.c, src/ded.c:
+	* src/dedtype.c, src/ded.h, src/dedscan.c, src/dedring.c, src/dedmake.c,
+	  src/dedline.c, src/ded.c
+:
 	modified interfaces to dedscan.c to allow decoupling from global RING-struct
 
-	* src/ded.c, src/dedtype.c, src/ftree.c, src/dedring.c, src/deddoit.c, src/dedsort.c, src/ded2s.c, src/dedmake.c, src/dedscan.c, src/dedline.c, src/sortset.c, src/dedfind.c, src/dedread.c, src/deduniq.c:
+	* src/ded.c, src/dedtype.c, src/ftree.c, src/dedring.c, src/deddoit.c,
+	  src/dedsort.c, src/ded2s.c, src/dedmake.c, src/dedscan.c,
+	  src/dedline.c, src/sortset.c, src/dedfind.c, src/dedread.c,
+	  src/deduniq.c:
 	converted most global variables to RING-struct
 
 	* src/Makefile: moved ded2s to correspond with alphabetical order
@@ -4413,7 +4515,9 @@
 
 1991-07-11  dickey@software.org
 
-	* src/dedfind.c, src/dedread.c, src/dedshow.c, src/deduniq.c, src/sortset.c, src/deddoit.c, src/dedtype.c, src/ded.c:
+	* src/dedfind.c, src/dedread.c, src/dedshow.c, src/deduniq.c,
+	  src/sortset.c, src/deddoit.c, src/dedtype.c, src/ded.c
+:
 	modified interface to to_work()
 
 	* src/dedtype.c: removed redundant workspace-clear on exit
@@ -6201,7 +6305,9 @@
 	* test/run_test.sh, test/Makefile:
 	piping ded output on Apollo breaks tests
 
-	* test/run_test.sh, test/Makefile, test/test3.cmd, test/test2.cmd, test/test1.cmd, test/edit_test.sh, test/edit_test.sed:
+	* test/run_test.sh, test/Makefile, test/test3.cmd, test/test2.cmd,
+	  test/test1.cmd, test/edit_test.sh, test/edit_test.sed
+:
 	New file.
 
 1989-03-24  ste_cm@software.org
