@@ -1,9 +1,9 @@
-dnl $Id: aclocal.m4,v 12.37 2022/12/31 13:06:14 tom Exp $
+dnl $Id: aclocal.m4,v 12.38 2023/01/22 20:25:35 tom Exp $
 dnl Macros for DED configure script.
 dnl vi:set ts=4:
 dnl ---------------------------------------------------------------------------
 dnl
-dnl Copyright 1997-2021,2022 by Thomas E. Dickey
+dnl Copyright 1997-2022,2023 by Thomas E. Dickey
 dnl
 dnl                         All Rights Reserved
 dnl
@@ -150,6 +150,32 @@ fi
 
 AC_SUBST(EXTRA_CPPFLAGS)
 
+])dnl
+dnl ---------------------------------------------------------------------------
+dnl CF_ADD_LIBS version: 3 updated: 2019/11/02 16:47:33
+dnl -----------
+dnl Add one or more libraries, used to enforce consistency.  Libraries are
+dnl prepended to an existing list, since their dependencies are assumed to
+dnl already exist in the list.
+dnl
+dnl $1 = libraries to add, with the "-l", etc.
+dnl $2 = variable to update (default $LIBS)
+AC_DEFUN([CF_ADD_LIBS],[
+cf_add_libs="[$]ifelse($2,,LIBS,[$2])"
+# reverse order
+cf_add_0lib=
+for cf_add_1lib in $1; do cf_add_0lib="$cf_add_1lib $cf_add_0lib"; done
+# filter duplicates
+for cf_add_1lib in $cf_add_0lib; do
+	for cf_add_2lib in $cf_add_libs; do
+		if test "x$cf_add_1lib" = "x$cf_add_2lib"; then
+			cf_add_1lib=
+			break
+		fi
+	done
+	test -n "$cf_add_1lib" && cf_add_libs="$cf_add_1lib $cf_add_libs"
+done
+ifelse($2,,LIBS,[$2])="$cf_add_libs"
 ])dnl
 dnl ---------------------------------------------------------------------------
 dnl CF_ADD_SUBDIR_PATH version: 5 updated: 2020/12/31 20:19:42
@@ -602,7 +628,7 @@ fi
 ])
 ])dnl
 dnl ---------------------------------------------------------------------------
-dnl CF_FIND_TDLIB version: 13 updated: 2022/12/31 07:07:05
+dnl CF_FIND_TDLIB version: 14 updated: 2023/01/19 18:06:45
 dnl -------------
 dnl Locate TD_LIB, which is available in one of these configurations:
 dnl a) installed, with headers, library and include-file for make
@@ -617,62 +643,87 @@ dnl Sets:
 dnl	TD_LIB_rules - actual path of td_lib.mk
 dnl
 AC_DEFUN([CF_FIND_TDLIB],
-[
-AC_MSG_CHECKING(for td_lib in side-by-side directory)
-AC_CACHE_VAL(cf_cv_tdlib_devel,[
-	cf_cv_tdlib_devel=no
+[AC_REQUIRE([CF_PKG_CONFIG])
 
-	for cf_path in . ..
-	do
-		test -d $cf_path/td_lib &&
-		test -d $cf_path/td_lib/include &&
-		test -f $cf_path/td_lib/include/td_config.h &&
-		test -d $cf_path/td_lib/lib &&
-		test -f $cf_path/td_lib/lib/${LIB_PREFIX}td.a &&
-		cf_cv_tdlib_devel=`CDPATH=; export CDPATH; cd $cf_path/td_lib;pwd` &&
-		break
-	done
-])
-AC_MSG_RESULT($cf_cv_tdlib_devel)
+if test "$PKG_CONFIG" != none
+then
+	cf_package=td_lib
+	AC_MSG_CHECKING(for $cf_package package file)
+	AC_CACHE_VAL(cf_cv_tdlib_package,[
+		cf_cv_tdlib_package=`"$PKG_CONFIG" --variable=datarootdir $cf_package 2>/dev/null`
+		test -z "$cf_cv_tdlib_package" && cf_cv_tdlib_package=no
+	])dnl
+	AC_MSG_RESULT($cf_cv_tdlib_package)
+fi
 
-if test "$cf_cv_tdlib_devel" = no ; then
-    CF_HEADER_PATH(cf_search,td)
-    # get all matches, since we're including <ptypes.h> and <td/ptypes.h>
-    for cf_incdir in $cf_search
-    do
-	test -f "$cf_incdir/td/td_config.h" && CFLAGS="$CFLAGS -I$cf_incdir"
-    done
-    CF_FIND_LIBRARY(td,td,[
+if test "$cf_cv_tdlib_package" != no ; then
+
+	cf_tdlib_flags=`"$PKG_CONFIG" --cflags $cf_package`
+	CF_ADD_CFLAGS($cf_tdlib_flags)
+	cf_tdlib_flags=`"$PKG_CONFIG" --libs $cf_package`
+	CF_ADD_LIBS($cf_tdlib_flags)
+	TD_LIB_rules=$cf_cv_tdlib_package
+
+else
+
+	cf_dirname=td_lib
+	AC_MSG_CHECKING(for $cf_dirname in side-by-side directory)
+	AC_CACHE_VAL(cf_cv_tdlib_devel,[
+		cf_cv_tdlib_devel=no
+
+		for cf_path in . ..
+		do
+			test -d $cf_path/$cf_dirname &&
+			test -d $cf_path/$cf_dirname/include &&
+			test -f $cf_path/$cf_dirname/include/td_config.h &&
+			test -d $cf_path/$cf_dirname/lib &&
+			test -f $cf_path/$cf_dirname/lib/${LIB_PREFIX}td.a &&
+			cf_cv_tdlib_devel=`CDPATH=; export CDPATH; cd $cf_path/$cf_dirname;pwd` &&
+			break
+		done
+	])
+	AC_MSG_RESULT($cf_cv_tdlib_devel)
+
+	if test "$cf_cv_tdlib_devel" != no ; then
+		CF_HEADER_PATH(cf_search,td)
+		# get all matches, since we're including <ptypes.h> and <td/ptypes.h>
+		for cf_incdir in $cf_search
+		do
+		test -f "$cf_incdir/td/td_config.h" && CFLAGS="$CFLAGS -I$cf_incdir"
+		done
+		CF_FIND_LIBRARY(td,td,[
 #define TESTING_CONFIG_H
 #include <td/ptypes.h>],[
-        char *p = doalloc(0,1)],
-        doalloc)
-	if test -z "$cf_libdir" ; then
-		CF_SUBDIR_PATH(cf_search,td,share)
-		cf_libdir=/usr/local/lib
-		cf_td_lib_rules=no
-		for cf_libdir in $cf_search
-		do
+			char *p = doalloc(0,1)],
+			doalloc)
+		if test -z "$cf_libdir" ; then
+			CF_SUBDIR_PATH(cf_search,td,share)
+			cf_libdir=/usr/local/lib
+			cf_td_lib_rules=no
+			for cf_libdir in $cf_search
+			do
+				if test -f "$cf_libdir/td_lib.mk" ; then
+					cf_td_lib_rules=yes
+					break
+				fi
+			done
+		else
+			cf_libdir=`echo "$cf_libdir" | sed -e 's,/td_lib.mk,,' -e 's,/lib[[^/]]*,/share,'`
 			if test -f "$cf_libdir/td_lib.mk" ; then
 				cf_td_lib_rules=yes
-				break
+			elif test -f "$cf_libdir/td/td_lib.mk" ; then
+				cf_libdir="$cf_libdir/td"
+				cf_td_lib_rules=yes
 			fi
-		done
-	else
-		cf_libdir=`echo "$cf_libdir" | sed -e 's,/td_lib.mk,,' -e 's,/lib[[^/]]*,/share,'`
-		if test -f "$cf_libdir/td_lib.mk" ; then
-			cf_td_lib_rules=yes
-		elif test -f "$cf_libdir/td/td_lib.mk" ; then
-			cf_libdir="$cf_libdir/td"
-			cf_td_lib_rules=yes
 		fi
+		test "$cf_td_lib_rules" = yes || AC_MSG_ERROR(Cannot find td_lib.mk)
+		TD_LIB_rules=$cf_libdir
+	else
+		CPPFLAGS="$CPPFLAGS -I$cf_cv_tdlib_devel/include $CPPFLAGS"
+		LIBS="-L$cf_cv_tdlib_devel/lib $LIBS"
+		TD_LIB_rules=$cf_cv_tdlib_devel/support
 	fi
-	test "$cf_td_lib_rules" = yes || AC_MSG_ERROR(Cannot find td_lib.mk)
-	TD_LIB_rules=$cf_libdir
-else
-	CPPFLAGS="$CPPFLAGS -I$cf_cv_tdlib_devel/include $CPPFLAGS"
-	LIBS="-L$cf_cv_tdlib_devel/lib $LIBS"
-	TD_LIB_rules=$cf_cv_tdlib_devel/support
+
 fi
 
 AC_SUBST(TD_LIB_rules)
@@ -1254,6 +1305,81 @@ dnl Write a debug message to config.log, along with the line number in the
 dnl configure script.
 AC_DEFUN([CF_MSG_LOG],[
 echo "${as_me:-configure}:__oline__: testing $* ..." 1>&AC_FD_CC
+])dnl
+dnl ---------------------------------------------------------------------------
+dnl CF_PATH_SYNTAX version: 18 updated: 2020/12/31 18:40:20
+dnl --------------
+dnl Check the argument to see that it looks like a pathname.  Rewrite it if it
+dnl begins with one of the prefix/exec_prefix variables, and then again if the
+dnl result begins with 'NONE'.  This is necessary to work around autoconf's
+dnl delayed evaluation of those symbols.
+AC_DEFUN([CF_PATH_SYNTAX],[
+if test "x$prefix" != xNONE; then
+	cf_path_syntax="$prefix"
+else
+	cf_path_syntax="$ac_default_prefix"
+fi
+
+case ".[$]$1" in
+(.\[$]\(*\)*|.\'*\'*)
+	;;
+(..|./*|.\\*)
+	;;
+(.[[a-zA-Z]]:[[\\/]]*) # OS/2 EMX
+	;;
+(.\[$]\{*prefix\}*|.\[$]\{*dir\}*)
+	eval $1="[$]$1"
+	case ".[$]$1" in
+	(.NONE/*)
+		$1=`echo "[$]$1" | sed -e s%NONE%$cf_path_syntax%`
+		;;
+	esac
+	;;
+(.no|.NONE/*)
+	$1=`echo "[$]$1" | sed -e s%NONE%$cf_path_syntax%`
+	;;
+(*)
+	ifelse([$2],,[AC_MSG_ERROR([expected a pathname, not \"[$]$1\"])],$2)
+	;;
+esac
+])dnl
+dnl ---------------------------------------------------------------------------
+dnl CF_PKG_CONFIG version: 12 updated: 2021/10/10 20:18:09
+dnl -------------
+dnl Check for the package-config program, unless disabled by command-line.
+dnl
+dnl Sets $PKG_CONFIG to the pathname of the pkg-config program.
+AC_DEFUN([CF_PKG_CONFIG],
+[
+AC_MSG_CHECKING(if you want to use pkg-config)
+AC_ARG_WITH(pkg-config,
+	[  --with-pkg-config{=path} enable/disable use of pkg-config],
+	[cf_pkg_config=$withval],
+	[cf_pkg_config=yes])
+AC_MSG_RESULT($cf_pkg_config)
+
+case "$cf_pkg_config" in
+(no)
+	PKG_CONFIG=none
+	;;
+(yes)
+	CF_ACVERSION_CHECK(2.52,
+		[AC_PATH_TOOL(PKG_CONFIG, pkg-config, none)],
+		[AC_PATH_PROG(PKG_CONFIG, pkg-config, none)])
+	;;
+(*)
+	PKG_CONFIG=$withval
+	;;
+esac
+
+test -z "$PKG_CONFIG" && PKG_CONFIG=none
+if test "$PKG_CONFIG" != none ; then
+	CF_PATH_SYNTAX(PKG_CONFIG)
+elif test "x$cf_pkg_config" != xno ; then
+	AC_MSG_WARN(pkg-config is not installed)
+fi
+
+AC_SUBST(PKG_CONFIG)
 ])dnl
 dnl ---------------------------------------------------------------------------
 dnl CF_PROG_CC version: 5 updated: 2019/12/31 08:53:54
