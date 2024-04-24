@@ -1,3 +1,25 @@
+2024-04-24  Thomas E. Dickey  <dickey@invisible-island.net>
+
+	* configure: regen
+
+	* aclocal.m4:
+	ensure $cf_cv_tdlib_package is set when pkg-config is disabled
+
+	* package/debian/copyright, COPYING: bump
+
+	* aclocal.m4: fixes for compiler-warnings in configure-checks
+	correct logic for side-by-side search for td_lib
+
+	* package/debian/changelog, package/ded-12.0.spec: bump
+
+2023-12-27  Thomas E. Dickey  <dickey@invisible-island.net>
+
+	* config.sub: 2023-12-27
+
+2023-12-02  Thomas E. Dickey  <dickey@invisible-island.net>
+
+	* config.guess: 2023-12-02
+
 2023-01-22  Thomas E. Dickey  <dickey@invisible-island.net>
 
 	* package/ded-12.0.spec: build against td_lib package

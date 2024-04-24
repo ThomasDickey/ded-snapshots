@@ -1,6 +1,7 @@
-MANIFEST for ded, version t20230122
+MANIFEST for ded, version t20240424
 --------------------------------------------------------------------------------
 MANIFEST                        this file
+CHANGES                         generated changelog
 COPYING                         copyright notice for DED
 README                          brief description of DED
 aclocal.m4                      macros for DED configure script
@@ -10,6 +11,8 @@ configure                       configure-script
 configure.in                    template for DED configure script
 install-sh                      install script
 makefile.in                     template for ./makefile
+package                         subdirectory
+package/ded-12.0.spec           RPM spec-file for DED
 package/debian                  subdirectory
 package/debian/changelog        debian build script
 package/debian/compat           debian build script
@@ -17,12 +20,9 @@ package/debian/control          debian build script
 package/debian/copyright        debian build script
 package/debian/docs             debian build script
 package/debian/rules            debian build script
+package/debian/watch            debian build script
 package/debian/source           subdirectory
 package/debian/source/format    debian build script
-package/debian                  subdirectory
-package/debian/watch            debian build script
-package                         subdirectory
-package/ded-12.0.spec           RPM spec-file for DED
 src                             subdirectory
 src/README                      to-do list for DED
 src/boxchars.c                  encapsulate knowledge of box-characters
