@@ -62,7 +62,7 @@
 #include	"ded.h"
 #include	<rcsdefs.h>
 
-MODULE_ID("$Id: ded2s.c,v 12.35 2019/12/12 00:31:15 tom Exp $")
+MODULE_ID("$Id: ded2s.c,v 12.36 2025/01/07 01:17:25 tom Exp $")
 
 #if defined(MAJOR_IN_MKDEV)
 #  include	<sys/mkdev.h>
@@ -85,7 +85,7 @@ MODULE_ID("$Id: ded2s.c,v 12.35 2019/12/12 00:31:15 tom Exp $")
 #define ONE_WEEK	(7 * 24 * HOUR)
 #define SIXMONTHS	(26 * ONE_WEEK)
 
-#define	OK_S(s)		(s != 0 && s[0] != '?')
+#define	OK_S(s)		(s != NULL && s[0] != '?')
 
 #define	SETCOL(p,col)	p = setcol(p, &(gbl->cmdcol[col]), (int) (p - base))
 
@@ -346,7 +346,7 @@ ded2s(RING * gbl, int inx, char *bfr, int len)
     bfr += f_->z_namlen;
 
 #ifdef	S_IFLNK
-    if ((temp = f_->z_ltxt) != 0) {
+    if ((temp = f_->z_ltxt) != NULL) {
 	*bfr++ = ' ';
 	*bfr++ = '-';
 	*bfr++ = '>';

@@ -13,7 +13,7 @@
  *			     returns true or false (so that if nothing is found,
  *			     we can force re-invocation of this procedure).
  *		23 May 1990, make the pattern to be set an argument
- *		
+ *
  *
  * Function:	Modifies the 'toscan' value, which controls the selection of
  *		files for display.
@@ -22,7 +22,7 @@
  */
 #include	"ded.h"
 
-MODULE_ID("$Id: dedread.c,v 12.10 2010/07/04 22:21:10 tom Exp $")
+MODULE_ID("$Id: dedread.c,v 12.11 2025/01/07 01:18:13 tom Exp $")
 
 int
 dedread(RING * gbl, char **pattern_, int change_needed)
@@ -45,11 +45,11 @@ dedread(RING * gbl, char **pattern_, int change_needed)
 			  EOS, 0))) {
 	s = empty;
     }
-    if ((*pattern_ != 0) && !strcmp(s, *pattern_)) {
+    if ((*pattern_ != NULL) && !strcmp(s, *pattern_)) {
 	showC(gbl);
 	return (change_needed);
     } else if (!*s) {
-	*pattern_ = 0;
+	*pattern_ = NULL;
 	showC(gbl);
 	if (gbl->used_expr) {
 	    OLD_REGEX(gbl->scan_expr);
@@ -78,13 +78,13 @@ dedread(RING * gbl, char **pattern_, int change_needed)
 void
 init_scan(RING * gbl)
 {
-    if (gbl->toscan != 0) {
+    if (gbl->toscan != NULL) {
 	dlog_comment("scan for \"%s\"\n", gbl->toscan);
 	if (gbl->used_expr)
 	    OLD_REGEX(gbl->scan_expr);
 	if (!(gbl->used_expr = NEW_REGEX(gbl->scan_expr, gbl->toscan))) {
 	    /* shouldn't happen */
-	    gbl->toscan = 0;
+	    gbl->toscan = NULL;
 	}
     }
 }
@@ -95,7 +95,7 @@ init_scan(RING * gbl)
 int
 ok_scan(RING * gbl, char *name)
 {
-    if (gbl->toscan != 0)
+    if (gbl->toscan != NULL)
 	return (GOT_REGEX(gbl->scan_expr, name) != 0);
     return (TRUE);
 }

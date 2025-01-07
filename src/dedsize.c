@@ -23,7 +23,7 @@
 
 #include "ded.h"
 
-MODULE_ID("$Id: dedsize.c,v 12.11 2020/04/28 20:51:44 tom Exp $")
+MODULE_ID("$Id: dedsize.c,v 12.12 2025/01/07 01:19:00 tom Exp $")
 
 #ifdef	SIGWINCH
 
@@ -36,7 +36,7 @@ handle_resize(void)
 {
     static int working;		/* latch for repeated interrupts */
 
-    if (save_gbl != 0) {
+    if (save_gbl != NULL) {
 	if (!working++) {
 	    dlog_comment("handle_resize LINES=%d, COLS=%d\n", LINES, COLS);
 	    if (!ft_resize()) {

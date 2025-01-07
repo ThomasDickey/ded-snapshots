@@ -24,7 +24,7 @@
 
 #include	"ded.h"
 
-MODULE_ID("$Id: dedshow.c,v 12.12 2019/12/10 01:58:45 tom Exp $")
+MODULE_ID("$Id: dedshow.c,v 12.13 2025/01/07 01:19:00 tom Exp $")
 
 static int
 dedshow_c(int ch)
@@ -74,7 +74,7 @@ dedshow2(const char *arg)
     int literal = lnext_char();
     int escaped = 0;
 
-    if (arg == 0)
+    if (arg == NULL)
 	return;
 
     getyx(stdscr, y, x);

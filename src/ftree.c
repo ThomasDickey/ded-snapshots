@@ -144,7 +144,7 @@
 
 #include	<fcntl.h>
 
-MODULE_ID("$Id: ftree.c,v 12.84 2022/10/11 23:26:16 tom Exp $")
+MODULE_ID("$Id: ftree.c,v 12.85 2025/01/07 01:22:02 tom Exp $")
 
 #define	Null	(char *)0	/* some NULL's are simply 0 */
 
@@ -334,7 +334,7 @@ fd_add_path(char path[MAXPATHLEN], char *validated)
     while (*path == *gap) {
 	char *name = ++path, *next = (strchr) (name, (*gap));
 
-	if (next != 0)
+	if (next != NULL)
 	    *next = EOS;
 
 	/* double-check link/directory here */
@@ -399,7 +399,7 @@ fd_add_path(char path[MAXPATHLEN], char *validated)
 	}
 #endif /* S_IFLNK */
 
-	if (next != 0) {
+	if (next != NULL) {
 	    *next = *gap;	/* restore the one we knocked out */
 	    path = next;
 	} else
@@ -610,7 +610,7 @@ do_find(char *path)
     char bfr[MAXPATHLEN];
     int j, item, last = 0;
 
-    if (path == 0 || *path == EOS || strlen(path) >= sizeof(bfr))
+    if (path == NULL || *path == EOS || strlen(path) >= sizeof(bfr))
 	return (-1);
 
     abspath(path = strcpy(bfr, path));
@@ -1062,7 +1062,7 @@ ft_show(char *path, char *home, int node, int level)
 	    move(row++, 0);
 
 	    marker = strcmp(fd_path(bfr, j), home) ? "  " : "=>";
-	    if (*marker == ' ' && (ring_get(bfr) != 0))
+	    if (*marker == ' ' && (ring_get(bfr) != NULL))
 		marker = "* ";
 	    PRINTW("%s", marker);
 
@@ -1418,7 +1418,7 @@ ft_resize(void)
 #endif
 
 static RING *
-ft_end_view(RING *gbl)
+ft_end_view(RING * gbl)
 {
 #ifdef	SIGWINCH		/* make the row/column visible to signal handler */
     resize_row = NULL;
@@ -1752,7 +1752,7 @@ ft_view(RING * gbl,
 	    j = 1;
 	    while (num-- > 0) {
 		tmp = SKIP_THIS(1);
-		if ((j = (tmp != 0)) != 0)
+		if ((j = (tmp != NULL)) != 0)
 		    redoVIEW(gbl = tmp, TRUE);
 		else
 		    break;
@@ -1760,7 +1760,7 @@ ft_view(RING * gbl,
 		    toggle_sccs();
 	    }
 	    while (!fd_ring(gbl, path, &row, &lvl)) {
-		if ((tmp = QUIT_THIS(1)) != 0)
+		if ((tmp = QUIT_THIS(1)) != NULL)
 		    redoVIEW(gbl = tmp, TRUE);
 		else
 		    return ft_end_view(gbl);
@@ -1771,10 +1771,10 @@ ft_view(RING * gbl,
 	    /* scroll through the directory-ring */
 	case 'F':
 	case 'B':
-	    if ((tmp = SKIP_THIS(num)) != 0)
+	    if ((tmp = SKIP_THIS(num)) != NULL)
 		redoVIEW(gbl = tmp, TRUE);
 	    while (!fd_ring(gbl, path, &row, &lvl)) {
-		if ((tmp = QUIT_THIS(1)) != 0)
+		if ((tmp = QUIT_THIS(1)) != NULL)
 		    redoVIEW(gbl = tmp, TRUE);
 		else
 		    return ft_end_view(gbl);
@@ -2022,7 +2022,7 @@ ft_scan(RING * gbl, int node, int levels, int base)
 
     if (chdir(bfr) < 0)
 	waitmsg(bfr);
-    else if ((dp = opendir(bfr)) != 0) {
+    else if ((dp = opendir(bfr)) != NULL) {
 	ft_remove(bfr, TRUE, TRUE);
 	if (strcmp(bfr, zero))
 	    *s_++ = '/';

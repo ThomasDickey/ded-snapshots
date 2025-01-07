@@ -20,7 +20,7 @@
  */
 #include "ded.h"
 
-MODULE_ID("$Id: dedcolor.c,v 12.26 2017/11/22 02:10:19 tom Exp $")
+MODULE_ID("$Id: dedcolor.c,v 12.27 2025/01/07 01:22:07 tom Exp $")
 
 #if defined(HAVE_HAS_COLORS)
 
@@ -122,9 +122,9 @@ SaveColor(const KEYWORD * name, char *spec)
 
     strlwrcpy(spec, spec);	/* simplify case-independent matches */
     /* build up the attribute+color */
-    while (spec != 0 && *spec != EOS) {
+    while (spec != NULL && *spec != EOS) {
 	char *next = strchr(spec, ';');
-	if (next != 0) {
+	if (next != NULL) {
 	    *next++ = EOS;
 	    (void) strclean(spec);
 	}
@@ -217,7 +217,7 @@ SaveColor(const KEYWORD * name, char *spec)
 	}
 	if (!found
 	    && (*spec == 'f' || *spec == 'b')
-	    && (temp = strchr(spec, '=')) != 0) {
+	    && (temp = strchr(spec, '=')) != NULL) {
 	    temp++;
 	    for (n = 0; n < SIZEOF(my_color_names); n++) {
 		if (!strucmp(temp, my_color_names[n].name)) {
@@ -272,7 +272,7 @@ FindKeyword(char *name)
     for (n = 0; n < SIZEOF(keywords); n++)
 	if (!strucmp(keywords[n].name, name))
 	    return &(keywords[n]);
-    return 0;
+    return NULL;
 }
 
 /* scan the DIR_COLORS file to get all color information */
@@ -283,19 +283,19 @@ ParseColorFile(void)
     char bfr[BUFSIZ], *s;
     const KEYWORD *p;
 
-    if ((fp = fopen(color_file, "r")) != 0) {
-	while (fgets(bfr, sizeof(bfr), fp) != 0) {
-	    if ((s = strchr(bfr, '#')) != 0)
+    if ((fp = fopen(color_file, "r")) != NULL) {
+	while (fgets(bfr, sizeof(bfr), fp) != NULL) {
+	    if ((s = strchr(bfr, '#')) != NULL)
 		*s = EOS;
 	    if (!strclean(bfr))
 		continue;	/* only a comment */
-	    if ((s = strchr(bfr, ' ')) == 0)
+	    if ((s = strchr(bfr, ' ')) == NULL)
 		s = strchr(bfr, '\t');
-	    if (s != 0)		/* we've got an argument */
+	    if (s != NULL)	/* we've got an argument */
 		*s++ = EOS;
 	    else
 		continue;	/* ignore this error */
-	    if ((p = FindKeyword(bfr)) != 0) {
+	    if ((p = FindKeyword(bfr)) != NULL) {
 		SaveColor(p, s);
 	    } else if (*bfr == '.') {
 		static KEYWORD temp;
@@ -323,7 +323,7 @@ FindColorFile(const char *path, const char *leaf)
 	color_file = txtalloc(temp);
 	return TRUE;
     }
-    color_file = 0;
+    color_file = NULL;
     return FALSE;
 }
 
@@ -380,7 +380,7 @@ AttributesOf(FLIST * entry)
     char *suffix = ftype2(entry->z_name);
     chtype attr = A_NORMAL;
 
-    for (p = keypairs; p != 0; p = p->next) {
+    for (p = keypairs; p != NULL; p = p->next) {
 	switch (p->key.code) {
 	case ByType:
 	    if (p->key.value[0] == modechar(sb->st_mode))
@@ -408,7 +408,7 @@ dedcolor(FLIST * entry)
 
     if (!initialized)
 	InitializeColors();
-    if (entry != 0)		/* set color according to filename & type */
+    if (entry != NULL)		/* set color according to filename & type */
 	attr = AttributesOf(entry);
 
     (void) attrset(attr);

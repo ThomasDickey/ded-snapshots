@@ -45,7 +45,7 @@
 #define	QSORT_SRC	FLIST
 #include	<td_qsort.h>
 
-MODULE_ID("$Id: dedsort.c,v 12.19 2014/12/14 18:50:26 tom Exp $")
+MODULE_ID("$Id: dedsort.c,v 12.20 2025/01/07 01:21:19 tom Exp $")
 
 #define	CHECKED(p)	(p->z_time == p->s.st_mtime)
 #define	CMPF(f)	(f(&(p1->s)) > f(&(p2->s)) ? -1 : (f(&(p1->s)) < f(&(p2->s)) ? 1 : 0))
@@ -111,11 +111,11 @@ dedsort_cmp(RING * gbl,
 #ifdef	S_IFLNK
 	/* sort by link-text */
     case '@':
-	if (p1->z_ltxt != 0 && p2->z_ltxt != 0)
+	if (p1->z_ltxt != NULL && p2->z_ltxt != NULL)
 	    cmp = strcmp(p1->z_ltxt, p2->z_ltxt);
-	else if (p1->z_ltxt != 0)
+	else if (p1->z_ltxt != NULL)
 	    cmp = -1;
-	else if (p2->z_ltxt != 0)
+	else if (p2->z_ltxt != NULL)
 	    cmp = 1;
 	else
 	    cmp = 0;

@@ -15,14 +15,14 @@
 
 #include	"ded.h"
 
-MODULE_ID("$Id: dedfree.c,v 12.6 2004/03/07 23:25:18 tom Exp $")
+MODULE_ID("$Id: dedfree.c,v 12.7 2025/01/07 01:17:25 tom Exp $")
 
 FLIST *
 dedfree(FLIST * fp, unsigned num)
 {
     unsigned j;
 
-    if (fp != 0) {		/* we are rescanning display-list */
+    if (fp != NULL) {		/* we are rescanning display-list */
 	for (j = 0; j < num; j++) {
 	    if (fp[j].z_name)
 		txtfree(fp[j].z_name);
@@ -35,5 +35,5 @@ dedfree(FLIST * fp, unsigned num)
 	}
 	FREE((char *) fp);
     }
-    return (0);
+    return (NULL);
 }

@@ -1,3 +1,12 @@
+2025-01-06  Thomas E. Dickey  <dickey@invisible-island.net>
+
+	* src/dedcolor.c, src/dedline.c, src/version.h, src/dlog.c, src/ftree.c,
+	  src/history.c, src/dedsort.c, src/inline.c, src/sortset.c,
+	  src/dedtype.c, src/dedview.c, src/dedring.c, src/dedscan.c,
+	  src/dedshow.c, src/dedsize.c, src/dedread.c, src/ded.c, src/ded2s.c,
+	  src/dedblip.c, src/dedfind.c, src/dedfree.c, src/dedmsgs.c:
+	gcc15-warnings
+
 2024-04-24  Thomas E. Dickey  <dickey@invisible-island.net>
 
 	* configure: regen

@@ -18,7 +18,7 @@
 
 #include "ded.h"
 
-MODULE_ID("$Id: history.c,v 12.8 2004/03/07 23:25:18 tom Exp $")
+MODULE_ID("$Id: history.c,v 12.9 2025/01/07 01:22:02 tom Exp $")
 
 #define	MAX_AGE	20
 
@@ -50,7 +50,7 @@ dump_history(HIST * table, char *tag)
 static int
 same_history(HIST * table, char *text)
 {
-    if (table != 0)
+    if (table != NULL)
 	if (!strcmp(text, table->text))
 	    return TRUE;
     return FALSE;
@@ -59,18 +59,18 @@ same_history(HIST * table, char *text)
 void
 put_history(HIST ** table, char *text)
 {
-    if (table != 0
-	&& text != 0
+    if (table != NULL
+	&& text != NULL
 	&& *text != EOS) {
 	HIST *p, *q;
 
-	for (p = *table, q = 0; p != 0; q = p, p = p->next)
+	for (p = *table, q = NULL; p != NULL; q = p, p = p->next)
 	    if (same_history(p, text))
 		break;
 
-	if (p != 0) {		/* relink the entry to make it first */
+	if (p != NULL) {	/* relink the entry to make it first */
 
-	    if (q != 0) {
+	    if (q != NULL) {
 		q->next = p->next;
 		p->next = *table;
 		*table = p;
@@ -93,8 +93,8 @@ put_history(HIST ** table, char *text)
 	    while ((--age > 0) && p->next)
 		p = p->next;
 
-	    if ((q = p->next) != 0) {
-		p->next = 0;
+	    if ((q = p->next) != NULL) {
+		p->next = NULL;
 		dofree(q->text);
 		dofree((char *) q);
 	    }
@@ -111,13 +111,13 @@ char *
 get_history(HIST * table, int age)
 {
     if (age < 0)
-	return 0;
+	return NULL;
     while (age-- > 0) {
-	if (table == 0)
+	if (table == NULL)
 	    break;
 	table = table->next;
     }
-    return table ? table->text : 0;
+    return table ? table->text : NULL;
 }
 
 /*
@@ -132,7 +132,7 @@ show_history(RING * gbl, int depth)
     int shown = 1;
 
     dedshow(gbl, "Command=", dyn_string(gbl->cmd_sh));
-    while ((table != 0) && (shown < depth)) {
+    while ((table != NULL) && (shown < depth)) {
 	if (strcmp(table->text, dyn_string(gbl->cmd_sh))) {
 	    FORMAT(temp, "%d %c ", ++shown, gbl->clr_sh ? '%' : '!');
 	    dedshow2(temp);

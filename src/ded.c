@@ -178,7 +178,7 @@
 
 #include <locale.h>
 
-MODULE_ID("$Id: ded.c,v 12.92 2020/05/02 14:42:36 tom Exp $")
+MODULE_ID("$Id: ded.c,v 12.93 2025/01/07 01:17:25 tom Exp $")
 
 #define	EDITOR	DEFAULT_EDITOR
 #define	BROWSE	DEFAULT_BROWSE
@@ -228,7 +228,7 @@ edithead(RING * gbl,
     Stat_t sb;
     char *s;
 
-    if (cLTXT != 0) {
+    if (cLTXT != NULL) {
 	dlog_comment("try to edit link-head \"%s\"\n", cLTXT);
 	(void) pathcat2(dst, gbl->new_wd, cLTXT);
 	(void) strcpy(dst, pathhead(dst, &sb));
@@ -297,7 +297,7 @@ failed(const char *msg)
 	(void) fflush(debug_fp);
 	(void) cmdch((int *) 0);
     }
-    to_exit(msg != 0);
+    to_exit(msg != NULL);
     if (msg)
 	FPRINTF(debug_fp, "-------- \n?? %-79s\n-------- \n", msg);
     if (msg) {
@@ -347,7 +347,7 @@ findFILE(RING * gbl, char *name)
 static int
 needSCCS(RING * gbl, int c)
 {
-    return (!gbl->Z_opt && (strchr("vyZz", c) != 0));
+    return (!gbl->Z_opt && (strchr("vyZz", c) != NULL));
 }
 
 void
@@ -436,7 +436,7 @@ new_args(RING * gbl,
     if (flags & 1)
 	markC(gbl, TRUE);
     clear_work();
-    if ((ok = dedring(gbl, path, cmd, count, set_pattern, pattern)) != 0) {
+    if ((ok = dedring(gbl, path, cmd, count, set_pattern, pattern)) != NULL) {
 	redoVIEW(gbl = ok, FALSE);
 	(void) to_file(gbl);
 	count_tags(gbl);
@@ -460,7 +460,7 @@ old_args(RING * gbl,
     RING *tmp;
 
     tmp = new_args(gbl, gbl->new_wd, cmd, count, 0, FALSE, (char *) 0);
-    if (tmp != 0)
+    if (tmp != NULL)
 	gbl = tmp;
     else
 	showC(gbl);		/* try to recover */
@@ -473,21 +473,21 @@ old_args(RING * gbl,
 static RING *
 pattern_args(RING * gbl, char *path)
 {
-    char *pattern = 0;
+    char *pattern = NULL;
     RING *tmp;
 
     while (dedread(gbl, &pattern, FALSE)) {
 	if ((tmp = new_args(gbl, path, 'E', 1, 3, TRUE, pattern)) != NULL)
 	    return (tmp);
     }
-    return (0);
+    return (NULL);
 }
 
 	/* re-scan argument list */
 static RING *
 rescan(RING * gbl, int fwd)
 {
-    char *cur_name = gbl->numfiles ? cNAME : 0;
+    char *cur_name = gbl->numfiles ? cNAME : NULL;
 
     set_dedblip(gbl);
     init_tags(gbl);
@@ -501,7 +501,7 @@ rescan(RING * gbl, int fwd)
     } else if (fwd) {
 	return old_args(gbl, 'F', 1);
     }
-    return (0);
+    return (NULL);
 }
 
 /*
@@ -832,7 +832,7 @@ static void
 init_debug(void)
 {
     char *s = getenv("DED_DEBUG");
-    if (s != 0)
+    if (s != NULL)
 	debug = atoi(s);
 
     if (isatty(fileno(stdout)))
@@ -987,13 +987,13 @@ _MAIN
 #endif /* Z_RCS_SCCS */
 
 #define	DED_TREE	".ftree"
-    if (tree_opt != 0) {
+    if (tree_opt != NULL) {
 	if (strlen(tree_opt) > (sizeof(tree_bfr) - 10)) {
 	    failed("tree-option too long");
 	}
 	abspath(tree_opt = strcpy(tree_bfr, tree_opt));
     } else {
-	if ((tree_opt = getenv("DED_TREE")) == 0) {
+	if ((tree_opt = getenv("DED_TREE")) == NULL) {
 	    tree_opt = strcpy(tree_bfr, gethome());
 	} else if (strlen(tree_opt) > (sizeof(tree_bfr) - 10)) {
 	    failed("DED_TREE variable too long");
@@ -1047,14 +1047,14 @@ _MAIN
 # else
 	char *tty = "/dev/tty";
 # endif
-	if ((freopen(tty, "r", stdin)) == 0
+	if ((freopen(tty, "r", stdin)) == NULL
 	    || !isatty(fileno(stdin)))
 	    failed("reopen stdin");
     }
 
     save_terminal();
 
-    if (getenv("TERM") == 0) {
+    if (getenv("TERM") == NULL) {
 	FPRINTF(stderr, "$TERM is not set\n");
 	return (FAIL);
     }
@@ -1100,7 +1100,7 @@ _MAIN
     mark_W = (LINES / 2);
     openVIEW(gbl);
 
-    while (gbl != 0) {
+    while (gbl != NULL) {
 	switch (c = dlog_char(gbl, &count, 1)) {
 	    /* scrolling */
 	case KEY_UP:
@@ -1264,7 +1264,7 @@ _MAIN
 	    if (lastc == 't')
 		retouch(gbl, mark_W + 1);
 	    else if (user_says(gbl, no_worry))
-		gbl = 0;
+		gbl = NULL;
 	    break;
 
 	    /* move work-area marker */

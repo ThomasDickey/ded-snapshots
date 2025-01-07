@@ -13,7 +13,7 @@
  *		01 Dec 1993, moved most 'refresh()' calls under 'dlog_char()'
  *		29 Oct 1993, ifdef-ident
  *		28 Sep 1993, gcc warnings
- *		28 Aug 1992, implemented inline history in 'dlog_string()'. 
+ *		28 Aug 1992, implemented inline history in 'dlog_string()'.
  *		18 Oct 1991, converted to ANSI
  *		09 Sep 1991, lint
  *		06 Mar 1990, 'cmdch()' can now return explicit zero-count
@@ -38,7 +38,7 @@
 #include	"ded.h"
 #include	<time.h>
 
-MODULE_ID("$Id: dlog.c,v 12.29 2020/05/02 00:35:29 tom Exp $")
+MODULE_ID("$Id: dlog.c,v 12.30 2025/01/07 01:22:02 tom Exp $")
 
 #define	NOW		time((time_t *)0)
 
@@ -68,9 +68,9 @@ show_time(const char *msg)
 static char *
 find_ending(char *s)
 {
-    char *mark = 0;
+    char *mark = NULL;
 
-    while (s != 0 && *s != EOS) {
+    while (s != NULL && *s != EOS) {
 	mark = s;
 	(void) decode_logch(&s, (int *) 0);
     }
@@ -87,7 +87,7 @@ trim_ending(DYN * p)
     char *s = find_ending(dyn_string(p));
     size_t len;
 
-    if (s != 0) {
+    if (s != NULL) {
 	len = strlen(s);
 	while (len-- != 0)
 	    (void) dyn_trim1(p);
@@ -102,7 +102,7 @@ convert_newline(DYN ** p)
 {
     char *s = find_ending(dyn_string(*p));
 
-    if (s != 0 && *s == '\n') {
+    if (s != NULL && *s == '\n') {
 	trim_ending(*p);
 	*p = dyn_append(*p, "\\n");
     }
@@ -116,7 +116,7 @@ static void
 supply_newline(DYN ** p)
 {
     char *s = find_ending(dyn_string(*p));
-    if (s != 0 && strcmp(s, "\\n"))
+    if (s != NULL && strcmp(s, "\\n"))
 	*p = dyn_append_c(*p, '\n');
 }
 
@@ -134,7 +134,7 @@ flush_pending(int new_line)
 {
     if (log_fp) {
 	char *s = dyn_string(pending);
-	if (s != 0 && *s != EOS) {
+	if (s != NULL && *s != EOS) {
 	    FPRINTF(log_fp, "%s%s", s, new_line ? "\n" : "");
 	    dyn_init(&pending, 1);
 	}
@@ -153,12 +153,12 @@ read_script(void)
     int join = FALSE;
     char temp[BUFSIZ];
 
-    if (cmd_ptr == 0 || !*cmd_ptr) {
+    if (cmd_ptr == NULL || !*cmd_ptr) {
 	dyn_init(&cmd_bfr, BUFSIZ);
 	cmd_ptr = dyn_string(cmd_bfr);
     }
     while ((cmd_ptr && !*cmd_ptr) || join) {
-	if (cmd_fp == 0)
+	if (cmd_fp == NULL)
 	    break;
 	else if (fgets(temp, sizeof(temp), cmd_fp)) {
 	    join = TRUE;	/* ...unless we find newline */
@@ -173,7 +173,7 @@ read_script(void)
 	    cmd_ptr = dyn_string(cmd_bfr);
 	} else {
 	    FCLOSE(cmd_fp);
-	    cmd_fp = 0;		/* forced-close */
+	    cmd_fp = NULL;	/* forced-close */
 	    break;
 	}
     }
@@ -205,7 +205,7 @@ read_char(RING * gbl, int *count_)
 	    if ((num = cmdch(count_)) > 0) {
 #ifdef KEY_RESIZE
 		if (num == KEY_RESIZE) {
-		    if (gbl != 0) {
+		    if (gbl != NULL) {
 			retouch(gbl, 0);
 			dedsize(gbl);
 		    }
@@ -270,7 +270,7 @@ dlog_open(char *name, int argc, char **argv)
 {
     int j;
 
-    if (name != 0 && *name != EOS && ((int) strlen(name) < MAXPATHLEN)) {
+    if (name != NULL && *name != EOS && ((int) strlen(name) < MAXPATHLEN)) {
 	char temp[MAXPATHLEN];
 	abspath(name = strcpy(temp, name));
 	if (!(log_fp = fopen(name, "a+")))
@@ -305,7 +305,7 @@ dlog_close(void)
     if (log_fp) {
 	dlog_flush();
 	FCLOSE(log_fp);
-	log_fp = 0;
+	log_fp = NULL;
     }
 }
 
@@ -344,7 +344,7 @@ dlog_prompt(RING * gbl, const char *prompt, int row)
 {
     int y, x;
 
-    if (prompt != 0) {
+    if (prompt != NULL) {
 	if (row >= 0) {
 	    markC(gbl, TRUE);
 	    move(row, 0);
@@ -409,7 +409,7 @@ dlog_string(RING * gbl,
     int y, x;
     char *buffer, *to_hist;
     const char **prefix = inflag ? i_pref : n_pref;
-    char *script_ptr = 0;
+    char *script_ptr = NULL;
 
     int c;
     char *s;
@@ -487,7 +487,7 @@ dlog_string(RING * gbl,
 		     prefix,
 		     len,
 		     len + 1,
-		     (inflag != 0) ? 0 : (int) strlen(buffer),
+		     (inflag != NULL) ? 0 : (int) strlen(buffer),
 		     (fast_q == EOS),
 		     wrap,
 		     fast_q,
@@ -604,7 +604,7 @@ dlog_string(RING * gbl,
 	    put_history(history, to_hist);
 	return buffer;
     }
-    return 0;			/* if quit, return null */
+    return NULL;		/* if quit, return null */
 }
 
 /*

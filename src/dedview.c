@@ -28,7 +28,7 @@
 
 #include	"ded.h"
 
-MODULE_ID("$Id: dedview.c,v 12.50 2022/10/11 23:26:25 tom Exp $")
+MODULE_ID("$Id: dedview.c,v 12.51 2025/01/07 01:19:21 tom Exp $")
 
 #define	MINLIST	2		/* minimum length of file-list + header */
 #define	MINWORK	3		/* minimum size of work-area */
@@ -92,7 +92,7 @@ save_view(RING * gbl)
     RING *q = p->gbl;
 
     TRACE(("...save_view port=%d\n", curview));
-    if (q != 0) {
+    if (q != NULL) {
 	TRACE(("...save_view old base_of=%d, item_of=%d\n", vue->base_file, vue->curfile));
 	q->base_of[curview] = (int) vue->base_file;
 	q->item_of[curview] = (int) vue->gbl->curfile;
@@ -717,7 +717,7 @@ redoVIEW(RING * gbl, int freed)
 {
     TRACE(("redoVIEW %s => %s\n", vue->gbl->new_wd, gbl->new_wd));
     if (freed)
-	viewlist[curview].gbl = 0;
+	viewlist[curview].gbl = NULL;
     save_view(gbl);
 }
 

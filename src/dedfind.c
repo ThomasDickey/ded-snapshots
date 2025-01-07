@@ -25,7 +25,7 @@
  */
 #include	"ded.h"
 
-MODULE_ID("$Id: dedfind.c,v 12.14 2010/07/04 20:52:00 tom Exp $")
+MODULE_ID("$Id: dedfind.c,v 12.15 2025/01/07 01:17:25 tom Exp $")
 
 void
 dedfind(RING * gbl, int key)
@@ -84,7 +84,7 @@ dedfind(RING * gbl, int key)
 	    }
 	    if ((found = GOT_REGEX(expr, gNAME(j))) != 0) {
 		break;
-	    } else if ((gLTXT(j) != 0)
+	    } else if ((gLTXT(j) != NULL)
 		       && (found = GOT_REGEX(expr, gLTXT(j))) != 0) {
 		break;
 	    } else if (j == gbl->curfile) {

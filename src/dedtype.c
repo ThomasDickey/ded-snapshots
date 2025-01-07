@@ -61,7 +61,7 @@
 #define		DIR_PTYPES	/* includes directory-stuff */
 #include	"ded.h"
 
-MODULE_ID("$Id: dedtype.c,v 12.39 2019/12/12 00:31:15 tom Exp $")
+MODULE_ID("$Id: dedtype.c,v 12.40 2025/01/07 01:19:21 tom Exp $")
 
 typedef struct {
     OFF_T offset;
@@ -514,7 +514,7 @@ SamePattern(char *expr)
     static DYN *last;
     char *s = dyn_string(last);
 
-    if (s != 0) {
+    if (s != NULL) {
 	if (*s != EOS) {
 	    if (*expr == EOS
 		|| !strcmp(s, expr))
@@ -667,11 +667,11 @@ dedtype(RING * gbl,
 	DirentT *de;
 	char bfr[MAXPATHLEN];
 # define INO_FMT "%5lu"
-	if ((InFile = tmpfile()) == 0) {
+	if ((InFile = tmpfile()) == NULL) {
 	    warn(gbl, "tmp-file");
 	    return;
 	}
-	if ((dp = opendir(name)) != 0) {
+	if ((dp = opendir(name)) != NULL) {
 	    while ((de = readdir(dp)) != NULL) {
 		(void) name2s(bfr,
 			      (int) NAMLEN(de),

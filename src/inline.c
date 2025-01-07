@@ -13,7 +13,7 @@
 
 #include	"ded.h"
 
-MODULE_ID("$Id: inline.c,v 12.9 2004/09/08 01:03:31 tom Exp $")
+MODULE_ID("$Id: inline.c,v 12.10 2025/01/07 01:20:39 tom Exp $")
 
 #define	ITEM	struct	_item
 ITEM {
@@ -130,19 +130,19 @@ find_item(void)
     if (!my_endc)
 	failed("get_inline: no endc defined");
 
-    for (p = items; p != 0; p = p->link)
+    for (p = items; p != NULL; p = p->link)
 	if (p->topc == my_topc
 	    && p->endc == my_endc)
 	    break;
 
-    if (p == 0) {
+    if (p == NULL) {
 	p = ALLOC(ITEM, 1);
 	p->link = items;
 	p->topc = my_topc;
 	p->endc = my_endc;
 	p->play = 0;
 	p->text = dyn_alloc((DYN *) 0, 1);
-	p->hist = 0;
+	p->hist = NULL;
 	items = p;
     }
     return p;

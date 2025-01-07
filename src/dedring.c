@@ -60,7 +60,7 @@
 
 #include	"ded.h"
 
-MODULE_ID("$Id: dedring.c,v 12.25 2020/05/02 14:41:36 tom Exp $")
+MODULE_ID("$Id: dedring.c,v 12.26 2025/01/07 01:19:00 tom Exp $")
 
 #define	CMP_PATH(a,b)	pathcmp(a, b->new_wd)
 
@@ -153,7 +153,7 @@ ring_copy(RING * dst, RING * src)
 static RING *
 FindInsert(char *path)
 {
-    RING *p = ring, *q = 0;
+    RING *p = ring, *q = NULL;
     while (p) {
 	if (CMP_PATH(path, p) < 0)
 	    break;
@@ -164,7 +164,7 @@ FindInsert(char *path)
 }
 
 /*
- * 
+ *
  */
 static void
 InsertAfter(RING * olditem, RING * newitem)
@@ -193,7 +193,7 @@ Insert(RING * gbl, char *path, char *pattern)
      * Resolve pathname in case it was a symbolic link
      */
     if (!path_RESOLVE(gbl, path))
-	return 0;
+	return NULL;
 
     /*
      * Make a new entry, using all of the current state except for
@@ -203,7 +203,7 @@ Insert(RING * gbl, char *path, char *pattern)
     (void) strcpy(p->new_wd, path);
     p->toscan = pattern;
     p->used_expr = FALSE;
-    p->flist = 0;
+    p->flist = NULL;
     p->top_argc = 1;
     p->top_argv = vecalloc(2);
     p->top_argv[0] = txtalloc(path);
@@ -228,7 +228,7 @@ DeLink(char *path)
 {
     RING *p = ring_get(path), *q = ring;
 
-    if (p != 0) {
+    if (p != NULL) {
 	if (q == p)
 	    ring = p->_link;
 	else {
@@ -369,7 +369,7 @@ ring_args(RING * gbl, int argc, char **argv)
 	gbl->top_argv[new_argc++] = just_dot;
     }
 
-    gbl->top_argv[new_argc] = 0;	/* always keep a null pointer on end */
+    gbl->top_argv[new_argc] = NULL;	/* always keep a null pointer on end */
     gbl->top_argc = new_argc;
 
     (void) strcpy(gbl->new_wd, old_wd);
@@ -391,7 +391,7 @@ ring_get(const char *path)
     for (p = ring; p; p = p->_link)
 	if (!CMP_PATH(path, p))
 	    return (p);
-    return (0);
+    return (NULL);
 }
 
 /*
@@ -407,7 +407,7 @@ dedring(RING * gbl,		/* current/reference data */
 {
     char temp[MAXPATHLEN];
     RING *oldp = gbl;
-    RING *newp = 0;
+    RING *newp = NULL;
     int success = TRUE;
 
     dump_comment(("dedring(%d%c) %s\n", count, cmd, path));
@@ -420,35 +420,35 @@ dedring(RING * gbl,		/* current/reference data */
     case 'E':
 	if (strlen(path) < sizeof(temp)) {
 	    abspath(path = strcpy(temp, path));
-	    if ((newp = ring_get(path)) == 0)
+	    if ((newp = ring_get(path)) == NULL)
 		newp = Insert(gbl, path, pattern);
 	}
 	break;
     case 'F':
 	while (count-- > 0) {
 	    if ((newp = ring_fwd(path)) == oldp)
-		return (0);
+		return (NULL);
 	    path = newp->new_wd;
 	}
 	break;
     case 'B':
 	while (count-- > 0) {
 	    if ((newp = ring_bak(path)) == oldp)
-		return (0);
+		return (NULL);
 	    path = newp->new_wd;
 	}
 	break;
     case 'q':			/* release & move forward */
 	path = gbl->new_wd;
 	if ((newp = ring_fwd(path)) == oldp)
-	    return (0);
+	    return (NULL);
 	Remove(path);
 	path = newp->new_wd;
 	break;
     case 'Q':			/* release & move backward */
 	path = gbl->new_wd;
 	if ((newp = ring_bak(path)) == oldp)
-	    return (0);
+	    return (NULL);
 	Remove(path);
 	path = newp->new_wd;
 	quitVIEW(gbl);
@@ -461,8 +461,8 @@ dedring(RING * gbl,		/* current/reference data */
     /*
      * Make sure we have a new, legal state
      */
-    if (newp == 0)
-	return (0);
+    if (newp == NULL)
+	return (NULL);
 
     /*
      * If we have opened this directory before, 'numfiles' is nonzero.
@@ -508,7 +508,7 @@ dedring(RING * gbl,		/* current/reference data */
     dump_comment(("...%s\n", success ? "ok" : "not-successful"));
     dump_ring((newp, "after"));
 
-    return (success ? newp : 0);
+    return (success ? newp : NULL);
 }
 
 /*
@@ -556,7 +556,7 @@ void
 ring_rename(RING * gbl, char *oldname, char *newname)
 {
     RING *p, *q;
-    RING *mark = 0;
+    RING *mark = NULL;
     int len, n;
     char oldtemp[MAXPATHLEN];
     char newtemp[MAXPATHLEN];
@@ -570,7 +570,7 @@ ring_rename(RING * gbl, char *oldname, char *newname)
     dump_comment(("...new:%s\n", newname));
     dump_ring((gbl, "before"));
 
-    for (p = ring; (p != 0) && (p != mark); p = q) {
+    for (p = ring; (p != NULL) && (p != mark); p = q) {
 	q = p->_link;
 	if ((len = is_subpath(oldname, p->new_wd)) >= 0) {
 
@@ -621,7 +621,7 @@ ring_tags(void)
     unsigned inx;
     char tmp[MAXPATHLEN];
 
-    for (gbl = ring; (gbl != 0); gbl = gbl->_link) {
+    for (gbl = ring; (gbl != NULL); gbl = gbl->_link) {
 	for_each_file(gbl, inx) {
 	    if (gFLAG(inx)) {
 		abspath(pathcat2(tmp, gbl->new_wd, gNAME(inx)));

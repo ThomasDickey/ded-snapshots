@@ -61,7 +61,7 @@
 
 #include	"ded.h"
 
-MODULE_ID("$Id: dedline.c,v 12.37 2020/05/02 14:42:07 tom Exp $")
+MODULE_ID("$Id: dedline.c,v 12.38 2025/01/07 01:22:07 tom Exp $")
 
 #define	CHMOD(n)	(gSTAT(n).st_mode & 07777)
 #define	OWNER(n)	((geteuid() == 0) || (gSTAT(x).st_uid == geteuid()))
@@ -184,9 +184,9 @@ link2bfr(RING * gbl, char dst[MAXPATHLEN], unsigned x)
 	    const char *code;
 	    const char *path;
 	} ppp[] = {
-	    { "%F", 0 },
-	    { "%B", 0 },
-	    { "%d", 0 },
+	    { "%F", NULL },
+	    { "%B", NULL },
+	    { "%d", NULL },
 	    { "%D", old_wd }
 	};
 	/* *INDENT-ON* */
@@ -201,15 +201,15 @@ link2bfr(RING * gbl, char dst[MAXPATHLEN], unsigned x)
 
 	/* ignore duplicates */
 	if (!strcmp(ppp[0].path, ppp[2].path))
-	    ppp[0].path = 0;
+	    ppp[0].path = NULL;
 	if (!strcmp(ppp[1].path, ppp[2].path))
-	    ppp[1].path = 0;
+	    ppp[1].path = NULL;
 	if (!strcmp(ppp[3].path, ppp[2].path))
-	    ppp[3].path = 0;
+	    ppp[3].path = NULL;
 
 	/* find a starting length */
 	for (j = 0; j < SIZEOF(ppp); j++) {
-	    if (ppp[j].path != 0) {
+	    if (ppp[j].path != NULL) {
 		size_t len = strlen(ppp[j].path);
 		if (len > maxlen)
 		    maxlen = len;
@@ -221,7 +221,7 @@ link2bfr(RING * gbl, char dst[MAXPATHLEN], unsigned x)
 	    size_t next = 0;
 	    for (j = 0; j < SIZEOF(ppp); j++) {
 		const char *path = ppp[j].path;
-		if (path != 0) {
+		if (path != NULL) {
 		    size_t len = strlen(path);
 		    if (len < maxlen) {
 			if (len > next)
@@ -231,7 +231,7 @@ link2bfr(RING * gbl, char dst[MAXPATHLEN], unsigned x)
 			next = 0;
 			break;
 		    } else
-			ppp[j].path = 0;
+			ppp[j].path = NULL;
 		}
 	    }
 	    maxlen = next;
@@ -342,7 +342,7 @@ day_of_month(time_t when)
 }
 
 static void
-toggle_timestamp(time_t * stamp, int field, int by)
+toggle_timestamp(time_t *stamp, int field, int by)
 {
     time_t when = *stamp;
     int before;

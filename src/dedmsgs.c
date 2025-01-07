@@ -12,7 +12,7 @@
 
 #include	"ded.h"
 
-MODULE_ID("$Id: dedmsgs.c,v 12.12 2010/07/04 19:41:22 tom Exp $")
+MODULE_ID("$Id: dedmsgs.c,v 12.13 2025/01/07 01:17:25 tom Exp $")
 
 /*
  * Clear the message-line
@@ -34,7 +34,7 @@ show_message(RING * gbl, const char *tag, const char *msg)
 	move(LINES - 1, 0);
 	PRINTW("** %.*s", COLS - 4, msg);
 	clrtoeol();
-	if (gbl == 0) {
+	if (gbl == NULL) {
 	    /* pause beside error message */
 	    /* ...and clear it after pause */
 	    move(LINES - 1, 0);
@@ -55,11 +55,11 @@ err_msg(const char *msg)
     static char *bfr;
     char *text = strerror(errno);
 
-    if (bfr == 0)
+    if (bfr == NULL)
 	bfr = malloc(BUFSIZ);
-    if (bfr == 0)
+    if (bfr == NULL)
 	abort();
-    if (msg == 0)
+    if (msg == NULL)
 	msg = "?";
     FORMAT(bfr, "%s: %s", msg, text);
     return (bfr);

@@ -104,7 +104,7 @@
 #include	<rcsdefs.h>
 #include	<sccsdefs.h>
 
-MODULE_ID("$Id: dedscan.c,v 12.54 2020/05/02 00:29:36 tom Exp $")
+MODULE_ID("$Id: dedscan.c,v 12.55 2025/01/07 01:19:00 tom Exp $")
 
 #define	N_UNKNOWN	-1	/* name does not exist */
 #define	N_FILE		0	/* a file (synonym for 'common==0') */
@@ -150,7 +150,7 @@ lookup(RING * gbl, const char *name)
 static void
 alloc_name(FLIST * f_, const char *name)
 {
-    if (name != 0) {
+    if (name != NULL) {
 #ifndef MIXEDCASE_FILENAMES
 	char bfr[MAXPATHLEN];
 	strlwrcpy(bfr, name);
@@ -194,7 +194,7 @@ append(RING * gbl, const char *name, FLIST * f_)
 
     /* append a new entry on the end of the list */
     need = CHUNKED(gbl->numfiles + 1);
-    if (gbl->flist == 0 || (need != CHUNKED(gbl->numfiles))) {
+    if (gbl->flist == NULL || (need != CHUNKED(gbl->numfiles))) {
 	ptr = DOALLOC(gbl->flist, FLIST, (unsigned) need);
 	if (ptr != gbl->flist) {
 	    dlog_comment("append numfiles %d, need %d, size %u ->%p\n",
@@ -336,7 +336,7 @@ dedscan(RING * gbl)
 
 	if ((common = argstat(gbl, gbl->new_wd, FALSE, FALSE)) > 0) {
 	    /* mark dep's for purge */
-	    if (gbl->toscan == 0)
+	    if (gbl->toscan == NULL)
 		ft_remove(gbl->new_wd, gbl->AT_opt, gbl->A_opt);
 	    else
 		init_scan(gbl);
@@ -382,7 +382,7 @@ dedscan(RING * gbl)
 		waitmsg("cannot open directory");
 		return (0);
 	    }
-	    if (gbl->toscan == 0)
+	    if (gbl->toscan == NULL)
 		ft_purge(gbl);	/* remove items not reinserted */
 	} else if (common == N_FILE) {
 	    s = fleaf(gbl->new_wd);
@@ -446,7 +446,7 @@ dedscan(RING * gbl)
 	    size_t len = strlen(gbl->new_wd);
 	    for (j = 0; j < argc && j < (int) gbl->numfiles; j++) {
 		s = argv[j];
-		if (s != 0
+		if (s != NULL
 		    && strlen(s) > len
 		    && s[len] == '/'
 		    && !strncmp(gbl->new_wd, s, len)) {
@@ -626,7 +626,7 @@ path_RESOLVE(RING * gbl, char path[MAXPATHLEN])
 	     * line.
 	     */
 	    s = strrchr(temp, PATH_SLASH);
-	    if (s != 0) {
+	    if (s != NULL) {
 		s[1] = EOS;
 #ifdef	apollo
 		if (strcmp(temp, "//"))
@@ -637,7 +637,7 @@ path_RESOLVE(RING * gbl, char path[MAXPATHLEN])
 		 * If we've already got the parent directory in
 		 * the ring, give up, removing this entry.
 		 */
-		if (ring_get(temp) != 0) {
+		if (ring_get(temp) != NULL) {
 		    static char just_dot[] = ".";
 
 		    warn(gbl, gbl->new_wd);
@@ -667,7 +667,7 @@ path_RESOLVE(RING * gbl, char path[MAXPATHLEN])
 #else
     s = getwd(temp);
 #endif
-    if (s != 0) {
+    if (s != NULL) {
 	if (chdir(strcpy(path, temp)) != 0) {
 	    return (FALSE);
 	}
@@ -679,7 +679,7 @@ path_RESOLVE(RING * gbl, char path[MAXPATHLEN])
 	gbl->AT_opt = TRUE;
 	code = dedstat(gbl, path, &fb);
 	gbl->AT_opt = save;
-	if (code == N_LDIR && fb.z_ltxt != 0) {
+	if (code == N_LDIR && fb.z_ltxt != NULL) {
 	    (void) strcpy(path, fb.z_ltxt);
 	}
     }

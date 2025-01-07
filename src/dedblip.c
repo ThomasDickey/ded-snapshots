@@ -14,7 +14,7 @@
  */
 #include "ded.h"
 
-MODULE_ID("$Id: dedblip.c,v 12.8 2010/07/04 19:42:30 tom Exp $")
+MODULE_ID("$Id: dedblip.c,v 12.9 2025/01/07 01:17:25 tom Exp $")
 
 #define	L_PAREN '('
 #define	R_PAREN ')'
@@ -40,7 +40,7 @@ set_dedblip(RING * gbl)
     BLIP *table;
 
     to_work(gbl, TRUE);
-    for (table = blips; table->label != 0; table++) {
+    for (table = blips; table->label != NULL; table++) {
 	table->total = 0;
     }
 }
@@ -69,7 +69,7 @@ put_dedblip(int code)
     const char *s;
     char temp[20];
 
-    for (table = blips, n = 0; table->label != 0; table++, n++) {
+    for (table = blips, n = 0; table->label != NULL; table++, n++) {
 	if (code == *(table->label) || (n == 0)) {
 	    table->total++;
 	}
@@ -77,7 +77,7 @@ put_dedblip(int code)
 
     if (in_screen)
 	move(mark_W + 1, 0);
-    for (table = blips, n = 0; table->label != 0; table++) {
+    for (table = blips, n = 0; table->label != NULL; table++) {
 	if (table->total != 0) {
 	    if (n != 0) {
 		if (n != 1)
