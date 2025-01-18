@@ -1,3 +1,13 @@
+2025-01-17  Thomas E. Dickey  <dickey@invisible-island.net>
+
+	* package/debian/copyright, COPYING, package/debian/changelog,
+	  package/ded-12.0.spec:
+	bump
+
+	* configure: regen
+
+	* configure.in: use CF_WITH_SYSTYPE early
+
 2025-01-06  Thomas E. Dickey  <dickey@invisible-island.net>
 
 	* src/dedcolor.c, src/dedline.c, src/version.h, src/dlog.c, src/ftree.c,
@@ -6,6 +16,18 @@
 	  src/dedshow.c, src/dedsize.c, src/dedread.c, src/ded.c, src/ded2s.c,
 	  src/dedblip.c, src/dedfind.c, src/dedfree.c, src/dedmsgs.c:
 	gcc15-warnings
+
+2024-12-21  Thomas E. Dickey  <dickey@invisible-island.net>
+
+	* aclocal.m4: resync with my-autoconf
+
+2024-07-28  Thomas E. Dickey  <dickey@invisible-island.net>
+
+	* config.guess: 2024/07/27
+
+2024-06-03  Thomas E. Dickey  <dickey@invisible-island.net>
+
+	* config.sub: 2024/05/27
 
 2024-04-24  Thomas E. Dickey  <dickey@invisible-island.net>
 
