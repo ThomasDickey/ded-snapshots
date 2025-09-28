@@ -1,9 +1,9 @@
-dnl $Id: aclocal.m4,v 12.41 2024/12/21 13:44:12 tom Exp $
+dnl $Id: aclocal.m4,v 12.42 2025/09/28 21:48:48 tom Exp $
 dnl Macros for DED configure script.
 dnl vi:set ts=4:
 dnl ---------------------------------------------------------------------------
 dnl
-dnl Copyright 1997-2023,2024 by Thomas E. Dickey
+dnl Copyright 1997-2024,2025 by Thomas E. Dickey
 dnl
 dnl                         All Rights Reserved
 dnl
@@ -222,7 +222,7 @@ dnl Allow user to enable a normally-off option.
 AC_DEFUN([CF_ARG_ENABLE],
 [CF_ARG_OPTION($1,[$2],[$3],[$4],no)])dnl
 dnl ---------------------------------------------------------------------------
-dnl CF_ARG_OPTION version: 5 updated: 2015/05/10 19:52:14
+dnl CF_ARG_OPTION version: 6 updated: 2025/08/05 04:09:09
 dnl -------------
 dnl Restricted form of AC_ARG_ENABLE that ensures user doesn't give bogus
 dnl values.
@@ -231,7 +231,7 @@ dnl Parameters:
 dnl $1 = option name
 dnl $2 = help-string
 dnl $3 = action to perform if option is not default
-dnl $4 = action if perform if option is default
+dnl $4 = action to perform if option is default
 dnl $5 = default option value (either 'yes' or 'no')
 AC_DEFUN([CF_ARG_OPTION],
 [AC_ARG_ENABLE([$1],[$2],[test "$enableval" != ifelse([$5],no,yes,no) && enableval=ifelse([$5],no,no,yes)
@@ -510,6 +510,11 @@ esac
 
 ])
 ])dnl
+dnl ---------------------------------------------------------------------------
+dnl CF_DIRNAME version: 5 updated: 2020/12/31 20:19:42
+dnl ----------
+dnl "dirname" is not portable, so we fake it with a shell script.
+AC_DEFUN([CF_DIRNAME],[$1=`echo "$2" | sed -e 's%/[[^/]]*$%%'`])dnl
 dnl ---------------------------------------------------------------------------
 dnl CF_DISABLE_ECHO version: 14 updated: 2021/09/04 06:35:04
 dnl ---------------
@@ -1190,7 +1195,7 @@ ifelse($1,,,[$1=$LIB_PREFIX])
 	AC_SUBST(LIB_PREFIX)
 ])dnl
 dnl ---------------------------------------------------------------------------
-dnl CF_MAKE_AR_RULES version: 8 updated: 2021/01/10 18:23:00
+dnl CF_MAKE_AR_RULES version: 10 updated: 2025/09/28 13:52:37
 dnl ----------------
 dnl Check if the 'make' program knows how to interpret archive rules.  Though
 dnl this has been common practice since the mid-80's, there were some holdouts
@@ -1222,14 +1227,14 @@ AR = ar crv
 CC = $CC
 
 .SUFFIXES:
-.SUFFIXES: .c .o .a
+.SUFFIXES: .c .${OBJEXT} .a
 
 all:  conf.a
 
 .c.a:
 	\$(CC) -c $<
-	\$(AR) \$[]@ \$[]*.o
-conf.a : conf.a(conftest.o)
+	\$(AR) \$[]@ \$[]*.${OBJEXT}
+conf.a : conf.a(conftest.${OBJEXT})
 CF_EOF
 cat >$cf_dir/conftest.c <<CF_EOF
 #include <stdio.h>
@@ -1251,21 +1256,21 @@ then
 	cf_cv_ar_rules=yes
 else
 	echo ... library-rule did not create an archive >&AC_FD_CC
-	rm -f "$cf_dir/conftest.o"
+	rm -f "$cf_dir/conftest.${OBJEXT}"
 	cat >"$cf_dir/makefile" <<CF_EOF
 SHELL = /bin/sh
 AR = ar crv
 CC = $CC
 
 .SUFFIXES:
-.SUFFIXES: .c .o
+.SUFFIXES: .c .${OBJEXT}
 
 all:  conf.a
 
-.c.o:
+.c.${OBJEXT}:
 	\$(CC) -c $<
 
-conf.a : conftest.o
+conf.a : conftest.${OBJEXT}
 	\$(AR) \$[]@ \$?
 CF_EOF
 	CDPATH=; export CDPATH
@@ -1439,6 +1444,34 @@ CF_ACVERSION_CHECK(2.52,
 CF_CC_ENV_FLAGS
 ])dnl
 dnl ---------------------------------------------------------------------------
+dnl CF_PROG_INSTALL version: 12 updated: 2025/09/28 16:56:33
+dnl ---------------
+dnl Force $INSTALL to be an absolute-path.  Otherwise, edit_man.sh and the
+dnl misc/tabset install won't work properly.  Usually this happens only when
+dnl using the fallback mkinstalldirs script
+AC_DEFUN([CF_PROG_INSTALL],
+[AC_PROG_INSTALL
+AC_REQUIRE([CF_GLOB_FULLPATH])dnl
+if test "x$INSTALL" = "x./install-sh -c"; then
+	if test -f /usr/sbin/install ; then
+		case "$host_os" in
+		(linux*gnu|linux*gnuabi64|linux*gnuabin32|linux*gnuabielfv*|linux*gnueabi|linux*gnueabihf|linux*gnux32|uclinux*|gnu*|mint*|k*bsd*-gnu|cygwin|msys|mingw*|linux*uclibc)
+			INSTALL=/usr/sbin/install 
+			;;
+		esac
+	fi
+fi
+case x$INSTALL in
+(x$GLOB_FULLPATH_POSIX|x$GLOB_FULLPATH_OTHER)
+	;;
+(*)
+	CF_DIRNAME(cf_dir,$INSTALL)
+	test -z "$cf_dir" && cf_dir=.
+	INSTALL="`cd \"$cf_dir\" && pwd`"/"`echo "$INSTALL" | sed -e 's%^.*/%%'`"
+	;;
+esac
+])dnl
+dnl ---------------------------------------------------------------------------
 dnl CF_REMOVE_DEFINE version: 3 updated: 2010/01/09 11:05:50
 dnl ----------------
 dnl Remove all -U and -D options that refer to the given symbol from a list
@@ -1456,7 +1489,7 @@ $1=`echo "$2" | \
 		-e 's/-[[UD]]'"$3"'\(=[[^ 	]]*\)\?[$]//g'`
 ])dnl
 dnl ---------------------------------------------------------------------------
-dnl CF_SRC_MAKEFILE version: 7 updated: 2021/01/10 18:23:00
+dnl CF_SRC_MAKEFILE version: 9 updated: 2025/09/28 13:52:37
 dnl ---------------
 dnl Append predefined lists to $2/makefile, given a path to a directory that
 dnl has a 'modules' file in $1.
@@ -1494,7 +1527,7 @@ BEGIN	{
 			printf "\nOBJS="
 			found = 1;
 		}
-		printf " \\\n\t$Z(%s.o)", [$]1
+		printf " \\\n\t$Z(%s.${OBJEXT})", [$]1
 	}
 END	{
 		print ""
@@ -1511,7 +1544,7 @@ BEGIN	{
 			printf "\nOBJS="
 			found = 1;
 		}
-		printf " \\\n\t%s.o", [$]1
+		printf " \\\n\t%s.${OBJEXT}", [$]1
 	}
 END	{
 		print ""

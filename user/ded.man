@@ -1,5 +1,5 @@
 .\"*****************************************************************************
-.\" Copyright 2004-2017,2019 by Thomas E. Dickey.  All Rights Reserved.        *
+.\" Copyright 2004-2019,2025 by Thomas E. Dickey.  All Rights Reserved.        *
 .\"                                                                            *
 .\" Permission to use, copy, modify, and distribute this software and its      *
 .\" documentation for any purpose and without fee is hereby granted, provided  *
@@ -17,7 +17,13 @@
 .\" ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR *
 .\" IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.                *
 .\"*****************************************************************************
-.\" $Id: ded.man,v 12.27 2019/12/27 00:01:31 tom Exp $
+.\" $Id: ded.man,v 12.29 2025/09/28 21:57:20 tom Exp $
+.TH DED 1 2025-09-28 "" "User commands"
+.ie n .ds CW R
+.el   \{
+.ie \n(.g .ds CW CR
+.el       .ds CW CW
+.\}
 .de Es
 .ne \\$1
 .nr mE \\n(.f
@@ -26,7 +32,7 @@
 .nf
 .nh
 .ta 9n 17n 25n 33n 41n 49n
-.ft CW
+.ft \*(CW
 ..
 .de Eh
 .ft \\n(mE
@@ -39,22 +45,17 @@
 .ie n  .IP \(bu 4
 .el    .IP \(bu 2
 ..
-.TH DED 1
 .hy 0
 .
 .\"****************************************************************************
 .SH NAME
-.PP
-\fBded\fR \- directory editor
-.
-.\"****************************************************************************
-.SH USAGE
-.PP
+\fBded\fR \-
+directory editor
+.SH SYNOPSIS
 .BI ded " [options] [file-specifications]"
 .
 .\"****************************************************************************
-.SH SYNOPSIS
-.PP
+.SH DESCRIPTION
 The directory editor provides the user with a full-screen interface
 to POSIX files and directories.
 Multiple lists of
@@ -62,9 +63,6 @@ files may be displayed, sorted by various fields, and used in built-in
 or ordinary shell commands.
 Navigation among directories is either
 hierarchical, or by means of a directory tree screen.
-.
-.\"****************************************************************************
-.SH DESCRIPTION
 .PP
 \fBDed\fR provides you with a \fBvi\fR-like interface to files
 and directories.
@@ -101,7 +99,6 @@ and runs in a POSIX environment.
 .
 .\"****************************************************************************
 .SH OPTIONS
-.PP
 Most command-line options initialize the state for
 display-manipulation commands.
 They
@@ -224,15 +221,13 @@ toggle rcs/sccs data display
 .
 .\"****************************************************************************
 .SH OPERATIONS
-.PP
 Most \fBded\fR commands are single-character, like those of \fBvi\fR.
 Where appropriate, \fBded\fR commands may be prefixed with a repeat \fIcount\fR.
 (When not specified, the repeat \fIcount\fR is always
 one).
 .
 .\"****************************************************************************
-.SS Invoking DED
-.PP
+.SS "Invoking DED"
 When you invoke \fBded\fR, it scans its argument list.
 Options
 must precede file specifications.
@@ -271,8 +266,7 @@ or path-relative names (i.e., beginning with "/" or some sort
 of ".." construct).
 .
 .\"****************************************************************************
-.SS Exiting From DED
-.PP
+.SS "Exiting From DED"
 To exit from \fBded\fR, you must be in the file list display.
 If you are in the directory tree, typing "\fBq\fR" (for \fBquit\fR)
 will release the current file list and move to the next file list
@@ -294,8 +288,7 @@ you really intend to quit the current process.
 is bypassed).
 .
 .\"****************************************************************************
-.SS Interrupting DED
-.PP
+.SS "Interrupting DED"
 You may also forcibly exit from \fBded\fR by typing your terminal's
 quit character.
 This causes \fBded\fR to exit without updating
@@ -316,8 +309,7 @@ files in the group.
 the "\fBt\fR" type-file command.
 .
 .\"****************************************************************************
-.SS Cursor Movement and Scrolling
-.PP
+.SS "Cursor Movement and Scrolling"
 Cursor movement in \fBded\fR is styled after \fBvi\fR (i.e.,
 the h, j, k and l keys).
 However, since there are two types of displays, there are some differences:
@@ -413,8 +405,7 @@ scroll forward (through the ring of file lists) \fIcount\fR entries.
 scroll backward (through the ring of file lists) \fIcount\fR entries.
 .
 .\"****************************************************************************
-.SS Search Commands
-.PP
+.SS "Search Commands"
 You may move the cursor by searching for a particular string.
 The
 following search commands are provided a la \fBvi\fR:
@@ -446,7 +437,6 @@ names.
 .
 .\"****************************************************************************
 .SS Display-Adjustment
-.PP
 You may use the following file-list commands to alter the format of
 the display, to refresh it, or to re-stat specific lines.
 Several commands are provided for toggling the display format:
@@ -577,8 +567,7 @@ from the curses window-state) to be appended to the file "ded.log"
 in your process's home directory.
 .
 .\"****************************************************************************
-.SS Sorting the Display
-.PP
+.SS "Sorting the Display"
 You may issue commands for sorting the file-list.
 The cursor remains
 positioned at the same file after a sort.
@@ -696,8 +685,7 @@ resort the file list using the current direction (i.e., "s" or
 "r") specifier and the last sort-key.
 .
 .\"****************************************************************************
-.SS Grouping Items in the Display
-.PP
+.SS "Grouping Items in the Display"
 Both the file-list and directory tree support the notion of tagging
 or grouping items in the display.
 Groups in the file list mark files
@@ -728,8 +716,7 @@ To untag files having the same sort-key
 as the current file, use "0#".
 .
 .\"****************************************************************************
-.SS Inline Editing of the File List
-.PP
+.SS "Inline Editing of the File List"
 \fBDed\fR provides you with several built-in commands to modify
 fields of the display.
 An inline editing command is initiated with
@@ -809,8 +796,7 @@ or to the next word, or to the end of the current/next word,
 respectively as in \fIvi\fP.
 .
 .\"****************************************************************************
-.SS Built-in Operations on Groups of Files
-.PP
+.SS "Built-in Operations on Groups of Files"
 Inline file-oriented commands operate on the current entry.
 Where appropriate,
 commands operate on a tagged \fIgroup\fR of entries as well.
@@ -929,8 +915,7 @@ You may modify or reject the command.
 .
 .
 .\"****************************************************************************
-.SS Creating New Entries
-.PP
+.SS "Creating New Entries"
 You may add new entries to the display list by rescanning with the
 "\fBR\fR" command (to pick up new names which are added by
 programs other than \fBded\fR.
@@ -957,8 +942,7 @@ When the name is complete (non-null, and non-conflicting), \fBded\fR creates it.
 The "\fBc\fR" commands may be repeated using the '"' command.
 .
 .\"****************************************************************************
-.SS Built-in Operations on the Current File
-.PP
+.SS "Built-in Operations on the Current File"
 The following built-in operations operate only on the current file,
 because grouping operations would not be meaningful:
 .TP 4n
@@ -1102,8 +1086,7 @@ list via a temporary-file.
 .RE
 .
 .\"****************************************************************************
-.SS Shell commands
-.PP
+.SS "Shell commands"
 Shell commands are executed in the work-area.
 \fBDed\fR invokes the Bourne shell via the \fIsystem\ (2)\fR call.
 .TP 4n
@@ -1134,8 +1117,7 @@ resets the repaint-screen flag (so that \fBded\fR won't repaint the screen).
 sets the repaint-screen flag.
 .
 .\"****************************************************************************
-.SS Command Substitution
-.PP
+.SS "Command Substitution"
 In any shell command which you issue via \fBded\fR, you may use
 the special character "\fB#\fR" to cause \fBded\fR to
 substitute the names of the current- and grouped-files.
@@ -1204,8 +1186,7 @@ To insert a literal "%" or "#" character, prefix it with the backslash
 (\e) character.
 .
 .\"****************************************************************************
-.SS Command Editing
-.PP
+.SS "Command Editing"
 You may edit any shell command which you issue to \fBded\fR, either
 before it is issued, or after, when using the ":" command.
 Command editing is done in either \fBinsert\fR or \fBcursor\fR modes,
@@ -1228,8 +1209,7 @@ In \fBcursor\fR mode,
 it deletes the \fIcount\fR characters at the cursor position.
 .
 .\"****************************************************************************
-.SS Directory Tree
-.PP
+.SS "Directory Tree"
 \fBDed\fR maintains a database of directory names.
 You may scroll
 in this display, as well as enter a new \fBded\fR process from
@@ -1334,8 +1314,7 @@ number (displayed in the left column)
 by typing ":" (which causes \fBded\fR to prompt for the number).
 .
 .\"****************************************************************************
-.SS RCS and SCCS Commands
-.PP
+.SS "RCS and SCCS Commands"
 \fBDed\fR provides you with a visual interface to \fIrcs\fR
 (\fBr\fRevision \fBc\fRontrol \fBs\fRystem) and \fIsccs\fR
 (\fBs\fRource \fBc\fRode \fBc\fRontrol \fBs\fRystem)
@@ -1426,8 +1405,7 @@ useful for showing archived files for which there is no corresponding
 checked-out file.
 .
 .\"****************************************************************************
-.SS Logfile Format
-.PP
+.SS "Logfile Format"
 The log file created with the "\-\fBl\fR" option logs all \fBded\fR
 commands.
 Logged commands begin with the repeat count in column one.
@@ -1500,8 +1478,7 @@ control/W \- usually word-erase
 Other text (which is buffered) contains no non-printing characters.
 .
 .\"****************************************************************************
-.SS X Windows Enhancements
-.PP
+.SS "X Windows Enhancements"
 \fBDed\fR assumes that you are running under the X\ Window System.
 In this case, if the program \fBxterm\fR is found in your execution
 path, \fBded\fR will permit the following commands:
@@ -1528,7 +1505,7 @@ When running in an xterm or similar terminal emulator which supports
 the SIGWINCH signal, \fBded\fR resizes the curses display structures.
 .
 .\"****************************************************************************
-.SS Color Displays
+.SS "Color Displays"
 If the curses libraries which you use to build \fBded\fR support color
 (e.g., SystemV or ncurses), \fBded\fR can display filenames in color.
 It is designed to use the \fI/etc/DIR_COLORS\fR file which supports the
@@ -1571,7 +1548,6 @@ whose output goes to the workspace.
 .
 .\"****************************************************************************
 .SH ENVIRONMENT
-.PP
 \fBDed\fR uses the following environment variables:
 .TP 4n
 .B PATH
@@ -1617,7 +1593,6 @@ If not specified, \fBded\fR assumes "SCCS".
 .
 .\"****************************************************************************
 .SH FILES
-.PP
 When executed, \fBded\fR determines (by inspecting the zeroth
 argument passed to it by the shell, as well as the contents of the
 \fBPATH\fR variable) where it was executed from.
@@ -1633,8 +1608,7 @@ the memory copy of the database, this file is updated whenever \fBded\fR
 spawns a copy of itself, or when exiting from \fBded\fR.
 .
 .\"****************************************************************************
-.SH ANTICIPATED CHANGES
-.PP
+.SH "ANTICIPATED CHANGES"
 Make spawned \fBded\fR processes inherit display options from
 the current one.
 .PP
@@ -1654,11 +1628,9 @@ Use the \fBSHELL\fR environment variable, and parse arguments
 so that shell commands need not use the Bourne shell.
 .
 .\"****************************************************************************
-.SH SEE ALSO
-.PP
-\fBrcsput\fP(1), \fBrcsget\fP(1), \fBsccsput\fP(1), \fBsccsget\fP(1)
+.SH AUTHORS
+Thomas E. Dickey <dickey@invisible-island.net>.
 .
 .\"****************************************************************************
-.SH AUTHOR:
-.PP
-Thomas E. Dickey <dickey@invisible-island.net>.
+.SH SEE ALSO
+\fBrcsput\fP(1), \fBrcsget\fP(1), \fBsccsput\fP(1), \fBsccsget\fP(1)

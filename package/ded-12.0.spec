@@ -1,10 +1,8 @@
 Summary: directory editor
 %define AppProgram ded
-%define AppLibrary td_lib
 %define AppVersion 12.x
-%define AppRelease 20250117
-%define LibRelease 20250117
-# $Id: ded-12.0.spec,v 1.40 2025/01/18 00:54:29 tom Exp $
+%define AppRelease 20250928
+# $Id: ded-12.0.spec,v 1.41 2025/09/28 22:02:21 tom Exp $
 Name: %{AppProgram}
 Version: %{AppVersion}
 Release: %{AppRelease}
@@ -52,6 +50,9 @@ make install DESTDIR=$RPM_BUILD_ROOT
 
 %changelog
 # each patch should add its ChangeLog entries here
+
+* Sun Sep 28 2025 Thomas E. Dickey
+- testing ded 12.x-20250928
 
 * Thu Jan 19 2023 Thomas Dickey
 - build against td_lib package rather than side-by-side configuration
